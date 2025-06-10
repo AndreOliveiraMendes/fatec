@@ -12,6 +12,12 @@ echo ===============================
 call .venv\Scripts\activate
 
 echo ===============================
+echo 📦 atualizando o pip ...
+echo ===============================
+
+python -m pip install --upgrade pip
+
+echo ===============================
 echo 📦 Instalando dependências...
 echo ===============================
 
