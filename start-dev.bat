@@ -14,17 +14,6 @@ echo ===============================
 python -m venv .venv
 
 echo ===============================
-echo 📁 Ignorando arquivos do .venv...
-echo ===============================
-
-if not exist ".venv\.gitignore" (
-    echo * > .venv\.gitignore
-    echo Criado: .venv\.gitignore
-) else (
-    echo .venv\.gitignore já existe.
-)
-
-echo ===============================
 echo 🔄 Ativando ambiente...
 echo ===============================
 
