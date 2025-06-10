@@ -3,8 +3,8 @@ echo ===============================
 echo 🔧 Configurando Git...
 echo ===============================
 
-git config --global user.name "AndreOliveiraMendes"
-git config --global user.email "ao_mendes@hotmail.com"
+git config --global user.name "%GIT_USER_NAME%"
+git config --global user.email "%GIT_USER_EMAIL%"
 git config --global credential.helper manager-core
 
 echo ===============================
