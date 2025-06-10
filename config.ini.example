@@ -1,0 +1,10 @@
+[default]
+SECRET_KEY = a cool secret key
+
+[database]
+MYSQLHOST = host
+MYSQLPORT = port
+MYSQLUSER = user
+MYSQLPASSWORD = password
+MYSQLDATABASE = database
+MYSQL_URL = mysql://%(MYSQLUSER)s:%(MYSQLPASSWORD)s@%(MYSQLHOST)s:%(MYSQLPORT)s/%(MYSQLDATABASE)s
