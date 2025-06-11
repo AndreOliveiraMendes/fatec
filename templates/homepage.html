@@ -7,6 +7,14 @@
     <title>menu</title>
 </head>
 <body>
-    bem vindo ao sistema de reserva de laboratorios
+    {% if username %}
+    bem vindo sistema {{username}}
+
+    <a href={{url_for("logout")}}>deslogar</a>
+    {% else %}
+    bem vindo ao sistema de reservas
+
+    efetuar <a href={{url_for("login")}}>login</a>
+    {% endif %}
 </body>
 </html>

@@ -1,6 +1,29 @@
 from main import app
-from flask import render_template, redirect, url_for
+from flask import session, render_template, request, redirect, url_for
+from models import db, config_dict
 
 @app.route("/")
 def home():
-    return render_template("homepage.html")
+    username = None
+    if 'username' in session:
+        username = session.get('username')
+    print(session)
+    return render_template("homepage.html", username=username)
+
+@app.route("/login", methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form["username"]
+        password = request.form["password"]
+        if username == "admin" and password == config_dict["default"]["admin_password"]:
+            session['username'] = username
+            return render_template("login_sucess.html", username=username)
+        else:
+            return render_template("login_fail.html")
+    else:
+        return render_template("login.html")
+    
+@app.route("/logout")
+def logout():
+    session['username'] = None
+    return render_template("logout.html")
