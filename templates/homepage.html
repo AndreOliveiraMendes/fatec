@@ -7,14 +7,22 @@
     <title>homepage</title>
 </head>
 <body>
+    <center>
     {% if username %}
-    bem vindo sistema {{username}}
-
+    bem vindo sistema <strong>{{username}}</strong><br>
     <a href={{url_for("logout")}}>deslogar</a>
     {% else %}
-    bem vindo ao sistema de reservas
-
+    bem vindo ao sistema de reservas <br>
     efetuar <a href={{url_for("login")}}>login</a>
     {% endif %}
+    {% if role == "admin" %}
+    <br>
+    <table>
+    <tr>
+    gerenciar permissoes
+    </tr>
+    </table>
+    {% endif %}
+    </center>
 </body>
 </html>
