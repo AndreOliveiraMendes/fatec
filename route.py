@@ -4,10 +4,7 @@ from models import db, config_dict
 
 @app.route("/")
 def home():
-    username = None
-    if 'username' in session:
-        username = session.get('username')
-    print(session)
+    username = session.get('username')
     return render_template("homepage.html", username=username)
 
 @app.route("/login", methods=['GET', 'POST'])
