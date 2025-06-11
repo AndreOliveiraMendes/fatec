@@ -4,10 +4,19 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="10;url={{ url_for('home') }}">
     <title>Document</title>
+    <!--
+    <script>
+        setTimeout(function() {
+            window.location.href = "{{ url_for('home') }}";
+        }, 30000); // 30000 milliseconds = 30 seconds
+    </script>
+    -->
 </head>
 <body>
-    deslogado com sucesso
-    <a href={{url_for("home")}}> voltar a pagina de inicio</a>
+    Deslogado com sucesso
+    <p>Você será redirecionado para a página inicial em 30 segundos.</p>
+    <a href="{{ url_for('home') }}">Voltar à página de início</a>
 </body>
 </html>
