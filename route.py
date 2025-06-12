@@ -1,6 +1,6 @@
 from main import app
 from flask import session, render_template, request, redirect, url_for
-from models import db, config_dict
+from models import db, Reserva_Fixa, Usuario, Usuario_Permissao, Laboratorio, Aula
 
 @app.route("/")
 def home():
@@ -13,7 +13,8 @@ def login():
     if request.method == 'POST':
         username = request.form["username"]
         password = request.form["password"]
-        if username == "admin" and password == config_dict["default"]["admin_password"]:
+        #TODO implementar autenticação com login/senha
+        if Usuario.query.filter_by(nome_pessoa=username).first():
             session['username'] = username
             return render_template("login_sucess.html", username=username)
         else:

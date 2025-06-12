@@ -1,6 +1,5 @@
 [default]
 SECRET_KEY = a cool secret key
-ADMIN_PASSWORD = a cool password
 
 [database]
 MYSQLHOST = host
