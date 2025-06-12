@@ -5,7 +5,8 @@ from models import db, config_dict
 @app.route("/")
 def home():
     username = session.get('username')
-    return render_template("homepage.html", username=username, role="admin")
+    role = "admin" if username == "admin" else None
+    return render_template("homepage.html", username=username, role=role)
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():

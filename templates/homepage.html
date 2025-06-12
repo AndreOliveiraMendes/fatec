@@ -15,7 +15,7 @@
     bem vindo ao sistema de reservas <br>
     efetuar <a href={{url_for("login")}}>login</a>
     {% endif %}
-    {% if role == "admin" %}
+    {% if role and role == "admin" %}
     <br>
     <table>
     <tr>
