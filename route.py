@@ -1,6 +1,6 @@
 from main import app
 from flask import session, render_template, request, redirect, url_for
-from models import db, Reserva_Fixa, Usuario, Usuario_Permissao, Laboratorio, Aula
+from models import db, Reservas_Fixa, Usuarios, Usuarios_Permissao, Laboratorios, Aulas
 
 @app.route("/")
 def home():

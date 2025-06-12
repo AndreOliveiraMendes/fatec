@@ -13,13 +13,13 @@ app.secret_key = config_dict['default']['secret_key']
 
 db:sqlalchemy = SQLAlchemy(app)
 
-class Reserva_Fixa(db.Model):
-    __tablename__ = 'reserva_fixa'
+class Reservas_Fixa(db.Model):
+    __tablename__ = 'reservas_fixa'
 
     id_reserva_fixa = db.Column(db.Integer, primary_key=True)
-    id_responsavel = db.Column(db.Integer, db.ForeignKey('usuario.id_usuario'), nullable=True)
-    id_reserva_laboratorio = db.Column(db.Integer, db.ForeignKey('laboratorio.id_laboratorio'), nullable=False)
-    id_reserva_aula = db.Column(db.Integer, db.ForeignKey('aula.id_aula'), nullable=False)
+    id_responsavel = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario'), nullable=True)
+    id_reserva_laboratorio = db.Column(db.Integer, db.ForeignKey('laboratorios.id_laboratorio'), nullable=False)
+    id_reserva_aula = db.Column(db.Integer, db.ForeignKey('aulas.id_aula'), nullable=False)
     status_reserva = db.Column(db.Integer, server_default='0', nullable=False)
     ano = db.Column(db.Integer, nullable=True)
     semestre = db.Column(db.Integer, nullable=True)
@@ -27,8 +27,8 @@ class Reserva_Fixa(db.Model):
         db.UniqueConstraint('id_reserva_laboratorio', 'id_reserva_aula', name='uix_reserva_unica'),
     )
     
-class Usuario(db.Model):
-    __tablename__ = 'usuario'
+class Usuarios(db.Model):
+    __tablename__ = 'usuarios'
 
     id_usuario = db.Column(db.Integer, primary_key=True)
     id_pessoa = db.Column(db.Integer, nullable=False)
@@ -39,29 +39,29 @@ class Usuario(db.Model):
     grupo_pessoa = db.Column(db.TEXT)
     tipo_usuario = db.Column(db.Integer, server_default='0')
 
-class Usuario_Permissao(db.Model):
-    __tablename__ = 'usuario_permissao'
+class Usuarios_Permissao(db.Model):
+    __tablename__ = 'usuarios_permissao'
 
-    id_permissao_usuario = db.Column(db.Integer, db.ForeignKey('usuario.id_usuario'), primary_key=True)
+    id_permissao_usuario = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario'), primary_key=True)
     permissao = db.Column(db.Integer)
 
-class Laboratorio(db.Model):
-    __tablename__ = 'laboratorio'
+class Laboratorios(db.Model):
+    __tablename__ = 'laboratorios'
 
     id_laboratorio = db.Column(db.Integer, primary_key=True)
     nome_laboratorio = db.Column(db.TEXT)
     Disponibilidade = db.Column(db.Integer)
 
-class Aula(db.Model):
-    __tablename__ = 'aula'
+class Aulas(db.Model):
+    __tablename__ = 'aulas'
 
     id_aula = db.Column(db.Integer, primary_key=True)
-    horario_inicio = db.Column(db.DATE)
-    horario_fim = db.Column(db.DATE)
+    horario_inicio = db.Column(db.Time)
+    horario_fim = db.Column(db.Time)
     semana = db.Column(db.Integer)
     turno = db.Column(db.Integer)
 
 #cria as tabelas necessarias, descomente se precisar
 #with app.app_context():
-#    db.drop_all()
-#    db.create_all()
+#    db.drop_all()                                   #remove todas as tabelas referenciadas
+#    db.create_all()                                 #cria todas as rabelas referenciadas
