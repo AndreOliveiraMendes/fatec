@@ -18,6 +18,8 @@ class Reservas_Fixa(db.Model):
 
     id_reserva_fixa = db.Column(db.Integer, primary_key=True)
     id_responsavel = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario'), nullable=True)
+    id_curso = db.Column(db.Integer, db.ForeignKey('cursos.id_curso'), nullable=True)
+    tipo_responsavel = db.Column(db.Integer, nullable=False)
     id_reserva_laboratorio = db.Column(db.Integer, db.ForeignKey('laboratorios.id_laboratorio'), nullable=False)
     id_reserva_aula = db.Column(db.Integer, db.ForeignKey('aulas.id_aula'), nullable=False)
     status_reserva = db.Column(db.Integer, server_default='0', nullable=False)
@@ -26,6 +28,11 @@ class Reservas_Fixa(db.Model):
     __table_args__ = (
         db.UniqueConstraint('id_reserva_laboratorio', 'id_reserva_aula', name='uix_reserva_unica'),
     )
+
+class Cursos(db.Model):
+    __tablename__ = 'cursos'
+
+    id_curso = db.Column(db.Integer, primary_key=True)
     
 class Usuarios(db.Model):
     __tablename__ = 'usuarios'
