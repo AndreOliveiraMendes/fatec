@@ -4,19 +4,17 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="refresh" content="5;url={{ url_for('home') }}">
+    <!--<meta http-equiv="refresh" content="5;url={{ url_for('home') }}">-->
     <title>logout</title>
-    <!--
     <script>
-        setTimeout(function() {
-            window.location.href = "{{ url_for('home') }}";
-        }, 30000); // 30000 milliseconds = 30 seconds
+        {{ dynamic_redirect(5, url_for('home')) }}
     </script>
-    -->
 </head>
 <body>
+    <center>
     Deslogado com sucesso
-    <p>Você será redirecionado para a página inicial em 5 segundos.</p>
+    <p id="temporizador">Você será redirecionado para a página inicial em 5 segundos.</p>
     <a href="{{ url_for('home') }}">Voltar à página de início</a>
+    </center>
 </body>
 </html>
