@@ -4,6 +4,7 @@ from markupsafe import Markup
 app = Flask(__name__)
 
 from route import *
+from auth import *
 from models import *
 
 @app.template_global()
@@ -30,4 +31,4 @@ def dynamic_redirect(seconds=5, message=None, target_url=None):
     return Markup(script)
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
