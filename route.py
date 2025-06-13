@@ -28,18 +28,18 @@ def login():
         if user:
             session['username'] = user.nome_pessoa
             session['userid'] = user.id_usuario
-            return render_template("login_sucess.html", username=username)
+            return render_template("auth/login_sucess.html", username=username)
         else:
-            return render_template("login_fail.html")
+            return render_template("auth/login_fail.html")
     else:
-        return render_template("login.html")
+        return render_template("auth/login.html")
     
 @app.route("/logout")
 @login_required
 def logout():
     session.pop('username')
     session.pop('userid')
-    return render_template("logout.html")
+    return render_template("auth/logout.html")
 
 @app.route("/admin")
 @admin_required
