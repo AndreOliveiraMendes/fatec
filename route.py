@@ -12,8 +12,8 @@ def home():
 def login():
     if request.method == 'POST':
         username = request.form["username"]
-        password = request.form["password"]
         #TODO implementar autenticação com login/senha
+        #password = request.form["password"]
         if Usuarios.query.filter_by(nome_pessoa=username).first():
             session['username'] = username
             return render_template("login_sucess.html", username=username)
