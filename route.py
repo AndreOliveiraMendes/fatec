@@ -45,5 +45,11 @@ def logout():
 @admin_required
 def gerenciar_menu():
     username = session.get('username')
-    userid = session.get('usedid')
+    userid = session.get('userdid')
     return render_template("admin.html", username=username, userid=userid)
+
+@app.route("/admin/usuarios")
+@admin_required
+def gerenciar_usuarios():
+    acao = request.form.get('acao', 'abertura')
+    return render_template("Usuarios.html", acao=acao)

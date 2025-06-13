@@ -8,7 +8,28 @@
 </head>
 <body>
     <center>
-        bem vindo a central de gerenciamento do sistema {{ username }}
+        bem vindo a central de gerenciamento do sistema {{ username }}<br>
+        <a href={{url_for("home")}}>voltar</a>
+        <table>
+        <tr>
+            <td>Seção</td>
+            <td>url</td>
+        </tr>
+        {% set secoes = {
+            'aulas':'url1',
+            'usuarios':'url2',
+            'usuarios especiais':'url3',
+            'laboratorios':'url4',
+            'reservas fixa':'url5',
+            'permissoes':'url6'
+        } %}
+        {% for secao, url in secoes.items() %}
+        <tr>
+            <td>{{secao}}</td>
+            <td>{{url}}</td>
+        </tr>
+        {% endfor %}
+        </table>
     </center>
 </body>
 </html>
