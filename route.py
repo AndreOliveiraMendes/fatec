@@ -52,4 +52,4 @@ def gerenciar_menu():
 @admin_required
 def gerenciar_usuarios():
     acao = request.form.get('acao', 'abertura')
-    return render_template("Usuarios.html", acao=acao)
+    return render_template("database/Usuarios.html", acao=acao)
