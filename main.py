@@ -1,7 +1,9 @@
 from flask import Flask, url_for
+from config import get_config
 from markupsafe import Markup
 
 app = Flask(__name__)
+app.config.from_object(get_config())
 
 from route import *
 from auth import *
