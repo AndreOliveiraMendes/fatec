@@ -7,7 +7,6 @@ app.config.from_object(get_config())
 
 from route import *
 from auth import *
-from models import *
 
 @app.template_global()
 def dynamic_redirect(seconds=5, message=None, target_url=None):
