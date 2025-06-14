@@ -2,7 +2,11 @@
 
 {% block title %}Voltando{% endblock %}
 
-{% block script %}{{ dynamic_redirect(5, "Você será redirecionado em ${segundos} segundos.", url_for("home")) }}{% endblock %}
+{% block extra_script %}
+<script>
+{{ dynamic_redirect(5, "Você será redirecionado em ${segundos} segundos.", url_for("home")) }}
+</script>
+{% endblock %}
 
 {% block content %}
     <div class="alert-danger" role="alert">
