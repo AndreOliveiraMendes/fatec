@@ -12,19 +12,32 @@
 } %}
 
 {% block content %}
-    <div class="form-group">
-        <a href="{{ url_for('home') }}" class="btn btn-lg btn-primary">Voltar à página de início</a>
+<div class="container mt-4">
+
+    <!-- Botão para voltar -->
+    <div class="mb-3">
+        <a href="{{ url_for('home') }}" class="btn btn-secondary">Voltar à página de início</a>
     </div>
-    <button class="btn btn-lg btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-        Manipulação do Banco de Dados
-    </button>
-    <div class="form-group">
-        <div class="collapse" id="collapseExample">
-            {% for secao, url in secoes.items() %}
-                <div class="well">
-                    <a hred="url_for({{url}})" class="btn btn-lg btn-primary">{{ secao }}</a>
+
+    <!-- Botão colapsável -->
+    <div class="mb-3">
+        <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseDatabase" aria-expanded="false" aria-controls="collapseDatabase">
+            Manipulação do Banco de Dados
+        </button>
+    </div>
+
+    <!-- Área que colapsa -->
+    <div class="collapse" id="collapseDatabase">
+        {% for secao, url in secoes.items() %}
+            <div class="card card-body">
+                <div class="d-grid gap-2">
+                    <a dhref="url_for({{url}})" class="btn btn-outline-primary btn-lg text-capitalize">
+                        {{ secao }}
+                    </a>
                 </div>
-            {% endfor %}
-        </div>
+            </div>
+        {% endfor %}
     </div>
+
+</div>
 {% endblock %}
