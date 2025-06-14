@@ -27,7 +27,9 @@
 		</div>
 	</div>
     -->
-
-	<button id="entrar" type="submit" class="btn btn-lg btn-primary btn-block">entrar</button>
+	<div class="form-group">
+		<button id="entrar" type="submit" class="btn btn-lg btn-primary" style="margin-right: 5px;">Entrar</button>
+		<a href="{{ url_for('home') }}" class="btn btn-lg btn-primary">Voltar à página de início</a>
+	</div>
 </form>
 {% endblock %}
