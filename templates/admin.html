@@ -1,35 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>painel de gerenciamento</title>
-</head>
-<body>
-    <center>
-        bem vindo a central de gerenciamento do sistema {{ username }}<br>
-        <a href={{url_for("home")}}>voltar</a>
-        <table>
-        <tr>
-            <td>Seção</td>
-            <td>url</td>
-        </tr>
-        {% set secoes = {
-            'aulas':'url1',
-            'usuarios':'url2',
-            'usuarios especiais':'url3',
-            'laboratorios':'url4',
-            'reservas fixa':'url5',
-            'permissoes':'url6'
-        } %}
-        {% for secao, url in secoes.items() %}
-        <tr>
-            <td>{{secao}}</td>
-            <td>{{url}}</td>
-        </tr>
-        {% endfor %}
-        </table>
-    </center>
-</body>
-</html>
+{% extends "base" %}
+
+{% block title %}Painel de Controle{% endblock %}
+
+{% set secoes = {
+    'usuarios':'url1',
+    'usuarios especiais':'url2',
+    'aulas':'url3',
+    'laboratorios':'url4',
+    'reservas fixa':'url5',
+    'permissoes':'url6'
+} %}
+
+{% block content %}
+    <div class="form-group">
+        <a href="{{ url_for('home') }}" class="btn btn-lg btn-primary">Voltar à página de início</a>
+    </div>
+    <button class="btn btn-lg btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+        Manipulação do Banco de Dados
+    </button>
+    <div class="form-group">
+        <div class="collapse" id="collapseExample">
+            {% for secao, url in secoes.items() %}
+                <div class="well">
+                    <a hred="url_for({{url}})" class="btn btn-lg btn-primary">{{ secao }}</a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
