@@ -1,34 +1,33 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-</head>
-<body>
-    <center>
-    login no sistema
-    <form action={{url_for("login")}} method="POST">
-        <table><tbody>
-            <tr>
-            <td>username</td>
-            <td><input type="text" id="username" name="username" required></td>
-            </tr>
-            <!--temporary desactived until i implemented a password auth system
-            <tr>
-            <td>senha</td>
-            <td><input type="text" id="password" name="password" required></td>
-            </tr>
-            -->
-            <tr>
-            <td><input type="reset"></td>
-            <td><input type="submit"></td>
-            </tr>
-        </tbody>
-        </table>
-    </form>
-    <a href={{url_for("home")}}> voltar a pagina de inicio</a>
-    </center>
-</body>
-</html>
+{% extends "base" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<form class="form-signin" role="form" action={{ url_for("login") }} method="post">
+	<div class="alert alert-info" role="alert">
+		Caro Usuario, esse sistema usa as mesma credenciais do academico
+	</div>
+
+	<div class="form-group">
+		<div class="input-group">
+			<span class="input-group-addon">
+				<span class="glyphicon glyphicon-user"></span>
+			</span>
+			<input type="text" class="form-control" name="username" placeholder="Login" autofocus/>
+		</div>
+	</div>
+
+    <!--
+	<div class="form-group">
+		<div class="input-group">
+			<span class="input-group-addon"> 
+				<span class="glyphicon glyphicon-lock"></span>
+			</span>
+			<input type="password" class="form-control" name="passphrase" placeholder="Senha"/>
+		</div>
+	</div>
+    -->
+
+	<button id="entrar" type="submit" class="btn btn-lg btn-primary btn-block">entrar</button>
+</form>
+{% endblock %}

@@ -1,20 +1,13 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!--<meta http-equiv="refresh" content="5;url={{ url_for('home') }}">-->
-    <title>SLogin</title>
-    <script>
-        {{ dynamic_redirect(5, "Você será redirecionado em ${segundos} segundos.", url_for("home")) }}
-    </script>
-</head>
-<body>
-    <center>
-    Logado em {{username}} com sucesso
-    <p id="redirect-msg">Você será redirecionado em 5 segundos.</p>
-    <a href={{url_for("home")}}> voltar a pagina de inicio</a>
-    </center>
-</body>
-</html>
+{% extends "base" %}
+
+{% block title %}Entrando{% endblock %}
+
+{% block script %}{{ dynamic_redirect(5, "Você será redirecionado em ${segundos} segundos.", url_for("home")) }}{% endblock %}
+
+{% block content %}
+    <div class="alert-success" role="alert">
+        Logado em {{ username }}
+		<p id="redirect-msg">Você será redirecionado em 5 segundos.</p>
+	</div>
+    <a href={{url_for("home")}} class="btn btn-primary"> voltar a pagina de inicio</a>
+{% endblock %}
