@@ -23,8 +23,8 @@ class Reservas_Fixa(db.Model):
     id_reserva_laboratorio = db.Column(db.Integer, db.ForeignKey('laboratorios.id_laboratorio'), nullable=False)
     id_reserva_aula = db.Column(db.Integer, db.ForeignKey('aulas.id_aula'), nullable=False)
     status_reserva = db.Column(db.Integer, server_default='0', nullable=False)
-    ano = db.Column(db.Integer, nullable=True)
-    semestre = db.Column(db.Integer, nullable=True)
+    data_inicio = db.Column(db.Date, nullable=True)
+    data_fim = db.Column(db.Date, nullable=True)
     __table_args__ = (
         db.UniqueConstraint('id_reserva_laboratorio', 'id_reserva_aula', name='uix_reserva_unica'),
     )
