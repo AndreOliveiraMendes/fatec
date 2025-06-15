@@ -1,8 +1,4 @@
-import sqlalchemy
-from flask_sqlalchemy import SQLAlchemy
-from main import app
-
-db:sqlalchemy = SQLAlchemy(app)
+from main import app, db
 
 class Reservas_Fixa(db.Model):
     __tablename__ = 'reservas_fixa'

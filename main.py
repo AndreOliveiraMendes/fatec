@@ -1,12 +1,15 @@
 from flask import Flask, url_for
+from flask_sqlalchemy import SQLAlchemy
 from config import get_config
 from markupsafe import Markup
 
 app = Flask(__name__)
 app.config.from_object(get_config())
+db = SQLAlchemy(app)
 
-from route import *
-from auth import *
+from routes.auth import *
+from routes.default import *
+from routes.error import *
 
 @app.template_global()
 def dynamic_redirect(seconds=5, message=None, target_url=None):
@@ -30,10 +33,6 @@ def dynamic_redirect(seconds=5, message=None, target_url=None):
     window.onload = iniciarTemporizador;
     """
     return Markup(script)
-
-@app.errorhandler(404)
-def page_not_found(e):
-    return render_template('404.html'), 404
 
 if __name__ == "__main__":
     app.run(debug=True)
