@@ -1,59 +1,73 @@
-# about project
+# About the Project
 
-this is a open source project to deal with laboratory reservation
+This is an open-source project designed to handle laboratory reservations.
 
-# project structure
+---
 
-the project have the following structure
+# Project Structure
+
+The project follows the structure below:
 
 ```
 .
-├── .env                      # environment
-├── .env.example              # example file
-├── .gitignore                # ignore sensible files
-├── Readme.md                 # this file
-├── auxiliar_template         # global template functions
+├── .env                      # Environment variables
+├── .env.example              # Example environment file
+├── .gitignore                # Ignore sensitive or unnecessary files
+├── Readme.md                 # This file (project overview)
+├── auxiliar_template/        # Global template functions (usable inside Jinja templates)
 │   └── auxiliar.py
-├── config.py                 # configuration
-├── decorators.py             # decorators
-├── main.py                   # main entry point
-├── models.py                 # database definition
-├── requirements.txt          # requeriments
-├── routes                    # define the backend functions
-│   ├── auth.py               # autentication related
-│   ├── default.py            # others
-│   └── error.py              # error handling
-├── schema.sql                # database structure
-├── start-dev.bat             # quick startup file
-├── static                    # static files
-│   └── images
+├── config.py                 # Main configuration file
+├── decorators.py             # Custom decorators used by routes
+├── main.py                   # Project entry point
+├── models.py                 # Database schema definition (SQLAlchemy models)
+├── requirements.txt          # Python dependencies
+├── routes/                   # Backend route definitions
+│   ├── auth.py               # Authentication-related routes
+│   ├── default.py            # General/default routes
+│   └── error.py              # Error handling routes
+├── schema.sql                # Raw database schema (SQL)
+├── start-dev.bat             # Quick-start script for Windows
+├── static/                   # Static files (CSS, JS, images, etc.)
+│   └── images/
 │       ├── favicon.png
 │       └── favicon.svg
-└── templates                 # front end stuff
-    ├── 404.html              # not found template
-    ├── admin.html            # admin page
-    ├── auth                  # auth related
+└── templates/                # Front-end HTML templates (Jinja)
+    ├── 404.html              # 404 - Not Found page
+    ├── admin.html            # Admin dashboard page
+    ├── auth/                 # Authentication-related pages
     │   ├── login.html
     │   ├── login_fail.html
-    │   ├── login_sucess.html
+    │   ├── login_success.html
     │   └── logout.html
-    ├── base                  # base template
-    ├── database              # database related
+    ├── base                  # Base layout template (inherited by other pages)
+    ├── database/             # Pages related to database content display
     │   └── usuarios.html
-    └── homepage.html         # initial page
+    └── homepage.html         # Initial landing page
 ```
 
-- .env: defines environment variables, you can check .env.example for what variables are defined
-- .gitignore: ignore all sensible or unimportant files
-- Reademe.md: this file, brief project explanation
-- auxiliar_template: function that can be used inside jinja template
-- config.py: main configuration file for project
-- decorators.py: have all decorators that routes use
-- main.py: the main entry point of project
-- models.py: define the database schema
-- requeriments.txt: the file listing all the libraly the project uses
-- routes: the backend routes, divided by sections
-- schema.sql: the databse structure
-- static: static files for site (favicon, css, jss)
-- templates: the front end pages that are rendered, separated by sections
-- temaples/base: the default page all pages are based on
+---
+
+# File Descriptions
+
+- **`.env`** → Defines environment variables. See `.env.example` for reference.
+- **`.gitignore`** → Specifies sensitive or unnecessary files/folders to ignore.
+- **`Readme.md`** → This file. Brief project overview and structure.
+- **`auxiliar_template/`** → Contains helper functions usable inside Jinja templates.
+- **`config.py`** → Centralized project configuration.
+- **`decorators.py`** → All route decorators (authentication, permissions, etc.).
+- **`main.py`** → Flask app entry point.
+- **`models.py`** → SQLAlchemy models defining the database schema.
+- **`requirements.txt`** → Python libraries used by the project.
+- **`routes/`** → Backend route logic, split into functional areas.
+- **`schema.sql`** → Raw SQL file for database schema creation.
+- **`start-dev.bat`** → Windows batch file for quick local development startup.
+- **`static/`** → Static web assets like favicon, CSS, JS.
+- **`templates/`** → Front-end Jinja HTML templates, organized by section.
+- **`templates/base`** → The default base template, extended by other pages.
+
+---
+
+# Notes
+
+- This project is still under development.
+- More detailed documentation will be added as the project evolves.
