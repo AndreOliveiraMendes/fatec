@@ -60,6 +60,6 @@ class Aulas(db.Model):
     turno = db.Column(db.Integer)
 
 #cria as tabelas necessarias, descomente se precisar
-#with app.app_context():
+with app.app_context():
 #    db.drop_all()                                   #remove todas as tabelas referenciadas
-#    db.create_all()                                 #cria todas as rabelas referenciadas
+    db.create_all()                                 #cria todas as rabelas referenciadas
