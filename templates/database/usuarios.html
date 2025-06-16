@@ -8,4 +8,16 @@
         <a href="{{ url_for('home') }}" class="btn btn-primary btn-lg">Voltar à página de início</a>
     </div>
 </div>
+<div class="container">
+    {% if acao == 'abertura' %}
+    {% elif acao == 'listar' %}
+    {% elif acao == 'inserir' %}
+    {% elif acao == 'editar' %}
+    {% elif acao == 'excluir' %}
+    {% else %}
+    <div class="alert alert-danger" role="alert">
+        acao não definida
+	</div>
+    {% endif %}
+</div>
 {% endblock %}

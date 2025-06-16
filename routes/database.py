@@ -7,7 +7,8 @@ from decorators import admin_required
 @admin_required
 def gerenciar_usuarios():
     acao = request.form.get('acao', 'abertura')
-    return render_template("database/usuarios.html", acao=acao)
+    bloco = request.form.get('bloco', 0)
+    return render_template("database/usuarios.html", acao=acao, bloco=bloco)
 
 @app.route("/admin/usuario_especial")
 @admin_required
