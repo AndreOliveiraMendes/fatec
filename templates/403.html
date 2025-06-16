@@ -1,0 +1,10 @@
+{% extends "base" %}
+
+{% block title %}Não Encontrada{% endblock %}
+
+{% block content %}
+    <div class="alert alert-danger" role="alert">
+        erro, voce não tem permissão para acessar esta pagina.
+	</div>
+    <a href={{url_for("home")}} class="btn btn-primary"> voltar a pagina de inicio</a>
+{% endblock %}
