@@ -3,3 +3,4 @@ dotenv
 Flask
 Flask-SQLAlchemy
 PyMySQL
+requests
