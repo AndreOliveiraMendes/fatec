@@ -4,11 +4,6 @@
 
 {% block content %}
 <form class="form-signin" role="form" action={{ url_for("login") }} method="post">
-	<div class="alert alert-info alert-dismissible" role="alert">
-		<!--<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>-->
-		Caro Usuario, esse sistema usa as mesma credenciais do academico
-	</div>
-
 	<div class="form-group">
 		<div class="input-group">
 			<span class="input-group-addon">
@@ -17,7 +12,6 @@
 			<input type="text" class="form-control" name="username" placeholder="Login" autofocus/>
 		</div>
 	</div>
-
     <!--
 	<div class="form-group">
 		<div class="input-group">

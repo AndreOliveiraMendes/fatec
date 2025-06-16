@@ -21,6 +21,7 @@ def login():
             flash("falha ao realizar login", "danger")
             return render_template("auth/login_fail.html")
     else:
+        flash("Caro Usuario, esse sistema usa as mesma credenciais do academico", "info")
         return render_template("auth/login.html")
     
 @app.route("/logout")
