@@ -4,7 +4,8 @@
 
 {% block content %}
 <form class="form-signin" role="form" action={{ url_for("login") }} method="post">
-	<div class="alert alert-info" role="alert">
+	<div class="alert alert-info alert-dismissible" role="alert">
+		<!--<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>-->
 		Caro Usuario, esse sistema usa as mesma credenciais do academico
 	</div>
 
