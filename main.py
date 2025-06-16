@@ -9,6 +9,7 @@ db = SQLAlchemy(app)
 from routes.auth import *
 from routes.default import *
 from routes.error import *
+from routes.database import *
 from auxiliar_template.auxiliar import *
 
 if __name__ == "__main__":

@@ -3,12 +3,12 @@
 {% block title %}Painel de Controle{% endblock %}
 
 {% set secoes = {
-    'usuarios':'url1',
-    'usuarios especiais':'url2',
-    'aulas':'url3',
-    'laboratorios':'url4',
-    'reservas fixa':'url5',
-    'permissoes':'url6'
+    'usuarios':'gerenciar_usuarios',
+    'usuarios especiais':'gerenciar_usuario_especial',
+    'aulas':'gerenciar_aulas',
+    'laboratorios':'gerenciar_laboratorios',
+    'reservas fixa':'gerenciar_reservas_fixa',
+    'permissoes':'gerenciar_permissoes'
 } %}
 
 {% block content %}
@@ -32,7 +32,7 @@
 
             {% for secao, url in secoes.items() %}
                 <div class="form-group">
-                    <a href="url_for({{url}})" class="btn btn-info btn-block btn-lg text-capitalize">
+                    <a href="{{url_for(url)}}" class="btn btn-info btn-block btn-lg text-capitalize">
                         {{ secao }}
                     </a>
                 </div>
