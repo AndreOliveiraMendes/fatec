@@ -31,7 +31,6 @@ class Usuarios(db.Model):
     tipo_pessoa = db.Column(db.TEXT)
     situacao_pessoa = db.Column(db.TEXT)
     grupo_pessoa = db.Column(db.TEXT)
-    tipo_usuario = db.Column(db.Integer, server_default='0')
 
 class Usuarios_Permissao(db.Model):
     __tablename__ = 'usuarios_permissao'
