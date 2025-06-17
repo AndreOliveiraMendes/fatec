@@ -4,62 +4,63 @@
 
 {% block content %}
 <div class="container">
-    <div class="form-group">
-        <a href="{{ url_for('home') }}" class="btn btn-primary btn-lg">Voltar à página de início</a>
-    </div>
+  <div class="form-group btn-group">
+    <a href="{{ url_for('home') }}" class="btn btn-primary btn-lg">Voltar à página de início</a>
+    <a href="{{ url_for('gerenciar_menu') }}" class="btn btn-primary btn-lg">Voltar à página de admin</a>
+  </div>
 </div>
 <div class="container">
-    <form class="form-group" role="form" action={{ url_for("gerenciar_usuarios") }} method="post">
-        <input type="hidden" name="bloco" value="0">
-        <div class="form-group btn-group">
-            {% for nome, valor, icone in [
-                ('Listar', 'listar', 'bi-book'),
-                ('Procurar', 'procurar', 'bi-compass'),
-                ('Inserir', 'inserir', 'bi-plus-circle'),
-                ('Editar', 'editar', 'bi-pencil-square'),
-                ('Excluir', 'excluir', 'bi-trash')
-              ] %}
-              <button type="submit" name="acao" value="{{ valor if acao != valor else 'abertura' }}"
-                  class="btn {% if acao == valor %}btn-secondary{% else %}btn-primary{% endif %}">
-                <i class="bi {{ icone }} me-1"></i> {{ nome }}
-              </button>
-            {% endfor %}
-        </div>
-    </form>
-    {% if acao == 'abertura' %}
-    <h3>Gerenciamento da Tabela <strong>Usuários</strong></h3>
-    <p>A tabela <code>usuarios</code> possui os seguintes campos:</p>
-    
-    <table class="table table-striped table-bordered table-hover">
-      <thead>
-        <tr class="info">
-          <th>Campo</th>
-          <th>Descrição</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for campo, descricao in [
-            ('id_usuario', 'Identificador do usuário'),
-            ('id_pessoa', 'Identificador da pessoa'),
-            ('nome_pessoa', 'Nome da pessoa'),
-            ('email_pessoa', 'Email da pessoa'),
-            ('tipo_pessoa', 'Tipo: externo ou funcionário'),
-            ('situacao_pessoa', 'Situação: ativa ou desativada'),
-            ('grupo_pessoa', 'Cargo específico: docente, etc.')
-        ] %}
-        <tr>
-          <td><code>{{ campo }}</code></td>
-          <td>{{ descricao }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    
-    {% elif acao == 'listar' %}
-    <h3>Lista de Usuários</h3>
-    <table class="table table-bordered table-striped table-hover">
+  <form class="form-group" role="form" action={{ url_for("gerenciar_usuarios") }} method="post">
+    <input type="hidden" name="bloco" value="0">
+    <div class="form-group btn-group">
+      {% for nome, valor, icone in [
+      ('Listar', 'listar', 'bi-book'),
+      ('Procurar', 'procurar', 'bi-compass'),
+      ('Inserir', 'inserir', 'bi-plus-circle'),
+      ('Editar', 'editar', 'bi-pencil-square'),
+      ('Excluir', 'excluir', 'bi-trash')
+      ] %}
+      <button type="submit" name="acao" value="{{ valor if acao != valor else 'abertura' }}"
+        class="btn {% if acao == valor %}btn-secondary{% else %}btn-primary{% endif %}">
+        <i class="bi {{ icone }} me-1"></i> {{ nome }}
+      </button>
+      {% endfor %}
+    </div>
+  </form>
+  {% if acao == 'abertura' %}
+  <h3>Gerenciamento da Tabela <strong>Usuários</strong></h3>
+  <p>A tabela <code>usuarios</code> possui os seguintes campos:</p>
+
+  <table class="table table-striped table-bordered table-hover">
+    <thead>
+      <tr class="info">
+        <th>Campo</th>
+        <th>Descrição</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for campo, descricao in [
+      ('id_usuario', 'Identificador do usuário'),
+      ('id_pessoa', 'Identificador da pessoa'),
+      ('nome_pessoa', 'Nome da pessoa'),
+      ('email_pessoa', 'Email da pessoa'),
+      ('tipo_pessoa', 'Tipo: externo ou funcionário'),
+      ('situacao_pessoa', 'Situação: ativa ou desativada'),
+      ('grupo_pessoa', 'Cargo específico: docente, etc.')
+      ] %}
+      <tr>
+        <td><code>{{ campo }}</code></td>
+        <td>{{ descricao }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% elif acao == 'listar' %}
+  <h3>Lista de Usuários</h3>
+  <table class="table table-bordered table-striped table-hover">
     <thead class="info">
-        <tr>
+      <tr>
         <th>ID Usuario</th>
         <th>Id Pessoa</th>
         <th>Nome</th>
@@ -68,42 +69,50 @@
         <th>Situação</th>
         <th>Grupo</th>
         <th>acao</th>
-        </tr>
+      </tr>
     </thead>
     <tbody>
-        {% for u in usarios %}
-        <tr>
-          <td>{{ u.id_usuario }}</td>
-          <td>{{ u.id_pessoa }}</td>
-          <td>{{ u.nome_pessoa }}</td>
-          <td>{{ u.email_pessoa }}</td>
-          <td>{{ u.tipo_pessoa }}</td>
-          <td>{{ u.situacao_pessoa }}</td>
-          <td>{{ u.grupo_pessoa }}</td>
-          <td>
-            <form method="post" class="form-inline">
-              <input type="hidden" name="bloco" value="0">
-              <input type="hidden" name="id_usuario" value="{{ u.id_usuario }}">
-              <button type="submit" name="acao" value="editar" class="btn btn-warning btn-sm" title="Editar">
-                <i class="bi bi-pencil"></i>
-              </button>
-              <button type="submit" name="acao" value="excluir" class="btn btn-danger btn-sm" title="Excluir">
-                <i class="bi bi-trash"></i>
-              </button>
-            </form>
-          </td>
-        </tr>
-        {% endfor %}
+      {% for u in usarios %}
+      <tr>
+        <td>{{ u.id_usuario }}</td>
+        <td>{{ u.id_pessoa }}</td>
+        <td>{{ u.nome_pessoa }}</td>
+        <td>{{ u.email_pessoa }}</td>
+        <td>{{ u.tipo_pessoa }}</td>
+        <td>{{ u.situacao_pessoa }}</td>
+        <td>{{ u.grupo_pessoa }}</td>
+        <td>
+          <form method="post" class="form-inline">
+            <input type="hidden" name="bloco" value="0">
+            <input type="hidden" name="id_usuario" value="{{ u.id_usuario }}">
+            <button type="submit" name="acao" value="editar" class="btn btn-warning btn-sm" title="Editar">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button type="submit" name="acao" value="excluir" class="btn btn-danger btn-sm" title="Excluir">
+              <i class="bi bi-trash"></i>
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
     </tbody>
-    </table>
-    {% elif acao == 'procurar' %}
-    {% elif acao == 'inserir' %}
-    {% elif acao == 'editar' %}
-    {% elif acao == 'excluir' %}
-    {% else %}
-    <div class="alert alert-danger" role="alert">
-        acao não definida
-	</div>
-    {% endif %}
+  </table>
+  {% elif acao == 'procurar' %}
+  {% if bloco == 0 %}
+  <form class="form-group" role="form" action={{ url_for("gerenciar_usuarios") }} method="post">
+    <input type="hidden" name="acao" value={{ acao }}>
+    <input type="hidden" name="bloco" value="1">
+
+  </form>
+  {% else %}
+  {% endif %}
+  {% elif acao == 'inserir' %}
+  {% elif acao == 'editar' %}
+  {% elif acao == 'excluir' %}
+  {% else %}
+  <div class="alert alert-danger" role="alert">
+    acao não definida
+  </div>
+  {% endif %}
 </div>
 {% endblock %}
