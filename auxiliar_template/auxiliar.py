@@ -8,7 +8,13 @@ def dynamic_redirect(seconds=5, message=None, target_url=None):
         message = f"Você será redirecionado para a página inicial em ${{segundos}} segundo${{segundos === 1 ? '' : 's'}}."
     if target_url is None:
         target_url = url_for("home")
+
     script = f"""
+    <noscript>
+        <meta http-equiv="refresh" content="{seconds};url={target_url}">
+    </noscript>
+
+    <script>
     let segundos = {seconds};
     function iniciarTemporizador() {{
         const elemento = document.getElementById("redirect-msg");
@@ -22,6 +28,7 @@ def dynamic_redirect(seconds=5, message=None, target_url=None):
         }}, 1000);
     }}
     window.onload = iniciarTemporizador;
+    </script>
     """
     return Markup(script)
 
