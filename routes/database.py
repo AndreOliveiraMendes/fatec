@@ -3,12 +3,19 @@ from flask import flash, session, render_template, request, redirect, url_for
 from models import Reservas_Fixa, Usuarios, Usuarios_Permissao, Laboratorios, Aulas
 from decorators import admin_required
 
-@app.route("/admin/usuarios")
+@app.route("/admin/usuarios", methods=["GET", "POST"])
 @admin_required
 def gerenciar_usuarios():
     acao = request.form.get('acao', 'abertura')
     bloco = request.form.get('bloco', 0)
-    return render_template("database/usuarios.html", acao=acao, bloco=bloco)
+    if request.method == 'POST':
+        extras = {}
+        if acao == 'listar':
+            usuarios = Usuarios.query.all()
+            extras['usarios'] = usuarios
+        return render_template("database/usuarios.html", acao=acao, bloco=bloco, **extras)
+    else:
+        return render_template("database/usuarios.html", acao=acao, bloco=bloco)
 
 @app.route("/admin/usuario_especial")
 @admin_required
