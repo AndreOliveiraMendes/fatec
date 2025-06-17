@@ -3,18 +3,17 @@
 {% block title %}Página Inicial{% endblock %}
 
 {% block content %}
-<div class="form-group">
-{% if username %}
-    <h1>Bem-vindo ao Sistema! {{ username }}</h1>
-    <a href="{{ url_for('logout') }}" class="btn btn-primary">Sair de {{ username }}</a>
-{% else %}
-    <h1>Bem-vindo ao Sistema!</h1>
-    <a href="{{ url_for('login') }}" class="btn btn-primary">Ir para Login</a>
-{% endif %}
+<div class="container">
+<h1>Bem-vindo ao Sistema! {{ username if username }}</h1>
 </div>
-{% if role and role == 'admin' %}
-<div class="form-group">
-    <a href="{{ url_for('gerenciar_menu') }}" class="btn btn-primary">Gerenciar o sistema (banco de dados)</a>
+<div class="btn-group-vertical" role="group" aria-label="1">
+    {% if username %}
+        <a href="{{ url_for('logout') }}" class="btn btn-primary">Sair de {{ username }}</a>
+    {% else %}
+        <a href="{{ url_for('login') }}" class="btn btn-primary">Ir para Login</a>
+    {% endif %}
+    {% if role and role == 'admin' %}
+        <a href="{{ url_for('gerenciar_menu') }}" class="btn btn-primary">Gerenciar o sistema (banco de dados)</a>
+    {% endif %}
 </div>
-{% endif %}
 {% endblock %}
