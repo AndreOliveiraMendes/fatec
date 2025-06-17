@@ -14,6 +14,18 @@ class Reservas_Fixa(db.Model):
     data_fim = db.Column(db.Date, nullable=True)
     __table_args__ = (
         db.UniqueConstraint('id_reserva_laboratorio', 'id_reserva_aula', name='uix_reserva_unica'),
+        db.CheckConstraint(
+            '''
+            (
+                (tipo_responsavel = 0 AND id_responsavel IS NOT NULL AND id_curso IS NULL)
+                OR
+                (tipo_responsavel = 1 AND id_responsavel IS NULL AND id_curso IS NOT NULL)
+                OR
+                (tipo_responsavel = 2 AND id_responsavel IS NOT NULL AND id_curso IS NOT NULL)
+            )
+            ''',
+            name='check_tipo_responsavel'
+        ),
     )
 
 class Cursos(db.Model):
