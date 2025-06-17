@@ -24,3 +24,7 @@ def dynamic_redirect(seconds=5, message=None, target_url=None):
     window.onload = iniciarTemporizador;
     """
     return Markup(script)
+
+@app.template_global()
+def bitwise_and(x, y):
+    return x & y

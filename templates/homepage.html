@@ -1,6 +1,9 @@
 {% extends "base" %}
 
 {% block title %}Página Inicial{% endblock %}
+{% set PERM_RESERVAS_FIXA=1 %}
+{% set PERM_RESERVAS_TEMPORARIA=2 %}
+{% set PERM_ADMIN=4 %}
 
 {% block content %}
 <div class="container">
@@ -12,7 +15,7 @@
     {% else %}
         <a href="{{ url_for('login') }}" class="btn btn-primary">Ir para Login</a>
     {% endif %}
-    {% if role and role == 'admin' %}
+    {% if bitwise_and(perm, PERM_ADMIN) %}
         <a href="{{ url_for('gerenciar_menu') }}" class="btn btn-primary">Gerenciar o sistema (banco de dados)</a>
     {% endif %}
 </div>

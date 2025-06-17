@@ -7,12 +7,12 @@ from decorators import login_required, admin_required
 def home():
     username = session.get('username')
     userid = session.get('userid')
-    role = None
+    perm = 0
     if username:
         user_perm:Usuarios_Permissao = Usuarios_Permissao.query.filter_by(id_permissao_usuario=userid).first()
-        if user_perm and user_perm.permissao & 4:
-            role = 'admin'
-    return render_template("homepage.html", username=username, role=role)
+        if user_perm:
+            perm = user_perm.permissao
+    return render_template("homepage.html", username=username, perm=perm)
 
 @app.route("/admin")
 @admin_required
