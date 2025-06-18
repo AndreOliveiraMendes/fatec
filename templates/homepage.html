@@ -1,28 +1,44 @@
 {% extends "base" %}
 
 {% block title %}Página Inicial{% endblock %}
-{% set PERM_RESERVAS_FIXA=1 %}
-{% set PERM_RESERVAS_TEMPORARIA=2 %}
-{% set PERM_ADMIN=4 %}
+{% set PERM_RESERVAS_FIXA = 1 %}
+{% set PERM_RESERVAS_TEMPORARIA = 2 %}
+{% set PERM_ADMIN = 4 %}
 
 {% block content %}
-<div class="container">
-<h1>Bem-vindo ao Sistema! {{ username if username }}</h1>
-</div>
-<div class="btn-group-vertical" role="group" aria-label="1">
-    {% if username %}
-        <a href="{{ url_for('logout') }}" class="btn btn-primary">Sair de {{ username }}</a>
-    {% else %}
-        <a href="{{ url_for('login') }}" class="btn btn-primary">Ir para Login</a>
-    {% endif %}
-    {% if perm|has_flag(PERM_ADMIN) %}
-        <a href="{{ url_for('gerenciar_menu') }}" class="btn btn-primary">Gerenciar o sistema (banco de dados)</a>
-    {% endif %}
-    {% if perm|has_flag(PERM_RESERVAS_FIXA) %}
-        <a href="{{ url_for('under_dev_page') }}" class="btn btn-primary">Reserva Semestral</a>
-    {% endif %}
-    {% if perm|has_flag(PERM_RESERVAS_TEMPORARIA) %}
-        <a href="{{ url_for('under_dev_page') }}" class="btn btn-primary">Reserva Temporaria</a>
-    {% endif %}
+<div class="container text-center">
+
+    <h1>Bem-vindo ao Sistema! {% if username %}{{ username }}{% endif %}</h1>
+
+    <div class="btn-group-vertical" role="group" aria-label="Menu Principal" style="margin-top: 20px;">
+        {% if username %}
+            <a href="{{ url_for('logout') }}" class="btn btn-primary">
+                <span class="glyphicon glyphicon-log-out"></span> Sair de {{ username }}
+            </a>
+        {% else %}
+            <a href="{{ url_for('login') }}" class="btn btn-primary">
+                <span class="glyphicon glyphicon-log-in"></span> Ir para Login
+            </a>
+        {% endif %}
+
+        {% if perm|has_flag(PERM_ADMIN) %}
+            <a href="{{ url_for('gerenciar_menu') }}" class="btn btn-danger">
+                <span class="glyphicon glyphicon-cog"></span> Gerenciar o sistema (banco de dados)
+            </a>
+        {% endif %}
+
+        {% if perm|has_flag(PERM_RESERVAS_FIXA) %}
+            <a href="{{ url_for('under_dev_page') }}" class="btn btn-success">
+                <span class="glyphicon glyphicon-calendar"></span> Reserva Semestral
+            </a>
+        {% endif %}
+
+        {% if perm|has_flag(PERM_RESERVAS_TEMPORARIA) %}
+            <a href="{{ url_for('under_dev_page') }}" class="btn btn-info">
+                <span class="glyphicon glyphicon-time"></span> Reserva Temporária
+            </a>
+        {% endif %}
+    </div>
+
 </div>
 {% endblock %}
