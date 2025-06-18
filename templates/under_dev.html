@@ -3,13 +3,24 @@
 {% block title %}Em Desenvolvimento{% endblock %}
 
 {% block extra_script %}
-    {{ dynamic_redirect(5, "Você será redirecionado em ${segundos} segundos.", url_for("home")) }}
+    {{ dynamic_redirect(5, "Você será redirecionado em ${segundos} segundos.", url_for("gerenciar_menu")) }}
+    <style>
+    .spinning {
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    </style>
 {% endblock %}
 
 {% block content %}
 <div class="alert alert-warning" role="alert">
     <span class="glyphicon glyphicon-wrench"></span>
     <span id="redirect-msg">Você será redirecionado em 5 segundos.</span>
+    <span class="glyphicon glyphicon-refresh spinning" style="margin-left: 10px;"></span>
 </div>
 
 <a href="{{ url_for('home') }}" class="btn btn-primary">Voltar à página inicial</a>
