@@ -59,7 +59,7 @@
         <td>{{ u.grupo_pessoa }}</td>
         <td>
           <form method="post" class="form-inline">
-            <input type="hidden" name="bloco" value="0">
+            <input type="hidden" name="bloco" value="1">
             <input type="hidden" name="id_usuario" value="{{ u.id_usuario }}">
             <button type="submit" name="acao" value="editar" class="btn btn-warning btn-sm" title="Editar">
               <i class="bi bi-pencil"></i>
@@ -74,14 +74,6 @@
     </tbody>
   </table>
   {% elif acao == 'procurar' %}
-  {% if bloco == 0 %}
-  <form class="form-group" role="form" action={{ url_for("gerenciar_usuarios") }} method="post">
-    <input type="hidden" name="acao" value={{ acao }}>
-    <input type="hidden" name="bloco" value="1">
-
-  </form>
-  {% else %}
-  {% endif %}
   {% elif acao == 'inserir' %}
   {% elif acao == 'editar' %}
   {% elif acao == 'excluir' %}
