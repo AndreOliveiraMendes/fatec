@@ -16,6 +16,12 @@ def gerenciar_usuarios():
         return render_template("database/usuarios.html", acao=acao, bloco=bloco, **extras)
     else:
         return render_template("database/usuarios.html", acao=acao, bloco=bloco)
+    
+@app.route("/admin/pessoas")
+@admin_required
+def gerenciar_pessoas():
+    flash("Pagina em Desenvolvimento", "warning")
+    return redirect(url_for('under_dev_page'))
 
 @app.route("/admin/usuario_especial")
 @admin_required

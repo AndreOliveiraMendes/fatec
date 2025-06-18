@@ -37,12 +37,17 @@ class Usuarios(db.Model):
     __tablename__ = 'usuarios'
 
     id_usuario = db.Column(db.Integer, primary_key=True)
-    id_pessoa = db.Column(db.Integer, nullable=False)
-    nome_pessoa = db.Column(db.TEXT)
-    email_pessoa = db.Column(db.TEXT)
-    tipo_pessoa = db.Column(db.TEXT)
+    id_pessoa = db.Column(db.Integer, db.ForeignKey('pessoas.id_pessoa'), nullable=False)
+    tipo_pessoa = db.Column(db.String(50))
     situacao_pessoa = db.Column(db.TEXT)
-    grupo_pessoa = db.Column(db.TEXT)
+    grupo_pessoa = db.Column(db.String(50))
+
+class Pessoas(db.Model):
+    __tablename__ = 'pessoas'
+    id_pessoa = db.Column(db.Integer, primary_key=True)
+    nome_pessoa = db.Column(db.String(100), nullable=False)
+    email_pessoa = db.Column(db.String(100))
+
 
 class Usuarios_Permissao(db.Model):
     __tablename__ = 'usuarios_permissao'
@@ -54,7 +59,7 @@ class Laboratorios(db.Model):
     __tablename__ = 'laboratorios'
 
     id_laboratorio = db.Column(db.Integer, primary_key=True)
-    nome_laboratorio = db.Column(db.TEXT)
+    nome_laboratorio = db.Column(db.String(100))
     Disponibilidade = db.Column(db.Integer)
 
 class Aulas(db.Model):
