@@ -18,5 +18,11 @@
     {% if perm|has_flag(PERM_ADMIN) %}
         <a href="{{ url_for('gerenciar_menu') }}" class="btn btn-primary">Gerenciar o sistema (banco de dados)</a>
     {% endif %}
+    {% if perm|has_flag(PERM_RESERVAS_FIXA) %}
+        <a href="{{ url_for('under_dev_page') }}" class="btn btn-primary">Reserva Semestral</a>
+    {% endif %}
+    {% if perm|has_flag(PERM_RESERVAS_TEMPORARIA) %}
+        <a href="{{ url_for('under_dev_page') }}" class="btn btn-primary">Reserva Temporaria</a>
+    {% endif %}
 </div>
 {% endblock %}

@@ -3,7 +3,7 @@
 {% block title %}Em Desenvolvimento{% endblock %}
 
 {% block extra_script %}
-    {{ dynamic_redirect(5, "Você será redirecionado em ${segundos} segundos.", url_for("gerenciar_menu")) }}
+    {{ dynamic_redirect(5, "Você será redirecionado em ${segundos} segundos.", url_for("home")) }}
     <style>
     .spinning {
         animation: spin 1s linear infinite;
