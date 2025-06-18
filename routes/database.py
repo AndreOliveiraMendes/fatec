@@ -7,7 +7,7 @@ from decorators import admin_required
 @admin_required
 def gerenciar_usuarios():
     acao = request.form.get('acao', 'abertura')
-    bloco = request.form.get('bloco', 0)
+    bloco = int(request.form.get('bloco', 0))
     if request.method == 'POST':
         extras = {}
         if acao == 'listar':
@@ -21,12 +21,38 @@ def gerenciar_usuarios():
 @admin_required
 def gerenciar_pessoas():
     acao = request.form.get('acao', 'abertura')
-    bloco = request.form.get('bloco', 0)
+    bloco = int(request.form.get('bloco', 0))
     if request.method == 'POST':
         extras = {}
         if acao == 'listar':
             pessoas = Pessoas.query.all()
             extras['pessoas'] = pessoas
+        elif acao == 'procurar' and bloco == 1:
+            id = request.form.get('id_pessoa', None)
+            nome = request.form.get('nome', None)
+            exact_name_match = 'emnome' in request.form
+            email = request.form.get('email', None)
+            exact_email_match = 'ememail' in request.form
+            filter = []
+            query = Pessoas.query
+            if id:
+                filter.append(Pessoas.id_pessoa == id)
+            if nome:
+                if exact_name_match:
+                    filter.append(Pessoas.nome_pessoa == nome)
+                else:
+                    filter.append(Pessoas.nome_pessoa.ilike(f"%{nome}%"))
+            if email:
+                if exact_email_match:
+                    filter.append(Pessoas.email_pessoa == email)
+                else:
+                    filter.append(Pessoas.email_pessoa.ilike(f"%{email}%"))
+            if filter:
+                query = query.filter(*filter)
+                extras['pessoas'] = query.all()
+            else:
+                flash("especifique pelo menos um campo de busca", "danger")
+                bloco = 0
         return render_template("database/pessoas.html", acao=acao, bloco=bloco, **extras)
     else:
         return render_template("database/pessoas.html", acao=acao, bloco=bloco)

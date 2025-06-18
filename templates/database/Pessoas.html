@@ -4,117 +4,166 @@
 
 {% block content %}
 <div class="container">
+
   <div class="form-group btn-group">
     <a href="{{ url_for('home') }}" class="btn btn-primary btn-lg">Voltar à página de início</a>
     <a href="{{ url_for('gerenciar_menu') }}" class="btn btn-primary btn-lg">Voltar à página de admin</a>
   </div>
-</div class="container">
-{{ generate_head(url_for("gerenciar_pessoas"), acao) }}
-  {% if acao == 'abertura' %}
-  <h3>Gerenciamento da Tabela <strong>Pessoas</strong></h3>
-  <p>A tabela <code>pessoas</code> possui os seguintes campos:</p>
 
-  <table class="table table-striped table-bordered table-hover">
-    <thead>
-      <tr class="info">
-        <th>Campo</th>
-        <th>Descrição</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for campo, descricao in [
-        ('id_pessoa', 'Identificador da pessoa'),
-        ('nome_pessoa', 'Nome da pessoa'),
-        ('email_pessoa', 'Email da pessoa')
-      ] %}
-      <tr>
-        <td><code>{{ campo }}</code></td>
-        <td>{{ descricao }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  {{ generate_head(url_for("gerenciar_pessoas"), acao) }}
+
+  {% if acao == 'abertura' %}
+    <h3>Gerenciamento da Tabela <strong>Pessoas</strong></h3>
+    <p>A tabela <code>pessoas</code> possui os seguintes campos:</p>
+
+    <table class="table table-striped table-bordered table-hover">
+      <thead>
+        <tr class="info">
+          <th>Campo</th>
+          <th>Descrição</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for campo, descricao in [
+          ('id_pessoa', 'Identificador da pessoa'),
+          ('nome_pessoa', 'Nome da pessoa'),
+          ('email_pessoa', 'Email da pessoa')
+        ] %}
+        <tr>
+          <td><code>{{ campo }}</code></td>
+          <td>{{ descricao }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
 
   {% elif acao == 'listar' %}
-  <h3>Lista de Usuários</h3>
-  <table class="table table-bordered table-striped table-hover">
-    <thead class="info">
-      <tr>
-        <th>Id Pessoa</th>
-        <th>Nome</th>
-        <th>Email</th>
-        <th>acao</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for u in pessoas %}
-      <tr>
-        <td>{{ u.id_pessoa }}</td>
-        <td>{{ u.nome_pessoa }}</td>
-        <td>{{ u.email_pessoa }}</td>
-        <td>
-          <form method="post" class="form-inline">
-            <input type="hidden" name="bloco" value="0">
-            <input type="hidden" name="id_usuario" value="{{ u.id_usuario }}">
-            <button type="submit" name="acao" value="editar" class="btn btn-warning btn-sm" title="Editar">
-              <i class="bi bi-pencil"></i>
-            </button>
-            <button type="submit" name="acao" value="excluir" class="btn btn-danger btn-sm" title="Excluir">
-              <i class="bi bi-trash"></i>
-            </button>
-          </form>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  {% elif acao == 'procurar' %}
-  {% if bloco == '0' %}
-  <form class="form-group" role="form" action="{{ url_for('gerenciar_pessoas') }}" method="post">
-    <input type="hidden" name="acao" value="{{ acao }}">
-    <input type="hidden" name="bloco" value="1">
-  
-    <div class="form-group">
-      <label for="nome">Nome:</label>
-      <div class="input-group">
-        <input type="text" maxlength="100" class="form-control" name="nome" id="nome" placeholder="Digite o nome">
-        <span class="input-group-addon">
-          <label for="emnome" style="margin: 0; cursor: pointer;">
-            <input type="checkbox" name="emnome" id="emnome"> Exata
-          </label>
-        </span>
+    <h3>Lista de Pessoas</h3>
+    <table class="table table-bordered table-striped table-hover">
+      <thead class="info">
+        <tr>
+          <th>Id Pessoa</th>
+          <th>Nome</th>
+          <th>Email</th>
+          <th>Ação</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in pessoas %}
+        <tr>
+          <td>{{ u.id_pessoa }}</td>
+          <td>{{ u.nome_pessoa }}</td>
+          <td>{{ u.email_pessoa }}</td>
+          <td>
+            <form method="post" class="form-inline">
+              <input type="hidden" name="bloco" value="0">
+              <input type="hidden" name="id_usuario" value="{{ u.id_usuario }}">
+              <button type="submit" name="acao" value="editar" class="btn btn-warning btn-sm" title="Editar">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button type="submit" name="acao" value="excluir" class="btn btn-danger btn-sm" title="Excluir">
+                <i class="bi bi-trash"></i>
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+  {% elif acao == 'procurar' and bloco == 0 %}
+    <h3>Procurar Pessoas</h3>
+    <form class="form-group" role="form" action="{{ url_for('gerenciar_pessoas') }}" method="post">
+      <input type="hidden" name="acao" value="{{ acao }}">
+      <input type="hidden" name="bloco" value="1">
+
+      <div class="form-group">
+        <label for="codigo">Codigo:</label>
+        <input type="number" class="form-control" name="id_pessoa" id="id_pessoa" placeholder="Digite o id">
       </div>
-    </div>
-    <div class="form-group">
-      <label for="email">Email:</label>
-      <div class="input-group">
-        <input type="email" maxlength="100" class="form-control" name="email" id="email" placeholder="Digite o email">
-        <span class="input-group-addon">
-          <label for="ememail" style="margin: 0; cursor: pointer;">
-            <input type="checkbox" name="ememail" id="ememail"> Exata
-          </label>
-        </span>
+
+      <div class="form-group">
+        <label for="nome">Nome:</label>
+        <div class="input-group">
+          <input type="text" maxlength="100" class="form-control" name="nome" id="nome" placeholder="Digite o nome">
+          <span class="input-group-addon">
+            <label for="emnome" style="margin: 0; cursor: pointer;">
+              <input type="checkbox" name="emnome" id="emnome"> Exata
+            </label>
+          </span>
+        </div>
       </div>
-    </div>
-    <!-- Botões -->
-    <div class="form-group text-center">
-	<button type="reset" class="btn btn-warning">
-	<span class="glyphicon glyphicon-refresh"></span> Limpar
-	</button>
-	<button type="submit" class="btn btn-primary">
-	<span class="glyphicon glyphicon-log-in"></span> Entrar
-	</button>
-	</div>
-  </form>
+
+      <div class="form-group">
+        <label for="email">Email:</label>
+        <div class="input-group">
+          <input type="email" maxlength="100" class="form-control" name="email" id="email" placeholder="Digite o email">
+          <span class="input-group-addon">
+            <label for="ememail" style="margin: 0; cursor: pointer;">
+              <input type="checkbox" name="ememail" id="ememail"> Exata
+            </label>
+          </span>
+        </div>
+      </div>
+
+      <div class="form-group text-center">
+        <button type="reset" class="btn btn-warning">
+          <span class="glyphicon glyphicon-refresh"></span> Limpar
+        </button>
+        <button type="submit" class="btn btn-primary">
+          <span class="glyphicon glyphicon-search"></span> Procurar
+        </button>
+      </div>
+    </form>
+  {% elif acao == 'procurar' and bloco == 1 %}
+  {% if pessoas %}
+    <h3>Resultados da busca:</h3>
+    <table class="table table-bordered table-striped table-hover">
+      <thead>
+        <tr class="info">
+          <th>ID</th>
+          <th>Nome</th>
+          <th>Email</th>
+          <th>Ação</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in pessoas %}
+        <tr>
+          <td>{{ p.id_pessoa }}</td>
+          <td>{{ p.nome_pessoa }}</td>
+          <td>{{ p.email_pessoa }}</td>
+          <td>
+            <form method="post" class="form-inline">
+              <input type="hidden" name="bloco" value="0">
+              <input type="hidden" name="id_usuario" value="{{ p.id_pessoa }}">
+              <button type="submit" name="acao" value="editar" class="btn btn-warning btn-sm" title="Editar">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button type="submit" name="acao" value="excluir" class="btn btn-danger btn-sm" title="Excluir">
+                <i class="bi bi-trash"></i>
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   {% else %}
+    <div class="alert alert-warning">
+      Nenhum resultado encontrado.
+    </div>
   {% endif %}
   {% elif acao == 'inserir' %}
+    <!-- Inserir lógica aqui -->
   {% elif acao == 'editar' %}
+    <!-- Editar lógica aqui -->
   {% elif acao == 'excluir' %}
+    <!-- Excluir lógica aqui -->
   {% else %}
-  <div class="alert alert-danger" role="alert">
-    acao não definida
-  </div>
+    <div class="alert alert-danger" role="alert">
+      Ação não definida
+    </div>
   {% endif %}
 </div>
 {% endblock %}
