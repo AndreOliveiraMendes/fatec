@@ -1,6 +1,6 @@
 {% extends "base" %}
 
-{% block title %}Usuarios{% endblock %}
+{% block title %}Pessoas{% endblock %}
 
 {% block content %}
 <div class="container">
@@ -11,8 +11,8 @@
 </div>
 {{ generate_head(url_for("gerenciar_pessoas"), acao) }}
   {% if acao == 'abertura' %}
-  <h3>Gerenciamento da Tabela <strong>Usuários</strong></h3>
-  <p>A tabela <code>usuarios</code> possui os seguintes campos:</p>
+  <h3>Gerenciamento da Tabela <strong>Pessoas</strong></h3>
+  <p>A tabela <code>pessoas</code> possui os seguintes campos:</p>
 
   <table class="table table-striped table-bordered table-hover">
     <thead>
