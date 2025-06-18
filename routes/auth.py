@@ -1,6 +1,6 @@
 from main import app
 from flask import flash, session, render_template, request, redirect, url_for
-from models import Usuarios
+from models import Pessoas, Usuarios
 from decorators import login_required
 
 @app.route("/login", methods=['GET', 'POST'])
@@ -8,12 +8,14 @@ def login():
     if 'userid' in session:
         return redirect(url_for('home'))
     if request.method == 'POST':
-        username = request.form["username"]
-        user = Usuarios.query.filter_by(nome_pessoa=username).first()
+        login = request.form["username"]
+        user = Usuarios.query.filter_by(id_usuario=login).first()
         #TODO implementar autenticação com login/senha
         #password = request.form["password"]
         if user:
-            session['username'] = user.nome_pessoa
+            pessoa = Pessoas.query.filter_by(id_pessoa=user.id_pessoa).first()
+            username = pessoa.nome_pessoa
+            session['username'] = username
             session['userid'] = user.id_usuario
             flash("login realizado com sucesso", "success")
             return render_template("auth/login_sucess.html", username=username)

@@ -42,8 +42,6 @@
       {% for campo, descricao in [
       ('id_usuario', 'Identificador do usuário'),
       ('id_pessoa', 'Identificador da pessoa'),
-      ('nome_pessoa', 'Nome da pessoa'),
-      ('email_pessoa', 'Email da pessoa'),
       ('tipo_pessoa', 'Tipo: externo ou funcionário'),
       ('situacao_pessoa', 'Situação: ativa ou desativada'),
       ('grupo_pessoa', 'Cargo específico: docente, etc.')
@@ -63,8 +61,6 @@
       <tr>
         <th>ID Usuario</th>
         <th>Id Pessoa</th>
-        <th>Nome</th>
-        <th>Email</th>
         <th>Tipo</th>
         <th>Situação</th>
         <th>Grupo</th>
@@ -76,8 +72,6 @@
       <tr>
         <td>{{ u.id_usuario }}</td>
         <td>{{ u.id_pessoa }}</td>
-        <td>{{ u.nome_pessoa }}</td>
-        <td>{{ u.email_pessoa }}</td>
         <td>{{ u.tipo_pessoa }}</td>
         <td>{{ u.situacao_pessoa }}</td>
         <td>{{ u.grupo_pessoa }}</td>
