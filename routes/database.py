@@ -1,6 +1,6 @@
 from main import app
 from flask import flash, session, render_template, request, redirect, url_for
-from models import Reservas_Fixa, Usuarios, Pessoas, Usuarios_Permissao, Laboratorios, Aulas
+from models import db, Reservas_Fixa, Usuarios, Pessoas, Usuarios_Permissao, Laboratorios, Aulas
 from decorators import admin_required
 
 @app.route("/admin/usuarios", methods=["GET", "POST"])
@@ -53,6 +53,14 @@ def gerenciar_pessoas():
             else:
                 flash("especifique pelo menos um campo de busca", "danger")
                 bloco = 0
+        elif acao == 'inserir' and bloco == 1:
+            nome = request.form.get('nome', None)
+            email = request.form.get('email', None)
+            nova_pessoa = Pessoas(nome_pessoa=nome, email_pessoa=email)
+            db.session.add(nova_pessoa)
+            db.session.commit()
+            flash("Pessoa cadastrada com sucesso", "success")
+            bloco = 0
         return render_template("database/pessoas.html", acao=acao, bloco=bloco, **extras)
     else:
         return render_template("database/pessoas.html", acao=acao, bloco=bloco)
