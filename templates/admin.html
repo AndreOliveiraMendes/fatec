@@ -3,34 +3,39 @@
 {% block title %}Painel de Controle{% endblock %}
 
 {% set secoes = {
-    'usuarios':'gerenciar_usuarios',
-    'pessoas':'gerenciar_pessoas',
-    'usuarios especiais':'gerenciar_usuario_especial',
-    'aulas':'gerenciar_aulas',
-    'laboratorios':'gerenciar_laboratorios',
-    'reservas fixa':'gerenciar_reservas_fixa',
-    'permissoes':'gerenciar_permissoes'
+    'Usuários': 'gerenciar_usuarios',
+    'Pessoas': 'gerenciar_pessoas',
+    'Usuários Especiais': 'gerenciar_usuario_especial',
+    'Aulas': 'gerenciar_aulas',
+    'Laboratórios': 'gerenciar_laboratorios',
+    'Reservas Fixas': 'gerenciar_reservas_fixa',
+    'Permissões': 'gerenciar_permissoes'
 } %}
 
 {% block content %}
-<div class="container">
+<div class="container text-center">
 
-    <!-- Botão de Voltar -->
-    <div class="form-group btn-group">
-        <a href="{{ url_for('home') }}" class="btn btn-primary btn-lg">Voltar à página de início</a>
-        <button class="btn btn-primary btn-lg" type="button" data-toggle="collapse" data-target="#collapseDatabase" aria-expanded="false" aria-controls="collapseDatabase">
-            Manipulação do Banco de Dados
+    <h2>Painel de Administração</h2>
+    <p>Escolha uma seção para gerenciar:</p>
+
+    <!-- Botões principais -->
+    <div class="btn-group" role="group" style="margin-bottom: 20px;">
+        <a href="{{ url_for('home') }}" class="btn btn-primary">
+            <span class="glyphicon glyphicon-home"></span> Página Inicial
+        </a>
+        <button class="btn btn-warning" type="button" data-toggle="collapse" data-target="#collapseDatabase" aria-expanded="false" aria-controls="collapseDatabase">
+            <span class="glyphicon glyphicon-cog"></span> Manipular Banco de Dados
         </button>
     </div>
 
-    <!-- Conteúdo colapsável -->
+    <!-- Área colapsável -->
     <div class="collapse" id="collapseDatabase">
         <div class="well">
 
             {% for secao, url in secoes.items() %}
                 <div class="form-group">
-                    <a href="{{url_for(url)}}" class="btn btn-info btn-block btn-lg text-capitalize">
-                        {{ secao }}
+                    <a href="{{ url_for(url) }}" class="btn btn-info btn-block text-capitalize">
+                        <span class="glyphicon glyphicon-chevron-right"></span> {{ secao }}
                     </a>
                 </div>
             {% endfor %}

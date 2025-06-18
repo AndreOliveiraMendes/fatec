@@ -65,3 +65,19 @@ def generate_head(target_url, acao):
 
     html += '</div>\n</form>\n</div>'
     return Markup(html)
+
+@app.template_global()
+def generate_navigation(admin=True):
+    html = '<div class="form-group btn-group">'
+
+    html += f'<a href="{url_for("home")}" class="btn btn-primary btn-lg">'
+    html += '<span class="glyphicon glyphicon-home"></span> Página Inicial'
+    html += '</a>'
+
+    if admin:
+        html += f'<a href="{url_for("gerenciar_menu")}" class="btn btn-primary btn-lg">'
+        html += '<span class="glyphicon glyphicon-cog"></span> Painel Admin'
+        html += '</a>'
+
+    html += '</div>'
+    return Markup(html)

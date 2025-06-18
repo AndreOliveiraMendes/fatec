@@ -3,12 +3,11 @@
 {% block title %}Usuarios{% endblock %}
 
 {% block content %}
-<div class="container">
-  <div class="form-group btn-group">
-    <a href="{{ url_for('home') }}" class="btn btn-primary btn-lg">Voltar à página de início</a>
-    <a href="{{ url_for('gerenciar_menu') }}" class="btn btn-primary btn-lg">Voltar à página de admin</a>
-  </div>
-{{ generate_head(url_for("gerenciar_usuarios"), acao) }}
+
+  {{ generate_navigation() }}
+  
+  {{ generate_head(url_for("gerenciar_usuarios"), acao) }}
+
   {% if acao == 'abertura' %}
   <h3>Gerenciamento da Tabela <strong>Usuários</strong></h3>
   <p>A tabela <code>usuarios</code> possui os seguintes campos:</p>

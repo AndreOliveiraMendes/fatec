@@ -3,12 +3,8 @@
 {% block title %}Pessoas{% endblock %}
 
 {% block content %}
-<div class="container">
 
-  <div class="form-group btn-group">
-    <a href="{{ url_for('home') }}" class="btn btn-primary btn-lg">Voltar à página de início</a>
-    <a href="{{ url_for('gerenciar_menu') }}" class="btn btn-primary btn-lg">Voltar à página de admin</a>
-  </div>
+  {{ generate_navigation() }}
 
   {{ generate_head(url_for("gerenciar_pessoas"), acao) }}
 
