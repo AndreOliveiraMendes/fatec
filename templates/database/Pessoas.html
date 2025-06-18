@@ -69,11 +69,42 @@
     </tbody>
   </table>
   {% elif acao == 'procurar' %}
-  {% if bloco == 0 %}
-  <form class="form-group" role="form" action={{ url_for("gerenciar_pessoas") }} method="post">
-    <input type="hidden" name="acao" value={{ acao }}>
+  {% if bloco == '0' %}
+  <form class="form-group" role="form" action="{{ url_for('gerenciar_pessoas') }}" method="post">
+    <input type="hidden" name="acao" value="{{ acao }}">
     <input type="hidden" name="bloco" value="1">
-
+  
+    <div class="form-group">
+      <label for="nome">Nome:</label>
+      <div class="input-group">
+        <input type="text" maxlength="100" class="form-control" name="nome" id="nome" placeholder="Digite o nome">
+        <span class="input-group-addon">
+          <label for="emnome" style="margin: 0; cursor: pointer;">
+            <input type="checkbox" name="emnome" id="emnome"> Exata
+          </label>
+        </span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="email">Email:</label>
+      <div class="input-group">
+        <input type="email" maxlength="100" class="form-control" name="email" id="email" placeholder="Digite o email">
+        <span class="input-group-addon">
+          <label for="ememail" style="margin: 0; cursor: pointer;">
+            <input type="checkbox" name="ememail" id="ememail"> Exata
+          </label>
+        </span>
+      </div>
+    </div>
+    <!-- Botões -->
+    <div class="form-group text-center">
+	<button type="reset" class="btn btn-warning">
+	<span class="glyphicon glyphicon-refresh"></span> Limpar
+	</button>
+	<button type="submit" class="btn btn-primary">
+	<span class="glyphicon glyphicon-log-in"></span> Entrar
+	</button>
+	</div>
   </form>
   {% else %}
   {% endif %}
