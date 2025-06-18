@@ -1,6 +1,6 @@
 from main import app
 from flask import flash, session, render_template, request, redirect, url_for
-from models import Reservas_Fixa, Usuarios, Usuarios_Permissao, Laboratorios, Aulas
+from models import Reservas_Fixa, Usuarios, Pessoas, Usuarios_Permissao, Laboratorios, Aulas
 from decorators import admin_required
 
 @app.route("/admin/usuarios", methods=["GET", "POST"])
@@ -17,11 +17,19 @@ def gerenciar_usuarios():
     else:
         return render_template("database/usuarios.html", acao=acao, bloco=bloco)
     
-@app.route("/admin/pessoas")
+@app.route("/admin/pessoas", methods=["GET", "POST"])
 @admin_required
 def gerenciar_pessoas():
-    flash("Pagina em Desenvolvimento", "warning")
-    return redirect(url_for('under_dev_page'))
+    acao = request.form.get('acao', 'abertura')
+    bloco = request.form.get('bloco', 0)
+    if request.method == 'POST':
+        extras = {}
+        if acao == 'listar':
+            pessoas = Pessoas.query.all()
+            extras['pessoas'] = pessoas
+        return render_template("database/pessoas.html", acao=acao, bloco=bloco, **extras)
+    else:
+        return render_template("database/pessoas.html", acao=acao, bloco=bloco)
 
 @app.route("/admin/usuario_especial")
 @admin_required

@@ -15,7 +15,7 @@
     {% else %}
         <a href="{{ url_for('login') }}" class="btn btn-primary">Ir para Login</a>
     {% endif %}
-    {% if bitwise_and(perm, PERM_ADMIN) %}
+    {% if perm|has_flag(PERM_ADMIN) %}
         <a href="{{ url_for('gerenciar_menu') }}" class="btn btn-primary">Gerenciar o sistema (banco de dados)</a>
     {% endif %}
 </div>
