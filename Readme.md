@@ -45,37 +45,37 @@ The project follows the structure below:
     ├── database/             # Pages related to database content display
     │   ├── pessoas.html
     │   └── usuarios.html
-    └── homepage.html         # Initial landing page
-    ├── macros/               # Macros uteis
-    │   ├── form.html         # Macros para formulario
-    │   └── pagination.html   # Macros para pagination
-    └── under_dev.html        # Em Densevolvimento
+    ├── macros/               # Folder for Jinja macros, imported by other templates
+    │   ├── form.html         # Macros for form elements
+    │   └── pagination.html   # Macros for pagination controls
+    ├── homepage.html         # Initial landing page
+    └── under_dev.html        # Under Development page
 ```
 
 ---
 
 # File Descriptions
 
-- **`.env`** → Defines environment variables. See `.env.example` for reference.
-- **`.gitignore`** → Specifies sensitive or unnecessary files/folders to ignore.
-- **`Readme.md`** → This file. Brief project overview and structure.
-- **`auxiliar_template/`** → Contains helper functions usable inside Jinja templates.
-- **`config.py`** → Centralized project configuration.
-- **`decorators.py`** → All route decorators (authentication, permissions, etc.).
-- **`main.py`** → Flask app entry point.
-- **`models.py`** → SQLAlchemy models defining the database schema.
-- **`requirements.txt`** → Python libraries used by the project.
-- **`routes/`** → Backend route logic, split into functional areas.
-- **`schema.sql`** → Raw SQL file for database schema creation.
-- **`start-dev.bat`** → Windows batch file for quick local development startup.
-- **`static/`** → Static web assets like favicon, CSS, JS.
-- **`templates/`** → Front-end Jinja HTML templates, organized by section.
-- **`templates/base`** → The default base template, extended by other pages.
-- **`templates/macros`** → folder to store jinja macros, imported by other pages.
+* **`.env`** → Defines environment variables. See `.env.example` for reference.
+* **`.gitignore`** → Specifies sensitive or unnecessary files/folders to ignore.
+* **`Readme.md`** → This file. Brief project overview and structure.
+* **`auxiliar_template/`** → Contains helper functions usable inside Jinja templates.
+* **`config.py`** → Centralized project configuration.
+* **`decorators.py`** → All route decorators (authentication, permissions, etc.).
+* **`main.py`** → Flask app entry point.
+* **`models.py`** → SQLAlchemy models defining the database schema.
+* **`requirements.txt`** → Python libraries used by the project.
+* **`routes/`** → Backend route logic, split into functional areas.
+* **`schema.sql`** → Raw SQL file for database schema creation.
+* **`start-dev.bat`** → Windows batch file for quick local development startup.
+* **`static/`** → Static web assets like favicon, CSS, JS.
+* **`templates/`** → Front-end Jinja HTML templates, organized by section.
+* **`templates/base`** → The default base template, extended by other pages.
+* **`templates/macros/`** → Folder for reusable Jinja macros.
 
 ---
 
-# Notes
+### 🛧 Development Status
 
-- This project is still under development.
-- More detailed documentation will be added as the project evolves.
+* This project is still under development.
+* More detailed documentation will be added as the project evolves.
