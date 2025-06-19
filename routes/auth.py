@@ -18,7 +18,7 @@ def login():
             session['username'] = username
             session['userid'] = user.id_usuario
             flash("login realizado com sucesso", "success")
-            return render_template("auth/login_sucess.html", username=username)
+            return render_template("auth/login_success.html", username=username)
         else:
             flash("falha ao realizar login", "danger")
             return render_template("auth/login_fail.html")
