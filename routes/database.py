@@ -22,11 +22,14 @@ def gerenciar_usuarios():
 def gerenciar_pessoas():
     acao = request.form.get('acao', 'abertura')
     bloco = int(request.form.get('bloco', 0))
+    page = int(request.form.get('page', 1))
+    app.logger.info(f"{acao} {bloco} {page}")
     if request.method == 'POST':
         extras = {}
         if acao == 'listar':
-            pessoas = Pessoas.query.all()
-            extras['pessoas'] = pessoas
+            pessoas_paginadas = Pessoas.query.paginate(page=page, per_page=10, error_out=False)
+            extras['pessoas'] = pessoas_paginadas.items
+            extras['pagination'] = pessoas_paginadas
         elif acao == 'procurar' and bloco == 1:
             id = request.form.get('id_pessoa', None)
             nome = request.form.get('nome', None)

@@ -1,0 +1,25 @@
+{% macro paginacao(pagination, acao, bloco) %}
+  {% if pagination %}
+  <nav aria-label="Paginação">
+    <form method="post" class="form-inline">
+      <input type="hidden" name="acao" value="{{ acao }}">
+      <input type="hidden" name="bloco" value="{{ bloco }}">
+      <div class="btn-group" role="group">
+        {% if pagination.has_prev %}
+        <button type="submit" name="page" value="{{ pagination.prev_num }}" class="btn btn-primary btn-sm">
+          &laquo; Anterior
+        </button>
+        {% endif %}
+        <button class="btn btn-default btn-sm disabled">
+          Página {{ pagination.page }} de {{ pagination.pages }}
+        </button>
+        {% if pagination.has_next %}
+        <button type="submit" name="page" value="{{ pagination.next_num }}" class="btn btn-primary btn-sm">
+          Próxima &raquo;
+        </button>
+        {% endif %}
+      </div>
+    </form>
+  </nav>
+  {% endif %}
+{% endmacro %}

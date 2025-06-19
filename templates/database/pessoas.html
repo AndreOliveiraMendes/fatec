@@ -1,4 +1,5 @@
 {% extends "base" %}
+{% from "macros.html" import paginacao %}
 
 {% block title %}Pessoas{% endblock %}
 
@@ -66,7 +67,7 @@
         {% endfor %}
       </tbody>
     </table>
-
+  {{ paginacao(pagination, acao, bloco) }}
   {% elif acao == 'procurar' and bloco == 0 %}
     <h3>Procurar Pessoas</h3>
     <form class="form-group" role="form" action="{{ url_for('gerenciar_pessoas') }}" method="post">
