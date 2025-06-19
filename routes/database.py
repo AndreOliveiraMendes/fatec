@@ -68,6 +68,9 @@ def gerenciar_pessoas():
             db.session.commit()
             flash("Pessoa cadastrada com sucesso", "success")
             bloco = 0
+        elif acao == 'editar' and bloco == 0:
+            pessoas_id_nome = db.session.query(Pessoas.id_pessoa, Pessoas.nome_pessoa).all()
+            extras['pessoas'] = pessoas_id_nome
         return render_template("database/pessoas.html", acao=acao, bloco=bloco, **extras)
     else:
         return render_template("database/pessoas.html", acao=acao, bloco=bloco)

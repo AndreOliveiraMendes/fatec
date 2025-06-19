@@ -1,5 +1,5 @@
 {% extends "base" %}
-{% from "macros.html" import paginacao, paginacao_header, paginacao_button, paginacao_footer %}
+{% from "macros.html" import paginacao, paginacao_header, paginacao_button, paginacao_footer, gerar_select %}
 
 {% block title %}Pessoas{% endblock %}
 
@@ -164,7 +164,7 @@
     </div>
   {% endif %}
   {% elif acao == 'inserir' and bloco == 0 %}
-  <h3>Procurar Pessoas</h3>
+  <h3>Inserir Pessoas</h3>
   <form class="form-group" role="form" action="{{ url_for('gerenciar_pessoas') }}" method="post">
     <input type="hidden" name="acao" value="{{ acao }}">
     <input type="hidden" name="bloco" value="1">
@@ -192,8 +192,25 @@
       </button>
     </div>
   </form>
-  {% elif acao == 'editar' %}
-    <!-- Editar lógica aqui -->
+  {% elif acao == 'editar' and bloco == 0 %}
+  <h3>Editar Pessoas</h3>
+  <form class="form-group" role="form" action="{{ url_for('gerenciar_pessoas') }}" method="post">
+    <input type="hidden" name="acao" value="{{ acao }}">
+    <input type="hidden" name="bloco" value="1">
+
+    {{ gerar_select("pessoa", "Selecione a Pessoa", pessoas, "id_pessoa", "nome_pessoa") }}
+
+    <div class="form-group text-center">
+      <button type="reset" class="btn btn-warning">
+        <span class="glyphicon glyphicon-refresh"></span> Limpar
+      </button>
+      <button type="submit" class="btn btn-primary">
+        <span class="glyphicon bi-pencil-square"></span> Editar
+      </button>
+    </div>
+  </form>
+  {% elif acao == 'editar' and bloco == 1 %}
+  <h3>Editar Pessoa</h3>
   {% elif acao == 'excluir' %}
     <!-- Excluir lógica aqui -->
   {% else %}
