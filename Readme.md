@@ -23,6 +23,7 @@ The project follows the structure below:
 ├── requirements.txt          # Python dependencies
 ├── routes/                   # Backend route definitions
 │   ├── auth.py               # Authentication-related routes
+│   ├── database.py           # Database routes
 │   ├── default.py            # General/default routes
 │   └── error.py              # Error handling routes
 ├── schema.sql                # Raw database schema (SQL)
@@ -32,6 +33,7 @@ The project follows the structure below:
 │       ├── favicon.png
 │       └── favicon.svg
 └── templates/                # Front-end HTML templates (Jinja)
+    ├── 403.html              # 403 - Forbidden
     ├── 404.html              # 404 - Not Found page
     ├── admin.html            # Admin dashboard page
     ├── auth/                 # Authentication-related pages
@@ -41,8 +43,13 @@ The project follows the structure below:
     │   └── logout.html
     ├── base                  # Base layout template (inherited by other pages)
     ├── database/             # Pages related to database content display
+    │   ├── pessoas.html
     │   └── usuarios.html
     └── homepage.html         # Initial landing page
+    ├── macros/               # Macros uteis
+    │   ├── form.html         # Macros para formulario
+    │   └── pagination.html   # Macros para pagination
+    └── under_dev.html        # Em Densevolvimento
 ```
 
 ---
@@ -64,6 +71,7 @@ The project follows the structure below:
 - **`static/`** → Static web assets like favicon, CSS, JS.
 - **`templates/`** → Front-end Jinja HTML templates, organized by section.
 - **`templates/base`** → The default base template, extended by other pages.
+- **`templates/macros`** → folder to store jinja macros, imported by other pages.
 
 ---
 
