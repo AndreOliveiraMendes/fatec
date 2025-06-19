@@ -1,0 +1,10 @@
+{% macro gerar_select(id, label, table, table_id, table_label) %}
+    <div class="form-group">
+      <label for="{{ id }}">{{ label }}</label>
+      <select class="form-control" id="{{ id }}" name="{{ table_id }}">
+        {% for t in table %}
+          <option value="{{ t[table_id] }}">{{ t[table_label] }}</option>
+        {% endfor %}
+      </select>
+    </div>
+{% endmacro %}
