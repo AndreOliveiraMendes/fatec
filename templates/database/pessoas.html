@@ -45,15 +45,15 @@
         </tr>
       </thead>
       <tbody>
-        {% for u in pessoas %}
+        {% for p in pessoas %}
         <tr>
-          <td>{{ u.id_pessoa }}</td>
-          <td>{{ u.nome_pessoa }}</td>
-          <td>{{ u.email_pessoa }}</td>
+          <td>{{ p.id_pessoa }}</td>
+          <td>{{ p.nome_pessoa }}</td>
+          <td>{{ p.email_pessoa }}</td>
           <td>
             <form method="post" class="form-inline">
               <input type="hidden" name="bloco" value="1">
-              <input type="hidden" name="id_usuario" value="{{ u.id_usuario }}">
+              <input type="hidden" name="id_pessoa" value="{{ p.id_pessoa }}">
               <button type="submit" name="acao" value="editar" class="btn btn-warning btn-sm" title="Editar">
                 <i class="bi bi-pencil"></i>
               </button>
@@ -132,7 +132,7 @@
           <td>
             <form method="post" class="form-inline">
               <input type="hidden" name="bloco" value="1">
-              <input type="hidden" name="id_usuario" value="{{ p.id_pessoa }}">
+              <input type="hidden" name="id_pessoa" value="{{ p.id_pessoa }}">
               <button type="submit" name="acao" value="editar" class="btn btn-warning btn-sm" title="Editar">
                 <i class="bi bi-pencil"></i>
               </button>
