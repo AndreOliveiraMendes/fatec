@@ -3,6 +3,8 @@ from flask import flash, session, render_template, request, redirect, url_for
 from models import db, Reservas_Fixa, Usuarios, Pessoas, Usuarios_Permissao, Laboratorios, Aulas
 from decorators import admin_required
 
+IGNORED_FORM_FIELDS = ['page', 'acao', 'bloco']
+
 @app.route("/admin/usuarios", methods=["GET", "POST"])
 @admin_required
 def gerenciar_usuarios():
@@ -36,25 +38,20 @@ def gerenciar_pessoas():
             email = request.form.get('email', None)
             exact_email_match = 'ememail' in request.form
             filter = []
-            query_params = {}
+            query_params = {key: value for key, value in request.form.items() if key not in IGNORED_FORM_FIELDS}
             query = Pessoas.query
             if id:
                 filter.append(Pessoas.id_pessoa == id)
-                query_params['id'] = id
             if nome:
                 if exact_name_match:
                     filter.append(Pessoas.nome_pessoa == nome)
                 else:
                     filter.append(Pessoas.nome_pessoa.ilike(f"%{nome}%"))
-                query_params['nome'] = nome
-                query_params['exact_name_match'] = exact_name_match
             if email:
                 if exact_email_match:
                     filter.append(Pessoas.email_pessoa == email)
                 else:
                     filter.append(Pessoas.email_pessoa.ilike(f"%{email}%"))
-                query_params['email'] = email
-                query_params['exact_email_match'] = exact_email_match
             if filter:
                 pessoas_paginadas = query.filter(*filter).paginate(page=page, per_page=10, error_out=False)
                 extras['pessoas'] = pessoas_paginadas.items
