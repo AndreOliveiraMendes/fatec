@@ -23,7 +23,6 @@ def gerenciar_pessoas():
     acao = request.form.get('acao', 'abertura')
     bloco = int(request.form.get('bloco', 0))
     page = int(request.form.get('page', 1))
-    app.logger.info(f"{acao} {bloco} {page}")
     if request.method == 'POST':
         extras = {}
         if acao == 'listar':
@@ -37,22 +36,30 @@ def gerenciar_pessoas():
             email = request.form.get('email', None)
             exact_email_match = 'ememail' in request.form
             filter = []
+            query_params = {}
             query = Pessoas.query
             if id:
                 filter.append(Pessoas.id_pessoa == id)
+                query_params['id'] = id
             if nome:
                 if exact_name_match:
                     filter.append(Pessoas.nome_pessoa == nome)
                 else:
                     filter.append(Pessoas.nome_pessoa.ilike(f"%{nome}%"))
+                query_params['nome'] = nome
+                query_params['exact_name_match'] = exact_name_match
             if email:
                 if exact_email_match:
                     filter.append(Pessoas.email_pessoa == email)
                 else:
                     filter.append(Pessoas.email_pessoa.ilike(f"%{email}%"))
+                query_params['email'] = email
+                query_params['exact_email_match'] = exact_email_match
             if filter:
-                query = query.filter(*filter)
-                extras['pessoas'] = query.all()
+                pessoas_paginadas = query.filter(*filter).paginate(page=page, per_page=10, error_out=False)
+                extras['pessoas'] = pessoas_paginadas.items
+                extras['pagination'] = pessoas_paginadas
+                extras['query_params'] = query_params
             else:
                 flash("especifique pelo menos um campo de busca", "danger")
                 bloco = 0

@@ -1,5 +1,5 @@
 {% extends "base" %}
-{% from "macros.html" import paginacao %}
+{% from "macros.html" import paginacao, paginacao_header, paginacao_button, paginacao_footer %}
 
 {% block title %}Pessoas{% endblock %}
 
@@ -146,6 +146,18 @@
         {% endfor %}
       </tbody>
     </table>
+  {{ paginacao_header(pagination, acao, bloco) }}
+  {% for field, value in query_params.items() %}
+  {% if field in ['emnome', 'ememail'] %}
+    {% if value %}
+      <input type="hidden" name="{{ field }}" value="{{ value }}">
+    {% endif %}
+  {% else %}
+      <input type="hidden" name="{{ field }}" value="{{ value }}">
+  {% endif %}
+  {% endfor %}
+  {{ paginacao_button(pagination, acao, bloco) }}
+  {{ paginacao_footer(pagination, acao, bloco) }}
   {% else %}
     <div class="alert alert-warning">
       Nenhum resultado encontrado.
