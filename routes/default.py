@@ -18,5 +18,5 @@ def home():
 @admin_required
 def gerenciar_menu():
     username = session.get('username')
-    userid = session.get('userdid')
-    return render_template("admin.html", username=username, userid=userid)
+    perm = session.get('perm', None)
+    return render_template("admin.html", username=username, perm=perm)
