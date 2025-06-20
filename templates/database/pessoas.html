@@ -212,6 +212,40 @@
   </form>
   {% elif acao == 'editar' and bloco == 1 %}
   <h3>Editar Pessoa</h3>
+  <form class="form-group" role="form" action="{{ url_for('gerenciar_pessoas') }}" method="post">
+    <input type="hidden" name="acao" value="{{ acao }}">
+    <input type="hidden" name="bloco" value="2">
+
+    <div class="form-group">
+      <label for="id_pessoa">ID Pessoa:</label>
+      <div class="input-group">
+        <input type="number" maxlength="100" class="form-control" name="id_pessoa" id="id_pessoa" value="{{ pessoa.id_pessoa }}" disabled required>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="nome">Nome:</label>
+      <div class="input-group">
+        <input type="text" maxlength="100" class="form-control" name="nome" id="nome" value="{{ pessoa.nome_pessoa }}" placeholder="Digite o nome" required>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email:</label>
+      <div class="input-group">
+        <input type="email" maxlength="100" class="form-control" name="email" id="email" value="{{pessoa.email_pessoa }}" placeholder="Digite o email">
+      </div>
+    </div>
+
+    <div class="form-group text-center">
+      <button type="reset" class="btn btn-warning">
+        <span class="glyphicon glyphicon-refresh"></span> Limpar
+      </button>
+      <button type="submit" class="btn btn-primary">
+        <span class="glyphicon bi-plus-circle"></span> Inserir
+      </button>
+    </div>
+  </form> 
   {% elif acao == 'excluir' %}
     <!-- Excluir lógica aqui -->
   {% else %}

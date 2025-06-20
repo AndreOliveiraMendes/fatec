@@ -5,6 +5,9 @@ from decorators import admin_required
 
 IGNORED_FORM_FIELDS = ['page', 'acao', 'bloco']
 
+def none_if_empty(value):
+    return value if value and value.strip() else None
+
 @app.route("/admin/usuarios", methods=["GET", "POST"])
 @admin_required
 def gerenciar_usuarios():
@@ -61,8 +64,8 @@ def gerenciar_pessoas():
                 flash("especifique pelo menos um campo de busca", "danger")
                 bloco = 0
         elif acao == 'inserir' and bloco == 1:
-            nome = request.form.get('nome', None)
-            email = request.form.get('email', None)
+            nome = none_if_empty(request.form.get('nome', None))
+            email = none_if_empty(request.form.get('email', None))
             nova_pessoa = Pessoas(nome_pessoa=nome, email_pessoa=email)
             db.session.add(nova_pessoa)
             db.session.commit()
@@ -73,7 +76,8 @@ def gerenciar_pessoas():
             extras['pessoas'] = pessoas_id_nome
         elif acao == 'editar' and bloco == 1:
             id_pessoa = request.form.get('id_pessoa', None)
-            app.logger.debug(id_pessoa)
+            pessoa = Pessoas.query.filter(Pessoas.id_pessoa == id_pessoa).first()
+            extras['pessoa'] = pessoa
         return render_template("database/pessoas.html", acao=acao, bloco=bloco, **extras)
     else:
         return render_template("database/pessoas.html", acao=acao, bloco=bloco)
