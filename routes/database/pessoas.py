@@ -1,6 +1,7 @@
+import flask_sqlalchemy.session
 from main import app
-from flask import flash, session, render_template, request, redirect, url_for
-from models import db, Reservas_Fixa, Usuarios, Pessoas, Usuarios_Permissao, Laboratorios, Aulas
+from flask import flash, render_template, request
+from models import db, Pessoas
 from decorators import admin_required
 from auxiliar.auxiliar_routes import none_if_empty, get_query_params
 
@@ -60,6 +61,27 @@ def gerenciar_pessoas():
             id_pessoa = request.form.get('id_pessoa', None)
             pessoa = Pessoas.query.filter(Pessoas.id_pessoa == id_pessoa).first()
             extras['pessoa'] = pessoa
+        elif acao == 'editar' and bloco == 2:
+            id_pessoa = none_if_empty(request.form.get('id_pessoa'))
+            nome = none_if_empty(request.form.get('nome', None))
+            email = none_if_empty(request.form.get('email', None))
+
+            app.logger.debug(id_pessoa)
+
+            pessoa = Pessoas.query.get(id_pessoa)
+
+            if pessoa:
+                pessoa.nome_pessoa = nome
+                pessoa.email_pessoa = email
+                db.session.commit()
+                flash("Pessoa atualizada com sucesso", "success")
+            else:
+                flash("Pessoa não encontrada", "danger")
+
+            pessoas_id_nome = db.session.query(Pessoas.id_pessoa, Pessoas.nome_pessoa).all()
+            extras['pessoas'] = pessoas_id_nome
+            bloco = 0
+            
         return render_template("database/pessoas.html", acao=acao, bloco=bloco, **extras)
     else:
         return render_template("database/pessoas.html", acao=acao, bloco=bloco)
