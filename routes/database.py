@@ -8,6 +8,9 @@ IGNORED_FORM_FIELDS = ['page', 'acao', 'bloco']
 def none_if_empty(value):
     return value if value and value.strip() else None
 
+def get_query_params(request):
+    return {key: value for key, value in request.form.items() if key not in IGNORED_FORM_FIELDS}
+
 @app.route("/admin/usuarios", methods=["GET", "POST"])
 @admin_required
 def gerenciar_usuarios():
@@ -35,13 +38,13 @@ def gerenciar_pessoas():
             extras['pessoas'] = pessoas_paginadas.items
             extras['pagination'] = pessoas_paginadas
         elif acao == 'procurar' and bloco == 1:
-            id = request.form.get('id_pessoa', None)
-            nome = request.form.get('nome', None)
+            id = none_if_empty(request.form.get('id_pessoa', None))
+            nome = none_if_empty(request.form.get('nome', None))
             exact_name_match = 'emnome' in request.form
-            email = request.form.get('email', None)
+            email = none_if_empty(request.form.get('email', None))
             exact_email_match = 'ememail' in request.form
             filter = []
-            query_params = {key: value for key, value in request.form.items() if key not in IGNORED_FORM_FIELDS}
+            query_params = get_query_params(request)
             query = Pessoas.query
             if id:
                 filter.append(Pessoas.id_pessoa == id)
