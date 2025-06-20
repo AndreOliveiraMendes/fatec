@@ -71,6 +71,9 @@ def gerenciar_pessoas():
         elif acao == 'editar' and bloco == 0:
             pessoas_id_nome = db.session.query(Pessoas.id_pessoa, Pessoas.nome_pessoa).all()
             extras['pessoas'] = pessoas_id_nome
+        elif acao == 'editar' and bloco == 1:
+            id_pessoa = request.form.get('id_pessoa', None)
+            app.logger.debug(id_pessoa)
         return render_template("database/pessoas.html", acao=acao, bloco=bloco, **extras)
     else:
         return render_template("database/pessoas.html", acao=acao, bloco=bloco)
