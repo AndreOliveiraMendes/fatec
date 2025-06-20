@@ -1,6 +1,6 @@
 {% extends "base" %}
 {% from "macros/pagination.html" import paginacao, paginacao_header, paginacao_button, paginacao_footer %}
-{% from "macros/form.html" import generate_navigation, gerar_select %}
+{% from "macros/form.html" import generate_navigation, gerar_select, action_buttons %}
 
 {% block title %}Pessoas{% endblock %}
 
@@ -75,42 +75,41 @@
       <input type="hidden" name="acao" value="{{ acao }}">
 
       <div class="form-group">
-        <label for="codigo">Codigo:</label>
-        <input type="number" class="form-control" name="id_pessoa" id="id_pessoa" placeholder="Digite o id">
-      </div>
-
-      <div class="form-group">
-        <label for="nome">Nome:</label>
         <div class="input-group">
-          <input type="text" maxlength="100" class="form-control" name="nome" id="nome" placeholder="Digite o nome">
-          <span class="input-group-addon">
-            <label for="emnome" style="margin: 0; cursor: pointer;">
-              <input type="checkbox" name="emnome" id="emnome"> Exata
-            </label>
-          </span>
+          <label for="codigo">Codigo:</label>
+          <input type="number" class="form-control" name="id_pessoa" id="id_pessoa" placeholder="Digite o id">
         </div>
       </div>
 
       <div class="form-group">
-        <label for="email">Email:</label>
         <div class="input-group">
-          <input type="email" maxlength="100" class="form-control" name="email" id="email" placeholder="Digite o email">
-          <span class="input-group-addon">
-            <label for="ememail" style="margin: 0; cursor: pointer;">
-              <input type="checkbox" name="ememail" id="ememail"> Exata
-            </label>
-          </span>
+          <label for="nome">Nome:</label>
+          <div class="input-group">
+            <input type="text" maxlength="100" class="form-control" name="nome" id="nome" placeholder="Digite o nome">
+            <span class="input-group-addon">
+              <label for="emnome" style="margin: 0; cursor: pointer;">
+                <input type="checkbox" name="emnome" id="emnome"> Exata
+              </label>
+            </span>
+          </div>
         </div>
       </div>
 
-      <div class="form-group text-center">
-        <button type="reset" class="btn btn-warning">
-          <span class="glyphicon glyphicon-refresh"></span> Limpar
-        </button>
-        <button type="submit" name="bloco" value="1" class="btn btn-primary">
-          <span class="glyphicon glyphicon-search"></span> Procurar
-        </button>
+      <div class="form-group">
+        <div class="input-group">
+          <label for="email">Email:</label>
+          <div class="input-group">
+            <input type="email" maxlength="100" class="form-control" name="email" id="email" placeholder="Digite o email">
+            <span class="input-group-addon">
+              <label for="ememail" style="margin: 0; cursor: pointer;">
+                <input type="checkbox" name="ememail" id="ememail"> Exata
+              </label>
+            </span>
+          </div>
+        </div>
       </div>
+
+      {{ action_buttons('procurar', 1, False, 0)}}
     </form>
   {% elif acao == 'procurar' and bloco == 1 %}
   {% if pessoas %}
@@ -167,7 +166,6 @@
   <h3>Inserir Pessoas</h3>
   <form class="form-group" role="form" action="{{ url_for('gerenciar_pessoas') }}" method="post">
     <input type="hidden" name="acao" value="{{ acao }}">
-    <input type="hidden" name="bloco" value="1">
 
     <div class="form-group">
       <label for="nome">Nome:</label>
@@ -183,31 +181,16 @@
       </div>
     </div>
 
-    <div class="form-group text-center">
-      <button type="reset" class="btn btn-warning">
-        <span class="glyphicon glyphicon-refresh"></span> Limpar
-      </button>
-      <button type="submit" class="btn btn-primary">
-        <span class="glyphicon bi-plus-circle"></span> Inserir
-      </button>
-    </div>
+    {{ action_buttons('inserir', 1, False, 0)}}
   </form>
   {% elif acao == 'editar' and bloco == 0 %}
   <h3>Editar Pessoas</h3>
   <form class="form-group" role="form" action="{{ url_for('gerenciar_pessoas') }}" method="post">
     <input type="hidden" name="acao" value="{{ acao }}">
-    <input type="hidden" name="bloco" value="1">
 
     {{ gerar_select("pessoa", "Selecione a Pessoa", pessoas, "id_pessoa", "nome_pessoa") }}
 
-    <div class="form-group text-center">
-      <button type="reset" class="btn btn-warning">
-        <span class="glyphicon glyphicon-refresh"></span> Limpar
-      </button>
-      <button type="submit" class="btn btn-primary">
-        <span class="glyphicon bi-pencil-square"></span> Editar
-      </button>
-    </div>
+    {{ action_buttons('editar', 1, False, 0)}}
   </form>
   {% elif acao == 'editar' and bloco == 1 %}
   <h3>Editar Pessoa</h3>
@@ -235,19 +218,7 @@
       </div>
     </div>
 
-    <div class="form-group text-center">
-      <button type="submit" name="bloco" value="0" formnovalidate class="btn btn-secondary">
-        <span class="glyphicon glyphicon-arrow-left"></span> Voltar
-      </button>
-
-      <button type="reset" class="btn btn-warning">
-        <span class="glyphicon glyphicon-refresh"></span> Limpar
-      </button>
-
-      <button type="submit" name="bloco" value="2" class="btn btn-primary">
-        <span class="glyphicon bi-pencil-square"></span> Editar
-      </button>
-    </div>
+    {{ action_buttons('editar', 2, True, 0)}}
   </form>
   {% elif acao == 'excluir' %}
     <!-- Excluir lógica aqui -->

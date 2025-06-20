@@ -17,10 +17,42 @@
 {% macro gerar_select(id, label, table, table_id, table_label) %}
     <div class="form-group">
       <label for="{{ id }}">{{ label }}</label>
-      <select class="form-control" id="{{ id }}" name="{{ table_id }}">
-        {% for t in table %}
-          <option value="{{ t[table_id] }}">{{ t[table_label] }}</option>
-        {% endfor %}
-      </select>
+      <div class="input-group">
+        <select class="form-control text-center" id="{{ id }}" name="{{ table_id }}">
+          {% for t in table %}
+            <option value="{{ t[table_id] }}">{{ t[table_label] }}</option>
+          {% endfor %}
+        </select>
+      </div>
     </div>
+{% endmacro %}
+
+{% macro action_buttons(acao='salvar', bloco_submit='1', show_voltar=True, bloco_voltar='0') %}
+<div class="form-group btn-group text-center mt-3">
+  {% if show_voltar %}
+    <button type="submit" name="bloco" value="{{ bloco_voltar }}" formnovalidate class="btn btn-secondary me-2">
+      <i class="glyphicon glyphicon-arrow-left"></i> Voltar
+    </button>
+  {% endif %}
+
+  <button type="reset" class="btn btn-warning me-2">
+    <i class="glyphicon glyphicon-refresh"></i> Limpar
+  </button>
+
+  <button type="submit" name="bloco" value="{{ bloco_submit }}" class="btn btn-primary">
+    {% if acao == 'salvar' %}
+      <i class="glyphicon glyphicon-floppy-disk"></i> Salvar
+    {% elif acao == 'inserir' %}
+      <i class="glyphicon bi-plus-circle"></i> Inserir
+    {% elif acao == 'editar' %}
+      <i class="glyphicon bi-pencil-square"></i> Editar
+    {% elif acao == 'excluir' %}
+      <i class="glyphicon glyphicon-trash"></i> Excluir
+    {% elif acao == 'procurar' %}
+      <i class="glyphicon glyphicon-search"></i> Procurar
+    {% else %}
+      <i class="glyphicon glyphicon-ok"></i> {{ acao|capitalize }}
+    {% endif %}
+  </button>
+</div>
 {% endmacro %}
