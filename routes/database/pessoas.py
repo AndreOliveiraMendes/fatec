@@ -79,7 +79,22 @@ def gerenciar_pessoas():
             pessoas_id_nome = db.session.query(Pessoas.id_pessoa, Pessoas.nome_pessoa).all()
             extras['pessoas'] = pessoas_id_nome
             bloco = 0
-            
+        elif acao == 'excluir' and bloco == 2:
+            id_pessoa = none_if_empty(request.form.get('id_pessoa'))
+
+            pessoa = Pessoas.query.get(id_pessoa)
+
+            if pessoa:
+                db.session.delete(pessoa)
+                db.session.commit()
+                flash("Pessoa excluída com sucesso", "success")
+            else:
+                flash("Pessoa não encontrada", "danger")
+
+            pessoas_id_nome = db.session.query(Pessoas.id_pessoa, Pessoas.nome_pessoa).all()
+            extras['pessoas'] = pessoas_id_nome
+            bloco = 0
+
         return render_template("database/pessoas.html", acao=acao, bloco=bloco, **extras)
     else:
         return render_template("database/pessoas.html", acao=acao, bloco=bloco)

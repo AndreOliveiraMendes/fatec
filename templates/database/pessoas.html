@@ -244,18 +244,18 @@
     <div class="form-group">
       <label for="nome">Nome:</label>
       <div class="input-group">
-        <input type="text" maxlength="100" class="form-control" name="nome" id="nome" value="{{ pessoa.nome_pessoa if pessoa.nome_pessoa else '' }}" readonly required>
+        <input type="text" maxlength="100" class="form-control" name="nome" id="nome" value="{{ pessoa.nome_pessoa if pessoa.nome_pessoa else '' }}" disabled required>
       </div>
     </div>
 
     <div class="form-group">
       <label for="email">Email:</label>
       <div class="input-group">
-        <input type="email" maxlength="100" class="form-control" name="email" id="email" value="{{ pessoa.email_pessoa if pessoa.email_pessoa else '' }}" readonly>
+        <input type="email" maxlength="100" class="form-control" name="email" id="email" value="{{ pessoa.email_pessoa if pessoa.email_pessoa else '' }}" disabled>
       </div>
     </div>
 
-    {{ action_buttons('editar', 2, True, 0)}}
+    {{ action_buttons('excluir', 2, True, 0)}}
   {% else %}
     <div class="alert alert-danger" role="alert">
       Ação não definida
