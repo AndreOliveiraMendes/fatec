@@ -54,10 +54,10 @@ def gerenciar_pessoas():
             db.session.commit()
             flash("Pessoa cadastrada com sucesso", "success")
             bloco = 0
-        elif acao == 'editar' and bloco == 0:
+        elif acao in ['editar', 'excluir'] and bloco == 0:
             pessoas_id_nome = db.session.query(Pessoas.id_pessoa, Pessoas.nome_pessoa).all()
             extras['pessoas'] = pessoas_id_nome
-        elif acao == 'editar' and bloco == 1:
+        elif acao in ['editar', 'excluir'] and bloco == 1:
             id_pessoa = request.form.get('id_pessoa', None)
             pessoa = Pessoas.query.filter(Pessoas.id_pessoa == id_pessoa).first()
             extras['pessoa'] = pessoa
@@ -65,8 +65,6 @@ def gerenciar_pessoas():
             id_pessoa = none_if_empty(request.form.get('id_pessoa'))
             nome = none_if_empty(request.form.get('nome', None))
             email = none_if_empty(request.form.get('email', None))
-
-            app.logger.debug(id_pessoa)
 
             pessoa = Pessoas.query.get(id_pessoa)
 
