@@ -14,20 +14,21 @@
 </div>
 {% endmacro %}
 
-{% macro gerar_select(id, label, table, table_id, table_label) %}
-    <div class="form-group">
-      <label for="{{ id }}">{{ label }}</label>
-      <div class="input-group">
-        <select class="form-control text-center" id="{{ id }}" name="{{ table_id }}">
-          {% for t in table %}
-            <option value="{{ t[table_id] }}">{{ t[table_label] }}</option>
-          {% endfor %}
-        </select>
-      </div>
+{% macro gerar_select(id, label, table, table_id, table_label, optional=False, placeholder='Selecione uma opção...') %}
+  <div class="form-group">
+    <label for="{{ id }}">{{ label }}</label>
+    <div class="input-group">
+      <select class="form-control text-center" id="{{ id }}" name="{{ table_id }}" {% if not optional %}required{% endif %}>
+        <option value="" {% if not optional %}disabled selected hidden{% endif %}>{{ placeholder }}</option>
+        {% for t in table %}
+          <option value="{{ t[table_id] }}">{{ t[table_label] }}</option>
+        {% endfor %}
+      </select>
     </div>
+  </div>
 {% endmacro %}
 
-{% macro action_buttons(acao='salvar', bloco_submit='1', show_voltar=True, bloco_voltar='0') %}
+{% macro action_buttons(acao='salvar', bloco_submit='1', show_voltar=True, bloco_voltar='0', show_reset=True) %}
 <div class="form-group btn-group text-center mt-3">
   {% if show_voltar %}
     <button type="submit" name="bloco" value="{{ bloco_voltar }}" formnovalidate class="btn btn-secondary me-2">
@@ -35,9 +36,11 @@
     </button>
   {% endif %}
 
+  {% if show_reset %}
   <button type="reset" class="btn btn-warning me-2">
     <i class="glyphicon glyphicon-refresh"></i> Limpar
   </button>
+  {% endif %}
 
   <button type="submit" name="bloco" value="{{ bloco_submit }}" class="btn btn-primary">
     {% if acao == 'salvar' %}
