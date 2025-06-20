@@ -4,7 +4,7 @@ class Reservas_Fixa(db.Model):
     __tablename__ = 'reservas_fixa'
 
     id_reserva_fixa = db.Column(db.Integer, primary_key=True)
-    id_responsavel = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario'), nullable=True)
+    id_responsavel = db.Column(db.Integer, db.ForeignKey('pessoas.id_pessoa'), nullable=True)
     id_curso = db.Column(db.Integer, db.ForeignKey('cursos.id_curso'), nullable=True)
     tipo_responsavel = db.Column(db.Integer, nullable=False)
     id_reserva_laboratorio = db.Column(db.Integer, db.ForeignKey('laboratorios.id_laboratorio'), nullable=False)
