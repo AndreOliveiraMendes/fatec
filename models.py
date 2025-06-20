@@ -31,6 +31,7 @@ class Cursos(db.Model):
     __tablename__ = 'cursos'
 
     id_curso = db.Column(db.Integer, primary_key=True)
+    nome_curso = db.Column(db.String(100), nullable=False)
     
 class Usuarios(db.Model):
     __tablename__ = 'usuarios'
