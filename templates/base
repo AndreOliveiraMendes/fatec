@@ -1,3 +1,6 @@
+{% set PERM_RESERVAS_FIXA = 1 %}
+{% set PERM_RESERVAS_TEMPORARIA = 2 %}
+{% set PERM_ADMIN = 4 %}
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -17,7 +20,18 @@
     <nav class="navbar navbar-default">
       <div class="container-fluid">
         <div class="navbar-header">
-          <a class="navbar-brand" href="{{ url_for('home') }}">Sistema RLF</a>
+            <a class="navbar-brand" href="{{ url_for('home') }}" style="display: flex; align-items: center;">
+                Sistema RLF
+                {% if perm and perm|has_flag(PERM_RESERVAS_FIXA) %}
+                    <i class="bi bi-calendar" style="font-size: 1.5rem; margin-left: 0.5rem;"></i>
+                {% endif %}
+                {% if perm and perm|has_flag(PERM_RESERVAS_TEMPORARIA) %}
+                    <i class="bi bi-calendar2-date" style="font-size: 1.5rem; margin-left: 0.5rem;"></i>
+                {% endif %}
+                {% if perm and perm|has_flag(PERM_ADMIN) %}
+                    <i class="bi bi-fire" style="font-size: 1.5rem; margin-left: 0.5rem;"></i>
+                {% endif %}
+            </a>
         </div>
         <p class="navbar-text navbar-right">
           {% if username %}
