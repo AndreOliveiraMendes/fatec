@@ -73,7 +73,6 @@
     <h3>Procurar Pessoas</h3>
     <form class="form-group" role="form" action="{{ url_for('gerenciar_pessoas') }}" method="post">
       <input type="hidden" name="acao" value="{{ acao }}">
-      <input type="hidden" name="bloco" value="1">
 
       <div class="form-group">
         <label for="codigo">Codigo:</label>
@@ -108,7 +107,7 @@
         <button type="reset" class="btn btn-warning">
           <span class="glyphicon glyphicon-refresh"></span> Limpar
         </button>
-        <button type="submit" class="btn btn-primary">
+        <button type="submit" name="bloco" value="1" class="btn btn-primary">
           <span class="glyphicon glyphicon-search"></span> Procurar
         </button>
       </div>
