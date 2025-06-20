@@ -75,7 +75,7 @@ def generate_navigation(admin=True):
     html += '</a>'
 
     if admin:
-        html += f'<a href="{url_for("gerenciar_menu")}" class="btn btn-primary btn-lg">'
+        html += f'<a href="{url_for("gerenciar_menu")}" class="btn btn-warning btn-lg">'
         html += '<span class="glyphicon glyphicon-cog"></span> Painel Admin'
         html += '</a>'
 
