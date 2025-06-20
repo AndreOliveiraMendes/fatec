@@ -2,14 +2,7 @@ from main import app
 from flask import flash, session, render_template, request, redirect, url_for
 from models import db, Reservas_Fixa, Usuarios, Pessoas, Usuarios_Permissao, Laboratorios, Aulas
 from decorators import admin_required
-
-IGNORED_FORM_FIELDS = ['page', 'acao', 'bloco']
-
-def none_if_empty(value):
-    return value if value and value.strip() else None
-
-def get_query_params(request):
-    return {key: value for key, value in request.form.items() if key not in IGNORED_FORM_FIELDS}
+from auxiliar.auxiliar_routes import none_if_empty, get_query_params
 
 @app.route("/admin/pessoas", methods=["GET", "POST"])
 @admin_required
