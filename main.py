@@ -6,11 +6,8 @@ app = Flask(__name__)
 app.config.from_object(get_config())
 db = SQLAlchemy(app)
 
-from routes.auth import *
-from routes.default import *
-from routes.error import *
-from routes.database import *
-from auxiliar_template.auxiliar import *
+from routes import *
+from auxiliar.auxiliar_template import *
 
 if __name__ == "__main__":
     app.run()

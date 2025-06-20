@@ -11,20 +11,6 @@ def none_if_empty(value):
 def get_query_params(request):
     return {key: value for key, value in request.form.items() if key not in IGNORED_FORM_FIELDS}
 
-@app.route("/admin/usuarios", methods=["GET", "POST"])
-@admin_required
-def gerenciar_usuarios():
-    acao = request.form.get('acao', 'abertura')
-    bloco = int(request.form.get('bloco', 0))
-    if request.method == 'POST':
-        extras = {}
-        if acao == 'listar':
-            usuarios = Usuarios.query.all()
-            extras['usarios'] = usuarios
-        return render_template("database/usuarios.html", acao=acao, bloco=bloco, **extras)
-    else:
-        return render_template("database/usuarios.html", acao=acao, bloco=bloco)
-    
 @app.route("/admin/pessoas", methods=["GET", "POST"])
 @admin_required
 def gerenciar_pessoas():
@@ -84,33 +70,3 @@ def gerenciar_pessoas():
         return render_template("database/pessoas.html", acao=acao, bloco=bloco, **extras)
     else:
         return render_template("database/pessoas.html", acao=acao, bloco=bloco)
-
-@app.route("/admin/usuario_especial")
-@admin_required
-def gerenciar_usuario_especial():
-    flash("Pagina em Desenvolvimento", "warning")
-    return redirect(url_for('under_dev_page'))
-
-@app.route("/admin/aulas")
-@admin_required
-def gerenciar_aulas():
-    flash("Pagina em Desenvolvimento", "warning")
-    return redirect(url_for('under_dev_page'))
-
-@app.route("/admin/laboratorios")
-@admin_required
-def gerenciar_laboratorios():
-    flash("Pagina em Desenvolvimento", "warning")
-    return redirect(url_for('under_dev_page'))
-
-@app.route("/admin/reservas_fixa")
-@admin_required
-def gerenciar_reservas_fixa():
-    flash("Pagina em Desenvolvimento", "warning")
-    return redirect(url_for('under_dev_page'))
-
-@app.route("/admin/permissoes")
-@admin_required
-def gerenciar_permissoes():
-    flash("Pagina em Desenvolvimento", "warning")
-    return redirect(url_for('under_dev_page'))
