@@ -1,3 +1,19 @@
+{% macro generate_navigation(admin=True) %}
+<div class="form-group btn-group">
+
+    <a href="{{ url_for('home') }}" class="btn btn-primary btn-lg">
+        <span class="glyphicon glyphicon-home"></span> Página Inicial
+    </a>
+
+    {% if admin %}
+    <a href="{{ url_for('gerenciar_menu') }}" class="btn btn-warning btn-lg">
+        <span class="glyphicon glyphicon-cog"></span> Painel Admin
+    </a>
+    {% endif %}
+
+</div>
+{% endmacro %}
+
 {% macro gerar_select(id, label, table, table_id, table_label) %}
     <div class="form-group">
       <label for="{{ id }}">{{ label }}</label>
