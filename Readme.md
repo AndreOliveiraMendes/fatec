@@ -95,7 +95,7 @@ The project now follows a more modular and scalable structure:
 
 ---
 
-# 🛧 Development Status
+# :airplane: Development Status
 
 * This project is under active development.
 * More detailed documentation, including database diagrams and API references, will be added as the project evolves.
