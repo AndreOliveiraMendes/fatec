@@ -23,13 +23,13 @@
             <a class="navbar-brand" href="{{ url_for('home') }}" style="display: flex; align-items: center;">
                 Sistema RLF
                 {% if perm and perm|has_flag(PERM_RESERVAS_FIXA) %}
-                    <i class="bi bi-calendar" style="font-size: 1.5rem; margin-left: 0.5rem;"></i>
+                    <i class="bi bi-calendar" title="Permissão de Reserva Fixa" style="font-size: 1.5rem; margin-left: 0.5rem;"></i>
                 {% endif %}
                 {% if perm and perm|has_flag(PERM_RESERVAS_TEMPORARIA) %}
-                    <i class="bi bi-calendar2-date" style="font-size: 1.5rem; margin-left: 0.5rem;"></i>
+                    <i class="bi bi-calendar2-date" title="Permissão de Reserva Temporária" style="font-size: 1.5rem; margin-left: 0.5rem;"></i>
                 {% endif %}
                 {% if perm and perm|has_flag(PERM_ADMIN) %}
-                    <i class="bi bi-fire" style="font-size: 1.5rem; margin-left: 0.5rem;"></i>
+                    <i class="bi bi-fire" title="Permissão de Administrador" style="font-size: 1.5rem; margin-left: 0.5rem;"></i>
                 {% endif %}
             </a>
         </div>
