@@ -39,6 +39,8 @@ The project now follows a more modular and scalable structure:
 ├── schema.sql                # Raw SQL file for database schema creation
 ├── start-dev.bat             # Windows batch file for quick development setup
 ├── static/                   # Static web assets (CSS, JS, images, etc.)
+│   ├── css/
+│   │   └── custom.css
 │   └── images/
 │       ├── favicon.png
 │       └── favicon.svg
