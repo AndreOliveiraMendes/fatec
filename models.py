@@ -13,7 +13,6 @@ class Reservas_Fixa(db.Model):
     data_inicio = db.Column(db.Date, nullable=True)
     data_fim = db.Column(db.Date, nullable=True)
     __table_args__ = (
-        db.UniqueConstraint('id_reserva_laboratorio', 'id_reserva_aula', name='uix_reserva_unica'),
         db.CheckConstraint(
             '''
             (
