@@ -9,6 +9,8 @@
   {{ generate_navigation() }}
 
   {{ generate_head(url_for("gerenciar_pessoas"), acao) }}
+  {% set disable_editar=False %}
+  {% set disable_excluir=False %}
 
   {% if acao == 'abertura' %}
     <h3>Gerenciamento da Tabela <strong>Pessoas</strong></h3>
@@ -43,7 +45,7 @@
           <th>Id Pessoa</th>
           <th>Nome</th>
           <th>Email</th>
-          <th>Ação</th>
+          {% if not disable_editar or not disable_excluir %}<th>Ação</th>{% endif %}
         </tr>
       </thead>
       <tbody>
@@ -52,20 +54,24 @@
           <td>{{ p.id_pessoa }}</td>
           <td>{{ p.nome_pessoa }}</td>
           <td>{{ p.email_pessoa }}</td>
+          {% if not disable_editar or not disable_excluir %}
           <td>
             <form method="post" class="form-inline">
               <input type="hidden" name="bloco" value="1">
               <input type="hidden" name="id_pessoa" value="{{ p.id_pessoa }}">
+              {% if not disable_editar %}
               <button type="submit" name="acao" value="editar" class="btn btn-warning btn-sm" title="Editar">
                 <i class="bi bi-pencil"></i>
               </button>
-              {% if p.nome_pessoa != username %}
+              {% endif %}
+              {% if p.nome_pessoa != username and not disable_excluir %}
               <button type="submit" name="acao" value="excluir" class="btn btn-danger btn-sm" title="Excluir">
                 <i class="bi bi-trash"></i>
               </button>
               {% endif %}
             </form>
           </td>
+          {% endif %}
         </tr>
         {% endfor %}
       </tbody>
@@ -122,7 +128,7 @@
           <th>ID</th>
           <th>Nome</th>
           <th>Email</th>
-          <th>Ação</th>
+          {% if not disable_editar or not disable_excluir %}<th>Ação</th>{% endif %}
         </tr>
       </thead>
       <tbody>
@@ -131,20 +137,24 @@
           <td>{{ p.id_pessoa }}</td>
           <td>{{ p.nome_pessoa }}</td>
           <td>{{ p.email_pessoa }}</td>
+          {% if not disable_editar or not disable_excluir %}
           <td>
             <form method="post" class="form-inline">
               <input type="hidden" name="bloco" value="1">
               <input type="hidden" name="id_pessoa" value="{{ p.id_pessoa }}">
+              {% if not disable_editar %}
               <button type="submit" name="acao" value="editar" class="btn btn-warning btn-sm" title="Editar">
                 <i class="bi bi-pencil"></i>
               </button>
-              {% if p.nome_pessoa != username %}
+              {% endif %}
+              {% if p.nome_pessoa != username and not disable_excluir %}
               <button type="submit" name="acao" value="excluir" class="btn btn-danger btn-sm" title="Excluir">
                 <i class="bi bi-trash"></i>
               </button>
               {% endif %}
             </form>
           </td>
+          {% endif %}
         </tr>
         {% endfor %}
       </tbody>
