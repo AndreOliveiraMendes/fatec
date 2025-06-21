@@ -1,7 +1,7 @@
 from main import app
 from flask import session, render_template, request, redirect, url_for
 from models import db, Reservas_Fixa, Usuarios, Usuarios_Permissao, Laboratorios, Aulas
-from decorators import login_required, admin_required
+from auxiliar.decorators import login_required, admin_required
 
 @app.route("/")
 def home():

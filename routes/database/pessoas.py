@@ -2,7 +2,7 @@ import flask_sqlalchemy.session
 from main import app
 from flask import flash, session, render_template, request
 from models import db, Pessoas
-from decorators import admin_required
+from auxiliar.decorators import admin_required
 from auxiliar.auxiliar_routes import none_if_empty, get_query_params
 
 @app.route("/admin/pessoas", methods=["GET", "POST"])

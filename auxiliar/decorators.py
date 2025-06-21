@@ -1,9 +1,6 @@
 from functools import wraps
 from flask import session, redirect, url_for, abort
-
-PERM_RESERVA_FIXA = 1
-PERM_RESERVA_TEMP = 2
-PERM_ADMIN = 4
+from auxiliar.constant import PERM_RESERVAS_FIXA, PERM_RESERVAS_TEMPORARIA, PERM_ADMIN
 
 def login_required(f):
     @wraps(f)
@@ -22,7 +19,7 @@ def reserva_fixa_required(f):
             return redirect(url_for('login'))
 
         perm = Usuarios_Permissao.query.filter_by(id_permissao_usuario=userid).first()
-        if not perm or not (perm.permissao & PERM_RESERVA_FIXA):
+        if not perm or not (perm.permissao & PERM_RESERVAS_FIXA):
             abort(403)
         return f(*args, **kwargs)
     return decorated_function
@@ -36,7 +33,7 @@ def reserva_temp_required(f):
             return redirect(url_for('login'))
 
         perm = Usuarios_Permissao.query.filter_by(id_permissao_usuario=userid).first()
-        if not perm or not (perm.permissao & PERM_RESERVA_TEMP):
+        if not perm or not (perm.permissao & PERM_RESERVAS_TEMPORARIA):
             abort(403)
         return f(*args, **kwargs)
     return decorated_function

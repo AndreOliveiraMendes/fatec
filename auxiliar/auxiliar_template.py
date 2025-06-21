@@ -1,6 +1,7 @@
 from flask import url_for
 from main import app
 from markupsafe import Markup
+from auxiliar.constant import PERMISSIONS
 
 @app.template_global()
 def dynamic_redirect(seconds=5, message=None, target_url=None):
@@ -68,3 +69,7 @@ def generate_head(target_url, acao, disable = None):
 
     html += '</div>\n</form>\n</div>'
     return Markup(html)
+
+@app.context_processor
+def inject_permissions():
+    return PERMISSIONS

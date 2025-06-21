@@ -1,7 +1,7 @@
 from main import app
 from flask import flash, session, render_template, request, redirect, url_for
 from models import Pessoas, Usuarios, Usuarios_Permissao
-from decorators import login_required
+from auxiliar.decorators import login_required
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():

@@ -1,6 +1,3 @@
-{% set PERM_RESERVAS_FIXA = 1 %}
-{% set PERM_RESERVAS_TEMPORARIA = 2 %}
-{% set PERM_ADMIN = 4 %}
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -22,13 +19,13 @@
         <div class="navbar-header">
             <a class="navbar-brand" href="{{ url_for('home') }}" style="display: flex; align-items: center;">
                 Sistema RLF
-                {% if perm and perm|has_flag(PERM_RESERVAS_FIXA) %}
+                {% if perm and perm|has_flag(FIXA) %}
                     <i class="bi bi-calendar" title="Permissão de Reserva Fixa" style="font-size: 1.5rem; margin-left: 0.5rem;"></i>
                 {% endif %}
-                {% if perm and perm|has_flag(PERM_RESERVAS_TEMPORARIA) %}
+                {% if perm and perm|has_flag(TEMP) %}
                     <i class="bi bi-calendar2-date" title="Permissão de Reserva Temporária" style="font-size: 1.5rem; margin-left: 0.5rem;"></i>
                 {% endif %}
-                {% if perm and perm|has_flag(PERM_ADMIN) %}
+                {% if perm and perm|has_flag(ADMIN) %}
                     <i class="bi bi-fire" title="Permissão de Administrador" style="font-size: 1.5rem; margin-left: 0.5rem;"></i>
                 {% endif %}
             </a>
