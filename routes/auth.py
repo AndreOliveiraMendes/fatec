@@ -19,9 +19,8 @@ def login():
             perm = permissao.permissao if permissao else 0
             session['username'] = username
             session['userid'] = user.id_usuario
-            session['perm'] = perm
             flash("login realizado com sucesso", "success")
-            return render_template("auth/login_success.html", username=username)
+            return render_template("auth/login_success.html", username=username, perm=perm)
         else:
             flash("falha ao realizar login", "danger")
             return render_template("auth/login_fail.html")
@@ -34,6 +33,5 @@ def login():
 def logout():
     session.pop('username')
     session.pop('userid')
-    session.pop('perm')
     flash("logout realizado com sucesso", "success")
     return render_template("auth/logout.html")
