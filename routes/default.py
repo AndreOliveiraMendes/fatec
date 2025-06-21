@@ -18,5 +18,10 @@ def home():
 @admin_required
 def gerenciar_menu():
     username = session.get('username')
-    perm = session.get('perm', None)
+    userid = session.get('userid')
+    perm = 0
+    if username:
+        user_perm:Usuarios_Permissao = Usuarios_Permissao.query.filter_by(id_permissao_usuario=userid).first()
+        if user_perm:
+            perm = user_perm.permissao
     return render_template("admin.html", username=username, perm=perm)
