@@ -59,9 +59,11 @@
               <button type="submit" name="acao" value="editar" class="btn btn-warning btn-sm" title="Editar">
                 <i class="bi bi-pencil"></i>
               </button>
+              {% if p.nome_pessoa != username %}
               <button type="submit" name="acao" value="excluir" class="btn btn-danger btn-sm" title="Excluir">
                 <i class="bi bi-trash"></i>
               </button>
+              {% endif %}
             </form>
           </td>
         </tr>
@@ -136,9 +138,11 @@
               <button type="submit" name="acao" value="editar" class="btn btn-warning btn-sm" title="Editar">
                 <i class="bi bi-pencil"></i>
               </button>
+              {% if p.nome_pessoa != username %}
               <button type="submit" name="acao" value="excluir" class="btn btn-danger btn-sm" title="Excluir">
                 <i class="bi bi-trash"></i>
               </button>
+              {% endif %}
             </form>
           </td>
         </tr>

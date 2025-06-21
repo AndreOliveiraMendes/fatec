@@ -1,6 +1,6 @@
 from main import app
 from flask import flash, session, render_template, request
-from models import db, Pessoas
+from models import db, Pessoas, Usuarios
 from auxiliar.decorators import admin_required
 from auxiliar.auxiliar_routes import none_if_empty, get_query_params, get_user_info
 
@@ -55,8 +55,12 @@ def gerenciar_pessoas():
             db.session.commit()
             flash("Pessoa cadastrada com sucesso", "success")
             bloco = 0
-        elif acao in ['editar', 'excluir'] and bloco == 0:
+        elif acao == 'editar' and bloco == 0:
             pessoas_id_nome = db.session.query(Pessoas.id_pessoa, Pessoas.nome_pessoa).all()
+            extras['pessoas'] = pessoas_id_nome
+        elif acao == 'excluir' and bloco == 0:
+            user = Usuarios.query.get(userid)
+            pessoas_id_nome = db.session.query(Pessoas.id_pessoa, Pessoas.nome_pessoa).filter(Pessoas.id_pessoa!=user.id_pessoa).all()
             extras['pessoas'] = pessoas_id_nome
         elif acao in ['editar', 'excluir'] and bloco == 1:
             id_pessoa = request.form.get('id_pessoa', None)
@@ -81,18 +85,22 @@ def gerenciar_pessoas():
             extras['pessoas'] = pessoas_id_nome
             bloco = 0
         elif acao == 'excluir' and bloco == 2:
+            user = Usuarios.query.get(userid)
             id_pessoa = none_if_empty(request.form.get('id_pessoa'))
 
             pessoa = Pessoas.query.get(id_pessoa)
 
             if pessoa:
-                db.session.delete(pessoa)
-                db.session.commit()
-                flash("Pessoa excluída com sucesso", "success")
+                if user.id_pessoa == id_pessoa:
+                    flash("Voce não pode se excluir", "danger")
+                else:
+                    db.session.delete(pessoa)
+                    db.session.commit()
+                    flash("Pessoa excluída com sucesso", "success")
             else:
                 flash("Pessoa não encontrada", "danger")
 
-            pessoas_id_nome = db.session.query(Pessoas.id_pessoa, Pessoas.nome_pessoa).all()
+            pessoas_id_nome = db.session.query(Pessoas.id_pessoa, Pessoas.nome_pessoa).filter(Pessoas.id_pessoa!=user.id_pessoa).all()
             extras['pessoas'] = pessoas_id_nome
             bloco = 0
 
