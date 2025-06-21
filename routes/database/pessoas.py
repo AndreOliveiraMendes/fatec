@@ -12,7 +12,12 @@ def gerenciar_pessoas():
     bloco = int(request.form.get('bloco', 0))
     page = int(request.form.get('page', 1))
     username = session.get('username', None)
-    perm = session.get('perm', None)
+    userid = session.get('userid')
+    perm = 0
+    if username:
+        user_perm:Usuarios_Permissao = Usuarios_Permissao.query.filter_by(id_permissao_usuario=userid).first()
+        if user_perm:
+            perm = user_perm.permissao
     if request.method == 'POST':
         extras = {}
         if acao == 'listar':
