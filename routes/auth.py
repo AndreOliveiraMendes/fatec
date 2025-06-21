@@ -17,7 +17,6 @@ def login():
             permissao = Usuarios_Permissao.query.filter_by(id_permissao_usuario=user.id_usuario).first()
             username = pessoa.nome_pessoa
             perm = permissao.permissao if permissao else 0
-            session['username'] = username
             session['userid'] = user.id_usuario
             flash("login realizado com sucesso", "success")
             return render_template("auth/login_success.html", username=username, perm=perm)
@@ -31,7 +30,6 @@ def login():
 @app.route("/logout")
 @login_required
 def logout():
-    session.pop('username')
     session.pop('userid')
     flash("logout realizado com sucesso", "success")
     return render_template("auth/logout.html")

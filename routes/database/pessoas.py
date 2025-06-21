@@ -1,9 +1,8 @@
-import flask_sqlalchemy.session
 from main import app
 from flask import flash, session, render_template, request
 from models import db, Pessoas
 from auxiliar.decorators import admin_required
-from auxiliar.auxiliar_routes import none_if_empty, get_query_params
+from auxiliar.auxiliar_routes import none_if_empty, get_query_params, get_user_info
 
 @app.route("/admin/pessoas", methods=["GET", "POST"])
 @admin_required
@@ -11,13 +10,8 @@ def gerenciar_pessoas():
     acao = request.form.get('acao', 'abertura')
     bloco = int(request.form.get('bloco', 0))
     page = int(request.form.get('page', 1))
-    username = session.get('username', None)
     userid = session.get('userid')
-    perm = 0
-    if username:
-        user_perm:Usuarios_Permissao = Usuarios_Permissao.query.filter_by(id_permissao_usuario=userid).first()
-        if user_perm:
-            perm = user_perm.permissao
+    username, perm = get_user_info(userid)
     if request.method == 'POST':
         extras = {}
         if acao == 'listar':
