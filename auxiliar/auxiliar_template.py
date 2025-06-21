@@ -52,7 +52,7 @@ def generate_head(target_url, acao, disable = None):
     ]
 
     if disable:
-        botoes = filter(lambda x: not x[0] in disable, botoes)
+        botoes = filter(lambda x: not x[1] in disable, botoes)
 
     html = f'<div class="container">\n<form class="form-group" role="form" action="{target_url}" method="post">\n'
     html += '<input type="hidden" name="bloco" value="0">\n<div class="form-group btn-group">\n'
