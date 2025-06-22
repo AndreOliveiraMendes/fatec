@@ -3,15 +3,23 @@
 {% block title %}Painel de Controle{% endblock %}
 
 {% set secoes = {
-    'Pessoas': ('gerenciar_pessoas', 'info'),
-    'Usuários': ('gerenciar_usuarios', 'info'),
-    'Permissões': ('gerenciar_permissoes', 'info'),
-    'Usuários Especiais': ('gerenciar_usuarios_especiais', 'success'),
-    'Aulas': ('gerenciar_aulas', 'success'),
-    'Laboratórios': ('gerenciar_laboratorios', 'success'),
-    'Reservas Fixas': ('gerenciar_reservas_fixas', 'warning'),
-    'Aulas Ativas': ('gerenciar_aulas_ativas', 'warning'),
-    'Histórico': ('gerenciar_Historico', 'danger')
+    'Cadastro Básico': [
+        ('Pessoas', 'gerenciar_pessoas', 'info'),
+        ('Usuários', 'gerenciar_usuarios', 'info'),
+        ('Permissões', 'gerenciar_permissoes', 'info'),
+    ],
+    'Configurações': [
+        ('Usuários Especiais', 'gerenciar_usuarios_especiais', 'success'),
+        ('Aulas', 'gerenciar_aulas', 'success'),
+        ('Laboratórios', 'gerenciar_laboratorios', 'success'),
+    ],
+    'Operacional': [
+        ('Reservas Fixas', 'gerenciar_reservas_fixas', 'warning'),
+        ('Aulas Ativas', 'gerenciar_aulas_ativas', 'warning'),
+    ],
+    'Logs / Histórico': [
+        ('Histórico', 'gerenciar_Historico', 'danger'),
+    ]
 } %}
 
 {% block content %}
@@ -30,15 +38,21 @@
         </button>
     </div>
 
-    <!-- Área colapsável -->
+    <!-- Área colapsável principal -->
     <div class="collapse" id="collapseDatabase">
         <div class="well">
 
-            {% for secao, (url, color) in secoes.items() %}
-                <div class="form-group">
-                    <a href="{{ url_for(url) }}" class="btn btn-{{ color }} btn-block text-capitalize">
-                        <span class="glyphicon glyphicon-chevron-right"></span> {{ secao }}
-                    </a>
+            {% for grupo, itens in secoes.items() %}
+                <button class="btn btn-secondary btn-block text-left mb-2" type="button" data-toggle="collapse" data-target="#collapse{{ loop.index }}" aria-expanded="false" aria-controls="collapse{{ loop.index }}">
+                    <strong>{{ grupo }}</strong>
+                </button>
+
+                <div class="collapse mb-3" id="collapse{{ loop.index }}">
+                    {% for secao, url, color in itens %}
+                        <a href="{{ url_for(url) }}" class="btn btn-{{ color }} btn-block text-capitalize">
+                            <span class="glyphicon glyphicon-chevron-right"></span> {{ secao }}
+                        </a>
+                    {% endfor %}
                 </div>
             {% endfor %}
 
