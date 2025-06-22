@@ -1,7 +1,7 @@
 from main import app, db
 
-class Reservas_Fixa(db.Model):
-    __tablename__ = 'reservas_fixa'
+class Reservas_Fixas(db.Model):
+    __tablename__ = 'reservas_fixas'
 
     id_reserva_fixa = db.Column(db.Integer, primary_key=True)
     id_responsavel = db.Column(db.Integer, db.ForeignKey('pessoas.id_pessoa'), nullable=True)
@@ -10,8 +10,8 @@ class Reservas_Fixa(db.Model):
     id_reserva_laboratorio = db.Column(db.Integer, db.ForeignKey('laboratorios.id_laboratorio'), nullable=False)
     id_reserva_aula = db.Column(db.Integer, db.ForeignKey('aulas.id_aula'), nullable=False)
     status_reserva = db.Column(db.Integer, server_default='0', nullable=False)
-    data_inicio = db.Column(db.Date, nullable=True)
-    data_fim = db.Column(db.Date, nullable=True)
+    data_inicio = db.Column(db.Date, nullable=False)
+    data_fim = db.Column(db.Date, nullable=False)
     __table_args__ = (
         db.CheckConstraint(
             '''
@@ -39,7 +39,7 @@ class Usuarios(db.Model):
     id_usuario = db.Column(db.Integer, primary_key=True)
     id_pessoa = db.Column(db.Integer, db.ForeignKey('pessoas.id_pessoa'), nullable=False)
     tipo_pessoa = db.Column(db.String(50))
-    situacao_pessoa = db.Column(db.TEXT)
+    situacao_pessoa = db.Column(db.String(50))
     grupo_pessoa = db.Column(db.String(50))
 
 class Pessoas(db.Model):
@@ -49,18 +49,19 @@ class Pessoas(db.Model):
     email_pessoa = db.Column(db.String(100))
 
 
-class Usuarios_Permissao(db.Model):
-    __tablename__ = 'usuarios_permissao'
+class Permissoes(db.Model):
+    __tablename__ = 'permissoes'
 
     id_permissao_usuario = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario'), primary_key=True)
-    permissao = db.Column(db.Integer)
+    permissao = db.Column(db.Integer, nullable=False)
 
 class Laboratorios(db.Model):
     __tablename__ = 'laboratorios'
 
     id_laboratorio = db.Column(db.Integer, primary_key=True)
-    nome_laboratorio = db.Column(db.String(100))
-    Disponibilidade = db.Column(db.Integer)
+    nome_laboratorio = db.Column(db.String(100), nullable=False)
+    disponibilidade = db.Column(db.Integer)
+    tipo = db.Column(db.Integer, server_default='0')
 
 class Aulas(db.Model):
     __tablename__ = 'aulas'
@@ -71,7 +72,23 @@ class Aulas(db.Model):
     semana = db.Column(db.Integer)
     turno = db.Column(db.Integer)
 
+class Aulas_Ativas(db.Model):
+    __tablename__ = 'aulas_ativas'
+
+    id_aula_ativa = db.Column(db.Integer, primary_key=True)
+    inicio_ativacao = db.Column(db.Date, nullable=True)
+    fim_ativacao = db.Column(db.Date, nullable=True)
+
+class Historicos(db.Model):
+    __tablename__ = 'historicos'
+
+    id_historico = db.Column(db.Integer, primary_key=True)
+    id_pessoa = db.Column(db.Integer, db.ForeignKey('pessoas.id_pessoa'), nullable=False)
+    dia = db.Column(db.DateTime, nullable=False)
+    acao = db.Column(db.TEXT, nullable=False)
+    observacao = db.Column(db.TEXT, nullable=True)
+
 #cria as tabelas necessarias, descomente se precisar
 with app.app_context():
 #    db.drop_all()                                   #remove todas as tabelas referenciadas
-    db.create_all()                                 #cria todas as rabelas referenciadas
+    db.create_all()                                 # Cria todas as tabelas necessárias. Se precisar resetar o banco, descomente o db.drop_all()

@@ -1,5 +1,5 @@
 from flask import request
-from models import Usuarios, Pessoas, Usuarios_Permissao
+from models import Usuarios, Pessoas, Permissoes
 
 IGNORED_FORM_FIELDS = ['page', 'acao', 'bloco']
 
@@ -17,7 +17,7 @@ def get_user_info(userid):
     if user:
         pessoa = Pessoas.query.filter_by(id_pessoa=user.id_pessoa).first()
         username = pessoa.nome_pessoa
-        permissao = Usuarios_Permissao.query.filter_by(id_permissao_usuario=user.id_usuario).first()
+        permissao = Permissoes.query.filter_by(id_permissao_usuario=user.id_usuario).first()
         if permissao:
             perm = permissao.permissao
     return username, perm

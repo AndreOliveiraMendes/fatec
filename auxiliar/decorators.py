@@ -13,12 +13,12 @@ def login_required(f):
 def reserva_fixa_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        from models import Usuarios_Permissao  # ou onde estiver
+        from models import Permissoes  # ou onde estiver
         userid = session.get('userid')
         if not userid:
             return redirect(url_for('login'))
 
-        perm = Usuarios_Permissao.query.filter_by(id_permissao_usuario=userid).first()
+        perm = Permissoes.query.filter_by(id_permissao_usuario=userid).first()
         if not perm or not (perm.permissao & PERM_RESERVAS_FIXA):
             abort(403)
         return f(*args, **kwargs)
@@ -27,12 +27,12 @@ def reserva_fixa_required(f):
 def reserva_temp_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        from models import Usuarios_Permissao  # ou onde estiver
+        from models import Permissoes  # ou onde estiver
         userid = session.get('userid')
         if not userid:
             return redirect(url_for('login'))
 
-        perm = Usuarios_Permissao.query.filter_by(id_permissao_usuario=userid).first()
+        perm = Permissoes.query.filter_by(id_permissao_usuario=userid).first()
         if not perm or not (perm.permissao & PERM_RESERVAS_TEMPORARIA):
             abort(403)
         return f(*args, **kwargs)
@@ -41,12 +41,12 @@ def reserva_temp_required(f):
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        from models import Usuarios_Permissao  # ou onde estiver
+        from models import Permissoes  # ou onde estiver
         userid = session.get('userid')
         if not userid:
             return redirect(url_for('login'))
 
-        perm = Usuarios_Permissao.query.filter_by(id_permissao_usuario=userid).first()
+        perm = Permissoes.query.filter_by(id_permissao_usuario=userid).first()
         if not perm or not (perm.permissao & PERM_ADMIN):
             abort(403)
         return f(*args, **kwargs)

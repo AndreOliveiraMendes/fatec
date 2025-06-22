@@ -1,6 +1,6 @@
 from main import app
 from flask import flash, session, render_template, request, redirect, url_for
-from models import Pessoas, Usuarios, Usuarios_Permissao
+from models import Pessoas, Usuarios, Permissoes
 from auxiliar.decorators import login_required
 
 @app.route("/login", methods=['GET', 'POST'])
@@ -14,7 +14,7 @@ def login():
         #password = request.form["password"]
         if user:
             pessoa = Pessoas.query.filter_by(id_pessoa=user.id_pessoa).first()
-            permissao = Usuarios_Permissao.query.filter_by(id_permissao_usuario=user.id_usuario).first()
+            permissao = Permissoes.query.filter_by(id_permissao_usuario=user.id_usuario).first()
             username = pessoa.nome_pessoa
             perm = permissao.permissao if permissao else 0
             session['userid'] = user.id_usuario
