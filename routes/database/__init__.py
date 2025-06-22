@@ -5,3 +5,5 @@ from routes.database.pessoas import *
 from routes.database.permissoes import *
 from routes.database.laboratorios import *
 from routes.database.reservas_fixas import *
+from routes.database.aulas_ativas import *
+from routes.database.historico import *
