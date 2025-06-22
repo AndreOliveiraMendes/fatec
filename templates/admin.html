@@ -3,15 +3,15 @@
 {% block title %}Painel de Controle{% endblock %}
 
 {% set secoes = {
-    'Pessoas': 'gerenciar_pessoas',
-    'Usuários': 'gerenciar_usuarios',
-    'Permissões': 'gerenciar_permissoes',
-    'Usuários Especiais': 'gerenciar_usuarios_especiais',
-    'Aulas': 'gerenciar_aulas',
-    'Laboratórios': 'gerenciar_laboratorios',
-    'Reservas Fixas': 'gerenciar_reservas_fixas',
-    'Aulas_ativas': 'gerenciar_aulas_ativas',
-    'Historico': 'gerenciar_Historico'
+    'Pessoas': ('gerenciar_pessoas', 'info'),
+    'Usuários': ('gerenciar_usuarios', 'info'),
+    'Permissões': ('gerenciar_permissoes', 'info'),
+    'Usuários Especiais': ('gerenciar_usuarios_especiais', 'success'),
+    'Aulas': ('gerenciar_aulas', 'success'),
+    'Laboratórios': ('gerenciar_laboratorios', 'success'),
+    'Reservas Fixas': ('gerenciar_reservas_fixas', 'warning'),
+    'Aulas Ativas': ('gerenciar_aulas_ativas', 'warning'),
+    'Histórico': ('gerenciar_Historico', 'danger')
 } %}
 
 {% block content %}
@@ -34,9 +34,9 @@
     <div class="collapse" id="collapseDatabase">
         <div class="well">
 
-            {% for secao, url in secoes.items() %}
+            {% for secao, (url, color) in secoes.items() %}
                 <div class="form-group">
-                    <a href="{{ url_for(url) }}" class="btn btn-info btn-block text-capitalize">
+                    <a href="{{ url_for(url) }}" class="btn btn-{{ color }} btn-block text-capitalize">
                         <span class="glyphicon glyphicon-chevron-right"></span> {{ secao }}
                     </a>
                 </div>
