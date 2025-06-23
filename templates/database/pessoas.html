@@ -5,6 +5,8 @@
 {% block content_head %}
 {{ generate_head(url_for("gerenciar_pessoas"), acao) }}
 {% endblock %}
+{% set disable_editar=False %}
+{% set disable_excluir=False %}
 
 {% block abertura %}
 <h3>Gerenciamento da Tabela <strong>Pessoas</strong></h3>
