@@ -55,7 +55,7 @@ def gerenciar_pessoas():
             db.session.add(nova_pessoa)
             historico = Historicos()
             historico.id_pessoa = Usuarios.query.get(userid).id_usuario
-            historico.acao = f"inserindo a pessoa de id ({nova_pessoa.id_pessoa}) para nome {nome} e {email}"
+            historico.acao = f"inserindo a pessoa de id ({nova_pessoa.id_pessoa}) para nome:{nome} e email:{email}"
             historico.dia = datetime.now()
             db.session.add(historico)
             db.session.commit()
@@ -84,7 +84,7 @@ def gerenciar_pessoas():
                 pessoa.email_pessoa = email
                 historico = Historicos()
                 historico.id_pessoa = Usuarios.query.get(userid).id_usuario
-                historico.acao = f"editado a pessoa de id ({pessoa.id_pessoa}) para nome {nome} e {email}"
+                historico.acao = f"editado a pessoa de id ({pessoa.id_pessoa}) para nome:{nome} e email:{email}"
                 historico.dia = datetime.now()
                 db.session.add(historico)
                 db.session.commit()
@@ -107,7 +107,7 @@ def gerenciar_pessoas():
                 else:
                     historico = Historicos()
                     historico.id_pessoa = Usuarios.query.get(userid).id_usuario
-                    historico.acao = f"excluindo a pessoa de id ({pessoa.id_pessoa}) para nome {pessoa.nome_pessoa} e {pessoa.email_pessoa}"
+                    historico.acao = f"excluindo a pessoa de id ({pessoa.id_pessoa}) para nome:{pessoa.nome_pessoa} e email:{pessoa.email_pessoa}"
                     historico.dia = datetime.now()
                     db.session.add(historico)
                     db.session.delete(pessoa)
