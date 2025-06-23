@@ -13,11 +13,11 @@ def get_user_info(userid):
     username, perm = None, 0
     if not userid:
         return username, perm
-    user = Usuarios.query.filter_by(id_usuario=userid).first()
+    user = Usuarios.query.get(userid)
     if user:
-        pessoa = Pessoas.query.filter_by(id_pessoa=user.id_pessoa).first()
+        pessoa = Pessoas.query.get(user.id_usuario)
         username = pessoa.nome_pessoa
-        permissao = Permissoes.query.filter_by(id_permissao_usuario=user.id_usuario).first()
+        permissao = Permissoes.query.get(userid)
         if permissao:
             perm = permissao.permissao
     return username, perm
