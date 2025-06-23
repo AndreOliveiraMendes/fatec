@@ -1,0 +1,39 @@
+{% extends "base" %}
+{% from "macros/pagination.html" import paginacao, paginacao_header, paginacao_button, paginacao_footer %}
+{% from "macros/form.html" import generate_navigation, gerar_select, action_buttons %}
+
+{% block title %}table{% endblock %}
+
+{% block content %}
+
+  {{ generate_navigation() }}
+
+  {% block content_head %}
+  {% endblock %}
+
+
+  {% if acao == 'abertura' %}
+    {% block abertura %}
+    {% endblock %}
+  {% elif acao == 'listar' %}
+    {% block listar %}
+    {% endblock %}
+  {% elif acao == 'procurar' %}
+    {% block procurar %}
+    {% endblock %}
+  {% elif acao == 'inserir' %}
+    {% block inserir %}
+    {% endblock %}
+  {% elif acao == 'editar' %}
+    {% block editar %}
+    {% endblock %}
+  {% elif acao == 'excluir' %}
+    {% block excluir %}
+    {% endblock %}
+  {% else %}
+    <div class="alert alert-danger" role="alert">
+      Ação não definida
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,284 +1,297 @@
-{% extends "base" %}
-{% from "macros/pagination.html" import paginacao, paginacao_header, paginacao_button, paginacao_footer %}
-{% from "macros/form.html" import generate_navigation, gerar_select, action_buttons %}
+{% extends "database/base_crude" %}
 
 {% block title %}Pessoas{% endblock %}
 
-{% block content %}
+{% block content_head %}
+{{ generate_head(url_for("gerenciar_pessoas"), acao) }}
+{% endblock %}
 
-  {{ generate_navigation() }}
+{% block abertura %}
+<h3>Gerenciamento da Tabela <strong>Pessoas</strong></h3>
+<p>A tabela <code>pessoas</code> possui os seguintes campos:</p>
 
-  {{ generate_head(url_for("gerenciar_pessoas"), acao) }}
-  {% set disable_editar=False %}
-  {% set disable_excluir=False %}
-
-  {% if acao == 'abertura' %}
-    <h3>Gerenciamento da Tabela <strong>Pessoas</strong></h3>
-    <p>A tabela <code>pessoas</code> possui os seguintes campos:</p>
-
-    <table class="table table-striped table-bordered table-hover">
-      <thead>
+<table class="table table-striped table-bordered table-hover">
+    <thead>
         <tr class="info">
-          <th>Campo</th>
-          <th>Descrição</th>
+            <th>Campo</th>
+            <th>Descrição</th>
         </tr>
-      </thead>
-      <tbody>
+    </thead>
+    <tbody>
         {% for campo, descricao in [
-          ('id_pessoa', 'Identificador da pessoa'),
-          ('nome_pessoa', 'Nome da pessoa'),
-          ('email_pessoa', 'Email da pessoa')
+        ('id_pessoa', 'Identificador da pessoa'),
+        ('nome_pessoa', 'Nome da pessoa'),
+        ('email_pessoa', 'Email da pessoa')
         ] %}
         <tr>
-          <td><code>{{ campo }}</code></td>
-          <td>{{ descricao }}</td>
+            <td><code>{{ campo }}</code></td>
+            <td>{{ descricao }}</td>
         </tr>
         {% endfor %}
-      </tbody>
-    </table>
+    </tbody>
+</table>
+{% endblock %}
 
-  {% elif acao == 'listar' %}
-    <h3>Lista de Pessoas</h3>
-    <table class="table table-bordered table-striped table-hover">
-      <thead class="info">
+{% block listar %}
+<h3>Lista de Pessoas</h3>
+<table class="table table-bordered table-striped table-hover">
+    <thead class="info">
         <tr>
-          <th>Id Pessoa</th>
-          <th>Nome</th>
-          <th>Email</th>
-          {% if not disable_editar or not disable_excluir %}<th>Ação</th>{% endif %}
+            <th>Id Pessoa</th>
+            <th>Nome</th>
+            <th>Email</th>
+            {% if not disable_editar or not disable_excluir %}<th>Ação</th>{% endif %}
         </tr>
-      </thead>
-      <tbody>
+    </thead>
+    <tbody>
         {% for p in pessoas %}
         <tr>
-          <td>{{ p.id_pessoa }}</td>
-          <td>{{ p.nome_pessoa }}</td>
-          <td>{{ p.email_pessoa }}</td>
-          {% if not disable_editar or not disable_excluir %}
-          <td>
-            <form method="post" class="form-inline">
-              <input type="hidden" name="bloco" value="1">
-              <input type="hidden" name="id_pessoa" value="{{ p.id_pessoa }}">
-              <div class="btn-group">
-                {% if not disable_editar %}
-                <button type="submit" name="acao" value="editar" class="btn btn-warning btn-sm" title="Editar">
-                  <i class="glyphicon glyphicon-pencil"></i>
-                </button>
-                {% endif %}
-                {% if p.nome_pessoa != username and not disable_excluir %}
-                <button type="submit" name="acao" value="excluir" class="btn btn-danger btn-sm" title="Excluir">
-                  <i class="glyphicon glyphicon-trash"></i>
-                </button>
-                {% endif %}
-              </div>
-            </form>
-          </td>
-          {% endif %}
+            <td>{{ p.id_pessoa }}</td>
+            <td>{{ p.nome_pessoa }}</td>
+            <td>{{ p.email_pessoa }}</td>
+            {% if not disable_editar or not disable_excluir %}
+            <td>
+                <form method="post" class="form-inline">
+                    <input type="hidden" name="bloco" value="1">
+                    <input type="hidden" name="id_pessoa" value="{{ p.id_pessoa }}">
+                    <div class="btn-group">
+                        {% if not disable_editar %}
+                        <button type="submit" name="acao" value="editar" class="btn btn-warning btn-sm" title="Editar">
+                            <i class="glyphicon glyphicon-pencil"></i>
+                        </button>
+                        {% endif %}
+                        {% if p.nome_pessoa != username and not disable_excluir %}
+                        <button type="submit" name="acao" value="excluir" class="btn btn-danger btn-sm" title="Excluir">
+                            <i class="glyphicon glyphicon-trash"></i>
+                        </button>
+                        {% endif %}
+                    </div>
+                </form>
+            </td>
+            {% endif %}
         </tr>
         {% endfor %}
-      </tbody>
-    </table>
-  {{ paginacao(pagination, acao, bloco) }}
-  {% elif acao == 'procurar' and bloco == 0 %}
-    <h3>Procurar Pessoas</h3>
-    <form class="form-group" role="form" action="{{ url_for('gerenciar_pessoas') }}" method="post">
-      <input type="hidden" name="acao" value="{{ acao }}">
+    </tbody>
+</table>
+{{ paginacao(pagination, acao, bloco) }}
+{% endblock %}
 
-      <div class="form-group">
-        <label for="codigo">Codigo:</label>
-        <div class="input-group">
-          <input type="number" class="form-control" name="id_pessoa" id="id_pessoa" placeholder="Digite o id">
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="nome">Nome:</label>
-        <div class="input-group">
-          <div class="input-group">
-            <input type="text" maxlength="100" class="form-control" name="nome" id="nome" placeholder="Digite o nome">
-            <span class="input-group-addon">
-              <label for="emnome" style="margin: 0; cursor: pointer;">
-                <input type="checkbox" name="emnome" id="emnome"> Exata
-              </label>
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="email">Email:</label>
-        <div class="input-group">
-          <div class="input-group">
-            <input type="email" maxlength="100" class="form-control" name="email" id="email" placeholder="Digite o email">
-            <span class="input-group-addon">
-              <label for="ememail" style="margin: 0; cursor: pointer;">
-                <input type="checkbox" name="ememail" id="ememail"> Exata
-              </label>
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {{ action_buttons('procurar', 1, False, 0)}}
-    </form>
-  {% elif acao == 'procurar' and bloco == 1 %}
-  {% if pessoas %}
-    <h3>Resultados da busca:</h3>
-    <table class="table table-bordered table-striped table-hover">
-      <thead>
-        <tr class="info">
-          <th>ID</th>
-          <th>Nome</th>
-          <th>Email</th>
-          {% if not disable_editar or not disable_excluir %}<th>Ação</th>{% endif %}
-        </tr>
-      </thead>
-      <tbody>
-        {% for p in pessoas %}
-        <tr>
-          <td>{{ p.id_pessoa }}</td>
-          <td>{{ p.nome_pessoa }}</td>
-          <td>{{ p.email_pessoa }}</td>
-          {% if not disable_editar or not disable_excluir %}
-          <td>
-            <form method="post" class="form-inline">
-              <input type="hidden" name="bloco" value="1">
-              <input type="hidden" name="id_pessoa" value="{{ p.id_pessoa }}">
-              <div class="btn-group">
-                {% if not disable_editar %}
-                <button type="submit" name="acao" value="editar" class="btn btn-warning btn-sm" title="Editar">
-                  <i class="glyphicon glyphicon-pencil"></i>
-                </button>
-                {% endif %}
-                {% if p.nome_pessoa != username and not disable_excluir %}
-                <button type="submit" name="acao" value="excluir" class="btn btn-danger btn-sm" title="Excluir">
-                  <i class="glyphicon glyphicon-trash"></i>
-                </button>
-                {% endif %}
-              </div>
-            </form>
-          </td>
-          {% endif %}
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  {{ paginacao_header(pagination, acao, bloco) }}
-  {% for field, value in query_params.items() %}
-  {% if field in ['emnome', 'ememail'] %}
-    {% if value %}
-      <input type="hidden" name="{{ field }}" value="{{ value }}">
-    {% endif %}
-  {% else %}
-      <input type="hidden" name="{{ field }}" value="{{ value }}">
-  {% endif %}
-  {% endfor %}
-  {{ paginacao_button(pagination, acao, bloco) }}
-  {{ paginacao_footer(pagination, acao, bloco) }}
-  {% else %}
-    <div class="alert alert-warning">
-      Nenhum resultado encontrado.
-    </div>
-  {% endif %}
-  {% elif acao == 'inserir' and bloco == 0 %}
-  <h3>Inserir Pessoas</h3>
-  <form class="form-group" role="form" action="{{ url_for('gerenciar_pessoas') }}" method="post">
+{% block procurar %}
+{% if bloco == 0 %}
+<h3>Procurar Pessoas</h3>
+<form class="form-group" role="form" action="{{ url_for('gerenciar_pessoas') }}" method="post">
     <input type="hidden" name="acao" value="{{ acao }}">
 
     <div class="form-group">
-      <label for="nome">Nome:</label>
-      <div class="input-group">
-        <input type="text" maxlength="100" class="form-control" name="nome" id="nome" placeholder="Digite o nome" required>
-      </div>
+        <label for="codigo">Codigo:</label>
+        <div class="input-group">
+            <input type="number" class="form-control" name="id_pessoa" id="id_pessoa" placeholder="Digite o id">
+        </div>
     </div>
 
     <div class="form-group">
-      <label for="email">Email:</label>
-      <div class="input-group">
-        <input type="email" maxlength="100" class="form-control" name="email" id="email" placeholder="Digite o email">
-      </div>
+        <label for="nome">Nome:</label>
+        <div class="input-group">
+            <div class="input-group">
+                <input type="text" maxlength="100" class="form-control" name="nome" id="nome"
+                    placeholder="Digite o nome">
+                <span class="input-group-addon">
+                    <label for="emnome" style="margin: 0; cursor: pointer;">
+                        <input type="checkbox" name="emnome" id="emnome"> Exata
+                    </label>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="email">Email:</label>
+        <div class="input-group">
+            <div class="input-group">
+                <input type="email" maxlength="100" class="form-control" name="email" id="email"
+                    placeholder="Digite o email">
+                <span class="input-group-addon">
+                    <label for="ememail" style="margin: 0; cursor: pointer;">
+                        <input type="checkbox" name="ememail" id="ememail"> Exata
+                    </label>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    {{ action_buttons('procurar', 1, False, 0)}}
+</form>
+{% elif bloco == 1 %}
+{% if pessoas %}
+<h3>Resultados da busca:</h3>
+<table class="table table-bordered table-striped table-hover">
+    <thead>
+        <tr class="info">
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Email</th>
+            {% if not disable_editar or not disable_excluir %}<th>Ação</th>{% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for p in pessoas %}
+        <tr>
+            <td>{{ p.id_pessoa }}</td>
+            <td>{{ p.nome_pessoa }}</td>
+            <td>{{ p.email_pessoa }}</td>
+            {% if not disable_editar or not disable_excluir %}
+            <td>
+                <form method="post" class="form-inline">
+                    <input type="hidden" name="bloco" value="1">
+                    <input type="hidden" name="id_pessoa" value="{{ p.id_pessoa }}">
+                    <div class="btn-group">
+                        {% if not disable_editar %}
+                        <button type="submit" name="acao" value="editar" class="btn btn-warning btn-sm" title="Editar">
+                            <i class="glyphicon glyphicon-pencil"></i>
+                        </button>
+                        {% endif %}
+                        {% if p.nome_pessoa != username and not disable_excluir %}
+                        <button type="submit" name="acao" value="excluir" class="btn btn-danger btn-sm" title="Excluir">
+                            <i class="glyphicon glyphicon-trash"></i>
+                        </button>
+                        {% endif %}
+                    </div>
+                </form>
+            </td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{{ paginacao_header(pagination, acao, bloco) }}
+{% for field, value in query_params.items() %}
+{% if field in ['emnome', 'ememail'] %}
+{% if value %}
+<input type="hidden" name="{{ field }}" value="{{ value }}">
+{% endif %}
+{% else %}
+<input type="hidden" name="{{ field }}" value="{{ value }}">
+{% endif %}
+{% endfor %}
+{{ paginacao_button(pagination, acao, bloco) }}
+{{ paginacao_footer(pagination, acao, bloco) }}
+{% else %}
+<div class="alert alert-warning">
+    Nenhum resultado encontrado.
+</div>
+{% endif %}
+{% endif %}
+{% endblock %}
+
+{% block inserir %}
+<h3>Inserir Pessoas</h3>
+<form class="form-group" role="form" action="{{ url_for('gerenciar_pessoas') }}" method="post">
+    <input type="hidden" name="acao" value="{{ acao }}">
+
+    <div class="form-group">
+        <label for="nome">Nome:</label>
+        <div class="input-group">
+            <input type="text" maxlength="100" class="form-control" name="nome" id="nome" placeholder="Digite o nome"
+                required>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="email">Email:</label>
+        <div class="input-group">
+            <input type="email" maxlength="100" class="form-control" name="email" id="email"
+                placeholder="Digite o email">
+        </div>
     </div>
 
     {{ action_buttons('inserir', 1, False, 0)}}
-  </form>
-  {% elif acao == 'editar' and bloco == 0 %}
-  <h3>Editar Pessoas</h3>
-  <form class="form-group" role="form" action="{{ url_for('gerenciar_pessoas') }}" method="post">
+</form>
+{% endblock %}
+
+{% block editar %}
+{% if bloco == 0 %}
+<h3>Editar Pessoas</h3>
+<form class="form-group" role="form" action="{{ url_for('gerenciar_pessoas') }}" method="post">
     <input type="hidden" name="acao" value="{{ acao }}">
 
     {{ gerar_select("pessoa", "Selecione a Pessoa", pessoas, "id_pessoa", "nome_pessoa") }}
 
     {{ action_buttons('editar', 1, False, 0)}}
-  </form>
-  {% elif acao == 'editar' and bloco == 1 %}
-  <h3>Editar Pessoa</h3>
-  <form class="form-group" role="form" action="{{ url_for('gerenciar_pessoas') }}" method="post">
+</form>
+{% elif bloco == 1 %}
+<h3>Editar Pessoa</h3>
+<form class="form-group" role="form" action="{{ url_for('gerenciar_pessoas') }}" method="post">
     <input type="hidden" name="acao" value="{{ acao }}">
 
     <div class="form-group">
-      <label for="id_pessoa">ID Pessoa:</label>
-      <div class="input-group">
-        <input type="number" maxlength="100" class="form-control" name="id_pessoa" id="id_pessoa" value="{{ pessoa.id_pessoa }}" readonly required>
-      </div>
+        <label for="id_pessoa">ID Pessoa:</label>
+        <div class="input-group">
+            <input type="number" maxlength="100" class="form-control" name="id_pessoa" id="id_pessoa"
+                value="{{ pessoa.id_pessoa }}" readonly required>
+        </div>
     </div>
 
     <div class="form-group">
-      <label for="nome">Nome:</label>
-      <div class="input-group">
-        <input type="text" maxlength="100" class="form-control" name="nome" id="nome" value="{{ pessoa.nome_pessoa if pessoa.nome_pessoa else '' }}" placeholder="Digite o nome" required>
-      </div>
+        <label for="nome">Nome:</label>
+        <div class="input-group">
+            <input type="text" maxlength="100" class="form-control" name="nome" id="nome"
+                value="{{ pessoa.nome_pessoa if pessoa.nome_pessoa else '' }}" placeholder="Digite o nome" required>
+        </div>
     </div>
 
     <div class="form-group">
-      <label for="email">Email:</label>
-      <div class="input-group">
-        <input type="email" maxlength="100" class="form-control" name="email" id="email" value="{{ pessoa.email_pessoa if pessoa.email_pessoa else '' }}" placeholder="Digite o email">
-      </div>
+        <label for="email">Email:</label>
+        <div class="input-group">
+            <input type="email" maxlength="100" class="form-control" name="email" id="email"
+                value="{{ pessoa.email_pessoa if pessoa.email_pessoa else '' }}" placeholder="Digite o email">
+        </div>
     </div>
 
     {{ action_buttons('editar', 2, True, 0)}}
-  </form>
-  {% elif acao == 'excluir' and bloco == 0 %}
-  <h3>Excluir Pessoas</h3>
-  <form class="form-group" role="form" action="{{ url_for('gerenciar_pessoas') }}" method="post">
+</form>
+{% endif %}
+{% endblock %}
+
+{% block excluir %}
+{% if bloco == 0 %}
+<h3>Excluir Pessoas</h3>
+<form class="form-group" role="form" action="{{ url_for('gerenciar_pessoas') }}" method="post">
     <input type="hidden" name="acao" value="{{ acao }}">
 
     {{ gerar_select("pessoa", "Selecione a Pessoa", pessoas, "id_pessoa", "nome_pessoa") }}
 
     {{ action_buttons('excluir', 1, False, 0)}}
-  </form>
-  {% elif acao == 'excluir' and bloco == 1 %}
-  <h3>Excluir Pessoa</h3>
-  <form class="form-group" role="form" action="{{ url_for('gerenciar_pessoas') }}" method="post">
+</form>
+{% elif bloco == 1 %}
+<h3>Excluir Pessoa</h3>
+<form class="form-group" role="form" action="{{ url_for('gerenciar_pessoas') }}" method="post">
     <input type="hidden" name="acao" value="{{ acao }}">
 
     <div class="form-group">
-      <label for="id_pessoa">ID Pessoa:</label>
-      <div class="input-group">
-        <input type="number" maxlength="100" class="form-control" name="id_pessoa" id="id_pessoa" value="{{ pessoa.id_pessoa }}" readonly required>
-      </div>
+        <label for="id_pessoa">ID Pessoa:</label>
+        <div class="input-group">
+            <input type="number" maxlength="100" class="form-control" name="id_pessoa" id="id_pessoa"
+                value="{{ pessoa.id_pessoa }}" readonly required>
+        </div>
     </div>
 
     <div class="form-group">
-      <label for="nome">Nome:</label>
-      <div class="input-group">
-        <input type="text" maxlength="100" class="form-control" name="nome" id="nome" value="{{ pessoa.nome_pessoa if pessoa.nome_pessoa else '' }}" disabled required>
-      </div>
+        <label for="nome">Nome:</label>
+        <div class="input-group">
+            <input type="text" maxlength="100" class="form-control" name="nome" id="nome"
+                value="{{ pessoa.nome_pessoa if pessoa.nome_pessoa else '' }}" disabled required>
+        </div>
     </div>
 
     <div class="form-group">
-      <label for="email">Email:</label>
-      <div class="input-group">
-        <input type="email" maxlength="100" class="form-control" name="email" id="email" value="{{ pessoa.email_pessoa if pessoa.email_pessoa else '' }}" disabled>
-      </div>
+        <label for="email">Email:</label>
+        <div class="input-group">
+            <input type="email" maxlength="100" class="form-control" name="email" id="email"
+                value="{{ pessoa.email_pessoa if pessoa.email_pessoa else '' }}" disabled>
+        </div>
     </div>
 
     {{ action_buttons('excluir', 2, True, 0)}}
-  </form>
-  {% else %}
-    <div class="alert alert-danger" role="alert">
-      Ação não definida
-    </div>
-  {% endif %}
-</div>
-{% endblock %}
+</form>
+{% endif %}
+{% endblock%}
