@@ -59,16 +59,18 @@
             <form method="post" class="form-inline">
               <input type="hidden" name="bloco" value="1">
               <input type="hidden" name="id_pessoa" value="{{ p.id_pessoa }}">
-              {% if not disable_editar %}
-              <button type="submit" name="acao" value="editar" class="btn btn-warning btn-sm" title="Editar">
-                <i class="bi bi-pencil"></i>
-              </button>
-              {% endif %}
-              {% if p.nome_pessoa != username and not disable_excluir %}
-              <button type="submit" name="acao" value="excluir" class="btn btn-danger btn-sm" title="Excluir">
-                <i class="bi bi-trash"></i>
-              </button>
-              {% endif %}
+              <div class="btn-group">
+                {% if not disable_editar %}
+                <button type="submit" name="acao" value="editar" class="btn btn-warning btn-sm" title="Editar">
+                  <i class="glyphicon glyphicon-pencil"></i>
+                </button>
+                {% endif %}
+                {% if p.nome_pessoa != username and not disable_excluir %}
+                <button type="submit" name="acao" value="excluir" class="btn btn-danger btn-sm" title="Excluir">
+                  <i class="glyphicon glyphicon-trash"></i>
+                </button>
+                {% endif %}
+              </div>
             </form>
           </td>
           {% endif %}
@@ -142,16 +144,18 @@
             <form method="post" class="form-inline">
               <input type="hidden" name="bloco" value="1">
               <input type="hidden" name="id_pessoa" value="{{ p.id_pessoa }}">
-              {% if not disable_editar %}
-              <button type="submit" name="acao" value="editar" class="btn btn-warning btn-sm" title="Editar">
-                <i class="bi bi-pencil"></i>
-              </button>
-              {% endif %}
-              {% if p.nome_pessoa != username and not disable_excluir %}
-              <button type="submit" name="acao" value="excluir" class="btn btn-danger btn-sm" title="Excluir">
-                <i class="bi bi-trash"></i>
-              </button>
-              {% endif %}
+              <div class="btn-group">
+                {% if not disable_editar %}
+                <button type="submit" name="acao" value="editar" class="btn btn-warning btn-sm" title="Editar">
+                  <i class="glyphicon glyphicon-pencil"></i>
+                </button>
+                {% endif %}
+                {% if p.nome_pessoa != username and not disable_excluir %}
+                <button type="submit" name="acao" value="excluir" class="btn btn-danger btn-sm" title="Excluir">
+                  <i class="glyphicon glyphicon-trash"></i>
+                </button>
+                {% endif %}
+              </div>
             </form>
           </td>
           {% endif %}
