@@ -42,7 +42,7 @@
   </button>
   {% endif %}
 
-  <button type="submit" name="bloco" value="{{ bloco_submit }}" class="btn btn-primary">
+  <button type="submit" name="bloco" value="{{ bloco_submit }}" class="btn btn-{{ 'primary' if acao != 'excluir' else 'danger' }}">
     {% if acao == 'salvar' %}
       <i class="glyphicon glyphicon-floppy-disk"></i> Salvar
     {% elif acao == 'inserir' %}
