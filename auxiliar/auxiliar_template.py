@@ -42,13 +42,13 @@ def has_flag(value, flag):
     return (value & flag) == flag
 
 @app.template_global()
-def generate_head(target_url, acao, disable = None):
+def generate_head(target_url, acao, disable=None):
     botoes = [
-        ('Listar', 'listar', 'bi-book'),
-        ('Procurar', 'procurar', 'bi-compass'),
-        ('Inserir', 'inserir', 'bi-plus-circle'),
-        ('Editar', 'editar', 'bi-pencil-square'),
-        ('Excluir', 'excluir', 'bi-trash'),
+        ('Listar', 'listar', 'glyphicon-book'),
+        ('Procurar', 'procurar', 'glyphicon-search'),
+        ('Inserir', 'inserir', 'glyphicon-plus'),
+        ('Editar', 'editar', 'glyphicon-pencil'),
+        ('Excluir', 'excluir', 'glyphicon-trash'),
     ]
 
     if disable:
@@ -63,7 +63,7 @@ def generate_head(target_url, acao, disable = None):
         html += f'''
         <button type="submit" name="acao" value="{value}"
             class="btn {active}">
-            <i class="bi {icone} me-1"></i> {nome}
+            <i class="glyphicon {icone}" style="margin-right: 5px;"></i> {nome}
         </button>
         '''
 

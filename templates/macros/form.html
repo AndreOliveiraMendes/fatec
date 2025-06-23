@@ -31,24 +31,24 @@
 {% macro action_buttons(acao='salvar', bloco_submit='1', show_voltar=True, bloco_voltar='0', show_reset=True) %}
 <div class="form-group btn-group text-center mt-3">
   {% if show_voltar %}
-    <button type="submit" name="bloco" value="{{ bloco_voltar }}" formnovalidate class="btn btn-secondary me-2">
+    <button type="submit" name="bloco" value="{{ bloco_voltar }}" formnovalidate class="btn btn-default">
       <i class="glyphicon glyphicon-arrow-left"></i> Voltar
     </button>
   {% endif %}
 
   {% if show_reset %}
-  <button type="reset" class="btn btn-warning me-2">
-    <i class="glyphicon glyphicon-refresh"></i> Limpar
-  </button>
+    <button type="reset" class="btn btn-warning">
+      <i class="glyphicon glyphicon-refresh"></i> Limpar
+    </button>
   {% endif %}
 
   <button type="submit" name="bloco" value="{{ bloco_submit }}" class="btn btn-{{ 'primary' if acao != 'excluir' else 'danger' }}">
     {% if acao == 'salvar' %}
       <i class="glyphicon glyphicon-floppy-disk"></i> Salvar
     {% elif acao == 'inserir' %}
-      <i class="glyphicon bi-plus-circle"></i> Inserir
+      <i class="glyphicon glyphicon-plus"></i> Inserir
     {% elif acao == 'editar' %}
-      <i class="glyphicon bi-pencil-square"></i> Editar
+      <i class="glyphicon glyphicon-pencil"></i> Editar
     {% elif acao == 'excluir' %}
       <i class="glyphicon glyphicon-trash"></i> Excluir
     {% elif acao == 'procurar' %}
