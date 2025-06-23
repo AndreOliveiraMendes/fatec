@@ -1,6 +1,7 @@
 from main import app
 from flask import flash, session, render_template, request
-from models import db, Pessoas, Usuarios
+from datetime import datetime
+from models import db, Pessoas, Usuarios, Historicos
 from auxiliar.decorators import admin_required
 from auxiliar.auxiliar_routes import none_if_empty, get_query_params, get_user_info
 
@@ -52,6 +53,11 @@ def gerenciar_pessoas():
             email = none_if_empty(request.form.get('email', None))
             nova_pessoa = Pessoas(nome_pessoa=nome, email_pessoa=email)
             db.session.add(nova_pessoa)
+            historico = Historicos()
+            historico.id_pessoa = Usuarios.query.get(userid).id_usuario
+            historico.acao = f"inserindo a pessoa de id ({nova_pessoa.id_pessoa}) para nome {nome} e {email}"
+            historico.dia = datetime.now()
+            db.session.add(historico)
             db.session.commit()
             flash("Pessoa cadastrada com sucesso", "success")
             bloco = 0
@@ -76,6 +82,11 @@ def gerenciar_pessoas():
             if pessoa:
                 pessoa.nome_pessoa = nome
                 pessoa.email_pessoa = email
+                historico = Historicos()
+                historico.id_pessoa = Usuarios.query.get(userid).id_usuario
+                historico.acao = f"editado a pessoa de id ({pessoa.id_pessoa}) para nome {nome} e {email}"
+                historico.dia = datetime.now()
+                db.session.add(historico)
                 db.session.commit()
                 flash("Pessoa atualizada com sucesso", "success")
             else:
@@ -94,6 +105,11 @@ def gerenciar_pessoas():
                 if user.id_pessoa == id_pessoa:
                     flash("Voce não pode se excluir", "danger")
                 else:
+                    historico = Historicos()
+                    historico.id_pessoa = Usuarios.query.get(userid).id_usuario
+                    historico.acao = f"excluindo a pessoa de id ({pessoa.id_pessoa}) para nome {pessoa.nome_pessoa} e {pessoa.email_pessoa}"
+                    historico.dia = datetime.now()
+                    db.session.add(historico)
                     db.session.delete(pessoa)
                     db.session.commit()
                     flash("Pessoa excluída com sucesso", "success")
