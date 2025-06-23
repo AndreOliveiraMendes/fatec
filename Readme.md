@@ -46,8 +46,6 @@ The project now follows a more modular and scalable structure:
 │       ├── favicon.png
 │       └── favicon.svg
 └── templates/                    # Front-end HTML templates (Jinja2)
-    ├── 403.html                  # 403 - Forbidden error page
-    ├── 404.html                  # 404 - Not Found error page
     ├── admin.html                # Admin dashboard
     ├── auth/                     # Authentication pages (login, logout, etc.)
     │   ├── login.html
@@ -56,9 +54,13 @@ The project now follows a more modular and scalable structure:
     │   └── logout.html
     ├── base                      # Base layout template (extended by all pages)
     ├── database/                 # Pages for listing, searching, and editing database entries
-    │   ├── pessoas.html
-    │   └── usuarios.html
+    │   ├── base_crude            # Base layout template for crude (extended by all pages inside database)
+    │   └── pessoas.html
     ├── homepage.html             # Initial landing page
+    ├── http/                     # template for http codes
+    │   ├── 401.html              # 401 - Unauthorized error page
+    │   ├── 403.html              # 403 - Forbidden error page
+    │   └── 404.html              # 404 - Not Found error page
     ├── macros/                   # Jinja macros for reuse (buttons, forms, pagination, etc.)
     │   ├── form.html
     │   └── pagination.html
