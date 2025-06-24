@@ -67,9 +67,9 @@ def gerenciar_usuarios():
                 historico.dia = datetime.now()
                 db.session.add(historico)
                 db.session.commit()
-                flash("Pessoa cadastrada com sucesso", "success")
+                flash("Usuario cadastrado com sucesso", "success")
             except IntegrityError as e:
-                flash(f"Erro ao inserir pessoa: {str(e.orig)}", "danger")
+                flash(f"Erro ao inserir usuario: {str(e.orig)}", "danger")
                 db.session.rollback()
             pessoas_id_nome = db.session.query(Pessoas.id_pessoa, Pessoas.nome_pessoa).all()
             extras['pessoas'] = pessoas_id_nome
