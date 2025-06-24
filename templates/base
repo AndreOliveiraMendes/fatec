@@ -1,56 +1,62 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
-    <meta charset="UTF-8">
-    <title>{% block title %}Meu Sistema{% endblock %}</title>
-    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/favicon.svg') }}">
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-    {% block extra_script %}{% endblock %}
-    {% block extra_css %}{% endblock %}
+  <meta charset="UTF-8">
+  <title>{% block title %}Meu Sistema{% endblock %}</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/favicon.svg') }}">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  {% block extra_script %}{% endblock %}
+  {% block extra_css %}{% endblock %}
 </head>
+
 <body>
-    <nav class="navbar navbar-default">
-      <div class="container-fluid">
-        <div class="navbar-header">
-            <a class="navbar-brand" href="{{ url_for('home') }}" style="display: flex; align-items: center;">
-                Sistema RLF
-                {% if perm and perm|has_flag(FIXA) %}
-                    <i class="glyphicon glyphicon-calendar" title="Permissão de Reserva Fixa" style="font-size: 1.5rem; margin-left: 0.5rem;"></i>
-                {% endif %}
-                {% if perm and perm|has_flag(TEMP) %}
-                    <i class="glyphicon glyphicon-list" title="Permissão de Reserva Temporária" style="font-size: 1.5rem; margin-left: 0.5rem;"></i>
-                {% endif %}
-                {% if perm and perm|has_flag(ADMIN) %}
-                    <i class="glyphicon glyphicon-fire" title="Permissão de Administrador" style="font-size: 1.5rem; margin-left: 0.5rem;"></i>
-                {% endif %}
-            </a>
-        </div>
-        <p class="navbar-text navbar-right">
-          {% if username %}
-          Logado como: <strong>{{ username }}</strong>
-          {% else %}
-          Visitante
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="{{ url_for('home') }}" style="display: flex; align-items: center;">
+          Sistema RLF
+          {% if perm and perm|has_flag(FIXA) %}
+          <i class="glyphicon glyphicon-calendar" title="Permissão de Reserva Fixa"
+            style="font-size: 1.5rem; margin-left: 0.5rem;"></i>
           {% endif %}
-        </p>
+          {% if perm and perm|has_flag(TEMP) %}
+          <i class="glyphicon glyphicon-list" title="Permissão de Reserva Temporária"
+            style="font-size: 1.5rem; margin-left: 0.5rem;"></i>
+          {% endif %}
+          {% if perm and perm|has_flag(ADMIN) %}
+          <i class="glyphicon glyphicon-fire" title="Permissão de Administrador"
+            style="font-size: 1.5rem; margin-left: 0.5rem;"></i>
+          {% endif %}
+        </a>
       </div>
-    </nav>
-    <div class="container" align="center">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            {% for category, message in messages %}
-              <div class="alert alert-{{ category }} text-center" role="alert">
-                {{ message }}
-              </div>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
-        {% block content %}
-        {% endblock %}
+      <p class="navbar-text navbar-right">
+        {% if username %}
+        Logado como: <strong>{{ username }}</strong>
+        {% else %}
+        Visitante
+        {% endif %}
+      </p>
     </div>
+  </nav>
+  <div class="container" align="center">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }} text-center" role="alert">
+      {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+    {% block content %}
+    {% endblock %}
+  </div>
 </body>
+
 </html>

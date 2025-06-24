@@ -3,8 +3,9 @@
 {% block title %}Não Encontrada{% endblock %}
 
 {% block content %}
-    <div class="alert alert-danger" role="alert">
-        erro, voce não tem permissão para acessar esta pagina.
-	</div>
-    <a href={{url_for("home")}} class="btn btn-primary"> voltar a pagina de inicio</a>
+<div class="alert alert-danger" role="alert">
+    <h3>403 - Acesso Negado</h3>
+    <p>Você não possui as permissões necessárias para acessar esta página.</p>
+</div>
+<a href={{url_for("home")}} class="btn btn-primary"> voltar a pagina de inicio</a>
 {% endblock %}

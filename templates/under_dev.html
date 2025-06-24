@@ -3,17 +3,22 @@
 {% block title %}Em Desenvolvimento{% endblock %}
 
 {% block extra_script %}
-    {{ dynamic_redirect(5, "Você será redirecionado em ${segundos} segundos.", url_for("home")) }}
-    <style>
+{{ dynamic_redirect(5, "Você será redirecionado em ${segundos} segundos.", url_for("home")) }}
+<style>
     .spinning {
         animation: spin 1s linear infinite;
     }
 
     @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
     }
-    </style>
+</style>
 {% endblock %}
 
 {% block content %}

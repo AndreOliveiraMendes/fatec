@@ -3,35 +3,35 @@
 {% block title %}Painel de Controle{% endblock %}
 
 {% set secoes = {
-    'Cadastro Básico': {
-        'icon':'glyphicon glyphicon-user',
-        'secoes':[
-            ('Pessoas', 'gerenciar_pessoas', 'info'),
-            ('Usuários', 'gerenciar_usuarios', 'info'),
-            ('Permissões', 'gerenciar_permissoes', 'info'),
-        ]
-    },
-    'Configurações': {
-        'icon':'glyphicon glyphicon-wrench',
-        'secoes':[
-            ('Usuários Especiais', 'gerenciar_usuarios_especiais', 'success'),
-            ('Aulas', 'gerenciar_aulas', 'success'),
-            ('Laboratórios', 'gerenciar_laboratorios', 'success'),
-        ]
-    },
-    'Operacional': {
-        'icon':'glyphicon glyphicon-calendar',
-        'secoes':[
-            ('Reservas Fixas', 'gerenciar_reservas_fixas', 'warning'),
-            ('Aulas Ativas', 'gerenciar_aulas_ativas', 'warning'),
-        ]
-    },
-    'Logs / Histórico': {
-        'icon':'glyphicon glyphicon-list-alt',
-        'secoes':[
-            ('Histórico', 'gerenciar_Historico', 'danger'),
-        ]
-    }
+'Cadastro Básico': {
+'icon':'glyphicon glyphicon-user',
+'secoes':[
+('Pessoas', 'gerenciar_pessoas', 'info'),
+('Usuários', 'gerenciar_usuarios', 'info'),
+('Permissões', 'gerenciar_permissoes', 'info'),
+]
+},
+'Configurações': {
+'icon':'glyphicon glyphicon-wrench',
+'secoes':[
+('Usuários Especiais', 'gerenciar_usuarios_especiais', 'success'),
+('Aulas', 'gerenciar_aulas', 'success'),
+('Laboratórios', 'gerenciar_laboratorios', 'success'),
+]
+},
+'Operacional': {
+'icon':'glyphicon glyphicon-calendar',
+'secoes':[
+('Reservas Fixas', 'gerenciar_reservas_fixas', 'warning'),
+('Aulas Ativas', 'gerenciar_aulas_ativas', 'warning'),
+]
+},
+'Logs / Histórico': {
+'icon':'glyphicon glyphicon-list-alt',
+'secoes':[
+('Histórico', 'gerenciar_Historico', 'danger'),
+]
+}
 } %}
 
 {% block content %}
@@ -45,7 +45,8 @@
         <a href="{{ url_for('home') }}" class="btn btn-primary">
             <span class="glyphicon glyphicon-home"></span> Página Inicial
         </a>
-        <button class="btn btn-warning" type="button" data-toggle="collapse" data-target="#collapseDatabase" aria-expanded="false" aria-controls="collapseDatabase">
+        <button class="btn btn-warning" type="button" data-toggle="collapse" data-target="#collapseDatabase"
+            aria-expanded="false" aria-controls="collapseDatabase">
             <span class="glyphicon glyphicon-cog"></span> Manipular Banco de Dados
         </button>
     </div>
@@ -55,17 +56,18 @@
         <div class="well">
 
             {% for grupo, grupo_metadate in secoes.items() %}
-                <button class="btn btn-secondary btn-block text-left mb-2" type="button" data-toggle="collapse" data-target="#collapse{{ loop.index }}" aria-expanded="false" aria-controls="collapse{{ loop.index }}">
-                    <span class="{{ grupo_metadate.icon }}"></span> <strong>{{ grupo }}</strong>
-                </button>
+            <button class="btn btn-secondary btn-block text-left mb-2" type="button" data-toggle="collapse"
+                data-target="#collapse{{ loop.index }}" aria-expanded="false" aria-controls="collapse{{ loop.index }}">
+                <span class="{{ grupo_metadate.icon }}"></span> <strong>{{ grupo }}</strong>
+            </button>
 
-                <div class="collapse mb-3" id="collapse{{ loop.index }}">
-                    {% for secao, url, color in grupo_metadate.secoes %}
-                        <a href="{{ url_for(url) }}" class="btn btn-{{ color }} btn-block text-capitalize">
-                            <span class="glyphicon glyphicon-chevron-right"></span> {{ secao }}
-                        </a>
-                    {% endfor %}
-                </div>
+            <div class="collapse mb-3" id="collapse{{ loop.index }}">
+                {% for secao, url, color in grupo_metadate.secoes %}
+                <a href="{{ url_for(url) }}" class="btn btn-{{ color }} btn-block text-capitalize">
+                    <span class="glyphicon glyphicon-chevron-right"></span> {{ secao }}
+                </a>
+                {% endfor %}
+            </div>
             {% endfor %}
 
         </div>

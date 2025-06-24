@@ -9,31 +9,31 @@
 
     <div class="btn-group-vertical" role="group" aria-label="Menu Principal" style="margin-top: 20px;">
         {% if username %}
-            <a href="{{ url_for('logout') }}" class="btn btn-primary">
-                <span class="glyphicon glyphicon-log-out"></span> Sair de {{ username }}
-            </a>
+        <a href="{{ url_for('logout') }}" class="btn btn-primary">
+            <span class="glyphicon glyphicon-log-out"></span> Sair de {{ username }}
+        </a>
         {% else %}
-            <a href="{{ url_for('login') }}" class="btn btn-primary">
-                <span class="glyphicon glyphicon-log-in"></span> Ir para Login
-            </a>
+        <a href="{{ url_for('login') }}" class="btn btn-primary">
+            <span class="glyphicon glyphicon-log-in"></span> Ir para Login
+        </a>
         {% endif %}
 
         {% if perm|has_flag(ADMIN) %}
-            <a href="{{ url_for('gerenciar_menu') }}" class="btn btn-danger">
-                <span class="glyphicon glyphicon-cog"></span> Gerenciar o sistema (banco de dados)
-            </a>
+        <a href="{{ url_for('gerenciar_menu') }}" class="btn btn-danger">
+            <span class="glyphicon glyphicon-cog"></span> Gerenciar o sistema (banco de dados)
+        </a>
         {% endif %}
 
         {% if perm|has_flag(FIXA) %}
-            <a href="{{ url_for('under_dev_page') }}" class="btn btn-success">
-                <span class="glyphicon glyphicon-calendar"></span> Reserva Semestral
-            </a>
+        <a href="{{ url_for('under_dev_page') }}" class="btn btn-success">
+            <span class="glyphicon glyphicon-calendar"></span> Reserva Semestral
+        </a>
         {% endif %}
 
         {% if perm|has_flag(TEMP) %}
-            <a href="{{ url_for('under_dev_page') }}" class="btn btn-info">
-                <span class="glyphicon glyphicon-time"></span> Reserva Temporária
-            </a>
+        <a href="{{ url_for('under_dev_page') }}" class="btn btn-info">
+            <span class="glyphicon glyphicon-time"></span> Reserva Temporária
+        </a>
         {% endif %}
     </div>
 
