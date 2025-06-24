@@ -35,3 +35,51 @@
     </tbody>
 </table>
 {% endblock %}
+
+{% block listar %}
+<h3>Lista de Pessoas</h3>
+<table class="table table-bordered table-striped table-hover">
+    <thead class="info">
+        <tr>
+            <th>Id Usuario</th>
+            <th>Id Pessoa</th>
+            <th>Tipo Pessoa</th>
+            <th>Situacao Pessoa</th>
+            <th>Grupo Pessoa</th>
+            {% if not disable_editar or not disable_excluir %}<th>Ação</th>{% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for u in usuarios %}
+        <tr>
+            <td>{{ u.id_usuario }}</td>
+            <td>{{ u.id_pessoa }}</td>
+            <td>{{ u.tipo_pessoa }}</td>
+            <td>{{ u.situacao_pessoa }}</td>
+            <td>{{ u.grupo_pessoa }}</td>
+            {% if not disable_editar or not disable_excluir %}
+            <td>
+                <form method="post" class="form-inline">
+                    <input type="hidden" name="bloco" value="1">
+                    <input type="hidden" name="id_usuario" value="{{ u.id_usuario }}">
+                    <div class="btn-group">
+                        {% if not disable_editar %}
+                        <button type="submit" name="acao" value="editar" class="btn btn-warning btn-sm" title="Editar">
+                            <i class="glyphicon glyphicon-pencil"></i>
+                        </button>
+                        {% endif %}
+                        {% if u.id_usuario != userid and not disable_excluir %}
+                        <button type="submit" name="acao" value="excluir" class="btn btn-danger btn-sm" title="Excluir">
+                            <i class="glyphicon glyphicon-trash"></i>
+                        </button>
+                        {% endif %}
+                    </div>
+                </form>
+            </td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{{ paginacao(pagination, acao, bloco) }}
+{% endblock %}
