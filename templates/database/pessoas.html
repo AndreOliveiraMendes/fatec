@@ -261,7 +261,7 @@
             value="{{ pessoa.email_pessoa if pessoa.email_pessoa else '' }}" disabled>
     </div>
 
-    {{ action_buttons('excluir', 2, True, 0)}}
+    {{ action_buttons('excluir', 2, True, 0, False)}}
 </form>
 {% endif %}
 {% endblock%}

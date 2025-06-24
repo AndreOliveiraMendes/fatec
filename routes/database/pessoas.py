@@ -1,10 +1,9 @@
 from main import app
 from flask import flash, session, render_template, request
-from datetime import datetime
 from sqlalchemy.exc import IntegrityError
-from models import db, Pessoas, Usuarios, Historicos
+from models import db, Pessoas, Usuarios
 from auxiliar.decorators import admin_required
-from auxiliar.auxiliar_routes import none_if_empty, get_query_params, get_user_info
+from auxiliar.auxiliar_routes import none_if_empty, get_query_params, get_user_info, registrar_log_generico
 
 @app.route("/admin/pessoas", methods=["GET", "POST"])
 @admin_required
@@ -55,11 +54,8 @@ def gerenciar_pessoas():
             try:
                 nova_pessoa = Pessoas(nome_pessoa=nome, email_pessoa=email)
                 db.session.add(nova_pessoa)
-                historico = Historicos()
-                historico.id_pessoa = Usuarios.query.get(userid).id_pessoa
-                historico.acao = f"[Inserção] Pessoa(ID: {nova_pessoa.id_pessoa}) - Nome: {nome}, Email: {email}"
-                historico.dia = datetime.now()
-                db.session.add(historico)
+                db.session.flush()  # garante ID
+                registrar_log_generico(userid, "Inserção", nova_pessoa)
                 db.session.commit()
                 flash("Pessoa cadastrada com sucesso", "success")
             except IntegrityError as e:
@@ -89,12 +85,9 @@ def gerenciar_pessoas():
                     pessoa.nome_pessoa = nome
                     pessoa.email_pessoa = email
 
-                    historico = Historicos()
-                    historico.id_pessoa = Usuarios.query.get(userid).id_pessoa
-                    historico.acao = f"[Edição] Pessoa(ID: {pessoa.id_pessoa}) - Novo Nome: {nome}, Novo Email: {email}"
-                    historico.dia = datetime.now()
+                    db.session.flush()  # garante ID
+                    registrar_log_generico(userid, "Edição", pessoa)
 
-                    db.session.add(historico)
                     db.session.commit()
                     flash("Pessoa atualizada com sucesso", "success")
 
@@ -118,13 +111,10 @@ def gerenciar_pessoas():
                     flash("Voce não pode se excluir", "danger")
                 else:
                     try:
-                        historico = Historicos()
-                        historico.id_pessoa = Usuarios.query.get(userid).id_pessoa
-                        historico.acao = f"[Exclusão] Pessoa(ID: {pessoa.id_pessoa}) - Nome: {pessoa.nome_pessoa}, Email: {pessoa.email_pessoa}"
-                        historico.dia = datetime.now()
+                        db.session.flush()  # garante ID
+                        registrar_log_generico(userid, "Exclusão", pessoa)
 
                         db.session.delete(pessoa)
-                        db.session.add(historico)
                         db.session.commit()
                         flash("Pessoa excluída com sucesso", "success")
 
