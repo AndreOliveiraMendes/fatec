@@ -19,6 +19,34 @@ def gerenciar_usuarios():
             extras['usuarios'] = usuarios_paginados.items
             extras['pagination'] = usuarios_paginados
             extras['userid'] = userid
+        elif acao == 'procurar' and bloco == 1:
+            id_usuario = none_if_empty(request.form.get('id_usuario', None))
+            id_pessoa = none_if_empty(request.form.get('id_pessoa', None))
+            tipo_pessoa = none_if_empty(request.form.get('tipo_pessoa', None))
+            situacao_pessoa = none_if_empty(request.form.get('situacao_pessoa', None))
+            grupo_pessoa = none_if_empty(request.form.get('grupo_pessoa', None))
+            filter = []
+            query_params = get_query_params(request)
+            query = Usuarios.query
+            if id_usuario:
+                filter.append(Usuarios.id_usuario == id_usuario)
+            if id_pessoa:
+                filter.append(Usuarios.id_pessoa == id_pessoa)
+            if tipo_pessoa:
+                filter.append(Usuarios.tipo_pessoa == tipo_pessoa)
+            if situacao_pessoa:
+                filter.append(Usuarios.situacao_pessoa == situacao_pessoa)
+            if grupo_pessoa:
+                filter.append(Usuarios.grupo_pessoa == grupo_pessoa)
+            if filter:
+                usuarios_paginados = query.filter(*filter).paginate(page=page, per_page=10, error_out=False)
+                extras['usuarios'] = usuarios_paginados.items
+                extras['pagination'] = usuarios_paginados
+                extras['userid'] = userid
+                extras['query_params'] = query_params
+            else:
+                flash("especifique pelo menos um campo de busca", "danger")
+                bloco = 0
         return render_template("database/usuarios.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
     else:
         return render_template("database/usuarios.html", username=username, perm=perm, acao=acao, bloco=bloco)

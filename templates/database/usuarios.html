@@ -37,7 +37,7 @@
 {% endblock %}
 
 {% block listar %}
-<h3>Lista de Pessoas</h3>
+<h3>Lista de Usuarios</h3>
 <table class="table table-bordered table-striped table-hover">
     <thead class="info">
         <tr>
@@ -82,4 +82,107 @@
     </tbody>
 </table>
 {{ paginacao(pagination, acao, bloco) }}
+{% endblock %}
+
+{% block procurar %}
+{% if bloco == 0 %}
+<h3>Procurar Usuario</h3>
+<form class="form-group" role="form" action="{{ url_for('gerenciar_usuarios') }}" method="post">
+    <input type="hidden" name="acao" value="{{ acao }}">
+
+    <div class="form-group">
+        <label for="codigo">Codigo Usuario:</label>
+        <input type="number" class="form-control" name="id_usuario" id="id_usuario" placeholder="Digite o id">
+    </div>
+
+    <div class="form-group">
+        <label for="codigo">Codigo Pessoa:</label>
+        <input type="number" class="form-control" name="id_pessoa" id="id_pessoa" placeholder="Digite o id">
+    </div>
+
+    <div class="form-group">
+        <label for="tipo_pessoa">Tipo:</label>
+        <input type="text" id="curso" name="tipo_pessoa" list="tipo_pessoa" class="form-control">
+        <datalist id="tipo_pessoa">
+            <option value="FUNCIONARIO">
+            <option value="EXTERNO">
+        </datalist>
+    </div>
+
+    <div class="form-group">
+        <label for="situacao_pessoa">Situação:</label>
+        <input type="text" id="curso" name="situacao_pessoa" list="situacao_pessoa" class="form-control">
+        <datalist id="situacao_pessoa">
+            <option value="ATIVO">
+            <option value="INATIVO">
+        </datalist>
+    </div>
+
+    <div class="form-group">
+        <label for="grupo_pessoa">Grupo:</label>
+        <input type="text" id="curso" name="grupo_pessoa" list="grupo_pessoa" class="form-control">
+        <datalist id="grupo_pessoa">
+            <option value="ADMINISTRADOR">
+            <option value="DOCENTE">
+        </datalist>
+    </div>
+
+    {{ action_buttons('procurar', 1, False, 0)}}
+</form>
+{% elif bloco == 1 %}
+{% if usuarios %}
+<h3>Lista de Usuarios</h3>
+<table class="table table-bordered table-striped table-hover">
+    <thead class="info">
+        <tr>
+            <th>Id Usuario</th>
+            <th>Id Pessoa</th>
+            <th>Tipo Pessoa</th>
+            <th>Situacao Pessoa</th>
+            <th>Grupo Pessoa</th>
+            {% if not disable_editar or not disable_excluir %}<th>Ação</th>{% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for u in usuarios %}
+        <tr>
+            <td>{{ u.id_usuario }}</td>
+            <td>{{ u.id_pessoa }}</td>
+            <td>{{ u.tipo_pessoa }}</td>
+            <td>{{ u.situacao_pessoa }}</td>
+            <td>{{ u.grupo_pessoa }}</td>
+            {% if not disable_editar or not disable_excluir %}
+            <td>
+                <form method="post" class="form-inline">
+                    <input type="hidden" name="bloco" value="1">
+                    <input type="hidden" name="id_usuario" value="{{ u.id_usuario }}">
+                    <div class="btn-group">
+                        {% if not disable_editar %}
+                        <button type="submit" name="acao" value="editar" class="btn btn-warning btn-sm" title="Editar">
+                            <i class="glyphicon glyphicon-pencil"></i>
+                        </button>
+                        {% endif %}
+                        {% if u.id_usuario != userid and not disable_excluir %}
+                        <button type="submit" name="acao" value="excluir" class="btn btn-danger btn-sm" title="Excluir">
+                            <i class="glyphicon glyphicon-trash"></i>
+                        </button>
+                        {% endif %}
+                    </div>
+                </form>
+            </td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{{ paginacao_header(pagination, acao, bloco) }}
+{{ manter_parametros(query_params) }}
+{{ paginacao_button(pagination, acao, bloco) }}
+{{ paginacao_footer(pagination, acao, bloco) }}
+{% else %}
+<div class="alert alert-warning">
+    Nenhum resultado encontrado.
+</div>
+{% endif %}
+{% endif %}
 {% endblock %}
