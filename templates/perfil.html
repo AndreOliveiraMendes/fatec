@@ -1,0 +1,78 @@
+{% extends "base" %}
+
+{% block title %}Perfil{% endblock %}
+
+{% block content %}
+<div class="panel panel-primary">
+    <div class="panel-heading"><strong>Usuário</strong></div>
+    <div class="panel-body">
+        <form class="form-horizontal">
+
+            <div class="form-group">
+                <label for="login" class="col-sm-2 control-label">Login:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="login" value="{{ usuario.id_usuario }}" disabled>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="tipo_usuario" class="col-sm-2 control-label">Tipo de usuário:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="tipo_usuario" value="{{ usuario.tipo_pessoa }}" disabled>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="situacao_pessoa" class="col-sm-2 control-label">Situação:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="situacao_pessoa" value="{{ usuario.situacao_pessoa }}" disabled>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="grupo_pessoa" class="col-sm-2 control-label">Grupo:</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="grupo_pessoa" value="{{ usuario.grupo_pessoa }}" disabled>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+<div class="panel panel-primary">
+    <div class="panel-heading"><strong>Informações Pessoais</strong></div>
+    <div class="panel-body text-left">
+
+        <div class="row">
+            <div class="col-sm-6">
+                <label for="cpf">CPF:</label>
+                <input type="text" id="cpf" class="form-control" value="{{ pessoa.id_pessoa }}" disabled>
+            </div>
+
+            <div class="col-sm-6">
+                <label for="nome">Nome:</label>
+                <div class="input-group">
+                    <span class="input-group-addon">
+                        <i class="glyphicon glyphicon-user"></i>
+                    </span>
+                    <input type="text" id="nome" class="form-control" value="{{ pessoa.nome_pessoa }}" disabled>
+                </div>
+            </div>
+        </div>
+
+        <br>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <label for="email">E-Mail:</label>
+                <div class="input-group">
+                    <span class="input-group-addon">@</span>
+                    <input type="email" id="email" class="form-control" value="{{ pessoa.email_pessoa }}" disabled>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

@@ -46,6 +46,7 @@
             <i class="glyphicon glyphicon-user"></i> {{ username }} <span class="caret"></span>
           </a>
           <ul class="dropdown-menu">
+            <li><a href="{{ url_for('perfil') }}"><i class="glyphicon glyphicon-user"></i> Perfil</a></li>
             <li><a href="{{ url_for('logout') }}"><i class="glyphicon glyphicon-log-out"></i> Sair</a></li>
           </ul>
         </li>
