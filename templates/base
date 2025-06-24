@@ -25,10 +25,12 @@
           <i class="glyphicon glyphicon-calendar" title="Permissão de Reserva Fixa"
             style="font-size: 1.5rem; margin-left: 0.5rem;"></i>
           {% endif %}
+
           {% if perm and perm|has_flag(TEMP) %}
-          <i class="glyphicon glyphicon-list" title="Permissão de Reserva Temporária"
+          <i class="glyphicon glyphicon-time" title="Permissão de Reserva Temporária"
             style="font-size: 1.5rem; margin-left: 0.5rem;"></i>
           {% endif %}
+
           {% if perm and perm|has_flag(ADMIN) %}
           <i class="glyphicon glyphicon-fire" title="Permissão de Administrador"
             style="font-size: 1.5rem; margin-left: 0.5rem;"></i>
@@ -44,7 +46,7 @@
       </p>
     </div>
   </nav>
-  <div class="container" align="center">
+  <div class="container text-center">
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
     {% for category, message in messages %}
