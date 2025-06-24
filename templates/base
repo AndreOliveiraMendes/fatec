@@ -24,32 +24,35 @@
   <nav class="navbar navbar-default">
     <div class="container-fluid">
       <div class="navbar-header">
-        <a class="navbar-brand" href="{{ url_for('home') }}" style="display: flex; align-items: center;">
+        <a class="navbar-brand" href="{{ url_for('home') }}">
           Sistema RLF
           {% if perm and perm|has_flag(FIXA) %}
-          <i class="glyphicon glyphicon-calendar" title="Permissão de Reserva Fixa"
-            style="font-size: 1.5rem; margin-left: 0.5rem;"></i>
+          <i class="glyphicon glyphicon-calendar" title="Permissão de Reserva Fixa"></i>
           {% endif %}
-
           {% if perm and perm|has_flag(TEMP) %}
-          <i class="glyphicon glyphicon-time" title="Permissão de Reserva Temporária"
-            style="font-size: 1.5rem; margin-left: 0.5rem;"></i>
+          <i class="glyphicon glyphicon-time" title="Permissão de Reserva Temporária"></i>
           {% endif %}
-
           {% if perm and perm|has_flag(ADMIN) %}
-          <i class="glyphicon glyphicon-fire" title="Permissão de Administrador"
-            style="font-size: 1.5rem; margin-left: 0.5rem;"></i>
+          <i class="glyphicon glyphicon-fire" title="Permissão de Administrador"></i>
           {% endif %}
         </a>
       </div>
 
-      <p class="navbar-text navbar-right">
+      <ul class="nav navbar-nav navbar-right">
         {% if username %}
-        Logado como: <strong>{{ username }}</strong>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+            aria-expanded="false">
+            <i class="glyphicon glyphicon-user"></i> {{ username }} <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu">
+            <li><a href="{{ url_for('logout') }}"><i class="glyphicon glyphicon-log-out"></i> Sair</a></li>
+          </ul>
+        </li>
         {% else %}
-        Visitante
+        <li><a href="{{ url_for('login') }}"><i class="glyphicon glyphicon-log-in"></i> Login</a></li>
         {% endif %}
-      </p>
+      </ul>
     </div>
   </nav>
 
