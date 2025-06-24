@@ -91,28 +91,27 @@
 
     <div class="form-group">
         <label for="nome">Nome:</label>
-            <div class="input-group">
-                <input type="text" maxlength="100" class="form-control" name="nome" id="nome"
-                    placeholder="Digite o nome">
-                <span class="input-group-addon">
-                    <label for="emnome" style="margin: 0; cursor: pointer;">
-                        <input type="checkbox" name="emnome" id="emnome"> Exata
-                    </label>
-                </span>
-            </div>
+        <div class="input-group">
+            <input type="text" maxlength="100" class="form-control" name="nome" id="nome" placeholder="Digite o nome">
+            <span class="input-group-addon">
+                <label for="emnome" style="margin: 0; cursor: pointer;">
+                    <input type="checkbox" name="emnome" id="emnome"> Exata
+                </label>
+            </span>
+        </div>
     </div>
 
     <div class="form-group">
         <label for="email">Email:</label>
-            <div class="input-group">
-                <input type="email" maxlength="100" class="form-control" name="email" id="email"
-                    placeholder="Digite o email">
-                <span class="input-group-addon">
-                    <label for="ememail" style="margin: 0; cursor: pointer;">
-                        <input type="checkbox" name="ememail" id="ememail"> Exata
-                    </label>
-                </span>
-            </div>
+        <div class="input-group">
+            <input type="email" maxlength="100" class="form-control" name="email" id="email"
+                placeholder="Digite o email">
+            <span class="input-group-addon">
+                <label for="ememail" style="margin: 0; cursor: pointer;">
+                    <input type="checkbox" name="ememail" id="ememail"> Exata
+                </label>
+            </span>
+        </div>
     </div>
 
     {{ action_buttons('procurar', 1, False, 0)}}
@@ -186,14 +185,13 @@
 
     <div class="form-group">
         <label for="nome">Nome:</label>
-            <input type="text" maxlength="100" class="form-control" name="nome" id="nome" placeholder="Digite o nome"
-                required>
+        <input type="text" maxlength="100" class="form-control" name="nome" id="nome" placeholder="Digite o nome"
+            required>
     </div>
 
     <div class="form-group">
         <label for="email">Email:</label>
-            <input type="email" maxlength="100" class="form-control" name="email" id="email"
-                placeholder="Digite o email">
+        <input type="email" maxlength="100" class="form-control" name="email" id="email" placeholder="Digite o email">
     </div>
 
     {{ action_buttons('inserir', 1, False, 0)}}
@@ -217,20 +215,20 @@
 
     <div class="form-group">
         <label for="id_pessoa">ID Pessoa:</label>
-            <input type="number" maxlength="100" class="form-control" name="id_pessoa" id="id_pessoa"
-                value="{{ pessoa.id_pessoa }}" readonly required>
+        <input type="number" maxlength="100" class="form-control" name="id_pessoa" id="id_pessoa"
+            value="{{ pessoa.id_pessoa }}" readonly required>
     </div>
 
     <div class="form-group">
         <label for="nome">Nome:</label>
-            <input type="text" maxlength="100" class="form-control" name="nome" id="nome"
-                value="{{ pessoa.nome_pessoa if pessoa.nome_pessoa else '' }}" placeholder="Digite o nome" required>
+        <input type="text" maxlength="100" class="form-control" name="nome" id="nome"
+            value="{{ pessoa.nome_pessoa if pessoa.nome_pessoa else '' }}" placeholder="Digite o nome" required>
     </div>
 
     <div class="form-group">
         <label for="email">Email:</label>
-            <input type="email" maxlength="100" class="form-control" name="email" id="email"
-                value="{{ pessoa.email_pessoa if pessoa.email_pessoa else '' }}" placeholder="Digite o email">
+        <input type="email" maxlength="100" class="form-control" name="email" id="email"
+            value="{{ pessoa.email_pessoa if pessoa.email_pessoa else '' }}" placeholder="Digite o email">
     </div>
 
     {{ action_buttons('editar', 2, True, 0)}}
@@ -255,20 +253,20 @@
 
     <div class="form-group">
         <label for="id_pessoa">ID Pessoa:</label>
-            <input type="number" maxlength="100" class="form-control" name="id_pessoa" id="id_pessoa"
-                value="{{ pessoa.id_pessoa }}" readonly required>
+        <input type="number" maxlength="100" class="form-control" name="id_pessoa" id="id_pessoa"
+            value="{{ pessoa.id_pessoa }}" readonly required>
     </div>
 
     <div class="form-group">
         <label for="nome">Nome:</label>
-            <input type="text" maxlength="100" class="form-control" name="nome" id="nome"
-                value="{{ pessoa.nome_pessoa if pessoa.nome_pessoa else '' }}" disabled required>
+        <input type="text" maxlength="100" class="form-control" name="nome" id="nome"
+            value="{{ pessoa.nome_pessoa if pessoa.nome_pessoa else '' }}" disabled required>
     </div>
 
     <div class="form-group">
         <label for="email">Email:</label>
-            <input type="email" maxlength="100" class="form-control" name="email" id="email"
-                value="{{ pessoa.email_pessoa if pessoa.email_pessoa else '' }}" disabled>
+        <input type="email" maxlength="100" class="form-control" name="email" id="email"
+            value="{{ pessoa.email_pessoa if pessoa.email_pessoa else '' }}" disabled>
     </div>
 
     {{ action_buttons('excluir', 2, True, 0)}}
