@@ -1,6 +1,7 @@
-from main import app
+import copy
 from flask import flash, session, render_template, request
 from sqlalchemy.exc import IntegrityError
+from main import app
 from models import db, Pessoas, Usuarios
 from auxiliar.decorators import admin_required
 from auxiliar.auxiliar_routes import none_if_empty, get_query_params, get_user_info, registrar_log_generico
@@ -82,11 +83,17 @@ def gerenciar_pessoas():
 
             if pessoa:
                 try:
+                    # Cria uma cópia dos dados antigos antes de editar
+                    dados_anteriores = copy.copy(pessoa)
+
+                    # Realiza as alterações
                     pessoa.nome_pessoa = nome
                     pessoa.email_pessoa = email
 
-                    db.session.flush()  # garante ID
-                    registrar_log_generico(userid, "Edição", pessoa)
+                    db.session.flush()  # Garante que o ID esteja atribuído
+
+                    # Loga com os dados antigos + novos
+                    registrar_log_generico(userid, "Edição", pessoa, dados_anteriores)
 
                     db.session.commit()
                     flash("Pessoa atualizada com sucesso", "success")
