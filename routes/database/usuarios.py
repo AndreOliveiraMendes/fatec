@@ -1,8 +1,7 @@
 from main import app
 from flask import flash, session, render_template, request, redirect, url_for
-from datetime import datetime
 from sqlalchemy.exc import IntegrityError
-from models import db, Usuarios, Pessoas, Historicos
+from models import db, Usuarios, Pessoas
 from auxiliar.decorators import admin_required
 from auxiliar.auxiliar_routes import none_if_empty, get_query_params, get_user_info
 
@@ -61,11 +60,8 @@ def gerenciar_usuarios():
             try:
                 novo_usuario = Usuarios(id_usuario=id_usuario, id_pessoa=id_pessoa, tipo_pessoa=tipo_pessoa, situacao_pessoa=situacao_pessoa, grupo_pessoa=grupo_pessoa)
                 db.session.add(novo_usuario)
-                historico = Historicos()
-                historico.id_pessoa = Usuarios.query.get(userid).id_pessoa
-                historico.acao = f"[Inserção]"
-                historico.dia = datetime.now()
-                db.session.add(historico)
+                db.session.flush()  # garante ID
+                registrar_log_generico(userid, "Inserção", novo_usuario)
                 db.session.commit()
                 flash("Usuario cadastrado com sucesso", "success")
             except IntegrityError as e:
