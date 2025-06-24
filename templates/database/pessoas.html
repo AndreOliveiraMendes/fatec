@@ -86,14 +86,11 @@
 
     <div class="form-group">
         <label for="codigo">Codigo:</label>
-        <div class="input-group">
-            <input type="number" class="form-control" name="id_pessoa" id="id_pessoa" placeholder="Digite o id">
-        </div>
+        <input type="number" class="form-control" name="id_pessoa" id="id_pessoa" placeholder="Digite o id">
     </div>
 
     <div class="form-group">
         <label for="nome">Nome:</label>
-        <div class="input-group">
             <div class="input-group">
                 <input type="text" maxlength="100" class="form-control" name="nome" id="nome"
                     placeholder="Digite o nome">
@@ -103,12 +100,10 @@
                     </label>
                 </span>
             </div>
-        </div>
     </div>
 
     <div class="form-group">
         <label for="email">Email:</label>
-        <div class="input-group">
             <div class="input-group">
                 <input type="email" maxlength="100" class="form-control" name="email" id="email"
                     placeholder="Digite o email">
@@ -118,7 +113,6 @@
                     </label>
                 </span>
             </div>
-        </div>
     </div>
 
     {{ action_buttons('procurar', 1, False, 0)}}
@@ -192,18 +186,14 @@
 
     <div class="form-group">
         <label for="nome">Nome:</label>
-        <div class="input-group">
             <input type="text" maxlength="100" class="form-control" name="nome" id="nome" placeholder="Digite o nome"
                 required>
-        </div>
     </div>
 
     <div class="form-group">
         <label for="email">Email:</label>
-        <div class="input-group">
             <input type="email" maxlength="100" class="form-control" name="email" id="email"
                 placeholder="Digite o email">
-        </div>
     </div>
 
     {{ action_buttons('inserir', 1, False, 0)}}
@@ -227,26 +217,20 @@
 
     <div class="form-group">
         <label for="id_pessoa">ID Pessoa:</label>
-        <div class="input-group">
             <input type="number" maxlength="100" class="form-control" name="id_pessoa" id="id_pessoa"
                 value="{{ pessoa.id_pessoa }}" readonly required>
-        </div>
     </div>
 
     <div class="form-group">
         <label for="nome">Nome:</label>
-        <div class="input-group">
             <input type="text" maxlength="100" class="form-control" name="nome" id="nome"
                 value="{{ pessoa.nome_pessoa if pessoa.nome_pessoa else '' }}" placeholder="Digite o nome" required>
-        </div>
     </div>
 
     <div class="form-group">
         <label for="email">Email:</label>
-        <div class="input-group">
             <input type="email" maxlength="100" class="form-control" name="email" id="email"
                 value="{{ pessoa.email_pessoa if pessoa.email_pessoa else '' }}" placeholder="Digite o email">
-        </div>
     </div>
 
     {{ action_buttons('editar', 2, True, 0)}}
@@ -271,26 +255,20 @@
 
     <div class="form-group">
         <label for="id_pessoa">ID Pessoa:</label>
-        <div class="input-group">
             <input type="number" maxlength="100" class="form-control" name="id_pessoa" id="id_pessoa"
                 value="{{ pessoa.id_pessoa }}" readonly required>
-        </div>
     </div>
 
     <div class="form-group">
         <label for="nome">Nome:</label>
-        <div class="input-group">
             <input type="text" maxlength="100" class="form-control" name="nome" id="nome"
                 value="{{ pessoa.nome_pessoa if pessoa.nome_pessoa else '' }}" disabled required>
-        </div>
     </div>
 
     <div class="form-group">
         <label for="email">Email:</label>
-        <div class="input-group">
             <input type="email" maxlength="100" class="form-control" name="email" id="email"
                 value="{{ pessoa.email_pessoa if pessoa.email_pessoa else '' }}" disabled>
-        </div>
     </div>
 
     {{ action_buttons('excluir', 2, True, 0)}}

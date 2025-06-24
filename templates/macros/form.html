@@ -17,7 +17,6 @@
 {% macro gerar_select(id, label, table, table_id, table_label, optional=False, placeholder='Selecione uma opção...') %}
 <div class="form-group">
   <label for="{{ id }}">{{ label }}</label>
-  <div class="input-group">
     <select class="form-control text-center" id="{{ id }}" name="{{ table_id }}" {% if not optional %}required{% endif
       %}>
       <option value="" {% if not optional %}disabled selected hidden{% endif %}>{{ placeholder }}</option>
@@ -25,7 +24,6 @@
       <option value="{{ t[table_id] }}">{{ t[table_label] }}</option>
       {% endfor %}
     </select>
-  </div>
 </div>
 {% endmacro %}
 
