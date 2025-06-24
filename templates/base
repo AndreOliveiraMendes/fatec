@@ -6,16 +6,21 @@
   <title>{% block title %}Meu Sistema{% endblock %}</title>
   <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/favicon.svg') }}">
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
+
+  <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <!-- Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+  <!-- Custom CSS -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-  {% block extra_script %}{% endblock %}
+
+  <!-- Optional extra CSS for specific pages -->
   {% block extra_css %}{% endblock %}
+  {% block extra_head %}{% endblock %}
 </head>
 
 <body>
+  <!-- Navbar -->
   <nav class="navbar navbar-default">
     <div class="container-fluid">
       <div class="navbar-header">
@@ -37,6 +42,7 @@
           {% endif %}
         </a>
       </div>
+
       <p class="navbar-text navbar-right">
         {% if username %}
         Logado como: <strong>{{ username }}</strong>
@@ -46,7 +52,10 @@
       </p>
     </div>
   </nav>
+
+  <!-- Flash messages -->
   <div class="container text-center">
+    {% block flash_messages %}
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
     {% for category, message in messages %}
@@ -56,9 +65,18 @@
     {% endfor %}
     {% endif %}
     {% endwith %}
+    {% endblock %}
+
+    <!-- Main page content -->
     {% block content %}
     {% endblock %}
   </div>
+
+  <!-- JS Scripts -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+  {% block extra_script %}{% endblock %}
 </body>
 
 </html>
