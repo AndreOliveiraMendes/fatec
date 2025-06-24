@@ -25,18 +25,23 @@ The project now follows a more modular and scalable structure:
 ├── requirements.txt              # Python dependencies
 ├── routes/                       # Backend route definitions (divided by feature/module)
 │   ├── __init__.py               # Aggregates and loads all route modules
+│   ├── admin/                    # Admin related routes (aside database)
+│   │   ├── __init__.py           # Aggregates and loads all routes inside amin
+│   │   └── admin.py              # Route for non database admin stuff
 │   ├── auth.py                   # Routes related to authentication
+│   ├── database/                 # Subfolder for database-related routes (CRUD pages)
+│   │   ├── __init__.py           # Loads all submodules (aulas, pessoas, etc.)
+│   │   ├── aulas.py              # Routes for managing "Aulas"
+│   │   ├── laboratorios.py       # Routes for managing "Laboratorios"
+│   │   ├── historico.py          # Routes for managing "Historicos"
+│   │   ├── laboratorios.py       # Routes for managing "Laboratorios"
+│   │   ├── permissoes.py         # Routes for managing permissions
+│   │   ├── pessoas.py            # Routes for managing "Pessoas"
+│   │   ├── reservas_fixas.py     # Routes for fixed reservations
+│   │   ├── usuarios.py           # Routes for managing "Usuarios"
+│   │   └── usuarios_especiais.py # Routes for special users 
 │   ├── default.py                # General/default routes (like homepage)
-│   ├── error.py                  # Error handling routes (404, 403, etc.)
-│   └── database/                 # Subfolder for database-related routes (CRUD pages)
-│       ├── __init__.py           # Loads all submodules (aulas, pessoas, etc.)
-│       ├── aulas.py              # Routes for managing "Aulas"
-│       ├── laboratorios.py       # Routes for managing "Laboratorios"
-│       ├── permissoes.py         # Routes for managing permissions
-│       ├── pessoas.py            # Routes for managing "Pessoas"
-│       ├── reservas_fixas.py     # Routes for fixed reservations
-│       ├── usuarios.py           # Routes for managing "Usuarios"
-│       └── usuarios_especiais.py # Routes for special users
+│   └── error.py                  # Error handling routes (404, 403, etc.)
 ├── schema.sql                    # Raw SQL file for database schema creation
 ├── start-dev.bat                 # Windows batch file for quick development setup
 ├── static/                       # Static web assets (CSS, JS, images, etc.)
@@ -46,7 +51,8 @@ The project now follows a more modular and scalable structure:
 │       ├── favicon.png
 │       └── favicon.svg
 └── templates/                    # Front-end HTML templates (Jinja2)
-    ├── admin.html                # Admin dashboard
+    ├── admin/                    # Admin related pages
+    │   └── admin.html            # Admin dashboard
     ├── auth/                     # Authentication pages (login, logout, etc.)
     │   ├── login.html
     │   ├── login_fail.html
@@ -55,7 +61,8 @@ The project now follows a more modular and scalable structure:
     ├── base                      # Base layout template (extended by all pages)
     ├── database/                 # Pages for listing, searching, and editing database entries
     │   ├── base_crude            # Base layout template for crude (extended by all pages inside database)
-    │   └── pessoas.html
+    │   ├── pessoas.html
+    │   └── usuarios.html
     ├── homepage.html             # Initial landing page
     ├── http/                     # template for http codes
     │   ├── 401.html              # 401 - Unauthorized error page
@@ -64,6 +71,7 @@ The project now follows a more modular and scalable structure:
     ├── macros/                   # Jinja macros for reuse (buttons, forms, pagination, etc.)
     │   ├── form.html
     │   └── pagination.html
+    ├── perfil.html               # Small profile page
     └── under_dev.html            # Placeholder for "Under Development" sections
 ```
 
@@ -93,9 +101,10 @@ The project now follows a more modular and scalable structure:
 * **`static/`** → Static files like CSS, JS, or images (e.g., favicons).
 * **`templates/`** → Jinja2 HTML templates:
   * **`auth/`** → Login/logout pages.
+  * **`admin/`** -> Admin pages
   * **`database/`** → Pages for CRUD operations on each database entity.
   * **`macros/`** → Reusable UI component macros (pagination, forms, etc).
-  * **`base/`** → Main layout skeleton used as base for all pages.
+  * **`base`** → Main layout skeleton used as base for all pages.
 
 ---
 
