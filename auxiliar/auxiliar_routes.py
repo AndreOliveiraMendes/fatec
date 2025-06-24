@@ -1,7 +1,7 @@
 from flask import request
 from datetime import datetime
-from sqlalchemy.inspection import inspect
 from models import db, Usuarios, Pessoas, Permissoes, Historicos
+from sqlalchemy.inspection import inspect
 
 IGNORED_FORM_FIELDS = ['page', 'acao', 'bloco']
 
@@ -24,36 +24,33 @@ def get_user_info(userid):
             perm = permissao.permissao
     return username, perm
 
-def registrar_log_generico(usuario_id, acao, instancia):
-    """
-    Registra um log para qualquer modelo do SQLAlchemy.
-    
-    - usuario_id: id do usuário que executou a ação
-    - acao: 'Inserção', 'Edição', 'Exclusão', etc.
-    - instancia: objeto de modelo (ex: nova_pessoa, novo_laboratorio...)
-    """
-    nome_tabela = instancia.__tablename__
-    insp = inspect(instancia)
+def registrar_log_generico(id_usuario, acao, objeto, antes=None):
+    nome_tabela = getattr(objeto, "__tablename__", objeto.__class__.__name__)
+    insp = inspect(objeto)
 
     # Tenta pegar a primary key dinamicamente
     chaves_primarias = [key.name for key in insp.mapper.primary_key]
-    dados_chave = {chave: getattr(instancia, chave) for chave in chaves_primarias}
+    dados_chave = {chave: getattr(objeto, chave) for chave in chaves_primarias}
 
-    # Tenta obter alguns campos relevantes
-    campos_interessantes = ['nome', 'nome_pessoa', 'email', 'email_pessoa']
-    dados_extras = {
-        campo: getattr(instancia, campo, None)
-        for campo in campos_interessantes
-        if hasattr(instancia, campo)
-    }
+    campos = []
+    for col in objeto.__table__.columns:
+        nome = col.name
+        valor_novo = getattr(objeto, nome, None)
 
-    descricao = f"[{acao}] Tabela: {nome_tabela.capitalize()} | Chave: {dados_chave}"
-    if dados_extras:
-        descricao += f" | Dados: {dados_extras}"
+        if antes:
+            valor_antigo = getattr(antes, nome, None)
+            if valor_antigo != valor_novo:
+                campos.append(f"{nome}: {valor_antigo} → {valor_novo}")
+        else:
+            campos.append(f"{nome}: {valor_novo}")
 
-    log = Historicos()
-    log.id_pessoa = Usuarios.query.get(usuario_id).id_pessoa
-    log.acao = descricao
-    log.dia = datetime.now()
+    # Evita log vazio (nenhuma mudança real)
+    if not campos:
+        campos.append("nenhuma alteração detectada")
 
-    db.session.add(log)
+    historico = Historicos(
+        id_pessoa=id_usuario,
+        acao=f"[{acao}] Tabela: {nome_tabela.capitalize()} | Chave: {dados_chave} - " + "; ".join(campos),
+        dia=datetime.now()
+    )
+    db.session.add(historico)
