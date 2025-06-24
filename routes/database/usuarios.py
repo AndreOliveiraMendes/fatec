@@ -1,6 +1,6 @@
 from main import app
 from flask import flash, session, render_template, request, redirect, url_for
-from models import db, Usuarios, Historicos
+from models import db, Usuarios, Pessoas, Historicos
 from auxiliar.decorators import admin_required
 from auxiliar.auxiliar_routes import none_if_empty, get_query_params, get_user_info
 
@@ -47,6 +47,9 @@ def gerenciar_usuarios():
             else:
                 flash("especifique pelo menos um campo de busca", "danger")
                 bloco = 0
+        elif acao == 'inserir' and bloco == 0:
+            pessoas_id_nome = db.session.query(Pessoas.id_pessoa, Pessoas.nome_pessoa).all()
+            extras['pessoas'] = pessoas_id_nome
         return render_template("database/usuarios.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
     else:
         return render_template("database/usuarios.html", username=username, perm=perm, acao=acao, bloco=bloco)

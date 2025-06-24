@@ -186,3 +186,41 @@
 {% endif %}
 {% endif %}
 {% endblock %}
+
+{% block inserir %}
+<h3>Inserir Pessoas</h3>
+<form class="form-group" role="form" action="{{ url_for('gerenciar_usuarios') }}" method="post">
+    <input type="hidden" name="acao" value="{{ acao }}">
+
+    {{ gerar_select("pessoa", "Selecione a Pessoa", pessoas, "id_pessoa", "nome_pessoa") }}
+
+    <div class="form-group">
+        <label for="tipo_pessoa">Tipo:</label>
+        <input type="text" id="curso" name="tipo_pessoa" list="tipo_pessoa" class="form-control">
+        <datalist id="tipo_pessoa">
+            <option value="FUNCIONARIO">
+            <option value="EXTERNO">
+        </datalist>
+    </div>
+
+    <div class="form-group">
+        <label for="situacao_pessoa">Situação:</label>
+        <input type="text" id="curso" name="situacao_pessoa" list="situacao_pessoa" class="form-control">
+        <datalist id="situacao_pessoa">
+            <option value="ATIVO">
+            <option value="INATIVO">
+        </datalist>
+    </div>
+
+    <div class="form-group">
+        <label for="grupo_pessoa">Grupo:</label>
+        <input type="text" id="curso" name="grupo_pessoa" list="grupo_pessoa" class="form-control">
+        <datalist id="grupo_pessoa">
+            <option value="ADMINISTRADOR">
+            <option value="DOCENTE">
+        </datalist>
+    </div>
+
+    {{ action_buttons('inserir', 1, False, 0)}}
+</form>
+{% endblock %}
