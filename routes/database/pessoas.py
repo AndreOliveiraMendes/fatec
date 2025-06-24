@@ -56,7 +56,7 @@ def gerenciar_pessoas():
                 nova_pessoa = Pessoas(nome_pessoa=nome, email_pessoa=email)
                 db.session.add(nova_pessoa)
                 historico = Historicos()
-                historico.id_pessoa = Usuarios.query.get(userid).id_usuario
+                historico.id_pessoa = Usuarios.query.get(userid).id_pessoa
                 historico.acao = f"[Inserção] Pessoa(ID: {nova_pessoa.id_pessoa}) - Nome: {nome}, Email: {email}"
                 historico.dia = datetime.now()
                 db.session.add(historico)
@@ -90,7 +90,7 @@ def gerenciar_pessoas():
                     pessoa.email_pessoa = email
 
                     historico = Historicos()
-                    historico.id_pessoa = Usuarios.query.get(userid).id_usuario
+                    historico.id_pessoa = Usuarios.query.get(userid).id_pessoa
                     historico.acao = f"[Edição] Pessoa(ID: {pessoa.id_pessoa}) - Novo Nome: {nome}, Novo Email: {email}"
                     historico.dia = datetime.now()
 
@@ -119,7 +119,7 @@ def gerenciar_pessoas():
                 else:
                     try:
                         historico = Historicos()
-                        historico.id_pessoa = Usuarios.query.get(userid).id_usuario
+                        historico.id_pessoa = Usuarios.query.get(userid).id_pessoa
                         historico.acao = f"[Exclusão] Pessoa(ID: {pessoa.id_pessoa}) - Nome: {pessoa.nome_pessoa}, Email: {pessoa.email_pessoa}"
                         historico.dia = datetime.now()
 

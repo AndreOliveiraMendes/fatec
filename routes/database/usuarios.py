@@ -1,5 +1,7 @@
 from main import app
 from flask import flash, session, render_template, request, redirect, url_for
+from datetime import datetime
+from sqlalchemy.exc import IntegrityError
 from models import db, Usuarios, Pessoas, Historicos
 from auxiliar.decorators import admin_required
 from auxiliar.auxiliar_routes import none_if_empty, get_query_params, get_user_info
@@ -50,6 +52,28 @@ def gerenciar_usuarios():
         elif acao == 'inserir' and bloco == 0:
             pessoas_id_nome = db.session.query(Pessoas.id_pessoa, Pessoas.nome_pessoa).all()
             extras['pessoas'] = pessoas_id_nome
+        elif acao == 'inserir' and bloco == 1:
+            id_usuario = none_if_empty(request.form.get('id_usuario', None))
+            id_pessoa = none_if_empty(request.form.get('id_pessoa', None))
+            tipo_pessoa = none_if_empty(request.form.get('tipo_pessoa', None))
+            situacao_pessoa = none_if_empty(request.form.get('situacao_pessoa', None))
+            grupo_pessoa = none_if_empty(request.form.get('grupo_pessoa', None))
+            try:
+                novo_usuario = Usuarios(id_usuario=id_usuario, id_pessoa=id_pessoa, tipo_pessoa=tipo_pessoa, situacao_pessoa=situacao_pessoa, grupo_pessoa=grupo_pessoa)
+                db.session.add(novo_usuario)
+                historico = Historicos()
+                historico.id_pessoa = Usuarios.query.get(userid).id_pessoa
+                historico.acao = f"[Inserção]"
+                historico.dia = datetime.now()
+                db.session.add(historico)
+                db.session.commit()
+                flash("Pessoa cadastrada com sucesso", "success")
+            except IntegrityError as e:
+                flash(f"Erro ao inserir pessoa: {str(e.orig)}", "danger")
+                db.session.rollback()
+            pessoas_id_nome = db.session.query(Pessoas.id_pessoa, Pessoas.nome_pessoa).all()
+            extras['pessoas'] = pessoas_id_nome
+            bloco = 0
         return render_template("database/usuarios.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
     else:
         return render_template("database/usuarios.html", username=username, perm=perm, acao=acao, bloco=bloco)
