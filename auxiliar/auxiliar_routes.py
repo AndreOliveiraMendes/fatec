@@ -27,7 +27,7 @@ def get_user_info(userid):
         return username, perm
     user = Usuarios.query.get(userid)
     if user:
-        pessoa = Pessoas.query.get(user.id_usuario)
+        pessoa = Pessoas.query.get(user.id_pessoa)
         username = pessoa.nome_pessoa
         permissao = Permissoes.query.get(userid)
         if permissao:
