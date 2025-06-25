@@ -23,7 +23,7 @@ def gerenciar_usuarios():
             extras['userid'] = userid
         elif acao == 'procurar' and bloco == 1:
             id_usuario = none_if_empty(request.form.get('id_usuario', None))
-            id_pessoa = none_if_empty(request.form.get('id_pessoa', None), 'int')
+            id_pessoa = none_if_empty(request.form.get('id_pessoa', None), int)
             tipo_pessoa = none_if_empty(request.form.get('tipo_pessoa', None))
             situacao_pessoa = none_if_empty(request.form.get('situacao_pessoa', None))
             grupo_pessoa = none_if_empty(request.form.get('grupo_pessoa', None))
@@ -54,7 +54,7 @@ def gerenciar_usuarios():
             extras['pessoas'] = pessoas_id_nome
         elif acao == 'inserir' and bloco == 1:
             id_usuario = none_if_empty(request.form.get('id_usuario', None))
-            id_pessoa = none_if_empty(request.form.get('id_pessoa', None), 'int')
+            id_pessoa = none_if_empty(request.form.get('id_pessoa', None), int)
             tipo_pessoa = none_if_empty(request.form.get('tipo_pessoa', None))
             situacao_pessoa = none_if_empty(request.form.get('situacao_pessoa', None))
             grupo_pessoa = none_if_empty(request.form.get('grupo_pessoa', None))
@@ -82,7 +82,7 @@ def gerenciar_usuarios():
             extras['pessoas'] = pessoas_id_nome
         elif acao == 'editar' and bloco == 2:
             id_usuario = none_if_empty(request.form.get('id_usuario', None))
-            id_pessoa = none_if_empty(request.form.get('id_pessoa', None), 'int')
+            id_pessoa = none_if_empty(request.form.get('id_pessoa', None), int)
             tipo_pessoa = none_if_empty(request.form.get('tipo_pessoa', None))
             situacao_pessoa = none_if_empty(request.form.get('situacao_pessoa', None))
             grupo_pessoa = none_if_empty(request.form.get('grupo_pessoa', None))

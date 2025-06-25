@@ -5,11 +5,18 @@ from sqlalchemy.inspection import inspect
 
 IGNORED_FORM_FIELDS = ['page', 'acao', 'bloco']
 
-def none_if_empty(value, type='string'):
-    value = value if value and value.strip() else None
-    if value and type == 'int':
-        value = int(value)
-    return value
+def none_if_empty(value, cast_type=str):
+    if value is None:
+        return None
+    # Se for string, verifica se está vazia ou só com espaços
+    if isinstance(value, str):
+        value = value.strip()
+        if not value:
+            return None
+    try:
+        return cast_type(value)
+    except (ValueError, TypeError):
+        return None
 
 def get_query_params(request):
     return {key: value for key, value in request.form.items() if key not in IGNORED_FORM_FIELDS}
