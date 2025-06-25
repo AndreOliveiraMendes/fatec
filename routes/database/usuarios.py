@@ -74,9 +74,12 @@ def gerenciar_usuarios():
         elif acao == 'editar' and bloco == 0:
             result = db.session.query(Usuarios.id_usuario, Pessoas.nome_pessoa).join(Pessoas, Usuarios.id_pessoa == Pessoas.id_pessoa).all()
             extras['results'] = result
-        elif acao == 'editar' and bloco == 1:
+        elif acao in ['editar', 'excluir'] and bloco == 1:
             id_usuario = none_if_empty(request.form.get('id_usuario', None))
-            
+            pessoas_id_nome = db.session.query(Pessoas.id_pessoa, Pessoas.nome_pessoa).all()
+            user = Usuarios.query.get(id_usuario)
+            extras['usuario'] = user
+            extras['pessoas'] = pessoas_id_nome
         return render_template("database/usuarios.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
     else:
         return render_template("database/usuarios.html", username=username, perm=perm, acao=acao, bloco=bloco)
