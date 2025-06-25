@@ -114,7 +114,7 @@
         </div>
     </div>
 
-    {{ action_buttons('procurar', 1, False, 0)}}
+    {{ action_buttons(acao, 1, False, 0)}}
 </form>
 {% elif bloco == 1 %}
 {% if pessoas %}
@@ -186,7 +186,7 @@
         <input type="email" maxlength="100" class="form-control" name="email" id="email" placeholder="Digite o email">
     </div>
 
-    {{ action_buttons('inserir', 1, False, 0)}}
+    {{ action_buttons(acao, 1, False, 0)}}
 </form>
 {% endblock %}
 
@@ -198,7 +198,7 @@
 
     {{ gerar_select("pessoa", "Selecione a Pessoa", pessoas, "id_pessoa", "nome_pessoa") }}
 
-    {{ action_buttons('editar', 1, False, 0)}}
+    {{ action_buttons(acao, 1, False, 0)}}
 </form>
 {% elif bloco == 1 %}
 <h3>Editar Pessoa</h3>
@@ -223,7 +223,7 @@
             value="{{ pessoa.email_pessoa if pessoa.email_pessoa else '' }}" placeholder="Digite o email">
     </div>
 
-    {{ action_buttons('editar', 2, True, 0)}}
+    {{ action_buttons(acao, 2, True, 0)}}
 </form>
 {% endif %}
 {% endblock %}
@@ -236,7 +236,7 @@
 
     {{ gerar_select("pessoa", "Selecione a Pessoa", pessoas, "id_pessoa", "nome_pessoa") }}
 
-    {{ action_buttons('excluir', 1, False, 0)}}
+    {{ action_buttons(acao, 1, False, 0)}}
 </form>
 {% elif bloco == 1 %}
 <h3>Excluir Pessoa</h3>
@@ -261,7 +261,7 @@
             value="{{ pessoa.email_pessoa if pessoa.email_pessoa else '' }}" disabled>
     </div>
 
-    {{ action_buttons('excluir', 2, True, 0, False)}}
+    {{ action_buttons(acao, 2, True, 0, False)}}
 </form>
 {% endif %}
 {% endblock%}
