@@ -50,6 +50,10 @@ def gerenciar_permissoes():
                 extras['results'] = result
                 bloco = 0
                 flash("especifique pelo menos um campo de busca", "danger")
+        elif acao == 'inserir' and bloco == 0:
+            usuarios_com_permissao = db.session.query(Permissoes.id_permissao_usuario)
+            usuarios_sem_permissao = db.session.query(Usuarios.id_usuario, Pessoas.nome_pessoa).filter(~Usuarios.id_usuario.in_(usuarios_com_permissao)).join(Pessoas).all()
+            extras['results'] = usuarios_sem_permissao
             
         return render_template("database/permissoes.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
     else:
