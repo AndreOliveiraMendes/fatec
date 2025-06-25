@@ -1,0 +1,44 @@
+{% extends "database/base_crude" %}
+
+{% block title %}Permissoes{% endblock %}
+
+{% block content_head %}
+{{ generate_head(url_for("gerenciar_permissoes"), acao) }}
+{% endblock %}
+{% set disable_editar=False %}
+{% set disable_excluir=False %}
+
+{% block abertura %}
+<h3>Gerenciamento da Tabela <strong>Permissões</strong></h3>
+<p>A tabela <code>permissoes</code> possui os seguintes campos:</p>
+
+<table class="table table-striped table-bordered table-hover">
+    <thead class="bg-info text-white text-center">
+        <tr>
+            <th>Campo</th>
+            <th>Descrição</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for campo, descricao in [
+        ('id_permissao_usuario', 'Identificador do usuário (chave estrangeira referenciando a tabela
+        <code>usuarios</code>).'),
+        ('permissao', 'Bitmask que representa todas as permissões atribuídas ao usuário.')
+        ] %}
+        <tr>
+            <td class="text-center"><code>{{ campo }}</code></td>
+            <td>{{ descricao|safe }}</td>
+        </tr>
+        {% endfor %}
+        <tr>
+            <td colspan="2">
+                <strong>Valores possíveis para o campo <code>permissao</code>:</strong><br>
+                <code>1</code> = Reserva Fixa |
+                <code>2</code> = Reserva Temporária |
+                <code>4</code> = Administrador<br>
+                (valores podem ser combinados via operação bit a bit)
+            </td>
+        </tr>
+    </tbody>
+</table>
+{% endblock %}
