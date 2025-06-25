@@ -83,9 +83,12 @@ class Historicos(db.Model):
     __tablename__ = 'historicos'
 
     id_historico = db.Column(db.Integer, primary_key=True)
+    id_usuario = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario'), nullable=False)
     id_pessoa = db.Column(db.Integer, db.ForeignKey('pessoas.id_pessoa'), nullable=False)
-    dia = db.Column(db.DateTime, nullable=False)
-    acao = db.Column(db.TEXT, nullable=False)
+    tabela = db.Column(db.String(100), index=True)
+    categoria = db.Column(db.String(100))
+    data_hora = db.Column(db.DateTime, index=True, nullable=False)
+    message = db.Column(db.TEXT, nullable=False)
     observacao = db.Column(db.TEXT, nullable=True)
 
 #cria as tabelas necessarias, descomente se precisar
