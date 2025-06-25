@@ -59,9 +59,15 @@
         <tr>
             <td>{{ p.id_permissao_usuario }}</td>
             <td>{{ p.permissao }}</td>
-            <td><i title="Permissão de reserva fixa" class="{% if p.permissao|has_flag(FIXA) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}"></i></td>
-            <td><i title="Permissão de reserva temporária" class="{% if p.permissao|has_flag(TEMP) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}"></i></td>
-            <td><i title="Permissão de administrador" class="{% if p.permissao|has_flag(ADMIN) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}"></i></td>
+            <td><i title="Permissão de reserva fixa"
+                    class="{% if p.permissao|has_flag(FIXA) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}"></i>
+            </td>
+            <td><i title="Permissão de reserva temporária"
+                    class="{% if p.permissao|has_flag(TEMP) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}"></i>
+            </td>
+            <td><i title="Permissão de administrador"
+                    class="{% if p.permissao|has_flag(ADMIN) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}"></i>
+            </td>
             <td>
                 <form method="post" class="form-inline">
                     <input type="hidden" name="bloco" value="1">
@@ -88,13 +94,96 @@
 {% block procurar %}
 {% if bloco == 0 %}
 <h3>Procurar Permissoes</h3>
-<form class="form-group" role="form" action="{{ url_for('gerenciar_pessoas') }}" method="post">
+<form class="form-group" role="form" action="{{ url_for('gerenciar_permissoes') }}" method="post">
     <input type="hidden" name="acao" value="{{ acao }}">
 
-    {{ gerar_select("id_usuario", "Selecione o usuario", results, "id_usuario", "nome_pessoa", "id_permissao_usuario") }}
+    {{ gerar_select("id_usuario", "Selecione o usuario", results, "id_usuario", "nome_pessoa", "id_permissao_usuario", optional=True)
+    }}
 
-    {{ action_buttons(acao, 1, False, 0)}}
+    <div class="form-group">
+        <div class="panel panel-default">
+            <div class="panel-heading"><strong>Permissões</strong></div>
+            <div class="panel-body text-center">
+                <!-- Grupo de flags -->
+                <div class="btn-group" data-toggle="buttons">
+                    <label title="Permissão de reserva fixa" for="btn-check-1">
+                        <input id="btn-check-1" type="checkbox" name="flag_fixa"> FIXA
+                    </label>
+                    <label title="Permissão de reserva temporária" for="btn-check-2">
+                        <input id="btn-check-2" type="checkbox" name="flag_temp"> TEMP
+                    </label>
+                    <label title="Permissão de administrador" for="btn-check-3">
+                        <input id="btn-check-3" type="checkbox" name="flag_admin"> ADMIN
+                    </label>
+                </div>
+
+                <hr style="margin: 15px 0;">
+
+                <!-- Modo de busca -->
+                <div class="btn-group" data-toggle="buttons">
+                    <label title="Buscar usuários que tenham pelo menos uma das permissões marcadas">
+                        <input type="radio" name="modobusca" value="ou" checked> OU
+                    </label>
+                    <label title="Buscar usuários que tenham todas as permissões marcadas">
+                        <input type="radio" name="modobusca" value="e"> E
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{ action_buttons(acao, 1, False, 0) }}
 </form>
 {% elif bloco == 1 %}
+<h3>Procurar Permissoes</h3>
+<table class="table table-bordered table-striped table-hover">
+    <thead>
+        <tr class="info">
+            <th>Id Usuario</th>
+            <th>permissao</th>
+            <th>FIXA</th>
+            <th>TEMP</th>
+            <th>ADMIN</th>
+            <th>Ação</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for p in permissoes %}
+        <tr>
+            <td>{{ p.id_permissao_usuario }}</td>
+            <td>{{ p.permissao }}</td>
+            <td><i title="Permissão de reserva fixa"
+                    class="{% if p.permissao|has_flag(FIXA) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}"></i>
+            </td>
+            <td><i title="Permissão de reserva temporária"
+                    class="{% if p.permissao|has_flag(TEMP) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}"></i>
+            </td>
+            <td><i title="Permissão de administrador"
+                    class="{% if p.permissao|has_flag(ADMIN) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}"></i>
+            </td>
+            <td>
+                <form method="post" class="form-inline">
+                    <input type="hidden" name="bloco" value="1">
+                    <input type="hidden" name="id_usuario" value="{{ p.id_permissao_usuario }}">
+                    <div class="btn-group">
+                        <button type="submit" name="acao" value="editar" class="btn btn-warning btn-sm" title="Editar">
+                            <i class="glyphicon glyphicon-pencil"></i>
+                        </button>
+                        {% if p.id_permissao_usuario != userid %}
+                        <button type="submit" name="acao" value="excluir" class="btn btn-danger btn-sm" title="Excluir">
+                            <i class="glyphicon glyphicon-trash"></i>
+                        </button>
+                        {% endif %}
+                    </div>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{{ paginacao_header(pagination, acao, bloco) }}
+{{ manter_parametros(query_params) }}
+{{ paginacao_button(pagination, acao, bloco) }}
+{{ paginacao_footer(pagination, acao, bloco) }}
 {% endif %}
 {% endblock %}
