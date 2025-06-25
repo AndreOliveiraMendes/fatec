@@ -14,10 +14,10 @@
 </div>
 {% endmacro %}
 
-{% macro gerar_select(id, label, table, table_id, table_label, optional=False, placeholder='Selecione uma opção...', selected = None, extra = None) %}
+{% macro gerar_select(id, label, table, table_id, table_label, table_id_name=None, optional=False, placeholder='Selecione uma opção...', selected = None, extra = None) %}
 <div class="form-group">
   <label for="{{ id }}">{{ label }}</label>
-  <select class="form-control" id="{{ id }}" name="{{ table_id }}" {% if not optional %}required{% endif %} {% if extra %}{{ extra }}{% endif %}>
+  <select class="form-control" id="{{ id }}" name="{{ table_id_name if table_id_name else table_id }}" {% if not optional %}required{% endif %} {% if extra %}{{ extra }}{% endif %}>
     <option value="" {% if not optional %}disabled selected hidden{% endif %}>{{ placeholder }}</option>
     {% for t in table %}
     <option value="{{ t[table_id] }}" {% if selected and t[table_id] == selected %}selected{% endif %}>({{ t[table_id] }}) {{ t[table_label] }}</option>

@@ -5,8 +5,6 @@
 {% block content_head %}
 {{ generate_head(url_for("gerenciar_permissoes"), acao) }}
 {% endblock %}
-{% set disable_editar=False %}
-{% set disable_excluir=False %}
 
 {% block abertura %}
 <h3>Gerenciamento da Tabela <strong>Permissões</strong></h3>
@@ -41,4 +39,62 @@
         </tr>
     </tbody>
 </table>
+{% endblock %}
+
+{% block listar %}
+<h3>Lista de Permissoes</h3>
+<table class="table table-bordered table-striped table-hover">
+    <thead>
+        <tr class="info">
+            <th>Id Usuario</th>
+            <th>permissao</th>
+            <th>FIXA</th>
+            <th>TEMP</th>
+            <th>ADMIN</th>
+            <th>Ação</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for p in permissoes %}
+        <tr>
+            <td>{{ p.id_permissao_usuario }}</td>
+            <td>{{ p.permissao }}</td>
+            <td><i title="Permissão de reserva fixa" class="{% if p.permissao|has_flag(FIXA) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}"></i></td>
+            <td><i title="Permissão de reserva temporária" class="{% if p.permissao|has_flag(TEMP) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}"></i></td>
+            <td><i title="Permissão de administrador" class="{% if p.permissao|has_flag(ADMIN) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}"></i></td>
+            <td>
+                <form method="post" class="form-inline">
+                    <input type="hidden" name="bloco" value="1">
+                    <input type="hidden" name="id_usuario" value="{{ p.id_permissao_usuario }}">
+                    <div class="btn-group">
+                        <button type="submit" name="acao" value="editar" class="btn btn-warning btn-sm" title="Editar">
+                            <i class="glyphicon glyphicon-pencil"></i>
+                        </button>
+                        {% if p.id_permissao_usuario != userid %}
+                        <button type="submit" name="acao" value="excluir" class="btn btn-danger btn-sm" title="Excluir">
+                            <i class="glyphicon glyphicon-trash"></i>
+                        </button>
+                        {% endif %}
+                    </div>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{{ paginacao(pagination, acao, bloco) }}
+{% endblock %}
+
+{% block procurar %}
+{% if bloco == 0 %}
+<h3>Procurar Permissoes</h3>
+<form class="form-group" role="form" action="{{ url_for('gerenciar_pessoas') }}" method="post">
+    <input type="hidden" name="acao" value="{{ acao }}">
+
+    {{ gerar_select("id_usuario", "Selecione o usuario", results, "id_usuario", "nome_pessoa", "id_permissao_usuario") }}
+
+    {{ action_buttons(acao, 1, False, 0)}}
+</form>
+{% elif bloco == 1 %}
+{% endif %}
 {% endblock %}
