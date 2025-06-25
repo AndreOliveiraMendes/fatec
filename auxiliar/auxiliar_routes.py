@@ -24,7 +24,7 @@ def get_user_info(userid):
             perm = permissao.permissao
     return username, perm
 
-def registrar_log_generico(id_usuario, acao, objeto, antes=None):
+def registrar_log_generico(userid, acao, objeto, antes=None):
     nome_tabela = getattr(objeto, "__tablename__", objeto.__class__.__name__)
     insp = inspect(objeto)
 
@@ -48,9 +48,15 @@ def registrar_log_generico(id_usuario, acao, objeto, antes=None):
     if not campos:
         campos.append("nenhuma alteração detectada")
 
+    user = Usuarios.query.get(userid);
+
     historico = Historicos(
-        id_pessoa=id_usuario,
-        acao=f"[{acao}] Tabela: {nome_tabela.capitalize()} | Chave: {dados_chave} - " + "; ".join(campos),
-        dia=datetime.now()
+        id_usuario = userid,
+        id_pessoa = user.id_pessoa,
+        table = nome_tabela,
+        categoria = acao,
+        data_hora = datetime.now(),
+        message = "; ".join(campos),
+        observacao = f"Chave: {dados_chave}"
     )
     db.session.add(historico)
