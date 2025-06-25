@@ -1,10 +1,10 @@
+import copy
 from main import app
-from flask import flash, session, render_template, request, redirect, url_for
+from flask import flash, session, render_template, request
 from sqlalchemy.exc import IntegrityError
 from models import db, Usuarios, Pessoas
 from auxiliar.decorators import admin_required
-from auxiliar.auxiliar_routes import none_if_empty, get_query_params, get_user_info
-from sqlalchemy.orm import joinedload
+from auxiliar.auxiliar_routes import none_if_empty, get_query_params, get_user_info, registrar_log_generico
 
 @app.route("/admin/usuarios", methods=["GET", "POST"])
 @admin_required
@@ -23,7 +23,7 @@ def gerenciar_usuarios():
             extras['userid'] = userid
         elif acao == 'procurar' and bloco == 1:
             id_usuario = none_if_empty(request.form.get('id_usuario', None))
-            id_pessoa = none_if_empty(request.form.get('id_pessoa', None))
+            id_pessoa = none_if_empty(request.form.get('id_pessoa', None), 'int')
             tipo_pessoa = none_if_empty(request.form.get('tipo_pessoa', None))
             situacao_pessoa = none_if_empty(request.form.get('situacao_pessoa', None))
             grupo_pessoa = none_if_empty(request.form.get('grupo_pessoa', None))
@@ -54,7 +54,7 @@ def gerenciar_usuarios():
             extras['pessoas'] = pessoas_id_nome
         elif acao == 'inserir' and bloco == 1:
             id_usuario = none_if_empty(request.form.get('id_usuario', None))
-            id_pessoa = none_if_empty(request.form.get('id_pessoa', None))
+            id_pessoa = none_if_empty(request.form.get('id_pessoa', None), 'int')
             tipo_pessoa = none_if_empty(request.form.get('tipo_pessoa', None))
             situacao_pessoa = none_if_empty(request.form.get('situacao_pessoa', None))
             grupo_pessoa = none_if_empty(request.form.get('grupo_pessoa', None))
@@ -80,6 +80,39 @@ def gerenciar_usuarios():
             user = Usuarios.query.get(id_usuario)
             extras['usuario'] = user
             extras['pessoas'] = pessoas_id_nome
+        elif acao == 'editar' and bloco == 2:
+            id_usuario = none_if_empty(request.form.get('id_usuario', None))
+            id_pessoa = none_if_empty(request.form.get('id_pessoa', None), 'int')
+            tipo_pessoa = none_if_empty(request.form.get('tipo_pessoa', None))
+            situacao_pessoa = none_if_empty(request.form.get('situacao_pessoa', None))
+            grupo_pessoa = none_if_empty(request.form.get('grupo_pessoa', None))
+
+            usuario = Usuarios.query.get(id_usuario)
+
+            if usuario:
+                try:
+                    dados_anteriores = copy.copy(usuario)
+
+                    usuario.id_pessoa = id_pessoa
+                    usuario.tipo_pessoa = tipo_pessoa
+                    usuario.situacao_pessoa = situacao_pessoa
+                    usuario.grupo_pessoa = grupo_pessoa
+
+                    db.session.flush()  # Garante que o ID esteja atribuído
+
+                    registrar_log_generico(userid, "Edição", usuario, dados_anteriores)
+
+                    db.session.commit()
+                    flash("Pessoa atualizada com sucesso", "success")
+                except IntegrityError as e:
+                    db.session.rollback()
+                    flash(f"Erro ao atualizar pessoa: {str(e.orig)}", "danger")
+            else:
+                flash("Pessoa não encontrada", "danger")
+            
+            result = db.session.query(Usuarios.id_usuario, Pessoas.nome_pessoa).join(Pessoas, Usuarios.id_pessoa == Pessoas.id_pessoa).all()
+            extras['results'] = result
+            bloco = 0
         return render_template("database/usuarios.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
     else:
         return render_template("database/usuarios.html", username=username, perm=perm, acao=acao, bloco=bloco)
