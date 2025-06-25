@@ -188,7 +188,7 @@
 {% endblock %}
 
 {% block inserir %}
-<h3>Inserir Pessoas</h3>
+<h3>Inserir Usuarios</h3>
 <form class="form-group" role="form" action="{{ url_for('gerenciar_usuarios') }}" method="post">
     <input type="hidden" name="acao" value="{{ acao }}">
 
@@ -223,4 +223,18 @@
 
     {{ action_buttons('inserir', 1, False, 0)}}
 </form>
+{% endblock %}
+
+{% block editar %}
+{% if bloco == 0 %}
+<h3>Editar Usuarios</h3>
+<form class="form-group" role="form" action="{{ url_for('gerenciar_usuarios') }}" method="post">
+    <input type="hidden" name="acao" value="{{ acao }}">
+
+    {{ gerar_select("id_usuario", "Selecione o usuario", results, "id_usuario", "nome_pessoa") }}
+
+    {{ action_buttons('editar', 1, False, 0)}}
+</form>
+{% elif bloco == 1 %}
+{% endif %}
 {% endblock %}

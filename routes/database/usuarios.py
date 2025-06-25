@@ -4,6 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from models import db, Usuarios, Pessoas
 from auxiliar.decorators import admin_required
 from auxiliar.auxiliar_routes import none_if_empty, get_query_params, get_user_info
+from sqlalchemy.orm import joinedload
 
 @app.route("/admin/usuarios", methods=["GET", "POST"])
 @admin_required
@@ -70,6 +71,12 @@ def gerenciar_usuarios():
             pessoas_id_nome = db.session.query(Pessoas.id_pessoa, Pessoas.nome_pessoa).all()
             extras['pessoas'] = pessoas_id_nome
             bloco = 0
+        elif acao == 'editar' and bloco == 0:
+            result = db.session.query(Usuarios.id_usuario, Pessoas.nome_pessoa).join(Pessoas, Usuarios.id_pessoa == Pessoas.id_pessoa).all()
+            extras['results'] = result
+        elif acao == 'editar' and bloco == 1:
+            id_usuario = none_if_empty(request.form.get('id_usuario', None))
+            
         return render_template("database/usuarios.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
     else:
         return render_template("database/usuarios.html", username=username, perm=perm, acao=acao, bloco=bloco)
