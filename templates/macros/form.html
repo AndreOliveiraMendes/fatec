@@ -61,7 +61,7 @@
 
 {% macro manter_parametros(query_params) %}
   {% for field, value in query_params.items() %}
-    {% if field.startswith('em') %}
+    {% if field.startswith('em') or field.startswith('flag') %}
       {% if value %}
         <input type="hidden" name="{{ field }}" value="{{ value }}">
       {% endif %}
