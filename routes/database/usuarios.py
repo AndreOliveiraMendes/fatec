@@ -22,7 +22,7 @@ def gerenciar_usuarios():
             extras['pagination'] = usuarios_paginados
             extras['userid'] = userid
         elif acao == 'procurar' and bloco == 1:
-            id_usuario = none_if_empty(request.form.get('id_usuario', None))
+            id_usuario = none_if_empty(request.form.get('id_usuario', None), int)
             id_pessoa = none_if_empty(request.form.get('id_pessoa', None), int)
             tipo_pessoa = none_if_empty(request.form.get('tipo_pessoa', None))
             situacao_pessoa = none_if_empty(request.form.get('situacao_pessoa', None))
@@ -53,7 +53,7 @@ def gerenciar_usuarios():
             pessoas_id_nome = db.session.query(Pessoas.id_pessoa, Pessoas.nome_pessoa).all()
             extras['pessoas'] = pessoas_id_nome
         elif acao == 'inserir' and bloco == 1:
-            id_usuario = none_if_empty(request.form.get('id_usuario', None))
+            id_usuario = none_if_empty(request.form.get('id_usuario', None), int)
             id_pessoa = none_if_empty(request.form.get('id_pessoa', None), int)
             tipo_pessoa = none_if_empty(request.form.get('tipo_pessoa', None))
             situacao_pessoa = none_if_empty(request.form.get('situacao_pessoa', None))
@@ -84,7 +84,7 @@ def gerenciar_usuarios():
             extras['usuario'] = user
             extras['pessoas'] = pessoas_id_nome
         elif acao == 'editar' and bloco == 2:
-            id_usuario = none_if_empty(request.form.get('id_usuario', None))
+            id_usuario = none_if_empty(request.form.get('id_usuario', None), int)
             id_pessoa = none_if_empty(request.form.get('id_pessoa', None), int)
             tipo_pessoa = none_if_empty(request.form.get('tipo_pessoa', None))
             situacao_pessoa = none_if_empty(request.form.get('situacao_pessoa', None))
@@ -106,16 +106,38 @@ def gerenciar_usuarios():
                     registrar_log_generico(userid, "Edição", usuario, dados_anteriores)
 
                     db.session.commit()
-                    flash("Pessoa atualizada com sucesso", "success")
+                    flash("Usuario atualizado com sucesso", "success")
                 except IntegrityError as e:
                     db.session.rollback()
-                    flash(f"Erro ao atualizar pessoa: {str(e.orig)}", "danger")
+                    flash(f"Erro ao atualizar usuario: {str(e.orig)}", "danger")
             else:
-                flash("Pessoa não encontrada", "danger")
+                flash("Usuario não encontrada", "danger")
             
             result = db.session.query(Usuarios.id_usuario, Pessoas.nome_pessoa).join(Pessoas, Usuarios.id_pessoa == Pessoas.id_pessoa).all()
             extras['results'] = result
             bloco = 0
+        elif acao == 'excluir' and bloco == 2:
+            id_usuario = none_if_empty(request.form.get('id_usuario', None), int)
+            
+            user = Usuarios.query.get(id_usuario)
+
+            if user:
+                if userid == id_usuario:
+                    flash("Voce não pode se excluir", "danger")
+                else:
+                    try:
+                        db.session.flush()  # garante ID
+                        registrar_log_generico(userid, "Exclusão", user)
+
+                        db.session.delete(user)
+                        db.session.commit()
+                        flash("Usuario excluído com sucesso", "success")
+
+                    except IntegrityError as e:
+                        db.session.rollback()
+                        flash(f"Erro ao excluir usuario: {str(e.orig)}", "danger")
+            else:
+                flash("Usuario não encontrada", "danger")
         return render_template("database/usuarios.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
     else:
         return render_template("database/usuarios.html", username=username, perm=perm, acao=acao, bloco=bloco)

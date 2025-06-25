@@ -75,7 +75,7 @@ def gerenciar_pessoas():
             pessoa = Pessoas.query.filter(Pessoas.id_pessoa == id_pessoa).first()
             extras['pessoa'] = pessoa
         elif acao == 'editar' and bloco == 2:
-            id_pessoa = none_if_empty(request.form.get('id_pessoa'))
+            id_pessoa = none_if_empty(request.form.get('id_pessoa'), int)
             nome = none_if_empty(request.form.get('nome', None))
             email = none_if_empty(request.form.get('email', None))
 
@@ -109,7 +109,7 @@ def gerenciar_pessoas():
             bloco = 0
         elif acao == 'excluir' and bloco == 2:
             user = Usuarios.query.get(userid)
-            id_pessoa = none_if_empty(request.form.get('id_pessoa'))
+            id_pessoa = none_if_empty(request.form.get('id_pessoa'), int)
 
             pessoa = Pessoas.query.get(id_pessoa)
 
