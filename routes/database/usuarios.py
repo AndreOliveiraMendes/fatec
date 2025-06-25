@@ -72,10 +72,10 @@ def gerenciar_usuarios():
             extras['pessoas'] = pessoas_id_nome
             bloco = 0
         elif acao == 'editar' and bloco == 0:
-            result = db.session.query(Usuarios.id_usuario, Pessoas.nome_pessoa).join(Pessoas, Usuarios.id_pessoa == Pessoas.id_pessoa).all()
+            result = db.session.query(Usuarios.id_usuario, Pessoas.nome_pessoa).join(Pessoas).all()
             extras['results'] = result
         elif acao == 'excluir' and bloco == 0:
-            result = db.session.query(Usuarios.id_usuario, Pessoas.nome_pessoa).join(Pessoas, Usuarios.id_pessoa == Pessoas.id_pessoa).filter(Usuarios.id_usuario!=userid).all()
+            result = db.session.query(Usuarios.id_usuario, Pessoas.nome_pessoa).join(Pessoas).filter(Usuarios.id_usuario!=userid).all()
             extras['results'] = result
         elif acao in ['editar', 'excluir'] and bloco == 1:
             id_usuario = none_if_empty(request.form.get('id_usuario', None))
@@ -113,7 +113,7 @@ def gerenciar_usuarios():
             else:
                 flash("Usuario não encontrada", "danger")
             
-            result = db.session.query(Usuarios.id_usuario, Pessoas.nome_pessoa).join(Pessoas, Usuarios.id_pessoa == Pessoas.id_pessoa).all()
+            result = db.session.query(Usuarios.id_usuario, Pessoas.nome_pessoa).join(Pessoas).all()
             extras['results'] = result
             bloco = 0
         elif acao == 'excluir' and bloco == 2:

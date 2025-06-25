@@ -20,7 +20,7 @@ def gerenciar_permissoes():
             extras['pagination'] = permissoes_paginadas
             extras['userid'] = userid
         elif acao == 'procurar' and bloco == 0:
-            result = db.session.query(Usuarios.id_usuario, Pessoas.nome_pessoa).join(Pessoas, Usuarios.id_pessoa == Pessoas.id_pessoa).all()
+            result = db.session.query(Usuarios.id_usuario, Pessoas.nome_pessoa).join(Pessoas).all()
             extras['results'] = result
         elif acao == 'procurar' and bloco == 1:
             id_permissao_usuario = none_if_empty(request.form.get('id_permissao_usuario'), int)
@@ -46,7 +46,7 @@ def gerenciar_permissoes():
                 extras['userid'] = userid
                 extras['query_params'] = query_params
             else:
-                result = db.session.query(Usuarios.id_usuario, Pessoas.nome_pessoa).join(Pessoas, Usuarios.id_pessoa == Pessoas.id_pessoa).all()
+                result = db.session.query(Usuarios.id_usuario, Pessoas.nome_pessoa).join(Pessoas).all()
                 extras['results'] = result
                 bloco = 0
                 flash("especifique pelo menos um campo de busca", "danger")
