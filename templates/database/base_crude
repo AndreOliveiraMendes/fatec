@@ -30,6 +30,9 @@
 {% elif acao == 'excluir' %}
 {% block excluir %}
 {% endblock %}
+{% elif acao == 'exportar' %}
+{% block exportar %}
+{% endblock %}
 {% else %}
 <div class="alert alert-danger" role="alert">
   Ação não definida

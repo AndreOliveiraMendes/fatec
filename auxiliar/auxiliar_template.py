@@ -42,7 +42,7 @@ def has_flag(value, flag):
     return (value & flag) == flag
 
 @app.template_global()
-def generate_head(target_url, acao, disable=None):
+def generate_head(target_url, acao, include = None, disable = None):
     botoes = [
         ('Listar', 'listar', 'glyphicon-book'),
         ('Procurar', 'procurar', 'glyphicon-search'),
@@ -51,6 +51,9 @@ def generate_head(target_url, acao, disable=None):
         ('Excluir', 'excluir', 'glyphicon-trash'),
     ]
 
+    if include:
+        for botao in include:
+            botoes.append(botao)
     if disable:
         botoes = filter(lambda x: not x[1] in disable, botoes)
 
