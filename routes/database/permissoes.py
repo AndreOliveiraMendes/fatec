@@ -1,3 +1,4 @@
+import copy
 from main import app
 from flask import flash, session, render_template, request
 from sqlalchemy.exc import IntegrityError
@@ -75,6 +76,46 @@ def gerenciar_permissoes():
             usuarios_com_permissao = db.session.query(Permissoes.id_permissao_usuario)
             usuarios_sem_permissao = db.session.query(Usuarios.id_usuario, Pessoas.nome_pessoa).filter(~Usuarios.id_usuario.in_(usuarios_com_permissao)).join(Pessoas).all()
             extras['results'] = usuarios_sem_permissao
+        elif acao == 'editar' and bloco == 0:
+            permissoes = db.session.query(Permissoes.id_permissao_usuario, Pessoas.nome_pessoa).select_from(Permissoes).join(Usuarios).join(Pessoas).all()
+            extras['results'] = permissoes
+        elif acao == 'editar' and bloco == 1:
+            usuario = none_if_empty(request.form.get('id_usuario'))
+            permissao = Permissoes.query.get(usuario)
+            extras['permissao'] = permissao
+            extras['userid'] = userid
+        elif acao == 'editar' and bloco == 2:
+            id_permissao_usuario = none_if_empty(request.form.get('id_permissao_usuario'), int)
+            flag_fixa = 1 if 'flag_fixa' in request.form else 0
+            flag_temp = 2 if 'flag_temp' in request.form else 0
+            flag_admin = 4 if 'flag_admin' in request.form else 0
+            flag = flag_fixa|flag_temp|flag_admin
+            
+            permissao = Permissoes.query.get(id_permissao_usuario)
+            if permissao:
+                if id_permissao_usuario == userid and flag_admin == 0:
+                    flash("voce não pode remover seu proprio poder de administrador", "danger")
+                else:
+                    try:
+                        dados_anteriores = copy.copy(permissao)
+
+                        permissao.permissao = flag
+
+                        db.session.flush()  # Garante que o ID esteja atribuído
+
+                        # Loga com os dados antigos + novos
+                        registrar_log_generico(userid, "Edição", permissao, dados_anteriores)
+
+                        db.session.commit()
+                        flash("Permissao atualizada com sucesso", "success")
+                    except IntegrityError as e:
+                        db.session.rollback()
+                        flash(f"Erro ao atualizar pessoa: {str(e.orig)}", "danger")
+            else:
+                flash("Permissao não encontrada", "danger")
+            permissoes = db.session.query(Permissoes.id_permissao_usuario, Pessoas.nome_pessoa).select_from(Permissoes).join(Usuarios).join(Pessoas).all()
+            extras['results'] = permissoes
+            bloco = 0
             
         return render_template("database/permissoes.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
     else:

@@ -34,7 +34,7 @@ def get_user_info(userid):
             perm = permissao.permissao
     return username, perm
 
-def registrar_log_generico(userid, acao, objeto, antes=None):
+def registrar_log_generico(userid, acao, objeto, antes=None, observacao=None):
     nome_tabela = getattr(objeto, "__tablename__", objeto.__class__.__name__)
     insp = inspect(objeto)
 
@@ -67,6 +67,7 @@ def registrar_log_generico(userid, acao, objeto, antes=None):
         categoria = acao,
         data_hora = datetime.now(),
         message = "; ".join(campos),
-        chave_primaria = f"{dados_chave}"
+        chave_primaria = f"{dados_chave}",
+        observacao = observacao
     )
     db.session.add(historico)
