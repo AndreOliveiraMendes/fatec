@@ -67,6 +67,6 @@ def registrar_log_generico(userid, acao, objeto, antes=None):
         categoria = acao,
         data_hora = datetime.now(),
         message = "; ".join(campos),
-        observacao = f"Chave: {dados_chave}"
+        chave_primaria = f"{dados_chave}"
     )
     db.session.add(historico)

@@ -89,6 +89,7 @@ class Historicos(db.Model):
     categoria = db.Column(db.String(100))
     data_hora = db.Column(db.DateTime, index=True, nullable=False)
     message = db.Column(db.TEXT, nullable=False)
+    chave_primaria = db.Column(db.TEXT, nullable=False)
     observacao = db.Column(db.TEXT, nullable=True)
 
 #cria as tabelas necessarias, descomente se precisar
