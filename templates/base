@@ -1,86 +1,97 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
-<head>
-  <meta charset="UTF-8">
-  <title>{% block title %}Meu Sistema{% endblock %}</title>
-  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/favicon.svg') }}">
-  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
-
-  <!-- Bootstrap CSS -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-  <!-- Bootstrap Icons -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-  <!-- Custom CSS -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
-
-  <!-- Optional extra CSS for specific pages -->
-  {% block extra_css %}{% endblock %}
-  {% block extra_head %}{% endblock %}
-</head>
-
-<body>
-  <!-- Navbar -->
-  <nav class="navbar navbar-default">
-    <div class="container-fluid">
-      <div class="navbar-header">
-        <a class="navbar-brand" href="{{ url_for('home') }}">
-          Sistema RLF
-          {% if perm and perm|has_flag(FIXA) %}
-          <i class="glyphicon glyphicon-calendar" title="Permissão de Reserva Fixa"></i>
-          {% endif %}
-          {% if perm and perm|has_flag(TEMP) %}
-          <i class="glyphicon glyphicon-time" title="Permissão de Reserva Temporária"></i>
-          {% endif %}
-          {% if perm and perm|has_flag(ADMIN) %}
-          <i class="glyphicon glyphicon-fire" title="Permissão de Administrador"></i>
-          {% endif %}
-        </a>
-      </div>
-
-      <ul class="nav navbar-nav navbar-right">
-        {% if username %}
-        <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-            aria-expanded="false">
-            <i class="glyphicon glyphicon-user"></i> {{ username }} <span class="caret"></span>
-          </a>
-          <ul class="dropdown-menu">
-            <li><a href="{{ url_for('perfil') }}"><i class="glyphicon glyphicon-user"></i> Perfil</a></li>
-            <li><a href="{{ url_for('logout') }}"><i class="glyphicon glyphicon-log-out"></i> Sair</a></li>
-          </ul>
-        </li>
-        {% else %}
-        <li><a href="{{ url_for('login') }}"><i class="glyphicon glyphicon-log-in"></i> Login</a></li>
-        {% endif %}
-      </ul>
-    </div>
-  </nav>
-
-  <!-- Flash messages -->
-  <div class="container text-center">
-    {% block flash_messages %}
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    {% for category, message in messages %}
-    <div class="alert alert-{{ category }} text-center" role="alert">
-      {{ message }}
-    </div>
-    {% endfor %}
-    {% endif %}
-    {% endwith %}
-    {% endblock %}
-
-    <!-- Main page content -->
-    {% block content %}
-    {% endblock %}
-  </div>
-
-  <!-- JS Scripts -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-
-  {% block extra_script %}{% endblock %}
-</body>
-
+    <head>
+        <meta charset="UTF-8">
+		<meta name="description" content="Sistema de Reservas de Laboratório da Fatec.">
+		<meta name="keywords" content="reservas, laboratório, fatec, sistema">
+        <title>
+            {% block title %}Meu Sistema{% endblock %}
+        </title>
+        <link rel="icon"
+              type="image/svg+xml"
+              href="{{ url_for('static', filename='images/favicon.svg') }}">
+        <link rel="icon"
+              type="image/png"
+              href="{{ url_for('static', filename='images/favicon.png') }}">
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet"
+              href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <!-- Bootstrap Icons -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
+              rel="stylesheet">
+        <!-- Custom CSS -->
+        <link rel="stylesheet"
+              href="{{ url_for('static', filename='css/custom.css') }}">
+        <!-- Optional extra CSS for specific pages -->
+        {% block extra_css %}{% endblock %}
+        {% block extra_head %}{% endblock %}
+    </head>
+    <body>
+        <!-- Navbar -->
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="{{ url_for("home") }}">
+                        Sistema RLF
+                        {% if perm and perm|has_flag(FIXA) %}
+                            <i class="glyphicon glyphicon-calendar"
+                               title="Permissão de Reserva Fixa"></i>
+                        {% endif %}
+                        {% if perm and perm|has_flag(TEMP) %}
+                            <i class="glyphicon glyphicon-time"
+                               title="Permissão de Reserva Temporária"></i>
+                        {% endif %}
+                        {% if perm and perm|has_flag(ADMIN) %}
+                            <i class="glyphicon glyphicon-fire" title="Permissão de Administrador"></i>
+                        {% endif %}
+                    </a>
+                </div>
+                <ul class="nav navbar-nav navbar-right">
+                    {% if username %}
+                        <li class="dropdown">
+                            <a href="#"
+                               class="dropdown-toggle"
+                               data-toggle="dropdown"
+                               role="button"
+                               aria-haspopup="true"
+                               aria-expanded="false">
+                                <i class="glyphicon glyphicon-user"></i> {{ username }} <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a href="{{ url_for("perfil") }}"><i class="glyphicon glyphicon-user"></i> Perfil</a>
+                                </li>
+                                <li>
+                                    <a href="{{ url_for("logout") }}"><i class="glyphicon glyphicon-log-out"></i> Sair</a>
+                                </li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li>
+                            <a href="{{ url_for("login") }}"><i class="glyphicon glyphicon-log-in"></i> Login</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </nav>
+        <!-- Flash messages -->
+        <div class="container text-center">
+            {% block flash_messages %}
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} text-center" role="alert">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            {% endblock %}
+            <!-- Main page content -->
+            {% block content %}{% endblock %}
+        </div>
+        <!-- JS Scripts -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        {% block extra_script %}
+        {% endblock %}
+    </body>
 </html>
