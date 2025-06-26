@@ -39,7 +39,7 @@ The project now follows a more modular and scalable structure:
 │   │   ├── pessoas.py            # Routes for managing "Pessoas"
 │   │   ├── reservas_fixas.py     # Routes for fixed reservations
 │   │   ├── usuarios.py           # Routes for managing "Usuarios"
-│   │   └── usuarios_especiais.py # Routes for special users 
+│   │   └── usuarios_especiais.py # Routes for special users
 │   ├── default.py                # General/default routes (like homepage)
 │   └── error.py                  # Error handling routes (404, 403, etc.)
 ├── schema.sql                    # Raw SQL file for database schema creation
@@ -61,8 +61,15 @@ The project now follows a more modular and scalable structure:
     ├── base                      # Base layout template (extended by all pages)
     ├── database/                 # Pages for listing, searching, and editing database entries
     │   ├── base_crude            # Base layout template for crude (extended by all pages inside database)
+    │   ├── aulas.html
+    │   ├── laboratorios.html
+    │   ├── historico.html
+    │   ├── laboratorios.html
+    │   ├── permissoes.html
     │   ├── pessoas.html
-    │   └── usuarios.html
+    │   ├── reservas_fixas.html
+    │   ├── usuarios.html
+    │   └── usuarios_especiais.html
     ├── homepage.html             # Initial landing page
     ├── http/                     # template for http codes
     │   ├── 401.html              # 401 - Unauthorized error page
