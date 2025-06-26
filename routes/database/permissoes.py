@@ -79,7 +79,10 @@ def gerenciar_permissoes():
         elif acao == 'editar' and bloco == 0:
             permissoes = db.session.query(Permissoes.id_permissao_usuario, Pessoas.nome_pessoa).select_from(Permissoes).join(Usuarios).join(Pessoas).all()
             extras['results'] = permissoes
-        elif acao == 'editar' and bloco == 1:
+        elif acao == 'excluir' and bloco == 0:
+            permissoes = db.session.query(Permissoes.id_permissao_usuario, Pessoas.nome_pessoa).select_from(Permissoes).join(Usuarios).join(Pessoas).filter(Permissoes.id_permissao_usuario!=userid).all()
+            extras['results'] = permissoes
+        elif acao in ['editar', 'excluir'] and bloco == 1:
             usuario = none_if_empty(request.form.get('id_usuario'))
             permissao = Permissoes.query.get(usuario)
             extras['permissao'] = permissao
@@ -98,14 +101,9 @@ def gerenciar_permissoes():
                 else:
                     try:
                         dados_anteriores = copy.copy(permissao)
-
                         permissao.permissao = flag
-
                         db.session.flush()  # Garante que o ID esteja atribuído
-
-                        # Loga com os dados antigos + novos
-                        registrar_log_generico(userid, "Edição", permissao, dados_anteriores)
-
+                        registrar_log_generico(userid, "Edição", permissao, dados_anteriores) # Loga com os dados antigos + novos
                         db.session.commit()
                         flash("Permissao atualizada com sucesso", "success")
                     except IntegrityError as e:
@@ -116,7 +114,31 @@ def gerenciar_permissoes():
             permissoes = db.session.query(Permissoes.id_permissao_usuario, Pessoas.nome_pessoa).select_from(Permissoes).join(Usuarios).join(Pessoas).all()
             extras['results'] = permissoes
             bloco = 0
-            
+        elif acao == 'excluir' and bloco == 2:
+            id_permissao_usuario = none_if_empty(request.form.get('id_permissao_usuario'), int)
+
+            permissao = Permissoes.query.get(id_permissao_usuario)
+            if permissao:
+                if id_permissao_usuario == userid:
+                    flash("voce não pode remover sua propria permissão", "danger")
+                else:
+                    try:
+                        db.session.flush()  # garante ID
+                        registrar_log_generico(userid, "Exclusão", permissao)
+
+                        db.session.delete(permissao)
+                        db.session.commit()
+                        flash("Permissao excluída com sucesso", "success")
+
+                    except IntegrityError as e:
+                        db.session.rollback()
+                        flash(f"Erro ao excluir usuario: {str(e.orig)}", "danger")
+            else:
+                flash("Permissao não encontrada", "danger")
+
+            permissoes = db.session.query(Permissoes.id_permissao_usuario, Pessoas.nome_pessoa).select_from(Permissoes).join(Usuarios).join(Pessoas).filter(Permissoes.id_permissao_usuario!=userid).all()
+            extras['results'] = permissoes
+            bloco = 0
         return render_template("database/permissoes.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
     else:
         return render_template("database/permissoes.html", username=username, perm=perm, acao=acao, bloco=bloco)

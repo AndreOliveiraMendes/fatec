@@ -270,3 +270,46 @@
 </form>
 {% endif %}
 {% endblock %}
+
+{% block excluir %}
+{% if bloco == 0 %}
+<form class="form-group" role="form" action="{{ url_for('gerenciar_permissoes') }}" method="post">
+    <input type="hidden" name="acao" value="{{ acao }}">
+
+    {{ gerar_select("id_usuario", "Selecione o usuario", results, "id_permissao_usuario", "nome_pessoa", "id_usuario") }}
+
+    {{ action_buttons(acao, 1, False, 0) }}
+</form>
+{% elif bloco == 1 %}
+<form class="form-group" role="form" action="{{ url_for('gerenciar_permissoes') }}" method="post">
+    <input type="hidden" name="acao" value="{{ acao }}">
+
+    <div class="form-group">
+        <label for="id_permissao_usuario">Usuario:</label>
+        <input type="text" class="form-control" id="id_permissao_usuario" name="id_permissao_usuario" value="{{ permissao.id_permissao_usuario }}" readonly>
+    </div>
+
+    <div class="form-group">
+        <div class="panel panel-default">
+            <div class="panel-heading"><strong>Permissões</strong></div>
+            <div class="panel-body text-center">
+                <!-- Grupo de flags -->
+                <div class="btn-group" data-toggle="buttons">
+                    <label title="Permissão de reserva fixa" for="btn-check-1">
+                        <input id="btn-check-1" type="checkbox" name="flag_fixa" {% if permissao.permissao|has_flag(FIXA) %}checked{% endif %} disabled> FIXA
+                    </label>
+                    <label title="Permissão de reserva temporária" for="btn-check-2">
+                        <input id="btn-check-2" type="checkbox" name="flag_temp" {% if permissao.permissao|has_flag(TEMP) %}checked{% endif %} disabled> TEMP
+                    </label>
+                    <label title="Permissão de administrador" for="btn-check-3">
+                        <input id="btn-check-3" type="checkbox" name="flag_admin" {% if permissao.permissao|has_flag(ADMIN) %}checked{% endif %} disabled> ADMIN
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{ action_buttons(acao, 2, True, 0, False) }}
+</form>
+{% endif %}
+{% endblock %}

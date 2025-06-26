@@ -138,6 +138,10 @@ def gerenciar_usuarios():
                         flash(f"Erro ao excluir usuario: {str(e.orig)}", "danger")
             else:
                 flash("Usuario não encontrada", "danger")
+
+            result = db.session.query(Usuarios.id_usuario, Pessoas.nome_pessoa).join(Pessoas).filter(Usuarios.id_usuario!=userid).all()
+            extras['results'] = result
+            bloco = 0
         return render_template("database/usuarios.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
     else:
         return render_template("database/usuarios.html", username=username, perm=perm, acao=acao, bloco=bloco)
