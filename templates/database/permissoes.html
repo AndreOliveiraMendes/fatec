@@ -189,5 +189,32 @@
 {% endblock %}
 
 {% block inserir %}
-<h3>Editar Permissoes</h3>
+<h3>Inserir Permissoes</h3>
+<form class="form-group" role="form" action="{{ url_for('gerenciar_permissoes') }}" method="post">
+    <input type="hidden" name="acao" value="{{ acao }}">
+
+    {{ gerar_select("id_usuario", "Selecione o usuario", results, "id_usuario", "nome_pessoa", "id_permissao_usuario") }}
+
+    <div class="form-group">
+        <div class="panel panel-default">
+            <div class="panel-heading"><strong>Permissões</strong></div>
+            <div class="panel-body text-center">
+                <!-- Grupo de flags -->
+                <div class="btn-group" data-toggle="buttons">
+                    <label title="Permissão de reserva fixa" for="btn-check-1">
+                        <input id="btn-check-1" type="checkbox" name="flag_fixa"> FIXA
+                    </label>
+                    <label title="Permissão de reserva temporária" for="btn-check-2">
+                        <input id="btn-check-2" type="checkbox" name="flag_temp"> TEMP
+                    </label>
+                    <label title="Permissão de administrador" for="btn-check-3">
+                        <input id="btn-check-3" type="checkbox" name="flag_admin"> ADMIN
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{ action_buttons(acao, 1, False, 0) }}
+</form>
 {% endblock %}

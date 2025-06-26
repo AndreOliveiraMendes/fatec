@@ -1,5 +1,6 @@
 from main import app
 from flask import flash, session, render_template, request
+from sqlalchemy.exc import IntegrityError
 from models import db, Permissoes, Usuarios, Pessoas
 from auxiliar.decorators import admin_required
 from auxiliar.auxiliar_routes import none_if_empty, get_query_params, get_user_info, registrar_log_generico
@@ -51,6 +52,26 @@ def gerenciar_permissoes():
                 bloco = 0
                 flash("especifique pelo menos um campo de busca", "danger")
         elif acao == 'inserir' and bloco == 0:
+            usuarios_com_permissao = db.session.query(Permissoes.id_permissao_usuario)
+            usuarios_sem_permissao = db.session.query(Usuarios.id_usuario, Pessoas.nome_pessoa).filter(~Usuarios.id_usuario.in_(usuarios_com_permissao)).join(Pessoas).all()
+            extras['results'] = usuarios_sem_permissao
+        elif acao == 'inserir' and bloco == 1:
+            id_permissao_usuario = none_if_empty(request.form.get('id_permissao_usuario'), int)
+            flag_fixa = 1 if 'flag_fixa' in request.form else 0
+            flag_temp = 2 if 'flag_temp' in request.form else 0
+            flag_admin = 4 if 'flag_admin' in request.form else 0
+            flag = flag_fixa|flag_temp|flag_admin
+            try:
+                nova_permissao = Permissoes(id_permissao_usuario=id_permissao_usuario, permissao=flag)
+                db.session.add(nova_permissao)
+                db.session.flush()  # garante ID
+                registrar_log_generico(userid, "Inserção", nova_permissao)
+                db.session.commit()
+                flash("Permissao cadastrada com sucesso", "success")
+            except IntegrityError as e:
+                flash(f"Erro ao inserir pessoa: {str(e.orig)}", "danger")
+                db.session.rollback()
+            bloco = 0
             usuarios_com_permissao = db.session.query(Permissoes.id_permissao_usuario)
             usuarios_sem_permissao = db.session.query(Usuarios.id_usuario, Pessoas.nome_pessoa).filter(~Usuarios.id_usuario.in_(usuarios_com_permissao)).join(Pessoas).all()
             extras['results'] = usuarios_sem_permissao
