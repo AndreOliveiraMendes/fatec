@@ -31,7 +31,7 @@ def gerenciar_usuarios_especiais():
                 if exact_name_match:
                     filter.append(Usuarios_Especiais.nome_usuario_especial == nome_usuario_especial)
                 else:
-                    filter.append(Usuarios_Especiais.nome_usuario_especial.ilike(f"%{nome_usuario_especia}%"))
+                    filter.append(Usuarios_Especiais.nome_usuario_especial.ilike(f"%{nome_usuario_especial}%"))
         return render_template("database/usuarios_especiais.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
     else:
         return render_template("database/usuarios_especiais.html", username=username, perm=perm, acao=acao, bloco=bloco)
