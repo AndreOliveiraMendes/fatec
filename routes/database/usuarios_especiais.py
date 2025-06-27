@@ -2,9 +2,18 @@ from main import app
 from flask import flash, session, render_template, request, redirect, url_for
 from models import db, Cursos
 from auxiliar.decorators import admin_required
+from auxiliar.auxiliar_routes import get_user_info
 
-@app.route("/admin/usuario_especial")
+@app.route("/admin/usuario_especial", methods=["GET", "POST"])
 @admin_required
 def gerenciar_usuarios_especiais():
-    flash("Pagina em Desenvolvimento", "warning")
-    return redirect(url_for('under_dev_page'))
+    acao = request.form.get('acao', 'abertura')
+    bloco = int(request.form.get('bloco', 0))
+    page = int(request.form.get('page', 1))
+    userid = session.get('userid')
+    username, perm = get_user_info(userid)
+    if request.method == 'POST':
+        extras = {}
+        return render_template("database/usuarios_especiais.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
+    else:
+        return render_template("database/usuarios_especiais.html", username=username, perm=perm, acao=acao, bloco=bloco)
