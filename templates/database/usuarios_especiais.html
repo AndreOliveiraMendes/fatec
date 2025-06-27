@@ -69,6 +69,7 @@
 {% endblock %}
 
 {% block procurar %}
+{% if bloco == 0 %}
 <h3>Procurar por Usuarios Especiais</h3>
 <form class="form-group" role="form" action="{{ url_for("gerenciar_usuarios_especiais") }}" method="post">
     <input type="hidden" name="acao" value="{{ acao }}">
@@ -88,5 +89,8 @@
             </span>
         </div>
     </div>
+    {{ action_buttons(acao, 1, False, 0) }}
 </form>
+{% elif bloco == 1 %}
+{% endif %}
 {% endblock %}
