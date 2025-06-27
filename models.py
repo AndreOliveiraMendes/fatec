@@ -27,11 +27,18 @@ class Reservas_Fixas(db.Model):
         ),
     )
 
+    pessoas = db.relationship('Pessoas', back_populates='reservas_fixas')
+    cursos = db.relationship('Cursos', back_populates='reservas_fixas')
+    laboratorios = db.relationship('Laboratorios', back_populates='reservas_fixas')
+    aulas = db.relationship('Aulas', back_populates='reservas_fixas')
+
 class Cursos(db.Model):
     __tablename__ = 'cursos'
 
     id_curso = db.Column(db.Integer, primary_key=True)
     nome_curso = db.Column(db.String(100), nullable=False)
+
+    reservas_fixas = db.relationship('Reservas_Fixas', back_populates='cursos')
     
 class Usuarios(db.Model):
     __tablename__ = 'usuarios'
@@ -42,18 +49,27 @@ class Usuarios(db.Model):
     situacao_pessoa = db.Column(db.String(50))
     grupo_pessoa = db.Column(db.String(50))
 
+    pessoas = db.relationship('Pessoas', back_populates='usuarios')
+    permissoes = db.relationship('Permissoes', back_populates='usuarios')
+    historicos = db.relationship('Historicos', back_populates='usuarios')
+
 class Pessoas(db.Model):
     __tablename__ = 'pessoas'
     id_pessoa = db.Column(db.Integer, primary_key=True)
     nome_pessoa = db.Column(db.String(100), nullable=False)
     email_pessoa = db.Column(db.String(100))
 
+    reservas_fixas = db.relationship('Reservas_Fixas', back_populates='pessoas')
+    usuarios = db.relationship('Usuarios', back_populates='pessoas')
+    historicos = db.relationship('Historicos', back_populates='pessoas')
 
 class Permissoes(db.Model):
     __tablename__ = 'permissoes'
 
     id_permissao_usuario = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario'), primary_key=True)
     permissao = db.Column(db.Integer, nullable=False)
+
+    usuarios = db.relationship('Usuarios', back_populates='permissoes')
 
 class Laboratorios(db.Model):
     __tablename__ = 'laboratorios'
@@ -62,6 +78,8 @@ class Laboratorios(db.Model):
     nome_laboratorio = db.Column(db.String(100), nullable=False)
     disponibilidade = db.Column(db.Integer)
     tipo = db.Column(db.Integer, server_default='0')
+
+    reservas_fixas = db.relationship('Reservas_Fixas', back_populates='laboratorios')
 
 class Aulas(db.Model):
     __tablename__ = 'aulas'
@@ -72,12 +90,18 @@ class Aulas(db.Model):
     semana = db.Column(db.Integer)
     turno = db.Column(db.Integer)
 
+    reservas_fixas = db.relationship('Reservas_Fixas', back_populates='aulas')
+    aulas_ativas = db.relationship('Aulas_Ativas', back_populates='aulas')
+
 class Aulas_Ativas(db.Model):
     __tablename__ = 'aulas_ativas'
 
     id_aula_ativa = db.Column(db.Integer, primary_key=True)
+    id_aula = db.Column(db.Integer, db.ForeignKey('aulas.id_aula'), nullable=False)
     inicio_ativacao = db.Column(db.Date, nullable=True)
     fim_ativacao = db.Column(db.Date, nullable=True)
+
+    aulas = db.relationship('Aulas', back_populates='aulas_ativas')
 
 class Historicos(db.Model):
     __tablename__ = 'historicos'
@@ -91,6 +115,9 @@ class Historicos(db.Model):
     message = db.Column(db.TEXT, nullable=False)
     chave_primaria = db.Column(db.TEXT, nullable=False)
     observacao = db.Column(db.TEXT, nullable=True)
+
+    usuarios = db.relationship('Usuarios', back_populates='historicos')
+    pessoas = db.relationship('Pessoas', back_populates='historicos')
 
 #cria as tabelas necessarias, descomente se precisar
 with app.app_context():
