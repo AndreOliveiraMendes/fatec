@@ -67,3 +67,26 @@
 </table>
 {{ paginacao(pagination, acao, bloco) }}
 {% endblock %}
+
+{% block procurar %}
+<h3>Procurar por Usuarios Especiais</h3>
+<form class="form-group" role="form" action="{{ url_for("gerenciar_usuarios_especiais") }}" method="post">
+    <input type="hidden" name="acao" value="{{ acao }}">
+    <div class="form-group">
+        <label for="codigo">Codigo:</label>
+        <input type="number" class="form-control" name="codigo" id="id_usuario_especial" placeholder="Digite o id">
+    </div>
+    <div class="form-group">
+        <label for="nome">Nome:</label>
+        <div class="input-group">
+            <input type="text" maxlength="100" class="form-control" name="nome" id="nome_usuario_especial" placeholder="Digite o nome">
+            <span class="input-group-addon">
+                <label for="emnome">
+                    <input type="checkbox" name="emnome" id="emnome">
+                    Exata
+                </label>
+            </span>
+        </div>
+    </div>
+</form>
+{% endblock %}

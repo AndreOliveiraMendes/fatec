@@ -1,3 +1,4 @@
+import requests
 from main import app
 from flask import flash, session, render_template, request, redirect, url_for
 from models import db, Usuarios_Especiais
@@ -18,6 +19,8 @@ def gerenciar_usuarios_especiais():
             Usuarios_Especiais_paginados = Usuarios_Especiais.query.paginate(page=page, per_page=10, error_out=False)
             extras['usuarios_especiais'] = Usuarios_Especiais_paginados.items
             extras['pagination'] = Usuarios_Especiais_paginados
+        elif acao == 'procurar':
+            pass
         return render_template("database/usuarios_especiais.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
     else:
         return render_template("database/usuarios_especiais.html", username=username, perm=perm, acao=acao, bloco=bloco)
