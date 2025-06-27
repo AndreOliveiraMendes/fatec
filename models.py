@@ -5,7 +5,7 @@ class Reservas_Fixas(db.Model):
 
     id_reserva_fixa = db.Column(db.Integer, primary_key=True)
     id_responsavel = db.Column(db.Integer, db.ForeignKey('pessoas.id_pessoa'), nullable=True)
-    id_curso = db.Column(db.Integer, db.ForeignKey('cursos.id_curso'), nullable=True)
+    id_responsavel_especial = db.Column(db.Integer, db.ForeignKey('usuarios_especiais.id_usuario_especial'), nullable=True)
     tipo_responsavel = db.Column(db.Integer, nullable=False)
     id_reserva_laboratorio = db.Column(db.Integer, db.ForeignKey('laboratorios.id_laboratorio'), nullable=False)
     id_reserva_aula = db.Column(db.Integer, db.ForeignKey('aulas.id_aula'), nullable=False)
@@ -16,11 +16,11 @@ class Reservas_Fixas(db.Model):
         db.CheckConstraint(
             '''
             (
-                (tipo_responsavel = 0 AND id_responsavel IS NOT NULL AND id_curso IS NULL)
+                (tipo_responsavel = 0 AND id_responsavel IS NOT NULL AND id_responsavel_especial IS NULL)
                 OR
-                (tipo_responsavel = 1 AND id_responsavel IS NULL AND id_curso IS NOT NULL)
+                (tipo_responsavel = 1 AND id_responsavel IS NULL AND id_responsavel_especial IS NOT NULL)
                 OR
-                (tipo_responsavel = 2 AND id_responsavel IS NOT NULL AND id_curso IS NOT NULL)
+                (tipo_responsavel = 2 AND id_responsavel IS NOT NULL AND id_responsavel_especial IS NOT NULL)
             )
             ''',
             name='check_tipo_responsavel'
@@ -28,17 +28,17 @@ class Reservas_Fixas(db.Model):
     )
 
     pessoas = db.relationship('Pessoas', back_populates='reservas_fixas')
-    cursos = db.relationship('Cursos', back_populates='reservas_fixas')
+    usuarios_especiais = db.relationship('Usuarios_Especiais', back_populates='reservas_fixas')
     laboratorios = db.relationship('Laboratorios', back_populates='reservas_fixas')
     aulas = db.relationship('Aulas', back_populates='reservas_fixas')
 
-class Cursos(db.Model):
-    __tablename__ = 'cursos'
+class Usuarios_Especiais(db.Model):
+    __tablename__ = 'usuarios_especiais'
 
-    id_curso = db.Column(db.Integer, primary_key=True)
-    nome_curso = db.Column(db.String(100), nullable=False)
+    id_usuario_especial = db.Column(db.Integer, primary_key=True)
+    nome_usuario_especial = db.Column(db.String(100), nullable=False)
 
-    reservas_fixas = db.relationship('Reservas_Fixas', back_populates='cursos')
+    reservas_fixas = db.relationship('Reservas_Fixas', back_populates='usuarios_especiais')
     
 class Usuarios(db.Model):
     __tablename__ = 'usuarios'

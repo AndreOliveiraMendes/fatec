@@ -1,6 +1,6 @@
 from main import app
 from flask import flash, session, render_template, request, redirect, url_for
-from models import db, Cursos
+from models import db, Usuarios_Especiais
 from auxiliar.decorators import admin_required
 from auxiliar.auxiliar_routes import get_user_info
 
