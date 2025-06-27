@@ -1,96 +1,161 @@
 {% extends "database/base_crude" %}
 {% block title %}Usuarios Especiais{% endblock %}
 {% block content_head %}{{ generate_head(url_for("gerenciar_usuarios_especiais") , acao) }}{% endblock %}
-
 {% block abertura %}
-<h3>
-    Gerenciamento da Tabela <strong>Usuarios Especiais</strong>
-</h3>
-<p>
-    A tabela <code>usuarios_especiais</code> possui os seguintes campos:
-</p>
-<table class="table table-striped table-bordered table-hover">
-    <thead>
-        <tr class="bg-info text-white text-center">
-            <th>Campo</th>
-            <th>Descrição</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for campo, descricao in [
-        ('id_usuario_especial', 'Identificador do usuario especial'),
-        ('nome_usuario_especial', 'Nome do usuario especial')
-        ] %}
-        <tr>
-            <td>
-                <code>{{ campo }}</code>
-            </td>
-            <td>{{ descricao }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <h3>
+        Gerenciamento da Tabela <strong>Usuarios Especiais</strong>
+    </h3>
+    <p>
+        A tabela <code>usuarios_especiais</code> possui os seguintes campos:
+    </p>
+    <table class="table table-striped table-bordered table-hover">
+        <thead>
+            <tr class="bg-info text-white text-center">
+                <th>Campo</th>
+                <th>Descrição</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for campo, descricao in [
+                ('id_usuario_especial', 'Identificador do usuario especial'),
+                ('nome_usuario_especial', 'Nome do usuario especial')
+                ] %}
+                <tr>
+                    <td>
+                        <code>{{ campo }}</code>
+                    </td>
+                    <td>{{ descricao }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}
-
 {% block listar %}
-<h3>Lista de Usuarios Especiais</h3>
-<table class="table table-bordered table-striped table-hover">
-    <thead>
-        <tr class="info">
-            <th>Id Usuario Especial</th>
-            <th>Nome Usuario Especial</th>
-            <th>Ação</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for ue in usuarios_especiais %}
-        <tr>
-            <td>{{ ue.id_usuario_especial }}</td>
-            <td>{{ ue.nome_usuario_especial }}</td>
-            <td>
-                <form method="post" class="form-inline">
-                    <input type="hidden" name="bloco" value="1">
-                    <input type="hidden" name="id_usuario_especial" value="{{ ue.id_usuario_especial }}">
-                    <div class="btn-group">
-                        <button type="submit" name="acao" value="editar" class="btn btn-warning btn-sm" title="Editar">
-                            <i class="glyphicon glyphicon-pencil"></i>
-                        </button>
-                        <button type="submit" name="acao" value="excluir" class="btn btn-danger btn-sm" title="Excluir">
-                            <i class="glyphicon glyphicon-trash"></i>
-                        </button>
-                    </div>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{{ paginacao(pagination, acao, bloco) }}
+    <h3>Lista de Usuarios Especiais</h3>
+    <table class="table table-bordered table-striped table-hover">
+        <thead>
+            <tr class="info">
+                <th>Id Usuario Especial</th>
+                <th>Nome Usuario Especial</th>
+                <th>Ação</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ue in usuarios_especiais %}
+                <tr>
+                    <td>{{ ue.id_usuario_especial }}</td>
+                    <td>{{ ue.nome_usuario_especial }}</td>
+                    <td>
+                        <form method="post" class="form-inline">
+                            <input type="hidden" name="bloco" value="1">
+                            <input type="hidden"
+                                   name="id_usuario_especial"
+                                   value="{{ ue.id_usuario_especial }}">
+                            <div class="btn-group">
+                                <button type="submit"
+                                        name="acao"
+                                        value="editar"
+                                        class="btn btn-warning btn-sm"
+                                        title="Editar">
+                                    <i class="glyphicon glyphicon-pencil"></i>
+                                </button>
+                                <button type="submit"
+                                        name="acao"
+                                        value="excluir"
+                                        class="btn btn-danger btn-sm"
+                                        title="Excluir">
+                                    <i class="glyphicon glyphicon-trash"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {{ paginacao(pagination, acao, bloco) }}
 {% endblock %}
-
 {% block procurar %}
-{% if bloco == 0 %}
-<h3>Procurar por Usuarios Especiais</h3>
-<form class="form-group" role="form" action="{{ url_for("gerenciar_usuarios_especiais") }}" method="post">
-    <input type="hidden" name="acao" value="{{ acao }}">
-    <div class="form-group">
-        <label for="codigo">Codigo:</label>
-        <input type="number" class="form-control" name="codigo" id="id_usuario_especial" placeholder="Digite o id">
-    </div>
-    <div class="form-group">
-        <label for="nome">Nome:</label>
-        <div class="input-group">
-            <input type="text" maxlength="100" class="form-control" name="nome" id="nome_usuario_especial" placeholder="Digite o nome">
-            <span class="input-group-addon">
-                <label for="emnome">
-                    <input type="checkbox" name="emnome" id="emnome">
-                    Exata
-                </label>
-            </span>
-        </div>
-    </div>
-    {{ action_buttons(acao, 1, False, 0) }}
-</form>
-{% elif bloco == 1 %}
-{% endif %}
+    {% if bloco == 0 %}
+        <h3>Procurar por Usuarios Especiais</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for("gerenciar_usuarios_especiais") }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label for="codigo">Codigo:</label>
+                <input type="number"
+                       class="form-control"
+                       name="id_usuario_especial"
+                       id="codigo"
+                       placeholder="Digite o id">
+            </div>
+            <div class="form-group">
+                <label for="nome">Nome:</label>
+                <div class="input-group">
+                    <input type="text"
+                           maxlength="100"
+                           class="form-control"
+                           name="nome_usuario_especial"
+                           id="nome"
+                           placeholder="Digite o nome">
+                    <span class="input-group-addon">
+                        <label for="emnome">
+                            <input type="checkbox" name="emnome" id="emnome">
+                            Exata
+                        </label>
+                    </span>
+                </div>
+            </div>
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% elif bloco == 1 %}
+        <h3>Lista de Usuarios Especiais</h3>
+        <table class="table table-bordered table-striped table-hover">
+            <thead>
+                <tr class="info">
+                    <th>Id Usuario Especial</th>
+                    <th>Nome Usuario Especial</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ue in usuarios_especiais %}
+                    <tr>
+                        <td>{{ ue.id_usuario_especial }}</td>
+                        <td>{{ ue.nome_usuario_especial }}</td>
+                        <td>
+                            <form method="post" class="form-inline">
+                                <input type="hidden" name="bloco" value="1">
+                                <input type="hidden"
+                                       name="id_usuario_especial"
+                                       value="{{ ue.id_usuario_especial }}">
+                                <div class="btn-group">
+                                    <button type="submit"
+                                            name="acao"
+                                            value="editar"
+                                            class="btn btn-warning btn-sm"
+                                            title="Editar">
+                                        <i class="glyphicon glyphicon-pencil"></i>
+                                    </button>
+                                    <button type="submit"
+                                            name="acao"
+                                            value="excluir"
+                                            class="btn btn-danger btn-sm"
+                                            title="Excluir">
+                                        <i class="glyphicon glyphicon-trash"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {{ paginacao_header(pagination, acao, bloco) }}
+        {{ manter_parametros(query_params) }}
+        {{ paginacao_button(pagination, acao, bloco) }}
+        {{ paginacao_footer(pagination, acao, bloco) }}
+    {% endif %}
 {% endblock %}

@@ -15,9 +15,9 @@ def gerenciar_usuarios_especiais():
     if request.method == 'POST':
         extras = {}
         if acao == "listar":
-            Usuarios_Especiais_paginados = Usuarios_Especiais.query.paginate(page=page, per_page=10, error_out=False)
-            extras['usuarios_especiais'] = Usuarios_Especiais_paginados.items
-            extras['pagination'] = Usuarios_Especiais_paginados
+            usuarios_especiais_paginados = Usuarios_Especiais.query.paginate(page=page, per_page=10, error_out=False)
+            extras['usuarios_especiais'] = usuarios_especiais_paginados.items
+            extras['pagination'] = usuarios_especiais_paginados
         elif acao == 'procurar' and bloco == 1:
             id_usuario_especial = none_if_empty(request.form.get('id_usuario_especial'), int)
             nome_usuario_especial = none_if_empty(request.form.get('nome_usuario_especial'))
@@ -32,6 +32,14 @@ def gerenciar_usuarios_especiais():
                     filter.append(Usuarios_Especiais.nome_usuario_especial == nome_usuario_especial)
                 else:
                     filter.append(Usuarios_Especiais.nome_usuario_especial.ilike(f"%{nome_usuario_especial}%"))
+            if filter:
+                usuarios_especiais_paginados = query.filter(*filter).paginate(page=page, per_page=10, error_out=False)
+                extras['usuarios_especiais'] = usuarios_especiais_paginados.items
+                extras['pagination'] = usuarios_especiais_paginados
+                extras['query_params'] = query_params
+            else:
+                flash("especifique pelo menos um campo de busca", "danger")
+                bloco = 0
         return render_template("database/usuarios_especiais.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
     else:
         return render_template("database/usuarios_especiais.html", username=username, perm=perm, acao=acao, bloco=bloco)
