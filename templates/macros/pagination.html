@@ -11,10 +11,7 @@
                         <button type="submit"
                                 name="page"
                                 value="{{ pagination.prev_num }}"
-                                class="btn btn-primary btn-sm">
-                            &laquo;
-                            Anterior
-                        </button>
+                                class="btn btn-primary btn-sm">« Anterior</button>
                     {% endif %}
                     <button class="btn btn-default btn-sm disabled">
                         Página {{ pagination.page }} de {{ pagination.pages
@@ -24,10 +21,7 @@
                         <button type="submit"
                                 name="page"
                                 value="{{ pagination.next_num }}"
-                                class="btn btn-primary btn-sm">
-                            Próxima
-                            &raquo;
-                        </button>
+                                class="btn btn-primary btn-sm">Próxima »</button>
                     {% endif %}
                 </div>
             </form>
