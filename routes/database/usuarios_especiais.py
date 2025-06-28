@@ -1,5 +1,6 @@
 from main import app
 from flask import flash, session, render_template, request
+from sqlalchemy.exc import IntegrityError
 from models import db, Usuarios_Especiais
 from auxiliar.decorators import admin_required
 from auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params, registrar_log_generico
@@ -40,6 +41,18 @@ def gerenciar_usuarios_especiais():
             else:
                 flash("especifique pelo menos um campo de busca", "danger")
                 bloco = 0
+        elif acao == 'inserir' and bloco == 1:
+            nome_usuario_especial = none_if_empty(request.form.get('nome_usuario_especial'))
+            try:
+                novo_usuario_especial = Usuarios_Especiais(nome_usuario_especial=nome_usuario_especial)
+                db.session.add(novo_usuario_especial)
+                db.session.flush()
+                registrar_log_generico(userid, "Inserção", novo_usuario_especial)
+                db.session.commit()
+                flash("Usuario Especial cadastrada com sucesso", "success")
+            except IntegrityError as e:
+                flash(f"Erro ao inserir usuario especial: {str(e.orig)}", "danger")
+                db.session.rollback()
         return render_template("database/usuarios_especiais.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
     else:
         return render_template("database/usuarios_especiais.html", username=username, perm=perm, acao=acao, bloco=bloco)

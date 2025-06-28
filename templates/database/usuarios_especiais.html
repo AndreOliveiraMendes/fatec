@@ -156,3 +156,23 @@
         {{ paginacao(pagination, acao, bloco, query_params) }}
     {% endif %}
 {% endblock %}
+{% block inserir %}
+    <h3>Inserir Usuarios Especiais</h3>
+    <form class="form-group"
+          role="form"
+          action="{{ url_for("gerenciar_usuarios_especiais") }}"
+          method="post">
+        <input type="hidden" name="acao" value="{{ acao }}">
+        <div class="form-group">
+            <label for="nome">Nome:</label>
+            <input type="text"
+                   maxlength="100"
+                   class="form-control"
+                   name="nome_usuario_especial"
+                   id="nome"
+                   placeholder="Digite o nome"
+                   required>
+        </div>
+        {{ action_buttons(acao, 1, False, 0) }}
+    </form>
+{% endblock %}
