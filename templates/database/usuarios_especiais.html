@@ -183,6 +183,7 @@
               role="form"
               action="{{ url_for("gerenciar_usuarios_especiais") }}"
               method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
             {{ gerar_select("id_usuario_especial", "Selecione o usuario especial", usuarios_especiais, "id_usuario_especial", "nome_usuario_especial") }}
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
