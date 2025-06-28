@@ -119,3 +119,7 @@ The project now follows a more modular and scalable structure:
 
 * This project is under active development.
 * More detailed documentation, including database diagrams and API references, will be added as the project evolves.
+
+# Suggestion
+
+* Review routes to implement POST → Redirect → GET if you want to avoid the refresh warning
