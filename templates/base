@@ -76,7 +76,10 @@
                             {% endif %}
                             <li role="separator" class="divider"></li>
                             <li>
-                                <a href="https://www.glyphicons.com/" target="_blank"><i class="glyphicon glyphicon-asterisk"></i>Glyphicons</a>
+                                <a href="https://www.glyphicons.com/" target="_blank"><i class="glyphicon glyphicon-asterisk"></i> Glyphicons</a>
+                            </li>
+                            <li>
+                                <a href="https://getbootstrap.com/docs/3.4/" target="_blank"><i class="glyphicon glyphicon-question-sign"></i> Bootstrap 3.4.1</a>
                             </li>
                         </ul>
                     </li>
