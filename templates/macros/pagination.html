@@ -9,21 +9,39 @@
                         <button type="submit"
                                 name="page"
                                 value="{{ pagination.prev_num }}"
-                                class="btn btn-primary btn-sm">&laquo; Anterior</button>
+                                class="btn btn-primary btn-sm">
+                            &laquo;
+                            Anterior
+                        </button>
                     {% endif %}
+                    <button class="btn btn-default btn-sm disabled">
+                        Página {{ pagination.page }} de {{ pagination.pages
+                        }}
+                    </button>
+                    {% if pagination.has_next %}
+                        <button type="submit"
+                                name="page"
+                                value="{{ pagination.next_num }}"
+                                class="btn btn-primary btn-sm">
+                            Próxima
+                            &raquo;
+                        </button>
+                    {% endif %}
+                </div>
+            </form>
+            <!-- Form separado para ir direto -->
+            <form method="post" class="form-inline">
+                <input type="hidden" name="acao" value="{{ acao }}">
+                <input type="hidden" name="bloco" value="{{ bloco }}">
+                <div class="input-group-btn input-group-sm">
                     <input type="number"
                            name="page"
                            min="1"
                            max="{{ pagination.pages }}"
                            value="{{ pagination.page }}"
-                           class="btn btn-default btn-sm" {% if pagination.pages == 0 %}disabled{% endif %}>
-                    <button type="submit" class="btn btn-primary btn-sm" {% if pagination.pages == 0 %}disabled{% endif %}>Ir</button>
-                    {% if pagination.has_next %}
-                        <button type="submit"
-                                name="page"
-                                value="{{ pagination.next_num }}"
-                                class="btn btn-primary btn-sm">Próxima &raquo;</button>
-                    {% endif %}
+                           class="form-control text-center"
+                           placeholder="Página">
+                    <button type="submit" class="btn btn-primary btn-sm">Ir</button>
                 </div>
             </form>
         </nav>
@@ -44,25 +62,43 @@
                         <button type="submit"
                                 name="page"
                                 value="{{ pagination.prev_num }}"
-                                class="btn btn-primary btn-sm">&laquo; Anterior</button>
+                                class="btn btn-primary btn-sm">
+                            &laquo;
+                            Anterior
+                        </button>
                     {% endif %}
+                    <button class="btn btn-default btn-sm disabled">
+                        Página {{ pagination.page }} de {{ pagination.pages
+                        }}
+                    </button>
+                    {% if pagination.has_next %}
+                        <button type="submit"
+                                name="page"
+                                value="{{ pagination.next_num }}"
+                                class="btn btn-primary btn-sm">
+                            Próxima
+                            &raquo;
+                        </button>
+                    {% endif %}
+                </div>
+            </form>
+            <!-- Form separado para ir direto -->
+            <form method="post" class="form-inline">
+                <input type="hidden" name="acao" value="{{ acao }}">
+                <input type="hidden" name="bloco" value="{{ bloco }}">
+            {% endif %}
+        {% endmacro %}
+        {% macro paginacao_footer(pagination, acao, bloco) %}
+            {% if pagination %}
+                <div class="input-group-btn input-group-sm">
                     <input type="number"
                            name="page"
                            min="1"
                            max="{{ pagination.pages }}"
                            value="{{ pagination.page }}"
-                           class="btn btn-default btn-sm" {% if pagination.pages == 0 %}disabled{% endif %}>
-                    <button type="submit" class="btn btn-primary btn-sm" {% if pagination.pages == 0 %}disabled{% endif %}>Ir</button>
-                    {% if pagination.has_next %}
-                        <button type="submit"
-                                name="page"
-                                value="{{ pagination.next_num }}"
-                                class="btn btn-primary btn-sm">Próxima &raquo;</button>
-                    {% endif %}
-                {% endif %}
-            {% endmacro %}
-            {% macro paginacao_footer(pagination, acao, bloco) %}
-                {% if pagination %}
+                           class="form-control text-center"
+                           placeholder="Página">
+                    <button type="submit" class="btn btn-primary btn-sm">Ir</button>
                 </div>
             </form>
         </nav>
