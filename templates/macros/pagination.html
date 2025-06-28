@@ -40,8 +40,11 @@
                            max="{{ pagination.pages }}"
                            value="{{ pagination.page }}"
                            class="form-control text-center"
-                           placeholder="Página">
-                    <button type="submit" class="btn btn-primary btn-sm">Ir</button>
+                           placeholder="Página"
+                           {% if pagination.pages == 0 %}disabled{% endif %}>
+                    <button type="submit"
+                            class="btn btn-primary btn-sm"
+                            {% if pagination.pages == 0 %}disabled{% endif %}>Ir</button>
                 </div>
             </form>
         </nav>
@@ -97,8 +100,11 @@
                            max="{{ pagination.pages }}"
                            value="{{ pagination.page }}"
                            class="form-control text-center"
-                           placeholder="Página">
-                    <button type="submit" class="btn btn-primary btn-sm">Ir</button>
+                           placeholder="Página"
+                           {% if pagination.pages == 0 %}disabled{% endif %}>
+                    <button type="submit"
+                            class="btn btn-primary btn-sm"
+                            {% if pagination.pages == 0 %}disabled{% endif %}>Ir</button>
                 </div>
             </form>
         </nav>
