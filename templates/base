@@ -2,8 +2,9 @@
 <html lang="pt-BR">
     <head>
         <meta charset="UTF-8">
-		<meta name="description" content="Sistema de Reservas de Laboratório da Fatec.">
-		<meta name="keywords" content="reservas, laboratório, fatec, sistema">
+        <meta name="description"
+              content="Sistema de Reservas de Laboratório da Fatec.">
+        <meta name="keywords" content="reservas, laboratório, fatec, sistema">
         <title>
             {% block title %}Meu Sistema{% endblock %}
         </title>
@@ -47,30 +48,37 @@
                     </a>
                 </div>
                 <ul class="nav navbar-nav navbar-right">
-                    {% if username %}
-                        <li class="dropdown">
-                            <a href="#"
-                               class="dropdown-toggle"
-                               data-toggle="dropdown"
-                               role="button"
-                               aria-haspopup="true"
-                               aria-expanded="false">
+                    <li class="dropdown">
+                        <a href="#"
+                           class="dropdown-toggle"
+                           data-toggle="dropdown"
+                           role="button"
+                           aria-haspopup="true"
+                           aria-expanded="false">
+                            {% if username %}
                                 <i class="glyphicon glyphicon-user"></i> {{ username }} <span class="caret"></span>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li>
-                                    <a href="{{ url_for("perfil") }}"><i class="glyphicon glyphicon-user"></i> Perfil</a>
-                                </li>
+                            {% else %}
+                                <i class="glyphicon glyphicon-user"></i> visitante <span class="caret"></span>
+                            {% endif %}
+                        </a>
+                        <ul class="dropdown-menu">
+                            {% if username %}
                                 <li>
                                     <a href="{{ url_for("logout") }}"><i class="glyphicon glyphicon-log-out"></i> Sair</a>
                                 </li>
-                            </ul>
-                        </li>
-                    {% else %}
-                        <li>
-                            <a href="{{ url_for("login") }}"><i class="glyphicon glyphicon-log-in"></i> Login</a>
-                        </li>
-                    {% endif %}
+                                <li>
+                                    <a href="{{ url_for("perfil") }}"><i class="glyphicon glyphicon-user"></i> Perfil</a>
+                                </li>
+                            {% else %}
+                                <li>
+                                    <a href="{{ url_for("login") }}"><i class="glyphicon glyphicon-log-in"></i> Login</a>
+                                </li>
+                            {% endif %}
+                            <li>
+                                <a href="https://www.glyphicons.com/" target="_blank"><i class="glyphicon glyphicon-asterisk"></i>Glyphicons</a>
+                            </li>
+                        </ul>
+                    </li>
                 </ul>
             </div>
         </nav>
