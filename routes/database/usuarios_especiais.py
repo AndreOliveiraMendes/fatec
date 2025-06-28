@@ -53,6 +53,9 @@ def gerenciar_usuarios_especiais():
             except IntegrityError as e:
                 flash(f"Erro ao inserir usuario especial: {str(e.orig)}", "danger")
                 db.session.rollback()
+        elif acao in ['editar', 'excluir'] and bloco == 0:
+            usuarios_especiais = db.session.query(Usuarios_Especiais.id_usuario_especial, Usuarios_Especiais.nome_usuario_especial).all()
+            extras['usuarios_especiais'] = usuarios_especiais
         return render_template("database/usuarios_especiais.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
     else:
         return render_template("database/usuarios_especiais.html", username=username, perm=perm, acao=acao, bloco=bloco)

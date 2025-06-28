@@ -176,3 +176,17 @@
         {{ action_buttons(acao, 1, False, 0) }}
     </form>
 {% endblock %}
+{% block editar %}
+    {% if bloco == 0 %}
+        <h3>Editar Usuarios Especiais</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for("gerenciar_usuarios_especiais") }}"
+              method="post">
+            {{ gerar_select("id_usuario_especial", "Selecione o usuario especial", usuarios_especiais, "id_usuario_especial", "nome_usuario_especial") }}
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% elif bloco == 1 %}
+    {% else %}
+    {% endif %}
+{% endblock %}
