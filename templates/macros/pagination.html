@@ -1,9 +1,11 @@
-{% macro paginacao(pagination, acao, bloco) %}
+{% from "macros/form.html" import manter_parametros %}
+{% macro paginacao(pagination, acao, bloco, query_params = None) %}
     {% if pagination %}
         <nav aria-label="Paginação">
             <form method="post" class="form-inline">
                 <input type="hidden" name="acao" value="{{ acao }}">
                 <input type="hidden" name="bloco" value="{{ bloco }}">
+                {% if query_params %}{{ manter_parametros(query_params) }}{% endif %}
                 <div class="btn-group" role="group">
                     {% if pagination.has_prev %}
                         <button type="submit"
@@ -33,6 +35,7 @@
             <form method="post" class="form-inline">
                 <input type="hidden" name="acao" value="{{ acao }}">
                 <input type="hidden" name="bloco" value="{{ bloco }}">
+                {% if query_params %}{{ manter_parametros(query_params) }}{% endif %}
                 <div class="input-group-btn input-group-sm">
                     <input type="number"
                            name="page"
