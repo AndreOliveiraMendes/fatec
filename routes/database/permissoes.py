@@ -92,7 +92,7 @@ def gerenciar_permissoes():
                 extras['permissao'] = permissao
                 extras['userid'] = userid
             else:
-                flash("erro", "danger")
+                flash("erro ao carregar os dados", "danger")
                 extras['permissoes'] = get_perm(acao, userid)
                 bloco = 0
         elif acao == 'editar' and bloco == 2:
