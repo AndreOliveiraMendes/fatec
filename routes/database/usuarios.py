@@ -6,6 +6,15 @@ from models import db, Usuarios, Pessoas
 from auxiliar.decorators import admin_required
 from auxiliar.auxiliar_routes import none_if_empty, get_query_params, get_user_info, registrar_log_generico
 
+def get_pessoas():
+    return db.session.query(Pessoas.id_pessoa, Pessoas.nome_pessoa).all()
+
+def get_usuarios(acao, userid):
+    usuarios = db.session.query(Usuarios.id_usuario, Pessoas.nome_pessoa).join(Pessoas)
+    if acao == 'excluir':
+        usuarios = usuarios.filter(Usuarios.id_usuario!=userid)
+    return usuarios.all()
+
 @app.route("/admin/usuarios", methods=["GET", "POST"])
 @admin_required
 def gerenciar_usuarios():
@@ -21,6 +30,8 @@ def gerenciar_usuarios():
             extras['usuarios'] = usuarios_paginados.items
             extras['pagination'] = usuarios_paginados
             extras['userid'] = userid
+        elif acao == 'procurar' and bloco == 0:
+            extras['pessoas'] = get_pessoas()
         elif acao == 'procurar' and bloco == 1:
             id_usuario = none_if_empty(request.form.get('id_usuario', None), int)
             id_pessoa = none_if_empty(request.form.get('id_pessoa', None), int)
@@ -50,8 +61,7 @@ def gerenciar_usuarios():
                 flash("especifique pelo menos um campo de busca", "danger")
                 bloco = 0
         elif acao == 'inserir' and bloco == 0:
-            pessoas_id_nome = db.session.query(Pessoas.id_pessoa, Pessoas.nome_pessoa).all()
-            extras['pessoas'] = pessoas_id_nome
+            extras['pessoas'] = get_pessoas()
         elif acao == 'inserir' and bloco == 1:
             id_usuario = none_if_empty(request.form.get('id_usuario', None), int)
             id_pessoa = none_if_empty(request.form.get('id_pessoa', None), int)
@@ -68,21 +78,20 @@ def gerenciar_usuarios():
             except IntegrityError as e:
                 flash(f"Erro ao inserir usuario: {str(e.orig)}", "danger")
                 db.session.rollback()
-            pessoas_id_nome = db.session.query(Pessoas.id_pessoa, Pessoas.nome_pessoa).all()
-            extras['pessoas'] = pessoas_id_nome
+            extras['pessoas'] = get_pessoas()
             bloco = 0
-        elif acao == 'editar' and bloco == 0:
-            result = db.session.query(Usuarios.id_usuario, Pessoas.nome_pessoa).join(Pessoas).all()
-            extras['results'] = result
-        elif acao == 'excluir' and bloco == 0:
-            result = db.session.query(Usuarios.id_usuario, Pessoas.nome_pessoa).join(Pessoas).filter(Usuarios.id_usuario!=userid).all()
-            extras['results'] = result
+        elif acao in ['editar', 'excluir'] and bloco == 0:
+            extras['results'] = get_usuarios(acao, userid)
         elif acao in ['editar', 'excluir'] and bloco == 1:
             id_usuario = none_if_empty(request.form.get('id_usuario', None))
-            pessoas_id_nome = db.session.query(Pessoas.id_pessoa, Pessoas.nome_pessoa).all()
             user = Usuarios.query.get(id_usuario)
-            extras['usuario'] = user
-            extras['pessoas'] = pessoas_id_nome
+            if user:
+                extras['usuario'] = user
+                extras['pessoas'] = get_pessoas()
+            else:
+                flash("Usuario não encontrada", "danger")
+                extras['results'] = get_usuarios(acao, userid)
+                bloco = 0
         elif acao == 'editar' and bloco == 2:
             id_usuario = none_if_empty(request.form.get('id_usuario', None), int)
             id_pessoa = none_if_empty(request.form.get('id_pessoa', None), int)
@@ -113,8 +122,7 @@ def gerenciar_usuarios():
             else:
                 flash("Usuario não encontrada", "danger")
             
-            result = db.session.query(Usuarios.id_usuario, Pessoas.nome_pessoa).join(Pessoas).all()
-            extras['results'] = result
+            extras['results'] = get_usuarios(acao, userid)
             bloco = 0
         elif acao == 'excluir' and bloco == 2:
             id_usuario = none_if_empty(request.form.get('id_usuario', None), int)
@@ -139,8 +147,7 @@ def gerenciar_usuarios():
             else:
                 flash("Usuario não encontrada", "danger")
 
-            result = db.session.query(Usuarios.id_usuario, Pessoas.nome_pessoa).join(Pessoas).filter(Usuarios.id_usuario!=userid).all()
-            extras['results'] = result
+            extras['results'] = get_usuarios(acao, userid)
             bloco = 0
         return render_template("database/usuarios.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
     else:

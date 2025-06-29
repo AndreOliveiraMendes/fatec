@@ -106,14 +106,7 @@
                        id="codigo_usuario"
                        placeholder="Digite o id">
             </div>
-            <div class="form-group">
-                <label for="codigo_pessoa">Codigo Pessoa:</label>
-                <input type="number"
-                       class="form-control"
-                       name="id_pessoa"
-                       id="codigo_pessoa"
-                       placeholder="Digite o id">
-            </div>
+            {{ gerar_select("pessoa", "Selecione a Pessoa", pessoas, "id_pessoa", "nome_pessoa") }}
             <div class="form-group">
                 <label for="tipo_pessoa">Tipo:</label>
                 <input type="text"
