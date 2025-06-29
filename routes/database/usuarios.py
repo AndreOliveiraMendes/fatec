@@ -81,7 +81,7 @@ def gerenciar_usuarios():
             extras['pessoas'] = get_pessoas()
             bloco = 0
         elif acao in ['editar', 'excluir'] and bloco == 0:
-            extras['results'] = get_usuarios(acao, userid)
+            extras['usuarios'] = get_usuarios(acao, userid)
         elif acao in ['editar', 'excluir'] and bloco == 1:
             id_usuario = none_if_empty(request.form.get('id_usuario', None))
             user = Usuarios.query.get(id_usuario)
@@ -90,7 +90,7 @@ def gerenciar_usuarios():
                 extras['pessoas'] = get_pessoas()
             else:
                 flash("Usuario não encontrada", "danger")
-                extras['results'] = get_usuarios(acao, userid)
+                extras['usuarios'] = get_usuarios(acao, userid)
                 bloco = 0
         elif acao == 'editar' and bloco == 2:
             id_usuario = none_if_empty(request.form.get('id_usuario', None), int)
@@ -122,7 +122,7 @@ def gerenciar_usuarios():
             else:
                 flash("Usuario não encontrada", "danger")
             
-            extras['results'] = get_usuarios(acao, userid)
+            extras['usuarios'] = get_usuarios(acao, userid)
             bloco = 0
         elif acao == 'excluir' and bloco == 2:
             id_usuario = none_if_empty(request.form.get('id_usuario', None), int)
@@ -147,7 +147,7 @@ def gerenciar_usuarios():
             else:
                 flash("Usuario não encontrada", "danger")
 
-            extras['results'] = get_usuarios(acao, userid)
+            extras['usuarios'] = get_usuarios(acao, userid)
             bloco = 0
         return render_template("database/usuarios.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
     else:

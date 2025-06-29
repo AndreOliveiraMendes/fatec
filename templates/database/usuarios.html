@@ -268,7 +268,7 @@
               action="{{ url_for("gerenciar_usuarios") }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
-            {{ gerar_select("id_usuario", "Selecione o usuario", results, "id_usuario", "nome_pessoa") }}
+            {{ gerar_select("id_usuario", "Selecione o usuario", usuarios, "id_usuario", "nome_pessoa") }}
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% elif bloco == 1 %}
@@ -345,7 +345,7 @@
               action="{{ url_for("gerenciar_usuarios") }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
-            {{ gerar_select("id_usuario", "Selecione o usuario", results, "id_usuario", "nome_pessoa") }}
+            {{ gerar_select("id_usuario", "Selecione o usuario", usuarios, "id_usuario", "nome_pessoa") }}
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% elif bloco == 1 %}
