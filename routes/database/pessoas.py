@@ -6,6 +6,13 @@ from models import db, Pessoas, Usuarios
 from auxiliar.decorators import admin_required
 from auxiliar.auxiliar_routes import none_if_empty, get_query_params, get_user_info, registrar_log_generico
 
+def get_pessoas_id_nome(acao, userid):
+    pessoas_id_nome = db.session.query(Pessoas.id_pessoa, Pessoas.nome_pessoa)
+    user = Usuarios.query.get(userid)
+    if acao == 'excluir' and user:
+        pessoas_id_nome = pessoas_id_nome.filter(Pessoas.id_pessoa!=user.id_pessoa)
+    return pessoas_id_nome.all()
+
 @app.route("/admin/pessoas", methods=["GET", "POST"])
 @admin_required
 def gerenciar_pessoas():
@@ -63,17 +70,17 @@ def gerenciar_pessoas():
                 flash(f"Erro ao inserir pessoa: {str(e.orig)}", "danger")
                 db.session.rollback()
             bloco = 0
-        elif acao == 'editar' and bloco == 0:
-            pessoas_id_nome = db.session.query(Pessoas.id_pessoa, Pessoas.nome_pessoa).all()
-            extras['pessoas'] = pessoas_id_nome
-        elif acao == 'excluir' and bloco == 0:
-            user = Usuarios.query.get(userid)
-            pessoas_id_nome = db.session.query(Pessoas.id_pessoa, Pessoas.nome_pessoa).filter(Pessoas.id_pessoa!=user.id_pessoa).all()
-            extras['pessoas'] = pessoas_id_nome
+        elif acao in ['editar', 'excluir'] and bloco == 0:
+            extras['pessoas'] = get_pessoas_id_nome(acao, userid)
         elif acao in ['editar', 'excluir'] and bloco == 1:
             id_pessoa = request.form.get('id_pessoa', None)
             pessoa = Pessoas.query.filter(Pessoas.id_pessoa == id_pessoa).first()
-            extras['pessoa'] = pessoa
+            if pessoa:
+                extras['pessoa'] = pessoa
+            else:
+                flash("Pessoa não encontrada", "danger")
+                extras['pessoas'] = get_pessoas_id_nome(acao, userid)
+                bloco = 0
         elif acao == 'editar' and bloco == 2:
             id_pessoa = none_if_empty(request.form.get('id_pessoa'), int)
             nome = none_if_empty(request.form.get('nome', None))
@@ -104,8 +111,7 @@ def gerenciar_pessoas():
             else:
                 flash("Pessoa não encontrada", "danger")
 
-            pessoas_id_nome = db.session.query(Pessoas.id_pessoa, Pessoas.nome_pessoa).all()
-            extras['pessoas'] = pessoas_id_nome
+            extras['pessoas'] = get_pessoas_id_nome(acao, userid)
             bloco = 0
         elif acao == 'excluir' and bloco == 2:
             user = Usuarios.query.get(userid)
@@ -131,8 +137,7 @@ def gerenciar_pessoas():
             else:
                 flash("Pessoa não encontrada", "danger")
 
-            pessoas_id_nome = db.session.query(Pessoas.id_pessoa, Pessoas.nome_pessoa).filter(Pessoas.id_pessoa!=user.id_pessoa).all()
-            extras['pessoas'] = pessoas_id_nome
+            extras['pessoas'] = get_pessoas_id_nome(acao, userid)
             bloco = 0
 
         return render_template("database/pessoas.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
