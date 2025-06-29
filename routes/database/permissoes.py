@@ -6,6 +6,19 @@ from models import db, Permissoes, Usuarios, Pessoas
 from auxiliar.decorators import admin_required
 from auxiliar.auxiliar_routes import none_if_empty, get_query_params, get_user_info, registrar_log_generico
 
+def get_no_perm_users():
+    usuarios_com_permissao = db.session.query(Permissoes.id_permissao_usuario)
+    return db.session.query(Usuarios.id_usuario, Pessoas.nome_pessoa).filter(~Usuarios.id_usuario.in_(usuarios_com_permissao)).join(Pessoas).all()
+
+def get_users():
+    return db.session.query(Usuarios.id_usuario, Pessoas.nome_pessoa).join(Pessoas).all()
+
+def get_perm(acao, userid):
+    perm = db.session.query(Permissoes.id_permissao_usuario, Pessoas.nome_pessoa).select_from(Permissoes).join(Usuarios).join(Pessoas)
+    if acao == 'excluir':
+        perm = perm.filter(Permissoes.id_permissao_usuario!=userid)
+    return perm.all()
+
 @app.route("/admin/permissoes", methods=["GET", "POST"])
 @admin_required
 def gerenciar_permissoes():
@@ -22,8 +35,7 @@ def gerenciar_permissoes():
             extras['pagination'] = permissoes_paginadas
             extras['userid'] = userid
         elif acao == 'procurar' and bloco == 0:
-            result = db.session.query(Usuarios.id_usuario, Pessoas.nome_pessoa).join(Pessoas).all()
-            extras['results'] = result
+            extras['users'] = get_users()
         elif acao == 'procurar' and bloco == 1:
             id_permissao_usuario = none_if_empty(request.form.get('id_permissao_usuario'), int)
             flag_fixa = 1 if 'flag_fixa' in request.form else 0
@@ -48,14 +60,11 @@ def gerenciar_permissoes():
                 extras['userid'] = userid
                 extras['query_params'] = query_params
             else:
-                result = db.session.query(Usuarios.id_usuario, Pessoas.nome_pessoa).join(Pessoas).all()
-                extras['results'] = result
+                extras['users'] = get_users()
                 bloco = 0
                 flash("especifique pelo menos um campo de busca", "danger")
         elif acao == 'inserir' and bloco == 0:
-            usuarios_com_permissao = db.session.query(Permissoes.id_permissao_usuario)
-            usuarios_sem_permissao = db.session.query(Usuarios.id_usuario, Pessoas.nome_pessoa).filter(~Usuarios.id_usuario.in_(usuarios_com_permissao)).join(Pessoas).all()
-            extras['results'] = usuarios_sem_permissao
+            extras['users'] = get_no_perm_users()
         elif acao == 'inserir' and bloco == 1:
             id_permissao_usuario = none_if_empty(request.form.get('id_permissao_usuario'), int)
             flag_fixa = 1 if 'flag_fixa' in request.form else 0
@@ -73,20 +82,19 @@ def gerenciar_permissoes():
                 flash(f"Erro ao inserir pessoa: {str(e.orig)}", "danger")
                 db.session.rollback()
             bloco = 0
-            usuarios_com_permissao = db.session.query(Permissoes.id_permissao_usuario)
-            usuarios_sem_permissao = db.session.query(Usuarios.id_usuario, Pessoas.nome_pessoa).filter(~Usuarios.id_usuario.in_(usuarios_com_permissao)).join(Pessoas).all()
-            extras['results'] = usuarios_sem_permissao
-        elif acao == 'editar' and bloco == 0:
-            permissoes = db.session.query(Permissoes.id_permissao_usuario, Pessoas.nome_pessoa).select_from(Permissoes).join(Usuarios).join(Pessoas).all()
-            extras['results'] = permissoes
-        elif acao == 'excluir' and bloco == 0:
-            permissoes = db.session.query(Permissoes.id_permissao_usuario, Pessoas.nome_pessoa).select_from(Permissoes).join(Usuarios).join(Pessoas).filter(Permissoes.id_permissao_usuario!=userid).all()
-            extras['results'] = permissoes
+            extras['users'] = get_no_perm_users()
+        elif acao in ['editar', 'excluir'] and bloco == 0:
+            extras['permissoes'] = get_perm(acao, userid)
         elif acao in ['editar', 'excluir'] and bloco == 1:
             usuario = none_if_empty(request.form.get('id_usuario'))
             permissao = Permissoes.query.get(usuario)
-            extras['permissao'] = permissao
-            extras['userid'] = userid
+            if usuario and permissao:
+                extras['permissao'] = permissao
+                extras['userid'] = userid
+            else:
+                flash("erro", "danger")
+                extras['permissoes'] = get_perm(acao, userid)
+                bloco = 0
         elif acao == 'editar' and bloco == 2:
             id_permissao_usuario = none_if_empty(request.form.get('id_permissao_usuario'), int)
             flag_fixa = 1 if 'flag_fixa' in request.form else 0
@@ -111,8 +119,7 @@ def gerenciar_permissoes():
                         flash(f"Erro ao atualizar pessoa: {str(e.orig)}", "danger")
             else:
                 flash("Permissao não encontrada", "danger")
-            permissoes = db.session.query(Permissoes.id_permissao_usuario, Pessoas.nome_pessoa).select_from(Permissoes).join(Usuarios).join(Pessoas).all()
-            extras['results'] = permissoes
+            extras['permissoes'] = get_perm(acao, userid)
             bloco = 0
         elif acao == 'excluir' and bloco == 2:
             id_permissao_usuario = none_if_empty(request.form.get('id_permissao_usuario'), int)
@@ -136,8 +143,7 @@ def gerenciar_permissoes():
             else:
                 flash("Permissao não encontrada", "danger")
 
-            permissoes = db.session.query(Permissoes.id_permissao_usuario, Pessoas.nome_pessoa).select_from(Permissoes).join(Usuarios).join(Pessoas).filter(Permissoes.id_permissao_usuario!=userid).all()
-            extras['results'] = permissoes
+            extras['permissoes'] = get_perm(acao, userid)
             bloco = 0
         return render_template("database/permissoes.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
     else:
