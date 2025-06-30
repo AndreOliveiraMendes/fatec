@@ -84,14 +84,9 @@ def gerenciar_usuarios():
             extras['usuarios'] = get_usuarios(acao, userid)
         elif acao in ['editar', 'excluir'] and bloco == 1:
             id_usuario = none_if_empty(request.form.get('id_usuario', None))
-            user = Usuarios.query.get(id_usuario)
-            if user:
-                extras['usuario'] = user
-                extras['pessoas'] = get_pessoas()
-            else:
-                flash("Usuario não encontrada", "danger")
-                extras['usuarios'] = get_usuarios(acao, userid)
-                bloco = 0
+            user = Usuarios.query.get_or_404(id_usuario)
+            extras['usuario'] = user
+            extras['pessoas'] = get_pessoas()
         elif acao == 'editar' and bloco == 2:
             id_usuario = none_if_empty(request.form.get('id_usuario', None), int)
             id_pessoa = none_if_empty(request.form.get('id_pessoa', None), int)
@@ -99,53 +94,47 @@ def gerenciar_usuarios():
             situacao_pessoa = none_if_empty(request.form.get('situacao_pessoa', None))
             grupo_pessoa = none_if_empty(request.form.get('grupo_pessoa', None))
 
-            usuario = Usuarios.query.get(id_usuario)
+            usuario = Usuarios.query.get_or_404(id_usuario)
 
-            if usuario:
-                try:
-                    dados_anteriores = copy.copy(usuario)
+            try:
+                dados_anteriores = copy.copy(usuario)
 
-                    usuario.id_pessoa = id_pessoa
-                    usuario.tipo_pessoa = tipo_pessoa
-                    usuario.situacao_pessoa = situacao_pessoa
-                    usuario.grupo_pessoa = grupo_pessoa
+                usuario.id_pessoa = id_pessoa
+                usuario.tipo_pessoa = tipo_pessoa
+                usuario.situacao_pessoa = situacao_pessoa
+                usuario.grupo_pessoa = grupo_pessoa
 
-                    db.session.flush()  # Garante que o ID esteja atribuído
+                db.session.flush()  # Garante que o ID esteja atribuído
 
-                    registrar_log_generico(userid, "Edição", usuario, dados_anteriores)
+                registrar_log_generico(userid, "Edição", usuario, dados_anteriores)
 
-                    db.session.commit()
-                    flash("Usuario atualizado com sucesso", "success")
-                except IntegrityError as e:
-                    db.session.rollback()
-                    flash(f"Erro ao atualizar usuario: {str(e.orig)}", "danger")
-            else:
-                flash("Usuario não encontrada", "danger")
+                db.session.commit()
+                flash("Usuario atualizado com sucesso", "success")
+            except IntegrityError as e:
+                db.session.rollback()
+                flash(f"Erro ao atualizar usuario: {str(e.orig)}", "danger")
             
             extras['usuarios'] = get_usuarios(acao, userid)
             bloco = 0
         elif acao == 'excluir' and bloco == 2:
             id_usuario = none_if_empty(request.form.get('id_usuario', None), int)
             
-            user = Usuarios.query.get(id_usuario)
+            user = Usuarios.query.get_or_404(id_usuario)
 
-            if user:
-                if userid == id_usuario:
-                    flash("Voce não pode se excluir", "danger")
-                else:
-                    try:
-                        db.session.flush()  # garante ID
-                        registrar_log_generico(userid, "Exclusão", user)
-
-                        db.session.delete(user)
-                        db.session.commit()
-                        flash("Usuario excluído com sucesso", "success")
-
-                    except IntegrityError as e:
-                        db.session.rollback()
-                        flash(f"Erro ao excluir usuario: {str(e.orig)}", "danger")
+            if userid == id_usuario:
+                flash("Voce não pode se excluir", "danger")
             else:
-                flash("Usuario não encontrada", "danger")
+                try:
+                    db.session.flush()  # garante ID
+                    registrar_log_generico(userid, "Exclusão", user)
+
+                    db.session.delete(user)
+                    db.session.commit()
+                    flash("Usuario excluído com sucesso", "success")
+
+                except IntegrityError as e:
+                    db.session.rollback()
+                    flash(f"Erro ao excluir usuario: {str(e.orig)}", "danger")
 
             extras['usuarios'] = get_usuarios(acao, userid)
             bloco = 0

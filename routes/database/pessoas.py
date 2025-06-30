@@ -74,42 +74,34 @@ def gerenciar_pessoas():
             extras['pessoas'] = get_pessoas_id_nome(acao, userid)
         elif acao in ['editar', 'excluir'] and bloco == 1:
             id_pessoa = request.form.get('id_pessoa', None)
-            pessoa = Pessoas.query.filter(Pessoas.id_pessoa == id_pessoa).first()
-            if pessoa:
-                extras['pessoa'] = pessoa
-            else:
-                flash("Pessoa não encontrada", "danger")
-                extras['pessoas'] = get_pessoas_id_nome(acao, userid)
-                bloco = 0
+            pessoa = Pessoas.query.get_or_404(id_pessoa)
+            extras['pessoa'] = pessoa
         elif acao == 'editar' and bloco == 2:
             id_pessoa = none_if_empty(request.form.get('id_pessoa'), int)
             nome = none_if_empty(request.form.get('nome', None))
             email = none_if_empty(request.form.get('email', None))
 
-            pessoa = Pessoas.query.get(id_pessoa)
+            pessoa = Pessoas.query.get_or_404(id_pessoa)
 
-            if pessoa:
-                try:
-                    # Cria uma cópia dos dados antigos antes de editar
-                    dados_anteriores = copy.copy(pessoa)
+            try:
+                # Cria uma cópia dos dados antigos antes de editar
+                dados_anteriores = copy.copy(pessoa)
 
-                    # Realiza as alterações
-                    pessoa.nome_pessoa = nome
-                    pessoa.email_pessoa = email
+                # Realiza as alterações
+                pessoa.nome_pessoa = nome
+                pessoa.email_pessoa = email
 
-                    db.session.flush()  # Garante que o ID esteja atribuído
+                db.session.flush()  # Garante que o ID esteja atribuído
 
-                    # Loga com os dados antigos + novos
-                    registrar_log_generico(userid, "Edição", pessoa, dados_anteriores)
+                # Loga com os dados antigos + novos
+                registrar_log_generico(userid, "Edição", pessoa, dados_anteriores)
 
-                    db.session.commit()
-                    flash("Pessoa atualizada com sucesso", "success")
+                db.session.commit()
+                flash("Pessoa atualizada com sucesso", "success")
 
-                except IntegrityError as e:
-                    db.session.rollback()
-                    flash(f"Erro ao atualizar pessoa: {str(e.orig)}", "danger")
-            else:
-                flash("Pessoa não encontrada", "danger")
+            except IntegrityError as e:
+                db.session.rollback()
+                flash(f"Erro ao atualizar pessoa: {str(e.orig)}", "danger")
 
             extras['pessoas'] = get_pessoas_id_nome(acao, userid)
             bloco = 0
@@ -117,25 +109,22 @@ def gerenciar_pessoas():
             user = Usuarios.query.get(userid)
             id_pessoa = none_if_empty(request.form.get('id_pessoa'), int)
 
-            pessoa = Pessoas.query.get(id_pessoa)
+            pessoa = Pessoas.query.get_or_404(id_pessoa)
 
-            if pessoa:
-                if user.id_pessoa == id_pessoa:
-                    flash("Voce não pode se excluir", "danger")
-                else:
-                    try:
-                        db.session.flush()  # garante ID
-                        registrar_log_generico(userid, "Exclusão", pessoa)
-
-                        db.session.delete(pessoa)
-                        db.session.commit()
-                        flash("Pessoa excluída com sucesso", "success")
-
-                    except IntegrityError as e:
-                        db.session.rollback()
-                        flash(f"Erro ao excluir pessoa: {str(e.orig)}", "danger")
+            if user.id_pessoa == id_pessoa:
+                flash("Voce não pode se excluir", "danger")
             else:
-                flash("Pessoa não encontrada", "danger")
+                try:
+                    db.session.flush()  # garante ID
+                    registrar_log_generico(userid, "Exclusão", pessoa)
+
+                    db.session.delete(pessoa)
+                    db.session.commit()
+                    flash("Pessoa excluída com sucesso", "success")
+
+                except IntegrityError as e:
+                    db.session.rollback()
+                    flash(f"Erro ao excluir pessoa: {str(e.orig)}", "danger")
 
             extras['pessoas'] = get_pessoas_id_nome(acao, userid)
             bloco = 0

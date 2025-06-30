@@ -61,55 +61,44 @@ def gerenciar_usuarios_especiais():
             extras['usuarios_especiais'] = get_usuarios_especiais()
         elif acao in ['editar', 'excluir'] and bloco == 1:
             id_usuario_especial = none_if_empty(request.form.get('id_usuario_especial'), int)
-            usuario_especial = Usuarios_Especiais.query.get(id_usuario_especial)
-            if usuario_especial:
-                extras['usuario_especial'] = usuario_especial
-            else:
-                flash("erro ao carregar os dados", "danger")
-                extras['usuarios_especiais'] = get_usuarios_especiais()
-                bloco = 0
+            usuario_especial = Usuarios_Especiais.query.get_or_404(id_usuario_especial)
+            extras['usuario_especial'] = usuario_especial
         elif acao == 'editar' and bloco == 2:
             id_usuario_especial = none_if_empty(request.form.get('id_usuario_especial'), int)
             nome_usuario_especial = none_if_empty(request.form.get('nome_usuario_especial'))
 
-            usuario_especial = Usuarios_Especiais.query.get(id_usuario_especial)
-            if usuario_especial:
-                try:
-                    dados_anteriores = copy.copy(usuario_especial)
+            usuario_especial = Usuarios_Especiais.query.get_or_404(id_usuario_especial)
+            try:
+                dados_anteriores = copy.copy(usuario_especial)
 
-                    usuario_especial.nome_usuario_especial = nome_usuario_especial
+                usuario_especial.nome_usuario_especial = nome_usuario_especial
 
-                    db.session.flush()  # garante ID
-                    registrar_log_generico(userid, "Edicao", usuario_especial, dados_anteriores)
+                db.session.flush()  # garante ID
+                registrar_log_generico(userid, "Edicao", usuario_especial, dados_anteriores)
 
-                    db.session.commit()
-                    flash("Usuario especial editado com sucesso", "success")
-                except IntegrityError as e:
-                    db.session.rollback()
-                    flash(f"Erro ao editar usuario especial: {str(e.orig)}", "danger")
-            else:
-                flash("Usuario não encontrada", "danger")
+                db.session.commit()
+                flash("Usuario especial editado com sucesso", "success")
+            except IntegrityError as e:
+                db.session.rollback()
+                flash(f"Erro ao editar usuario especial: {str(e.orig)}", "danger")
 
             extras['usuarios_especiais'] = get_usuarios_especiais()
             bloco = 0
         elif acao == 'excluir' and bloco == 2:
             id_usuario_especial = none_if_empty(request.form.get('id_usuario_especial'), int)
 
-            usuario_especial = Usuarios_Especiais.query.get(id_usuario_especial)
-            if usuario_especial:
-                try:
-                    db.session.delete(usuario_especial)
+            usuario_especial = Usuarios_Especiais.query.get_or_404(id_usuario_especial)
+            try:
+                db.session.delete(usuario_especial)
 
-                    db.session.flush()  # garante ID
-                    registrar_log_generico(userid, "delecao", usuario_especial)
+                db.session.flush()  # garante ID
+                registrar_log_generico(userid, "delecao", usuario_especial)
 
-                    db.session.commit()
-                    flash("Usuario especial excluido com sucesso", "success")
-                except IntegrityError as e:
-                    db.session.rollback()
-                    flash(f"Erro ao excluir usuario especial: {str(e.orig)}", "danger")
-            else:
-                flash("Usuario não encontrada", "danger")
+                db.session.commit()
+                flash("Usuario especial excluido com sucesso", "success")
+            except IntegrityError as e:
+                db.session.rollback()
+                flash(f"Erro ao excluir usuario especial: {str(e.orig)}", "danger")
 
             extras['usuarios_especiais'] = get_usuarios_especiais()
             bloco = 0
