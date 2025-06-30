@@ -13,9 +13,9 @@ def login():
         #TODO implementar autenticação com login/senha
         #password = request.form["password"]
         if user:
-            pessoa = Pessoas.query.filter_by(id_pessoa=user.id_pessoa).first()
-            permissao = Permissoes.query.filter_by(id_permissao_usuario=user.id_usuario).first()
-            username = pessoa.nome_pessoa
+            pessoa = Pessoas.query.get(user.id_pessoa)
+            permissao = Permissoes.query.get(user.id_usuario)
+            username = pessoa.nome_pessoa if pessoa else ''
             perm = permissao.permissao if permissao else 0
             session['userid'] = user.id_usuario
             flash("login realizado com sucesso", "success")
