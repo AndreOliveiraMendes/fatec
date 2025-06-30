@@ -15,7 +15,7 @@ def login():
         if user:
             pessoa = Pessoas.query.get(user.id_pessoa)
             permissao = Permissoes.query.get(user.id_usuario)
-            username = pessoa.nome_pessoa if pessoa else ''
+            username = pessoa.nome_pessoa
             perm = permissao.permissao if permissao else 0
             session['userid'] = user.id_usuario
             flash("login realizado com sucesso", "success")
