@@ -186,10 +186,7 @@
                     {% endfor %}
                 </tbody>
             </table>
-            {{ paginacao_header(pagination, acao, bloco) }}
-            {{ manter_parametros(query_params) }}
-            {{ paginacao_button(pagination, acao, bloco) }}
-            {{ paginacao_footer(pagination, acao, bloco) }}
+            {{ paginacao(pagination, acao, bloco, query_params) }}
         {% else %}
             <div class="alert alert-warning">Nenhum resultado encontrado.</div>
         {% endif %}

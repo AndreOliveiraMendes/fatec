@@ -110,7 +110,7 @@
               action="{{ url_for("gerenciar_permissoes") }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
-            {{ gerar_select("id_usuario", "Selecione o usuario", results, "id_usuario", "nome_pessoa", "id_permissao_usuario", optional=True) 
+            {{ gerar_select("id_usuario", "Selecione o usuario", users, "id_usuario", "nome_pessoa", "id_permissao_usuario", optional=True) 
             }}
             <div class="form-group">
                 <div class="panel panel-default">
@@ -208,21 +208,18 @@
                 {% endfor %}
             </tbody>
         </table>
-        {{ paginacao_header(pagination, acao, bloco) }}
-        {{ manter_parametros(query_params) }}
-        {{ paginacao_button(pagination, acao, bloco) }}
-        {{ paginacao_footer(pagination, acao, bloco) }}
+        {{ paginacao(pagination, acao, bloco, query_params) }}
     {% endif %}
 {% endblock %}
 {% block inserir %}
     <h3>Inserir Permissoes</h3>
-    {% if results %}
+    {% if users %}
         <form class="form-group"
               role="form"
               action="{{ url_for("gerenciar_permissoes") }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
-            {{ gerar_select("id_usuario", "Selecione o usuario", results, "id_usuario", "nome_pessoa", "id_permissao_usuario") }}
+            {{ gerar_select("id_usuario", "Selecione o usuario", users, "id_usuario", "nome_pessoa", "id_permissao_usuario") }}
             <div class="form-group">
                 <div class="panel panel-default">
                     <div class="panel-heading">
@@ -262,7 +259,7 @@
               action="{{ url_for("gerenciar_permissoes") }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
-            {{ gerar_select("id_usuario", "Selecione o usuario", results, "id_permissao_usuario", "nome_pessoa", "id_usuario") }}
+            {{ gerar_select("id_usuario", "Selecione o usuario", permissoes, "id_permissao_usuario", "nome_pessoa", "id_usuario") }}
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% elif bloco == 1 %}
@@ -329,7 +326,7 @@
               action="{{ url_for("gerenciar_permissoes") }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
-            {{ gerar_select("id_usuario", "Selecione o usuario", results, "id_permissao_usuario", "nome_pessoa", "id_usuario") }}
+            {{ gerar_select("id_usuario", "Selecione o usuario", permissoes, "id_permissao_usuario", "nome_pessoa", "id_usuario") }}
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% elif bloco == 1 %}

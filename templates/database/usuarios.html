@@ -106,14 +106,7 @@
                        id="codigo_usuario"
                        placeholder="Digite o id">
             </div>
-            <div class="form-group">
-                <label for="codigo_pessoa">Codigo Pessoa:</label>
-                <input type="number"
-                       class="form-control"
-                       name="id_pessoa"
-                       id="codigo_pessoa"
-                       placeholder="Digite o id">
-            </div>
+            {{ gerar_select("pessoa", "Selecione a Pessoa", pessoas, "id_pessoa", "nome_pessoa") }}
             <div class="form-group">
                 <label for="tipo_pessoa">Tipo:</label>
                 <input type="text"
@@ -210,10 +203,7 @@
                     {% endfor %}
                 </tbody>
             </table>
-            {{ paginacao_header(pagination, acao, bloco) }}
-            {{ manter_parametros(query_params) }}
-            {{ paginacao_button(pagination, acao, bloco) }}
-            {{ paginacao_footer(pagination, acao, bloco) }}
+            {{ paginacao(pagination, acao, bloco, query_params) }}
         {% else %}
             <div class="alert alert-warning">Nenhum resultado encontrado.</div>
         {% endif %}
@@ -278,7 +268,7 @@
               action="{{ url_for("gerenciar_usuarios") }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
-            {{ gerar_select("id_usuario", "Selecione o usuario", results, "id_usuario", "nome_pessoa") }}
+            {{ gerar_select("id_usuario", "Selecione o usuario", usuarios, "id_usuario", "nome_pessoa") }}
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% elif bloco == 1 %}
@@ -355,7 +345,7 @@
               action="{{ url_for("gerenciar_usuarios") }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
-            {{ gerar_select("id_usuario", "Selecione o usuario", results, "id_usuario", "nome_pessoa") }}
+            {{ gerar_select("id_usuario", "Selecione o usuario", usuarios, "id_usuario", "nome_pessoa") }}
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% elif bloco == 1 %}

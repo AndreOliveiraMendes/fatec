@@ -1,56 +1,47 @@
-{% macro paginacao(pagination, acao, bloco) %}
+{% from "macros/form.html" import manter_parametros %}
+{% macro paginacao(pagination, acao, bloco, query_params = None) %}
     {% if pagination %}
         <nav aria-label="Paginação">
             <form method="post" class="form-inline">
                 <input type="hidden" name="acao" value="{{ acao }}">
                 <input type="hidden" name="bloco" value="{{ bloco }}">
+                {% if query_params %}{{ manter_parametros(query_params) }}{% endif %}
                 <div class="btn-group" role="group">
                     {% if pagination.has_prev %}
                         <button type="submit"
                                 name="page"
                                 value="{{ pagination.prev_num }}"
-                                class="btn btn-primary btn-sm">&laquo; Anterior</button>
+                                class="btn btn-primary btn-sm">« Anterior</button>
                     {% endif %}
-                    <button class="btn btn-default btn-sm disabled">Página {{ pagination.page }} de {{ pagination.pages }}</button>
+                    <button class="btn btn-default btn-sm disabled">
+                        Página {{ pagination.page }} de {{ pagination.pages
+                        }}
+                    </button>
                     {% if pagination.has_next %}
                         <button type="submit"
                                 name="page"
                                 value="{{ pagination.next_num }}"
-                                class="btn btn-primary btn-sm">Próxima &raquo;</button>
+                                class="btn btn-primary btn-sm">Próxima »</button>
                     {% endif %}
                 </div>
             </form>
-        </nav>
-    {% endif %}
-{% endmacro %}
-{% macro paginacao_header(pagination, acao, bloco) %}
-    {% if pagination %}
-        <nav aria-label="Paginação">
+            <!-- Form separado para ir direto -->
             <form method="post" class="form-inline">
                 <input type="hidden" name="acao" value="{{ acao }}">
                 <input type="hidden" name="bloco" value="{{ bloco }}">
-            {% endif %}
-        {% endmacro %}
-        {% macro paginacao_button(pagination, acao, bloco) %}
-            {% if pagination %}
-                <div class="btn-group" role="group">
-                    {% if pagination.has_prev %}
-                        <button type="submit"
-                                name="page"
-                                value="{{ pagination.prev_num }}"
-                                class="btn btn-primary btn-sm">&laquo; Anterior</button>
-                    {% endif %}
-                    <button class="btn btn-default btn-sm disabled">Página {{ pagination.page }} de {{ pagination.pages }}</button>
-                    {% if pagination.has_next %}
-                        <button type="submit"
-                                name="page"
-                                value="{{ pagination.next_num }}"
-                                class="btn btn-primary btn-sm">Próxima &raquo;</button>
-                    {% endif %}
-                {% endif %}
-            {% endmacro %}
-            {% macro paginacao_footer(pagination, acao, bloco) %}
-                {% if pagination %}
+                {% if query_params %}{{ manter_parametros(query_params) }}{% endif %}
+                <div class="input-group-btn input-group-sm">
+                    <input type="number"
+                           name="page"
+                           min="1"
+                           max="{{ pagination.pages }}"
+                           value="{{ pagination.page }}"
+                           class="form-control text-center"
+                           placeholder="Página"
+                           {% if pagination.pages == 0 %}disabled{% endif %}>
+                    <button type="submit"
+                            class="btn btn-primary btn-sm"
+                            {% if pagination.pages == 0 %}disabled{% endif %}>Ir</button>
                 </div>
             </form>
         </nav>
