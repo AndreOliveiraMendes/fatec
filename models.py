@@ -1,5 +1,5 @@
 from main import app, db
-from datetime import date, time
+from datetime import date, time, datetime
 from sqlalchemy import String, ForeignKey, CheckConstraint, TEXT
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -116,7 +116,7 @@ class Historicos(db.Model):
     id_pessoa: Mapped[int] = mapped_column(ForeignKey('pessoas.id_pessoa'), nullable=False)
     tabela: Mapped[str | None] = mapped_column(String(100), index=True)
     categoria: Mapped[str | None] = mapped_column(String(100))
-    data_hora: Mapped[date] = mapped_column(index=True, nullable=False)
+    data_hora: Mapped[datetime] = mapped_column(index=True, nullable=False)
     message: Mapped[str] = mapped_column(TEXT, nullable=False)
     chave_primaria: Mapped[str] = mapped_column(TEXT, nullable=False)
     observacao: Mapped[str | None] = mapped_column(TEXT)
