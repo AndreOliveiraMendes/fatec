@@ -74,7 +74,7 @@ def gerenciar_usuarios_especiais():
                 usuario_especial.nome_usuario_especial = nome_usuario_especial
 
                 db.session.flush()  # garante ID
-                registrar_log_generico(userid, "Edicao", usuario_especial, dados_anteriores)
+                registrar_log_generico(userid, "Edição", usuario_especial, dados_anteriores)
 
                 db.session.commit()
                 flash("Usuario especial editado com sucesso", "success")
@@ -92,7 +92,7 @@ def gerenciar_usuarios_especiais():
                 db.session.delete(usuario_especial)
 
                 db.session.flush()  # garante ID
-                registrar_log_generico(userid, "delecao", usuario_especial)
+                registrar_log_generico(userid, "Exclusão", usuario_especial)
 
                 db.session.commit()
                 flash("Usuario especial excluido com sucesso", "success")
