@@ -21,7 +21,7 @@ echo 🐍 Criando ambiente virtual...
 echo ===============================
 
 if not exist .venv (
-    python -m venv .venv
+    py -3.12 -m venv .venv
     echo Ambiente virtual criado com sucesso.
 ) else (
     echo O ambiente virtual já existe.
