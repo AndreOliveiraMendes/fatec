@@ -11,7 +11,7 @@ def require_login():
 def require_permission(flag):
     from models import Permissoes
     userid = require_login()
-    perm = Permissoes.query.filter_by(id_permissao_usuario=userid).first()
+    perm = Permissoes.query.get(userid)
     if not perm or not (perm.permissao & flag):
         abort(403)
 

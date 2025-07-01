@@ -9,7 +9,7 @@ def login():
         return redirect(url_for('home'))
     if request.method == 'POST':
         login = request.form["username"]
-        user = Usuarios.query.filter_by(id_usuario=login).first()
+        user = Usuarios.query.get(login)
         #TODO implementar autenticação com login/senha
         #password = request.form["password"]
         if user:
