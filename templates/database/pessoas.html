@@ -10,79 +10,87 @@
     <p>
         A tabela <code>pessoas</code> possui os seguintes campos:
     </p>
-    <table class="table table-striped table-bordered table-hover">
-        <thead>
-            <tr class="bg-info text-white text-center">
-                <th>Campo</th>
-                <th>Descrição</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for campo, descricao in [
-                ('id_pessoa', 'Identificador da pessoa'),
-                ('nome_pessoa', 'Nome da pessoa'),
-                ('email_pessoa', 'Email da pessoa')
-                ] %}
-                <tr>
-                    <td>
-                        <code>{{ campo }}</code>
-                    </td>
-                    <td>{{ descricao }}</td>
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover">
+            <thead>
+                <tr class="information">
+                    <th>Campo</th>
+                    <th>Descrição</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for campo, descricao in [
+                    ('id_pessoa', 'Identificador da pessoa'),
+                    ('nome_pessoa', 'Nome da pessoa'),
+                    ('email_pessoa', 'Email da pessoa')
+                    ] %}
+                    <tr>
+                        <td>
+                            <code>{{ campo }}</code>
+                        </td>
+                        <td>{{ descricao }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% endblock %}
 {% block listar %}
     <h3>Lista de Pessoas</h3>
-    <table class="table table-bordered table-striped table-hover">
-        <thead>
-            <tr class="info">
-                <th>Id Pessoa</th>
-                <th>Nome</th>
-                <th>Email</th>
-                {% if not disable_editar or not disable_excluir %}<th>Ação</th>{% endif %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for p in pessoas %}
-                <tr>
-                    <td>{{ p.id_pessoa }}</td>
-                    <td>{{ p.nome_pessoa }}</td>
-                    <td>{{ p.email_pessoa }}</td>
-                    {% if not disable_editar or not disable_excluir %}
-                        <td>
-                            <form method="post" class="form-inline">
-                                <input type="hidden" name="bloco" value="1">
-                                <input type="hidden" name="id_pessoa" value="{{ p.id_pessoa }}">
-                                <div class="btn-group">
-                                    {% if not disable_editar %}
-                                        <button type="submit"
-                                                name="acao"
-                                                value="editar"
-                                                class="btn btn-warning btn-sm"
-                                                title="Editar">
-                                            <i class="glyphicon glyphicon-pencil"></i>
-                                        </button>
-                                    {% endif %}
-                                    {% if p.nome_pessoa != username and not disable_excluir %}
-                                        <button type="submit"
-                                                name="acao"
-                                                value="excluir"
-                                                class="btn btn-danger btn-sm"
-                                                title="Excluir">
-                                            <i class="glyphicon glyphicon-trash"></i>
-                                        </button>
-                                    {% endif %}
-                                </div>
-                            </form>
-                        </td>
-                    {% endif %}
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {{ paginacao(pagination, acao, bloco) }}
+    {% if pessoas %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover">
+                <thead>
+                    <tr class="information">
+                        <th>Id Pessoa</th>
+                        <th>Nome</th>
+                        <th>Email</th>
+                        {% if not disable_editar or not disable_excluir %}<th>Ação</th>{% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in pessoas %}
+                        <tr>
+                            <td>{{ p.id_pessoa }}</td>
+                            <td>{{ p.nome_pessoa }}</td>
+                            <td>{{ p.email_pessoa }}</td>
+                            {% if not disable_editar or not disable_excluir %}
+                                <td>
+                                    <form method="post" class="form-inline">
+                                        <input type="hidden" name="bloco" value="1">
+                                        <input type="hidden" name="id_pessoa" value="{{ p.id_pessoa }}">
+                                        <div class="btn-group">
+                                            {% if not disable_editar %}
+                                                <button type="submit"
+                                                        name="acao"
+                                                        value="editar"
+                                                        class="btn btn-warning btn-sm"
+                                                        title="Editar">
+                                                    <i class="glyphicon glyphicon-pencil"></i>
+                                                </button>
+                                            {% endif %}
+                                            {% if p.nome_pessoa != username and not disable_excluir %}
+                                                <button type="submit"
+                                                        name="acao"
+                                                        value="excluir"
+                                                        class="btn btn-danger btn-sm"
+                                                        title="Excluir">
+                                                    <i class="glyphicon glyphicon-trash"></i>
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                    </form>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {{ paginacao(pagination, acao, bloco) }}
+        </div>
+    {% else %}
+        <div class="alert alert-info">Nenhuma pessoa encontrada.</div>
+    {% endif %}
 {% endblock %}
 {% block procurar %}
     {% if bloco == 0 %}
@@ -137,56 +145,58 @@
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% elif bloco == 1 %}
+        <h3>Resultados da busca:</h3>
         {% if pessoas %}
-            <h3>Resultados da busca:</h3>
-            <table class="table table-bordered table-striped table-hover">
-                <thead>
-                    <tr class="info">
-                        <th>ID</th>
-                        <th>Nome</th>
-                        <th>Email</th>
-                        {% if not disable_editar or not disable_excluir %}<th>Ação</th>{% endif %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for p in pessoas %}
-                        <tr>
-                            <td>{{ p.id_pessoa }}</td>
-                            <td>{{ p.nome_pessoa }}</td>
-                            <td>{{ p.email_pessoa }}</td>
-                            {% if not disable_editar or not disable_excluir %}
-                                <td>
-                                    <form method="post" class="form-inline">
-                                        <input type="hidden" name="bloco" value="1">
-                                        <input type="hidden" name="id_pessoa" value="{{ p.id_pessoa }}">
-                                        <div class="btn-group">
-                                            {% if not disable_editar %}
-                                                <button type="submit"
-                                                        name="acao"
-                                                        value="editar"
-                                                        class="btn btn-warning btn-sm"
-                                                        title="Editar">
-                                                    <i class="glyphicon glyphicon-pencil"></i>
-                                                </button>
-                                            {% endif %}
-                                            {% if p.nome_pessoa != username and not disable_excluir %}
-                                                <button type="submit"
-                                                        name="acao"
-                                                        value="excluir"
-                                                        class="btn btn-danger btn-sm"
-                                                        title="Excluir">
-                                                    <i class="glyphicon glyphicon-trash"></i>
-                                                </button>
-                                            {% endif %}
-                                        </div>
-                                    </form>
-                                </td>
-                            {% endif %}
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover">
+                    <thead>
+                        <tr class="information">
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            {% if not disable_editar or not disable_excluir %}<th>Ação</th>{% endif %}
                         </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {{ paginacao(pagination, acao, bloco, query_params) }}
+                    </thead>
+                    <tbody>
+                        {% for p in pessoas %}
+                            <tr>
+                                <td>{{ p.id_pessoa }}</td>
+                                <td>{{ p.nome_pessoa }}</td>
+                                <td>{{ p.email_pessoa }}</td>
+                                {% if not disable_editar or not disable_excluir %}
+                                    <td>
+                                        <form method="post" class="form-inline">
+                                            <input type="hidden" name="bloco" value="1">
+                                            <input type="hidden" name="id_pessoa" value="{{ p.id_pessoa }}">
+                                            <div class="btn-group">
+                                                {% if not disable_editar %}
+                                                    <button type="submit"
+                                                            name="acao"
+                                                            value="editar"
+                                                            class="btn btn-warning btn-sm"
+                                                            title="Editar">
+                                                        <i class="glyphicon glyphicon-pencil"></i>
+                                                    </button>
+                                                {% endif %}
+                                                {% if p.nome_pessoa != username and not disable_excluir %}
+                                                    <button type="submit"
+                                                            name="acao"
+                                                            value="excluir"
+                                                            class="btn btn-danger btn-sm"
+                                                            title="Excluir">
+                                                        <i class="glyphicon glyphicon-trash"></i>
+                                                    </button>
+                                                {% endif %}
+                                            </div>
+                                        </form>
+                                    </td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {{ paginacao(pagination, acao, bloco, query_params) }}
+            </div>
         {% else %}
             <div class="alert alert-warning">Nenhum resultado encontrado.</div>
         {% endif %}
@@ -257,7 +267,7 @@
                        class="form-control"
                        name="nome"
                        id="nome"
-                       value="{{ pessoa.nome_pessoa if pessoa.nome_pessoa else '' }}"
+                       value="{{ pessoa.nome_pessoa }}"
                        placeholder="Digite o nome"
                        required>
             </div>
@@ -311,7 +321,7 @@
                        class="form-control"
                        name="nome"
                        id="nome"
-                       value="{{ pessoa.nome_pessoa if pessoa.nome_pessoa else '' }}"
+                       value="{{ pessoa.nome_pessoa }}"
                        disabled
                        required>
             </div>

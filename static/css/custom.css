@@ -12,3 +12,9 @@ input[disabled] {
     padding: 6px 12px;
     border-radius: 4px;
 }
+
+.information {
+    background-color: #5bc0de;
+    color: white;
+    text-align: center;
+}
