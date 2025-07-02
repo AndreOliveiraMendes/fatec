@@ -49,8 +49,8 @@ class Usuarios(db.Model):
 
     id_usuario: Mapped[int] = mapped_column(primary_key=True)
     id_pessoa: Mapped[int] = mapped_column(ForeignKey('pessoas.id_pessoa'), nullable=False)
-    tipo_pessoa: Mapped[str | None] = mapped_column(String(50))
-    situacao_pessoa: Mapped[str | None] = mapped_column(String(50))
+    tipo_pessoa: Mapped[str] = mapped_column(String(50), nullable=False)
+    situacao_pessoa: Mapped[str] = mapped_column(String(50), nullable=False)
     grupo_pessoa: Mapped[str | None] = mapped_column(String(50))
 
     pessoas: Mapped['Pessoas'] = relationship(back_populates='usuarios')

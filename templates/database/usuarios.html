@@ -5,7 +5,7 @@
 {% set disable_excluir = False %}
 {% block abertura %}
     <h3>
-        Gerenciamento da Tabela <strong>Usuarios</strong>
+        Gerenciamento da Tabela <strong>Usuários</strong>
     </h3>
     <p>
         A tabela <code>usuarios</code> possui os seguintes campos:
@@ -16,23 +16,89 @@
                 <tr class="information">
                     <th>Campo</th>
                     <th>Descrição</th>
+                    <th>Valores Possíveis</th>
                 </tr>
             </thead>
             <tbody>
-                {% for campo, descricao in [
-                    ('id_usuario', 'Identificador do usuario'),
-                    ('id_pessoa', 'Identificador do usuario'),
-                    ('tipo_usuario', 'tipo de conta'),
-                    ('situacao_pessoa', 'situacao da conta (ATIVO/DESATIVO)'),
-                    ('grupo_pessoa', 'grupo ao qual o usuario pertence')
-                    ] %}
-                    <tr>
-                        <td>
-                            <code>{{ campo }}</code>
-                        </td>
-                        <td>{{ descricao }}</td>
-                    </tr>
-                {% endfor %}
+                <tr>
+                    <td class="text-center">
+                        <code>id_usuario</code>
+                    </td>
+                    <td>Identificador único do usuário no sistema.</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td class="text-center">
+                        <code>id_pessoa</code>
+                    </td>
+                    <td>
+                        Chave estrangeira que referencia o registro na tabela <code>pessoas</code>.
+                    </td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td class="text-center">
+                        <code>tipo_pessoa</code>
+                    </td>
+                    <td>Indica o tipo geral da pessoa vinculada ao usuário.</td>
+                    <td>
+                        <ul class="valores_possiveis_format">
+                            <li>
+                                <code>FUNCIONARIO</code>
+                            </li>
+                            <li>
+                                <code>EXTERNO</code>
+                            </li>
+                            <li>
+                                <code>ALUNO</code>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-center">
+                        <code>situacao_pessoa</code>
+                    </td>
+                    <td>Estado atual da conta no sistema.</td>
+                    <td>
+                        <ul class="valores_possiveis_format">
+                            <li>
+                                <code>ATIVO</code>
+                            </li>
+                            <li>
+                                <code>INATIVO</code>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-center">
+                        <code>grupo_pessoa</code>
+                    </td>
+                    <td>Define o grupo ou papel específico da pessoa na instituição.</td>
+                    <td>
+                        <ul class="valores_possiveis_format">
+                            <li>
+                                <code>ADMINISTRADOR</code>
+                            </li>
+                            <li>
+                                <code>SECRETARIA</code>
+                            </li>
+                            <li>
+                                <code>DOCENTE</code>
+                            </li>
+                            <li>
+                                <code>REDE</code>
+                            </li>
+                            <li>
+                                <code>BIBLIOTECA</code>
+                            </li>
+                            <li>
+                                <code>CONVIDADO</code>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>
@@ -59,7 +125,7 @@
                             <td>{{ u.id_pessoa }}</td>
                             <td>{{ u.tipo_pessoa }}</td>
                             <td>{{ u.situacao_pessoa }}</td>
-                            <td>{{ u.grupo_pessoa }}</td>
+                            <td>{{ u.grupo_pessoa if u.grupo_pessoa }}</td>
                             {% if not disable_editar or not disable_excluir %}
                                 <td>
                                     <form method="post" class="form-inline">
@@ -103,7 +169,7 @@
         <h3>Procurar Usuario</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('gerenciar_usuarios') }}"
+              action="{{ url_for("gerenciar_usuarios") }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
@@ -125,6 +191,7 @@
                 <datalist id="lista_tipo_pessoa">
                     <option value="FUNCIONARIO"></option>
                     <option value="EXTERNO"></option>
+                    <option value="ALUNO"></option>
                 </datalist>
             </div>
             <div class="form-group">
@@ -179,7 +246,7 @@
                                 <td>{{ u.id_pessoa }}</td>
                                 <td>{{ u.tipo_pessoa }}</td>
                                 <td>{{ u.situacao_pessoa }}</td>
-                                <td>{{ u.grupo_pessoa }}</td>
+                                <td>{{ u.grupo_pessoa if u.grupo_pessoa }}</td>
                                 {% if not disable_editar or not disable_excluir %}
                                     <td>
                                         <form method="post" class="form-inline">
@@ -223,7 +290,7 @@
     <h3>Inserir Usuarios</h3>
     <form class="form-group"
           role="form"
-          action="{{ url_for('gerenciar_usuarios') }}"
+          action="{{ url_for("gerenciar_usuarios") }}"
           method="post">
         <input type="hidden" name="acao" value="{{ acao }}">
         {{ gerar_select("pessoa", "Selecione a Pessoa", pessoas, "id_pessoa", "nome_pessoa") }}
@@ -233,10 +300,12 @@
                    id="tipo_pessoa"
                    name="tipo_pessoa"
                    list="lista_tipo_pessoa"
-                   class="form-control">
+                   class="form-control"
+                   required>
             <datalist id="lista_tipo_pessoa">
                 <option value="FUNCIONARIO"></option>
                 <option value="EXTERNO"></option>
+                <option value="ALUNO"></option>
             </datalist>
         </div>
         <div class="form-group">
@@ -245,7 +314,8 @@
                    id="situacao_pessoa"
                    name="situacao_pessoa"
                    list="lista_situacao_pessoa"
-                   class="form-control">
+                   class="form-control"
+                   required>
             <datalist id="lista_situacao_pessoa">
                 <option value="ATIVO"></option>
                 <option value="INATIVO"></option>
@@ -275,7 +345,7 @@
         <h3>Editar Usuarios</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('gerenciar_usuarios') }}"
+              action="{{ url_for("gerenciar_usuarios") }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             {{ gerar_select("id_usuario", "Selecione o usuario", usuarios, "id_usuario", "nome_pessoa") }}
@@ -285,7 +355,7 @@
         <h3>Editar Usuario</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('gerenciar_usuarios') }}"
+              action="{{ url_for("gerenciar_usuarios") }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
@@ -307,10 +377,12 @@
                        name="tipo_pessoa"
                        list="lista_tipo_pessoa"
                        class="form-control"
-                       value="{{ usuario.tipo_pessoa }}">
+                       value="{{ usuario.tipo_pessoa }}"
+                       required>
                 <datalist id="lista_tipo_pessoa">
                     <option value="FUNCIONARIO"></option>
                     <option value="EXTERNO"></option>
+                    <option value="ALUNO"></option>
                 </datalist>
             </div>
             <div class="form-group">
@@ -320,7 +392,8 @@
                        name="situacao_pessoa"
                        list="lista_situacao_pessoa"
                        class="form-control"
-                       value="{{ usuario.situacao_pessoa }}">
+                       value="{{ usuario.situacao_pessoa }}"
+                       required>
                 <datalist id="lista_situacao_pessoa">
                     <option value="ATIVO"></option>
                     <option value="INATIVO"></option>
@@ -333,7 +406,7 @@
                        name="grupo_pessoa"
                        list="lista_grupo_pessoa"
                        class="form-control"
-                       value="{{ usuario.grupo_pessoa }}">
+                       value="{{ u.grupo_pessoa if u.grupo_pessoa }}">
                 <datalist id="lista_grupo_pessoa">
                     <option value="ADMINISTRADOR">ADMINISTRADOR</option>
                     <option value="SECRETARIA">SECRETARIA</option>
@@ -352,7 +425,7 @@
         <h3>Excluir Usuarios</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('gerenciar_usuarios') }}"
+              action="{{ url_for("gerenciar_usuarios") }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             {{ gerar_select("id_usuario", "Selecione o usuario", usuarios, "id_usuario", "nome_pessoa") }}
@@ -362,7 +435,7 @@
         <h3>Excluir Usuario</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('gerenciar_usuarios') }}"
+              action="{{ url_for("gerenciar_usuarios") }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
@@ -389,6 +462,7 @@
                 <datalist id="lista_tipo_pessoa">
                     <option value="FUNCIONARIO"></option>
                     <option value="EXTERNO"></option>
+                    <option value="ALUNO"></option>
                 </datalist>
             </div>
             <div class="form-group">
@@ -412,7 +486,7 @@
                        name="grupo_pessoa"
                        list="lista_grupo_pessoa"
                        class="form-control"
-                       value="{{ usuario.grupo_pessoa }}"
+                       value="{{ u.grupo_pessoa if u.grupo_pessoa }}"
                        disabled>
                 <datalist id="lista_grupo_pessoa">
                     <option value="ADMINISTRADOR">ADMINISTRADOR</option>
