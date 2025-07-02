@@ -75,7 +75,7 @@ def gerenciar_permissoes():
                 nova_permissao = Permissoes(id_permissao_usuario=id_permissao_usuario, permissao=flag)
                 db.session.add(nova_permissao)
                 db.session.flush()  # garante ID
-                registrar_log_generico(userid, "Inserção", nova_permissao)
+                registrar_log_generico(userid, "Inserção", nova_permissao, observacao=f"{flag:03b}")
                 db.session.commit()
                 flash("Permissao cadastrada com sucesso", "success")
             except IntegrityError as e:
@@ -105,7 +105,8 @@ def gerenciar_permissoes():
                     dados_anteriores = copy.copy(permissao)
                     permissao.permissao = flag
                     db.session.flush()  # Garante que o ID esteja atribuído
-                    registrar_log_generico(userid, "Edição", permissao, dados_anteriores) # Loga com os dados antigos + novos
+                    observacao = f"0b{dados_anteriores.permissao:03b} → 0b{flag:03b}"
+                    registrar_log_generico(userid, "Edição", permissao, dados_anteriores, observacao=observacao) # Loga com os dados antigos + novos
                     db.session.commit()
                     flash("Permissao atualizada com sucesso", "success")
                 except IntegrityError as e:
@@ -122,7 +123,7 @@ def gerenciar_permissoes():
             else:
                 try:
                     db.session.flush()  # garante ID
-                    registrar_log_generico(userid, "Exclusão", permissao)
+                    registrar_log_generico(userid, "Exclusão", permissao, observacao=f"{permissao.permissao:03b}")
 
                     db.session.delete(permissao)
                     db.session.commit()
