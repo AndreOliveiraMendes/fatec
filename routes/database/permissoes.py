@@ -5,6 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from models import db, Permissoes, Usuarios, Pessoas
 from auxiliar.decorators import admin_required
 from auxiliar.auxiliar_routes import none_if_empty, get_query_params, get_user_info, registrar_log_generico
+from auxiliar.constant import PERM_RESERVAS_FIXA, PERM_RESERVAS_TEMPORARIA, PERM_ADMIN
 
 def get_no_perm_users():
     usuarios_com_permissao = db.session.query(Permissoes.id_permissao_usuario)
@@ -18,6 +19,12 @@ def get_perm(acao, userid):
     if acao == 'excluir':
         perm = perm.filter(Permissoes.id_permissao_usuario!=userid)
     return perm.all()
+
+def get_flag(request):
+    flag_fixa = PERM_RESERVAS_FIXA if 'flag_fixa' in request.form else 0
+    flag_temp = PERM_RESERVAS_TEMPORARIA if 'flag_temp' in request.form else 0
+    flag_admin = PERM_ADMIN if 'flag_admin' in request.form else 0
+    return flag_fixa|flag_temp|flag_admin
 
 @app.route("/admin/permissoes", methods=["GET", "POST"])
 @admin_required
@@ -38,10 +45,7 @@ def gerenciar_permissoes():
             extras['users'] = get_users()
         elif acao == 'procurar' and bloco == 1:
             id_permissao_usuario = none_if_empty(request.form.get('id_permissao_usuario'), int)
-            flag_fixa = 1 if 'flag_fixa' in request.form else 0
-            flag_temp = 2 if 'flag_temp' in request.form else 0
-            flag_admin = 4 if 'flag_admin' in request.form else 0
-            flag = flag_fixa|flag_temp|flag_admin
+            flag = get_flag(request)
             modobusca = none_if_empty(request.form.get('modobusca')) 
             filter = []
             query_params = get_query_params(request)
@@ -67,10 +71,7 @@ def gerenciar_permissoes():
             extras['users'] = get_no_perm_users()
         elif acao == 'inserir' and bloco == 1:
             id_permissao_usuario = none_if_empty(request.form.get('id_permissao_usuario'), int)
-            flag_fixa = 1 if 'flag_fixa' in request.form else 0
-            flag_temp = 2 if 'flag_temp' in request.form else 0
-            flag_admin = 4 if 'flag_admin' in request.form else 0
-            flag = flag_fixa|flag_temp|flag_admin
+            flag = get_flag(request)
             try:
                 nova_permissao = Permissoes(id_permissao_usuario=id_permissao_usuario, permissao=flag)
                 db.session.add(nova_permissao)
@@ -92,13 +93,10 @@ def gerenciar_permissoes():
             extras['userid'] = userid
         elif acao == 'editar' and bloco == 2:
             id_permissao_usuario = none_if_empty(request.form.get('id_permissao_usuario'), int)
-            flag_fixa = 1 if 'flag_fixa' in request.form else 0
-            flag_temp = 2 if 'flag_temp' in request.form else 0
-            flag_admin = 4 if 'flag_admin' in request.form else 0
-            flag = flag_fixa|flag_temp|flag_admin
+            flag = get_flag(request)
             
             permissao = Permissoes.query.get_or_404(id_permissao_usuario)
-            if id_permissao_usuario == userid and flag_admin == 0:
+            if id_permissao_usuario == userid and flag&PERM_ADMIN == 0:
                 flash("voce não pode remover seu proprio poder de administrador", "danger")
             else:
                 try:
