@@ -11,7 +11,7 @@ class Reservas_Fixas(db.Model):
     id_responsavel_especial: Mapped[int | None] = mapped_column(ForeignKey('usuarios_especiais.id_usuario_especial'), nullable=True)
     tipo_responsavel: Mapped[int] = mapped_column(nullable=False)
     id_reserva_laboratorio: Mapped[int] = mapped_column(ForeignKey('laboratorios.id_laboratorio'), nullable=False)
-    id_reserva_aula: Mapped[int] = mapped_column(ForeignKey('aulas.id_aula'), nullable=False)
+    id_reserva_aula: Mapped[int] = mapped_column(ForeignKey('aulas_ativas.id_aula_ativa'), nullable=False)
     status_reserva: Mapped[int] = mapped_column(server_default='0', nullable=False)
     data_inicio: Mapped[date] = mapped_column(nullable=False)
     data_fim: Mapped[date] = mapped_column(nullable=False)
@@ -34,7 +34,7 @@ class Reservas_Fixas(db.Model):
     pessoas: Mapped['Pessoas'] = relationship(back_populates='reservas_fixas')
     usuarios_especiais: Mapped['Usuarios_Especiais'] = relationship(back_populates='reservas_fixas')
     laboratorios: Mapped['Laboratorios'] = relationship(back_populates='reservas_fixas')
-    aulas: Mapped['Aulas'] = relationship(back_populates='reservas_fixas')
+    aulas_ativas: Mapped['Aulas_Ativas'] = relationship(back_populates='reservas_fixas')
 
 class Usuarios_Especiais(db.Model):
     __tablename__ = 'usuarios_especiais'
@@ -92,10 +92,7 @@ class Aulas(db.Model):
     id_aula: Mapped[int] = mapped_column(primary_key=True)
     horario_inicio: Mapped[time | None] = mapped_column()
     horario_fim: Mapped[time | None] = mapped_column()
-    semana: Mapped[int | None] = mapped_column()
-    turno: Mapped[int | None] = mapped_column()
 
-    reservas_fixas: Mapped[list['Reservas_Fixas']] = relationship(back_populates='aulas')
     aulas_ativas: Mapped[list['Aulas_Ativas']] = relationship(back_populates='aulas')
 
 class Aulas_Ativas(db.Model):
@@ -105,8 +102,11 @@ class Aulas_Ativas(db.Model):
     id_aula: Mapped[int] = mapped_column(ForeignKey('aulas.id_aula'), nullable=False)
     inicio_ativacao: Mapped[date | None] = mapped_column()
     fim_ativacao: Mapped[date | None] = mapped_column()
+    semana: Mapped[int | None] = mapped_column()
+    turno: Mapped[int | None] = mapped_column()
 
     aulas: Mapped['Aulas'] = relationship(back_populates='aulas_ativas')
+    reservas_fixas: Mapped[list['Reservas_Fixas']] = relationship(back_populates='aulas_ativas')
 
 class Historicos(db.Model):
     __tablename__ = 'historicos'

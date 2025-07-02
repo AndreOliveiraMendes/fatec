@@ -3,8 +3,6 @@ CREATE TABLE
         `id_aula` int NOT NULL AUTO_INCREMENT,
         `horario_inicio` time DEFAULT NULL,
         `horario_fim` time DEFAULT NULL,
-        `semana` int DEFAULT NULL,
-        `turno` int DEFAULT NULL,
         PRIMARY KEY (`id_aula`)
     ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
@@ -14,6 +12,8 @@ CREATE TABLE
         `id_aula` int NOT NULL,
         `inicio_ativacao` date DEFAULT NULL,
         `fim_ativacao` date DEFAULT NULL,
+        `semana` int DEFAULT NULL,
+        `turno` int DEFAULT NULL,
         PRIMARY KEY (`id_aula_ativa`),
         KEY `id_aula` (`id_aula`),
         CONSTRAINT `aulas_ativas_ibfk_1` FOREIGN KEY (`id_aula`) REFERENCES `aulas` (`id_aula`)
@@ -40,13 +40,13 @@ CREATE TABLE
     IF NOT EXISTS `usuarios` (
         `id_usuario` int NOT NULL AUTO_INCREMENT,
         `id_pessoa` int NOT NULL,
-        `tipo_pessoa` varchar(50) DEFAULT NULL,
-        `situacao_pessoa` varchar(50) DEFAULT NULL,
+        `tipo_pessoa` varchar(50) NOT NULL,
+        `situacao_pessoa` varchar(50) NOT NULL,
         `grupo_pessoa` varchar(50) DEFAULT NULL,
         PRIMARY KEY (`id_usuario`),
         KEY `id_pessoa` (`id_pessoa`),
         CONSTRAINT `usuarios_ibfk_1` FOREIGN KEY (`id_pessoa`) REFERENCES `pessoas` (`id_pessoa`)
-    ) ENGINE = InnoDB AUTO_INCREMENT = 2 DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
+    ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
 CREATE TABLE
     IF NOT EXISTS `historicos` (
@@ -102,7 +102,7 @@ CREATE TABLE
         CONSTRAINT `reservas_fixas_ibfk_1` FOREIGN KEY (`id_responsavel`) REFERENCES `pessoas` (`id_pessoa`),
         CONSTRAINT `reservas_fixas_ibfk_2` FOREIGN KEY (`id_responsavel_especial`) REFERENCES `usuarios_especiais` (`id_usuario_especial`),
         CONSTRAINT `reservas_fixas_ibfk_3` FOREIGN KEY (`id_reserva_laboratorio`) REFERENCES `laboratorios` (`id_laboratorio`),
-        CONSTRAINT `reservas_fixas_ibfk_4` FOREIGN KEY (`id_reserva_aula`) REFERENCES `aulas` (`id_aula`),
+        CONSTRAINT `reservas_fixas_ibfk_4` FOREIGN KEY (`id_reserva_aula`) REFERENCES `aulas_ativas` (`id_aula_ativa`),
         CONSTRAINT `check_tipo_responsavel` CHECK (
             (
                 (
