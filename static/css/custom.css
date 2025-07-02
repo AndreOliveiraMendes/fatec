@@ -18,3 +18,8 @@ input[disabled] {
     color: white;
     text-align: center;
 }
+
+.valores_possiveis_format {
+    padding-left: 20px;
+    margin: 0;
+}

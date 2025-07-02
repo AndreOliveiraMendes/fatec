@@ -1,0 +1,75 @@
+{% extends "database/base_crude" %}
+{% block title %}Aulas{% endblock %}
+{% block content_head %}{{ generate_head(url_for("gerenciar_aulas") , acao) }}{% endblock %}
+{% block abertura %}
+    <h3>
+        Gerenciamento da Tabela <strong>Aulas</strong>
+    </h3>
+    <p>
+        A tabela <code>aulas</code> possui os seguintes campos:
+    </p>
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover">
+            <thead>
+                <tr class="information">
+                    <th>Campo</th>
+                    <th>Descrição</th>
+                    <th>Valores Possíveis</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <code>id_aula</code>
+                    </td>
+                    <td>Identificador único da aula no sistema.</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>horario_inicio</code>
+                    </td>
+                    <td>Horário exato de início da aula (formato HH:MM).</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>horario_fim</code>
+                    </td>
+                    <td>Horário exato de término da aula (formato HH:MM).</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>semana</code>
+                    </td>
+                    <td>Dia da semana em que ocorre a aula.</td>
+                    <td>
+                        <ul class="valores_possiveis_format">
+                            <li>1 = Domingo</li>
+                            <li>2 = Segunda-feira</li>
+                            <li>3 = Terça-feira</li>
+                            <li>4 = Quarta-feira</li>
+                            <li>5 = Quinta-feira</li>
+                            <li>6 = Sexta-feira</li>
+                            <li>7 = Sábado</li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>turno</code>
+                    </td>
+                    <td>Turno em que a aula é ministrada.</td>
+                    <td>
+                        <ul class="valores_possiveis_format">
+                            <li>0 = Manhã</li>
+                            <li>1 = Tarde</li>
+                            <li>2 = Noite</li>
+                        </ul>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
