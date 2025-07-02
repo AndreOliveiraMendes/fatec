@@ -1,4 +1,6 @@
 @echo off
+setlocal enabledelayedexpansion
+
 echo ===============================
 echo 🔧 Configurando Git...
 echo ===============================
@@ -15,6 +17,18 @@ if "%GIT_USER_EMAIL%"=="" (
 git config --global user.name "%GIT_USER_NAME%"
 git config --global user.email "%GIT_USER_EMAIL%"
 git config --global credential.helper manager-core
+
+echo ===============================
+echo 🔎 Verificando Python 3.12...
+echo ===============================
+
+py -0 | findstr "3.12" >nul
+if errorlevel 1 (
+    echo ❌ Python 3.12 não encontrado!
+    exit /b
+) else (
+    echo ✅ Python 3.12 encontrado.
+)
 
 echo ===============================
 echo 🐍 Criando ambiente virtual...
@@ -49,5 +63,6 @@ echo 📦 Instalando dependências...
 echo ===============================
 
 pip install -r requirements.txt
+
 echo ===============================
 echo ✅ Configuração concluída com sucesso!
