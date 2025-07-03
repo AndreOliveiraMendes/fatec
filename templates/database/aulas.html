@@ -1,6 +1,22 @@
 {% extends "database/base_crude" %}
-{% block title %}Aulas{% endblock title %}
-{% block content_head %}{{ generate_head(url_for("gerenciar_aulas") , acao) }}{% endblock content_head %}
+{% block title %}
+    Aulas
+{% endblock title %}
+{% block content_head %}
+    {{ generate_head(url_for("gerenciar_aulas") , acao) }}
+{% endblock content_head %}
+{% block extra_script %}
+    <script type="text/javascript">
+        $(function () {
+            $('#datetimepicker-inicio').datetimepicker({
+                format: 'HH:mm:ss'
+            });
+            $('#datetimepicker-fim').datetimepicker({
+                format: 'HH:mm:ss'
+            });
+        });
+    </script>
+{% endblock extra_script %}
 {% block abertura %}
     <h3>
         Gerenciamento da Tabela <strong>Aulas</strong>
@@ -104,4 +120,79 @@
     {% endif %}
 {% endblock listar %}
 {% block procurar %}
+    {% if bloco == 0 %}
+        <h3>Procurar Aulas</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for('gerenciar_aulas') }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label for="codigo">Código:</label>
+                <input type="number"
+                       class="form-control"
+                       name="id_aula"
+                       id="codigo"
+                       placeholder="Digite o ID">
+            </div>
+            <h4>Faixa de Horário de Início</h4>
+            <div class="form-group">
+                <label>De:</label>
+                <input type="time"
+                       class="form-control"
+                       name="horario_inicio_start"
+                       placeholder="Início da faixa">
+            </div>
+            <div class="form-group">
+                <label>Até:</label>
+                <input type="time"
+                       class="form-control"
+                       name="horario_inicio_end"
+                       placeholder="Fim da faixa">
+            </div>
+            <h4>Faixa de Horário de Fim</h4>
+            <div class="form-group">
+                <label>De:</label>
+                <input type="time"
+                       class="form-control"
+                       name="horario_fim_start"
+                       placeholder="Início da faixa">
+            </div>
+            <div class="form-group">
+                <label>Até:</label>
+                <input type="time"
+                       class="form-control"
+                       name="horario_fim_end"
+                       placeholder="Fim da faixa">
+            </div>
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <h3>Resultados da busca:</h3>
+        {% if aulas %}
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover">
+                    <thead>
+                        <tr class="information">
+                            <th>ID Aula</th>
+                            <th>Inicio da Aula</th>
+                            <th>Termino da Aula</th>
+                        </tr>
+                    </thead>
+                    <body>
+                        {% for a in aulas %}
+                            <tr>
+                                <td>{{ a.id_aula }}</td>
+                                <td>{{ a.horario_inicio }}</td>
+                                <td>{{ a.horario_fim }}</td>
+                            </tr>
+                        {% endfor %}
+                    </body>
+                </table>
+                {{ paginacao(pagination, acao, bloco, query_params) }}
+            </div>
+        {% else %}
+            <div class="alert alert-info">Nenhum Resultado encontrado</div>
+        {% endif %}
+    {% endif %}
 {% endblock procurar %}

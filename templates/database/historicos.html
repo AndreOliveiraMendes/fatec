@@ -1,5 +1,7 @@
 {% extends "database/base_crude" %}
-{% block title %}Historico{% endblock title %}
+{% block title %}
+    Historico
+{% endblock title %}
 {% block content_head %}
     {{ generate_head(url_for("gerenciar_Historico") , acao, disable=['inserir', 'editar',
     'excluir']) }}
