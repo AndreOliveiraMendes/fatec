@@ -10,57 +10,59 @@ The project now follows a more modular and scalable structure:
 
 ```
 .
-├── .env                          # Environment variables
-├── .env.example                  # Example environment file
-├── .gitignore                    # Ignore sensitive or unnecessary files
-├── Readme.md                     # This file (project overview)
-├── auxiliar/                     # Helper Python modules for internal logic and templates
-│   ├── auxiliar_routes.py        # Helper functions specific for route handling
-│   ├── auxiliar_template.py      # Helper functions usable inside Jinja templates
-│   ├── constant.py               # Centralized Constant file
-│   └── decorators.py             # Custom decorators for authentication and permission control
-├── config.py                     # Main configuration file for Flask and SQLAlchemy
-├── main.py                       # Project entry point (Flask app initialization)
-├── models.py                     # SQLAlchemy models for database schema definition
-├── requirements.txt              # Python dependencies
-├── routes/                       # Backend route definitions (divided by feature/module)
-│   ├── __init__.py               # Aggregates and loads all route modules
-│   ├── admin/                    # Admin related routes (aside database)
-│   │   ├── __init__.py           # Aggregates and loads all routes inside amin
-│   │   └── admin.py              # Route for non database admin stuff
-│   ├── auth.py                   # Routes related to authentication
-│   ├── database/                 # Subfolder for database-related routes (CRUD pages)
-│   │   ├── __init__.py           # Loads all submodules (aulas, pessoas, etc.)
-│   │   ├── aulas.py              # Routes for managing "Aulas"
-│   │   ├── laboratorios.py       # Routes for managing "Laboratorios"
-│   │   ├── historico.py          # Routes for managing "Historicos"
-│   │   ├── laboratorios.py       # Routes for managing "Laboratorios"
-│   │   ├── permissoes.py         # Routes for managing permissions
-│   │   ├── pessoas.py            # Routes for managing "Pessoas"
-│   │   ├── reservas_fixas.py     # Routes for fixed reservations
-│   │   ├── usuarios.py           # Routes for managing "Usuarios"
-│   │   └── usuarios_especiais.py # Routes for special users
-│   ├── default.py                # General/default routes (like homepage)
-│   └── error.py                  # Error handling routes (404, 403, etc.)
-├── schema.sql                    # Raw SQL file for database schema creation
-├── start-dev.bat                 # Windows batch file for quick development setup
-├── static/                       # Static web assets (CSS, JS, images, etc.)
+├── .env                            # Environment variables
+├── .env.example                    # Example environment file
+├── .gitignore                      # Ignore sensitive or unnecessary files
+├── Readme.md                       # This file (project overview)
+├── auxiliar/                       # Helper Python modules for internal logic and templates
+│   ├── auxiliar_routes.py          # Helper functions specific for route handling
+│   ├── auxiliar_template.py        # Helper functions usable inside Jinja templates
+│   ├── constant.py                 # Centralized Constant file
+│   └── decorators.py               # Custom decorators for authentication and permission control
+├── config.py                       # Main configuration file for Flask and SQLAlchemy
+├── main.py                         # Project entry point (Flask app initialization)
+├── models.py                       # SQLAlchemy models for database schema definition
+├── requirements.txt                # Python dependencies
+├── routes/                         # Backend route definitions (divided by feature/module)
+│   ├── __init__.py                 # Aggregates and loads all route modules
+│   ├── admin/                      # Admin related routes (aside database)
+│   │   ├── __init__.py             # Aggregates and loads all routes inside amin
+│   │   └── admin.py                # Route for non database admin stuff
+│   ├── auth.py                     # Routes related to authentication
+│   ├── database/                   # Subfolder for database-related routes (CRUD pages)
+│   │   ├── __init__.py             # Loads all submodules (aulas, pessoas, etc.)
+│   │   ├── aulas.py                # Routes for managing "Aulas"
+│   │   ├── laboratorios.py         # Routes for managing "Laboratorios"
+│   │   ├── historico.py            # Routes for managing "Historicos"
+│   │   ├── laboratorios.py         # Routes for managing "Laboratorios"
+│   │   ├── permissoes.py           # Routes for managing permissions
+│   │   ├── pessoas.py              # Routes for managing "Pessoas"
+│   │   ├── reservas_fixas.py       # Routes for fixed reservations
+│   │   ├── reservas_temporarias.py # Routes for temporary reservations
+│   │   ├── semestres.py            # Routes for semestres
+│   │   ├── usuarios.py             # Routes for managing "Usuarios"
+│   │   └── usuarios_especiais.py   # Routes for special users
+│   ├── default.py                  # General/default routes (like homepage)
+│   └── error.py                    # Error handling routes (404, 403, etc.)
+├── schema.sql                      # Raw SQL file for database schema creation
+├── start-dev.bat                   # Windows batch file for quick development setup
+├── static/                         # Static web assets (CSS, JS, images, etc.)
 │   ├── css/
 │   │   └── custom.css
 │   └── images/
 │       ├── favicon.png
 │       └── favicon.svg
-└── templates/                    # Front-end HTML templates (Jinja2)
-    ├── admin/                    # Admin related pages
-    │   └── admin.html            # Admin dashboard
-    ├── auth/                     # Authentication pages (login, logout, etc.)
+└── templates/                      # Front-end HTML templates (Jinja2)
+    ├── admin/                      # Admin related pages
+    │   └── admin.html              # Admin dashboard
+    ├── auth/                       # Authentication pages (login, logout, etc.)
     │   ├── login.html
     │   ├── login_fail.html
     │   ├── login_success.html
     │   └── logout.html
-    ├── base                      # Base layout template (extended by all pages)
-    ├── database/                 # Pages for listing, searching, and editing database entries
-    │   ├── base_crude            # Base layout template for crude (extended by all pages inside database)
+    ├── base                        # Base layout template (extended by all pages)
+    ├── database/                   # Pages for listing, searching, and editing database entries
+    │   ├── base_crude              # Base layout template for crude (extended by all pages inside database)
     │   ├── aulas.html
     │   ├── laboratorios.html
     │   ├── historico.html
@@ -68,18 +70,20 @@ The project now follows a more modular and scalable structure:
     │   ├── permissoes.html
     │   ├── pessoas.html
     │   ├── reservas_fixas.html
+    │   ├── reservas_temporarias.html
+    │   ├── semestres.html
     │   ├── usuarios.html
     │   └── usuarios_especiais.html
-    ├── homepage.html             # Initial landing page
-    ├── http/                     # template for http codes
-    │   ├── 401.html              # 401 - Unauthorized error page
-    │   ├── 403.html              # 403 - Forbidden error page
-    │   └── 404.html              # 404 - Not Found error page
-    ├── macros/                   # Jinja macros for reuse (buttons, forms, pagination, etc.)
+    ├── homepage.html               # Initial landing page
+    ├── http/                       # template for http codes
+    │   ├── 401.html                # 401 - Unauthorized error page
+    │   ├── 403.html                # 403 - Forbidden error page
+    │   └── 404.html                # 404 - Not Found error page
+    ├── macros/                     # Jinja macros for reuse (buttons, forms, pagination, etc.)
     │   ├── form.html
     │   └── pagination.html
-    ├── perfil.html               # Small profile page
-    └── under_dev.html            # Placeholder for "Under Development" sections
+    ├── perfil.html                 # Small profile page
+    └── under_dev.html              # Placeholder for "Under Development" sections
 ```
 
 ---
