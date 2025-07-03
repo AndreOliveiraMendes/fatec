@@ -1,9 +1,7 @@
-import os
 from main import app
 from flask import flash, session, request, jsonify, render_template
 from auxiliar.auxiliar_routes import get_user_info
-
-SHOW_DEBUG_ERRORS = os.getenv("SHOW_DEBUG_ERRORS", False)
+from config import SHOW_DEBUG_ERRORS
 
 ERROR_MESSAGES = {
     401: "Você precisa fazer login para acessar esta página.",

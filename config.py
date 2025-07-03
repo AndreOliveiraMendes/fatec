@@ -17,3 +17,5 @@ def get_config():
     #TODO implement diferent environment variables
     #mode = os.getenv("FLASK_ENV")
     return Config
+
+SHOW_DEBUG_ERRORS = "True" == os.getenv("SHOW_DEBUG_ERRORS", False)
