@@ -17,4 +17,4 @@ def perfil():
     user = Usuarios.query.get(userid)
     pessoa = Pessoas.query.get(user.id_pessoa)
     username, perm = get_user_info(userid)
-    return render_template("perfil.html", username=username, perm=perm, usuario=user, pessoa=pessoa)
+    return render_template("usuario/perfil.html", username=username, perm=perm, usuario=user, pessoa=pessoa)

@@ -55,6 +55,8 @@ The project now follows a more modular and scalable structure:
 └── templates/                      # Front-end HTML templates (Jinja2)
     ├── admin/                      # Admin related pages
     │   └── admin.html              # Admin dashboard
+    ├── usuario/                    # Admin related pages
+    │   └── perfil.html             # Small profile page
     ├── auth/                       # Authentication pages (login, logout, etc.)
     │   ├── login.html
     │   ├── login_fail.html
@@ -82,7 +84,6 @@ The project now follows a more modular and scalable structure:
     ├── macros/                     # Jinja macros for reuse (buttons, forms, pagination, etc.)
     │   ├── form.html
     │   └── pagination.html
-    ├── perfil.html                 # Small profile page
     └── under_dev.html              # Placeholder for "Under Development" sections
 ```
 
@@ -112,7 +113,8 @@ The project now follows a more modular and scalable structure:
 * **`static/`** → Static files like CSS, JS, or images (e.g., favicons).
 * **`templates/`** → Jinja2 HTML templates:
   * **`auth/`** → Login/logout pages.
-  * **`admin/`** -> Admin pages
+  * **`admin/`** → Admin pages
+  * **`usuario/`** → User pages 
   * **`database/`** → Pages for CRUD operations on each database entity.
   * **`macros/`** → Reusable UI component macros (pagination, forms, etc).
   * **`base`** → Main layout skeleton used as base for all pages.
