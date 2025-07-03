@@ -110,6 +110,7 @@ class Aulas_Ativas(db.Model):
     fim_ativacao: Mapped[date | None] = mapped_column()
     semana: Mapped[int | None] = mapped_column()
     turno: Mapped[int | None] = mapped_column()
+    tipo_aula: Mapped[int] = mapped_column(server_default='0', nullable=False)
 
     aulas: Mapped['Aulas'] = relationship(back_populates='aulas_ativas')
     reservas_fixas: Mapped[list['Reservas_Fixas']] = relationship(back_populates='aulas_ativas')
