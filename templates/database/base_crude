@@ -1,25 +1,35 @@
 {% extends "base" %}
 {% from "macros/pagination.html" import paginacao, paginacao_header, paginacao_button, paginacao_footer %}
 {% from "macros/form.html" import generate_navigation, gerar_select, action_buttons, manter_parametros %}
-{% block title %}table{% endblock %}
+{% block title %}
+    table
+{% endblock title %}
 {% block content %}
     {{ generate_navigation() }}
-    {% block content_head %}{% endblock %}
+    {% block content_head %}
+    {% endblock content_head %}
     {% if acao == 'abertura' %}
-        {% block abertura %}{% endblock %}
+        {% block abertura %}
+        {% endblock abertura %}
     {% elif acao == 'listar' %}
-        {% block listar %}{% endblock %}
+        {% block listar %}
+        {% endblock listar %}
     {% elif acao == 'procurar' %}
-        {% block procurar %}{% endblock %}
+        {% block procurar %}
+        {% endblock procurar %}
     {% elif acao == 'inserir' %}
-        {% block inserir %}{% endblock %}
+        {% block inserir %}
+        {% endblock inserir %}
     {% elif acao == 'editar' %}
-        {% block editar %}{% endblock %}
+        {% block editar %}
+        {% endblock editar %}
     {% elif acao == 'excluir' %}
-        {% block excluir %}{% endblock %}
+        {% block excluir %}
+        {% endblock excluir %}
     {% elif acao == 'exportar' %}
-        {% block exportar %}{% endblock %}
+        {% block exportar %}
+        {% endblock exportar %}
     {% else %}
         <div class="alert alert-danger" role="alert">Ação não definida</div>
     {% endif %}
-{% endblock %}
+{% endblock content %}

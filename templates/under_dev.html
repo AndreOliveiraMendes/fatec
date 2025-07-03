@@ -1,5 +1,7 @@
 {% extends "base" %}
-{% block title %}Em Desenvolvimento{% endblock %}
+{% block title %}
+    Em Desenvolvimento
+{% endblock title %}
 {% block extra_script %}
     {{ dynamic_redirect(5, "Você será redirecionado em ${segundos} segundos.", url_for("home") ) }}
     <style>
@@ -17,12 +19,12 @@
         }
     }
     </style>
-{% endblock %}
+{% endblock extra_script %}
 {% block content %}
     <div class="alert alert-warning" role="alert">
         <span class="glyphicon glyphicon-wrench"></span>
         <span id="redirect-msg">Você será redirecionado em 5 segundos.</span>
         <span class="glyphicon glyphicon-refresh spinning"></span>
     </div>
-    <a href="{{ url_for("home") }}" class="btn btn-primary">Voltar à página inicial</a>
-{% endblock %}
+    <a href="{{ url_for('home') }}" class="btn btn-primary">Voltar à página inicial</a>
+{% endblock content %}

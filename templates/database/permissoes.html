@@ -1,6 +1,10 @@
 {% extends "database/base_crude" %}
-{% block title %}Permissoes{% endblock %}
-{% block content_head %}{{ generate_head(url_for("gerenciar_permissoes") , acao) }}{% endblock %}
+{% block title %}
+    Permissoes
+{% endblock title %}
+{% block content_head %}
+    {{ generate_head(url_for("gerenciar_permissoes") , acao) }}
+{% endblock content_head %}
 {% block abertura %}
     <h3>
         Gerenciamento da Tabela <strong>Permissões</strong>
@@ -52,7 +56,7 @@
             </tbody>
         </table>
     </div>
-{% endblock %}
+{% endblock abertura %}
 {% block listar %}
     <h3>Lista de Permissoes</h3>
     {% if permissoes %}
@@ -118,13 +122,13 @@
     {% else %}
         <div class="alert alert-warning">Nenhum permissão existente</div>
     {% endif %}
-{% endblock %}
+{% endblock listar %}
 {% block procurar %}
     {% if bloco == 0 %}
         <h3>Procurar Permissoes</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for("gerenciar_permissoes") }}"
+              action="{{ url_for('gerenciar_permissoes') }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             {{ gerar_select("id_usuario", "Selecione o usuario", users, "id_usuario", "nome_pessoa", "id_permissao_usuario", optional=True) 
@@ -233,13 +237,13 @@
             <div class="alert alert-warning">Nenhum resultado encontrado</div>
         {% endif %}
     {% endif %}
-{% endblock %}
+{% endblock procurar %}
 {% block inserir %}
     <h3>Inserir Permissoes</h3>
     {% if users %}
         <form class="form-group"
               role="form"
-              action="{{ url_for("gerenciar_permissoes") }}"
+              action="{{ url_for('gerenciar_permissoes') }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             {{ gerar_select("id_usuario", "Selecione o usuario", users, "id_usuario", "nome_pessoa", "id_permissao_usuario") }}
@@ -274,12 +278,12 @@
             <p>Nenhum usuario sem permissão definida</p>
         </div>
     {% endif %}
-{% endblock %}
+{% endblock inserir %}
 {% block editar %}
     {% if bloco == 0 %}
         <form class="form-group"
               role="form"
-              action="{{ url_for("gerenciar_permissoes") }}"
+              action="{{ url_for('gerenciar_permissoes') }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             {{ gerar_select("id_usuario", "Selecione o usuario", permissoes, "id_permissao_usuario", "nome_pessoa", "id_usuario") }}
@@ -288,7 +292,7 @@
     {% elif bloco == 1 %}
         <form class="form-group"
               role="form"
-              action="{{ url_for("gerenciar_permissoes") }}"
+              action="{{ url_for('gerenciar_permissoes') }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
@@ -341,12 +345,12 @@
             {{ action_buttons(acao, 2, True, 0) }}
         </form>
     {% endif %}
-{% endblock %}
+{% endblock editar %}
 {% block excluir %}
     {% if bloco == 0 %}
         <form class="form-group"
               role="form"
-              action="{{ url_for("gerenciar_permissoes") }}"
+              action="{{ url_for('gerenciar_permissoes') }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             {{ gerar_select("id_usuario", "Selecione o usuario", permissoes, "id_permissao_usuario", "nome_pessoa", "id_usuario") }}
@@ -355,7 +359,7 @@
     {% elif bloco == 1 %}
         <form class="form-group"
               role="form"
-              action="{{ url_for("gerenciar_permissoes") }}"
+              action="{{ url_for('gerenciar_permissoes') }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
@@ -406,4 +410,4 @@
             {{ action_buttons(acao, 2, True, 0, False) }}
         </form>
     {% endif %}
-{% endblock %}
+{% endblock excluir %}

@@ -14,6 +14,10 @@ def gerenciar_aulas():
     username, perm = get_user_info(userid)
     if request.method == 'POST':
         extras = {}
+        if acao == 'listar':
+            aulas_paginadas = Aulas.query.paginate(page=page, per_page=10, error_out=False)
+            extras['aulas'] = aulas_paginadas.items
+            extras['pagination'] = aulas_paginadas
         return render_template("database/aulas.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
     else:
         return render_template("database/aulas.html", username=username, perm=perm, acao=acao, bloco=bloco)

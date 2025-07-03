@@ -1,12 +1,14 @@
 {% extends "base" %}
-{% block title %}401 - Não Autorizado{% endblock %}
+{% block title %}
+    401 - Não Autorizado
+{% endblock title %}
 {% block content %}
     <div class="alert alert-warning">
         <h3>401 - Não Autorizado</h3>
         <p>Você precisa fazer login para acessar esta página.</p>
     </div>
     <div class="btn-group">
-        <a href="{{ url_for("home") }}" class="btn btn-info">Ir para o início</a>
-        <a href="{{ url_for("login") }}" class="btn btn-success">Ir para Login</a>
+        <a href="{{ url_for('home') }}" class="btn btn-info">Ir para o início</a>
+        <a href="{{ url_for('login') }}" class="btn btn-success">Ir para Login</a>
     </div>
-{% endblock %}
+{% endblock content %}

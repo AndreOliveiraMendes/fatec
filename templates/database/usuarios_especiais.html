@@ -1,6 +1,10 @@
 {% extends "database/base_crude" %}
-{% block title %}Usuarios Especiais{% endblock %}
-{% block content_head %}{{ generate_head(url_for("gerenciar_usuarios_especiais") , acao) }}{% endblock %}
+{% block title %}
+    Usuarios Especiais
+{% endblock title %}
+{% block content_head %}
+    {{ generate_head(url_for("gerenciar_usuarios_especiais") , acao) }}
+{% endblock content_head %}
 {% block abertura %}
     <h3>
         Gerenciamento da Tabela <strong>Usuarios Especiais</strong>
@@ -31,7 +35,7 @@
             </tbody>
         </table>
     </div>
-{% endblock %}
+{% endblock abertura %}
 {% block listar %}
     <h3>Lista de Usuarios Especiais</h3>
     {% if usuarios_especiais %}
@@ -82,7 +86,7 @@
     {% else %}
         <div class="alert alert-warning">Nenhum usuario especial encontrado</div>
     {% endif %}
-{% endblock %}
+{% endblock listar %}
 {% block procurar %}
     {% if bloco == 0 %}
         <h3>Procurar por Usuarios Especiais</h3>
@@ -169,7 +173,7 @@
             <div class="alert alert-warning">Nenhum resultado encontrado</div>
         {% endif %}
     {% endif %}
-{% endblock %}
+{% endblock procurar %}
 {% block inserir %}
     <h3>Inserir Usuarios Especiais</h3>
     <form class="form-group"
@@ -189,7 +193,7 @@
         </div>
         {{ action_buttons(acao, 1, False, 0) }}
     </form>
-{% endblock %}
+{% endblock inserir %}
 {% block editar %}
     {% if bloco == 0 %}
         <h3>Editar Usuarios Especiais</h3>
@@ -233,7 +237,7 @@
             {{ action_buttons(acao, 2, True, 0) }}
         </form>
     {% endif %}
-{% endblock %}
+{% endblock editar %}
 {% block excluir %}
     {% if bloco == 0 %}
         <h3>Excluir Usuarios Especiais</h3>
@@ -278,4 +282,4 @@
             {{ action_buttons(acao, 2, True, 0, False) }}
         </form>
     {% endif %}
-{% endblock %}
+{% endblock excluir %}

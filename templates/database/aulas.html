@@ -1,6 +1,6 @@
 {% extends "database/base_crude" %}
-{% block title %}Aulas{% endblock %}
-{% block content_head %}{{ generate_head(url_for("gerenciar_aulas") , acao) }}{% endblock %}
+{% block title %}Aulas{% endblock title %}
+{% block content_head %}{{ generate_head(url_for("gerenciar_aulas") , acao) }}{% endblock content_head %}
 {% block abertura %}
     <h3>
         Gerenciamento da Tabela <strong>Aulas</strong>
@@ -74,4 +74,34 @@
             </tbody>
         </table>
     </div>
-{% endblock %}
+{% endblock abertura %}
+{% block listar %}
+    <h3>Lista de Aulas</h3>
+    {% if aulas %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover">
+                <thead>
+                    <tr class="information">
+                        <th>ID Aula</th>
+                        <th>Inicio da Aula</th>
+                        <th>Termino da Aula</th>
+                    </tr>
+                </thead>
+                <body>
+                    {% for a in aulas %}
+                        <tr>
+                            <td>{{ a.id_aula }}</td>
+                            <td>{{ a.horario_inicio }}</td>
+                            <td>{{ a.horario_fim }}</td>
+                        </tr>
+                    {% endfor %}
+                </body>
+            </table>
+            {{ paginacao(pagination, acao, bloco) }}
+        </div>
+    {% else %}
+        <div class="alert alert-info">Nenhuma aula cadastrada.</div>
+    {% endif %}
+{% endblock listar %}
+{% block procurar %}
+{% endblock procurar %}

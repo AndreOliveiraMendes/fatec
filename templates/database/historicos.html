@@ -1,9 +1,9 @@
 {% extends "database/base_crude" %}
-{% block title %}Historico{% endblock %}
+{% block title %}Historico{% endblock title %}
 {% block content_head %}
     {{ generate_head(url_for("gerenciar_Historico") , acao, disable=['inserir', 'editar',
     'excluir']) }}
-{% endblock %}
+{% endblock content_head %}
 {% block abertura %}
     <h3>
         Visualização da Tabela <strong>Historicos</strong>
@@ -41,7 +41,7 @@
             </tbody>
         </table>
     </div>
-{% endblock %}
+{% endblock abertura %}
 {% block listar %}
     <h3>
         Registros de <strong>Historicos</strong>
@@ -83,4 +83,4 @@
     {% else %}
         <div class="alert alert-info">Nenhum histórico encontrado.</div>
     {% endif %}
-{% endblock %}
+{% endblock listar %}

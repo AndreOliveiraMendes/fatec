@@ -1,12 +1,14 @@
 {% extends "base" %}
-{% block title %}Painel de Controle{% endblock %}
+{% block title %}
+    Painel de Controle
+{% endblock title %}
 {% block content %}
     <div class="container text-center">
         <h2>Painel de Administração</h2>
         <p>Escolha uma seção para gerenciar:</p>
         <!-- Botões principais -->
         <div class="btn-group" role="group">
-            <a href="{{ url_for("home") }}" class="btn btn-primary">
+            <a href="{{ url_for('home') }}" class="btn btn-primary">
                 <span class="glyphicon glyphicon-home"></span> Página Inicial
             </a>
             <button class="btn btn-warning"
@@ -49,4 +51,4 @@
             </div>
         </div>
     </div>
-{% endblock %}
+{% endblock content %}

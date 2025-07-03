@@ -41,7 +41,7 @@
                            {% if pagination.pages == 0 %}disabled{% endif %}>
                     <button type="submit"
                             class="btn btn-primary btn-sm"
-                            {% if pagination.pages == 0 %}disabled{% endif %}>Ir</button>
+                            {% if pagination.pages <= 1 %}disabled{% endif %}>Ir</button>
                 </div>
             </form>
         </nav>

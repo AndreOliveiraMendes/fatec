@@ -1,9 +1,11 @@
 {% extends "base" %}
-{% block title %}Não Encontrada{% endblock %}
+{% block title %}
+    Não Encontrada
+{% endblock title %}
 {% block content %}
     <div class="alert alert-danger" role="alert">
         <h3>404 - Página Não Encontrada</h3>
         <p>A página que você está tentando acessar não existe ou foi movida.</p>
     </div>
     <a href={{ url_for("home") }} class="btn btn-primary"> voltar a pagina de inicio</a>
-{% endblock %}
+{% endblock content %}

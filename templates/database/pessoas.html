@@ -1,6 +1,10 @@
 {% extends "database/base_crude" %}
-{% block title %}Pessoas{% endblock %}
-{% block content_head %}{{ generate_head(url_for("gerenciar_pessoas") , acao) }}{% endblock %}
+{% block title %}
+    Pessoas
+{% endblock title %}
+{% block content_head %}
+    {{ generate_head(url_for("gerenciar_pessoas") , acao) }}
+{% endblock content_head %}
 {% set disable_editar = False %}
 {% set disable_excluir = False %}
 {% block abertura %}
@@ -34,7 +38,7 @@
             </tbody>
         </table>
     </div>
-{% endblock %}
+{% endblock abertura %}
 {% block listar %}
     <h3>Lista de Pessoas</h3>
     {% if pessoas %}
@@ -91,13 +95,13 @@
     {% else %}
         <div class="alert alert-info">Nenhuma pessoa encontrada.</div>
     {% endif %}
-{% endblock %}
+{% endblock listar %}
 {% block procurar %}
     {% if bloco == 0 %}
         <h3>Procurar Pessoas</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for("gerenciar_pessoas") }}"
+              action="{{ url_for('gerenciar_pessoas') }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
@@ -201,12 +205,12 @@
             <div class="alert alert-warning">Nenhum resultado encontrado.</div>
         {% endif %}
     {% endif %}
-{% endblock %}
+{% endblock procurar %}
 {% block inserir %}
     <h3>Inserir Pessoas</h3>
     <form class="form-group"
           role="form"
-          action="{{ url_for("gerenciar_pessoas") }}"
+          action="{{ url_for('gerenciar_pessoas') }}"
           method="post">
         <input type="hidden" name="acao" value="{{ acao }}">
         <div class="form-group">
@@ -230,13 +234,13 @@
         </div>
         {{ action_buttons(acao, 1, False, 0) }}
     </form>
-{% endblock %}
+{% endblock inserir %}
 {% block editar %}
     {% if bloco == 0 %}
         <h3>Editar Pessoas</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for("gerenciar_pessoas") }}"
+              action="{{ url_for('gerenciar_pessoas') }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             {{ gerar_select("pessoa", "Selecione a Pessoa", pessoas, "id_pessoa", "nome_pessoa") }}
@@ -246,7 +250,7 @@
         <h3>Editar Pessoa</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for("gerenciar_pessoas") }}"
+              action="{{ url_for('gerenciar_pessoas') }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
@@ -284,13 +288,13 @@
             {{ action_buttons(acao, 2, True, 0) }}
         </form>
     {% endif %}
-{% endblock %}
+{% endblock editar %}
 {% block excluir %}
     {% if bloco == 0 %}
         <h3>Excluir Pessoas</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for("gerenciar_pessoas") }}"
+              action="{{ url_for('gerenciar_pessoas') }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             {{ gerar_select("pessoa", "Selecione a Pessoa", pessoas, "id_pessoa", "nome_pessoa") }}
@@ -300,7 +304,7 @@
         <h3>Excluir Pessoa</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for("gerenciar_pessoas") }}"
+              action="{{ url_for('gerenciar_pessoas') }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
@@ -338,4 +342,4 @@
             {{ action_buttons(acao, 2, True, 0, False) }}
         </form>
     {% endif %}
-{% endblock %}
+{% endblock excluir %}

@@ -6,7 +6,9 @@
               content="Sistema de Reservas de Laboratório da Fatec.">
         <meta name="keywords" content="reservas, laboratório, fatec, sistema">
         <title>
-            {% block title %}Meu Sistema{% endblock %}
+            {% block title %}
+                Meu Sistema
+            {% endblock title %}
         </title>
         <link rel="icon"
               type="image/svg+xml"
@@ -24,8 +26,10 @@
         <link rel="stylesheet"
               href="{{ url_for('static', filename='css/custom.css') }}">
         <!-- Optional extra CSS for specific pages -->
-        {% block extra_css %}{% endblock %}
-        {% block extra_head %}{% endblock %}
+        {% block extra_css %}
+        {% endblock extra_css %}
+        {% block extra_head %}
+        {% endblock extra_head %}
     </head>
     <body>
         <!-- Navbar -->
@@ -96,14 +100,15 @@
                         {% endfor %}
                     {% endif %}
                 {% endwith %}
-            {% endblock %}
+            {% endblock flash_messages %}
             <!-- Main page content -->
-            {% block content %}{% endblock %}
+            {% block content %}
+            {% endblock content %}
         </div>
         <!-- JS Scripts -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
         {% block extra_script %}
-        {% endblock %}
+        {% endblock extra_script %}
     </body>
 </html>
