@@ -13,9 +13,12 @@ class Config:
     SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}"
     DEBUG = os.getenv('FLASK_DEBUG')
 
+def str_to_bool(s):
+    return str(s).lower() in ['true', '1', 'yes', 'on']
+
 def get_config():
     #TODO implement diferent environment variables
     #mode = os.getenv("FLASK_ENV")
     return Config
 
-SHOW_DEBUG_ERRORS = "True" == os.getenv("SHOW_DEBUG_ERRORS", False)
+SHOW_DEBUG_ERRORS = str_to_bool(os.getenv("SHOW_DEBUG_ERRORS", "False"))
