@@ -5,18 +5,6 @@
 {% block content_head %}
     {{ generate_head(url_for("gerenciar_aulas") , acao) }}
 {% endblock content_head %}
-{% block extra_script %}
-    <script type="text/javascript">
-        $(function () {
-            $('#datetimepicker-inicio').datetimepicker({
-                format: 'HH:mm:ss'
-            });
-            $('#datetimepicker-fim').datetimepicker({
-                format: 'HH:mm:ss'
-            });
-        });
-    </script>
-{% endblock extra_script %}
 {% block abertura %}
     <h3>
         Gerenciamento da Tabela <strong>Aulas</strong>
@@ -196,3 +184,32 @@
         {% endif %}
     {% endif %}
 {% endblock procurar %}
+{% block inserir %}
+    {% if bloco == 0 %}
+        <h3>inserir Aulas</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for('gerenciar_aulas') }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label>Horario de inicio:</label>
+                <input type="time"
+                       class="form-control"
+                       name="horario_inicio"
+                       placeholder="Início da Aula"
+                       required>
+            </div>
+            <div class="form-group">
+                <label>Horario de termino:</label>
+                <input type="time"
+                       class="form-control"
+                       name="horario_fim"
+                       placeholder="termino da aula"
+                       required>
+            </div>
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+    {% endif %}
+{% endblock inserir %}

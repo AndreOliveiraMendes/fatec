@@ -96,8 +96,8 @@ class Aulas(db.Model):
     __tablename__ = 'aulas'
 
     id_aula: Mapped[int] = mapped_column(primary_key=True)
-    horario_inicio: Mapped[time | None] = mapped_column()
-    horario_fim: Mapped[time | None] = mapped_column()
+    horario_inicio: Mapped[time] = mapped_column(nullable=False)
+    horario_fim: Mapped[time] = mapped_column(nullable=False)
 
     aulas_ativas: Mapped[list['Aulas_Ativas']] = relationship(back_populates='aulas')
 
