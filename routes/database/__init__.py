@@ -7,3 +7,5 @@ from routes.database.laboratorios import *
 from routes.database.reservas_fixas import *
 from routes.database.aulas_ativas import *
 from routes.database.historicos import *
+from routes.database.semestres import *
+from routes.database.reservas_temporarias import *

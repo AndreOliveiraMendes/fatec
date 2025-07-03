@@ -1,6 +1,6 @@
 from main import app, db
 from datetime import date, time, datetime
-from sqlalchemy import String, ForeignKey, CheckConstraint, TEXT
+from sqlalchemy import String, ForeignKey, CheckConstraint, TEXT, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 class Reservas_Fixas(db.Model):
@@ -13,8 +13,7 @@ class Reservas_Fixas(db.Model):
     id_reserva_laboratorio: Mapped[int] = mapped_column(ForeignKey('laboratorios.id_laboratorio'), nullable=False)
     id_reserva_aula: Mapped[int] = mapped_column(ForeignKey('aulas_ativas.id_aula_ativa'), nullable=False)
     status_reserva: Mapped[int] = mapped_column(server_default='0', nullable=False)
-    data_inicio: Mapped[date] = mapped_column(nullable=False)
-    data_fim: Mapped[date] = mapped_column(nullable=False)
+    id_reserva_semestre: Mapped[int] = mapped_column(ForeignKey('semestres.id_semestre'), nullable=False)
 
     __table_args__ = (
         CheckConstraint(
@@ -28,13 +27,19 @@ class Reservas_Fixas(db.Model):
             )
             """,
             name='check_tipo_responsavel'
-        ),
+        ), UniqueConstraint(
+            'id_reserva_laboratorio',
+            'id_reserva_aula',
+            'id_reserva_semestre',
+            name='uq_reserva_lab_aula_semestre'
+        )
     )
 
     pessoas: Mapped['Pessoas'] = relationship(back_populates='reservas_fixas')
     usuarios_especiais: Mapped['Usuarios_Especiais'] = relationship(back_populates='reservas_fixas')
     laboratorios: Mapped['Laboratorios'] = relationship(back_populates='reservas_fixas')
     aulas_ativas: Mapped['Aulas_Ativas'] = relationship(back_populates='reservas_fixas')
+    semestres: Mapped['Semestres'] = relationship(back_populates='reservas_fixas')
 
 class Usuarios_Especiais(db.Model):
     __tablename__ = 'usuarios_especiais'
@@ -123,6 +128,16 @@ class Historicos(db.Model):
 
     usuarios: Mapped['Usuarios'] = relationship(back_populates='historicos')
     pessoas: Mapped['Pessoas'] = relationship(back_populates='historicos')
+
+class Semestres(db.Model):
+    __tablename__ = 'semestres'
+
+    id_semestre: Mapped[int] = mapped_column(primary_key=True)
+    data_inicio: Mapped[date] = mapped_column(nullable=False)
+    data_fim: Mapped[date] = mapped_column(nullable=False)
+
+    reservas_fixas: Mapped[list['Reservas_Fixas']] = relationship(back_populates='semestres')
+
 
 #cria as tabelas necessarias, descomente se precisar
 with app.app_context():
