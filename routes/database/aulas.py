@@ -68,7 +68,7 @@ def gerenciar_aulas():
                 db.session.commit()
                 flash("Aula cadastrada com sucesso", "success")
             except IntegrityError as e:
-                flash("Erro ao cadastrar aula")
+                flash(f"Erro ao cadastrar aula: {str(e.orig)}", "danger")
                 db.session.rollback()
             bloco = 0
         elif acao in ['editar', 'excluir'] and bloco == 0:

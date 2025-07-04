@@ -3,7 +3,7 @@
     Aulas
 {% endblock title %}
 {% block content_head %}
-    {{ generate_head(url_for("gerenciar_aulas") , acao) }}
+    {{ generate_head(url_for("gerenciar_aulas"), acao) }}
 {% endblock content_head %}
 {% block abertura %}
     <h3>
@@ -43,38 +43,6 @@
                     <td>Horário exato de término da aula.</td>
                     <td>formato HH:MM</td>
                 </tr>
-                <!--
-                <tr>
-                    <td>
-                        <code>semana</code>
-                    </td>
-                    <td>Dia da semana em que ocorre a aula.</td>
-                    <td>
-                        <ul class="valores_possiveis_format">
-                            <li><code>1</code> = Domingo</li>
-                            <li><code>2</code> = Segunda-feira</li>
-                            <li><code>3</code> = Terça-feira</li>
-                            <li><code>4</code> = Quarta-feira</li>
-                            <li><code>5</code> = Quinta-feira</li>
-                            <li><code>6</code> = Sexta-feira</li>
-                            <li><code>7</code> = Sábado</li>
-                        </ul>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <code>turno</code>
-                    </td>
-                    <td>Turno em que a aula é ministrada.</td>
-                    <td>
-                        <ul class="valores_possiveis_format">
-                            <li><code>0</code> = Manhã</li>
-                            <li><code>1</code> = Tarde</li>
-                            <li><code>2</code> = Noite</li>
-                        </ul>
-                    </td>
-                </tr>
-                -->
             </tbody>
         </table>
     </div>
@@ -87,8 +55,8 @@
                 <thead>
                     <tr class="information">
                         <th>ID Aula</th>
-                        <th>Inicio da Aula</th>
-                        <th>Termino da Aula</th>
+                        <th>Início da Aula</th>
+                        <th>Término da Aula</th>
                         <th>Ação</th>
                     </tr>
                 </thead>
@@ -161,7 +129,7 @@
                        name="horario_inicio_end"
                        placeholder="Fim da faixa">
             </div>
-            <h4>Faixa de Horário de Fim</h4>
+            <h4>Faixa de Horário de Término</h4>
             <div class="form-group">
                 <label>De:</label>
                 <input type="time"
@@ -179,15 +147,15 @@
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
-        <h3>Resultados da busca:</h3>
+        <h3>Resultados da Busca:</h3>
         {% if aulas %}
             <div class="table-responsive">
                 <table class="table table-bordered table-striped table-hover">
                     <thead>
                         <tr class="information">
                             <th>ID Aula</th>
-                            <th>Inicio da Aula</th>
-                            <th>Termino da Aula</th>
+                            <th>Início da Aula</th>
+                            <th>Término da Aula</th>
                             <th>Ação</th>
                         </tr>
                     </thead>
@@ -226,20 +194,20 @@
                 {{ paginacao(pagination, acao, bloco, query_params) }}
             </div>
         {% else %}
-            <div class="alert alert-info">Nenhum Resultado encontrado</div>
+            <div class="alert alert-info">Nenhum resultado encontrado.</div>
         {% endif %}
     {% endif %}
 {% endblock procurar %}
 {% block inserir %}
     {% if bloco == 0 %}
-        <h3>inserir Aulas</h3>
+        <h3>Inserir Aulas</h3>
         <form class="form-group"
               role="form"
               action="{{ url_for('gerenciar_aulas') }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
-                <label>Horario de inicio:</label>
+                <label>Horário de Início:</label>
                 <input type="time"
                        class="form-control"
                        name="horario_inicio"
@@ -247,11 +215,11 @@
                        required>
             </div>
             <div class="form-group">
-                <label>Horario de termino:</label>
+                <label>Horário de Término:</label>
                 <input type="time"
                        class="form-control"
                        name="horario_fim"
-                       placeholder="termino da aula"
+                       placeholder="Término da Aula"
                        required>
             </div>
             {{ action_buttons(acao, 1, False, 0) }}
@@ -261,13 +229,13 @@
 {% endblock inserir %}
 {% block editar %}
     {% if bloco == 0 %}
-        <h3>Editar aulas</h3>
+        <h3>Editar Aulas</h3>
         <form class="form-group"
               role="form"
               action="{{ url_for('gerenciar_aulas') }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
-            {{ gerar_select("id_aula", "Selecione a aula", aulas, "id_aula", "horario_intervalo") }}
+            {{ gerar_select("id_aula", "Selecione a Aula", aulas, "id_aula", "horario_intervalo") }}
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
@@ -285,7 +253,7 @@
                        readonly>
             </div>
             <div class="form-group">
-                <label>Horario de inicio:</label>
+                <label>Horário de Início:</label>
                 <input type="time"
                        class="form-control"
                        name="horario_inicio"
@@ -294,11 +262,11 @@
                        required>
             </div>
             <div class="form-group">
-                <label>Horario de termino:</label>
+                <label>Horário de Término:</label>
                 <input type="time"
                        class="form-control"
                        name="horario_fim"
-                       placeholder="termino da aula"
+                       placeholder="Término da Aula"
                        value="{{ aula.horario_fim.strftime('%H:%M') }}"
                        required>
             </div>
@@ -308,13 +276,13 @@
 {% endblock editar %}
 {% block excluir %}
     {% if bloco == 0 %}
-        <h3>Editar aulas</h3>
+        <h3>Excluir Aulas</h3>
         <form class="form-group"
               role="form"
               action="{{ url_for('gerenciar_aulas') }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
-            {{ gerar_select("id_aula", "Selecione a aula", aulas, "id_aula", "horario_intervalo") }}
+            {{ gerar_select("id_aula", "Selecione a Aula", aulas, "id_aula", "horario_intervalo") }}
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
@@ -332,7 +300,7 @@
                        readonly>
             </div>
             <div class="form-group">
-                <label>Horario de inicio:</label>
+                <label>Horário de Início:</label>
                 <input type="time"
                        class="form-control"
                        name="horario_inicio"
@@ -342,11 +310,11 @@
                        disabled>
             </div>
             <div class="form-group">
-                <label>Horario de termino:</label>
+                <label>Horário de Término:</label>
                 <input type="time"
                        class="form-control"
                        name="horario_fim"
-                       placeholder="termino da aula"
+                       placeholder="Término da Aula"
                        value="{{ aula.horario_fim.strftime('%H:%M') }}"
                        required
                        disabled>

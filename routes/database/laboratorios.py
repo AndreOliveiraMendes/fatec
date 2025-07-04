@@ -1,8 +1,12 @@
 from main import app
 from flask import flash, session, render_template, request
+from sqlalchemy.exc import IntegrityError
 from models import db, Laboratorios, DisponibilidadeEnum, TipoLaboratorioEnum
 from auxiliar.decorators import admin_required
 from auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params, registrar_log_generico
+
+def get_laboratorios():
+    return db.session.query(Laboratorios.id_laboratorio, Laboratorios.nome_laboratorio).all()
 
 @app.route("/admin/laboratorios", methods=["GET", "POST"])
 @admin_required
@@ -46,6 +50,29 @@ def gerenciar_laboratorios():
             else:
                 flash("especifique pelo menos um campo de busca", "danger")
                 bloco = 0
+        elif acao == 'inserir' and bloco == 1:
+            nome_laboratorio = none_if_empty(request.form.get('nome_laboratorio'))
+            disponibilidade = none_if_empty(request.form.get('disponibilidade'))
+            tipo = none_if_empty(request.form.get('tipo'))
+
+            try:
+                novo_laboratorio = Laboratorios(nome_laboratorio=nome_laboratorio, disponibilidade=DisponibilidadeEnum(disponibilidade), tipo=TipoLaboratorioEnum(tipo))
+                db.session.add(novo_laboratorio)
+                db.session.flush()
+                registrar_log_generico(userid, "Inserção", novo_laboratorio)
+                db.session.commit()
+                flash("Laboratorio cadastrado com succeso", "success")
+            except IntegrityError as e:
+                db.session.rollback()
+                flash(f"Erro ao cadastrar laboratorio: {str(e.orig)}", "danger")
+
+            bloco = 0
+        elif acao in ['editar', 'excluir'] and bloco == 0:
+            extras['laboratorios'] = get_laboratorios()
+        elif acao in ['editar', 'excluir'] and bloco == 1:
+            id_laboratorio = none_if_empty(request.form.get('id_laboratorio'), int)
+            laboratorio = Laboratorios.query.get_or_404(id_laboratorio)
+            extras['laboratorio'] = laboratorio
         return render_template("database/laboratorios.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
     else:
         return render_template("database/laboratorios.html", username=username, perm=perm, acao=acao, bloco=bloco)

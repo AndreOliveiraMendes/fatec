@@ -230,3 +230,71 @@
         {% endif %}
     {% endif %}
 {% endblock procurar %}
+{% block inserir %}
+    <h3>Inserir laboratório</h3>
+    <form class="form-group"
+          role="form"
+          action="{{ url_for('gerenciar_laboratorios') }}"
+          method="post">
+        <input type="hidden" name="acao" value="{{ acao }}">
+        <div class="form-group">
+            <label for="nome">Nome:</label>
+            <input type="text"
+                   maxlength="100"
+                   class="form-control"
+                   name="nome_laboratorio"
+                   id="nome"
+                   placeholder="Digite o nome"
+                   required>
+        </div>
+        <div class="form-group">
+            <label for="disponibilidade">Disponibilidade:</label>
+            <select class="form-control"
+                    id="disponibilidade"
+                    name="disponibilidade"
+                    required>
+                <option value="">Selecione...</option>
+                <option value="Disponivel">Disponível</option>
+                <option value="Indisponivel">Indisponível</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="tipo">Tipo:</label>
+            <select class="form-control" id="tipo" name="tipo" required>
+                <option value="">Selecione...</option>
+                <option value="Laboratório">Laboratório</option>
+                <option value="Sala">Sala</option>
+                <option value="Externo">Externo</option>
+            </select>
+        </div>
+        {{ action_buttons(acao, 1, False, 0) }}
+    </form>
+{% endblock inserir %}
+{% block editar %}
+    {% if bloco == 0 %}
+        <h3>Editar laboratórios</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for('gerenciar_laboratorios') }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            {{ gerar_select("id_laboratorio", "Selecione o laboratorio", laboratorios, "id_laboratorio", "nome_laboratorio") }}
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+    {% endif %}
+{% endblock editar %}
+{% block excluir %}
+    {% if bloco == 0 %}
+        <h3>Excluir laboratório</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for('gerenciar_laboratorios') }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            {{ gerar_select("id_laboratorio", "Selecione o laboratorio", laboratorios, "id_laboratorio", "nome_laboratorio") }}
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+    {% endif %}
+{% endblock excluir %}
