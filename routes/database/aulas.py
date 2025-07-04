@@ -53,6 +53,20 @@ def gerenciar_aulas():
             else:
                 flash("especifique pelo menos um campo de busca", "danger")
                 bloco = 0
+        elif acao == 'inserir' and bloco == 1:
+            horario_inicio = none_if_empty(request.form.get('horario_inicio'))
+            horario_fim = none_if_empty(request.form.get('horario_fim'))
+            try:
+                nova_aula = Aulas(horario_inicio=horario_inicio, horario_fim=horario_fim)
+                db.session.add(nova_aula)
+                db.session.flush()
+                registrar_log_generico(userid, "Inserção", nova_aula)
+                db.session.commit()
+                flash("Aula cadastrada com sucesso", "success")
+            except IntegrityError as e:
+                flash("Erro ao cadastrar aula")
+                db.session.rollback()
+            bloco = 0
         return render_template("database/aulas.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
     else:
         return render_template("database/aulas.html", username=username, perm=perm, acao=acao, bloco=bloco)

@@ -95,8 +95,8 @@
                     {% for a in aulas %}
                         <tr>
                             <td>{{ a.id_aula }}</td>
-                            <td>{{ a.horario_inicio }}</td>
-                            <td>{{ a.horario_fim }}</td>
+                            <td>{{ a.horario_inicio.strftime("%H:%M") }}</td>
+                            <td>{{ a.horario_fim.strftime("%H:%M") }}</td>
                         </tr>
                     {% endfor %}
                 </body>
@@ -171,8 +171,8 @@
                         {% for a in aulas %}
                             <tr>
                                 <td>{{ a.id_aula }}</td>
-                                <td>{{ a.horario_inicio }}</td>
-                                <td>{{ a.horario_fim }}</td>
+                                <td>{{ a.horario_inicio.strftime("%H:%M") }}</td>
+                                <td>{{ a.horario_fim.strftime("%H:%M") }}</td>
                             </tr>
                         {% endfor %}
                     </body>
