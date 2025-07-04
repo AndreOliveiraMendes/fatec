@@ -101,6 +101,10 @@ class Aulas(db.Model):
 
     aulas_ativas: Mapped[list['Aulas_Ativas']] = relationship(back_populates='aulas')
 
+    @property
+    def horario_intervalo(self):
+        return f"{self.horario_inicio.strftime('%H:%M')} - {self.horario_fim.strftime('%H:%M')}"
+
 class Aulas_Ativas(db.Model):
     __tablename__ = 'aulas_ativas'
 

@@ -6,6 +6,10 @@ from models import db, Aulas
 from auxiliar.decorators import admin_required
 from auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params, registrar_log_generico
 
+def get_aulas():
+    aulas = Aulas.query.all()
+    return aulas
+
 @app.route("/admin/aulas", methods=["GET", "POST"])
 @admin_required
 def gerenciar_aulas():
@@ -67,6 +71,12 @@ def gerenciar_aulas():
                 flash("Erro ao cadastrar aula")
                 db.session.rollback()
             bloco = 0
+        elif acao in ['editar', 'excluir'] and bloco == 0:
+            extras['aulas'] = get_aulas()
+        elif acao in ['editar', 'excluir'] and bloco == 1:
+            id_aula = none_if_empty(request.form.get('id_aula'), int)
+            aula = Aulas.query.get_or_404(id_aula)
+            extras['aula'] = aula
         return render_template("database/aulas.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
     else:
         return render_template("database/aulas.html", username=username, perm=perm, acao=acao, bloco=bloco)
