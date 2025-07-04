@@ -282,6 +282,64 @@
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
+        <h3>Editar laboratório</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for('gerenciar_laboratorios') }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label for="codigo">Codigo do laboratório:</label>
+                <input type="number"
+                       class="form-control"
+                       id="codigo"
+                       name="id_laboratorio"
+                       placeholder="Digite o ID"
+                       value="{{ laboratorio.id_laboratorio }}"
+                       readonly>
+            </div>
+            <div class="form-group">
+                <label for="nome">Nome:</label>
+                <input type="text"
+                       maxlength="100"
+                       class="form-control"
+                       name="nome_laboratorio"
+                       id="nome"
+                       placeholder="Digite o nome"
+                       value="{{ laboratorio.nome_laboratorio }}"
+                       required>
+            </div>
+            <div class="form-group">
+                <label for="disponibilidade">Disponibilidade:</label>
+                <select class="form-control"
+                        id="disponibilidade"
+                        name="disponibilidade"
+                        required>
+                    <option value="">Selecione...</option>
+                    <option value="Disponivel"
+                            {% if laboratorio.disponibilidade.value == 'Disponivel' %}selected{% endif %}>
+                        Disponível
+                    </option>
+                    <option value="Indisponivel"
+                            {% if laboratorio.disponibilidade.value == 'Indisponivel' %}selected{% endif %}>
+                        Indisponível
+                    </option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="tipo">Tipo:</label>
+                <select class="form-control" id="tipo" name="tipo" required>
+                    <option value="">Selecione...</option>
+                    <option value="Laboratório"
+                            {% if laboratorio.tipo.value == 'Laboratório' %}selected{% endif %}>Laboratório</option>
+                    <option value="Sala"
+                            {% if laboratorio.tipo.value == 'Sala' %}selected{% endif %}>Sala</option>
+                    <option value="Externo"
+                            {% if laboratorio.tipo.value == 'Externo' %}selected{% endif %}>Externo</option>
+                </select>
+            </div>
+            {{ action_buttons(acao, 2, True, 0) }}
+        </form>
     {% endif %}
 {% endblock editar %}
 {% block excluir %}
@@ -296,5 +354,65 @@
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
+        <h3>Excluir laboratorio</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for('gerenciar_laboratorios') }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label for="codigo">Codigo do laboratório:</label>
+                <input type="number"
+                       class="form-control"
+                       id="codigo"
+                       name="id_laboratorio"
+                       placeholder="Digite o ID"
+                       value="{{ laboratorio.id_laboratorio }}"
+                       readonly>
+            </div>
+            <div class="form-group">
+                <label for="nome">Nome:</label>
+                <input type="text"
+                       maxlength="100"
+                       class="form-control"
+                       name="nome_laboratorio"
+                       id="nome"
+                       placeholder="Digite o nome"
+                       value="{{ laboratorio.nome_laboratorio }}"
+                       disabled
+                       required>
+            </div>
+            <div class="form-group">
+                <label for="disponibilidade">Disponibilidade:</label>
+                <select class="form-control"
+                        id="disponibilidade"
+                        name="disponibilidade"
+                        disabled
+                        required>
+                    <option value="">Selecione...</option>
+                    <option value="Disponivel"
+                            {% if laboratorio.disponibilidade.value == 'Disponivel' %}selected{% endif %}>
+                        Disponível
+                    </option>
+                    <option value="Indisponivel"
+                            {% if laboratorio.disponibilidade.value == 'Indisponivel' %}selected{% endif %}>
+                        Indisponível
+                    </option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="tipo">Tipo:</label>
+                <select class="form-control" id="tipo" name="tipo" disabled required>
+                    <option value="">Selecione...</option>
+                    <option value="Laboratório"
+                            {% if laboratorio.tipo.value == 'Laboratório' %}selected{% endif %}>Laboratório</option>
+                    <option value="Sala"
+                            {% if laboratorio.tipo.value == 'Sala' %}selected{% endif %}>Sala</option>
+                    <option value="Externo"
+                            {% if laboratorio.tipo.value == 'Externo' %}selected{% endif %}>Externo</option>
+                </select>
+            </div>
+            {{ action_buttons(acao, 2, True, 0, False) }}
+        </form>
     {% endif %}
 {% endblock excluir %}

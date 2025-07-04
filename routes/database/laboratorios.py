@@ -1,3 +1,4 @@
+import copy
 from main import app
 from flask import flash, session, render_template, request
 from sqlalchemy.exc import IntegrityError
@@ -73,6 +74,49 @@ def gerenciar_laboratorios():
             id_laboratorio = none_if_empty(request.form.get('id_laboratorio'), int)
             laboratorio = Laboratorios.query.get_or_404(id_laboratorio)
             extras['laboratorio'] = laboratorio
+        elif acao == 'editar' and bloco == 2:
+            id_laboratorio = none_if_empty(request.form.get('id_laboratorio'), int)
+            nome_laboratorio = none_if_empty(request.form.get('nome_laboratorio'))
+            disponibilidade = none_if_empty(request.form.get('disponibilidade'))
+            tipo = none_if_empty(request.form.get('tipo'))
+
+            laboratorio:Laboratorios = Laboratorios.query.get_or_404(id_laboratorio)
+            try:
+                dados_anteriores = copy.copy(laboratorio)
+
+                laboratorio.nome_laboratorio = nome_laboratorio
+                laboratorio.disponibilidade = DisponibilidadeEnum(disponibilidade)
+                laboratorio.tipo = TipoLaboratorioEnum(tipo)
+
+                db.session.flush()
+                registrar_log_generico(userid, "Edição", laboratorio, dados_anteriores)
+
+                db.session.commit()
+                flash("laboratório editado com sucesso", "success")
+            except IntegrityError as e:
+                db.session.rollback()
+                flash(f"Erro ao editar laboratorio: {str(e.orig)}", "danger")
+
+            bloco = 0
+            extras['laboratorios'] = get_laboratorios()
+        elif acao == 'excluir' and bloco == 2:
+            id_laboratorio = none_if_empty(request.form.get('id_laboratorio'), int)
+
+            laboratorio:Laboratorios = Laboratorios.query.get_or_404(id_laboratorio)
+            try:
+                db.session.delete(laboratorio)
+
+                db.session.flush()
+                registrar_log_generico(userid, "Exclusão", laboratorio)
+
+                db.session.commit()
+                flash("laboratório excluido com sucesso", "success")
+            except IntegrityError as e:
+                db.session.rollback()
+                flash(f"Erro ao excluir laboratorio: {str(e.orig)}", "danger")
+
+            bloco = 0
+            extras['laboratorios'] = get_laboratorios()
         return render_template("database/laboratorios.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
     else:
         return render_template("database/laboratorios.html", username=username, perm=perm, acao=acao, bloco=bloco)

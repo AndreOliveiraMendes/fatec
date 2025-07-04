@@ -1,3 +1,4 @@
+import enum
 from flask import request
 from datetime import datetime
 from models import db, Usuarios, Pessoas, Permissoes, Historicos
@@ -42,6 +43,11 @@ def get_user_info(userid):
             perm = permissao.permissao
     return username, perm
 
+def formatar_valor(valor):
+    if isinstance(valor, enum.Enum):
+        return valor.value
+    return valor
+
 def registrar_log_generico(userid, acao, objeto, antes=None, observacao=None):
     nome_tabela = getattr(objeto, "__tablename__", objeto.__class__.__name__)
     insp = inspect(objeto)
@@ -54,13 +60,16 @@ def registrar_log_generico(userid, acao, objeto, antes=None, observacao=None):
     for col in objeto.__table__.columns:
         nome = col.name
         valor_novo = getattr(objeto, nome, None)
+        valor_novo_fmt = formatar_valor(valor_novo)
 
         if antes:
             valor_antigo = getattr(antes, nome, None)
+            valor_antigo_fmt = formatar_valor(valor_antigo)
+
             if valor_antigo != valor_novo:
-                campos.append(f"{nome}: {valor_antigo} → {valor_novo}")
+                campos.append(f"{nome}: {valor_antigo_fmt} → {valor_novo_fmt}")
         else:
-            campos.append(f"{nome}: {valor_novo}")
+            campos.append(f"{nome}: {valor_novo_fmt}")
 
     # Evita log vazio (nenhuma mudança real)
     if not campos:
