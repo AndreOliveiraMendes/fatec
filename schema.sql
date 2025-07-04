@@ -85,6 +85,14 @@ CREATE TABLE
     ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
 CREATE TABLE
+    IF NOT EXISTS `semestres` (
+        `id_semestre` int NOT NULL AUTO_INCREMENT,
+        `data_inicio` date NOT NULL,
+        `data_fim` date NOT NULL,
+        PRIMARY KEY (`id_semestre`)
+    ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
+
+CREATE TABLE
     IF NOT EXISTS `reservas_fixas` (
         `id_reserva_fixa` int NOT NULL AUTO_INCREMENT,
         `id_responsavel` int DEFAULT NULL,
