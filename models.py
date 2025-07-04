@@ -1,6 +1,7 @@
+import enum
 from main import app, db
 from datetime import date, time, datetime
-from sqlalchemy import String, ForeignKey, CheckConstraint, TEXT, UniqueConstraint
+from sqlalchemy import String, ForeignKey, CheckConstraint, TEXT, UniqueConstraint, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 class Reservas_Fixas(db.Model):
@@ -82,13 +83,31 @@ class Permissoes(db.Model):
 
     usuarios: Mapped['Usuarios'] = relationship(back_populates='permissoes')
 
+class DisponibilidadeEnum(enum.Enum):
+    DISPONIVEL = "Disponivel"
+    INDISPONIVEL = "Indisponivel"
+
+class TipoLaboratorioEnum(enum.Enum):
+    LABORATORIO = "Laboratório"
+    SALA = "Sala"
+    EXTERNO = "Externo"
+
 class Laboratorios(db.Model):
     __tablename__ = 'laboratorios'
 
     id_laboratorio: Mapped[int] = mapped_column(primary_key=True)
     nome_laboratorio: Mapped[str] = mapped_column(String(100), nullable=False)
-    disponibilidade: Mapped[int | None] = mapped_column()
-    tipo: Mapped[int] = mapped_column(server_default='0', nullable=False)
+
+    disponibilidade: Mapped[DisponibilidadeEnum] = mapped_column(
+        Enum(DisponibilidadeEnum, name="disponibilidade_enum", create_constraint=True),
+        server_default=DisponibilidadeEnum.DISPONIVEL.value
+    )
+
+    tipo: Mapped[TipoLaboratorioEnum] = mapped_column(
+        Enum(TipoLaboratorioEnum, name="tipo_laboratorio_enum", create_constraint=True),
+        nullable=False,
+        server_default=TipoLaboratorioEnum.LABORATORIO.value
+    )
 
     reservas_fixas: Mapped[list['Reservas_Fixas']] = relationship(back_populates='laboratorios')
 

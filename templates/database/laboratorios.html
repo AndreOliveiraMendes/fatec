@@ -1,0 +1,77 @@
+{% extends "database/base_crude" %}
+{% block title %}
+    Laboratorios
+{% endblock title %}
+{% block content_head %}
+    {{ generate_head(url_for("gerenciar_laboratorios") , acao) }}
+{% endblock content_head %}
+{% block abertura %}
+    <h3>
+        Gerenciamento da Tabela <strong>Laboratórios</strong>
+    </h3>
+    <p>
+        A tabela <code>laboratorios</code> possui os seguintes campos:
+    </p>
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover">
+            <thead>
+                <tr class="information">
+                    <th>Campo</th>
+                    <th>Descrição</th>
+                    <th>Valores Possíveis</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <code>id_laboratorio</code>
+                    </td>
+                    <td>Identificador único do laboratório no sistema.</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>nome_laboratorio</code>
+                    </td>
+                    <td>Nome do laboratório no sistema.</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>disponibilidade</code>
+                    </td>
+                    <td>Indica se o laboratório está disponível para uso.</td>
+                    <td>
+                        <ul class="valores_possiveis_format">
+                            <li>
+                                <code>0</code> = Disponível
+                            </li>
+                            <li>
+                                <code>1</code> = Indisponível
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>tipo</code>
+                    </td>
+                    <td>Categoria do laboratório.</td>
+                    <td>
+                        <ul class="valores_possiveis_format">
+                            <li>
+                                <code>0</code> = Laboratório
+                            </li>
+                            <li>
+                                <code>1</code> = Sala
+                            </li>
+                            <li>
+                                <code>2</code> = Externo
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+{% endblock abertura %}
