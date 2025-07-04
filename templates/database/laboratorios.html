@@ -10,7 +10,7 @@
         Gerenciamento da Tabela <strong>Laboratórios</strong>
     </h3>
     <p>
-        A tabela <code>laboratorios</code> possui os seguintes campos:
+        A tabela <code>laboratorios</code> possui os seguintes campos. Os campos <code>disponibilidade</code> e <code>tipo</code> são implementados como <strong>ENUMs nativos do MySQL</strong>, garantindo restrição de valores válidos no banco de dados:
     </p>
     <div class="table-responsive">
         <table class="table table-striped table-bordered table-hover">
@@ -18,7 +18,7 @@
                 <tr class="information">
                     <th>Campo</th>
                     <th>Descrição</th>
-                    <th>Valores Possíveis</th>
+                    <th>Valores Possíveis (ENUM MySQL)</th>
                 </tr>
             </thead>
             <tbody>
@@ -44,10 +44,10 @@
                     <td>
                         <ul class="valores_possiveis_format">
                             <li>
-                                <code>0</code> = Disponível
+                                <code>Disponivel</code>
                             </li>
                             <li>
-                                <code>1</code> = Indisponível
+                                <code>Indisponivel</code>
                             </li>
                         </ul>
                     </td>
@@ -56,17 +56,17 @@
                     <td>
                         <code>tipo</code>
                     </td>
-                    <td>Categoria do laboratório.</td>
+                    <td>Categoria do laboratório ou espaço associado.</td>
                     <td>
                         <ul class="valores_possiveis_format">
                             <li>
-                                <code>0</code> = Laboratório
+                                <code>Laboratório</code>
                             </li>
                             <li>
-                                <code>1</code> = Sala
+                                <code>Sala</code>
                             </li>
                             <li>
-                                <code>2</code> = Externo
+                                <code>Externo</code>
                             </li>
                         </ul>
                     </td>
@@ -75,3 +75,54 @@
         </table>
     </div>
 {% endblock abertura %}
+{% block listar %}
+    <h3>Lista de Laboratórios</h3>
+    {% if laboratorios %}
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered table-hover">
+                <thead class="information">
+                    <th>ID do laboratório</th>
+                    <th>Nome do laboratório</th>
+                    <th>Disponibilidade</th>
+                    <th>Tipo de Laboratório</th>
+                    <th>ação</th>
+                </thead>
+                <tbody>
+                    {% for l in laboratorios %}
+                        <tr>
+                            <td>{{ l.id_laboratorio }}</td>
+                            <td>{{ l.nome_laboratorio }}</td>
+                            <td>{{ l.disponibilidade.value }}</td>
+                            <td>{{ l.tipo.value }}</td>
+                            <td>
+                                <form method="post" class="form-inline">
+                                    <input type="hidden" name="bloco" value="1">
+                                    <input type="hidden" name="id_laboratorio" value="{{ l.id_laboratorio }}">
+                                    <div class="btn-group">
+                                        <button type="submit"
+                                                name="acao"
+                                                value="editar"
+                                                class="btn btn-warning btn-sm"
+                                                title="Editar">
+                                            <i class="glyphicon glyphicon-pencil"></i>
+                                        </button>
+                                        <button type="submit"
+                                                name="acao"
+                                                value="excluir"
+                                                class="btn btn-danger btn-sm"
+                                                title="Excluir">
+                                            <i class="glyphicon glyphicon-trash"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {{ paginacao(pagination, acao, bloco) }}
+        </div>
+    {% else %}
+        <div class="alert alert-info">Nenhum laboratório cadastrado.</div>
+    {% endif %}
+{% endblock listar %}
