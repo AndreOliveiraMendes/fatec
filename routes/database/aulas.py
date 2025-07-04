@@ -1,6 +1,6 @@
 import copy
 from main import app
-from flask import flash, session, render_template, request, redirect, url_for
+from flask import flash, session, render_template, request
 from sqlalchemy.exc import IntegrityError
 from models import db, Aulas
 from auxiliar.decorators import admin_required
