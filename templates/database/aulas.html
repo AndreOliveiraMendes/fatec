@@ -89,17 +89,40 @@
                         <th>ID Aula</th>
                         <th>Inicio da Aula</th>
                         <th>Termino da Aula</th>
+                        <th>Ação</th>
                     </tr>
                 </thead>
-                <body>
+                <tbody>
                     {% for a in aulas %}
                         <tr>
                             <td>{{ a.id_aula }}</td>
                             <td>{{ a.horario_inicio.strftime("%H:%M") }}</td>
                             <td>{{ a.horario_fim.strftime("%H:%M") }}</td>
+                            <td>
+                                <form method="post" class="form-inline">
+                                    <input type="hidden" name="bloco" value="1">
+                                    <input type="hidden" name="id_aula" value="{{ a.id_aula }}">
+                                    <div class="btn-group">
+                                        <button type="submit"
+                                                name="acao"
+                                                value="editar"
+                                                class="btn btn-warning btn-sm"
+                                                title="Editar">
+                                            <i class="glyphicon glyphicon-pencil"></i>
+                                        </button>
+                                        <button type="submit"
+                                                name="acao"
+                                                value="excluir"
+                                                class="btn btn-danger btn-sm"
+                                                title="Excluir">
+                                            <i class="glyphicon glyphicon-trash"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </td>
                         </tr>
                     {% endfor %}
-                </body>
+                </tbody>
             </table>
             {{ paginacao(pagination, acao, bloco) }}
         </div>
@@ -112,7 +135,7 @@
         <h3>Procurar Aulas</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for("gerenciar_aulas") }}"
+              action="{{ url_for('gerenciar_aulas') }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
@@ -165,17 +188,40 @@
                             <th>ID Aula</th>
                             <th>Inicio da Aula</th>
                             <th>Termino da Aula</th>
+                            <th>Ação</th>
                         </tr>
                     </thead>
-                    <body>
+                    <tbody>
                         {% for a in aulas %}
                             <tr>
                                 <td>{{ a.id_aula }}</td>
                                 <td>{{ a.horario_inicio.strftime("%H:%M") }}</td>
                                 <td>{{ a.horario_fim.strftime("%H:%M") }}</td>
+                                <td>
+                                    <form method="post" class="form-inline">
+                                        <input type="hidden" name="bloco" value="1">
+                                        <input type="hidden" name="id_aula" value="{{ a.id_aula }}">
+                                        <div class="btn-group">
+                                            <button type="submit"
+                                                    name="acao"
+                                                    value="editar"
+                                                    class="btn btn-warning btn-sm"
+                                                    title="Editar">
+                                                <i class="glyphicon glyphicon-pencil"></i>
+                                            </button>
+                                            <button type="submit"
+                                                    name="acao"
+                                                    value="excluir"
+                                                    class="btn btn-danger btn-sm"
+                                                    title="Excluir">
+                                                <i class="glyphicon glyphicon-trash"></i>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </td>
                             </tr>
                         {% endfor %}
-                    </body>
+                    </tbody>
                 </table>
                 {{ paginacao(pagination, acao, bloco, query_params) }}
             </div>
@@ -189,7 +235,7 @@
         <h3>inserir Aulas</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for("gerenciar_aulas") }}"
+              action="{{ url_for('gerenciar_aulas') }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
@@ -218,16 +264,16 @@
         <h3>Editar aulas</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for("gerenciar_aulas") }}"
+              action="{{ url_for('gerenciar_aulas') }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             {{ gerar_select("id_aula", "Selecione a aula", aulas, "id_aula", "horario_intervalo") }}
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
-    {% elif bloco == 1 %}
+    {% else %}
         <form class="form-group"
               role="form"
-              action="{{ url_for("gerenciar_aulas") }}"
+              action="{{ url_for('gerenciar_aulas') }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
@@ -235,7 +281,7 @@
                 <input type="number"
                        class="form-control"
                        name="id_aula"
-                       value={{ aula.id_aula }}
+                       value="{{ aula.id_aula }}"
                        readonly>
             </div>
             <div class="form-group">
@@ -244,7 +290,7 @@
                        class="form-control"
                        name="horario_inicio"
                        placeholder="Início da Aula"
-                       value={{ aula.horario_inicio.strftime("%H:%M") }}
+                       value="{{ aula.horario_inicio.strftime('%H:%M') }}"
                        required>
             </div>
             <div class="form-group">
@@ -253,11 +299,59 @@
                        class="form-control"
                        name="horario_fim"
                        placeholder="termino da aula"
-                       value={{ aula.horario_fim.strftime("%H:%M") }}
+                       value="{{ aula.horario_fim.strftime('%H:%M') }}"
                        required>
             </div>
-            {{ action_buttons(acao, 2, False, 0) }}
+            {{ action_buttons(acao, 2, True, 0) }}
         </form>
-    {% else %}
     {% endif %}
 {% endblock editar %}
+{% block excluir %}
+    {% if bloco == 0 %}
+        <h3>Editar aulas</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for('gerenciar_aulas') }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            {{ gerar_select("id_aula", "Selecione a aula", aulas, "id_aula", "horario_intervalo") }}
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <form class="form-group"
+              role="form"
+              action="{{ url_for('gerenciar_aulas') }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label>ID Aula</label>
+                <input type="number"
+                       class="form-control"
+                       name="id_aula"
+                       value="{{ aula.id_aula }}"
+                       readonly>
+            </div>
+            <div class="form-group">
+                <label>Horario de inicio:</label>
+                <input type="time"
+                       class="form-control"
+                       name="horario_inicio"
+                       placeholder="Início da Aula"
+                       value="{{ aula.horario_inicio.strftime('%H:%M') }}"
+                       required
+                       disabled>
+            </div>
+            <div class="form-group">
+                <label>Horario de termino:</label>
+                <input type="time"
+                       class="form-control"
+                       name="horario_fim"
+                       placeholder="termino da aula"
+                       value="{{ aula.horario_fim.strftime('%H:%M') }}"
+                       required
+                       disabled>
+            </div>
+            {{ action_buttons(acao, 2, True, 0, False) }}
+        </form>
+    {% endif %}
+{% endblock excluir %}

@@ -4,7 +4,7 @@ from flask import flash, session, render_template, request, redirect, url_for
 from sqlalchemy.exc import IntegrityError
 from models import db, Aulas
 from auxiliar.decorators import admin_required
-from auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params, registrar_log_generico
+from auxiliar.auxiliar_routes import none_if_empty, parse_time_string,get_user_info, get_query_params, registrar_log_generico
 
 def get_aulas():
     aulas = Aulas.query.all()
@@ -26,10 +26,10 @@ def gerenciar_aulas():
             extras['pagination'] = aulas_paginadas
         if acao == 'procurar' and bloco == 1:
             id_aula = none_if_empty(request.form.get('id_aula'), int)
-            horario_inicio_start = none_if_empty(request.form.get('horario_inicio_start'))
-            horario_inicio_end = none_if_empty(request.form.get('horario_inicio_end'))
-            horario_fim_start = none_if_empty(request.form.get('horario_fim_start'))
-            horario_fim_end = none_if_empty(request.form.get('horario_fim_end'))
+            horario_inicio_start = parse_time_string(request.form.get('horario_inicio_start'))
+            horario_inicio_end = parse_time_string(request.form.get('horario_inicio_end'))
+            horario_fim_start = parse_time_string(request.form.get('horario_fim_start'))
+            horario_fim_end = parse_time_string(request.form.get('horario_fim_end'))
             filter = []
             query_params = get_query_params(request)
             query = Aulas.query
@@ -58,8 +58,8 @@ def gerenciar_aulas():
                 flash("especifique pelo menos um campo de busca", "danger")
                 bloco = 0
         elif acao == 'inserir' and bloco == 1:
-            horario_inicio = none_if_empty(request.form.get('horario_inicio'))
-            horario_fim = none_if_empty(request.form.get('horario_fim'))
+            horario_inicio = parse_time_string(request.form.get('horario_inicio'))
+            horario_fim = parse_time_string(request.form.get('horario_fim'))
             try:
                 nova_aula = Aulas(horario_inicio=horario_inicio, horario_fim=horario_fim)
                 db.session.add(nova_aula)
@@ -77,6 +77,45 @@ def gerenciar_aulas():
             id_aula = none_if_empty(request.form.get('id_aula'), int)
             aula = Aulas.query.get_or_404(id_aula)
             extras['aula'] = aula
+        elif acao == 'editar' and bloco == 2:
+            id_aula = none_if_empty(request.form.get('id_aula'), int)
+            horario_inicio = parse_time_string(request.form.get('horario_inicio'))
+            horario_fim = parse_time_string(request.form.get('horario_fim'))
+            aula = Aulas.query.get_or_404(id_aula)
+            try:
+                dados_anteriores = copy.copy(aula)
+                aula.horario_inicio = horario_inicio
+                aula.horario_fim = horario_fim
+
+                db.session.flush()
+                registrar_log_generico(userid, "Edição", aula, dados_anteriores)
+
+                db.session.commit()
+                flash("Aula editada com sucesso", "success")
+            except IntegrityError as e:
+                db.session.rollback()
+                flash(f"Erro ao editar aula: {str(e.orig)}", "danger")
+
+            extras['aulas'] = get_aulas()
+            bloco = 0
+        elif acao == 'excluir' and bloco == 2:
+            id_aula = none_if_empty(request.form.get('id_aula'), int)
+
+            aula = Aulas.query.get_or_404(id_aula)
+            try:
+                db.session.delete(aula)
+
+                db.session.flush()
+                registrar_log_generico(userid, "Exclusão", aula)
+
+                db.session.commit()
+                flash("Aula excluida com sucesso", "success")
+            except IntegrityError as e:
+                db.session.rollback()
+                flash(f"Erro ao excluir aula: {str(e.orig)}", "danger")
+
+            extras['aulas'] = get_aulas()
+            bloco = 0
         return render_template("database/aulas.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
     else:
         return render_template("database/aulas.html", username=username, perm=perm, acao=acao, bloco=bloco)

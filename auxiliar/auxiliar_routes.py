@@ -18,6 +18,14 @@ def none_if_empty(value, cast_type=str):
     except (ValueError, TypeError):
         return None
 
+def parse_time_string(value):
+    if not value:
+        return None
+    try:
+        return datetime.strptime(value, "%H:%M").time()
+    except ValueError:
+        return None
+
 def get_query_params(request):
     return {key: value for key, value in request.form.items() if key not in IGNORED_FORM_FIELDS}
 
