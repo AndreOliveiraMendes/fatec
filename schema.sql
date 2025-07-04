@@ -1,8 +1,8 @@
 CREATE TABLE
     IF NOT EXISTS `aulas` (
         `id_aula` int NOT NULL AUTO_INCREMENT,
-        `horario_inicio` time DEFAULT NULL,
-        `horario_fim` time DEFAULT NULL,
+        `horario_inicio` time NOT NULL,
+        `horario_fim` time NOT NULL,
         PRIMARY KEY (`id_aula`)
     ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
@@ -14,6 +14,7 @@ CREATE TABLE
         `fim_ativacao` date DEFAULT NULL,
         `semana` int DEFAULT NULL,
         `turno` int DEFAULT NULL,
+        `tipo_aula` int NOT NULL DEFAULT '0',
         PRIMARY KEY (`id_aula_ativa`),
         KEY `id_aula` (`id_aula`),
         CONSTRAINT `aulas_ativas_ibfk_1` FOREIGN KEY (`id_aula`) REFERENCES `aulas` (`id_aula`)
@@ -23,8 +24,8 @@ CREATE TABLE
     IF NOT EXISTS `laboratorios` (
         `id_laboratorio` int NOT NULL AUTO_INCREMENT,
         `nome_laboratorio` varchar(100) NOT NULL,
-        `disponibilidade` int DEFAULT NULL,
-        `tipo` int DEFAULT '0',
+        `disponibilidade` enum ('DISPONIVEL', 'INDISPONIVEL') NOT NULL DEFAULT 'DISPONIVEL',
+        `tipo` enum ('LABORATORIO', 'SALA', 'EXTERNO') NOT NULL DEFAULT 'LABORATORIO',
         PRIMARY KEY (`id_laboratorio`)
     ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
@@ -62,8 +63,8 @@ CREATE TABLE
         PRIMARY KEY (`id_historico`),
         KEY `id_usuario` (`id_usuario`),
         KEY `id_pessoa` (`id_pessoa`),
-        KEY `ix_historicos_data_hora` (`data_hora`),
         KEY `ix_historicos_tabela` (`tabela`),
+        KEY `ix_historicos_data_hora` (`data_hora`),
         CONSTRAINT `historicos_ibfk_1` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`),
         CONSTRAINT `historicos_ibfk_2` FOREIGN KEY (`id_pessoa`) REFERENCES `pessoas` (`id_pessoa`)
     ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
@@ -92,17 +93,23 @@ CREATE TABLE
         `id_reserva_laboratorio` int NOT NULL,
         `id_reserva_aula` int NOT NULL,
         `status_reserva` int NOT NULL DEFAULT '0',
-        `data_inicio` date NOT NULL,
-        `data_fim` date NOT NULL,
+        `tipo` int NOT NULL DEFAULT '0',
+        `id_reserva_semestre` int NOT NULL,
         PRIMARY KEY (`id_reserva_fixa`),
+        UNIQUE KEY `uq_reserva_lab_aula_semestre` (
+            `id_reserva_laboratorio`,
+            `id_reserva_aula`,
+            `id_reserva_semestre`
+        ),
         KEY `id_responsavel` (`id_responsavel`),
         KEY `id_responsavel_especial` (`id_responsavel_especial`),
-        KEY `id_reserva_laboratorio` (`id_reserva_laboratorio`),
         KEY `id_reserva_aula` (`id_reserva_aula`),
+        KEY `id_reserva_semestre` (`id_reserva_semestre`),
         CONSTRAINT `reservas_fixas_ibfk_1` FOREIGN KEY (`id_responsavel`) REFERENCES `pessoas` (`id_pessoa`),
         CONSTRAINT `reservas_fixas_ibfk_2` FOREIGN KEY (`id_responsavel_especial`) REFERENCES `usuarios_especiais` (`id_usuario_especial`),
         CONSTRAINT `reservas_fixas_ibfk_3` FOREIGN KEY (`id_reserva_laboratorio`) REFERENCES `laboratorios` (`id_laboratorio`),
         CONSTRAINT `reservas_fixas_ibfk_4` FOREIGN KEY (`id_reserva_aula`) REFERENCES `aulas_ativas` (`id_aula_ativa`),
+        CONSTRAINT `reservas_fixas_ibfk_5` FOREIGN KEY (`id_reserva_semestre`) REFERENCES `semestres` (`id_semestre`),
         CONSTRAINT `check_tipo_responsavel` CHECK (
             (
                 (
