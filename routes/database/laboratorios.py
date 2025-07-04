@@ -18,6 +18,35 @@ def gerenciar_laboratorios():
             laboratorios_paginados = Laboratorios.query.paginate(page=page, per_page=10, error_out=False)
             extras['laboratorios'] = laboratorios_paginados.items
             extras['pagination'] = laboratorios_paginados
+        elif acao == 'buscar' and acao == 1:
+            id_laboratorio = none_if_empty(request.form.get(), int)
+            nome_laboratorio = none_if_empty(request.form.get())
+            exact_name_match = 'emnome' in request.form
+            disponibilidade = none_if_empty(request.form.get('disponibilidade'))
+            tipo = none_if_empty(request.form.get('tipo'))
+            filter = []
+            query_params = get_query_params(request)
+            query = Laboratorios.query
+            if id_laboratorio:
+                filter.append(Laboratorios.id_laboratorio == id_laboratorio)
+            if nome_laboratorio:
+                if exact_name_match:
+                    filter.append(Laboratorios.nome_laboratorio == nome_laboratorio)
+                else:
+                    filter.append(Laboratorios.nome_laboratorio.ilike(f"%{nome_laboratorio}%"))
+            if disponibilidade:
+                filter.append(Laboratorios.disponibilidade == disponibilidade)
+            if tipo:
+                filter.append(Laboratorios.tipo == tipo)
+            if filter:
+                app.logger.debug(filter)
+                laboratorios_paginados = query.filter(*filter).paginate(page=page, per_page=10, error_out=False)
+                extras['laboratorios'] = laboratorios_paginados.items
+                extras['pagination'] = laboratorios_paginados
+                extras['query_params'] = query_params
+            else:
+                flash("especifique pelo menos um campo de busca", "danger")
+                bloco = 0
         return render_template("database/laboratorios.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
     else:
         return render_template("database/laboratorios.html", username=username, perm=perm, acao=acao, bloco=bloco)

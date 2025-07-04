@@ -126,3 +126,107 @@
         <div class="alert alert-info">Nenhum laboratório cadastrado.</div>
     {% endif %}
 {% endblock listar %}
+{% block procurar %}
+    {% if bloco == 0 %}
+        <h3>Procurar laboratório</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for('gerenciar_laboratorios') }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label for="codigo">Codigo do laboratório:</label>
+                <input type="number"
+                       class="form-control"
+                       id="codigo"
+                       name="id_laboratorio"
+                       placeholder="Digite o ID">
+            </div>
+            <div class="form-group">
+                <label for="nome">Nome:</label>
+                <div class="input-group">
+                    <input type="text"
+                           maxlength="100"
+                           class="form-control"
+                           name="nome_laboratorio"
+                           id="nome"
+                           placeholder="Digite o nome">
+                    <span class="input-group-addon">
+                        <label for="emnome">
+                            <input type="checkbox" name="emnome" id="emnome">
+                            Exata
+                        </label>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="disponibilidade">Disponibilidade:</label>
+                <select class="form-control" id="disponibilidade" name="disponibilidade">
+                    <option value="">Selecione...</option>
+                    <option value="Disponivel">Disponível</option>
+                    <option value="Indisponivel">Indisponível</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="tipo">Tipo:</label>
+                <select class="form-control" id="tipo" name="tipo">
+                    <option value="">Selecione...</option>
+                    <option value="Laboratório">Laboratório</option>
+                    <option value="Sala">Sala</option>
+                    <option value="Externo">Externo</option>
+                </select>
+            </div>
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <h3>Resultados da busca:</h3>
+        {% if laboratorios %}
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered table-hover">
+                    <thead class="information">
+                        <th>ID do laboratório</th>
+                        <th>Nome do laboratório</th>
+                        <th>Disponibilidade</th>
+                        <th>Tipo de Laboratório</th>
+                        <th>ação</th>
+                    </thead>
+                    <tbody>
+                        {% for l in laboratorios %}
+                            <tr>
+                                <td>{{ l.id_laboratorio }}</td>
+                                <td>{{ l.nome_laboratorio }}</td>
+                                <td>{{ l.disponibilidade.value }}</td>
+                                <td>{{ l.tipo.value }}</td>
+                                <td>
+                                    <form method="post" class="form-inline">
+                                        <input type="hidden" name="bloco" value="1">
+                                        <input type="hidden" name="id_laboratorio" value="{{ l.id_laboratorio }}">
+                                        <div class="btn-group">
+                                            <button type="submit"
+                                                    name="acao"
+                                                    value="editar"
+                                                    class="btn btn-warning btn-sm"
+                                                    title="Editar">
+                                                <i class="glyphicon glyphicon-pencil"></i>
+                                            </button>
+                                            <button type="submit"
+                                                    name="acao"
+                                                    value="excluir"
+                                                    class="btn btn-danger btn-sm"
+                                                    title="Excluir">
+                                                <i class="glyphicon glyphicon-trash"></i>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {{ paginacao(pagination, acao, bloco, query_params) }}
+            </div>
+        {% else %}
+            <div class="alert alert-info">Nenhum Resultado encontrado</div>
+        {% endif %}
+    {% endif %}
+{% endblock procurar %}
