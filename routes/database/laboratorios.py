@@ -18,9 +18,9 @@ def gerenciar_laboratorios():
             laboratorios_paginados = Laboratorios.query.paginate(page=page, per_page=10, error_out=False)
             extras['laboratorios'] = laboratorios_paginados.items
             extras['pagination'] = laboratorios_paginados
-        elif acao == 'buscar' and acao == 1:
-            id_laboratorio = none_if_empty(request.form.get(), int)
-            nome_laboratorio = none_if_empty(request.form.get())
+        elif acao == 'procurar' and bloco == 1:
+            id_laboratorio = none_if_empty(request.form.get('id_laboratorio'), int)
+            nome_laboratorio = none_if_empty(request.form.get('nome_laboratorio'))
             exact_name_match = 'emnome' in request.form
             disponibilidade = none_if_empty(request.form.get('disponibilidade'))
             tipo = none_if_empty(request.form.get('tipo'))
@@ -39,7 +39,6 @@ def gerenciar_laboratorios():
             if tipo:
                 filter.append(Laboratorios.tipo == tipo)
             if filter:
-                app.logger.debug(filter)
                 laboratorios_paginados = query.filter(*filter).paginate(page=page, per_page=10, error_out=False)
                 extras['laboratorios'] = laboratorios_paginados.items
                 extras['pagination'] = laboratorios_paginados
