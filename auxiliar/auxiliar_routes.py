@@ -48,7 +48,7 @@ def formatar_valor(valor):
         return valor.value
     return valor
 
-def registrar_log_generico(userid, acao, objeto, antes=None, observacao=None):
+def registrar_log_generico(userid, acao, objeto, antes=None, observacao=None, skip_unchanged=False):
     nome_tabela = getattr(objeto, "__tablename__", objeto.__class__.__name__)
     insp = inspect(objeto)
 
@@ -73,6 +73,8 @@ def registrar_log_generico(userid, acao, objeto, antes=None, observacao=None):
 
     # Evita log vazio (nenhuma mudança real)
     if not campos:
+        if skip_unchanged:
+            return
         campos.append("nenhuma alteração detectada")
 
     user = Usuarios.query.get(userid);

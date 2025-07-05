@@ -63,9 +63,9 @@ def check_login(id, password):
             
         db.session.add(perm)
 
-        registrar_log_generico(id, "Login", pessoa, old_pessoa)
-        registrar_log_generico(id, "Login", user, old_user)
-        registrar_log_generico(id, "Login", perm, old_perm)
+        registrar_log_generico(id, "Login", pessoa, old_pessoa, skip_unchanged=True)
+        registrar_log_generico(id, "Login", user, old_user, skip_unchanged=True)
+        registrar_log_generico(id, "Login", perm, old_perm, skip_unchanged=True)
 
         username = nome_pessoa
         permission = perm.permissao
