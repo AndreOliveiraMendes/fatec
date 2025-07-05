@@ -1,6 +1,9 @@
 import os
 from dotenv import load_dotenv
 
+def str_to_bool(s):
+    return str(s).lower() in ['true', '1', 'yes', 'on']
+
 load_dotenv('.env')
 
 class Config:
@@ -11,10 +14,7 @@ class Config:
     PASSWORD = os.getenv('DB_PASSWORD')
     DATABASE = os.getenv('DB_DATABASE')
     SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}"
-    DEBUG = os.getenv('FLASK_DEBUG')
-
-def str_to_bool(s):
-    return str(s).lower() in ['true', '1', 'yes', 'on']
+    DEBUG = os.getenv('FLASK_DEBUG', 'False')
 
 def get_config():
     #TODO implement diferent environment variables
