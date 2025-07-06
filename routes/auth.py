@@ -4,10 +4,10 @@ from config import TOMCAT_API_URL
 from flask import flash, session, render_template, request, redirect, url_for
 from models import db, Pessoas, Usuarios, Permissoes
 from auxiliar.decorators import login_required
-from auxiliar.auxiliar_routes import registrar_log_generico
+from auxiliar.auxiliar_routes import none_if_empty, registrar_log_generico
 
 def check_login(id, password):
-    loged, username, permission = False, None, None
+    loged, userid, username, permission = False, None, None, None
     authentication = { "login": id, "senha": password }
     try:
         response = requests.post(TOMCAT_API_URL, data=authentication)
@@ -17,6 +17,7 @@ def check_login(id, password):
             json = response.json()
             usuario_json = json["usuario"]
 
+            id_usuario = usuario_json["codigo"] 
             id_pessoa = usuario_json["pessoa"]["codigo"]
             nome_pessoa = usuario_json["pessoa"]["nome"]
             email_pessoa = usuario_json["pessoa"]["email"]
@@ -36,10 +37,10 @@ def check_login(id, password):
             db.session.add(pessoa)
 
             # Usuarios
-            user = Usuarios.query.get(id)
+            user = Usuarios.query.get(id_usuario)
             old_user = None
             if not user:
-                user = Usuarios(id_usuario=id)
+                user = Usuarios(id_usuario=id_usuario)
             else:
                 old_user = copy.copy(user)
             user.id_pessoa = id_pessoa
@@ -49,7 +50,7 @@ def check_login(id, password):
             db.session.add(user)
 
             # Permissoes
-            perm = Permissoes.query.get(id)
+            perm = Permissoes.query.get(id_usuario)
             old_perm = None
             if not perm:
                 if user.grupo_pessoa in ['ADMINISTRADOR', 'REDE']:
@@ -58,16 +59,17 @@ def check_login(id, password):
                     permission = 1
                 else:
                     permission = 0
-                perm = Permissoes(id_permissao_usuario = id, permissao = permission)
+                perm = Permissoes(id_permissao_usuario = id_usuario, permissao = permission)
             else:
                 old_perm = copy.copy(perm)
                 
             db.session.add(perm)
 
-            registrar_log_generico(id, "Login", pessoa, old_pessoa, skip_unchanged=True)
-            registrar_log_generico(id, "Login", user, old_user, skip_unchanged=True)
-            registrar_log_generico(id, "Login", perm, old_perm, skip_unchanged=True)
+            registrar_log_generico(id_usuario, "Login", pessoa, old_pessoa, skip_unchanged=True)
+            registrar_log_generico(id_usuario, "Login", user, old_user, skip_unchanged=True)
+            registrar_log_generico(id_usuario, "Login", perm, old_perm, skip_unchanged=True)
 
+            userid = id_usuario
             username = nome_pessoa
             permission = perm.permissao
 
@@ -79,16 +81,16 @@ def check_login(id, password):
         app.logger.error(e)
         flash("Falha ao conectar à API externa.", "danger")
 
-    return loged, username, permission
+    return loged, userid, username, permission
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
     if 'userid' in session:
         return redirect(url_for('home'))
     if request.method == 'POST':
-        userid = request.form.get("userid")
-        userpassword = request.form.get("userpassword")
-        logged, username, perm = check_login(userid, userpassword)
+        userlogin = none_if_empty(request.form.get("userlogin"))
+        userpassword = none_if_empty(request.form.get("userpassword"))
+        logged, userid, username, perm = check_login(userlogin, userpassword)
         if logged:
             db.session.commit()
             session['userid'] = userid

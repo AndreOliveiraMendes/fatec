@@ -3,10 +3,10 @@
     Pessoas
 {% endblock title %}
 {% block content_head %}
-    {{ generate_head(url_for("gerenciar_pessoas") , acao) }}
+    {{ generate_head(url_for("gerenciar_pessoas") , acao, disable = ['inserir', 'editar', 'excluir']) }}
 {% endblock content_head %}
-{% set disable_editar = False %}
-{% set disable_excluir = False %}
+{% set disable_editar = True %}
+{% set disable_excluir = True %}
 {% block abertura %}
     <h3>
         Gerenciamento da Tabela <strong>Pessoas</strong>
