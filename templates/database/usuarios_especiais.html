@@ -17,18 +17,20 @@
             <thead>
                 <tr class="information">
                     <th>Campo</th>
+                    <th>Tipo</th>
                     <th>Descrição</th>
                 </tr>
             </thead>
             <tbody>
-                {% for campo, descricao in [
-                    ('id_usuario_especial', 'Identificador do usuario especial'),
-                    ('nome_usuario_especial', 'Nome do usuario especial')
+                {% for campo, tipo, descricao in [
+                    ('id_usuario_especial', 'INT (auto_increment, PK)', 'Identificador do usuario especial'),
+                    ('nome_usuario_especial', 'VARCHAR(100)', 'Nome do usuario especial')
                     ] %}
                     <tr>
                         <td>
                             <code>{{ campo }}</code>
                         </td>
+                        <td>{{ tipo }}</td>
                         <td>{{ descricao }}</td>
                     </tr>
                 {% endfor %}

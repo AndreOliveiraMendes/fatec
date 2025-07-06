@@ -1,6 +1,6 @@
 {
     "files.associations": {
-        "base": "jinja-html",
+        "base*": "jinja-html",
         "*.jinja": "jinja-html",
         "*.html": "jinja-html"
     },

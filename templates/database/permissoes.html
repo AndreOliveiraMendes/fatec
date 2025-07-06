@@ -17,6 +17,7 @@
             <thead>
                 <tr class="information">
                     <th>Campo</th>
+                    <th>Tipo</th>
                     <th>Descrição</th>
                     <th>Valores Possíveis</th>
                 </tr>
@@ -26,6 +27,7 @@
                     <td class="text-center">
                         <code>id_permissao_usuario</code>
                     </td>
+                    <td>INT (PK, FK)</td>
                     <td>
                         Identificador do usuário. Chave estrangeira referenciando a tabela <code>usuarios</code>.
                     </td>
@@ -35,6 +37,7 @@
                     <td class="text-center">
                         <code>permissao</code>
                     </td>
+                    <td>INT</td>
                     <td>
                         Bitmask que representa as permissões atribuídas ao usuário.
                         Os valores podem ser combinados via operação bit a bit.

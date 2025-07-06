@@ -17,6 +17,7 @@
             <thead>
                 <tr class="information">
                     <th>Campo</th>
+                    <th>Tipo</th>
                     <th>Descrição</th>
                     <th>Valores Possíveis (ENUM MySQL)</th>
                 </tr>
@@ -26,6 +27,7 @@
                     <td>
                         <code>id_laboratorio</code>
                     </td>
+                    <td>INT (auto_increment, PK)</td>
                     <td>Identificador único do laboratório no sistema.</td>
                     <td>-</td>
                 </tr>
@@ -33,6 +35,7 @@
                     <td>
                         <code>nome_laboratorio</code>
                     </td>
+                    <td>VARCHAR(100)</td>
                     <td>Nome do laboratório no sistema.</td>
                     <td>-</td>
                 </tr>
@@ -40,6 +43,7 @@
                     <td>
                         <code>disponibilidade</code>
                     </td>
+                    <td>ENUM('DISPONIVEL','INDISPONIVEL')</td>
                     <td>Indica se o laboratório está disponível para uso.</td>
                     <td>
                         <ul class="valores_possiveis_format">
@@ -56,6 +60,7 @@
                     <td>
                         <code>tipo</code>
                     </td>
+                    <td>ENUM('LABORATORIO','SALA','EXTERNO')</td>
                     <td>Categoria do laboratório ou espaço associado.</td>
                     <td>
                         <ul class="valores_possiveis_format">

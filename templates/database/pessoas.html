@@ -19,19 +19,21 @@
             <thead>
                 <tr class="information">
                     <th>Campo</th>
+                    <th>Tipo</th>
                     <th>Descrição</th>
                 </tr>
             </thead>
             <tbody>
-                {% for campo, descricao in [
-                    ('id_pessoa', 'Identificador único da pessoa no sistema.'),
-                    ('nome_pessoa', 'Nome completo da pessoa.'),
-                    ('email_pessoa', 'Email para contato (opcional).')
+                {% for campo, tipo, descricao in [
+                    ('id_pessoa', 'INT (auto_increment, PK)', 'Identificador único da pessoa no sistema.'),
+                    ('nome_pessoa', 'VARCHAR(100)', 'Nome completo da pessoa.'),
+                    ('email_pessoa', 'VARCHAR(100)', 'Email para contato (opcional).')
                     ] %}
                     <tr>
                         <td>
                             <code>{{ campo }}</code>
                         </td>
+                        <td>{{ tipo }}</td>
                         <td>{{ descricao }}</td>
                     </tr>
                 {% endfor %}

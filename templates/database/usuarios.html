@@ -19,6 +19,7 @@
             <thead>
                 <tr class="information">
                     <th>Campo</th>
+                    <th>Tipo</th>
                     <th>Descrição</th>
                 </tr>
             </thead>
@@ -27,30 +28,35 @@
                     <td>
                         <code>id_usuario</code>
                     </td>
+                    <td>INT (auto_increment, PK)</td>
                     <td>Identificador único do usuário no sistema.</td>
                 </tr>
                 <tr>
                     <td>
                         <code>id_pessoa</code>
                     </td>
+                    <td>INT (FK)</td>
                     <td>Chave estrangeira para o registro da pessoa vinculada.</td>
                 </tr>
                 <tr>
                     <td>
                         <code>tipo_pessoa</code>
                     </td>
+                    <td>VARCHAR(50)</td>
                     <td>Tipo de usuário cadastrado (ex: FUNCIONÁRIO, DOCENTE).</td>
                 </tr>
                 <tr>
                     <td>
                         <code>situacao_pessoa</code>
                     </td>
+                    <td>VARCHAR(50)</td>
                     <td>Situação de ativação do usuário (ATIVO, INATIVO).</td>
                 </tr>
                 <tr>
                     <td>
                         <code>grupo_pessoa</code>
                     </td>
+                    <td>VARCHAR(50)</td>
                     <td>Grupo ou perfil de acesso do usuário.</td>
                 </tr>
             </tbody>
