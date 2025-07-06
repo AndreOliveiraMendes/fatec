@@ -1,9 +1,9 @@
 {% extends "database/base_crude" %}
 {% block title %}
-    Usuarios
+    Usuários
 {% endblock title %}
 {% block content_head %}
-    {{ generate_head(url_for("gerenciar_usuarios") , acao, disable = ['inserir', 'editar', 'excluir']) }}
+    {{ generate_head(url_for("gerenciar_usuarios"), acao, disable = ['inserir', 'editar', 'excluir']) }}
 {% endblock content_head %}
 {% set disable_editar = True %}
 {% set disable_excluir = True %}
@@ -20,118 +20,68 @@
                 <tr class="information">
                     <th>Campo</th>
                     <th>Descrição</th>
-                    <th>Valores Possíveis</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td class="text-center">
+                    <td>
                         <code>id_usuario</code>
                     </td>
                     <td>Identificador único do usuário no sistema.</td>
-                    <td>-</td>
                 </tr>
                 <tr>
-                    <td class="text-center">
+                    <td>
                         <code>id_pessoa</code>
                     </td>
-                    <td>
-                        Chave estrangeira que referencia o registro na tabela <code>pessoas</code>.
-                    </td>
-                    <td>-</td>
+                    <td>Chave estrangeira para o registro da pessoa vinculada.</td>
                 </tr>
                 <tr>
-                    <td class="text-center">
+                    <td>
                         <code>tipo_pessoa</code>
                     </td>
-                    <td>Indica o tipo geral da pessoa vinculada ao usuário.</td>
-                    <td>
-                        <ul class="valores_possiveis_format">
-                            <li>
-                                <code>FUNCIONARIO</code>
-                            </li>
-                            <li>
-                                <code>EXTERNO</code>
-                            </li>
-                            <li>
-                                <code>ALUNO</code>
-                            </li>
-                        </ul>
-                    </td>
+                    <td>Tipo de usuário cadastrado (ex: FUNCIONÁRIO, DOCENTE).</td>
                 </tr>
                 <tr>
-                    <td class="text-center">
+                    <td>
                         <code>situacao_pessoa</code>
                     </td>
-                    <td>Estado atual da conta no sistema.</td>
-                    <td>
-                        <ul class="valores_possiveis_format">
-                            <li>
-                                <code>ATIVO</code>
-                            </li>
-                            <li>
-                                <code>INATIVO</code>
-                            </li>
-                        </ul>
-                    </td>
+                    <td>Situação de ativação do usuário (ATIVO, INATIVO).</td>
                 </tr>
                 <tr>
-                    <td class="text-center">
+                    <td>
                         <code>grupo_pessoa</code>
                     </td>
-                    <td>Define o grupo ou papel específico da pessoa na instituição.</td>
-                    <td>
-                        <ul class="valores_possiveis_format">
-                            <li>
-                                <code>ADMINISTRADOR</code>
-                            </li>
-                            <li>
-                                <code>SECRETARIA</code>
-                            </li>
-                            <li>
-                                <code>DOCENTE</code>
-                            </li>
-                            <li>
-                                <code>REDE</code>
-                            </li>
-                            <li>
-                                <code>BIBLIOTECA</code>
-                            </li>
-                            <li>
-                                <code>CONVIDADO</code>
-                            </li>
-                        </ul>
-                    </td>
+                    <td>Grupo ou perfil de acesso do usuário.</td>
                 </tr>
             </tbody>
         </table>
     </div>
 {% endblock abertura %}
 {% block listar %}
-    <h3>Lista de Usuarios</h3>
+    <h3>Lista de Usuários</h3>
     {% if usuarios %}
         <div class="table-responsive">
             <table class="table table-bordered table-striped table-hover">
                 <thead>
                     <tr class="information">
-                        <th>Id Usuario</th>
-                        <th>Id Pessoa</th>
+                        <th class="text-center">ID Usuário</th>
+                        <th class="text-center">ID Pessoa</th>
                         <th>Tipo Pessoa</th>
-                        <th>Situacao Pessoa</th>
+                        <th>Situação Pessoa</th>
                         <th>Grupo Pessoa</th>
-                        {% if not disable_editar or not disable_excluir %}<th>Ação</th>{% endif %}
+                        {% if not disable_editar or not disable_excluir %}<th class="text-center">Ação</th>{% endif %}
                     </tr>
                 </thead>
                 <tbody>
                     {% for u in usuarios %}
                         <tr>
-                            <td>{{ u.id_usuario }}</td>
-                            <td>{{ u.id_pessoa }}</td>
+                            <td class="text-center">{{ u.id_usuario }}</td>
+                            <td class="text-center">{{ u.id_pessoa }}</td>
                             <td>{{ u.tipo_pessoa }}</td>
                             <td>{{ u.situacao_pessoa }}</td>
                             <td>{{ u.grupo_pessoa if u.grupo_pessoa }}</td>
                             {% if not disable_editar or not disable_excluir %}
-                                <td>
+                                <td class="text-center">
                                     <form method="post" class="form-inline">
                                         <input type="hidden" name="bloco" value="1">
                                         <input type="hidden" name="id_usuario" value="{{ u.id_usuario }}">
@@ -145,7 +95,7 @@
                                                     <i class="glyphicon glyphicon-pencil"></i>
                                                 </button>
                                             {% endif %}
-                                            {% if u.id_usuario != userid and not disable_excluir %}
+                                            {% if not disable_excluir and u.id_usuario != userid %}
                                                 <button type="submit"
                                                         name="acao"
                                                         value="excluir"
@@ -165,19 +115,19 @@
             {{ paginacao(pagination, acao, bloco) }}
         </div>
     {% else %}
-        <div class="alert alert-info">Nenhum usuario encontrada.</div>
+        <div class="alert alert-info">Nenhum usuário cadastrado.</div>
     {% endif %}
 {% endblock listar %}
 {% block procurar %}
     {% if bloco == 0 %}
-        <h3>Procurar Usuario</h3>
+        <h3>Procurar Usuário</h3>
         <form class="form-group"
               role="form"
               action="{{ url_for('gerenciar_usuarios') }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
-                <label for="codigo_usuario">Codigo Usuario:</label>
+                <label for="codigo_usuario">Codigo Usuário:</label>
                 <input type="number"
                        class="form-control"
                        name="id_usuario"
@@ -235,8 +185,8 @@
                 <table class="table table-bordered table-striped table-hover">
                     <thead>
                         <tr class="information">
-                            <th>Id Usuario</th>
-                            <th>Id Pessoa</th>
+                            <th class="text-center">ID Usuário</th>
+                            <th class="text-center">ID Pessoa</th>
                             <th>Tipo Pessoa</th>
                             <th>Situacao Pessoa</th>
                             <th>Grupo Pessoa</th>
@@ -291,7 +241,7 @@
     {% endif %}
 {% endblock procurar %}
 {% block inserir %}
-    <h3>Inserir Usuarios</h3>
+    <h3>Inserir Usuários</h3>
     <form class="form-group"
           role="form"
           action="{{ url_for('gerenciar_usuarios') }}"
@@ -346,7 +296,7 @@
 {% endblock inserir %}
 {% block editar %}
     {% if bloco == 0 %}
-        <h3>Editar Usuarios</h3>
+        <h3>Editar Usuários</h3>
         <form class="form-group"
               role="form"
               action="{{ url_for('gerenciar_usuarios') }}"
@@ -356,7 +306,7 @@
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% elif bloco == 1 %}
-        <h3>Editar Usuario</h3>
+        <h3>Editar Usuário</h3>
         <form class="form-group"
               role="form"
               action="{{ url_for('gerenciar_usuarios') }}"
@@ -426,7 +376,7 @@
 {% endblock editar %}
 {% block excluir %}
     {% if bloco == 0 %}
-        <h3>Excluir Usuarios</h3>
+        <h3>Excluir Usuários</h3>
         <form class="form-group"
               role="form"
               action="{{ url_for('gerenciar_usuarios') }}"
@@ -436,7 +386,7 @@
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% elif bloco == 1 %}
-        <h3>Excluir Usuario</h3>
+        <h3>Excluir Usuário</h3>
         <form class="form-group"
               role="form"
               action="{{ url_for('gerenciar_usuarios') }}"

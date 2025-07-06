@@ -3,7 +3,7 @@
     Pessoas
 {% endblock title %}
 {% block content_head %}
-    {{ generate_head(url_for("gerenciar_pessoas") , acao, disable = ['inserir', 'editar', 'excluir']) }}
+    {{ generate_head(url_for("gerenciar_pessoas"), acao, disable = ['inserir', 'editar', 'excluir']) }}
 {% endblock content_head %}
 {% set disable_editar = True %}
 {% set disable_excluir = True %}
@@ -24,9 +24,9 @@
             </thead>
             <tbody>
                 {% for campo, descricao in [
-                    ('id_pessoa', 'Identificador da pessoa'),
-                    ('nome_pessoa', 'Nome da pessoa'),
-                    ('email_pessoa', 'Email da pessoa')
+                    ('id_pessoa', 'Identificador único da pessoa no sistema.'),
+                    ('nome_pessoa', 'Nome completo da pessoa.'),
+                    ('email_pessoa', 'Email para contato (opcional).')
                     ] %}
                     <tr>
                         <td>
@@ -46,20 +46,20 @@
             <table class="table table-bordered table-striped table-hover">
                 <thead>
                     <tr class="information">
-                        <th>Id Pessoa</th>
-                        <th>Nome</th>
-                        <th>Email</th>
-                        {% if not disable_editar or not disable_excluir %}<th>Ação</th>{% endif %}
+                        <th class="text-center">ID Pessoa</th>
+                        <th>Nome Pessoa</th>
+                        <th>Email Pessoa</th>
+                        {% if not disable_editar or not disable_excluir %}<th class="text-center">Ação</th>{% endif %}
                     </tr>
                 </thead>
                 <tbody>
                     {% for p in pessoas %}
                         <tr>
-                            <td>{{ p.id_pessoa }}</td>
+                            <td class="text-center">{{ p.id_pessoa }}</td>
                             <td>{{ p.nome_pessoa }}</td>
-                            <td>{{ p.email_pessoa }}</td>
+                            <td>{{ p.email_pessoa if p.email_pessoa }}</td>
                             {% if not disable_editar or not disable_excluir %}
-                                <td>
+                                <td class="text-center">
                                     <form method="post" class="form-inline">
                                         <input type="hidden" name="bloco" value="1">
                                         <input type="hidden" name="id_pessoa" value="{{ p.id_pessoa }}">
@@ -73,7 +73,7 @@
                                                     <i class="glyphicon glyphicon-pencil"></i>
                                                 </button>
                                             {% endif %}
-                                            {% if p.nome_pessoa != username and not disable_excluir %}
+                                            {% if not disable_excluir and p.nome_pessoa != username %}
                                                 <button type="submit"
                                                         name="acao"
                                                         value="excluir"
@@ -93,7 +93,7 @@
             {{ paginacao(pagination, acao, bloco) }}
         </div>
     {% else %}
-        <div class="alert alert-info">Nenhuma pessoa encontrada.</div>
+        <div class="alert alert-info">Nenhuma pessoa cadastrada.</div>
     {% endif %}
 {% endblock listar %}
 {% block procurar %}
