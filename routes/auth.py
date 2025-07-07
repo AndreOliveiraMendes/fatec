@@ -1,6 +1,6 @@
 import requests, copy
 from main import app
-from config import TOMCAT_API_URL
+from config import TOMCAT_API_URL, API_BASIC_USER, API_BASIC_PASS
 from flask import flash, session, render_template, request, redirect, url_for
 from models import db, Pessoas, Usuarios, Permissoes
 from auxiliar.decorators import login_required
@@ -9,8 +9,9 @@ from auxiliar.auxiliar_routes import none_if_empty, registrar_log_generico
 def check_login(id, password):
     loged, userid, username, permission = False, None, None, None
     authentication = { "login": id, "senha": password }
+    auth = (API_BASIC_USER, API_BASIC_PASS)
     try:
-        response = requests.post(TOMCAT_API_URL, data=authentication)
+        response = requests.post(TOMCAT_API_URL, data=authentication, auth=auth)
 
         if response.status_code == 200:
             loged = True
@@ -75,6 +76,8 @@ def check_login(id, password):
 
         elif response.status_code == 404:
             flash("Verifique suas credenciais de acesso", "danger")
+        elif response.status_code == 401:
+            flash("Falha de autenticação com a API externa. Avise o suporte ou responsável pela rede.", "danger")
         else:
             flash("Erro inesperado", "danger")
     except requests.exceptions.ConnectionError as e:
