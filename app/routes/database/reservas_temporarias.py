@@ -9,4 +9,4 @@ bp = Blueprint('reservas_temporarias', __name__, url_prefix="/admin")
 @admin_required
 def gerenciar_reservas_temporarias():
     flash("Pagina em Desenvolvimento", "warning")
-    return redirect(url_for('error.under_dev_page'))
+    return redirect(url_for('default.under_dev_page'))

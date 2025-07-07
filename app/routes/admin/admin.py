@@ -40,7 +40,7 @@ def gerenciar_menu():
         'Logs / Histórico': {
             'icon': 'glyphicon glyphicon-list-alt',
             'secoes': [
-                ('Histórico', 'historicos.gerenciar_Historico', 'danger', 're')
+                ('Histórico', 'historicos.gerenciar_Historicos', 'danger', 're')
             ]
         }
     }

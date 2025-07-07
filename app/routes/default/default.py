@@ -20,3 +20,9 @@ def perfil():
     pessoa = Pessoas.query.get(user.id_pessoa)
     username, perm = get_user_info(userid)
     return render_template("usuario/perfil.html", username=username, perm=perm, usuario=user, pessoa=pessoa)
+
+@bp.route('/under_dev')
+def under_dev_page():
+    userid = session.get('userid')
+    username, perm = get_user_info(userid)
+    return render_template('under_dev.html', username=username, perm=perm)

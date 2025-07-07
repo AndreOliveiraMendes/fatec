@@ -24,16 +24,16 @@
                 </a>
             {% endif %}
             {% if perm|has_flag(FIXA) %}
-                <a href="" class="btn btn-success">
+                <a href="{{ url_for('default.under_dev_page') }}" class="btn btn-success">
                     <span class="glyphicon glyphicon-calendar"></span> Reserva Semestral
                 </a>
             {% endif %}
             {% if perm|has_flag(TEMP) %}
-                <a href="" class="btn btn-info">
+                <a href="{{ url_for('default.under_dev_page') }}" class="btn btn-info">
                     <span class="glyphicon glyphicon-time"></span> Reserva Temporária
                 </a>
             {% endif %}
-            <a href="" class="btn btn-default">
+            <a href="{{ url_for('default.under_dev_page') }}" class="btn btn-default">
                 <span class="glyphicon glyphicon-search"></span> Consultar Reservas
             </a>
         </div>

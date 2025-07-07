@@ -3,7 +3,7 @@
     Aulas
 {% endblock title %}
 {% block content_head %}
-    {{ generate_head(url_for("gerenciar_aulas"), acao) }}
+    {{ generate_head(url_for("aulas.gerenciar_aulas"), acao) }}
 {% endblock content_head %}
 {% block abertura %}
     <h3>
@@ -107,7 +107,7 @@
         <h3>Procurar Aulas</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('gerenciar_aulas') }}"
+              action="{{ url_for('aulas.gerenciar_aulas') }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
@@ -207,7 +207,7 @@
         <h3>Inserir Aulas</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('gerenciar_aulas') }}"
+              action="{{ url_for('aulas.gerenciar_aulas') }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
@@ -236,7 +236,7 @@
         <h3>Editar Aulas</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('gerenciar_aulas') }}"
+              action="{{ url_for('aulas.gerenciar_aulas') }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             {{ gerar_select("id_aula", "Selecione a Aula", aulas, "id_aula", "horario_intervalo") }}
@@ -245,7 +245,7 @@
     {% else %}
         <form class="form-group"
               role="form"
-              action="{{ url_for('gerenciar_aulas') }}"
+              action="{{ url_for('aulas.gerenciar_aulas') }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
@@ -283,7 +283,7 @@
         <h3>Excluir Aulas</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('gerenciar_aulas') }}"
+              action="{{ url_for('aulas.gerenciar_aulas') }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             {{ gerar_select("id_aula", "Selecione a Aula", aulas, "id_aula", "horario_intervalo") }}
@@ -292,7 +292,7 @@
     {% else %}
         <form class="form-group"
               role="form"
-              action="{{ url_for('gerenciar_aulas') }}"
+              action="{{ url_for('aulas.gerenciar_aulas') }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">

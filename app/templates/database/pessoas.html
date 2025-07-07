@@ -3,7 +3,7 @@
     Pessoas
 {% endblock title %}
 {% block content_head %}
-    {{ generate_head(url_for("gerenciar_pessoas"), acao, disable = disable) }}
+    {{ generate_head(url_for("pessoas.gerenciar_pessoas"), acao, disable = disable) }}
 {% endblock content_head %}
 {% block abertura %}
     <h3>
@@ -101,7 +101,7 @@
         <h3>Procurar Pessoas</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('gerenciar_pessoas') }}"
+              action="{{ url_for('pessoas.gerenciar_pessoas') }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
@@ -210,7 +210,7 @@
     <h3>Inserir Pessoas</h3>
     <form class="form-group"
           role="form"
-          action="{{ url_for('gerenciar_pessoas') }}"
+          action="{{ url_for('pessoas.gerenciar_pessoas') }}"
           method="post">
         <input type="hidden" name="acao" value="{{ acao }}">
         <div class="form-group">
@@ -240,7 +240,7 @@
         <h3>Editar Pessoas</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('gerenciar_pessoas') }}"
+              action="{{ url_for('pessoas.gerenciar_pessoas') }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             {{ gerar_select("pessoa", "Selecione a Pessoa", pessoas, "id_pessoa", "nome_pessoa") }}
@@ -250,7 +250,7 @@
         <h3>Editar Pessoa</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('gerenciar_pessoas') }}"
+              action="{{ url_for('pessoas.gerenciar_pessoas') }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
@@ -294,7 +294,7 @@
         <h3>Excluir Pessoas</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('gerenciar_pessoas') }}"
+              action="{{ url_for('pessoas.gerenciar_pessoas') }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             {{ gerar_select("pessoa", "Selecione a Pessoa", pessoas, "id_pessoa", "nome_pessoa") }}
@@ -304,7 +304,7 @@
         <h3>Excluir Pessoa</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('gerenciar_pessoas') }}"
+              action="{{ url_for('pessoas.gerenciar_pessoas') }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">

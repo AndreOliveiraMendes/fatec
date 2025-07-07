@@ -8,7 +8,7 @@ bp = Blueprint('historicos', __name__, url_prefix="/admin")
 
 @bp.route("/historicos", methods=["GET", "POST"])
 @admin_required
-def gerenciar_Historico():
+def gerenciar_Historicos():
     acao = request.form.get('acao', 'abertura')
     bloco = int(request.form.get('bloco', 0))
     page = int(request.form.get('page', 1))

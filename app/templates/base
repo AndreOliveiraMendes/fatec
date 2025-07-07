@@ -75,7 +75,7 @@
                                 </li>
                             {% else %}
                                 <li>
-                                    <a href="{{ url_for("login") }}"><i class="glyphicon glyphicon-log-in"></i> Login</a>
+                                    <a href="{{ url_for("auth.login") }}"><i class="glyphicon glyphicon-log-in"></i> Login</a>
                                 </li>
                             {% endif %}
                             <li role="separator" class="divider"></li>
