@@ -29,10 +29,11 @@ def unauthorized_error(e):
 def acesso_negado(e):
     userid = session.get('userid')
     username, perm = get_user_info(userid)
+    mensagem = getattr(e, 'description', 'Access Denied')
     if wants_json_response():
-        return jsonify({"error": "Access Denied", "user": username, "perm": perm}), 403
+        return jsonify({"error": "Access Denied", "message": mensagem, "user": username, "perm": perm}), 403
     debug_message(e, 403)
-    return render_template("http/403.html", username=username, perm=perm), 403
+    return render_template("http/403.html", username=username, perm=perm, message=mensagem), 403
 
 @app.errorhandler(404)
 def page_not_found(e):

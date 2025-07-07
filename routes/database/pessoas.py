@@ -1,10 +1,10 @@
 import copy
-from flask import flash, session, render_template, request
+from flask import flash, session, render_template, request, abort
 from sqlalchemy.exc import IntegrityError
 from main import app
 from models import db, Pessoas, Usuarios
 from auxiliar.decorators import admin_required
-from auxiliar.auxiliar_routes import none_if_empty, get_query_params, get_user_info, registrar_log_generico
+from auxiliar.auxiliar_routes import none_if_empty, get_query_params, get_user_info, registrar_log_generico, disable_action
 
 def get_pessoas_id_nome(acao, userid):
     pessoas_id_nome = db.session.query(Pessoas.id_pessoa, Pessoas.nome_pessoa)
@@ -21,8 +21,12 @@ def gerenciar_pessoas():
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
     username, perm = get_user_info(userid)
+    disabled = ['inserir', 'editar', 'excluir']
+    extras = {}
+    disable_action(extras, disabled)
     if request.method == 'POST':
-        extras = {}
+        if acao in disabled:
+            abort(403, description="Esta funcionalidade está desabilitada no momento.")
         if acao == 'listar':
             pessoas_paginadas = Pessoas.query.paginate(page=page, per_page=10, error_out=False)
             extras['pessoas'] = pessoas_paginadas.items
@@ -129,6 +133,4 @@ def gerenciar_pessoas():
             extras['pessoas'] = get_pessoas_id_nome(acao, userid)
             bloco = 0
 
-        return render_template("database/pessoas.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
-    else:
-        return render_template("database/pessoas.html", username=username, perm=perm, acao=acao, bloco=bloco)
+    return render_template("database/pessoas.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)

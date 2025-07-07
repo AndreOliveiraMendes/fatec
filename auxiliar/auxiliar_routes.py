@@ -90,3 +90,9 @@ def registrar_log_generico(userid, acao, objeto, antes=None, observacao=None, sk
         observacao = observacao
     )
     db.session.add(historico)
+
+def disable_action(extras, disable):
+    extras["disable"] = disable
+    for action in disable:
+        if action in ['editar', 'excluir']:
+            extras[f"disable_{action}"] = True

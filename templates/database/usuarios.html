@@ -3,10 +3,8 @@
     Usuários
 {% endblock title %}
 {% block content_head %}
-    {{ generate_head(url_for("gerenciar_usuarios"), acao, disable = ['inserir', 'editar', 'excluir']) }}
+    {{ generate_head(url_for("gerenciar_usuarios"), acao, disable = disable) }}
 {% endblock content_head %}
-{% set disable_editar = True %}
-{% set disable_excluir = True %}
 {% block abertura %}
     <h3>
         Gerenciamento da Tabela <strong>Usuários</strong>
