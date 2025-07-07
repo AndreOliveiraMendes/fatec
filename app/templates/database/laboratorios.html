@@ -125,8 +125,8 @@
                     {% endfor %}
                 </tbody>
             </table>
-            {{ paginacao(pagination, acao, bloco) }}
         </div>
+        {{ paginacao(pagination, acao, bloco) }}
     {% else %}
         <div class="alert alert-info" role="alert">Nenhum laboratório cadastrado.</div>
     {% endif %}
@@ -228,8 +228,8 @@
                         {% endfor %}
                     </tbody>
                 </table>
-                {{ paginacao(pagination, acao, bloco, query_params) }}
             </div>
+            {{ paginacao(pagination, acao, bloco, query_params) }}
         {% else %}
             <div class="alert alert-info" role="alert">Nenhum Resultado encontrado</div>
         {% endif %}

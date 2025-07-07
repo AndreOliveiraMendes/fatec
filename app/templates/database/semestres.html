@@ -3,7 +3,7 @@
     Semestres
 {% endblock title %}
 {% block content_head %}
-    {{ generate_head(url_for("semestres.gerenciar_semestres") , acao) }}
+    {{ generate_head(url_for("semestres.gerenciar_semestres"), acao) }}
 {% endblock content_head %}
 {% block abertura %}
     <h3>
@@ -50,7 +50,51 @@
 {% block listar %}
     <h3>Lista de Semestres</h3>
     {% if semestres %}
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered table-hover">
+                <thead>
+                    <tr class="information">
+                        <td>ID semestre</td>
+                        <td>Início do semestre</td>
+                        <td>Término do semestre</td>
+                        <td>Ação</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in semestres %}
+                        <tr>
+                            <td>{{ s.id_semestre }}</td>
+                            <td>{{ s.data_inicio.strftime("%d/%m/%Y") }}</td>
+                            <td>{{ s.data_fim.strftime("%d/%m/%Y") }}</td>
+                            <td>
+                                <form method="post" class="form-inline">
+                                    <input type="hidden" name="bloco" value="1">
+                                    <input type="hidden" name="id_semestre" value="{{ s.id_semestre }}">
+                                    <div class="btn-group">
+                                        <button type="submit"
+                                                name="acao"
+                                                value="editar"
+                                                class="btn btn-warning btn-sm"
+                                                title="Editar">
+                                            <i class="glyphicon glyphicon-pencil"></i>
+                                        </button>
+                                        <button type="submit"
+                                                name="acao"
+                                                value="excluir"
+                                                class="btn btn-danger btn-sm"
+                                                title="Excluir">
+                                            <i class="glyphicon glyphicon-trash"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {{ paginacao(pagination, acao, bloco) }}
     {% else %}
-        <div class="alert alert-info" role="alert">Nenhuma aula cadastrada.</div>
+        <div class="alert alert-info" role="alert">Nenhum semestre cadastrado.</div>
     {% endif %}
 {% endblock listar %}

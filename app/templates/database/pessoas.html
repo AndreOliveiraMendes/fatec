@@ -90,8 +90,8 @@
                     {% endfor %}
                 </tbody>
             </table>
-            {{ paginacao(pagination, acao, bloco) }}
         </div>
+        {{ paginacao(pagination, acao, bloco) }}
     {% else %}
         <div class="alert alert-info" role="alert">Nenhuma pessoa cadastrada.</div>
     {% endif %}
@@ -199,8 +199,8 @@
                         {% endfor %}
                     </tbody>
                 </table>
-                {{ paginacao(pagination, acao, bloco, query_params) }}
             </div>
+            {{ paginacao(pagination, acao, bloco, query_params) }}
         {% else %}
             <div class="alert alert-warning" role="alert">Nenhum resultado encontrado.</div>
         {% endif %}

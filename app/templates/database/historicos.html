@@ -80,8 +80,8 @@
                     {% endfor %}
                 </tbody>
             </table>
-            {{ paginacao(pagination, acao, bloco) }}
         </div>
+        {{ paginacao(pagination, acao, bloco) }}
     {% else %}
         <div class="alert alert-info" role="alert">Nenhum histórico encontrado.</div>
     {% endif %}
