@@ -5,6 +5,9 @@ def str_to_bool(s):
     return str(s).lower() in ['true', '1', 'yes', 'on']
 
 load_dotenv('.env')
+ENV_MODE = os.getenv('FLASK_ENV', 'dev')  # Default: dev
+
+load_dotenv(f'.env.{ENV_MODE}')
 
 class Config:
     SECRET_KEY = os.getenv('SECRET_KEY')
@@ -17,13 +20,12 @@ class Config:
     DEBUG = os.getenv('FLASK_DEBUG', 'False')
 
 def get_config():
-    #TODO implement diferent environment variables
-    #mode = os.getenv("FLASK_ENV")
     return Config
 
+# Variáveis extras
 SHOW_DEBUG_ERRORS = str_to_bool(os.getenv("SHOW_DEBUG_ERRORS", "False"))
-TOMCAT_HOST = os.environ.get("TOMCAT_HOST", "127.0.0.1")
-TOMCAT_PORT = os.environ.get("TOMCAT_PORT", "5001")
+TOMCAT_HOST = os.getenv("TOMCAT_HOST", "127.0.0.1")
+TOMCAT_PORT = os.getenv("TOMCAT_PORT", "5001")
 TOMCAT_API_URL = f"http://{TOMCAT_HOST}:{TOMCAT_PORT}/api/autenticar/json"
-API_BASIC_USER = os.environ.get("API_BASIC_USER")
-API_BASIC_PASS = os.environ.get("API_BASIC_PASS")
+API_BASIC_USER = os.getenv("API_BASIC_USER")
+API_BASIC_PASS = os.getenv("API_BASIC_PASS")

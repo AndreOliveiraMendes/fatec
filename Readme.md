@@ -10,8 +10,10 @@ The project now follows a more modular and scalable structure:
 
 ```
 .
-├── .env                            # Environment variables
-├── .env.example                    # Example environment file
+├── .env                            # set the Environment mode
+├── .env.example                    # Example of how to set the environment mode
+├── .env.mode                       # set the Environment variables (when using that env)
+├── .env.mode.example               # Example environment file
 ├── .gitignore                      # Ignore sensitive or unnecessary files
 ├── Readme.md                       # This file (project overview)
 ├── auxiliar/                       # Helper Python modules for internal logic and templates
@@ -91,7 +93,8 @@ The project now follows a more modular and scalable structure:
 
 # File Descriptions
 
-* **`.env`** → Defines environment variables. See `.env.example` for reference.
+* **`.env`** → Defines which environment gonna be used, check `.env.example` for more details, by default it uses `.env.dev`.
+* **`.env.mode`** → Defines environment variables the mode uses when set. See `.env.mode.example` for reference.
 * **`.gitignore`** → Specifies sensitive or unnecessary files/folders to ignore.
 * **`Readme.md`** → This file. Project overview and structure.
 * **`auxiliar/`** → Contains helper Python modules:

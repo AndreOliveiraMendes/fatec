@@ -1,5 +1,6 @@
 __pycache__
 config.ini
-.env
+.env*
+!.env*.example
 .venv
 laboratorio
