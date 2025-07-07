@@ -14,12 +14,10 @@ def gerenciar_Historicos():
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
     username, perm = get_user_info(userid)
+    extras = {}
     if request.method == 'POST':
-        extras = {}
         if acao == 'listar':
             historicos_paginados = Historicos.query.paginate(page=page, per_page=10, error_out=False)
             extras['historicos'] = historicos_paginados.items
             extras['pagination'] = historicos_paginados
-        return render_template("database/historicos.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
-    else:
-        return render_template("database/historicos.html", username=username, perm=perm, acao=acao, bloco=bloco)
+    return render_template("database/historicos.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)

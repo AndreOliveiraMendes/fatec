@@ -14,8 +14,7 @@ def gerenciar_semestres():
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
     username, perm = get_user_info(userid)
+    extras = {}
     if request.method == 'POST':
-        extras = {}
-        return render_template("database/semestres.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
-    else:
-        return render_template("database/semestres.html", username=username, perm=perm, acao=acao, bloco=bloco)
+        pass
+    return render_template("database/semestres.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
