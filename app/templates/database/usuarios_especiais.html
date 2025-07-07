@@ -86,8 +86,7 @@
             {{ paginacao(pagination, acao, bloco) }}
         </div>
     {% else %}
-        <div class="alert alert-warning" role="alert">
-Nenhum usuario especial encontrado</div>
+        <div class="alert alert-warning" role="alert">Nenhum usuario especial encontrado</div>
     {% endif %}
 {% endblock listar %}
 {% block procurar %}
@@ -173,8 +172,7 @@ Nenhum usuario especial encontrado</div>
                 {{ paginacao(pagination, acao, bloco, query_params) }}
             </div>
         {% else %}
-            <div class="alert alert-warning" role="alert">
-Nenhum resultado encontrado</div>
+            <div class="alert alert-warning" role="alert">Nenhum resultado encontrado</div>
         {% endif %}
     {% endif %}
 {% endblock procurar %}

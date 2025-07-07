@@ -49,4 +49,8 @@
 {% endblock abertura %}
 {% block listar %}
     <h3>Lista de Semestres</h3>
+    {% if semestres %}
+    {% else %}
+        <div class="alert alert-info" role="alert">Nenhuma aula cadastrada.</div>
+    {% endif %}
 {% endblock listar %}

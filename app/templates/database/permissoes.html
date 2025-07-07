@@ -123,8 +123,7 @@
             {{ paginacao(pagination, acao, bloco) }}
         </div>
     {% else %}
-        <div class="alert alert-warning" role="alert">
-Nenhum permissão existente</div>
+        <div class="alert alert-warning" role="alert">Nenhum permissão existente</div>
     {% endif %}
 {% endblock listar %}
 {% block procurar %}
@@ -238,8 +237,7 @@ Nenhum permissão existente</div>
                 {{ paginacao(pagination, acao, bloco, query_params) }}
             </div>
         {% else %}
-            <div class="alert alert-warning" role="alert">
-Nenhum resultado encontrado</div>
+            <div class="alert alert-warning" role="alert">Nenhum resultado encontrado</div>
         {% endif %}
     {% endif %}
 {% endblock procurar %}
