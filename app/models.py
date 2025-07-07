@@ -1,5 +1,4 @@
 import enum
-from flask import Blueprint
 from app.main import db
 from datetime import date, time, datetime
 from sqlalchemy import String, ForeignKey, CheckConstraint, TEXT, UniqueConstraint, Enum
