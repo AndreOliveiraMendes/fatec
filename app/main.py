@@ -12,8 +12,7 @@ def create_app():
 
     with app.app_context():
         register_blueprints(app)
-        from app.auxiliar import auxiliar_template
-        from app.auxiliar import error
+        from app.auxiliar import auxiliar_template, error
         auxiliar_template.register_filters(app)
         error.register_error_handler(app)
 
