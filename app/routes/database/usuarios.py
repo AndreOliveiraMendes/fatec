@@ -1,10 +1,10 @@
 import copy
-from main import app
+from app.main import app
 from flask import flash, session, render_template, request, abort
 from sqlalchemy.exc import IntegrityError
-from models import db, Usuarios, Pessoas
-from auxiliar.decorators import admin_required
-from auxiliar.auxiliar_routes import none_if_empty, get_query_params, get_user_info, registrar_log_generico, disable_action
+from app.models import db, Usuarios, Pessoas
+from app.auxiliar.decorators import admin_required
+from app.auxiliar.auxiliar_routes import none_if_empty, get_query_params, get_user_info, registrar_log_generico, disable_action
 
 def get_pessoas():
     return db.session.query(Pessoas.id_pessoa, Pessoas.nome_pessoa).all()

@@ -1,10 +1,10 @@
 import copy
-from main import app
+from app.main import app
 from flask import flash, session, render_template, request
 from sqlalchemy.exc import IntegrityError
-from models import db, Usuarios_Especiais
-from auxiliar.decorators import admin_required
-from auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params, registrar_log_generico
+from app.models import db, Usuarios_Especiais
+from app.auxiliar.decorators import admin_required
+from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params, registrar_log_generico
 
 def get_usuarios_especiais():
     return db.session.query(Usuarios_Especiais.id_usuario_especial, Usuarios_Especiais.nome_usuario_especial).all()

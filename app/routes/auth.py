@@ -1,10 +1,10 @@
 import requests, copy
-from main import app
+from app.main import app
 from config import TOMCAT_API_URL, API_BASIC_USER, API_BASIC_PASS
 from flask import flash, session, render_template, request, redirect, url_for
-from models import db, Pessoas, Usuarios, Permissoes
-from auxiliar.decorators import login_required
-from auxiliar.auxiliar_routes import none_if_empty, registrar_log_generico
+from app.models import db, Pessoas, Usuarios, Permissoes
+from app.auxiliar.decorators import login_required
+from app.auxiliar.auxiliar_routes import none_if_empty, registrar_log_generico
 
 def check_login(id, password):
     loged, userid, username, permission = False, None, None, None

@@ -1,11 +1,11 @@
 import copy
-from main import app
+from app.main import app
 from flask import flash, session, render_template, request
 from sqlalchemy.exc import IntegrityError
-from models import db, Permissoes, Usuarios, Pessoas
-from auxiliar.decorators import admin_required
-from auxiliar.auxiliar_routes import none_if_empty, get_query_params, get_user_info, registrar_log_generico
-from auxiliar.constant import PERM_RESERVAS_FIXA, PERM_RESERVAS_TEMPORARIA, PERM_ADMIN
+from app.models import db, Permissoes, Usuarios, Pessoas
+from app.auxiliar.decorators import admin_required
+from app.auxiliar.auxiliar_routes import none_if_empty, get_query_params, get_user_info, registrar_log_generico
+from app.auxiliar.constant import PERM_RESERVAS_FIXA, PERM_RESERVAS_TEMPORARIA, PERM_ADMIN
 
 def get_no_perm_users():
     usuarios_com_permissao = db.session.query(Permissoes.id_permissao_usuario)

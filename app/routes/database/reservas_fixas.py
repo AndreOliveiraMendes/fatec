@@ -1,7 +1,7 @@
-from main import app
+from app.main import app
 from flask import flash, session, render_template, request, redirect, url_for
-from models import db, Reservas_Fixas
-from auxiliar.decorators import admin_required
+from app.models import db, Reservas_Fixas
+from app.auxiliar.decorators import admin_required
 
 @app.route("/admin/reservas_fixa")
 @admin_required

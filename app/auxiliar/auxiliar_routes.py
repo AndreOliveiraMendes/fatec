@@ -1,7 +1,7 @@
 import enum
 from flask import request
 from datetime import datetime
-from models import db, Usuarios, Pessoas, Permissoes, Historicos
+from app.models import db, Usuarios, Pessoas, Permissoes, Historicos
 from sqlalchemy.inspection import inspect
 
 IGNORED_FORM_FIELDS = ['page', 'acao', 'bloco']

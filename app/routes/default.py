@@ -1,8 +1,8 @@
-from main import app
+from app.main import app
 from flask import session, render_template
-from models import Usuarios, Pessoas
-from auxiliar.auxiliar_routes import get_user_info
-from auxiliar.decorators import login_required
+from app.models import Usuarios, Pessoas
+from app.auxiliar.auxiliar_routes import get_user_info
+from app.auxiliar.decorators import login_required
 
 @app.route("/")
 def home():

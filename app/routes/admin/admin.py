@@ -1,8 +1,8 @@
-from main import app
+from app.main import app
 from flask import session, render_template, request, redirect, url_for
-from models import db, Reservas_Fixas, Usuarios, Permissoes, Laboratorios, Aulas
-from auxiliar.decorators import login_required, admin_required
-from auxiliar.auxiliar_routes import get_user_info
+from app.models import db, Reservas_Fixas, Usuarios, Permissoes, Laboratorios, Aulas
+from app.auxiliar.decorators import login_required, admin_required
+from app.auxiliar.auxiliar_routes import get_user_info
 
 @app.route("/admin")
 @admin_required

@@ -1,7 +1,7 @@
 from flask import url_for
-from main import app
+from app.main import app
 from markupsafe import Markup
-from auxiliar.constant import PERMISSIONS
+from app.auxiliar.constant import PERMISSIONS
 
 @app.template_global()
 def dynamic_redirect(seconds=5, message=None, target_url=None):

@@ -1,6 +1,6 @@
-from main import app
+from app.main import app
 from flask import flash, session, request, jsonify, render_template
-from auxiliar.auxiliar_routes import get_user_info
+from app.auxiliar.auxiliar_routes import get_user_info
 from config import SHOW_DEBUG_ERRORS
 
 ERROR_MESSAGES = {

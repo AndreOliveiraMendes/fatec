@@ -1,5 +1,5 @@
 import enum
-from main import app, db
+from app.main import app, db
 from datetime import date, time, datetime
 from sqlalchemy import String, ForeignKey, CheckConstraint, TEXT, UniqueConstraint, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship

@@ -1,8 +1,8 @@
-from main import app
+from app.main import app
 from flask import flash, session, render_template, request, redirect, url_for
-from models import db, Historicos
-from auxiliar.decorators import admin_required
-from auxiliar.auxiliar_routes import get_user_info
+from app.models import db, Historicos
+from app.auxiliar.decorators import admin_required
+from app.auxiliar.auxiliar_routes import get_user_info
 
 @app.route("/admin/historico", methods=["GET", "POST"])
 @admin_required

@@ -1,10 +1,10 @@
 import copy
-from main import app
+from app.main import app
 from flask import flash, session, render_template, request
 from sqlalchemy.exc import IntegrityError
-from models import db, Aulas
-from auxiliar.decorators import admin_required
-from auxiliar.auxiliar_routes import none_if_empty, parse_time_string,get_user_info, get_query_params, registrar_log_generico
+from app.models import db, Aulas
+from app.auxiliar.decorators import admin_required
+from app.auxiliar.auxiliar_routes import none_if_empty, parse_time_string,get_user_info, get_query_params, registrar_log_generico
 
 def get_aulas():
     aulas = Aulas.query.all()
