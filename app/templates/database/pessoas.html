@@ -93,7 +93,8 @@
             {{ paginacao(pagination, acao, bloco) }}
         </div>
     {% else %}
-        <div class="alert alert-info">Nenhuma pessoa cadastrada.</div>
+        <div class="alert alert-info" role="alert">
+Nenhuma pessoa cadastrada.</div>
     {% endif %}
 {% endblock listar %}
 {% block procurar %}
@@ -202,7 +203,8 @@
                 {{ paginacao(pagination, acao, bloco, query_params) }}
             </div>
         {% else %}
-            <div class="alert alert-warning">Nenhum resultado encontrado.</div>
+            <div class="alert alert-warning" role="alert">
+Nenhum resultado encontrado.</div>
         {% endif %}
     {% endif %}
 {% endblock procurar %}

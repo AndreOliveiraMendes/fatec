@@ -128,7 +128,8 @@
             {{ paginacao(pagination, acao, bloco) }}
         </div>
     {% else %}
-        <div class="alert alert-info">Nenhum laboratório cadastrado.</div>
+        <div class="alert alert-info" role="alert">
+Nenhum laboratório cadastrado.</div>
     {% endif %}
 {% endblock listar %}
 {% block procurar %}
@@ -231,7 +232,8 @@
                 {{ paginacao(pagination, acao, bloco, query_params) }}
             </div>
         {% else %}
-            <div class="alert alert-info">Nenhum Resultado encontrado</div>
+            <div class="alert alert-info" role="alert">
+Nenhum Resultado encontrado</div>
         {% endif %}
     {% endif %}
 {% endblock procurar %}

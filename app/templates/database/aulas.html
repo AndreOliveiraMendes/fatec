@@ -99,7 +99,8 @@
             {{ paginacao(pagination, acao, bloco) }}
         </div>
     {% else %}
-        <div class="alert alert-info">Nenhuma aula cadastrada.</div>
+        <div class="alert alert-info" role="alert">
+Nenhuma aula cadastrada.</div>
     {% endif %}
 {% endblock listar %}
 {% block procurar %}
@@ -198,7 +199,8 @@
                 {{ paginacao(pagination, acao, bloco, query_params) }}
             </div>
         {% else %}
-            <div class="alert alert-info">Nenhum resultado encontrado.</div>
+            <div class="alert alert-info" role="alert">
+Nenhum resultado encontrado.</div>
         {% endif %}
     {% endif %}
 {% endblock procurar %}

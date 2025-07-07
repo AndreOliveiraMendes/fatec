@@ -83,6 +83,7 @@
             {{ paginacao(pagination, acao, bloco) }}
         </div>
     {% else %}
-        <div class="alert alert-info">Nenhum histórico encontrado.</div>
+        <div class="alert alert-info" role="alert">
+Nenhum histórico encontrado.</div>
     {% endif %}
 {% endblock listar %}

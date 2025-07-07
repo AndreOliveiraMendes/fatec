@@ -16,5 +16,8 @@ def gerenciar_semestres():
     username, perm = get_user_info(userid)
     extras = {}
     if request.method == 'POST':
-        pass
+        if acao == 'listar':
+            semestres_paginados = Semestres.query.paginate(page=page, per_page=10, error_out=False)
+            extras['semestres'] = semestres_paginados.items
+            extras['pagination'] = semestres_paginados
     return render_template("database/semestres.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
