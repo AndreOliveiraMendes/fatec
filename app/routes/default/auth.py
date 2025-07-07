@@ -6,7 +6,7 @@ from app.models import db, Pessoas, Usuarios, Permissoes
 from app.auxiliar.decorators import login_required
 from app.auxiliar.auxiliar_routes import none_if_empty, registrar_log_generico
 
-bp = Blueprint('auth', __name__, url_prefix="/auth")
+bp = Blueprint('auth', __name__)
 
 def check_login(id, password):
     loged, userid, username, permission = False, None, None, None

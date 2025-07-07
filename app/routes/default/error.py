@@ -3,7 +3,7 @@ from flask import flash, session, request, jsonify, render_template
 from app.auxiliar.auxiliar_routes import get_user_info
 from config import SHOW_DEBUG_ERRORS
 
-bp = Blueprint('auth', __name__, url_prefix="/error")
+bp = Blueprint('error', __name__)
 
 ERROR_MESSAGES = {
     401: "Você precisa fazer login para acessar esta página.",

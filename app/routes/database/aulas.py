@@ -6,13 +6,13 @@ from app.models import db, Aulas
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, parse_time_string,get_user_info, get_query_params, registrar_log_generico
 
-bp = Blueprint('auth', __name__, url_prefix="/aulas")
+bp = Blueprint('aulas', __name__, url_prefix="/admin")
 
 def get_aulas():
     aulas = Aulas.query.all()
     return aulas
 
-@bp.route("/admin/aulas", methods=["GET", "POST"])
+@bp.route("/aulas", methods=["GET", "POST"])
 @admin_required
 def gerenciar_aulas():
     acao = request.form.get('acao', 'abertura')

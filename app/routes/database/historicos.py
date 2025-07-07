@@ -4,9 +4,9 @@ from app.models import db, Historicos
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import get_user_info
 
-bp = Blueprint('auth', __name__, url_prefix="/historicos")
+bp = Blueprint('historicos', __name__, url_prefix="/admin")
 
-@bp.route("/admin/historico", methods=["GET", "POST"])
+@bp.route("/historicos", methods=["GET", "POST"])
 @admin_required
 def gerenciar_Historico():
     acao = request.form.get('acao', 'abertura')

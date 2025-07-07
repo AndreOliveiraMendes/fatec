@@ -6,12 +6,12 @@ from app.models import db, Usuarios_Especiais
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params, registrar_log_generico
 
-bp = Blueprint('auth', __name__, url_prefix="/usuarios_especiais")
+bp = Blueprint('usuarios_especiais', __name__, url_prefix="/admin")
 
 def get_usuarios_especiais():
     return db.session.query(Usuarios_Especiais.id_usuario_especial, Usuarios_Especiais.nome_usuario_especial).all()
 
-@bp.route("/admin/usuario_especial", methods=["GET", "POST"])
+@bp.route("/usuarios_especiais", methods=["GET", "POST"])
 @admin_required
 def gerenciar_usuarios_especiais():
     acao = request.form.get('acao', 'abertura')

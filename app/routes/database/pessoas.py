@@ -6,7 +6,7 @@ from app.models import db, Pessoas, Usuarios
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, get_query_params, get_user_info, registrar_log_generico, disable_action
 
-bp = Blueprint('auth', __name__, url_prefix="/pessoas")
+bp = Blueprint('pessoas', __name__, url_prefix="/admin")
 
 def get_pessoas_id_nome(acao, userid):
     pessoas_id_nome = db.session.query(Pessoas.id_pessoa, Pessoas.nome_pessoa)
@@ -15,7 +15,7 @@ def get_pessoas_id_nome(acao, userid):
         pessoas_id_nome = pessoas_id_nome.filter(Pessoas.id_pessoa!=user.id_pessoa)
     return pessoas_id_nome.all()
 
-@bp.route("/admin/pessoas", methods=["GET", "POST"])
+@bp.route("/pessoas", methods=["GET", "POST"])
 @admin_required
 def gerenciar_pessoas():
     acao = request.form.get('acao', 'abertura')

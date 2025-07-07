@@ -4,9 +4,9 @@ from app.models import db, Semestres
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params, registrar_log_generico
 
-bp = Blueprint('auth', __name__, url_prefix="/semestres")
+bp = Blueprint('semestres', __name__, url_prefix="/admin")
 
-@bp.route("/admin/semestres", methods=["GET", "POST"])
+@bp.route("/semestres", methods=["GET", "POST"])
 @admin_required
 def gerenciar_semestres():
     acao = request.form.get('acao', 'abertura')

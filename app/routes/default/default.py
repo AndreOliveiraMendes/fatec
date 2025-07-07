@@ -4,7 +4,7 @@ from app.models import Usuarios, Pessoas
 from app.auxiliar.auxiliar_routes import get_user_info
 from app.auxiliar.decorators import login_required
 
-bp = Blueprint('auth', __name__, url_prefix="/default")
+bp = Blueprint('default', __name__)
 
 @bp.route("/")
 def home():
