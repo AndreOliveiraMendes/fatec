@@ -1,134 +1,161 @@
-# About the Project
+# 🧭 About the Project
 
-This is an open-source project designed to handle laboratory reservations.
+Sistema Flask para gerenciamento de reservas de laboratórios.
+
+✅ Modularizado usando Blueprints.  
+✅ Configuração via múltiplos `.env`.  
+✅ Pronto para WSYGI/Gunicorn (usando `wsgi.py`).  
+✅ Totalmente containerizável.
 
 ---
 
-# Project Structure
-
-The project now follows a more modular and scalable structure:
+# 📦 Project Structure
 
 ```
 .
-├── .env                            # set the Environment mode
-├── .env.example                    # Example of how to set the environment mode
-├── .env.mode                       # set the Environment variables (when using that env)
-├── .env.mode.example               # Example environment file
-├── .gitignore                      # Ignore sensitive or unnecessary files
-├── Readme.md                       # This file (project overview)
-├── auxiliar/                       # Helper Python modules for internal logic and templates
-│   ├── auxiliar_routes.py          # Helper functions specific for route handling
-│   ├── auxiliar_template.py        # Helper functions usable inside Jinja templates
-│   ├── constant.py                 # Centralized Constant file
-│   └── decorators.py               # Custom decorators for authentication and permission control
-├── config.py                       # Main configuration file for Flask and SQLAlchemy
-├── main.py                         # Project entry point (Flask app initialization)
-├── models.py                       # SQLAlchemy models for database schema definition
-├── requirements.txt                # Python dependencies
-├── routes/                         # Backend route definitions (divided by feature/module)
-│   ├── __init__.py                 # Aggregates and loads all route modules
-│   ├── admin/                      # Admin related routes (aside database)
-│   │   ├── __init__.py             # Aggregates and loads all routes inside amin
-│   │   └── admin.py                # Route for non database admin stuff
-│   ├── auth.py                     # Routes related to authentication
-│   ├── database/                   # Subfolder for database-related routes (CRUD pages)
-│   │   ├── __init__.py             # Loads all submodules (aulas, pessoas, etc.)
-│   │   ├── aulas.py                # Routes for managing "Aulas"
-│   │   ├── laboratorios.py         # Routes for managing "Laboratorios"
-│   │   ├── historico.py            # Routes for managing "Historicos"
-│   │   ├── laboratorios.py         # Routes for managing "Laboratorios"
-│   │   ├── permissoes.py           # Routes for managing permissions
-│   │   ├── pessoas.py              # Routes for managing "Pessoas"
-│   │   ├── reservas_fixas.py       # Routes for fixed reservations
-│   │   ├── reservas_temporarias.py # Routes for temporary reservations
-│   │   ├── semestres.py            # Routes for semestres
-│   │   ├── usuarios.py             # Routes for managing "Usuarios"
-│   │   └── usuarios_especiais.py   # Routes for special users
-│   ├── default.py                  # General/default routes (like homepage)
-│   └── error.py                    # Error handling routes (404, 403, etc.)
-├── schema.sql                      # Raw SQL file for database schema creation
-├── start-dev.bat                   # Windows batch file for quick development setup
-├── static/                         # Static web assets (CSS, JS, images, etc.)
-│   ├── css/
-│   │   └── custom.css
-│   └── images/
-│       ├── favicon.png
-│       └── favicon.svg
-└── templates/                      # Front-end HTML templates (Jinja2)
-    ├── admin/                      # Admin related pages
-    │   └── admin.html              # Admin dashboard
-    ├── usuario/                    # Admin related pages
-    │   └── perfil.html             # Small profile page
-    ├── auth/                       # Authentication pages (login, logout, etc.)
-    │   ├── login.html
-    │   ├── login_fail.html
-    │   ├── login_success.html
-    │   └── logout.html
-    ├── base                        # Base layout template (extended by all pages)
-    ├── database/                   # Pages for listing, searching, and editing database entries
-    │   ├── base_crude              # Base layout template for crude (extended by all pages inside database)
-    │   ├── aulas.html
-    │   ├── laboratorios.html
-    │   ├── historico.html
-    │   ├── laboratorios.html
-    │   ├── permissoes.html
-    │   ├── pessoas.html
-    │   ├── reservas_fixas.html
-    │   ├── reservas_temporarias.html
-    │   ├── semestres.html
-    │   ├── usuarios.html
-    │   └── usuarios_especiais.html
-    ├── homepage.html               # Initial landing page
-    ├── http/                       # template for http codes
-    │   ├── 401.html                # 401 - Unauthorized error page
-    │   ├── 403.html                # 403 - Forbidden error page
-    │   └── 404.html                # 404 - Not Found error page
-    ├── macros/                     # Jinja macros for reuse (buttons, forms, pagination, etc.)
-    │   ├── form.html
-    │   └── pagination.html
-    └── under_dev.html              # Placeholder for "Under Development" sections
+├── .env                   # Qual ambiente está ativo
+├── .env.dev               # Variáveis para DEV
+├── .env.dev.example       # Exemplo para DEV
+├── .env.prod              # Variáveis para PROD
+├── .env.example           # Exemplo geral
+├── .gitignore
+├── LICENSE
+├── Readme.md
+├── requirements.txt
+├── schema.sql             # SQL schema para inicialização/migração
+├── config.py              # Carrega configs de acordo com o .env
+├── wsgi.py                # Entrada para servidores WSYGI/Gunicorn
+├── start-dev.bat          # Helper para Windows
+└── app/
+    ├── __init__.py
+    ├── main.py            # Cria o app com a factory
+    ├── extensions.py      # Inicia extensões (SQLAlchemy etc.)
+    ├── models.py          # Definição das tabelas com SQLAlchemy
+    ├── auxiliar/
+    │   ├── __init__.py
+    │   ├── auxiliar_routes.py
+    │   ├── auxiliar_template.py
+    │   ├── constant.py
+    │   ├── decorators.py
+    │   └── error.py
+    ├── routes/
+    │   ├── __init__.py
+    │   ├── admin/
+    │   │   ├── __init__.py
+    │   │   └── admin.py
+    │   ├── database/
+    │   │   ├── __init__.py
+    │   │   ├── aulas.py
+    │   │   ├── aulas_ativas.py
+    │   │   ├── historicos.py
+    │   │   ├── laboratorios.py
+    │   │   ├── permissoes.py
+    │   │   ├── pessoas.py
+    │   │   ├── reservas_fixas.py
+    │   │   ├── reservas_temporarias.py
+    │   │   ├── semestres.py
+    │   │   ├── usuarios.py
+    │   │   └── usuarios_especiais.py
+    │   └── default/
+    │       ├── __init__.py
+    │       ├── auth.py
+    │       └── default.py
+    ├── static/
+    │   ├── css/
+    │   │   └── custom.css
+    │   └── images/
+    │       ├── favicon.png
+    │       └── favicon.svg
+    └── templates/
+        ├── base/
+        ├── admin/
+        │   └── admin.html
+        ├── auth/
+        │   ├── login.html
+        │   ├── login_fail.html
+        │   ├── login_success.html
+        │   └── logout.html
+        ├── database/
+        │   ├── base_crude/
+        │   ├── aulas.html
+        │   ├── historicos.html
+        │   ├── laboratorios.html
+        │   ├── permissoes.html
+        │   ├── pessoas.html
+        │   ├── semestres.html
+        │   ├── usuarios.html
+        │   └── usuarios_especiais.html
+        ├── homepage.html
+        ├── http/
+        │   ├── 401.html
+        │   ├── 403.html
+        │   └── 404.html
+        ├── macros/
+        │   ├── form.html
+        │   └── pagination.html
+        ├── under_dev.html
+        └── usuario/
+            └── perfil.html
 ```
 
 ---
 
-# File Descriptions
+# 📜 File Highlights
 
-* **`.env`** → Defines which environment gonna be used, check `.env.example` for more details, by default it uses `.env.dev`.
-* **`.env.mode`** → Defines environment variables the mode uses when set. See `.env.mode.example` for reference.
-* **`.gitignore`** → Specifies sensitive or unnecessary files/folders to ignore.
-* **`Readme.md`** → This file. Project overview and structure.
-* **`auxiliar/`** → Contains helper Python modules:
-  * **`auxiliar_routes.py`** → Route-specific helper functions.
-  * **`auxiliar_template.py`** → Functions available for use inside Jinja templates.
-  * **`decorators.py`** → Decorators for permissions, authentication, and access control.
-  * **`constant.py`** → Constant avaliabre for jinja and program (the permissioes flags)
-* **`config.py`** → Centralized Flask and SQLAlchemy configuration.
-* **`main.py`** → Project entry point; creates app instance, database, and loads routes.
-* **`models.py`** → Database schema (tables) defined using SQLAlchemy ORM.
-* **`requirements.txt`** → List of Python dependencies.
-* **`routes/`** → All backend routes, now organized into:
-  * **`auth.py`** → Authentication flows (login, logout).
-  * **`default.py`** → Miscellaneous or general routes.
-  * **`error.py`** → Error page routes.
-  * **`database/`** → Contains one file per database entity/module (like pessoas, aulas, etc).
-* **`schema.sql`** → Full SQL schema for manual database setup (for production or migration).
-* **`start-dev.bat`** → Quick-start script for Windows devs.
-* **`static/`** → Static files like CSS, JS, or images (e.g., favicons).
-* **`templates/`** → Jinja2 HTML templates:
-  * **`auth/`** → Login/logout pages.
-  * **`admin/`** → Admin pages
-  * **`usuario/`** → User pages 
-  * **`database/`** → Pages for CRUD operations on each database entity.
-  * **`macros/`** → Reusable UI component macros (pagination, forms, etc).
-  * **`base`** → Main layout skeleton used as base for all pages.
+✅ **.env** → define qual modo de ambiente está ativo.  
+✅ **.env.dev / .env.prod** → configurações específicas.  
+✅ **config.py** → carrega a config certa via `load_dotenv`.  
+✅ **wsgi.py** → entrada recomendada para Gunicorn.  
+✅ **app/main.py** → app factory com Blueprint registration.  
+✅ **app/extensions.py** → inicialização centralizada de extensões.  
+✅ **app/routes/** → Blueprints organizados por domínio.  
+✅ **app/auxiliar/** → utilitários, decoradores, helpers para rotas.  
+✅ **static/** → CSS e imagens.  
+✅ **templates/** → Base, CRUD, auth, erro, macros.  
+✅ **schema.sql** → para montar o banco rapidamente.
 
 ---
 
-# :airplane: Development Status
+# ⚙️ How to Run
 
-* This project is under active development.
-* More detailed documentation, including database diagrams and API references, will be added as the project evolves.
+## 📌 Local development
 
-# Suggestion
+✅ Crie seu ambiente virtual:
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
 
-* Review routes to implement POST → Redirect → GET if you want to avoid the refresh warning
+✅ Copie e configure seu .env:
+```bash
+cp .env.dev.example .env.dev
+cp .env.example .env
+```
+Edite conforme necessário.
+
+✅ Rode:
+```bash
+python -m app.main
+```
+
+✅ Ou para produção (exemplo Gunicorn):
+```bash
+gunicorn -w 4 -b 0.0.0.0:5000 wsgi:app
+```
+
+---
+
+# 💡 Dev notes
+* Blueprints registrados automaticamente.
+* Múltiplos ambientes de configuração.
+* Pronto para Docker / Podman.
+* Suporte a Basic Auth (configurado via .env).
+
+---
+
+# 📌 Suggestion
+✅ Use **POST → Redirect → GET** para evitar warnings ao recarregar.  
+✅ Planeje o uso de **volumes** ao containerizar o banco.  
+
+---

@@ -1,0 +1,15 @@
+{% extends "base" %}
+{% block title %}
+    401 - Não Autorizado
+{% endblock title %}
+{% block content %}
+    <div class="alert alert-warning" role="alert">
+
+        <h3>401 - Não Autorizado</h3>
+        <p>Você precisa fazer login para acessar esta página.</p>
+    </div>
+    <div class="btn-group">
+        <a href="{{ url_for('default.home') }}" class="btn btn-info"><span class="glyphicon glyphicon-home"></span> Voltar à página de início</a>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-success"><span class="glyphicon glyphicon-log-in"></span> Ir para Login</a>
+    </div>
+{% endblock content %}

@@ -1,0 +1,13 @@
+{% extends "base" %}
+{% block title %}
+    Saindo
+{% endblock title %}
+{% block extra_script %}
+    {{ dynamic_redirect(5, "Você será redirecionado em ${segundos} segundos.", url_for("default.home") ) }}
+{% endblock extra_script %}
+{% block content %}
+    <div class="alert alert-success" role="alert">
+        <p id="redirect-msg">Você será redirecionado em 5 segundos.</p>
+    </div>
+    <a href={{ url_for("default.home") }} class="btn btn-primary"> voltar a pagina de inicio</a>
+{% endblock content %}
