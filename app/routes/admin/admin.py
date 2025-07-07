@@ -1,10 +1,12 @@
-from app.main import app
+from flask import Blueprint
 from flask import session, render_template, request, redirect, url_for
 from app.models import db, Reservas_Fixas, Usuarios, Permissoes, Laboratorios, Aulas
 from app.auxiliar.decorators import login_required, admin_required
 from app.auxiliar.auxiliar_routes import get_user_info
 
-@app.route("/admin")
+bp = Blueprint('auth', __name__, url_prefix="/admin")
+
+@bp.route("/admin")
 @admin_required
 def gerenciar_menu():
     userid = session.get('userid')

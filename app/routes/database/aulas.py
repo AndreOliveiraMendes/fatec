@@ -1,16 +1,18 @@
 import copy
-from app.main import app
+from flask import Blueprint
 from flask import flash, session, render_template, request
 from sqlalchemy.exc import IntegrityError
 from app.models import db, Aulas
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, parse_time_string,get_user_info, get_query_params, registrar_log_generico
 
+bp = Blueprint('auth', __name__, url_prefix="/aulas")
+
 def get_aulas():
     aulas = Aulas.query.all()
     return aulas
 
-@app.route("/admin/aulas", methods=["GET", "POST"])
+@bp.route("/admin/aulas", methods=["GET", "POST"])
 @admin_required
 def gerenciar_aulas():
     acao = request.form.get('acao', 'abertura')

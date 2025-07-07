@@ -1,10 +1,12 @@
 import copy
-from app.main import app
+from flask import Blueprint
 from flask import flash, session, render_template, request, abort
 from sqlalchemy.exc import IntegrityError
 from app.models import db, Usuarios, Pessoas
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, get_query_params, get_user_info, registrar_log_generico, disable_action
+
+bp = Blueprint('auth', __name__, url_prefix="/usuarios")
 
 def get_pessoas():
     return db.session.query(Pessoas.id_pessoa, Pessoas.nome_pessoa).all()
@@ -15,7 +17,7 @@ def get_usuarios(acao, userid):
         usuarios = usuarios.filter(Usuarios.id_usuario!=userid)
     return usuarios.all()
 
-@app.route("/admin/usuarios", methods=["GET", "POST"])
+@bp.route("/admin/usuarios", methods=["GET", "POST"])
 @admin_required
 def gerenciar_usuarios():
     acao = request.form.get('acao', 'abertura')

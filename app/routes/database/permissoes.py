@@ -1,11 +1,13 @@
 import copy
-from app.main import app
+from flask import Blueprint
 from flask import flash, session, render_template, request
 from sqlalchemy.exc import IntegrityError
 from app.models import db, Permissoes, Usuarios, Pessoas
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, get_query_params, get_user_info, registrar_log_generico
 from app.auxiliar.constant import PERM_RESERVAS_FIXA, PERM_RESERVAS_TEMPORARIA, PERM_ADMIN
+
+bp = Blueprint('auth', __name__, url_prefix="/permissoes")
 
 def get_no_perm_users():
     usuarios_com_permissao = db.session.query(Permissoes.id_permissao_usuario)
@@ -26,7 +28,7 @@ def get_flag(request):
     flag_admin = PERM_ADMIN if 'flag_admin' in request.form else 0
     return flag_fixa|flag_temp|flag_admin
 
-@app.route("/admin/permissoes", methods=["GET", "POST"])
+@bp.route("/admin/permissoes", methods=["GET", "POST"])
 @admin_required
 def gerenciar_permissoes():
     acao = request.form.get('acao', 'abertura')

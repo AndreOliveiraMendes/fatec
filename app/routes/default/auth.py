@@ -1,10 +1,12 @@
 import requests, copy
-from app.main import app
+from flask import Blueprint
 from config import TOMCAT_API_URL, API_BASIC_USER, API_BASIC_PASS
 from flask import flash, session, render_template, request, redirect, url_for
 from app.models import db, Pessoas, Usuarios, Permissoes
 from app.auxiliar.decorators import login_required
 from app.auxiliar.auxiliar_routes import none_if_empty, registrar_log_generico
+
+bp = Blueprint('auth', __name__, url_prefix="/auth")
 
 def check_login(id, password):
     loged, userid, username, permission = False, None, None, None
@@ -81,12 +83,12 @@ def check_login(id, password):
         else:
             flash("Erro inesperado", "danger")
     except requests.exceptions.ConnectionError as e:
-        app.logger.error(e)
+        bp.logger.error(e)
         flash("Falha ao conectar à API externa.", "danger")
 
     return loged, userid, username, permission
 
-@app.route("/login", methods=['GET', 'POST'])
+@bp.route("/login", methods=['GET', 'POST'])
 def login():
     if 'userid' in session:
         return redirect(url_for('home'))
@@ -106,7 +108,7 @@ def login():
         flash("Caro Usuario, esse sistema usa as mesma credenciais do academico", "info")
         return render_template("auth/login.html")
     
-@app.route("/logout")
+@bp.route("/logout")
 @login_required
 def logout():
     session.pop('userid')

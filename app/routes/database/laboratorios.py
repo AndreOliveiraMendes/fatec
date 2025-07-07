@@ -1,15 +1,17 @@
 import copy
-from app.main import app
+from flask import Blueprint
 from flask import flash, session, render_template, request
 from sqlalchemy.exc import IntegrityError
 from app.models import db, Laboratorios, DisponibilidadeEnum, TipoLaboratorioEnum
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params, registrar_log_generico
 
+bp = Blueprint('auth', __name__, url_prefix="/laboratorios")
+
 def get_laboratorios():
     return db.session.query(Laboratorios.id_laboratorio, Laboratorios.nome_laboratorio).all()
 
-@app.route("/admin/laboratorios", methods=["GET", "POST"])
+@bp.route("/admin/laboratorios", methods=["GET", "POST"])
 @admin_required
 def gerenciar_laboratorios():
     acao = request.form.get('acao', 'abertura')

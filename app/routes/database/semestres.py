@@ -1,10 +1,12 @@
-from app.main import app
+from flask import Blueprint
 from flask import flash, session, render_template, request, redirect, url_for
 from app.models import db, Semestres
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params, registrar_log_generico
 
-@app.route("/admin/semestres", methods=["GET", "POST"])
+bp = Blueprint('auth', __name__, url_prefix="/semestres")
+
+@bp.route("/admin/semestres", methods=["GET", "POST"])
 @admin_required
 def gerenciar_semestres():
     acao = request.form.get('acao', 'abertura')

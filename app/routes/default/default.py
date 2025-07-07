@@ -1,16 +1,18 @@
-from app.main import app
+from flask import Blueprint
 from flask import session, render_template
 from app.models import Usuarios, Pessoas
 from app.auxiliar.auxiliar_routes import get_user_info
 from app.auxiliar.decorators import login_required
 
-@app.route("/")
+bp = Blueprint('auth', __name__, url_prefix="/default")
+
+@bp.route("/")
 def home():
     userid = session.get('userid')
     username, perm = get_user_info(userid)
     return render_template("homepage.html", username=username, perm=perm)
 
-@app.route("/perfil")
+@bp.route("/perfil")
 @login_required
 def perfil():
     userid = session.get('userid')

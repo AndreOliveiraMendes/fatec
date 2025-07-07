@@ -1,15 +1,17 @@
 import copy
-from app.main import app
+from flask import Blueprint
 from flask import flash, session, render_template, request
 from sqlalchemy.exc import IntegrityError
 from app.models import db, Usuarios_Especiais
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params, registrar_log_generico
 
+bp = Blueprint('auth', __name__, url_prefix="/usuarios_especiais")
+
 def get_usuarios_especiais():
     return db.session.query(Usuarios_Especiais.id_usuario_especial, Usuarios_Especiais.nome_usuario_especial).all()
 
-@app.route("/admin/usuario_especial", methods=["GET", "POST"])
+@bp.route("/admin/usuario_especial", methods=["GET", "POST"])
 @admin_required
 def gerenciar_usuarios_especiais():
     acao = request.form.get('acao', 'abertura')

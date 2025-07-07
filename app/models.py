@@ -1,8 +1,11 @@
 import enum
-from app.main import app, db
+from flask import Blueprint
+from app.main import db
 from datetime import date, time, datetime
 from sqlalchemy import String, ForeignKey, CheckConstraint, TEXT, UniqueConstraint, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+bp = Blueprint("auth", __name__)
 
 class Reservas_Fixas(db.Model):
     __tablename__ = 'reservas_fixas'
@@ -162,9 +165,3 @@ class Semestres(db.Model):
     data_fim: Mapped[date] = mapped_column(nullable=False)
 
     reservas_fixas: Mapped[list['Reservas_Fixas']] = relationship(back_populates='semestres')
-
-
-#cria as tabelas necessarias, descomente se precisar
-with app.app_context():
-#    db.drop_all()                                   #remove todas as tabelas referenciadas
-    db.create_all()                                 # Cria todas as tabelas necessárias. Se precisar resetar o banco, descomente o db.drop_all()

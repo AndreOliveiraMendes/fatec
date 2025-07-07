@@ -1,78 +1,78 @@
 from flask import url_for
-from app.main import app
 from markupsafe import Markup
 from app.auxiliar.constant import PERMISSIONS
 
-@app.template_global()
-def dynamic_redirect(seconds=5, message=None, target_url=None):
-    if message is None:
-        message = f"Você será redirecionado para a página inicial em ${{segundos}} segundo${{segundos === 1 ? '' : 's'}}."
-    if target_url is None:
-        target_url = url_for("home")
+def register_filters(app):
+    @app.template_global()
+    def dynamic_redirect(seconds=5, message=None, target_url=None):
+        if message is None:
+            message = f"Você será redirecionado para a página inicial em ${{segundos}} segundo${{segundos === 1 ? '' : 's'}}."
+        if target_url is None:
+            target_url = url_for("home")
 
-    script = f"""
-    <noscript>
-        <meta http-equiv="refresh" content="{seconds};url={target_url}">
-    </noscript>
+        script = f"""
+        <noscript>
+            <meta http-equiv="refresh" content="{seconds};url={target_url}">
+        </noscript>
 
-    <script>
-    let segundos = {seconds};
-    function iniciarTemporizador() {{
-        const elemento = document.getElementById("redirect-msg");
-        const intervalo = setInterval(() => {{
-            segundos--;
-            elemento.innerText = `{message}`;
-            if (segundos <= 0) {{
-                clearInterval(intervalo);
-                window.location.href = "{target_url}";
-            }}
-        }}, 1000);
-    }}
-    window.onload = iniciarTemporizador;
-    </script>
-    """
-    return Markup(script)
+        <script>
+        let segundos = {seconds};
+        function iniciarTemporizador() {{
+            const elemento = document.getElementById("redirect-msg");
+            const intervalo = setInterval(() => {{
+                segundos--;
+                elemento.innerText = `{message}`;
+                if (segundos <= 0) {{
+                    clearInterval(intervalo);
+                    window.location.href = "{target_url}";
+                }}
+            }}, 1000);
+        }}
+        window.onload = iniciarTemporizador;
+        </script>
+        """
+        return Markup(script)
 
-@app.template_global()
-def bitwise_and(x, y):
-    return x & y
+    @app.template_global()
+    def bitwise_and(x, y):
+        return x & y
 
-@app.template_filter('has_flag')
-def has_flag(value, flag):
-    return (value & flag) == flag
+    @app.template_filter('has_flag')
+    def has_flag(value, flag):
+        return (value & flag) == flag
 
-@app.template_global()
-def generate_head(target_url, acao, include = None, disable = None):
-    botoes = [
-        ('Listar', 'listar', 'glyphicon-book'),
-        ('Procurar', 'procurar', 'glyphicon-search'),
-        ('Inserir', 'inserir', 'glyphicon-plus'),
-        ('Editar', 'editar', 'glyphicon-pencil'),
-        ('Excluir', 'excluir', 'glyphicon-trash'),
-    ]
+    @app.template_global()
+    def generate_head(target_url, acao, include = None, disable = None):
+        botoes = [
+            ('Listar', 'listar', 'glyphicon-book'),
+            ('Procurar', 'procurar', 'glyphicon-search'),
+            ('Inserir', 'inserir', 'glyphicon-plus'),
+            ('Editar', 'editar', 'glyphicon-pencil'),
+            ('Excluir', 'excluir', 'glyphicon-trash'),
+        ]
 
-    if include:
-        for botao in include:
-            botoes.append(botao)
-    if disable:
-        botoes = filter(lambda x: not x[1] in disable, botoes)
+        if include:
+            for botao in include:
+                botoes.append(botao)
+        if disable:
+            botoes = filter(lambda x: not x[1] in disable, botoes)
 
-    html = f'<div class="container">\n<form class="form-group" role="form" action="{target_url}" method="post">\n'
-    html += '<input type="hidden" name="bloco" value="0">\n<div class="form-group btn-group">\n'
+        html = f'<div class="container">\n<form class="form-group" role="form" action="{target_url}" method="post">\n'
+        html += '<input type="hidden" name="bloco" value="0">\n<div class="form-group btn-group">\n'
 
-    for nome, valor, icone in botoes:
-        active = "btn-secondary" if acao == valor else "btn-primary"
-        value = "abertura" if acao == valor else valor
-        html += f'''
-        <button type="submit" name="acao" value="{value}"
-            class="btn {active}">
-            <i class="glyphicon {icone}" style="margin-right: 5px;"></i> {nome}
-        </button>
-        '''
+        for nome, valor, icone in botoes:
+            active = "btn-secondary" if acao == valor else "btn-primary"
+            value = "abertura" if acao == valor else valor
+            html += f'''
+            <button type="submit" name="acao" value="{value}"
+                class="btn {active}">
+                <i class="glyphicon {icone}" style="margin-right: 5px;"></i> {nome}
+            </button>
+            '''
 
-    html += '</div>\n</form>\n</div>'
-    return Markup(html)
+        html += '</div>\n</form>\n</div>'
+        return Markup(html)
 
-@app.context_processor
-def inject_permissions():
-    return PERMISSIONS
+    @app.context_processor
+    def inject_permissions():
+        return PERMISSIONS

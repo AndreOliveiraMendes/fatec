@@ -1,10 +1,12 @@
-from app.main import app
+from flask import Blueprint
 from flask import flash, session, render_template, request, redirect, url_for
 from app.models import db, Historicos
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import get_user_info
 
-@app.route("/admin/historico", methods=["GET", "POST"])
+bp = Blueprint('auth', __name__, url_prefix="/historicos")
+
+@bp.route("/admin/historico", methods=["GET", "POST"])
 @admin_required
 def gerenciar_Historico():
     acao = request.form.get('acao', 'abertura')
