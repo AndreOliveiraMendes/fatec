@@ -8,7 +8,7 @@ def register_filters(app):
         if message is None:
             message = f"Você será redirecionado para a página inicial em ${{segundos}} segundo${{segundos === 1 ? '' : 's'}}."
         if target_url is None:
-            target_url = url_for("home")
+            target_url = url_for("default.home")
 
         script = f"""
         <noscript>

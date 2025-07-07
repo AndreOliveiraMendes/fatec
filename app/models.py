@@ -5,8 +5,6 @@ from datetime import date, time, datetime
 from sqlalchemy import String, ForeignKey, CheckConstraint, TEXT, UniqueConstraint, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-bp = Blueprint("auth", __name__)
-
 class Reservas_Fixas(db.Model):
     __tablename__ = 'reservas_fixas'
 

@@ -46,7 +46,7 @@ def page_not_found(e):
     debug_message(e, 404)
     return render_template('http/404.html', username=username, perm=perm), 404
 
-bp.route('/under_dev')
+bp.route('/under_dev', endpoint='under_dev')
 def under_dev_page():
     userid = session.get('userid')
     username, perm = get_user_info(userid)

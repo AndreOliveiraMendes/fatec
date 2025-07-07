@@ -3,8 +3,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from config import get_config
 from app.routes import register_blueprints
-
-db = SQLAlchemy()
+from app.extensions import db
 
 def create_app():
     app = Flask(__name__)

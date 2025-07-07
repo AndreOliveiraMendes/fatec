@@ -91,7 +91,7 @@ def check_login(id, password):
 @bp.route("/login", methods=['GET', 'POST'])
 def login():
     if 'userid' in session:
-        return redirect(url_for('home'))
+        return redirect(url_for('default.home'))
     if request.method == 'POST':
         userlogin = none_if_empty(request.form.get("userlogin"))
         userpassword = none_if_empty(request.form.get("userpassword"))
