@@ -1,6 +1,5 @@
 import os
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from config import get_config
 from app.routes import register_blueprints
 from app.extensions import db
