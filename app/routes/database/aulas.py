@@ -6,7 +6,7 @@ from app.models import db, Aulas
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, parse_time_string,get_user_info, get_query_params, registrar_log_generico
 
-bp = Blueprint('aulas', __name__, url_prefix="/admin")
+bp = Blueprint('aulas', __name__, url_prefix="/database")
 
 def get_aulas():
     aulas = Aulas.query.all()

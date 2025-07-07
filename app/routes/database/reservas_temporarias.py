@@ -3,7 +3,7 @@ from flask import flash, session, render_template, request, redirect, url_for
 from app.models import db
 from app.auxiliar.decorators import admin_required
 
-bp = Blueprint('reservas_temporarias', __name__, url_prefix="/admin")
+bp = Blueprint('reservas_temporarias', __name__, url_prefix="/database")
 
 @bp.route("/reservas_temporarias")
 @admin_required

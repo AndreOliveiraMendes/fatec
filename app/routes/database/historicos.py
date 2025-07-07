@@ -4,7 +4,7 @@ from app.models import db, Historicos
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import get_user_info
 
-bp = Blueprint('historicos', __name__, url_prefix="/admin")
+bp = Blueprint('historicos', __name__, url_prefix="/database")
 
 @bp.route("/historicos", methods=["GET", "POST"])
 @admin_required

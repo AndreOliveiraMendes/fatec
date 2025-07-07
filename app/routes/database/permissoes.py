@@ -7,7 +7,7 @@ from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, get_query_params, get_user_info, registrar_log_generico
 from app.auxiliar.constant import PERM_RESERVAS_FIXA, PERM_RESERVAS_TEMPORARIA, PERM_ADMIN
 
-bp = Blueprint('permissoes', __name__, url_prefix="/admin")
+bp = Blueprint('permissoes', __name__, url_prefix="/database")
 
 def get_no_perm_users():
     usuarios_com_permissao = db.session.query(Permissoes.id_permissao_usuario)

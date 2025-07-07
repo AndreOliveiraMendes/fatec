@@ -6,7 +6,7 @@ from app.models import db, Pessoas, Usuarios
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, get_query_params, get_user_info, registrar_log_generico, disable_action
 
-bp = Blueprint('pessoas', __name__, url_prefix="/admin")
+bp = Blueprint('pessoas', __name__, url_prefix="/database")
 
 def get_pessoas_id_nome(acao, userid):
     pessoas_id_nome = db.session.query(Pessoas.id_pessoa, Pessoas.nome_pessoa)

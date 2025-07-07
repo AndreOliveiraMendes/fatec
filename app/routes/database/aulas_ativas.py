@@ -3,7 +3,7 @@ from flask import flash, session, render_template, request, redirect, url_for
 from app.models import db, Aulas_Ativas
 from app.auxiliar.decorators import admin_required
 
-bp = Blueprint('aulas_ativas', __name__, url_prefix="/admin")
+bp = Blueprint('aulas_ativas', __name__, url_prefix="/database")
 
 @bp.route("/aulas_ativas", methods=["GET", "POST"])
 @admin_required

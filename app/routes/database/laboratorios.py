@@ -6,7 +6,7 @@ from app.models import db, Laboratorios, DisponibilidadeEnum, TipoLaboratorioEnu
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params, registrar_log_generico
 
-bp = Blueprint('laboratorios', __name__, url_prefix="/admin")
+bp = Blueprint('laboratorios', __name__, url_prefix="/database")
 
 def get_laboratorios():
     return db.session.query(Laboratorios.id_laboratorio, Laboratorios.nome_laboratorio).all()

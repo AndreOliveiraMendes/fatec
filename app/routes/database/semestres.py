@@ -4,7 +4,7 @@ from app.models import db, Semestres
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params, registrar_log_generico
 
-bp = Blueprint('semestres', __name__, url_prefix="/admin")
+bp = Blueprint('semestres', __name__, url_prefix="/database")
 
 @bp.route("/semestres", methods=["GET", "POST"])
 @admin_required
