@@ -7,18 +7,40 @@ CREATE TABLE
     ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 
 CREATE TABLE
+    IF NOT EXISTS `dias_semana` (
+        `id` INT (10) NOT NULL AUTO_INCREMENT,
+        `nome` VARCHAR(15) NOT NULL COLLATE 'utf8mb4_0900_ai_ci',
+        PRIMARY KEY (`id`) USING BTREE,
+        UNIQUE INDEX `nome` (`nome`) USING BTREE
+    ) COLLATE = 'utf8mb4_0900_ai_ci' ENGINE = InnoDB;
+
+CREATE TABLE
+    IF NOT EXISTS `turnos` (
+        `id` INT (10) NOT NULL AUTO_INCREMENT,
+        `nome` VARCHAR(15) NOT NULL COLLATE 'utf8mb4_0900_ai_ci',
+        `horario_inicio` TIME NOT NULL,
+        `horario_fim` TIME NOT NULL,
+        PRIMARY KEY (`id`) USING BTREE,
+        UNIQUE INDEX `nome` (`nome`) USING BTREE
+    ) COLLATE = 'utf8mb4_0900_ai_ci' ENGINE = InnoDB;
+
+CREATE TABLE
     IF NOT EXISTS `aulas_ativas` (
-        `id_aula_ativa` int NOT NULL AUTO_INCREMENT,
-        `id_aula` int NOT NULL,
-        `inicio_ativacao` date DEFAULT NULL,
-        `fim_ativacao` date DEFAULT NULL,
-        `semana` int DEFAULT NULL,
-        `turno` int DEFAULT NULL,
-        `tipo_aula` int NOT NULL DEFAULT '0',
-        PRIMARY KEY (`id_aula_ativa`),
-        KEY `id_aula` (`id_aula`),
-        CONSTRAINT `aulas_ativas_ibfk_1` FOREIGN KEY (`id_aula`) REFERENCES `aulas` (`id_aula`)
-    ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
+        `id_aula_ativa` INT (10) NOT NULL AUTO_INCREMENT,
+        `id_aula` INT (10) NOT NULL,
+        `inicio_ativacao` DATE NULL DEFAULT NULL,
+        `fim_ativacao` DATE NULL DEFAULT NULL,
+        `id_semana` INT (10) NULL DEFAULT NULL,
+        `id_turno` INT (10) NULL DEFAULT NULL,
+        `tipo_aula` ENUM ('AULA', 'EVENTO', 'OUTROS') NOT NULL DEFAULT 'AULA' COLLATE 'utf8mb4_0900_ai_ci',
+        PRIMARY KEY (`id_aula_ativa`) USING BTREE,
+        INDEX `id_aula` (`id_aula`) USING BTREE,
+        INDEX `id_semana` (`id_semana`) USING BTREE,
+        INDEX `id_turno` (`id_turno`) USING BTREE,
+        CONSTRAINT `aulas_ativas_ibfk_1` FOREIGN KEY (`id_aula`) REFERENCES `aulas` (`id_aula`) ON UPDATE NO ACTION ON DELETE NO ACTION,
+        CONSTRAINT `aulas_ativas_ibfk_2` FOREIGN KEY (`id_semana`) REFERENCES `dias_semana` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION,
+        CONSTRAINT `aulas_ativas_ibfk_3` FOREIGN KEY (`id_turno`) REFERENCES `turnos` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION
+    ) COLLATE = 'utf8mb4_0900_ai_ci' ENGINE = InnoDB;
 
 CREATE TABLE
     IF NOT EXISTS `laboratorios` (
