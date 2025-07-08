@@ -13,89 +13,98 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 
 ```
 .
-├── .env                   # Qual ambiente está ativo
-├── .env.dev               # Variáveis para DEV
-├── .env.dev.example       # Exemplo para DEV
-├── .env.prod              # Variáveis para PROD
-├── .env.example           # Exemplo geral
+├── .env
+├── .env.dev
+├── .env.dev.example
+├── .env.example
+├── .env.prod
 ├── .gitignore
+├── .vscode
+│   └── settings.json
 ├── LICENSE
 ├── Readme.md
+├── app
+│   ├── __init__.py
+│   ├── auxiliar
+│   │   ├── __init__.py
+│   │   ├── auxiliar_routes.py
+│   │   ├── auxiliar_template.py
+│   │   ├── constant.py
+│   │   ├── decorators.py
+│   │   └── error.py
+│   ├── extensions.py
+│   ├── main.py
+│   ├── models.py
+│   ├── routes
+│   │   ├── __init__.py
+│   │   ├── admin
+│   │   │   ├── __init__.py
+│   │   │   └── admin.py
+│   │   ├── auth
+│   │   │   ├── __init__.py
+│   │   │   └── auth.py
+│   │   ├── database
+│   │   │   ├── __init__.py
+│   │   │   ├── aulas.py
+│   │   │   ├── aulas_ativas.py
+│   │   │   ├── dias_semana.py
+│   │   │   ├── historicos.py
+│   │   │   ├── laboratorios.py
+│   │   │   ├── permissoes.py
+│   │   │   ├── pessoas.py
+│   │   │   ├── reservas_fixas.py
+│   │   │   ├── reservas_temporarias.py
+│   │   │   ├── semestres.py
+│   │   │   ├── turnos.py
+│   │   │   ├── usuarios.py
+│   │   │   └── usuarios_especiais.py
+│   │   └── default
+│   │       ├── __init__.py
+│   │       └── default.py
+│   ├── static
+│   │   ├── css
+│   │   │   └── custom.css
+│   │   └── images
+│   │       ├── favicon.png
+│   │       └── favicon.svg
+│   └── templates
+│       ├── admin
+│       │   └── admin.html
+│       ├── auth
+│       │   ├── login.html
+│       │   ├── login_fail.html
+│       │   ├── login_success.html
+│       │   └── logout.html
+│       ├── base
+│       ├── database
+│       │   ├── aulas.html
+│       │   ├── aulas_ativas.html
+│       │   ├── base_crude
+│       │   ├── dias_semanas.html
+│       │   ├── historicos.html
+│       │   ├── laboratorios.html
+│       │   ├── permissoes.html
+│       │   ├── pessoas.html
+│       │   ├── semestres.html
+│       │   ├── usuarios.html
+│       │   └── usuarios_especiais.html
+│       ├── homepage.html
+│       ├── http
+│       │   ├── 401.html
+│       │   ├── 403.html
+│       │   └── 404.html
+│       ├── macros
+│       │   ├── form.html
+│       │   └── pagination.html
+│       ├── under_dev.html
+│       └── usuario
+│           └── perfil.html
+├── config.py
+├── configurar_vscode.bat
 ├── requirements.txt
-├── schema.sql             # SQL schema para inicialização/migração
-├── config.py              # Carrega configs de acordo com o .env
-├── wsgi.py                # Entrada para servidores WSYGI/Gunicorn
-├── start-dev.bat          # Helper para Windows
-└── app/
-    ├── __init__.py
-    ├── main.py            # Cria o app com a factory
-    ├── extensions.py      # Inicia extensões (SQLAlchemy etc.)
-    ├── models.py          # Definição das tabelas com SQLAlchemy
-    ├── auxiliar/
-    │   ├── __init__.py
-    │   ├── auxiliar_routes.py
-    │   ├── auxiliar_template.py
-    │   ├── constant.py
-    │   ├── decorators.py
-    │   └── error.py
-    ├── routes/
-    │   ├── __init__.py
-    │   ├── admin/
-    │   │   ├── __init__.py
-    │   │   └── admin.py
-    │   ├── database/
-    │   │   ├── __init__.py
-    │   │   ├── aulas.py
-    │   │   ├── aulas_ativas.py
-    │   │   ├── historicos.py
-    │   │   ├── laboratorios.py
-    │   │   ├── permissoes.py
-    │   │   ├── pessoas.py
-    │   │   ├── reservas_fixas.py
-    │   │   ├── reservas_temporarias.py
-    │   │   ├── semestres.py
-    │   │   ├── usuarios.py
-    │   │   └── usuarios_especiais.py
-    │   └── default/
-    │       ├── __init__.py
-    │       ├── auth.py
-    │       └── default.py
-    ├── static/
-    │   ├── css/
-    │   │   └── custom.css
-    │   └── images/
-    │       ├── favicon.png
-    │       └── favicon.svg
-    └── templates/
-        ├── base/
-        ├── admin/
-        │   └── admin.html
-        ├── auth/
-        │   ├── login.html
-        │   ├── login_fail.html
-        │   ├── login_success.html
-        │   └── logout.html
-        ├── database/
-        │   ├── base_crude/
-        │   ├── aulas.html
-        │   ├── historicos.html
-        │   ├── laboratorios.html
-        │   ├── permissoes.html
-        │   ├── pessoas.html
-        │   ├── semestres.html
-        │   ├── usuarios.html
-        │   └── usuarios_especiais.html
-        ├── homepage.html
-        ├── http/
-        │   ├── 401.html
-        │   ├── 403.html
-        │   └── 404.html
-        ├── macros/
-        │   ├── form.html
-        │   └── pagination.html
-        ├── under_dev.html
-        └── usuario/
-            └── perfil.html
+├── schema.sql
+├── start-dev.bat
+└── wsgi.py
 ```
 
 ---

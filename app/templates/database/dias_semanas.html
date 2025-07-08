@@ -89,3 +89,33 @@
         <div class="alert alert-danger" role="alert">Dias da Semana não Cadastrados.</div>
     {% endif %}
 {% endblock listar %}
+{% block inserir %}
+    <h3>inserir dia da semana</h3>
+    <form class="form-group"
+          role="form"
+          action="{{ url_for('dias_semanas.gerenciar_dias_semana') }}"
+          method="post">
+        <input type="hidden" name="acao" value="{{ acao }}">
+        <div class="form-group">
+            <label for="codigo">Codigo:</label>
+            <input type="number"
+                   maxlength="100"
+                   class="form-control"
+                   name="codigo"
+                   id="codigo"
+                   placeholder="Digite o codigo"
+                   required>
+        </div>
+        <div class="form-group">
+            <label for="nome">nome:</label>
+            <input type="text"
+                   maxlength="100"
+                   class="form-control"
+                   name="nome"
+                   id="nome"
+                   placeholder="Digite o nome"
+                   required>
+        </div>
+        {{ action_buttons(acao, 1, False, 0) }}
+    </form>
+{% endblock inserir %}

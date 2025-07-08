@@ -3,6 +3,7 @@ from flask import request
 from datetime import datetime
 from app.models import db, Usuarios, Pessoas, Permissoes, Historicos
 from sqlalchemy.inspection import inspect
+from typing import Literal
 
 IGNORED_FORM_FIELDS = ['page', 'acao', 'bloco']
 
@@ -72,7 +73,7 @@ def dict_format(dictionary):
         campos.append(f"{key}: {value}")
     return "; ".join(campos)
 
-def registrar_log_generico(userid, acao, objeto, antes=None, observacao=None, skip_unchanged=False):
+def registrar_log_generico(userid, acao:Literal['Login', 'Inserção', 'Edição', 'Exclusão'], objeto, antes=None, observacao=None, skip_unchanged=False):
     nome_tabela = getattr(objeto, "__tablename__", objeto.__class__.__name__)
     insp = inspect(objeto)
 

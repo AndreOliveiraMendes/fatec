@@ -22,9 +22,26 @@ def gerenciar_dias_semana():
     disable_action(extras, disabled)
     if request.method == 'POST':
         if acao in disabled:
-            abort(403, description="Esta funcionalidade está desabilitada no momento.")
+            abort(403, description="Esta funcionalidade não foi implementada.")
         if acao == 'listar':
             dias_semana_paginada = DiasSemana.query.order_by(DiasSemana.id).paginate(page=page, per_page=PER_PAGE, error_out=False)
             extras['dias_semana'] = dias_semana_paginada.items
             extras['pagination'] = dias_semana_paginada
+        elif acao == 'inserir' and bloco == 1:
+            codigo = none_if_empty(request.form.get('codigo'), int)
+            nome = none_if_empty(request.form.get('nome', None))
+            try:
+                nova_semana = DiasSemana(id = codigo, nome = nome)
+                db.session.add(nova_semana)
+
+                db.session.flush()
+                registrar_log_generico(userid, 'Inserção', nova_semana)
+
+                db.session.commit()
+                flash("Semana cadastrada com sucesso", "success")
+            except IntegrityError as e:
+                db.session.rollback()
+                flash(f"Falah ao cadastrar semana:{str(e.orig)}", "danger")
+            
+            bloco = 0
     return render_template("database/dias_semanas.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
