@@ -176,3 +176,21 @@
         {% endif %}
     {% endif %}
 {% endblock procurar %}
+{% block inserir %}
+    <h3>Procurar Semestres</h3>
+    <form class="form-group"
+          role="form"
+          action="{{ url_for('semestres.gerenciar_semestres') }}"
+          method="post">
+        <input type="hidden" name="acao" value="{{ acao }}">
+        <div class="form-group">
+            <label>Data de início do semestre:</label>
+            <input type="date" class="form-control" name="data_inicio">
+        </div>
+        <div class="form-group">
+            <label>Data de término do semestre:</label>
+            <input type="date" class="form-control" name="data_fim">
+        </div>
+        {{ action_buttons(acao, 1, False, 0) }}
+    </form>
+{% endblock inserir %}

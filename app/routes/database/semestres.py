@@ -1,5 +1,6 @@
 from flask import Blueprint
-from flask import flash, session, render_template, request, redirect, url_for
+from flask import flash, session, render_template, request
+from sqlalchemy.exc import IntegrityError
 from app.models import db, Semestres
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params, registrar_log_generico
@@ -41,4 +42,18 @@ def gerenciar_semestres():
                 extras['semestres'] = semestres_paginados.items
                 extras['pagination'] = semestres_paginados
                 extras['query_params'] = query_params
+        elif acao == 'inserir' and bloco == 1:
+            data_inicio = none_if_empty(request.form.get('data_inicio'))
+            data_fim = none_if_empty(request.form.get('data_fim'))
+            try:
+                novo_semestre = Semestres(data_inicio = data_inicio, data_fim = data_fim)
+                db.session.add(novo_semestre)
+                db.session.flush()
+                registrar_log_generico(userid, "Inserção", novo_semestre)
+                db.session.commit()
+                flash("Semestre cadastrado com sucesso", "success")
+            except IntegrityError as e:
+                flash(f"Erro ao cadastrar semestre:{str(e.orig)}")
+                db.session.rollback()
+            bloco = 0
     return render_template("database/semestres.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
