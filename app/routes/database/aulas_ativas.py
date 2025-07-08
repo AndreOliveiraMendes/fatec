@@ -12,5 +12,12 @@ bp = Blueprint('aulas_ativas', __name__, url_prefix="/database")
 @bp.route("/aulas_ativas", methods=["GET", "POST"])
 @admin_required
 def gerenciar_aulas_ativas():
-    flash("Pagina em Desenvolvimento", "warning")
-    return redirect(url_for('default.under_dev_page'))
+    acao = request.form.get('acao', 'abertura')
+    bloco = int(request.form.get('bloco', 0))
+    page = int(request.form.get('page', 1))
+    userid = session.get('userid')
+    username, perm = get_user_info(userid)
+    extras = {}
+    if request.method == 'POST':
+        pass
+    return render_template("database/aulas_ativas.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)

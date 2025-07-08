@@ -123,6 +123,30 @@ class Aulas(db.Model):
     @property
     def horario_intervalo(self):
         return f"{self.horario_inicio.strftime('%H:%M')} - {self.horario_fim.strftime('%H:%M')}"
+    
+class DiasSemana(db.Model):
+    __tablename__ = 'dias_semana'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    nome: Mapped[str] = mapped_column(String(15), nullable=False, unique=True)
+
+    aulas_ativas: Mapped[list['Aulas_Ativas']] = relationship(back_populates='dia_semana')
+
+
+class Turnos(db.Model):
+    __tablename__ = 'turnos'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    nome: Mapped[str] = mapped_column(String(15), nullable=False, unique=True)
+    horario_inicio: Mapped[time] = mapped_column(nullable=False)
+    horario_fim: Mapped[time] = mapped_column(nullable=False)
+
+    aulas_ativas: Mapped[list['Aulas_Ativas']] = relationship(back_populates='turno_info')
+    
+class TipoAulaEnum(enum.Enum):
+    AULA = "aula"
+    EVENTO = "evento"
+    OUTROS = "outros"
 
 class Aulas_Ativas(db.Model):
     __tablename__ = 'aulas_ativas'
@@ -131,12 +155,20 @@ class Aulas_Ativas(db.Model):
     id_aula: Mapped[int] = mapped_column(ForeignKey('aulas.id_aula'), nullable=False)
     inicio_ativacao: Mapped[date | None] = mapped_column()
     fim_ativacao: Mapped[date | None] = mapped_column()
-    semana: Mapped[int | None] = mapped_column()
-    turno: Mapped[int | None] = mapped_column()
-    tipo_aula: Mapped[int] = mapped_column(server_default='0', nullable=False)
+
+    id_semana: Mapped[int | None] = mapped_column(ForeignKey('dias_semana.id'))
+    id_turno: Mapped[int | None] = mapped_column(ForeignKey('turnos.id'))
+
+    tipo_aula: Mapped[TipoAulaEnum] = mapped_column(
+        Enum(TipoAulaEnum, name="tipoaula_enum", create_constraint=True),
+        server_default=TipoAulaEnum.AULA.value
+    )
 
     aulas: Mapped['Aulas'] = relationship(back_populates='aulas_ativas')
     reservas_fixas: Mapped[list['Reservas_Fixas']] = relationship(back_populates='aulas_ativas')
+
+    dia_semana: Mapped['DiasSemana'] = relationship(back_populates='aulas_ativas')
+    turno_info: Mapped['Turnos'] = relationship(back_populates='aulas_ativas')
 
 class Historicos(db.Model):
     __tablename__ = 'historicos'

@@ -26,15 +26,17 @@ def gerenciar_menu():
                 ('Usuários Especiais', 'usuarios_especiais.gerenciar_usuarios_especiais', 'success', 'crud'),
                 ('Aulas', 'aulas.gerenciar_aulas', 'success', 'crud'),
                 ('Laboratórios', 'laboratorios.gerenciar_laboratorios', 'success', 'crud'),
-                ('Semestres', 'semestres.gerenciar_semestres', 'success', 'crud')
+                ('Semestres', 'semestres.gerenciar_semestres', 'success', 'crud'),
+                ('Dias da Semana', 'dias_semanas.gerenciar_dias_semana', 'success', 'crud'),
+                ('Turnos', 'turnos.gerenciar_turnos', 'success', 'crud')
             ]
         },
         'Operacional': {
             'icon': 'glyphicon glyphicon-calendar',
             'secoes': [
+                ('Aulas Ativas', 'aulas_ativas.gerenciar_aulas_ativas', 'warning', 'crud'),
                 ('Reservas Fixas', 'reservas_fixas.gerenciar_reservas_fixas', 'warning', 'crud'),
-                ('Reservas Temporarias', 'reservas_temporarias.gerenciar_reservas_temporarias', 'warning', 'crud'),
-                ('Aulas Ativas', 'aulas_ativas.gerenciar_aulas_ativas', 'warning', 'crud')
+                ('Reservas Temporarias', 'reservas_temporarias.gerenciar_reservas_temporarias', 'warning', 'crud')
             ]
         },
         'Logs / Histórico': {
