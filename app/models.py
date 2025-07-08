@@ -158,6 +158,7 @@ class Semestres(db.Model):
     __tablename__ = 'semestres'
 
     id_semestre: Mapped[int] = mapped_column(primary_key=True)
+    nome_semestre: Mapped[str] = mapped_column(String(100), nullable=False)
     data_inicio: Mapped[date] = mapped_column(nullable=False)
     data_fim: Mapped[date] = mapped_column(nullable=False)
 
