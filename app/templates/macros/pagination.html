@@ -1,6 +1,6 @@
 {% from "macros/form.html" import manter_parametros %}
 {% macro paginacao(pagination, acao, bloco, query_params = None) %}
-    {% if pagination %}
+    {% if pagination and pagination.pages > 1 %}
         <nav aria-label="Paginação">
             <form method="post" class="form-inline">
                 <input type="hidden" name="acao" value="{{ acao }}">

@@ -1,11 +1,11 @@
 import copy
 from flask import Blueprint
-from flask import flash, session, render_template, request, redirect, url_for
+from flask import flash, session, render_template, request, redirect, url_for, abort
 from sqlalchemy.exc import IntegrityError
 from config import PER_PAGE
 from app.models import db, Turnos
 from app.auxiliar.decorators import admin_required
-from app.auxiliar.auxiliar_routes import none_if_empty, parse_time_string,get_user_info, get_query_params, registrar_log_generico
+from app.auxiliar.auxiliar_routes import none_if_empty, parse_time_string, get_user_info, get_query_params, registrar_log_generico, disable_action
 
 bp = Blueprint('turnos', __name__, url_prefix="/database")
 

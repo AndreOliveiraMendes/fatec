@@ -3,8 +3,7 @@
     Historicos
 {% endblock title %}
 {% block content_head %}
-    {{ generate_head(url_for("historicos.gerenciar_Historicos"), acao, disable=['inserir', 'editar',
-    'excluir']) }}
+    {{ generate_head(url_for("historicos.gerenciar_Historicos"), acao, disable = disable) }}
 {% endblock content_head %}
 {% block abertura %}
     <h3>
