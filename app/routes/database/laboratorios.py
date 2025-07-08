@@ -2,9 +2,11 @@ import copy
 from flask import Blueprint
 from flask import flash, session, render_template, request
 from sqlalchemy.exc import IntegrityError
+from config import PER_PAGE
 from app.models import db, Laboratorios, DisponibilidadeEnum, TipoLaboratorioEnum
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params, registrar_log_generico
+
 
 bp = Blueprint('laboratorios', __name__, url_prefix="/database")
 
@@ -22,7 +24,7 @@ def gerenciar_laboratorios():
     extras = {}
     if request.method == 'POST':
         if acao == 'listar':
-            laboratorios_paginados = Laboratorios.query.paginate(page=page, per_page=10, error_out=False)
+            laboratorios_paginados = Laboratorios.query.paginate(page=page, per_page=PER_PAGE, error_out=False)
             extras['laboratorios'] = laboratorios_paginados.items
             extras['pagination'] = laboratorios_paginados
         elif acao == 'procurar' and bloco == 1:
@@ -46,7 +48,7 @@ def gerenciar_laboratorios():
             if tipo:
                 filter.append(Laboratorios.tipo == tipo)
             if filter:
-                laboratorios_paginados = query.filter(*filter).paginate(page=page, per_page=10, error_out=False)
+                laboratorios_paginados = query.filter(*filter).paginate(page=page, per_page=PER_PAGE, error_out=False)
                 extras['laboratorios'] = laboratorios_paginados.items
                 extras['pagination'] = laboratorios_paginados
                 extras['query_params'] = query_params

@@ -29,3 +29,4 @@ TOMCAT_PORT = os.getenv("TOMCAT_PORT", "5001")
 TOMCAT_API_URL = f"http://{TOMCAT_HOST}:{TOMCAT_PORT}/api/autenticar/json"
 API_BASIC_USER = os.getenv("API_BASIC_USER")
 API_BASIC_PASS = os.getenv("API_BASIC_PASS")
+PER_PAGE = int(os.getenv("PER_PAGE", "10"))

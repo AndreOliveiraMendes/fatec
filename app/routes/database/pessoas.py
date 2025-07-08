@@ -1,10 +1,11 @@
 import copy
+from flask import Blueprint
 from flask import flash, session, render_template, request, abort
 from sqlalchemy.exc import IntegrityError
-from flask import Blueprint
+from config import PER_PAGE
 from app.models import db, Pessoas, Usuarios
 from app.auxiliar.decorators import admin_required
-from app.auxiliar.auxiliar_routes import none_if_empty, get_query_params, get_user_info, registrar_log_generico, disable_action
+from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params, registrar_log_generico, disable_action
 
 bp = Blueprint('pessoas', __name__, url_prefix="/database")
 
@@ -30,7 +31,7 @@ def gerenciar_pessoas():
         if acao in disabled:
             abort(403, description="Esta funcionalidade está desabilitada no momento.")
         if acao == 'listar':
-            pessoas_paginadas = Pessoas.query.paginate(page=page, per_page=10, error_out=False)
+            pessoas_paginadas = Pessoas.query.paginate(page=page, per_page=PER_PAGE, error_out=False)
             extras['pessoas'] = pessoas_paginadas.items
             extras['pagination'] = pessoas_paginadas
         elif acao == 'procurar' and bloco == 1:
@@ -55,7 +56,7 @@ def gerenciar_pessoas():
                 else:
                     filter.append(Pessoas.email_pessoa.ilike(f"%{email}%"))
             if filter:
-                pessoas_paginadas = query.filter(*filter).paginate(page=page, per_page=10, error_out=False)
+                pessoas_paginadas = query.filter(*filter).paginate(page=page, per_page=PER_PAGE, error_out=False)
                 extras['pessoas'] = pessoas_paginadas.items
                 extras['pagination'] = pessoas_paginadas
                 extras['query_params'] = query_params

@@ -2,9 +2,11 @@ import copy
 from flask import Blueprint
 from flask import flash, session, render_template, request
 from sqlalchemy.exc import IntegrityError
+from config import PER_PAGE
 from app.models import db, Usuarios_Especiais
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params, registrar_log_generico
+
 
 bp = Blueprint('usuarios_especiais', __name__, url_prefix="/database")
 
@@ -22,7 +24,7 @@ def gerenciar_usuarios_especiais():
     extras = {}
     if request.method == 'POST':
         if acao == "listar":
-            usuarios_especiais_paginados = Usuarios_Especiais.query.paginate(page=page, per_page=10, error_out=False)
+            usuarios_especiais_paginados = Usuarios_Especiais.query.paginate(page=page, per_page=PER_PAGE, error_out=False)
             extras['usuarios_especiais'] = usuarios_especiais_paginados.items
             extras['pagination'] = usuarios_especiais_paginados
         elif acao == 'procurar' and bloco == 1:
@@ -40,7 +42,7 @@ def gerenciar_usuarios_especiais():
                 else:
                     filter.append(Usuarios_Especiais.nome_usuario_especial.ilike(f"%{nome_usuario_especial}%"))
             if filter:
-                usuarios_especiais_paginados = query.filter(*filter).paginate(page=page, per_page=10, error_out=False)
+                usuarios_especiais_paginados = query.filter(*filter).paginate(page=page, per_page=PER_PAGE, error_out=False)
                 extras['usuarios_especiais'] = usuarios_especiais_paginados.items
                 extras['pagination'] = usuarios_especiais_paginados
                 extras['query_params'] = query_params

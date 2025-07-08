@@ -1,8 +1,11 @@
+import copy
 from flask import Blueprint
-from flask import flash, session, render_template, request, redirect, url_for
+from flask import flash, session, render_template, request
+from sqlalchemy.exc import IntegrityError
+from config import PER_PAGE
 from app.models import db, Historicos
 from app.auxiliar.decorators import admin_required
-from app.auxiliar.auxiliar_routes import get_user_info
+from app.auxiliar.auxiliar_routes import none_if_empty, parse_time_string, get_user_info, get_query_params, registrar_log_generico
 
 bp = Blueprint('historicos', __name__, url_prefix="/database")
 
@@ -17,7 +20,7 @@ def gerenciar_Historicos():
     extras = {}
     if request.method == 'POST':
         if acao == 'listar':
-            historicos_paginados = Historicos.query.paginate(page=page, per_page=10, error_out=False)
+            historicos_paginados = Historicos.query.paginate(page=page, per_page=PER_PAGE, error_out=False)
             extras['historicos'] = historicos_paginados.items
             extras['pagination'] = historicos_paginados
     return render_template("database/historicos.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)

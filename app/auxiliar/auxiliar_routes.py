@@ -26,6 +26,23 @@ def parse_time_string(value):
         return datetime.strptime(value, "%H:%M").time()
     except ValueError:
         return None
+    
+
+def parse_date_string(value):
+    if not value:
+        return None
+    try:
+        return datetime.strptime(value, "%Y-%m-%d").date()
+    except ValueError:
+        return None
+
+def parse_datetime_string(value):
+    if not value:
+        return None
+    try:
+        return datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
+    except ValueError:
+        return None
 
 def get_query_params(request):
     return {key: value for key, value in request.form.items() if key not in IGNORED_FORM_FIELDS}

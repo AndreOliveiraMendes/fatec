@@ -2,9 +2,10 @@ import copy
 from flask import Blueprint
 from flask import flash, session, render_template, request
 from sqlalchemy.exc import IntegrityError
-from app.models import db, Permissoes, Usuarios, Pessoas
+from config import PER_PAGE
+from app.models import db, Pessoas, Usuarios, Permissoes
 from app.auxiliar.decorators import admin_required
-from app.auxiliar.auxiliar_routes import none_if_empty, get_query_params, get_user_info, registrar_log_generico
+from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params, registrar_log_generico
 from app.auxiliar.constant import PERM_RESERVAS_FIXA, PERM_RESERVAS_TEMPORARIA, PERM_ADMIN
 
 bp = Blueprint('permissoes', __name__, url_prefix="/database")
@@ -39,7 +40,7 @@ def gerenciar_permissoes():
     extras = {}
     if request.method == 'POST':
         if acao == 'listar':
-            permissoes_paginadas = Permissoes.query.paginate(page=page, per_page=10, error_out=False)
+            permissoes_paginadas = Permissoes.query.paginate(page=page, per_page=PER_PAGE, error_out=False)
             extras['permissoes'] = permissoes_paginadas.items
             extras['pagination'] = permissoes_paginadas
             extras['userid'] = userid
@@ -60,7 +61,7 @@ def gerenciar_permissoes():
                 else:
                     filter.append(Permissoes.permissao.bitwise_and(flag) == flag)
             if filter:
-                permissoes_paginadas = query.filter(*filter).paginate(page=page, per_page=10, error_out=False)
+                permissoes_paginadas = query.filter(*filter).paginate(page=page, per_page=PER_PAGE, error_out=False)
                 extras['permissoes'] = permissoes_paginadas.items
                 extras['pagination'] = permissoes_paginadas
                 extras['userid'] = userid
