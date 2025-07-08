@@ -48,6 +48,12 @@ def formatar_valor(valor):
         return valor.value
     return valor
 
+def dict_format(dictionary):
+    campos = []
+    for key, value in dictionary.items():
+        campos.append(f"{key}: {value}")
+    return "; ".join(campos)
+
 def registrar_log_generico(userid, acao, objeto, antes=None, observacao=None, skip_unchanged=False):
     nome_tabela = getattr(objeto, "__tablename__", objeto.__class__.__name__)
     insp = inspect(objeto)
@@ -86,7 +92,7 @@ def registrar_log_generico(userid, acao, objeto, antes=None, observacao=None, sk
         categoria = acao,
         data_hora = datetime.now(),
         message = "; ".join(campos),
-        chave_primaria = f"{dados_chave}",
+        chave_primaria = dict_format(dados_chave),
         observacao = observacao
     )
     db.session.add(historico)
