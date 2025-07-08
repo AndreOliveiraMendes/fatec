@@ -50,7 +50,8 @@ def formatar_valor(valor):
 
 def dict_format(dictionary):
     campos = []
-    for key, value in dictionary.items():
+    for key in sorted(dictionary.keys()):
+        value = dictionary[key]
         campos.append(f"{key}: {value}")
     return "; ".join(campos)
 
