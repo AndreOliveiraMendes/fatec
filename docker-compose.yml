@@ -4,6 +4,9 @@ services:
   app:
     build: .
     container_name: fatec_app
+    env_file:
+      - .env
+      - .env.dev
     ports:
       - "5000:5000"
     depends_on:
