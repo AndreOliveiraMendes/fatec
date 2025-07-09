@@ -121,3 +121,8 @@ def disable_action(extras, disable):
     for action in disable:
         if action in ['editar', 'excluir']:
             extras[f"disable_{action}"] = True
+
+def include_action(extras, include):
+    add = [a[1] for a in include]
+    extras["include"] = include
+    extras["add"] = add

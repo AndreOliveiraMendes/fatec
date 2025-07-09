@@ -26,9 +26,9 @@
     {% elif acao == 'excluir' %}
         {% block excluir %}
         {% endblock excluir %}
-    {% elif acao == 'exportar' %}
-        {% block exportar %}
-        {% endblock exportar %}
+    {% elif acao in add %}
+        {% block extra %}
+        {% endblock extra %}
     {% else %}
         <div class="alert alert-danger" role="alert">Ação não definida</div>
     {% endif %}

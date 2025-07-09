@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from config import PER_PAGE
 from app.models import db, Historicos
 from app.auxiliar.decorators import admin_required
-from app.auxiliar.auxiliar_routes import none_if_empty, parse_time_string, get_user_info, get_query_params, registrar_log_generico, disable_action
+from app.auxiliar.auxiliar_routes import none_if_empty, parse_time_string, get_user_info, get_query_params, registrar_log_generico, disable_action, include_action
 
 bp = Blueprint('historicos', __name__, url_prefix="/database")
 
@@ -18,8 +18,10 @@ def gerenciar_Historicos():
     userid = session.get('userid')
     username, perm = get_user_info(userid)
     disabled = ['inserir', 'editar', 'excluir']
+    include = [('Exportar', 'exportar', 'glyphicon-download')]
     extras = {}
     disable_action(extras, disabled)
+    include_action(extras, include)
     if request.method == 'POST':
         if acao in disabled:
             abort(403, description="Esta funcionalidade está desabilitada no momento.")
