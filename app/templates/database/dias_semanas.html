@@ -101,7 +101,7 @@
             <input type="number"
                    maxlength="100"
                    class="form-control"
-                   name="codigo"
+                   name="id"
                    id="codigo"
                    placeholder="Digite o codigo"
                    required>
@@ -119,3 +119,92 @@
         {{ action_buttons(acao, 1, False, 0) }}
     </form>
 {% endblock inserir %}
+{% block editar %}
+    {% if bloco == 0 %}
+        <h3>editar dias da semana</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for('dias_semanas.gerenciar_dias_semana') }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            {{ gerar_select("semana", "Selecione a semana", dias_semana, "id", "nome") }}
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <h3>editar dia da semana</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for('dias_semanas.gerenciar_dias_semana') }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label for="codigo">Codigo:</label>
+                <input type="number"
+                       maxlength="100"
+                       class="form-control"
+                       name="id"
+                       id="codigo"
+                       value="{{ dia_semana.id }}"
+                       required
+                       readonly>
+            </div>
+            <div class="form-group">
+                <label for="nome">nome:</label>
+                <input type="text"
+                       maxlength="100"
+                       class="form-control"
+                       name="nome"
+                       id="nome"
+                       value="{{ dia_semana.nome }}"
+                       placeholder="Digite o nome"
+                       required>
+            </div>
+            {{ action_buttons(acao, 2, True, 0) }}
+        </form>
+    {% endif %}
+{% endblock editar %}
+{% block excluir %}
+    {% if bloco == 0 %}
+        <h3>excluir dias da semana</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for('dias_semanas.gerenciar_dias_semana') }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            {{ gerar_select("semana", "Selecione a semana", dias_semana, "id", "nome") }}
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <h3>excluir dia da semana</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for('dias_semanas.gerenciar_dias_semana') }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label for="codigo">Codigo:</label>
+                <input type="number"
+                       maxlength="100"
+                       class="form-control"
+                       name="id"
+                       id="codigo"
+                       value="{{ dia_semana.id }}"
+                       required
+                       readonly>
+            </div>
+            <div class="form-group">
+                <label for="nome">nome:</label>
+                <input type="text"
+                       maxlength="100"
+                       class="form-control"
+                       name="nome"
+                       id="nome"
+                       value="{{ dia_semana.nome }}"
+                       placeholder="Digite o nome"
+                       disabled
+                       required>
+            </div>
+            {{ action_buttons(acao, 2, True, 0, False) }}
+        </form>
+    {% endif %}
+{% endblock excluir %}
