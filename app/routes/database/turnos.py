@@ -12,5 +12,15 @@ bp = Blueprint('turnos', __name__, url_prefix="/database")
 @bp.route("/turnos", methods=["GET", "POST"])
 @admin_required
 def gerenciar_turnos():
-    flash("Pagina em Desenvolvimento", "warning")
-    return redirect(url_for('default.under_dev_page'))
+    acao = request.form.get('acao', 'abertura')
+    bloco = int(request.form.get('bloco', 0))
+    page = int(request.form.get('page', 1))
+    userid = session.get('userid')
+    username, perm = get_user_info(userid)
+    disabled = ['procurar']
+    extras = {}
+    disable_action(extras, disabled)
+    if request.method == 'POST':
+        if acao in disabled:
+            abort(403, description="Esta funcionalidade não foi implementada.")
+    return render_template("database/turnos.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)

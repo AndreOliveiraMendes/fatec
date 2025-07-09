@@ -1,0 +1,7 @@
+{% extends "database/base_crude" %}
+{% block title %}
+    Turnos
+{% endblock title %}
+{% block content_head %}
+    {{ generate_head(url_for("turnos.gerenciar_turnos") , acao, disable = disable) }}
+{% endblock content_head %}
