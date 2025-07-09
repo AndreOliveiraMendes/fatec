@@ -1,9 +1,10 @@
 import enum
-from flask import request
+from flask import session, redirect, url_for
 from datetime import datetime
 from app.models import db, Usuarios, Pessoas, Permissoes, Historicos
 from sqlalchemy.inspection import inspect
 from typing import Literal
+from config import AFTER_ACTION
 
 IGNORED_FORM_FIELDS = ['page', 'acao', 'bloco']
 
@@ -129,3 +130,15 @@ def include_action(extras, include):
 
 def get_session_or_request(request, session, key, default = None):
     return session.pop(key, request.form.get(key, default))
+
+def register_return(url, acao, extras = None, bloco = 0, **args):
+    if AFTER_ACTION == 'noredirect':
+        ret_bloco = bloco
+        if extras:
+            for k, v in args.items():
+                extras[k] = v
+        return None, ret_bloco
+    elif AFTER_ACTION in ['redirectabertura', 'redirectback']:
+        if AFTER_ACTION == 'redirectback':
+            session['acao'] = acao
+        return redirect(url_for(url)), None

@@ -1,11 +1,12 @@
 import copy
 from flask import Blueprint
-from flask import flash, session, render_template, request, redirect, url_for
+from flask import flash, session, render_template, request
 from sqlalchemy.exc import IntegrityError
-from config import PER_PAGE, AFTER_ACTION
+from config import PER_PAGE
 from app.models import db, Usuarios_Especiais
 from app.auxiliar.decorators import admin_required
-from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params, registrar_log_generico, get_session_or_request
+from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params, \
+    registrar_log_generico, get_session_or_request, register_return
 
 
 bp = Blueprint('usuarios_especiais', __name__, url_prefix="/database")
@@ -16,6 +17,7 @@ def get_usuarios_especiais():
 @bp.route("/usuarios_especiais", methods=["GET", "POST"])
 @admin_required
 def gerenciar_usuarios_especiais():
+    redirect_action = None
     acao = get_session_or_request(request, session, 'acao', 'abertura')
     bloco = int(request.form.get('bloco', 0))
     page = int(request.form.get('page', 1))
@@ -27,6 +29,7 @@ def gerenciar_usuarios_especiais():
             usuarios_especiais_paginados = Usuarios_Especiais.query.paginate(page=page, per_page=PER_PAGE, error_out=False)
             extras['usuarios_especiais'] = usuarios_especiais_paginados.items
             extras['pagination'] = usuarios_especiais_paginados
+
         elif acao == 'procurar' and bloco == 1:
             id_usuario_especial = none_if_empty(request.form.get('id_usuario_especial'), int)
             nome_usuario_especial = none_if_empty(request.form.get('nome_usuario_especial'))
@@ -48,12 +51,8 @@ def gerenciar_usuarios_especiais():
                 extras['query_params'] = query_params
             else:
                 flash("especifique pelo menos um campo de busca", "danger")
-                if AFTER_ACTION == 'noredirect':
-                    bloco = 0
-                elif AFTER_ACTION in ['redirectabertura', 'redirectback']:
-                    if AFTER_ACTION == 'redirectback':
-                        session['acao'] = acao
-                    return redirect(url_for('usuarios_especiais.gerenciar_usuarios_especiais'))
+                redirect_action, bloco = register_return('usuarios_especiais.gerenciar_usuarios_especiais', acao, extras)
+
         elif acao == 'inserir' and bloco == 1:
             nome_usuario_especial = none_if_empty(request.form.get('nome_usuario_especial'))
             try:
@@ -67,12 +66,8 @@ def gerenciar_usuarios_especiais():
                 flash(f"Erro ao inserir usuario especial: {str(e.orig)}", "danger")
                 db.session.rollback()
 
-            if AFTER_ACTION == 'noredirect':
-                bloco = 0
-            elif AFTER_ACTION in ['redirectabertura', 'redirectback']:
-                if AFTER_ACTION == 'redirectback':
-                    session['acao'] = acao
-                return redirect(url_for('usuarios_especiais.gerenciar_usuarios_especiais'))
+            redirect_action, bloco = register_return('usuarios_especiais.gerenciar_usuarios_especiais', acao, extras)
+
         elif acao in ['editar', 'excluir'] and bloco == 0:
             extras['usuarios_especiais'] = get_usuarios_especiais()
         elif acao in ['editar', 'excluir'] and bloco == 1:
@@ -98,13 +93,7 @@ def gerenciar_usuarios_especiais():
                 db.session.rollback()
                 flash(f"Erro ao editar usuario especial: {str(e.orig)}", "danger")
 
-            if AFTER_ACTION == 'noredirect':
-                extras['usuarios_especiais'] = get_usuarios_especiais()
-                bloco = 0
-            elif AFTER_ACTION in ['redirectabertura', 'redirectback']:
-                if AFTER_ACTION == 'redirectback':
-                    session['acao'] = acao
-                return redirect(url_for('usuarios_especiais.gerenciar_usuarios_especiais'))
+            redirect_action, bloco = register_return('usuarios_especiais.gerenciar_usuarios_especiais', acao, extras, usuarios_especiais=get_usuarios_especiais())
         elif acao == 'excluir' and bloco == 2:
             id_usuario_especial = none_if_empty(request.form.get('id_usuario_especial'), int)
 
@@ -121,11 +110,7 @@ def gerenciar_usuarios_especiais():
                 db.session.rollback()
                 flash(f"Erro ao excluir usuario especial: {str(e.orig)}", "danger")
 
-            if AFTER_ACTION == 'noredirect':
-                extras['usuarios_especiais'] = get_usuarios_especiais()
-                bloco = 0
-            elif AFTER_ACTION in ['redirectabertura', 'redirectback']:
-                if AFTER_ACTION == 'redirectback':
-                    session['acao'] = acao
-                return redirect(url_for('usuarios_especiais.gerenciar_usuarios_especiais'))
+            redirect_action, bloco = register_return('usuarios_especiais.gerenciar_usuarios_especiais', acao, extras, usuarios_especiais=get_usuarios_especiais())
+    if redirect_action:
+        return redirect_action
     return render_template("database/usuarios_especiais.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)

@@ -27,7 +27,7 @@ def gerenciar_menu():
                 ('Aulas', 'aulas.gerenciar_aulas', 'success', 'crud'),
                 ('Laboratórios', 'laboratorios.gerenciar_laboratorios', 'success', 'crud'),
                 ('Semestres', 'semestres.gerenciar_semestres', 'success', 'crud'),
-                ('Dias da Semana', 'dias_semanas.gerenciar_dias_semana', 'success', 'crud'),
+                ('Dias da Semana', 'dias_da_semana.gerenciar_dias_da_semana', 'success', 'crud'),
                 ('Turnos', 'turnos.gerenciar_turnos', 'success', 'crud')
             ]
         },
