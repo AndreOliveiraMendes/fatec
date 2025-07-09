@@ -5,3 +5,136 @@
 {% block content_head %}
     {{ generate_head(url_for("turnos.gerenciar_turnos") , acao, disable = disable) }}
 {% endblock content_head %}
+{% block abertura %}
+    <h3>
+        Gerenciamento da tabela <strong>Turnos</strong>
+    </h3>
+    <p>
+        a tabela <code>turnos</code> possui os seguintes campos:
+    </p>
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover">
+            <thead>
+                <tr class="information">
+                    <th>Campo</th>
+                    <th>Tipo</th>
+                    <th>Descrição</th>
+                    <th>Valores Possíveis</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>id</td>
+                    <td>INT (auto_increment, PK)</td>
+                    <td>Identificador único do turno no sistema</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>nome</td>
+                    <td>VARCHAR(15)</td>
+                    <td>Nome do turno no sistema</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>horario_inicio</td>
+                    <td>TIME</td>
+                    <td>horario que marca o inicio do turno</td>
+                    <td>formato HH:MM</td>
+                </tr>
+                <tr>
+                    <td>horario_fim</td>
+                    <td>TIME</td>
+                    <td>horario que marca o fim do turno</td>
+                    <td>formato HH:MM</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+{% endblock abertura %}
+{% block listar %}
+    <h3>Lista de Turnos</h3>
+    {% if turnos %}
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered table-hover">
+                <thead>
+                    <tr class="information">
+                        <th>Codigo Turno</th>
+                        <th>Nome Turno</th>
+                        <th>Início do Turno</th>
+                        <th>Término do Turno</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in turnos %}
+                        <tr>
+                            <td>{{ t.id }}</td>
+                            <td>{{ t.nome }}</td>
+                            <td>{{ t.horario_inicio }}</td>
+                            <td>{{ t.horario_fim }}</td>
+                            <td>
+                                <form method="post" class="form-inline">
+                                    <input type="hidden" name="bloco" value="1">
+                                    <input type="hidden" name="id" value="{{ t.id }}">
+                                    <div class="btn-group">
+                                        <button type="submit"
+                                                name="acao"
+                                                value="editar"
+                                                class="btn btn-warning btn-sm"
+                                                title="Editar">
+                                            <i class="glyphicon glyphicon-pencil"></i>
+                                        </button>
+                                        <button type="submit"
+                                                name="acao"
+                                                value="excluir"
+                                                class="btn btn-danger btn-sm"
+                                                title="Excluir">
+                                            <i class="glyphicon glyphicon-trash"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info" role="alert">Nenhum turno cadastrado.</div>
+    {% endif %}
+{% endblock listar %}
+{% block inserir %}
+    <h3>Inserir Turno</h3>
+    <form class="form-group"
+          role="form"
+          action="{{ url_for('turnos.gerenciar_turnos') }}"
+          method="post">
+        <input type="hidden" name="acao" value="{{ acao }}">
+        <div class="form-group">
+            <label for="nome">nome:</label>
+            <input type="text"
+                   class="form-control"
+                   name="nome"
+                   id="nome"
+                   placeholder="Nome do Turno"
+                   required>
+        </div>
+        <div class="form-group">
+            <label>Horário de Início:</label>
+            <input type="time"
+                   class="form-control"
+                   name="horario_inicio"
+                   placeholder="Início do Turno"
+                   required>
+        </div>
+        <div class="form-group">
+            <label>Horário de Término:</label>
+            <input type="time"
+                   class="form-control"
+                   name="horario_fim"
+                   placeholder="Término do Turno"
+                   required>
+        </div>
+        {{ action_buttons(acao, 1, False, 0) }}
+    </form>
+{% endblock inserir %}

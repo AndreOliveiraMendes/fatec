@@ -1,11 +1,11 @@
 import copy
 from flask import Blueprint
-from flask import flash, session, render_template, request
+from flask import flash, session, render_template, request, redirect, url_for
 from sqlalchemy.exc import IntegrityError
-from config import PER_PAGE
+from config import PER_PAGE, AFTER_ACTION
 from app.models import db, Laboratorios, DisponibilidadeEnum, TipoLaboratorioEnum
 from app.auxiliar.decorators import admin_required
-from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params, registrar_log_generico
+from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params, registrar_log_generico, get_session_or_request
 
 
 bp = Blueprint('laboratorios', __name__, url_prefix="/database")
@@ -16,7 +16,7 @@ def get_laboratorios():
 @bp.route("/laboratorios", methods=["GET", "POST"])
 @admin_required
 def gerenciar_laboratorios():
-    acao = request.form.get('acao', 'abertura')
+    acao = get_session_or_request(request, session, 'acao', 'abertura')
     bloco = int(request.form.get('bloco', 0))
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
@@ -54,7 +54,12 @@ def gerenciar_laboratorios():
                 extras['query_params'] = query_params
             else:
                 flash("especifique pelo menos um campo de busca", "danger")
-                bloco = 0
+                if AFTER_ACTION == 'noredirect':
+                    bloco = 0
+                elif AFTER_ACTION in ['redirectabertura', 'redirectback']:
+                    if AFTER_ACTION == 'redirectback':
+                        session['acao'] = acao
+                    return redirect(url_for('laboratorios.gerenciar_laboratorios'))
         elif acao == 'inserir' and bloco == 1:
             nome_laboratorio = none_if_empty(request.form.get('nome_laboratorio'))
             disponibilidade = none_if_empty(request.form.get('disponibilidade'))
@@ -71,7 +76,12 @@ def gerenciar_laboratorios():
                 db.session.rollback()
                 flash(f"Erro ao cadastrar laboratorio: {str(e.orig)}", "danger")
 
-            bloco = 0
+            if AFTER_ACTION == 'noredirect':
+                bloco = 0
+            elif AFTER_ACTION in ['redirectabertura', 'redirectback']:
+                if AFTER_ACTION == 'redirectback':
+                    session['acao'] = acao
+                return redirect(url_for('laboratorios.gerenciar_laboratorios'))
         elif acao in ['editar', 'excluir'] and bloco == 0:
             extras['laboratorios'] = get_laboratorios()
         elif acao in ['editar', 'excluir'] and bloco == 1:
@@ -101,8 +111,13 @@ def gerenciar_laboratorios():
                 db.session.rollback()
                 flash(f"Erro ao editar laboratorio: {str(e.orig)}", "danger")
 
-            bloco = 0
-            extras['laboratorios'] = get_laboratorios()
+            if AFTER_ACTION == 'noredirect':
+                extras['laboratorios'] = get_laboratorios()
+                bloco = 0
+            elif AFTER_ACTION in ['redirectabertura', 'redirectback']:
+                if AFTER_ACTION == 'redirectback':
+                    session['acao'] = acao
+                return redirect(url_for('laboratorios.gerenciar_laboratorios'))
         elif acao == 'excluir' and bloco == 2:
             id_laboratorio = none_if_empty(request.form.get('id_laboratorio'), int)
 
@@ -119,6 +134,11 @@ def gerenciar_laboratorios():
                 db.session.rollback()
                 flash(f"Erro ao excluir laboratorio: {str(e.orig)}", "danger")
 
-            bloco = 0
-            extras['laboratorios'] = get_laboratorios()
+            if AFTER_ACTION == 'noredirect':
+                extras['laboratorios'] = get_laboratorios()
+                bloco = 0
+            elif AFTER_ACTION in ['redirectabertura', 'redirectback']:
+                if AFTER_ACTION == 'redirectback':
+                    session['acao'] = acao
+                return redirect(url_for('laboratorios.gerenciar_laboratorios'))
     return render_template("database/laboratorios.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)

@@ -126,3 +126,6 @@ def include_action(extras, include):
     add = [a['value'] for a in include]
     extras["include"] = include
     extras["add"] = add
+
+def get_session_or_request(request, session, key, default = None):
+    return session.pop(key, request.form.get(key, default))

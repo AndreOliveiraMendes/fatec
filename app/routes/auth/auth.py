@@ -83,7 +83,6 @@ def check_login(id, password):
         else:
             flash("Erro inesperado", "danger")
     except requests.exceptions.ConnectionError as e:
-        bp.logger.error(e)
         flash("Falha ao conectar à API externa.", "danger")
 
     return loged, userid, username, permission

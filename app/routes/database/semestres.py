@@ -1,11 +1,11 @@
 import copy
 from flask import Blueprint
-from flask import flash, session, render_template, request
+from flask import flash, session, render_template, request, redirect, url_for
 from sqlalchemy.exc import IntegrityError
-from config import PER_PAGE
+from config import PER_PAGE, AFTER_ACTION
 from app.models import db, Semestres
 from app.auxiliar.decorators import admin_required
-from app.auxiliar.auxiliar_routes import none_if_empty, parse_date_string, get_user_info, get_query_params, registrar_log_generico
+from app.auxiliar.auxiliar_routes import none_if_empty, parse_date_string, get_user_info, get_query_params, registrar_log_generico, get_session_or_request
 
 bp = Blueprint('semestres', __name__, url_prefix="/database")
 
@@ -15,7 +15,7 @@ def get_semestre():
 @bp.route("/semestres", methods=["GET", "POST"])
 @admin_required
 def gerenciar_semestres():
-    acao = request.form.get('acao', 'abertura')
+    acao = get_session_or_request(request, session, 'acao', 'abertura')
     bloco = int(request.form.get('bloco', 0))
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
@@ -46,14 +46,19 @@ def gerenciar_semestres():
                 filter.append(Semestres.data_inicio == data_inicio)
             if data_fim:
                 filter.append(Semestres.data_fim == data_fim)
-            if not filter:
-                flash("especifique pelo menos um campo de busca", "danger")
-                bloco = 0
-            else:
+            if filter:
                 semestres_paginados = query.filter(*filter).paginate(page=page, per_page=PER_PAGE, error_out=False)
                 extras['semestres'] = semestres_paginados.items
                 extras['pagination'] = semestres_paginados
                 extras['query_params'] = query_params
+            else:
+                flash("especifique pelo menos um campo de busca", "danger")
+                if AFTER_ACTION == 'noredirect':
+                    bloco = 0
+                elif AFTER_ACTION in ['redirectabertura', 'redirectback']:
+                    if AFTER_ACTION == 'redirectback':
+                        session['acao'] = acao
+                    return redirect(url_for('semestres.gerenciar_semestres'))
         elif acao == 'inserir' and bloco == 1:
             nome_semestre = none_if_empty(request.form.get('nome_semestre'))
             data_inicio = parse_date_string(request.form.get('data_inicio'))
@@ -68,7 +73,13 @@ def gerenciar_semestres():
             except IntegrityError as e:
                 flash(f"Erro ao cadastrar semestre:{str(e.orig)}")
                 db.session.rollback()
-            bloco = 0
+
+            if AFTER_ACTION == 'noredirect':
+                bloco = 0
+            elif AFTER_ACTION in ['redirectabertura', 'redirectback']:
+                if AFTER_ACTION == 'redirectback':
+                    session['acao'] = acao
+                return redirect(url_for('semestres.gerenciar_semestres'))
         elif acao in ['editar', 'excluir'] and bloco == 0:
             extras['semestres'] = get_semestre()
         elif acao in ['editar', 'excluir'] and bloco == 1:
@@ -96,8 +107,13 @@ def gerenciar_semestres():
                 db.session.rollback()
                 flash(f"Erro ao editar semestre:{str(e.orig)}", "danger")
 
-            extras['semestres'] = get_semestre()
-            bloco = 0
+            if AFTER_ACTION == 'noredirect':
+                extras['semestres'] = get_semestre()
+                bloco = 0
+            elif AFTER_ACTION in ['redirectabertura', 'redirectback']:
+                if AFTER_ACTION == 'redirectback':
+                    session['acao'] = acao
+                return redirect(url_for('semestres.gerenciar_semestres'))
         elif acao == 'excluir' and bloco == 2:
             id_semestre = none_if_empty(request.form.get('id_semestre'), int)
 
@@ -114,6 +130,11 @@ def gerenciar_semestres():
                 db.session.rollback()
                 flash(f"Erro ao excluir semestre:{str(e.orig)}", "danger")
 
-            extras['semestres'] = get_semestre()
-            bloco = 0
+            if AFTER_ACTION == 'noredirect':
+                extras['semestres'] = get_semestre()
+                bloco = 0
+            elif AFTER_ACTION in ['redirectabertura', 'redirectback']:
+                if AFTER_ACTION == 'redirectback':
+                    session['acao'] = acao
+                return redirect(url_for('semestres.gerenciar_semestres'))
     return render_template("database/semestres.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)

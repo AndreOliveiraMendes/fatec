@@ -2,10 +2,10 @@ import copy
 from flask import Blueprint
 from flask import flash, session, render_template, request, redirect, url_for, abort
 from sqlalchemy.exc import IntegrityError
-from config import PER_PAGE
+from config import PER_PAGE, AFTER_ACTION
 from app.models import db, DiasSemana
 from app.auxiliar.decorators import admin_required
-from app.auxiliar.auxiliar_routes import none_if_empty, parse_time_string, get_user_info, get_query_params, registrar_log_generico, disable_action
+from app.auxiliar.auxiliar_routes import none_if_empty, parse_time_string, get_user_info, get_query_params, registrar_log_generico, disable_action, get_session_or_request
 
 bp = Blueprint('dias_semanas', __name__, url_prefix="/database")
 
@@ -15,7 +15,7 @@ def get_dias_semana():
 @bp.route("/dias_semanas", methods=["GET", "POST"])
 @admin_required
 def gerenciar_dias_semana():
-    acao = request.form.get('acao', 'abertura')
+    acao = get_session_or_request(request, session, 'acao', 'abertura')
     bloco = int(request.form.get('bloco', 0))
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
@@ -45,8 +45,13 @@ def gerenciar_dias_semana():
             except IntegrityError as e:
                 db.session.rollback()
                 flash(f"Falah ao cadastrar semana:{str(e.orig)}", "danger")
-            
-            bloco = 0
+
+            if AFTER_ACTION == 'noredirect':
+                bloco = 0
+            elif AFTER_ACTION in ['redirectabertura', 'redirectback']:
+                if AFTER_ACTION == 'redirectback':
+                        session['acao'] = acao
+                return redirect(url_for('dias_semanas.gerenciar_dias_semana'))
         elif acao in ['editar', 'excluir'] and bloco == 0:
             extras['dias_semana'] = get_dias_semana()
         elif acao in ['editar', 'excluir'] and bloco == 1:
@@ -70,8 +75,13 @@ def gerenciar_dias_semana():
                 db.session.rollback()
                 flash(f"Erro ao editar dia da semana:{str(e.orig)}", "danger")
             
-            bloco = 0
-            extras['dias_semana'] = get_dias_semana()
+            if AFTER_ACTION == 'noredirect':
+                extras['dias_semana'] = get_dias_semana()
+                bloco = 0
+            elif AFTER_ACTION in ['redirectabertura', 'redirectback']:
+                if AFTER_ACTION == 'redirectback':
+                        session['acao'] = acao
+                return redirect(url_for('dias_semanas.gerenciar_dias_semana'))
         elif acao == 'excluir' and bloco == 2:
             id = none_if_empty(request.form.get('id'), int)
             dia_da_semana = DiasSemana.query.get_or_404(id)
@@ -87,6 +97,11 @@ def gerenciar_dias_semana():
                 db.session.rollback()
                 flash(f"erro ao excluir dia da semana:{str(e.orig)}", "danger")
 
-            bloco = 0
-            extras['dias_semana'] = get_dias_semana()
+            if AFTER_ACTION == 'noredirect':
+                extras['dias_semana'] = get_dias_semana()
+                bloco = 0
+            elif AFTER_ACTION in ['redirectabertura', 'redirectback']:
+                if AFTER_ACTION == 'redirectback':
+                        session['acao'] = acao
+                return redirect(url_for('dias_semanas.gerenciar_dias_semana'))
     return render_template("database/dias_semanas.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)

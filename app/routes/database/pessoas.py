@@ -1,11 +1,11 @@
 import copy
 from flask import Blueprint
-from flask import flash, session, render_template, request, abort
+from flask import flash, session, render_template, request, abort, redirect, url_for
 from sqlalchemy.exc import IntegrityError
-from config import PER_PAGE
+from config import PER_PAGE, AFTER_ACTION
 from app.models import db, Pessoas, Usuarios
 from app.auxiliar.decorators import admin_required
-from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params, registrar_log_generico, disable_action
+from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params, registrar_log_generico, disable_action, get_session_or_request
 
 bp = Blueprint('pessoas', __name__, url_prefix="/database")
 
@@ -19,7 +19,7 @@ def get_pessoas_id_nome(acao, userid):
 @bp.route("/pessoas", methods=["GET", "POST"])
 @admin_required
 def gerenciar_pessoas():
-    acao = request.form.get('acao', 'abertura')
+    acao = get_session_or_request(request, session, 'acao', 'abertura')
     bloco = int(request.form.get('bloco', 0))
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
@@ -62,7 +62,12 @@ def gerenciar_pessoas():
                 extras['query_params'] = query_params
             else:
                 flash("especifique pelo menos um campo de busca", "danger")
-                bloco = 0
+                if AFTER_ACTION == 'noredirect':
+                    bloco = 0
+                elif AFTER_ACTION in ['redirectabertura', 'redirectback']:
+                    if AFTER_ACTION == 'redirectback':
+                        session['acao'] = acao
+                    return redirect(url_for('pessoas.gerenciar_pessoas'))
         elif acao == 'inserir' and bloco == 1:
             nome = none_if_empty(request.form.get('nome', None))
             email = none_if_empty(request.form.get('email', None))
@@ -76,7 +81,13 @@ def gerenciar_pessoas():
             except IntegrityError as e:
                 flash(f"Erro ao inserir pessoa: {str(e.orig)}", "danger")
                 db.session.rollback()
-            bloco = 0
+            
+            if AFTER_ACTION == 'noredirect':
+                bloco = 0
+            elif AFTER_ACTION in ['redirectabertura', 'redirectback']:
+                if AFTER_ACTION == 'redirectback':
+                    session['acao'] = acao
+                return redirect(url_for('pessoas.gerenciar_pessoas'))
         elif acao in ['editar', 'excluir'] and bloco == 0:
             extras['pessoas'] = get_pessoas_id_nome(acao, userid)
         elif acao in ['editar', 'excluir'] and bloco == 1:
@@ -110,8 +121,13 @@ def gerenciar_pessoas():
                 db.session.rollback()
                 flash(f"Erro ao atualizar pessoa: {str(e.orig)}", "danger")
 
-            extras['pessoas'] = get_pessoas_id_nome(acao, userid)
-            bloco = 0
+            if AFTER_ACTION == 'noredirect':
+                extras['pessoas'] = get_pessoas_id_nome(acao, userid)
+                bloco = 0
+            elif AFTER_ACTION in ['redirectabertura', 'redirectback']:
+                if AFTER_ACTION == 'redirectback':
+                    session['acao'] = acao
+                return redirect(url_for('pessoas.gerenciar_pessoas'))
         elif acao == 'excluir' and bloco == 2:
             user = Usuarios.query.get(userid)
             id_pessoa = none_if_empty(request.form.get('id_pessoa'), int)
@@ -133,7 +149,12 @@ def gerenciar_pessoas():
                     db.session.rollback()
                     flash(f"Erro ao excluir pessoa: {str(e.orig)}", "danger")
 
-            extras['pessoas'] = get_pessoas_id_nome(acao, userid)
-            bloco = 0
+            if AFTER_ACTION == 'noredirect':
+                extras['pessoas'] = get_pessoas_id_nome(acao, userid)
+                bloco = 0
+            elif AFTER_ACTION in ['redirectabertura', 'redirectback']:
+                if AFTER_ACTION == 'redirectback':
+                    session['acao'] = acao
+                return redirect(url_for('pessoas.gerenciar_pessoas'))
 
     return render_template("database/pessoas.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)

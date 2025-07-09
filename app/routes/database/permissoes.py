@@ -1,11 +1,11 @@
 import copy
 from flask import Blueprint
-from flask import flash, session, render_template, request
+from flask import flash, session, render_template, request, redirect, url_for
 from sqlalchemy.exc import IntegrityError
-from config import PER_PAGE
+from config import PER_PAGE, AFTER_ACTION
 from app.models import db, Pessoas, Usuarios, Permissoes
 from app.auxiliar.decorators import admin_required
-from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params, registrar_log_generico
+from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params, registrar_log_generico, get_session_or_request
 from app.auxiliar.constant import PERM_RESERVAS_FIXA, PERM_RESERVAS_TEMPORARIA, PERM_ADMIN
 
 bp = Blueprint('permissoes', __name__, url_prefix="/database")
@@ -32,7 +32,7 @@ def get_flag(request):
 @bp.route("/permissoes", methods=["GET", "POST"])
 @admin_required
 def gerenciar_permissoes():
-    acao = request.form.get('acao', 'abertura')
+    acao = get_session_or_request(request, session, 'acao', 'abertura')
     bloco = int(request.form.get('bloco', 0))
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
@@ -67,9 +67,14 @@ def gerenciar_permissoes():
                 extras['userid'] = userid
                 extras['query_params'] = query_params
             else:
-                extras['users'] = get_users()
-                bloco = 0
-                flash("especifique pelo menos um campo de busca", "danger")
+                flash("especifique pelo menos um campo", "danger")
+                if AFTER_ACTION == 'noredirect':
+                    extras['users'] = get_users()
+                    bloco = 0
+                elif AFTER_ACTION in ['redirectabertura', 'redirectback']:
+                    if AFTER_ACTION == 'redirectback':
+                        session['acao'] = acao
+                    return redirect(url_for('permissoes.gerenciar_permissoes'))
         elif acao == 'inserir' and bloco == 0:
             extras['users'] = get_no_perm_users()
         elif acao == 'inserir' and bloco == 1:
@@ -85,8 +90,14 @@ def gerenciar_permissoes():
             except IntegrityError as e:
                 flash(f"Erro ao inserir pessoa: {str(e.orig)}", "danger")
                 db.session.rollback()
-            bloco = 0
-            extras['users'] = get_no_perm_users()
+
+            if AFTER_ACTION == 'noredirect':
+                extras['users'] = get_no_perm_users()
+                bloco = 0
+            elif AFTER_ACTION in ['redirectabertura', 'redirectback']:
+                if AFTER_ACTION == 'redirectback':
+                    session['acao'] = acao
+                return redirect(url_for('permissoes.gerenciar_permissoes'))
         elif acao in ['editar', 'excluir'] and bloco == 0:
             extras['permissoes'] = get_perm(acao, userid)
         elif acao in ['editar', 'excluir'] and bloco == 1:
@@ -113,8 +124,14 @@ def gerenciar_permissoes():
                 except IntegrityError as e:
                     db.session.rollback()
                     flash(f"Erro ao atualizar pessoa: {str(e.orig)}", "danger")
-            extras['permissoes'] = get_perm(acao, userid)
-            bloco = 0
+
+            if AFTER_ACTION == 'noredirect':
+                extras['permissoes'] = get_perm(acao, userid)
+                bloco = 0
+            elif AFTER_ACTION in ['redirectabertura', 'redirectback']:
+                if AFTER_ACTION == 'redirectback':
+                    session['acao'] = acao
+                return redirect(url_for('permissoes.gerenciar_permissoes'))
         elif acao == 'excluir' and bloco == 2:
             id_permissao_usuario = none_if_empty(request.form.get('id_permissao_usuario'), int)
 
@@ -134,6 +151,11 @@ def gerenciar_permissoes():
                     db.session.rollback()
                     flash(f"Erro ao excluir usuario: {str(e.orig)}", "danger")
 
-            extras['permissoes'] = get_perm(acao, userid)
-            bloco = 0
+            if AFTER_ACTION == 'noredirect':
+                extras['permissoes'] = get_perm(acao, userid)
+                bloco = 0
+            elif AFTER_ACTION in ['redirectabertura', 'redirectback']:
+                if AFTER_ACTION == 'redirectback':
+                    session['acao'] = acao
+                return redirect(url_for('permissoes.gerenciar_permissoes'))
     return render_template("database/permissoes.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
