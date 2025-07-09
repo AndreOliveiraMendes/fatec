@@ -18,7 +18,7 @@ def gerenciar_Historicos():
     userid = session.get('userid')
     username, perm = get_user_info(userid)
     disabled = ['inserir', 'editar', 'excluir']
-    include = [('Exportar', 'exportar', 'glyphicon-download')]
+    include = [{'label':"Exportar", 'value':"exportar", 'icon':"glyphicon-download"}]
     extras = {}
     disable_action(extras, disabled)
     include_action(extras, include)

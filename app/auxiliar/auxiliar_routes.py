@@ -123,6 +123,6 @@ def disable_action(extras, disable):
             extras[f"disable_{action}"] = True
 
 def include_action(extras, include):
-    add = [a[1] for a in include]
+    add = [a['value'] for a in include]
     extras["include"] = include
     extras["add"] = add

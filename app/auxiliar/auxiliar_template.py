@@ -44,29 +44,34 @@ def register_filters(app):
     @app.template_global()
     def generate_head(target_url, acao, include = None, disable = None):
         botoes = [
-            ('Listar', 'listar', 'glyphicon-book'),
-            ('Procurar', 'procurar', 'glyphicon-search'),
-            ('Inserir', 'inserir', 'glyphicon-plus'),
-            ('Editar', 'editar', 'glyphicon-pencil'),
-            ('Excluir', 'excluir', 'glyphicon-trash'),
+            {'label':"Listar", 'value':"listar", 'icon':"glyphicon-book"},
+            {'label':"Procurar", 'value':"procurar", 'icon':"glyphicon-search"},
+            {'label':"Inserir", 'value':"inserir", 'icon':"glyphicon-plus"},
+            {'label':"Editar", 'value':"editar", 'icon':"glyphicon-pencil"},
+            {'label':"Excluir", 'value':"excluir", 'icon':"glyphicon-trash"},
         ]
 
         if include:
             for botao in include:
                 botoes.append(botao)
         if disable:
-            botoes = filter(lambda x: not x[1] in disable, botoes)
+            botoes = filter(lambda x: not x['value'] in disable, botoes)
 
         html = f'<div class="container">\n<form class="form-group" role="form" action="{target_url}" method="post">\n'
         html += '<input type="hidden" name="bloco" value="0">\n<div class="form-group btn-group">\n'
 
-        for nome, valor, icone in botoes:
-            active = "btn-secondary" if acao == valor else "btn-primary"
-            value = "abertura" if acao == valor else valor
+        for args in botoes:
+            value = args.get('value')
+            label = args.get('label', value)
+            icon = args.get('icon', None)
+            active = "btn-secondary" if acao == value else "btn-primary"
+            value = "abertura" if acao == value else value
+
+            icon_html = f'<i class="glyphicon {icon}" style="margin-right: 5px;"></i> ' if icon else ''
             html += f'''
             <button type="submit" name="acao" value="{value}"
                 class="btn {active}">
-                <i class="glyphicon {icone}" style="margin-right: 5px;"></i> {nome}
+                {icon_html}{label}
             </button>
             '''
 
