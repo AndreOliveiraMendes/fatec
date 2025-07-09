@@ -17,6 +17,7 @@ RUN python -m pip install --upgrade pip && \
 # 📂 Copia código da aplicação
 COPY app/ app/
 COPY config.py ./
+COPY .env ./
 COPY .env.* ./
 
 # 🌐 Expõe a porta Flask
