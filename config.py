@@ -11,11 +11,11 @@ load_dotenv(f'.env.{ENV_MODE}')
 
 class Config:
     SECRET_KEY = os.getenv('SECRET_KEY')
-    HOST = os.getenv('DB_HOST')
-    PORT = os.getenv('DB_PORT')
-    USER = os.getenv('DB_USER')
-    PASSWORD = os.getenv('DB_PASSWORD')
-    DATABASE = os.getenv('DB_DATABASE')
+    HOST = os.getenv('MYSQL_HOST')
+    PORT = os.getenv('MYSQL_PORT')
+    USER = os.getenv('MYSQL_USER')
+    PASSWORD = os.getenv('MYSQL_PASSWORD')
+    DATABASE = os.getenv('MYSQL_DATABASE')
     SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{USER}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}"
     DEBUG = os.getenv('FLASK_DEBUG', 'False')
 
