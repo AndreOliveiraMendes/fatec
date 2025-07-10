@@ -1,3 +1,4 @@
+import copy
 from flask import Blueprint
 from flask import flash, session, render_template, request, abort
 from sqlalchemy.exc import IntegrityError
@@ -8,6 +9,9 @@ from app.auxiliar.auxiliar_routes import none_if_empty, parse_time_string, get_u
     registrar_log_generico, disable_action, get_session_or_request, register_return
 
 bp = Blueprint('turnos', __name__, url_prefix="/database")
+
+def get_turnos():
+    return db.session.query(Turnos.id, Turnos.nome).order_by(Turnos.id).all()
 
 @bp.route("/turnos", methods=["GET", "POST"])
 @admin_required
@@ -48,6 +52,49 @@ def gerenciar_turnos():
                 flash(f"Erro ao cadastrar turno:{str(e.orig)}", "danger")
 
             redirect_action, bloco = register_return('turnos.gerenciar_turnos', acao, extras)
+
+        elif acao in ['editar', 'excluir'] and bloco == 0:
+            extras['turnos'] = get_turnos()
+        elif acao in ['editar', 'excluir'] and bloco == 1:
+            id = none_if_empty(request.form.get('id'), int)
+            turno = Turnos.query.get_or_404(id)
+            extras['turno'] = turno
+        elif acao == 'editar' and bloco == 2:
+            id = none_if_empty(request.form.get('id'), int)
+            nome = none_if_empty(request.form.get('nome'))
+            horario_inicio = parse_time_string(request.form.get('horario_inicio'))
+            horario_fim = parse_time_string(request.form.get('horario_fim'))
+            turno = Turnos.query.get_or_404(id)
+            try:
+                dados_anteriores = copy.copy(turno)
+                turno.nome = nome
+                turno.horario_inicio = horario_inicio
+                turno.horario_fim = horario_fim
+                db.session.flush
+                registrar_log_generico(userid, 'Edição', turno, dados_anteriores)
+
+                db.session.commit()
+                flash("Turno editado com sucesso", "success")
+            except IntegrityError as e:
+                db.session.rollback()
+                flash(f"Erro ao editar turno:{str(e.orig)}", "danger")
+
+            redirect_action, bloco = register_return('turnos.gerenciar_turnos', acao, extras, turnos=get_turnos())
+        elif acao == 'excluir' and bloco == 2:
+            id = none_if_empty(request.form.get('id'), int)
+            turno = Turnos.query.get_or_404(id)
+            try:
+                db.session.delete(turno)
+                db.session.flush()
+                registrar_log_generico(userid, 'Exclusão', turno)
+
+                db.session.commit()
+                flash("Turno excluido com sucesso", "success")
+            except IntegrityError as e:
+                db.session.rollback()
+                flash(f"Erro as excluir turno", "danger")
+
+            redirect_action, bloco = register_return('turnos.gerenciar_turnos', acao, extras, turnos=get_turnos())
 
     if redirect_action:
         return redirect_action
