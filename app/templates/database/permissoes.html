@@ -67,7 +67,7 @@
             <table class="table table-bordered table-striped table-hover">
                 <thead>
                     <tr class="information">
-                        <th>Id Usuario</th>
+                        <th>Usuario</th>
                         <th>permissao</th>
                         <th>FIXA</th>
                         <th>TEMP</th>
@@ -78,7 +78,7 @@
                 <tbody>
                     {% for p in permissoes %}
                         <tr>
-                            <td>{{ p.id_permissao_usuario }}</td>
+                            <td>({{ p.id_permissao_usuario }}) {{ p.usuarios.pessoas.nome_pessoa }}</td>
                             <td>{{ p.permissao }}</td>
                             <td>
                                 <i title="Permissão de reserva fixa"
@@ -181,7 +181,7 @@
                 <table class="table table-bordered table-striped table-hover">
                     <thead>
                         <tr class="information">
-                            <th>Id Usuario</th>
+                            <th>Usuario</th>
                             <th>permissao</th>
                             <th>FIXA</th>
                             <th>TEMP</th>
@@ -192,7 +192,7 @@
                     <tbody>
                         {% for p in permissoes %}
                             <tr>
-                                <td>{{ p.id_permissao_usuario }}</td>
+                                <td>({{ p.id_permissao_usuario }}) {{ p.usuarios.pessoas.nome_pessoa }}</td>
                                 <td>{{ p.permissao }}</td>
                                 <td>
                                     <i title="Permissão de reserva fixa"

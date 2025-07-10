@@ -130,7 +130,7 @@ class Dias_da_Semana(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=False)
     nome: Mapped[str] = mapped_column(String(15), nullable=False, unique=True)
 
-    aulas_ativas: Mapped[list['Aulas_Ativas']] = relationship(back_populates='dia_semana')
+    aulas_ativas: Mapped[list['Aulas_Ativas']] = relationship(back_populates='dia_da_semana')
 
 
 class Turnos(db.Model):
@@ -144,9 +144,9 @@ class Turnos(db.Model):
     aulas_ativas: Mapped[list['Aulas_Ativas']] = relationship(back_populates='turno_info')
     
 class TipoAulaEnum(enum.Enum):
-    AULA = "aula"
-    EVENTO = "evento"
-    OUTROS = "outros"
+    AULA = "Aula"
+    EVENTO = "Evento"
+    OUTROS = "Outros"
 
 class Aulas_Ativas(db.Model):
     __tablename__ = 'aulas_ativas'
@@ -167,7 +167,7 @@ class Aulas_Ativas(db.Model):
     aulas: Mapped['Aulas'] = relationship(back_populates='aulas_ativas')
     reservas_fixas: Mapped[list['Reservas_Fixas']] = relationship(back_populates='aulas_ativas')
 
-    dia_semana: Mapped['Dias_da_Semana'] = relationship(back_populates='aulas_ativas')
+    dia_da_semana: Mapped['Dias_da_Semana'] = relationship(back_populates='aulas_ativas')
     turno_info: Mapped['Turnos'] = relationship(back_populates='aulas_ativas')
 
 class Historicos(db.Model):

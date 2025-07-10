@@ -69,7 +69,7 @@
                 <thead>
                     <tr class="information">
                         <th class="text-center">ID Usuário</th>
-                        <th class="text-center">ID Pessoa</th>
+                        <th class="text-center">Pessoa</th>
                         <th>Tipo Pessoa</th>
                         <th>Situação Pessoa</th>
                         <th>Grupo Pessoa</th>
@@ -80,7 +80,7 @@
                     {% for u in usuarios %}
                         <tr>
                             <td class="text-center">{{ u.id_usuario }}</td>
-                            <td class="text-center">{{ u.id_pessoa }}</td>
+                            <td class="text-center">({{ u.id_pessoa }}) {{ u.pessoas.nome_pessoa }}</td>
                             <td>{{ u.tipo_pessoa }}</td>
                             <td>{{ u.situacao_pessoa }}</td>
                             <td>{{ u.grupo_pessoa if u.grupo_pessoa }}</td>
@@ -190,7 +190,7 @@
                     <thead>
                         <tr class="information">
                             <th class="text-center">ID Usuário</th>
-                            <th class="text-center">ID Pessoa</th>
+                            <th class="text-center">Pessoa</th>
                             <th>Tipo Pessoa</th>
                             <th>Situacao Pessoa</th>
                             <th>Grupo Pessoa</th>
@@ -201,7 +201,7 @@
                         {% for u in usuarios %}
                             <tr>
                                 <td>{{ u.id_usuario }}</td>
-                                <td>{{ u.id_pessoa }}</td>
+                                <td class="text-center">({{ u.id_pessoa }}) {{ u.pessoas.nome_pessoa }}</td>
                                 <td>{{ u.tipo_pessoa }}</td>
                                 <td>{{ u.situacao_pessoa }}</td>
                                 <td>{{ u.grupo_pessoa if u.grupo_pessoa }}</td>

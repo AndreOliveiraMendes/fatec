@@ -53,8 +53,8 @@
                 <thead>
                     <tr class="information">
                         <th class="visible-md visible-lg">ID</th>
-                        <th class="visible-md visible-lg">ID Usuário</th>
-                        <th class="visible-md visible-lg">ID Pessoa</th>
+                        <th class="visible-md visible-lg">Usuário</th>
+                        <th class="visible-md visible-lg">Pessoa</th>
                         <th>Tabela</th>
                         <th>Categoria</th>
                         <th>Data/Hora</th>
@@ -67,8 +67,8 @@
                     {% for h in historicos %}
                         <tr>
                             <td class="visible-md visible-lg">{{ h.id_historico }}</td>
-                            <td class="visible-md visible-lg">{{ h.id_usuario }}</td>
-                            <td class="visible-md visible-lg">{{ h.id_pessoa }}</td>
+                            <td class="visible-md visible-lg">({{ h.id_usuario }}) {{ h.usuarios.pessoas.nome_pessoa }}</td>
+                            <td class="visible-md visible-lg">({{ h.id_pessoa }}) {{ h.pessoas.nome_pessoa }}</td>
                             <td>{{ h.tabela or '-' }}</td>
                             <td>{{ h.categoria or '-' }}</td>
                             <td>{{ h.data_hora.strftime("%d/%m/%Y %H:%M") if h.data_hora else '-' }}</td>

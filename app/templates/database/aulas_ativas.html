@@ -100,12 +100,12 @@
                 <tbody>
                     {% for at in aulas_ativas %}
                         <td>{{ at.id_aula_ativa }}</td>
-                        <td>{{ at.id_aula }}</td>
-                        <td>{{ at.inicio_ativacao }}</td>
-                        <td>{{ at.fim_ativacao }}</td>
-                        <td>{{ at.id_semana }}</td>
-                        <td>{{ at.id_turno }}</td>
-                        <td>{{ at.tipo_aula }}</td>
+                        <td>{{ at.aulas.horario_intervalo }}</td>
+                        <td>{{ at.inicio_ativacao if at.inicio_ativacao else '-' }}</td>
+                        <td>{{ at.fim_ativacao if at.fim_ativacao else '-' }}</td>
+                        <td>{{ at.dia_da_semana.nome }}</td>
+                        <td>{{ at.turno_info.nome }}</td>
+                        <td>{{ at.tipo_aula.value }}</td>
                     {% endfor %}
                 </tbody>
             </table>
@@ -114,3 +114,44 @@
         <div class="alert alert-info" role="alert">Nenhuma aula ativa cadastrada.</div>
     {% endif %}
 {% endblock listar %}
+{% block procurar %}
+    buff kanna
+{% endblock procurar %}
+{% block inserir %}
+    <h3>Inserir Aulas Ativas</h3>
+    <form class="form-group"
+          role="form"
+          action="{{ url_for('aulas_ativas.gerenciar_aulas_ativas') }}"
+          method="post">
+        <input type="hidden" name="acao" value="{{ acao }}">
+        {{ gerar_select("id_aula", "Selecione a aula", aulas, "id_aula", "horario_intervalo") }}
+        <div class="form-group">
+            <label for="ia">Início da ativação:</label>
+            <input id="ia"
+                   name="inicio_ativacao"
+                   class="form-control"
+                   type="date"
+                   placeholder="início do periodo em que a aula é valida, caso seja temporaria">
+        </div>
+        <div class="form-group">
+            <label for="fa">Término da ativação:</label>
+            <input id="fa"
+                   name="fim_ativacao"
+                   class="form-control"
+                   type="date"
+                   placeholder="término do periodo em que a aula é valida, caso seja temporaria">
+        </div>
+        {{ gerar_select("id_semana", "Selecione o dia da semana", dias_da_semana, "id", "nome", "id_semana") }}
+        {{ gerar_select("id_turno", "Selecione o turno", turnos, "id", "nome", "id_turno") }}
+        <div class="form-group">
+            <label for="tipo">Tipo:</label>
+            <select class="form-control" id="tipo" name="tipo_aula" required>
+                <option value="">Selecione...</option>
+                <option value="Aula">Aula</option>
+                <option value="Evento">Evento</option>
+                <option value="Outros">Outros</option>
+            </select>
+        </div>
+        {{ action_buttons(acao, 1, False, 0) }}
+    </form>
+{% endblock inserir %}
