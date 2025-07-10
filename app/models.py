@@ -124,8 +124,8 @@ class Aulas(db.Model):
     def horario_intervalo(self):
         return f"{self.horario_inicio.strftime('%H:%M')} - {self.horario_fim.strftime('%H:%M')}"
     
-class DiasSemana(db.Model):
-    __tablename__ = 'dias_semana'
+class Dias_da_Semana(db.Model):
+    __tablename__ = 'dias_da_semana'
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=False)
     nome: Mapped[str] = mapped_column(String(15), nullable=False, unique=True)
@@ -156,7 +156,7 @@ class Aulas_Ativas(db.Model):
     inicio_ativacao: Mapped[date | None] = mapped_column()
     fim_ativacao: Mapped[date | None] = mapped_column()
 
-    id_semana: Mapped[int] = mapped_column(ForeignKey('dias_semana.id'), nullable=False)
+    id_semana: Mapped[int] = mapped_column(ForeignKey('dias_da_semana.id'), nullable=False)
     id_turno: Mapped[int] = mapped_column(ForeignKey('turnos.id'), nullable=False)
 
     tipo_aula: Mapped[TipoAulaEnum] = mapped_column(
@@ -167,7 +167,7 @@ class Aulas_Ativas(db.Model):
     aulas: Mapped['Aulas'] = relationship(back_populates='aulas_ativas')
     reservas_fixas: Mapped[list['Reservas_Fixas']] = relationship(back_populates='aulas_ativas')
 
-    dia_semana: Mapped['DiasSemana'] = relationship(back_populates='aulas_ativas')
+    dia_semana: Mapped['Dias_da_Semana'] = relationship(back_populates='aulas_ativas')
     turno_info: Mapped['Turnos'] = relationship(back_populates='aulas_ativas')
 
 class Historicos(db.Model):

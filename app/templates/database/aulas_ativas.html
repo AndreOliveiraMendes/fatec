@@ -3,8 +3,114 @@
     Aulas Ativas
 {% endblock title %}
 {% block content_head %}
-    {{ generate_head(url_for("aulas_ativas.gerenciar_aulas_ativas"), acao) }}
+    {{ generate_head(url_for("aulas_ativas.gerenciar_aulas_ativas") , acao) }}
 {% endblock content_head %}
 {% block abertura %}
-
+    <h3>
+        Gerenciamento da Tabela <strong>Aulas Ativas</strong>
+    </h3>
+    <p>
+        A tabela <code>aulas_ativas</code> possui os seguintes campos:
+    </p>
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover">
+            <thead>
+                <tr class="information">
+                    <th>Campo</th>
+                    <th>Tipo</th>
+                    <th>Descrição</th>
+                    <th>Valores Possíveis</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>id_aula_ativa</td>
+                    <td>INT (auto_increment, PK)</td>
+                    <td>Identificador único da aula ativa no sistema</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>id_aula</td>
+                    <td>INT (FK)</td>
+                    <td>Chave estrangeira para o registro de aulas</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>inicio_ativacao</td>
+                    <td>DATE</td>
+                    <td>Data de início do período de ativação da aula</td>
+                    <td>Formato: dd/mm/aaaa</td>
+                </tr>
+                <tr>
+                    <td>fim_ativacao</td>
+                    <td>DATE</td>
+                    <td>Data de término do período de ativação da aula</td>
+                    <td>Formato: dd/mm/aaaa</td>
+                </tr>
+                <tr>
+                    <td>id_semana</td>
+                    <td>INT (FK)</td>
+                    <td>Chave estrangeira para o dia da semana</td>
+                    <td>1 a 7 (Domingo a Sábado)</td>
+                </tr>
+                <tr>
+                    <td>id_turno</td>
+                    <td>INT (FK)</td>
+                    <td>Chave estrangeira para o turno associado à aula</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>tipo_aula</td>
+                    <td>ENUM('AULA','EVENTO','OUTROS')</td>
+                    <td>Categoria da aula ou evento</td>
+                    <td>
+                        <ul class="valores_possiveis_format">
+                            <li>
+                                <code>AULA</code> – Aula regular
+                            </li>
+                            <li>
+                                <code>EVENTO</code> – Evento especial (palestras, workshops)
+                            </li>
+                            <li>
+                                <code>OUTROS</code> – Casos diversos
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 {% endblock abertura %}
+{% block listar %}
+    <h3>Lista de Aulas Ativas</h3>
+    {% if aulas_ativas %}
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>id_aula_ativa</th>
+                        <th>id_aula</th>
+                        <th>inicio_ativacao</th>
+                        <th>fim_ativacao</th>
+                        <th>id_semana</th>
+                        <th>id_turno</th>
+                        <th>tipo_aula</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for at in aulas_ativas %}
+                        <td>{{ at.id_aula_ativa }}</td>
+                        <td>{{ at.id_aula }}</td>
+                        <td>{{ at.inicio_ativacao }}</td>
+                        <td>{{ at.fim_ativacao }}</td>
+                        <td>{{ at.id_semana }}</td>
+                        <td>{{ at.id_turno }}</td>
+                        <td>{{ at.tipo_aula }}</td>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info" role="alert">Nenhuma aula ativa cadastrada.</div>
+    {% endif %}
+{% endblock listar %}
