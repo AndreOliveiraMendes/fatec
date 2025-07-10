@@ -164,6 +164,13 @@ class Aulas_Ativas(db.Model):
         server_default=TipoAulaEnum.AULA.value
     )
 
+    __table_args__ = (
+        CheckConstraint(
+            'inicio_ativacao IS NULL OR fim_ativacao IS NULL OR inicio_ativacao <= fim_ativacao',
+            name='chk_inicio_menor_fim'
+        ),
+    )
+
     aulas: Mapped['Aulas'] = relationship(back_populates='aulas_ativas')
     reservas_fixas: Mapped[list['Reservas_Fixas']] = relationship(back_populates='aulas_ativas')
 
