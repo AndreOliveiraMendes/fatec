@@ -1,7 +1,7 @@
 import copy
 from flask import Blueprint
 from flask import flash, session, render_template, request, abort
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, OperationalError
 from config import PER_PAGE
 from app.models import db, Dias_da_Semana
 from app.auxiliar.decorators import admin_required
@@ -46,7 +46,7 @@ def gerenciar_dias_da_semana():
 
                 db.session.commit()
                 flash("Semana cadastrada com sucesso", "success")
-            except IntegrityError as e:
+            except (IntegrityError, OperationalError) as e:
                 db.session.rollback()
                 flash(f"Falah ao cadastrar semana:{str(e.orig)}", "danger")
 
@@ -71,7 +71,7 @@ def gerenciar_dias_da_semana():
 
                 db.session.commit()
                 flash("Dia da semana editado com sucesso", "success")
-            except IntegrityError as e:
+            except (IntegrityError, OperationalError) as e:
                 db.session.rollback()
                 flash(f"Erro ao editar dia da semana:{str(e.orig)}", "danger")
 
@@ -87,7 +87,7 @@ def gerenciar_dias_da_semana():
 
                 db.session.commit()
                 flash("Dia da semana excluido com sucesso", "success")
-            except IntegrityError as e:
+            except (IntegrityError, OperationalError) as e:
                 db.session.rollback()
                 flash(f"erro ao excluir dia da semana:{str(e.orig)}", "danger")
 

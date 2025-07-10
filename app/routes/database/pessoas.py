@@ -1,7 +1,7 @@
 import copy
 from flask import Blueprint
 from flask import flash, session, render_template, request, abort
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, OperationalError
 from config import PER_PAGE
 from app.models import db, Pessoas, Usuarios
 from app.auxiliar.decorators import admin_required
@@ -78,7 +78,7 @@ def gerenciar_pessoas():
                 registrar_log_generico(userid, "Inserção", nova_pessoa)
                 db.session.commit()
                 flash("Pessoa cadastrada com sucesso", "success")
-            except IntegrityError as e:
+            except (IntegrityError, OperationalError) as e:
                 flash(f"Erro ao inserir pessoa: {str(e.orig)}", "danger")
                 db.session.rollback()
             
@@ -113,7 +113,7 @@ def gerenciar_pessoas():
                 db.session.commit()
                 flash("Pessoa atualizada com sucesso", "success")
 
-            except IntegrityError as e:
+            except (IntegrityError, OperationalError) as e:
                 db.session.rollback()
                 flash(f"Erro ao atualizar pessoa: {str(e.orig)}", "danger")
 
@@ -135,7 +135,7 @@ def gerenciar_pessoas():
                     db.session.commit()
                     flash("Pessoa excluída com sucesso", "success")
 
-                except IntegrityError as e:
+                except (IntegrityError, OperationalError) as e:
                     db.session.rollback()
                     flash(f"Erro ao excluir pessoa: {str(e.orig)}", "danger")
 

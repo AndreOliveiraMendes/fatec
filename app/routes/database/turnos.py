@@ -1,7 +1,7 @@
 import copy
 from flask import Blueprint
 from flask import flash, session, render_template, request, abort
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, OperationalError
 from config import PER_PAGE
 from app.models import db, Turnos
 from app.auxiliar.decorators import admin_required
@@ -47,7 +47,7 @@ def gerenciar_turnos():
 
                 db.session.commit()
                 flash("Turno cadastrado com sucesso", "success")
-            except IntegrityError as e:
+            except (IntegrityError, OperationalError) as e:
                 db.session.rollback()
                 flash(f"Erro ao cadastrar turno:{str(e.orig)}", "danger")
 
@@ -75,7 +75,7 @@ def gerenciar_turnos():
 
                 db.session.commit()
                 flash("Turno editado com sucesso", "success")
-            except IntegrityError as e:
+            except (IntegrityError, OperationalError) as e:
                 db.session.rollback()
                 flash(f"Erro ao editar turno:{str(e.orig)}", "danger")
 
@@ -90,7 +90,7 @@ def gerenciar_turnos():
 
                 db.session.commit()
                 flash("Turno excluido com sucesso", "success")
-            except IntegrityError as e:
+            except (IntegrityError, OperationalError) as e:
                 db.session.rollback()
                 flash(f"Erro as excluir turno", "danger")
 

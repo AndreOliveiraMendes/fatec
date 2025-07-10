@@ -1,7 +1,7 @@
 import copy
 from flask import Blueprint
 from flask import flash, session, render_template, request
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, OperationalError
 from config import PER_PAGE
 from app.models import db, Semestres
 from app.auxiliar.decorators import admin_required
@@ -69,7 +69,7 @@ def gerenciar_semestres():
                 registrar_log_generico(userid, "Inserção", novo_semestre)
                 db.session.commit()
                 flash("Semestre cadastrado com sucesso", "success")
-            except IntegrityError as e:
+            except (IntegrityError, OperationalError) as e:
                 flash(f"Erro ao cadastrar semestre:{str(e.orig)}")
                 db.session.rollback()
 
@@ -98,7 +98,7 @@ def gerenciar_semestres():
 
                 db.session.commit()
                 flash("Semestre editado com sucesso", "success")
-            except IntegrityError as e:
+            except (IntegrityError, OperationalError) as e:
                 db.session.rollback()
                 flash(f"Erro ao editar semestre:{str(e.orig)}", "danger")
 
@@ -115,7 +115,7 @@ def gerenciar_semestres():
 
                 db.session.commit()
                 flash("Semestre excluido com sucesso", "success")
-            except IntegrityError as e:
+            except (IntegrityError, OperationalError) as e:
                 db.session.rollback()
                 flash(f"Erro ao excluir semestre:{str(e.orig)}", "danger")
 

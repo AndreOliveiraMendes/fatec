@@ -1,7 +1,7 @@
 import copy
 from flask import Blueprint
 from flask import flash, session, render_template, request
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, OperationalError
 from config import PER_PAGE
 from app.models import db, Usuarios_Especiais
 from app.auxiliar.decorators import admin_required
@@ -62,7 +62,7 @@ def gerenciar_usuarios_especiais():
                 registrar_log_generico(userid, "Inserção", novo_usuario_especial)
                 db.session.commit()
                 flash("Usuario Especial cadastrada com sucesso", "success")
-            except IntegrityError as e:
+            except (IntegrityError, OperationalError) as e:
                 flash(f"Erro ao inserir usuario especial: {str(e.orig)}", "danger")
                 db.session.rollback()
 
@@ -89,7 +89,7 @@ def gerenciar_usuarios_especiais():
 
                 db.session.commit()
                 flash("Usuario especial editado com sucesso", "success")
-            except IntegrityError as e:
+            except (IntegrityError, OperationalError) as e:
                 db.session.rollback()
                 flash(f"Erro ao editar usuario especial: {str(e.orig)}", "danger")
 
@@ -106,7 +106,7 @@ def gerenciar_usuarios_especiais():
 
                 db.session.commit()
                 flash("Usuario especial excluido com sucesso", "success")
-            except IntegrityError as e:
+            except (IntegrityError, OperationalError) as e:
                 db.session.rollback()
                 flash(f"Erro ao excluir usuario especial: {str(e.orig)}", "danger")
 

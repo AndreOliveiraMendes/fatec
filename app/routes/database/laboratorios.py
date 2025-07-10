@@ -1,7 +1,7 @@
 import copy
 from flask import Blueprint
 from flask import flash, session, render_template, request
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, OperationalError
 from config import PER_PAGE
 from app.models import db, Laboratorios, DisponibilidadeEnum, TipoLaboratorioEnum
 from app.auxiliar.decorators import admin_required
@@ -70,7 +70,7 @@ def gerenciar_laboratorios():
                 registrar_log_generico(userid, "Inserção", novo_laboratorio)
                 db.session.commit()
                 flash("Laboratorio cadastrado com succeso", "success")
-            except IntegrityError as e:
+            except (IntegrityError, OperationalError) as e:
                 db.session.rollback()
                 flash(f"Erro ao cadastrar laboratorio: {str(e.orig)}", "danger")
 
@@ -101,7 +101,7 @@ def gerenciar_laboratorios():
 
                 db.session.commit()
                 flash("laboratório editado com sucesso", "success")
-            except IntegrityError as e:
+            except (IntegrityError, OperationalError) as e:
                 db.session.rollback()
                 flash(f"Erro ao editar laboratorio: {str(e.orig)}", "danger")
 
@@ -118,7 +118,7 @@ def gerenciar_laboratorios():
 
                 db.session.commit()
                 flash("laboratório excluido com sucesso", "success")
-            except IntegrityError as e:
+            except (IntegrityError, OperationalError) as e:
                 db.session.rollback()
                 flash(f"Erro ao excluir laboratorio: {str(e.orig)}", "danger")
 

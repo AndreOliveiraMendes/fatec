@@ -1,7 +1,7 @@
 import copy
 from flask import Blueprint
 from flask import flash, session, render_template, request
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, OperationalError
 from config import PER_PAGE
 from app.models import db, Pessoas, Usuarios, Permissoes
 from app.auxiliar.decorators import admin_required
@@ -85,7 +85,7 @@ def gerenciar_permissoes():
                 registrar_log_generico(userid, "Inserção", nova_permissao, observacao=f"0b{flag:03b}")
                 db.session.commit()
                 flash("Permissao cadastrada com sucesso", "success")
-            except IntegrityError as e:
+            except (IntegrityError, OperationalError) as e:
                 flash(f"Erro ao inserir pessoa: {str(e.orig)}", "danger")
                 db.session.rollback()
 
@@ -114,7 +114,7 @@ def gerenciar_permissoes():
                     registrar_log_generico(userid, "Edição", permissao, dados_anteriores, observacao=observacao) # Loga com os dados antigos + novos
                     db.session.commit()
                     flash("Permissao atualizada com sucesso", "success")
-                except IntegrityError as e:
+                except (IntegrityError, OperationalError) as e:
                     db.session.rollback()
                     flash(f"Erro ao atualizar pessoa: {str(e.orig)}", "danger")
 
@@ -135,7 +135,7 @@ def gerenciar_permissoes():
                     db.session.commit()
                     flash("Permissao excluída com sucesso", "success")
 
-                except IntegrityError as e:
+                except (IntegrityError, OperationalError) as e:
                     db.session.rollback()
                     flash(f"Erro ao excluir usuario: {str(e.orig)}", "danger")
 
