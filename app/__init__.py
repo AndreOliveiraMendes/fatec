@@ -1,6 +1,6 @@
 import os
 from flask import Flask
-from config import get_config
+from config import get_config, AUTO_CREATE_MYSQL
 from app.routes import register_blueprints
 from app.extensions import db
 
@@ -15,7 +15,7 @@ def create_app():
         auxiliar_template.register_filters(app)
         error.register_error_handler(app)
 
-        if os.getenv("AUTO_CREATE_DB") == "True":
+        if AUTO_CREATE_MYSQL:
             db.create_all()
 
     return app
