@@ -24,6 +24,7 @@ def get_config():
 
 # Variáveis extras
 SHOW_DEBUG_ERRORS = str_to_bool(os.getenv("SHOW_DEBUG_ERRORS", "False"))
+AUTO_CREATE_MYSQL = str_to_bool(os.getenv("AUTO_CREATE_MYSQL"), "False"))
 TOMCAT_HOST = os.getenv("TOMCAT_HOST", "127.0.0.1")
 TOMCAT_PORT = os.getenv("TOMCAT_PORT", "5001")
 TOMCAT_API_URL = f"http://{TOMCAT_HOST}:{TOMCAT_PORT}/api/autenticar/json"
