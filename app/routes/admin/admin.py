@@ -47,3 +47,12 @@ def gerenciar_menu():
         }
     }
     return render_template("admin/admin.html", username=username, perm=perm, secoes=secoes)
+
+@bp.route("/database")
+@admin_required
+def database():
+    userid = session.get('userid')
+    username, perm = get_user_info(userid)
+    extras = {}
+    extras['conection'] = db.engine
+    return render_template("admin/database.html", username=username, perm=perm, **extras)
