@@ -99,13 +99,15 @@
                 </thead>
                 <tbody>
                     {% for at in aulas_ativas %}
-                        <td>{{ at.id_aula_ativa }}</td>
-                        <td>{{ at.aulas.horario_intervalo }}</td>
-                        <td>{{ at.inicio_ativacao if at.inicio_ativacao else '-' }}</td>
-                        <td>{{ at.fim_ativacao if at.fim_ativacao else '-' }}</td>
-                        <td>{{ at.dia_da_semana.nome }}</td>
-                        <td>{{ at.turno_info.nome }}</td>
-                        <td>{{ at.tipo_aula.value }}</td>
+                        <tr>
+                            <td>{{ at.id_aula_ativa }}</td>
+                            <td>{{ at.aulas.horario_intervalo }}</td>
+                            <td>{{ at.inicio_ativacao if at.inicio_ativacao else '-' }}</td>
+                            <td>{{ at.fim_ativacao if at.fim_ativacao else '-' }}</td>
+                            <td>{{ at.dia_da_semana.nome }}</td>
+                            <td>{{ at.turno_info.nome }}</td>
+                            <td>{{ at.tipo_aula.value }}</td>
+                        </tr>
                     {% endfor %}
                 </tbody>
             </table>

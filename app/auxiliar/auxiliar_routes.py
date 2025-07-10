@@ -134,7 +134,7 @@ def get_session_or_request(request, session, key, default = None):
 def register_return(url, acao, extras = None, bloco = 0, **args):
     if AFTER_ACTION == 'noredirect':
         ret_bloco = bloco
-        if extras:
+        if extras is not None:
             for k, v in args.items():
                 extras[k] = v
         return None, ret_bloco
