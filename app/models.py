@@ -13,7 +13,6 @@ class Reservas_Fixas(db.Model):
     tipo_responsavel: Mapped[int] = mapped_column(nullable=False)
     id_reserva_laboratorio: Mapped[int] = mapped_column(ForeignKey('laboratorios.id_laboratorio'), nullable=False)
     id_reserva_aula: Mapped[int] = mapped_column(ForeignKey('aulas_ativas.id_aula_ativa'), nullable=False)
-    status_reserva: Mapped[int] = mapped_column(server_default='0', nullable=False)
     tipo_reserva: Mapped[int] = mapped_column(server_default='0', nullable=False)
     id_reserva_semestre: Mapped[int] = mapped_column(ForeignKey('semestres.id_semestre'), nullable=False)
 
