@@ -3,7 +3,58 @@
     Banco de Dados
 {% endblock title %}
 {% block content %}
-<h1>banco de dados:</h1>
-{{ conection }}
-
+    <h1>banco de dados:</h1>
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped table-hover">
+            <thead>
+                <tr class="information">
+                    <th>tabela</th>
+                    <th>go</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for table in tables %}
+                    <tr class="{{ loop.cycle('linha-1-3', 'linha-2-3', 'linha-3-3') }}">
+                        <td>{{ table }}</td>
+                        <td>
+                            {% if loop.first %}<strong>{% endif %}
+                                <a href="#a{{ loop.index0 }}">tabela {{ loop.index }}/{{ loop.length }}</a>
+                                {% if loop.first %}</strong>{% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% for table in tables %}
+        <h2>
+            <a name="a{{ loop.index0 }}">Tabela: {{ table }}</a>
+        </h2>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover">
+                <thead>
+                    <tr class="information">
+                        <th>name</th>
+                        <th>tipo</th>
+                        <th>valor padrão</th>
+                        <th>comentario</th>
+                        <th>pode ser null</th>
+                        <th>auto incremento</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for column in columns[table] %}
+                        <tr>
+                            <td>{{ column['name'] }}</td>
+                            <td>{{ column['type'] }}</td>
+                            <td>{{ format(column['default']) }}</td>
+                            <td>{{ format(column['comment']) }}</td>
+                            <td>{{ column['nullable'] }}</td>
+                            <td>{{ column['autoincrement'] }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endfor %}
 {% endblock content %}

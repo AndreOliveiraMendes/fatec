@@ -3,8 +3,12 @@ from flask import session, render_template, request, redirect, url_for
 from app.models import db, Reservas_Fixas, Usuarios, Permissoes, Laboratorios, Aulas
 from app.auxiliar.decorators import login_required, admin_required
 from app.auxiliar.auxiliar_routes import get_user_info
+from sqlalchemy import inspect
 
 bp = Blueprint('admin', __name__)
+
+def format(v):
+    return v if v else '-'
 
 @bp.route("/admin")
 @admin_required
@@ -54,5 +58,9 @@ def database():
     userid = session.get('userid')
     username, perm = get_user_info(userid)
     extras = {}
-    extras['conection'] = db.engine
+    inspector = inspect(db.engine)
+    tables = inspector.get_table_names()
+    extras['format'] = format
+    extras['tables'] = tables
+    extras['columns'] = {table:inspector.get_columns(table) for table in tables}
     return render_template("admin/database.html", username=username, perm=perm, **extras)
