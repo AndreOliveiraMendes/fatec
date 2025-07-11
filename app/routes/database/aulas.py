@@ -11,8 +11,7 @@ from app.auxiliar.auxiliar_routes import none_if_empty, parse_time_string, get_u
 bp = Blueprint('aulas', __name__, url_prefix="/database")
 
 def get_aulas():
-    aulas = Aulas.query.all()
-    return aulas
+    return Aulas.query.all()
 
 @bp.route("/aulas", methods=["GET", "POST"])
 @admin_required
