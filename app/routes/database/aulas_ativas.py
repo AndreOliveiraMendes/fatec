@@ -20,9 +20,14 @@ def get_dias_da_semana():
 def get_turnos():
     return db.session.query(Turnos.id, Turnos.nome).order_by(Turnos.id).all()
 
-def check_aula_ativa(inicio, fim, aula, semana, turno, tipo):
+def get_aulas_ativas():
+    return Aulas_Ativas.query.all()
+
+def check_aula_ativa(inicio, fim, aula, semana, turno, tipo, id = None):
     base_filter = [Aulas_Ativas.id_aula == aula, Aulas_Ativas.id_semana == semana,
                    Aulas_Ativas.id_turno == turno, Aulas_Ativas.tipo_aula == tipo]
+    if id:
+        base_filter.append(Aulas_Ativas.id_aula_ativa != id)
     query = Aulas_Ativas.query
     if inicio and fim:
         base_filter.append(
@@ -91,7 +96,65 @@ def gerenciar_aulas_ativas():
                 db.session.rollback()
                 flash(f"Erro ao cadastrar aula ativa:{str(e.orig)}", "danger")
             
-            redirect_action, bloco = register_return('aulas_ativas.gerenciar_aulas_ativas', acao, extras, aulas=get_aulas(), dias_da_semana=get_dias_da_semana(), turnos=get_turnos())
+            redirect_action, bloco = register_return('aulas_ativas.gerenciar_aulas_ativas', acao, extras,
+                aulas=get_aulas(), dias_da_semana=get_dias_da_semana(), turnos=get_turnos())
+
+        elif acao in ['editar', 'excluir'] and bloco == 0:
+            extras['aulas_ativas'] = get_aulas_ativas()
+        elif acao in ['editar', 'excluir'] and bloco == 1:
+            id_aula_ativa = none_if_empty(request.form.get('id_aula_ativa'), int)
+            aula_ativa = Aulas_Ativas.query.get_or_404(id_aula_ativa)
+            extras['aula_ativa'] = aula_ativa
+            extras['aulas'] = get_aulas()
+            extras['dias_da_semana'] = get_dias_da_semana()
+            extras['turnos'] = get_turnos()
+        elif acao == 'editar' and bloco == 2:
+            id_aula_ativa = none_if_empty(request.form.get('id_aula_ativa'), int)
+            id_aula = none_if_empty(request.form.get('id_aula'), int)
+            inicio_ativacao = parse_date_string(request.form.get('inicio_ativacao'))
+            fim_ativacao = parse_date_string(request.form.get('fim_ativacao'))
+            id_semana = none_if_empty(request.form.get('id_semana'), int)
+            id_turno = none_if_empty(request.form.get('id_turno'), int)
+            tipo_aula = none_if_empty(request.form.get('tipo_aula'))
+            aula_ativa = Aulas_Ativas.query.get_or_404(id_aula_ativa)
+            try:
+                check_aula_ativa(inicio_ativacao, fim_ativacao, id_aula, id_semana, id_turno, tipo_aula, id_aula_ativa)
+                dados_anteriores = copy.copy(aula_ativa)
+                aula_ativa.id_aula = id_aula
+                aula_ativa.inicio_ativacao = inicio_ativacao
+                aula_ativa.fim_ativacao = fim_ativacao
+                aula_ativa.id_semana = id_semana
+                aula_ativa.id_turno = id_turno
+                aula_ativa.tipo_aula = tipo_aula
+
+                db.session.flush()
+                registrar_log_generico(userid, 'Edição', aula_ativa, dados_anteriores)
+
+                db.session.commit()
+                flash("Aula ativa editada com sucesso", "success")
+            except (IntegrityError, OperationalError) as e:
+                db.session.rollback()
+                flash(f"Erro ao editar aula ativa:{str(e.orig)}", "danger")
+
+            redirect_action, bloco = register_return('aulas_ativas.gerenciar_aulas_ativas', acao, extras,
+                aulas_ativas=get_aulas_ativas())
+        elif acao == 'excluir' and bloco == 2:
+            id_aula_ativa = none_if_empty(request.form.get('id_aula_ativa'), int)
+            aula_ativa = Aulas_Ativas.query.get_or_404(id_aula_ativa)
+            try:
+                db.session.delete(aula_ativa)
+
+                db.session.flush()
+                registrar_log_generico(userid, 'Exclusão', aula_ativa)
+
+                db.session.commit()
+                flash("Aula ativa excluida com sucesso", "success")
+            except (IntegrityError, OperationalError) as e:
+                db.session.rollback()
+                flash(f"Erro ao excluir aula ativa:{str(e.orig)}", "danger")
+
+            redirect_action, bloco = register_return('aulas_ativas.gerenciar_aulas_ativas', acao, extras,
+                aulas_ativas=get_aulas_ativas())
     if redirect_action:
         return redirect_action
     return render_template("database/aulas_ativas.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
