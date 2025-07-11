@@ -14,7 +14,7 @@ class Reservas_Fixas(db.Model):
     id_reserva_laboratorio: Mapped[int] = mapped_column(ForeignKey('laboratorios.id_laboratorio'), nullable=False)
     id_reserva_aula: Mapped[int] = mapped_column(ForeignKey('aulas_ativas.id_aula_ativa'), nullable=False)
     status_reserva: Mapped[int] = mapped_column(server_default='0', nullable=False)
-    tipo: Mapped[int] = mapped_column(server_default='0', nullable=False)
+    tipo_reserva: Mapped[int] = mapped_column(server_default='0', nullable=False)
     id_reserva_semestre: Mapped[int] = mapped_column(ForeignKey('semestres.id_semestre'), nullable=False)
 
     __table_args__ = (
@@ -42,6 +42,15 @@ class Reservas_Fixas(db.Model):
     laboratorios: Mapped['Laboratorios'] = relationship(back_populates='reservas_fixas')
     aulas_ativas: Mapped['Aulas_Ativas'] = relationship(back_populates='reservas_fixas')
     semestres: Mapped['Semestres'] = relationship(back_populates='reservas_fixas')
+    
+    def __repr__(self) -> str:
+        return (
+            f"<Reservas_Fixas(id_reserva_fixa={self.id_reserva_fixa}, id_responsavel={self.id_responsavel}, "
+            f"id_responsavel_especial={self.id_responsavel_especial}, tipo_responsavel={self.tipo_responsavel}, "
+            f"id_reserva_laboratorio={self.id_reserva_laboratorio}, id_reserva_aula={self.id_reserva_aula}, "
+            f"status_reserva={self.status_reserva}, tipo_reserva={self.tipo_reserva}, "
+            f"id_reserva_semestre={self.id_reserva_semestre})>"
+        )
 
 class Usuarios_Especiais(db.Model):
     __tablename__ = 'usuarios_especiais'
@@ -50,6 +59,10 @@ class Usuarios_Especiais(db.Model):
     nome_usuario_especial: Mapped[str] = mapped_column(String(100), nullable=False)
 
     reservas_fixas: Mapped[list['Reservas_Fixas']] = relationship(back_populates='usuarios_especiais')
+
+    def __repr__(self) -> str:
+        return f"<Usuarios_Especiais(id_usuario_especial={self.id_usuario_especial}, nome_usuario_especial={self.nome_usuario_especial})>"
+
     
 class Usuarios(db.Model):
     __tablename__ = 'usuarios'
@@ -64,6 +77,13 @@ class Usuarios(db.Model):
     permissoes: Mapped[list['Permissoes']] = relationship(back_populates='usuarios')
     historicos: Mapped[list['Historicos']] = relationship(back_populates='usuarios')
 
+    def __repr__(self) -> str:
+        return (
+            f"<Usuarios(id_usuario={self.id_usuario}, id_pessoa={self.id_pessoa}, "
+            f"tipo_pessoa={self.tipo_pessoa}, situacao_pessoa={self.situacao_pessoa}, "
+            f"grupo_pessoa={self.grupo_pessoa})>"
+        )
+
 class Pessoas(db.Model):
     __tablename__ = 'pessoas'
 
@@ -75,6 +95,12 @@ class Pessoas(db.Model):
     usuarios: Mapped[list['Usuarios']] = relationship(back_populates='pessoas')
     historicos: Mapped[list['Historicos']] = relationship(back_populates='pessoas')
 
+    def __repr__(self) -> str:
+        return (
+            f"<Pessoas(id_pessoa={self.id_pessoa}, nome_pessoa={self.nome_pessoa}, "
+            f"email_pessoa={self.email_pessoa})>"
+        )
+
 class Permissoes(db.Model):
     __tablename__ = 'permissoes'
 
@@ -82,6 +108,9 @@ class Permissoes(db.Model):
     permissao: Mapped[int] = mapped_column(nullable=False)
 
     usuarios: Mapped['Usuarios'] = relationship(back_populates='permissoes')
+
+    def __repr__(self) -> str:
+        return f"<Permissoes(id_permissao_usuario={self.id_permissao_usuario}, permissao={self.permissao})>"
 
 class DisponibilidadeEnum(enum.Enum):
     DISPONIVEL = "Disponivel"
@@ -111,6 +140,12 @@ class Laboratorios(db.Model):
 
     reservas_fixas: Mapped[list['Reservas_Fixas']] = relationship(back_populates='laboratorios')
 
+    def __repr__(self) -> str:
+        return (
+            f"<Laboratorios(id_laboratorio={self.id_laboratorio}, nome_laboratorio={self.nome_laboratorio}, "
+            f"disponibilidade={self.disponibilidade.value}, tipo={self.tipo.value})>"
+        )
+
 class Aulas(db.Model):
     __tablename__ = 'aulas'
 
@@ -124,6 +159,12 @@ class Aulas(db.Model):
     def horario_intervalo(self):
         return f"{self.horario_inicio.strftime('%H:%M')} - {self.horario_fim.strftime('%H:%M')}"
     
+    def __repr__(self) -> str:
+        return (
+            f"<Aulas(id_aula={self.id_aula}, horario_inicio={self.horario_inicio}, "
+            f"horario_fim={self.horario_fim})>"
+        )
+    
 class Dias_da_Semana(db.Model):
     __tablename__ = 'dias_da_semana'
 
@@ -131,6 +172,9 @@ class Dias_da_Semana(db.Model):
     nome: Mapped[str] = mapped_column(String(15), nullable=False, unique=True)
 
     aulas_ativas: Mapped[list['Aulas_Ativas']] = relationship(back_populates='dia_da_semana')
+
+    def __repr__(self) -> str:
+        return f"<Dias_da_Semana(id={self.id}, nome={self.nome})>"
 
 
 class Turnos(db.Model):
@@ -142,6 +186,12 @@ class Turnos(db.Model):
     horario_fim: Mapped[time] = mapped_column(nullable=False)
 
     aulas_ativas: Mapped[list['Aulas_Ativas']] = relationship(back_populates='turno_info')
+
+    def __repr__(self) -> str:
+        return (
+            f"<Turnos(id={self.id}, nome={self.nome}, "
+            f"horario_inicio={self.horario_inicio}, horario_fim={self.horario_fim})>"
+        )
     
 class TipoAulaEnum(enum.Enum):
     AULA = "Aula"
@@ -155,7 +205,6 @@ class Aulas_Ativas(db.Model):
     id_aula: Mapped[int] = mapped_column(ForeignKey('aulas.id_aula'), nullable=False)
     inicio_ativacao: Mapped[date | None] = mapped_column()
     fim_ativacao: Mapped[date | None] = mapped_column()
-
     id_semana: Mapped[int] = mapped_column(ForeignKey('dias_da_semana.id'), nullable=False)
     id_turno: Mapped[int] = mapped_column(ForeignKey('turnos.id'), nullable=False)
 
@@ -163,6 +212,11 @@ class Aulas_Ativas(db.Model):
         Enum(TipoAulaEnum, name="tipoaula_enum", create_constraint=True),
         server_default=TipoAulaEnum.AULA.value
     )
+    #inicio, fim, aula, semana, turno, tipo
+
+    @property    
+    def selector_indentification(self):
+        return f"({self.id_aula}) ({self.id_semana}) ({self.id_turno}) {self.tipo_aula.value}:{self.inicio_ativacao} - {self.fim_ativacao}"
 
     __table_args__ = (
         CheckConstraint(
@@ -176,6 +230,14 @@ class Aulas_Ativas(db.Model):
 
     dia_da_semana: Mapped['Dias_da_Semana'] = relationship(back_populates='aulas_ativas')
     turno_info: Mapped['Turnos'] = relationship(back_populates='aulas_ativas')
+
+    def __repr__(self) -> str:
+        return (
+            f"<Aulas_Ativas(id_aula_ativa={self.id_aula_ativa}, id_aula={self.id_aula}, "
+            f"inicio_ativacao={self.inicio_ativacao}, fim_ativacao={self.fim_ativacao}, "
+            f"id_semana={self.id_semana}, id_turno={self.id_turno}, "
+            f"tipo_aula={self.tipo_aula})>"
+        )
 
 class Historicos(db.Model):
     __tablename__ = 'historicos'
@@ -193,6 +255,15 @@ class Historicos(db.Model):
     usuarios: Mapped['Usuarios'] = relationship(back_populates='historicos')
     pessoas: Mapped['Pessoas'] = relationship(back_populates='historicos')
 
+    def __repr__(self) -> str:
+        return (
+            f"<Historicos(id_historico={self.id_historico}, id_usuario={self.id_usuario}, "
+            f"id_pessoa={self.id_pessoa}, tabela={self.tabela}, "
+            f"categoria={self.categoria}, data_hora={self.data_hora}, "
+            f"message={self.message}, chave_primaria={self.chave_primaria}, "
+            f"observacao={self.observacao})>"
+        )
+
 class Semestres(db.Model):
     __tablename__ = 'semestres'
 
@@ -202,3 +273,9 @@ class Semestres(db.Model):
     data_fim: Mapped[date] = mapped_column(nullable=False)
 
     reservas_fixas: Mapped[list['Reservas_Fixas']] = relationship(back_populates='semestres')
+
+    def __repr__(self) -> str:
+        return (
+            f"<Semestres(id_semestre={self.id_semestre}, nome_semestre={self.nome_semestre}, "
+            f"data_inicio={self.data_inicio}, data_fim={self.data_fim})>"
+        )
