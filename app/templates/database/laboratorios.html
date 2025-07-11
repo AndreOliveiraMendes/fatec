@@ -3,7 +3,7 @@
     Laboratorios
 {% endblock title %}
 {% block content_head %}
-    {{ generate_head(url_for("laboratorios.gerenciar_laboratorios"), acao) }}
+    {{ generate_head(url_for("laboratorios.gerenciar_laboratorios") , acao) }}
 {% endblock content_head %}
 {% block abertura %}
     <h3>
@@ -174,12 +174,16 @@
             </div>
             <div class="form-group">
                 <label for="tipo">Tipo:</label>
-                <select class="form-control" id="tipo" name="tipo">
+                <select class="form-control"
+                        id="tipo"
+                        name="tipo"
+                        aria-describedby="tipo_labHelpBlock">
                     <option value="">Selecione...</option>
                     <option value="Laboratório">Laboratório</option>
                     <option value="Sala">Sala</option>
                     <option value="Externo">Externo</option>
                 </select>
+                <span id="tipo_labHelpBlock" class="help-block">se o horario é destinado a aula, evento ou outra finalidade</span>
             </div>
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
