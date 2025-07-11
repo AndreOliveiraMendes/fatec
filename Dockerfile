@@ -1,5 +1,6 @@
 # 🐍 Imagem base slim (leve)
 FROM python:3.12-slim
+#FROM python:3.12-alpine
 
 # 📌 Informações de autoria
 LABEL maintainer="ao_mendes@hotmail.com"
@@ -13,6 +14,9 @@ COPY requirements.txt .
 # ✅ Atualiza pip e instala dependências
 RUN python -m pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
+#RUN apk add --no-cache python3-dev build-base && \
+#    python3 -m pip install --no-cache-dir -r requirements.txt && \
+#    apk del python3-dev build-base
 
 # 📂 Copia código da aplicação
 COPY app/ app/
