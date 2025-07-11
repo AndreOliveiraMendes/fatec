@@ -30,16 +30,17 @@
         <h2>
             <a name="a{{ loop.index0 }}">Tabela: {{ table }}</a>
         </h2>
+        <h3>campos:</h3>
         <div class="table-responsive">
             <table class="table table-bordered table-striped table-hover">
                 <thead>
                     <tr class="information">
-                        <th>name</th>
-                        <th>tipo</th>
-                        <th>valor padrão</th>
-                        <th>comentario</th>
-                        <th>pode ser null</th>
-                        <th>auto incremento</th>
+                        <th>Nome</th>
+                        <th>Tipo</th>
+                        <th>Valor padrão</th>
+                        <th>Comentario</th>
+                        <th>Pode ser null</th>
+                        <th>Auto incremento</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -56,5 +57,36 @@
                 </tbody>
             </table>
         </div>
+        <h3>FK:</h3>
+        {% if sfks[table] %}
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover">
+                    <thead>
+                        <tr class="information">
+                            <th>Nome</th>
+                            <th>Coluna</th>
+                            <th>Esquema referido</th>
+                            <th>Tabela referida</th>
+                            <th>Coluna referida</th>
+                            <th>opções</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sfk in sfks[table] %}
+                            <tr>
+                                <td>{{ sfk['name'] }}</td>
+                                <td>{{ sfk['constrained_columns'] }}</td>
+                                <td>{{ sfk['referred_schema'] }}</td>
+                                <td>{{ sfk['referred_table'] }}</td>
+                                <td>{{ sfk['referred_columns'] }}</td>
+                                <td>{{ sfk['options'] }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            Não Possui
+        {% endif %}
     {% endfor %}
 {% endblock content %}
