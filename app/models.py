@@ -215,7 +215,11 @@ class Aulas_Ativas(db.Model):
 
     @property    
     def selector_indentification(self):
-        return f"({self.id_aula}) ({self.id_semana}) ({self.id_turno}) {self.tipo_aula.value}:{self.inicio_ativacao} - {self.fim_ativacao}"
+        inicio = self.inicio_ativacao.strftime('%d/%m/%Y') if self.inicio_ativacao else '???'
+        fim = self.fim_ativacao.strftime('%d/%m/%Y') if self.fim_ativacao else '???'
+        tipo = self.tipo_aula.value.capitalize()
+
+        return f"({self.id_aula}) ({self.id_semana}) ({self.id_turno}) {tipo}: {inicio} - {fim}"
 
     __table_args__ = (
         CheckConstraint(
