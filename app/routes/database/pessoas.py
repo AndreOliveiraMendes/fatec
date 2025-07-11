@@ -6,7 +6,7 @@ from config import PER_PAGE
 from app.models import db, Pessoas, Usuarios
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params, \
-    registrar_log_generico, disable_action, get_session_or_request, register_return
+    registrar_log_generico_usuario, disable_action, get_session_or_request, register_return
 
 bp = Blueprint('pessoas', __name__, url_prefix="/database")
 
@@ -75,7 +75,7 @@ def gerenciar_pessoas():
                 nova_pessoa = Pessoas(nome_pessoa=nome, email_pessoa=email)
                 db.session.add(nova_pessoa)
                 db.session.flush()  # garante ID
-                registrar_log_generico(userid, "Inserção", nova_pessoa)
+                registrar_log_generico_usuario(userid, "Inserção", nova_pessoa)
                 db.session.commit()
                 flash("Pessoa cadastrada com sucesso", "success")
             except (IntegrityError, OperationalError) as e:
@@ -108,7 +108,7 @@ def gerenciar_pessoas():
                 db.session.flush()  # Garante que o ID esteja atribuído
 
                 # Loga com os dados antigos + novos
-                registrar_log_generico(userid, "Edição", pessoa, dados_anteriores)
+                registrar_log_generico_usuario(userid, "Edição", pessoa, dados_anteriores)
 
                 db.session.commit()
                 flash("Pessoa atualizada com sucesso", "success")
@@ -129,7 +129,7 @@ def gerenciar_pessoas():
             else:
                 try:
                     db.session.flush()  # garante ID
-                    registrar_log_generico(userid, "Exclusão", pessoa)
+                    registrar_log_generico_usuario(userid, "Exclusão", pessoa)
 
                     db.session.delete(pessoa)
                     db.session.commit()

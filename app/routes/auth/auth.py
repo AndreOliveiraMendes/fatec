@@ -4,7 +4,7 @@ from config import TOMCAT_API_URL, API_BASIC_USER, API_BASIC_PASS
 from flask import flash, session, render_template, request, redirect, url_for
 from app.models import db, Pessoas, Usuarios, Permissoes
 from app.auxiliar.decorators import login_required
-from app.auxiliar.auxiliar_routes import none_if_empty, registrar_log_generico
+from app.auxiliar.auxiliar_routes import none_if_empty, registrar_log_generico_sistema
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -68,9 +68,9 @@ def check_login(id, password):
                 
             db.session.add(perm)
 
-            registrar_log_generico(id_usuario, "Login", pessoa, old_pessoa, skip_unchanged=True)
-            registrar_log_generico(id_usuario, "Login", user, old_user, skip_unchanged=True)
-            registrar_log_generico(id_usuario, "Login", perm, old_perm, skip_unchanged=True)
+            registrar_log_generico_sistema("Login", pessoa, old_pessoa, skip_unchanged=True)
+            registrar_log_generico_sistema("Login", user, old_user, skip_unchanged=True)
+            registrar_log_generico_sistema("Login", perm, old_perm, skip_unchanged=True)
 
             userid = id_usuario
             username = nome_pessoa

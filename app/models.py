@@ -245,8 +245,8 @@ class Historicos(db.Model):
     __tablename__ = 'historicos'
 
     id_historico: Mapped[int] = mapped_column(primary_key=True)
-    id_usuario: Mapped[int] = mapped_column(ForeignKey('usuarios.id_usuario'), nullable=False)
-    id_pessoa: Mapped[int] = mapped_column(ForeignKey('pessoas.id_pessoa'), nullable=False)
+    id_usuario: Mapped[int | None] = mapped_column(ForeignKey('usuarios.id_usuario'), nullable=True)
+    id_pessoa: Mapped[int | None] = mapped_column(ForeignKey('pessoas.id_pessoa'), nullable=True)
     tabela: Mapped[str | None] = mapped_column(String(100), index=True)
     categoria: Mapped[str | None] = mapped_column(String(100))
     data_hora: Mapped[datetime] = mapped_column(index=True, nullable=False)

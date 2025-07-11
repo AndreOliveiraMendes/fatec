@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError, OperationalError
 from config import PER_PAGE
 from app.models import db, Dias_da_Semana
 from app.auxiliar.decorators import admin_required
-from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, registrar_log_generico,\
+from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, registrar_log_generico_usuario,\
     disable_action, get_session_or_request, register_return
 
 bp = Blueprint('dias_da_semana', __name__, url_prefix="/database")
@@ -42,7 +42,7 @@ def gerenciar_dias_da_semana():
                 db.session.add(nova_semana)
 
                 db.session.flush()
-                registrar_log_generico(userid, 'Inserção', nova_semana)
+                registrar_log_generico_usuario(userid, 'Inserção', nova_semana)
 
                 db.session.commit()
                 flash("Semana cadastrada com sucesso", "success")
@@ -67,7 +67,7 @@ def gerenciar_dias_da_semana():
                 dia_da_semana.nome = nome
 
                 db.session.flush()
-                registrar_log_generico(userid, 'Edição', dia_da_semana, dados_anteriores)
+                registrar_log_generico_usuario(userid, 'Edição', dia_da_semana, dados_anteriores)
 
                 db.session.commit()
                 flash("Dia da semana editado com sucesso", "success")
@@ -83,7 +83,7 @@ def gerenciar_dias_da_semana():
                 db.session.delete(dia_da_semana)
 
                 db.session.flush()
-                registrar_log_generico(userid, 'Exclusão', dia_da_semana)
+                registrar_log_generico_usuario(userid, 'Exclusão', dia_da_semana)
 
                 db.session.commit()
                 flash("Dia da semana excluido com sucesso", "success")

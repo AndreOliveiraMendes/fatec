@@ -67,8 +67,13 @@
                     {% for h in historicos %}
                         <tr>
                             <td class="visible-md visible-lg">{{ h.id_historico }}</td>
-                            <td class="visible-md visible-lg">({{ h.id_usuario }}) {{ h.usuarios.pessoas.nome_pessoa }}</td>
-                            <td class="visible-md visible-lg">({{ h.id_pessoa }}) {{ h.pessoas.nome_pessoa }}</td>
+                            {% if h.id_usuario %}
+                                <td class="visible-md visible-lg">({{ h.id_usuario }}) {{ h.usuarios.pessoas.nome_pessoa }}</td>
+                                <td class="visible-md visible-lg">({{ h.id_pessoa }}) {{ h.pessoas.nome_pessoa }}</td>
+                            {% else %}
+                                <td class="visible-md visible-lg">-</td>
+                                <td class="visible-md visible-lg">-</td>
+                            {% endif %}
                             <td>{{ h.tabela or '-' }}</td>
                             <td>{{ h.categoria or '-' }}</td>
                             <td>{{ h.data_hora.strftime("%d/%m/%Y %H:%M") if h.data_hora else '-' }}</td>

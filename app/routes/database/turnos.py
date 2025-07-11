@@ -6,7 +6,7 @@ from config import PER_PAGE
 from app.models import db, Turnos
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, parse_time_string, get_user_info, \
-    registrar_log_generico, disable_action, get_session_or_request, register_return
+    registrar_log_generico_usuario, disable_action, get_session_or_request, register_return
 
 bp = Blueprint('turnos', __name__, url_prefix="/database")
 
@@ -43,7 +43,7 @@ def gerenciar_turnos():
                 db.session.add(novo_turno)
 
                 db.session.flush()
-                registrar_log_generico(userid, 'Inserção', novo_turno)
+                registrar_log_generico_usuario(userid, 'Inserção', novo_turno)
 
                 db.session.commit()
                 flash("Turno cadastrado com sucesso", "success")
@@ -71,7 +71,7 @@ def gerenciar_turnos():
                 turno.horario_inicio = horario_inicio
                 turno.horario_fim = horario_fim
                 db.session.flush
-                registrar_log_generico(userid, 'Edição', turno, dados_anteriores)
+                registrar_log_generico_usuario(userid, 'Edição', turno, dados_anteriores)
 
                 db.session.commit()
                 flash("Turno editado com sucesso", "success")
@@ -86,7 +86,7 @@ def gerenciar_turnos():
             try:
                 db.session.delete(turno)
                 db.session.flush()
-                registrar_log_generico(userid, 'Exclusão', turno)
+                registrar_log_generico_usuario(userid, 'Exclusão', turno)
 
                 db.session.commit()
                 flash("Turno excluido com sucesso", "success")

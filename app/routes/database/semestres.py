@@ -6,7 +6,7 @@ from config import PER_PAGE
 from app.models import db, Semestres
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, parse_date_string, get_user_info, \
-    get_query_params, registrar_log_generico, get_session_or_request, register_return
+    get_query_params, registrar_log_generico_usuario, get_session_or_request, register_return
 
 bp = Blueprint('semestres', __name__, url_prefix="/database")
 
@@ -66,7 +66,7 @@ def gerenciar_semestres():
                 novo_semestre = Semestres(nome_semestre = nome_semestre, data_inicio = data_inicio, data_fim = data_fim)
                 db.session.add(novo_semestre)
                 db.session.flush()
-                registrar_log_generico(userid, "Inserção", novo_semestre)
+                registrar_log_generico_usuario(userid, "Inserção", novo_semestre)
                 db.session.commit()
                 flash("Semestre cadastrado com sucesso", "success")
             except (IntegrityError, OperationalError) as e:
@@ -94,7 +94,7 @@ def gerenciar_semestres():
                 semestre.data_fim = data_fim
 
                 db.session.flush()
-                registrar_log_generico(userid, "Edição", semestre, dados_anteriores)
+                registrar_log_generico_usuario(userid, "Edição", semestre, dados_anteriores)
 
                 db.session.commit()
                 flash("Semestre editado com sucesso", "success")
@@ -111,7 +111,7 @@ def gerenciar_semestres():
                 db.session.delete(semestre)
 
                 db.session.flush()
-                registrar_log_generico(userid, "Exclusão", semestre)
+                registrar_log_generico_usuario(userid, "Exclusão", semestre)
 
                 db.session.commit()
                 flash("Semestre excluido com sucesso", "success")

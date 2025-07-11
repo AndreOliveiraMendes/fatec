@@ -6,7 +6,7 @@ from config import PER_PAGE
 from app.models import db, Usuarios_Especiais
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params, \
-    registrar_log_generico, get_session_or_request, register_return
+    registrar_log_generico_usuario, get_session_or_request, register_return
 
 
 bp = Blueprint('usuarios_especiais', __name__, url_prefix="/database")
@@ -59,7 +59,7 @@ def gerenciar_usuarios_especiais():
                 novo_usuario_especial = Usuarios_Especiais(nome_usuario_especial=nome_usuario_especial)
                 db.session.add(novo_usuario_especial)
                 db.session.flush()
-                registrar_log_generico(userid, "Inserção", novo_usuario_especial)
+                registrar_log_generico_usuario(userid, "Inserção", novo_usuario_especial)
                 db.session.commit()
                 flash("Usuario Especial cadastrada com sucesso", "success")
             except (IntegrityError, OperationalError) as e:
@@ -85,7 +85,7 @@ def gerenciar_usuarios_especiais():
                 usuario_especial.nome_usuario_especial = nome_usuario_especial
 
                 db.session.flush()  # garante ID
-                registrar_log_generico(userid, "Edição", usuario_especial, dados_anteriores)
+                registrar_log_generico_usuario(userid, "Edição", usuario_especial, dados_anteriores)
 
                 db.session.commit()
                 flash("Usuario especial editado com sucesso", "success")
@@ -102,7 +102,7 @@ def gerenciar_usuarios_especiais():
                 db.session.delete(usuario_especial)
 
                 db.session.flush()  # garante ID
-                registrar_log_generico(userid, "Exclusão", usuario_especial)
+                registrar_log_generico_usuario(userid, "Exclusão", usuario_especial)
 
                 db.session.commit()
                 flash("Usuario especial excluido com sucesso", "success")

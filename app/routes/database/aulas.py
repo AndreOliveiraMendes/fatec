@@ -6,7 +6,7 @@ from config import PER_PAGE
 from app.models import db, Aulas
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, parse_time_string, get_user_info, \
-    get_query_params, registrar_log_generico, get_session_or_request, register_return
+    get_query_params, registrar_log_generico_usuario, get_session_or_request, register_return
 
 bp = Blueprint('aulas', __name__, url_prefix="/database")
 
@@ -70,7 +70,7 @@ def gerenciar_aulas():
                 nova_aula = Aulas(horario_inicio=horario_inicio, horario_fim=horario_fim)
                 db.session.add(nova_aula)
                 db.session.flush()
-                registrar_log_generico(userid, "Inserção", nova_aula)
+                registrar_log_generico_usuario(userid, "Inserção", nova_aula)
                 db.session.commit()
                 flash("Aula cadastrada com sucesso", "success")
             except (IntegrityError, OperationalError) as e:
@@ -95,7 +95,7 @@ def gerenciar_aulas():
                 aula.horario_fim = horario_fim
 
                 db.session.flush()
-                registrar_log_generico(userid, "Edição", aula, dados_anteriores)
+                registrar_log_generico_usuario(userid, "Edição", aula, dados_anteriores)
 
                 db.session.commit()
                 flash("Aula editada com sucesso", "success")
@@ -112,7 +112,7 @@ def gerenciar_aulas():
                 db.session.delete(aula)
 
                 db.session.flush()
-                registrar_log_generico(userid, "Exclusão", aula)
+                registrar_log_generico_usuario(userid, "Exclusão", aula)
 
                 db.session.commit()
                 flash("Aula excluida com sucesso", "success")

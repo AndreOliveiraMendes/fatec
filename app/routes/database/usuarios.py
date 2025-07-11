@@ -6,7 +6,7 @@ from config import PER_PAGE
 from app.models import db, Pessoas, Usuarios
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params, \
-    registrar_log_generico, disable_action, get_session_or_request, register_return
+    registrar_log_generico_usuario, disable_action, get_session_or_request, register_return
 
 
 bp = Blueprint('usuarios', __name__, url_prefix="/database")
@@ -85,7 +85,7 @@ def gerenciar_usuarios():
                 novo_usuario = Usuarios(id_usuario=id_usuario, id_pessoa=id_pessoa, tipo_pessoa=tipo_pessoa, situacao_pessoa=situacao_pessoa, grupo_pessoa=grupo_pessoa)
                 db.session.add(novo_usuario)
                 db.session.flush()  # garante ID
-                registrar_log_generico(userid, "Inserção", novo_usuario)
+                registrar_log_generico_usuario(userid, "Inserção", novo_usuario)
                 db.session.commit()
                 flash("Usuario cadastrado com sucesso", "success")
             except (IntegrityError, OperationalError) as e:
@@ -120,7 +120,7 @@ def gerenciar_usuarios():
 
                 db.session.flush()  # Garante que o ID esteja atribuído
 
-                registrar_log_generico(userid, "Edição", usuario, dados_anteriores)
+                registrar_log_generico_usuario(userid, "Edição", usuario, dados_anteriores)
 
                 db.session.commit()
                 flash("Usuario atualizado com sucesso", "success")
@@ -139,7 +139,7 @@ def gerenciar_usuarios():
             else:
                 try:
                     db.session.flush()  # garante ID
-                    registrar_log_generico(userid, "Exclusão", user)
+                    registrar_log_generico_usuario(userid, "Exclusão", user)
 
                     db.session.delete(user)
                     db.session.commit()

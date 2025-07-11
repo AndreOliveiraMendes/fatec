@@ -7,7 +7,7 @@ from config import PER_PAGE
 from app.models import db, Aulas_Ativas, Aulas, Dias_da_Semana, Turnos, TipoAulaEnum
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, parse_date_string, get_user_info, \
-    get_query_params, registrar_log_generico, get_session_or_request, register_return
+    get_query_params, registrar_log_generico_usuario, get_session_or_request, register_return
 
 bp = Blueprint('aulas_ativas', __name__, url_prefix="/database")
 
@@ -88,7 +88,7 @@ def gerenciar_aulas_ativas():
                 db.session.add(nova_aula_ativa)
 
                 db.session.flush()
-                registrar_log_generico(userid, 'Inserção', nova_aula_ativa)
+                registrar_log_generico_usuario(userid, 'Inserção', nova_aula_ativa)
 
                 db.session.commit()
                 flash("Aula ativa cadastrada com sucesso", "success")
@@ -128,7 +128,7 @@ def gerenciar_aulas_ativas():
                 aula_ativa.tipo_aula = tipo_aula
 
                 db.session.flush()
-                registrar_log_generico(userid, 'Edição', aula_ativa, dados_anteriores)
+                registrar_log_generico_usuario(userid, 'Edição', aula_ativa, dados_anteriores)
 
                 db.session.commit()
                 flash("Aula ativa editada com sucesso", "success")
@@ -145,7 +145,7 @@ def gerenciar_aulas_ativas():
                 db.session.delete(aula_ativa)
 
                 db.session.flush()
-                registrar_log_generico(userid, 'Exclusão', aula_ativa)
+                registrar_log_generico_usuario(userid, 'Exclusão', aula_ativa)
 
                 db.session.commit()
                 flash("Aula ativa excluida com sucesso", "success")

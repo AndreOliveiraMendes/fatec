@@ -6,7 +6,7 @@ from config import PER_PAGE
 from app.models import db, Laboratorios, DisponibilidadeEnum, TipoLaboratorioEnum
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params, \
-    registrar_log_generico, get_session_or_request, register_return
+    registrar_log_generico_usuario, get_session_or_request, register_return
 
 
 bp = Blueprint('laboratorios', __name__, url_prefix="/database")
@@ -67,7 +67,7 @@ def gerenciar_laboratorios():
                 novo_laboratorio = Laboratorios(nome_laboratorio=nome_laboratorio, disponibilidade=DisponibilidadeEnum(disponibilidade), tipo=TipoLaboratorioEnum(tipo))
                 db.session.add(novo_laboratorio)
                 db.session.flush()
-                registrar_log_generico(userid, "Inserção", novo_laboratorio)
+                registrar_log_generico_usuario(userid, "Inserção", novo_laboratorio)
                 db.session.commit()
                 flash("Laboratorio cadastrado com succeso", "success")
             except (IntegrityError, OperationalError) as e:
@@ -97,7 +97,7 @@ def gerenciar_laboratorios():
                 laboratorio.tipo = TipoLaboratorioEnum(tipo)
 
                 db.session.flush()
-                registrar_log_generico(userid, "Edição", laboratorio, dados_anteriores)
+                registrar_log_generico_usuario(userid, "Edição", laboratorio, dados_anteriores)
 
                 db.session.commit()
                 flash("laboratório editado com sucesso", "success")
@@ -114,7 +114,7 @@ def gerenciar_laboratorios():
                 db.session.delete(laboratorio)
 
                 db.session.flush()
-                registrar_log_generico(userid, "Exclusão", laboratorio)
+                registrar_log_generico_usuario(userid, "Exclusão", laboratorio)
 
                 db.session.commit()
                 flash("laboratório excluido com sucesso", "success")

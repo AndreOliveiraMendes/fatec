@@ -6,7 +6,7 @@ from config import PER_PAGE
 from app.models import db, Historicos
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, parse_time_string, get_user_info, \
-    get_query_params, registrar_log_generico, disable_action, include_action, get_session_or_request, \
+    get_query_params, registrar_log_generico_usuario, disable_action, include_action, get_session_or_request, \
     register_return
 
 bp = Blueprint('historicos', __name__, url_prefix="/database")

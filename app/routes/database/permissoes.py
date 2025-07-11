@@ -6,7 +6,7 @@ from config import PER_PAGE
 from app.models import db, Pessoas, Usuarios, Permissoes
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params, \
-    registrar_log_generico, get_session_or_request, register_return
+    registrar_log_generico_usuario, get_session_or_request, register_return
 from app.auxiliar.constant import PERM_RESERVAS_FIXA, PERM_RESERVAS_TEMPORARIA, PERM_ADMIN
 
 bp = Blueprint('permissoes', __name__, url_prefix="/database")
@@ -82,7 +82,7 @@ def gerenciar_permissoes():
                 nova_permissao = Permissoes(id_permissao_usuario=id_permissao_usuario, permissao=flag)
                 db.session.add(nova_permissao)
                 db.session.flush()  # garante ID
-                registrar_log_generico(userid, "Inserção", nova_permissao, observacao=f"0b{flag:03b}")
+                registrar_log_generico_usuario(userid, "Inserção", nova_permissao, observacao=f"0b{flag:03b}")
                 db.session.commit()
                 flash("Permissao cadastrada com sucesso", "success")
             except (IntegrityError, OperationalError) as e:
@@ -111,7 +111,7 @@ def gerenciar_permissoes():
                     permissao.permissao = flag
                     db.session.flush()  # Garante que o ID esteja atribuído
                     observacao = f"0b{dados_anteriores.permissao:03b} → 0b{flag:03b}"
-                    registrar_log_generico(userid, "Edição", permissao, dados_anteriores, observacao=observacao) # Loga com os dados antigos + novos
+                    registrar_log_generico_usuario(userid, "Edição", permissao, dados_anteriores, observacao=observacao) # Loga com os dados antigos + novos
                     db.session.commit()
                     flash("Permissao atualizada com sucesso", "success")
                 except (IntegrityError, OperationalError) as e:
@@ -129,7 +129,7 @@ def gerenciar_permissoes():
             else:
                 try:
                     db.session.flush()  # garante ID
-                    registrar_log_generico(userid, "Exclusão", permissao, observacao=f"0b{permissao.permissao:03b}")
+                    registrar_log_generico_usuario(userid, "Exclusão", permissao, observacao=f"0b{permissao.permissao:03b}")
 
                     db.session.delete(permissao)
                     db.session.commit()

@@ -74,7 +74,49 @@ def dict_format(dictionary):
         campos.append(f"{key}: {value}")
     return "; ".join(campos)
 
-def registrar_log_generico(userid, acao:Literal['Login', 'Inserção', 'Edição', 'Exclusão'], objeto, antes=None, observacao=None, skip_unchanged=False):
+def registrar_log_generico_sistema(acao:Literal['Login'], objeto, antes=None, observacao=None, skip_unchanged=False):
+    nome_tabela = getattr(objeto, "__tablename__", objeto.__class__.__name__)
+    insp = inspect(objeto)
+
+    # Tenta pegar a primary key dinamicamente
+    chaves_primarias = [key.name for key in insp.mapper.primary_key]
+    dados_chave = {chave: getattr(objeto, chave) for chave in chaves_primarias}
+
+    campos = []
+    for col in objeto.__table__.columns:
+        nome = col.name
+        valor_novo = getattr(objeto, nome, None)
+        valor_novo_fmt = formatar_valor(valor_novo)
+
+        if antes:
+            valor_antigo = getattr(antes, nome, None)
+            valor_antigo_fmt = formatar_valor(valor_antigo)
+
+            if valor_antigo != valor_novo:
+                campos.append(f"{nome}: {valor_antigo_fmt} → {valor_novo_fmt}")
+        else:
+            campos.append(f"{nome}: {valor_novo_fmt}")
+
+    # Evita log vazio (nenhuma mudança real)
+    if not campos:
+        if skip_unchanged:
+            return
+        campos.append("nenhuma alteração detectada")
+
+    historico = Historicos(
+        id_usuario = None,
+        id_pessoa = None,
+        tabela = nome_tabela,
+        categoria = acao,
+        data_hora = datetime.now(),
+        message = "; ".join(campos),
+        chave_primaria = dict_format(dados_chave),
+        observacao = observacao
+    )
+    db.session.add(historico)
+
+
+def registrar_log_generico_usuario(userid, acao:Literal['Inserção', 'Edição', 'Exclusão'], objeto, antes=None, observacao=None, skip_unchanged=False):
     nome_tabela = getattr(objeto, "__tablename__", objeto.__class__.__name__)
     insp = inspect(objeto)
 
