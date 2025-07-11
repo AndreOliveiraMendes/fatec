@@ -212,7 +212,6 @@ class Aulas_Ativas(db.Model):
         Enum(TipoAulaEnum, name="tipoaula_enum", create_constraint=True),
         server_default=TipoAulaEnum.AULA.value
     )
-    #inicio, fim, aula, semana, turno, tipo
 
     @property    
     def selector_indentification(self):
