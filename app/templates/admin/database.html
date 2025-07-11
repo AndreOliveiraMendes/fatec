@@ -75,11 +75,11 @@
                         {% for sfk in sfks[table] %}
                             <tr>
                                 <td>{{ sfk['name'] }}</td>
-                                <td>{{ sfk['constrained_columns'] }}</td>
-                                <td>{{ sfk['referred_schema'] }}</td>
+                                <td>{{ ';'.join(sfk['constrained_columns']) }}</td>
+                                <td>{{ format(sfk['referred_schema']) }}</td>
                                 <td>{{ sfk['referred_table'] }}</td>
-                                <td>{{ sfk['referred_columns'] }}</td>
-                                <td>{{ sfk['options'] }}</td>
+                                <td>{{ ';'.join(sfk['referred_columns']) }}</td>
+                                <td>{{ format(sfk['options']) }}</td>
                             </tr>
                         {% endfor %}
                     </tbody>
