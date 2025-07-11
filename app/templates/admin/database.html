@@ -1,8 +1,10 @@
 {% extends "base" %}
+{% from "macros/form.html" import generate_navigation %}
 {% block title %}
     Banco de Dados
 {% endblock title %}
 {% block content %}
+    {{ generate_navigation() }}
     <h1>banco de dados:</h1>
     <div class="table-responsive">
         <table class="table table-bordered table-striped table-hover">
