@@ -10,6 +10,16 @@ bp = Blueprint('admin', __name__)
 def format(v):
     return v if v else '-'
 
+def classification(obj):
+    if len(obj) < 2:
+        return 'info'
+    elif len(obj) < 4:
+        return 'success'
+    elif len(obj) < 6:
+        return 'warning'
+    else:
+        return 'danger'
+
 @bp.route("/admin")
 @admin_required
 def gerenciar_menu():
@@ -61,8 +71,12 @@ def database():
     inspector = inspect(db.engine)
     tables = inspector.get_table_names()
     extras['format'] = format
+    extras['classification'] = classification
     extras['tables'] = tables
     extras['columns'] = {table:inspector.get_columns(table) for table in tables}
-    extras['sfks'] = {table:inspector.get_foreign_keys(table) for table in tables}
-    extras['suks'] = {table:inspector.get_unique_constraints(table) for table in tables}
+    extras['pks'] = {table:inspector.get_pk_constraint(table) for table in tables}
+    extras['fks'] = {table:inspector.get_foreign_keys(table) for table in tables}
+    extras['uks'] = {table:inspector.get_unique_constraints(table) for table in tables}
+    extras['chks'] = {table:inspector.get_check_constraints(table) for table in tables}
+    extras['inds'] = {table:inspector.get_indexes(table) for table in tables}
     return render_template("admin/database.html", username=username, perm=perm, **extras)
