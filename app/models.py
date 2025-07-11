@@ -92,7 +92,6 @@ class Pessoas(db.Model):
 
     reservas_fixas: Mapped[list['Reservas_Fixas']] = relationship(back_populates='pessoas')
     usuarios: Mapped[list['Usuarios']] = relationship(back_populates='pessoas')
-    historicos: Mapped[list['Historicos']] = relationship(back_populates='pessoas')
 
     def __repr__(self) -> str:
         return (
@@ -246,7 +245,6 @@ class Historicos(db.Model):
 
     id_historico: Mapped[int] = mapped_column(primary_key=True)
     id_usuario: Mapped[int | None] = mapped_column(ForeignKey('usuarios.id_usuario'), nullable=True)
-    id_pessoa: Mapped[int | None] = mapped_column(ForeignKey('pessoas.id_pessoa'), nullable=True)
     tabela: Mapped[str | None] = mapped_column(String(100), index=True)
     categoria: Mapped[str | None] = mapped_column(String(100))
     data_hora: Mapped[datetime] = mapped_column(index=True, nullable=False)
@@ -255,7 +253,6 @@ class Historicos(db.Model):
     observacao: Mapped[str | None] = mapped_column(TEXT)
 
     usuarios: Mapped['Usuarios'] = relationship(back_populates='historicos')
-    pessoas: Mapped['Pessoas'] = relationship(back_populates='historicos')
 
     def __repr__(self) -> str:
         return (
