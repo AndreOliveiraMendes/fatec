@@ -55,7 +55,7 @@ def get_user_info(userid):
         return username, perm
     user = Usuarios.query.get(userid)
     if user:
-        pessoa = Pessoas.query.get(user.id_pessoa)
+        pessoa = user.pessoas
         username = pessoa.nome_pessoa
         permissao = Permissoes.query.get(userid)
         if permissao:
@@ -105,7 +105,6 @@ def registrar_log_generico_sistema(acao:Literal['Login'], objeto, antes=None, ob
 
     historico = Historicos(
         id_usuario = None,
-        id_pessoa = None,
         tabela = nome_tabela,
         categoria = acao,
         data_hora = datetime.now(),
@@ -114,7 +113,6 @@ def registrar_log_generico_sistema(acao:Literal['Login'], objeto, antes=None, ob
         observacao = observacao
     )
     db.session.add(historico)
-
 
 def registrar_log_generico_usuario(userid, acao:Literal['Inserção', 'Edição', 'Exclusão'], objeto, antes=None, observacao=None, skip_unchanged=False):
     nome_tabela = getattr(objeto, "__tablename__", objeto.__class__.__name__)
@@ -145,11 +143,8 @@ def registrar_log_generico_usuario(userid, acao:Literal['Inserção', 'Edição'
             return
         campos.append("nenhuma alteração detectada")
 
-    user = Usuarios.query.get(userid);
-
     historico = Historicos(
         id_usuario = userid,
-        id_pessoa = user.id_pessoa,
         tabela = nome_tabela,
         categoria = acao,
         data_hora = datetime.now(),
