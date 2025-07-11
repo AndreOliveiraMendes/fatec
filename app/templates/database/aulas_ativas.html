@@ -87,14 +87,14 @@
         <div class="table-responsive">
             <table class="table table-striped table-bordered table-hover">
                 <thead>
-                    <tr>
+                    <tr class="information">
                         <th>id_aula_ativa</th>
-                        <th>id_aula</th>
+                        <th>aula</th>
                         <th>inicio_ativacao</th>
                         <th>fim_ativacao</th>
-                        <th>id_semana</th>
-                        <th>id_turno</th>
-                        <th>tipo_aula</th>
+                        <th>dia da semana</th>
+                        <th>turno</th>
+                        <th>tipo</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -117,7 +117,54 @@
     {% endif %}
 {% endblock listar %}
 {% block procurar %}
-    buff kanna
+    {% if bloco == 0 %}
+        <h3>Procurar Aulas Ativas</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for('aulas_ativas.gerenciar_aulas_ativas') }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label for="id_aula_ativa" class="control-label">Codigo da Aula Ativa</label>
+                <input id="id_aula_ativa"
+                       name="id_aula_ativa"
+                       placeholder="Codigo da aula ativa"
+                       type="number"
+                       class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="inicio_ativacao" class="control-label">Inicio Ativação</label>
+                <input id="inicio_ativacao"
+                       name="inicio_ativacao"
+                       placeholder="data de inicio, se especificada"
+                       type="date"
+                       class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="fim_ativacao" class="control-label">Fim Ativação</label>
+                <input id="fim_ativacao"
+                       name="fim_ativacao"
+                       placeholder="data de termino, se especificada"
+                       type="date"
+                       class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="tipo_aula" class="control-label">Tipo de Aula</label>
+                <select id="tipo_aula"
+                        name="tipo_aula"
+                        class="select form-control"
+                        aria-describedby="tipo_aulaHelpBlock">
+                    <option value="Selecione o Tipo de Aula"></option>
+                    <option value="Aulas">Aula</option>
+                    <option value="Eventos">Evento</option>
+                    <option value="Outras Finalidades">Outros</option>
+                </select>
+                <span id="tipo_aulaHelpBlock" class="help-block">se o horario é destinado a aula, evento ou outra finalidade</span>
+            </div>
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+    {% endif %}
 {% endblock procurar %}
 {% block inserir %}
     <h3>Inserir Aulas Ativas</h3>
