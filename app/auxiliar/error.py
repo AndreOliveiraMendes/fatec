@@ -5,7 +5,8 @@ from config import SHOW_DEBUG_ERRORS
 ERROR_MESSAGES = {
     401: "Você precisa fazer login para acessar esta página.",
     403: "Você não possui as permissões necessárias para acessar esta página.",
-    404: "A página requerida não existe."
+    404: "A página requisitada não existe.",
+    422: "Entidade não processável."
 }
 
 def wants_json_response():
@@ -43,3 +44,13 @@ def register_error_handler(app):
             return jsonify({"error": "Not Found"}), 404
         debug_message(e, 404)
         return render_template('http/404.html', username=username, perm=perm), 404
+    
+    @app.errorhandler(422)
+    def unprocessable_entity(e):
+        userid = session.get('userid')
+        username, perm = get_user_info(userid)
+        mensagem = getattr(e, 'description', 'Unprocessable Entity')
+        if wants_json_response():
+            return jsonify({"error": "Unprocessable Entity"}), 422
+        debug_message(e, 422)
+        return render_template('http/422.html', username=username, perm=perm, mensagem=mensagem), 422

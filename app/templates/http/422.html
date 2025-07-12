@@ -1,14 +1,14 @@
 {% extends "base" %}
 {% block title %}
-    Não Encontrada
+    Entidade não processável.
 {% endblock title %}
 {% block content %}
     <div class="alert alert-danger" role="alert">
-        <h3>404 - Página Não Encontrada</h3>
+        <h3>422 - Entidade não processável.</h3>
         {% if message %}
             <p>{{ message }}</p>
         {% else %}
-            <p>A página que você está tentando acessar não existe ou foi movida.</p>
+            <p>Não foi possível processar sua solicitação. Verifique os dados enviados.</p>
         {% endif %}
     </div>
     <a href={{ url_for("default.home") }} class="btn btn-primary"><span class="glyphicon glyphicon-home"></span> Voltar à página de início</a>
