@@ -20,11 +20,12 @@
             {% endif %}
             {% if perm|has_flag(ADMIN) %}
                 <a href="{{ url_for('admin.gerenciar_menu') }}" class="btn btn-danger">
-                    <span class="glyphicon glyphicon-cog"></span> Gerenciar o sistema (banco de dados)
+                    <span class="glyphicon glyphicon-cog"></span> Gerenciar o sistema
                 </a>
             {% endif %}
             {% if perm|has_flag(FIXA) %}
-                <a href="{{ url_for('default.under_dev_page') }}" class="btn btn-success">
+                <a href="{{ url_for('default.under_dev_page') }}"
+                   class="btn btn-success">
                     <span class="glyphicon glyphicon-calendar"></span> Reserva Semestral
                 </a>
             {% endif %}
@@ -33,7 +34,8 @@
                     <span class="glyphicon glyphicon-time"></span> Reserva Temporária
                 </a>
             {% endif %}
-            <a href="{{ url_for('default.under_dev_page') }}" class="btn btn-default">
+            <a href="{{ url_for('default.under_dev_page') }}"
+               class="btn btn-default">
                 <span class="glyphicon glyphicon-search"></span> Consultar Reservas
             </a>
         </div>

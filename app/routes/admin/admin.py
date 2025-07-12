@@ -1,24 +1,9 @@
-from flask import Blueprint
-from flask import session, render_template, request, redirect, url_for
+from flask import Blueprint, session, render_template, request, redirect, url_for
 from app.models import db, Reservas_Fixas, Usuarios, Permissoes, Laboratorios, Aulas
 from app.auxiliar.decorators import login_required, admin_required
 from app.auxiliar.auxiliar_routes import get_user_info
-from sqlalchemy import inspect
 
 bp = Blueprint('admin', __name__)
-
-def format(v):
-    return v if v else '-'
-
-def classification(obj):
-    if len(obj) < 2:
-        return 'info'
-    elif len(obj) < 4:
-        return 'success'
-    elif len(obj) < 6:
-        return 'warning'
-    else:
-        return 'danger'
 
 @bp.route("/admin")
 @admin_required
@@ -61,22 +46,3 @@ def gerenciar_menu():
         }
     }
     return render_template("admin/admin.html", username=username, perm=perm, secoes=secoes)
-
-@bp.route("/database")
-@admin_required
-def database():
-    userid = session.get('userid')
-    username, perm = get_user_info(userid)
-    extras = {}
-    inspector = inspect(db.engine)
-    tables = inspector.get_table_names()
-    extras['format'] = format
-    extras['classification'] = classification
-    extras['tables'] = tables
-    extras['columns'] = {table:inspector.get_columns(table) for table in tables}
-    extras['pks'] = {table:inspector.get_pk_constraint(table) for table in tables}
-    extras['fks'] = {table:inspector.get_foreign_keys(table) for table in tables}
-    extras['uks'] = {table:inspector.get_unique_constraints(table) for table in tables}
-    extras['chks'] = {table:inspector.get_check_constraints(table) for table in tables}
-    extras['inds'] = {table:inspector.get_indexes(table) for table in tables}
-    return render_template("admin/database.html", username=username, perm=perm, **extras)

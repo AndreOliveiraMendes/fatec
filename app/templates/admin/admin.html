@@ -6,51 +6,61 @@
     <div class="container text-center">
         <h2>Painel de Administração</h2>
         <p>Escolha uma seção para gerenciar:</p>
-        <!-- Botões principais -->
-        <div class="btn-group" role="group">
-            <a href="{{ url_for('default.home') }}" class="btn btn-primary">
-                <span class="glyphicon glyphicon-home"></span> Página Inicial
-            </a>
-            <button class="btn btn-warning"
-                    type="button"
-                    data-toggle="collapse"
-                    data-target="#collapseDatabase"
-                    aria-expanded="false"
-                    aria-controls="collapseDatabase">
-                <span class="glyphicon glyphicon-cog"></span> Manipular Banco de Dados
-            </button>
-            <a href="{{ url_for('admin.database') }}" class="btn btn-success">
-                <span class="glyphicon glyphicon-book"></span> Visualizar banco de dados
-            </a>
+        <div class="panel panel-primary">
+            <div class="panel-body">
+                <a href="{{ url_for('default.home') }}" class="btn btn-primary">
+                    <span class="glyphicon glyphicon-home"></span> Página Inicial
+                </a>
+            </div>
         </div>
-        <!-- Área colapsável principal -->
-        <div class="collapse" id="collapseDatabase">
-            <div class="well">
-                {% for grupo, grupo_metadate in secoes.items() %}
-                    <button class="btn btn-secondary btn-block text-left mb-2"
+        <div class="panel panel-danger">
+            <div class="panel-heading">
+                <h3 class="panel-title">Banco de Dados</h3>
+            </div>
+            <div class="panel-body">
+                <div class="btn-group" role="group">
+                    <button class="btn btn-warning"
                             type="button"
                             data-toggle="collapse"
-                            data-target="#collapse{{ loop.index }}"
+                            data-target="#collapseDatabase"
                             aria-expanded="false"
-                            aria-controls="collapse{{ loop.index }}">
-                        <span class="{{ grupo_metadate.icon }}"></span> <strong>{{ grupo }}</strong>
+                            aria-controls="collapseDatabase">
+                        <span class="glyphicon glyphicon-cog"></span> Manipular Banco de Dados
                     </button>
-                    <div class="collapse mb-3" id="collapse{{ loop.index }}">
-                        {% for secao, url, color, meta in grupo_metadate.secoes %}
-                            <a href="{{ url_for(url) }}"
-                               class="btn btn-{{ color }} btn-block text-capitalize">
-                                <span class="glyphicon glyphicon-chevron-right"></span>
-                                {{ secao }}
-                                <span class="glyphicon glyphicon-chevron-left"></span>
-                                {% if 'c' in meta %}<span class="glyphicon glyphicon-plus" title="Criar"></span>{% endif %}
-                                {% if 'r' in meta %}<span class="glyphicon glyphicon-book" title="Listar"></span>{% endif %}
-                                {% if 'u' in meta %}<span class="glyphicon glyphicon-edit" title="Editar"></span>{% endif %}
-                                {% if 'd' in meta %}<span class="glyphicon glyphicon-trash" title="Excluir"></span>{% endif %}
-                                {% if 'e' in meta %}<span class="glyphicon glyphicon-download" title="Exportar"></span>{% endif %}
-                            </a>
+                    <a href="{{ url_for('main.database') }}" class="btn btn-success">
+                        <span class="glyphicon glyphicon-book"></span> Visualizar banco de dados
+                    </a>
+                </div>
+                <!-- Área colapsável principal -->
+                <div class="collapse" id="collapseDatabase">
+                    <div class="well">
+                        {% for grupo, grupo_metadate in secoes.items() %}
+                            <button class="btn btn-secondary btn-block text-left mb-2"
+                                    type="button"
+                                    data-toggle="collapse"
+                                    data-target="#collapse{{ loop.index }}"
+                                    aria-expanded="false"
+                                    aria-controls="collapse{{ loop.index }}">
+                                <span class="{{ grupo_metadate.icon }}"></span> <strong>{{ grupo }}</strong>
+                            </button>
+                            <div class="collapse mb-3" id="collapse{{ loop.index }}">
+                                {% for secao, url, color, meta in grupo_metadate.secoes %}
+                                    <a href="{{ url_for(url) }}"
+                                       class="btn btn-{{ color }} btn-block text-capitalize">
+                                        <span class="glyphicon glyphicon-chevron-right"></span>
+                                        {{ secao }}
+                                        <span class="glyphicon glyphicon-chevron-left"></span>
+                                        {% if 'c' in meta %}<span class="glyphicon glyphicon-plus" title="Criar"></span>{% endif %}
+                                        {% if 'r' in meta %}<span class="glyphicon glyphicon-book" title="Listar"></span>{% endif %}
+                                        {% if 'u' in meta %}<span class="glyphicon glyphicon-edit" title="Editar"></span>{% endif %}
+                                        {% if 'd' in meta %}<span class="glyphicon glyphicon-trash" title="Excluir"></span>{% endif %}
+                                        {% if 'e' in meta %}<span class="glyphicon glyphicon-download" title="Exportar"></span>{% endif %}
+                                    </a>
+                                {% endfor %}
+                            </div>
                         {% endfor %}
                     </div>
-                {% endfor %}
+                </div>
             </div>
         </div>
     </div>
