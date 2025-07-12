@@ -32,167 +32,187 @@
         <h2>
             <a name="a{{ loop.index0 }}">Tabela: {{ table }}</a>
         </h2>
-        <div class="btn-group">
-            <button class="btn btn-info"
-                    data-toggle="collapse"
-                    data-target="#pk{{ loop.index0 }}">PK</button>
-            <button class="btn btn-{{ classification(columns[table]) }}"
-                    data-toggle="collapse"
-                    data-target="#campos{{ loop.index0 }}">Campos ({{ columns[table]|length }})</button>
-            <button class="btn btn-{{ classification(fks[table]) }}"
-                    data-toggle="collapse"
-                    data-target="#fk{{ loop.index0 }}">FK ({{ fks[table]|length }})</button>
-            <button class="btn btn-{{ classification(uks[table]) }}"
-                    data-toggle="collapse"
-                    data-target="#uk{{ loop.index0 }}">UK ({{ uks[table]|length }})</button>
-            <button class="btn btn-{{ classification(chks[table]) }}"
-                    data-toggle="collapse"
-                    data-target="#chk{{ loop.index0 }}">CHK ({{ chks[table]|length }})</button>
-            <button class="btn btn-{{ classification(inds[table]) }}"
-                    data-toggle="collapse"
-                    data-target="#ind{{ loop.index0 }}">Indice ({{ inds[table]|length }})</button>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <div class="btn-group">
+                    <button class="btn btn-info"
+                            data-toggle="collapse"
+                            data-target="#pk{{ loop.index0 }}">PK</button>
+                    <button class="btn btn-{{ classification(columns[table]) }}"
+                            data-toggle="collapse"
+                            data-target="#campos{{ loop.index0 }}">Campos ({{ columns[table]|length }})</button>
+                    <button class="btn btn-{{ classification(fks[table]) }}"
+                            data-toggle="collapse"
+                            data-target="#fk{{ loop.index0 }}">FK ({{ fks[table]|length }})</button>
+                    <button class="btn btn-{{ classification(uks[table]) }}"
+                            data-toggle="collapse"
+                            data-target="#uk{{ loop.index0 }}">UK ({{ uks[table]|length }})</button>
+                    <button class="btn btn-{{ classification(chks[table]) }}"
+                            data-toggle="collapse"
+                            data-target="#chk{{ loop.index0 }}">CHK ({{ chks[table]|length }})</button>
+                    <button class="btn btn-{{ classification(inds[table]) }}"
+                            data-toggle="collapse"
+                            data-target="#ind{{ loop.index0 }}">Indice ({{ inds[table]|length }})</button>
+                    <button id="toggleAll"
+                            class="btn btn-primary"
+                            data-toggle="collapse"
+                            data-target="#pk{{ loop.index0 }},#campos{{ loop.index0 }},#fk{{ loop.index0 }},#uk{{ loop.index0 }},#chk{{ loop.index0 }},#ind{{ loop.index0 }}">
+                        Expandir Tudo
+                    </button>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div id="pk{{ loop.index0 }}" class="table-responsive collapse">
+                    <table class="table table-bordered table-striped table-hover">
+                        <thead>
+                            <tr class="information">
+                                <th>Campo</th>
+                                <th>nome</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{ ';'.join(pks[table]['constrained_columns']) }}</td>
+                                <td>{{ format(pks[table]['name']) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div id="campos{{ loop.index0 }}" class="table-responsive collapse">
+                    <table class="table table-bordered table-striped table-hover">
+                        <thead>
+                            <tr class="information">
+                                <th>Nome</th>
+                                <th>Tipo</th>
+                                <th>Valor padrão</th>
+                                <th>Comentario</th>
+                                <th>Pode ser null</th>
+                                <th>Auto incremento</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for column in columns[table] %}
+                                <tr>
+                                    <td>{{ column['name'] }}</td>
+                                    <td>{{ column['type'] }}</td>
+                                    <td>{{ format(column['default']) }}</td>
+                                    <td>{{ format(column['comment']) }}</td>
+                                    <td>{{ column['nullable'] }}</td>
+                                    <td>{{ column['autoincrement'] }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% if fks[table] %}
+                    <div id="fk{{ loop.index0 }}" class="table-responsive collapse">
+                        <table class="table table-bordered table-striped table-hover">
+                            <thead>
+                                <tr class="information">
+                                    <th>Nome</th>
+                                    <th>Campo</th>
+                                    <th>Esquema referido</th>
+                                    <th>Tabela referida</th>
+                                    <th>Campo referido</th>
+                                    <th>opções</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for fk in fks[table] %}
+                                    <tr>
+                                        <td>{{ fk['name'] }}</td>
+                                        <td>{{ ';'.join(fk['constrained_columns']) }}</td>
+                                        <td>{{ format(fk['referred_schema']) }}</td>
+                                        <td>{{ fk['referred_table'] }}</td>
+                                        <td>{{ ';'.join(fk['referred_columns']) }}</td>
+                                        <td>{{ format(fk['options']) }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div id="fk{{ loop.index0 }}" class="panel panel-info collapse">
+                        <div class="panel-body">Não Possui Chave Estrangeira</div>
+                    </div>
+                {% endif %}
+                {% if uks[table] %}
+                    <div id="uk{{ loop.index0 }}" class="table-responsive collapse">
+                        <table class="table table-bordered table-striped table-hover">
+                            <thead>
+                                <tr class="information">
+                                    <th>Nome</th>
+                                    <th>Nome do Campo</th>
+                                    <th>Indice Duplicado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for uk in uks[table] %}
+                                    <tr>
+                                        <td>{{ uk['name'] }}</td>
+                                        <td>{{ ';'.join(uk['column_names']) }}</td>
+                                        <td>{{ uk['duplicates_index'] }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div id="uk{{ loop.index0 }}" class="panel panel-info collapse">
+                        <div class="panel-body">Não Possui Unique keys</div>
+                    </div>
+                {% endif %}
+                {% if chks[table] %}
+                    <div id="chk{{ loop.index0 }}" class="table-responsive collapse">
+                        <table class="table table-bordered table-striped table-hover">
+                            <thead>
+                                <tr class="information">
+                                    <th>Nome</th>
+                                    <th>texto sql</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for chk in chks[table] %}
+                                    <tr>
+                                        <td>{{ chk['name'] }}</td>
+                                        <td>{{ chk['sqltext'] }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div id="chk{{ loop.index0 }}" class="panel panel-info collapse">
+                        <div class="panel-body">Não Possui Checks</div>
+                    </div>
+                {% endif %}
+                {% if inds[table] %}
+                    <div id="ind{{ loop.index0 }}" class="table-responsive collapse">
+                        <table class="table table-bordered table-striped table-hover">
+                            <thead>
+                                <tr class="information">
+                                    <th>Nome</th>
+                                    <th>Nome do Campo</th>
+                                    <th>Unico?</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ind in inds[table] %}
+                                    <tr>
+                                        <td>{{ ind['name'] }}</td>
+                                        <td>{{ ';'.join(ind['column_names']) }}</td>
+                                        <td>{{ ind['unique'] }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div id="ind{{ loop.index0 }}" class="panel panel-info collapse">
+                        <div class="panel-body">Não Possui Indices</div>
+                    </div>
+                {% endif %}
+            </div>
         </div>
-        <div id="pk{{ loop.index0 }}" class="table-responsive collapse">
-            <table class="table table-bordered table-striped table-hover">
-                <thead>
-                    <tr class="information">
-                        <th>Campo</th>
-                        <th>nome</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>{{ ';'.join(pks[table]['constrained_columns']) }}</td>
-                        <td>{{ format(pks[table]['name']) }}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div id="campos{{ loop.index0 }}" class="table-responsive collapse">
-            <table class="table table-bordered table-striped table-hover">
-                <thead>
-                    <tr class="information">
-                        <th>Nome</th>
-                        <th>Tipo</th>
-                        <th>Valor padrão</th>
-                        <th>Comentario</th>
-                        <th>Pode ser null</th>
-                        <th>Auto incremento</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for column in columns[table] %}
-                        <tr>
-                            <td>{{ column['name'] }}</td>
-                            <td>{{ column['type'] }}</td>
-                            <td>{{ format(column['default']) }}</td>
-                            <td>{{ format(column['comment']) }}</td>
-                            <td>{{ column['nullable'] }}</td>
-                            <td>{{ column['autoincrement'] }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% if fks[table] %}
-            <div id="fk{{ loop.index0 }}" class="table-responsive collapse">
-                <table class="table table-bordered table-striped table-hover">
-                    <thead>
-                        <tr class="information">
-                            <th>Nome</th>
-                            <th>Campo</th>
-                            <th>Esquema referido</th>
-                            <th>Tabela referida</th>
-                            <th>Campo referido</th>
-                            <th>opções</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for fk in fks[table] %}
-                            <tr>
-                                <td>{{ fk['name'] }}</td>
-                                <td>{{ ';'.join(fk['constrained_columns']) }}</td>
-                                <td>{{ format(fk['referred_schema']) }}</td>
-                                <td>{{ fk['referred_table'] }}</td>
-                                <td>{{ ';'.join(fk['referred_columns']) }}</td>
-                                <td>{{ format(fk['options']) }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        {% else %}
-            <div id="fk{{ loop.index0 }}" class="alert alert-info collapse">Não Possui Chave Estrangeira</div>
-        {% endif %}
-        {% if uks[table] %}
-            <div id="uk{{ loop.index0 }}" class="table-responsive collapse">
-                <table class="table table-bordered table-striped table-hover">
-                    <thead>
-                        <tr class="information">
-                            <th>Nome</th>
-                            <th>Nome do Campo</th>
-                            <th>Indice Duplicado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for uk in uks[table] %}
-                            <tr>
-                                <td>{{ uk['name'] }}</td>
-                                <td>{{ ';'.join(uk['column_names']) }}</td>
-                                <td>{{ uk['duplicates_index'] }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        {% else %}
-            <div id="uk{{ loop.index0 }}" class="alert alert-info collapse">Não Possui Unique keys</div>
-        {% endif %}
-        {% if chks[table] %}
-            <div id="chk{{ loop.index0 }}" class="table-responsive collapse">
-                <table class="table table-bordered table-striped table-hover">
-                    <thead>
-                        <tr class="information">
-                            <th>Nome</th>
-                            <th>texto sql</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for chk in chks[table] %}
-                            <tr>
-                                <td>{{ chk['name'] }}</td>
-                                <td>{{ chk['sqltext'] }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        {% else %}
-            <div id="chk{{ loop.index0 }}" class="alert alert-info collapse">Não Possui Checks</div>
-        {% endif %}
-        {% if inds[table] %}
-            <div id="ind{{ loop.index0 }}" class="table-responsive collapse">
-                <table class="table table-bordered table-striped table-hover">
-                    <thead>
-                        <tr class="information">
-                            <th>Nome</th>
-                            <th>Nome do Campo</th>
-                            <th>Unico?</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for ind in inds[table] %}
-                            <tr>
-                                <td>{{ ind['name'] }}</td>
-                                <td>{{ ';'.join(ind['column_names']) }}</td>
-                                <td>{{ ind['unique'] }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        {% else %}
-            <div id="ind{{ loop.index0 }}" class="alert alert-info collapse">Não Possui Indices</div>
-        {% endif %}
     {% endfor %}
 {% endblock content %}
