@@ -162,7 +162,7 @@ class Aulas(db.Model):
     def __repr__(self) -> str:
         return (
             f"<Aulas(id_aula={self.id_aula}, horario_inicio={self.horario_inicio}, "
-            f"horario_fim={self.horario_fim})>"
+            f"horario_fim={self.horario_fim}, id_turno={self.id_turno})>"
         )
     
 class Dias_da_Semana(db.Model):
@@ -218,7 +218,7 @@ class Aulas_Ativas(db.Model):
         fim = self.fim_ativacao.strftime('%d/%m/%Y') if self.fim_ativacao else '???'
         tipo = self.tipo_aula.value.capitalize()
 
-        return f"({self.id_aula}) ({self.id_semana}) ({self.id_turno}) {tipo}: {inicio} - {fim}"
+        return f"({self.id_aula}) ({self.id_semana}) {tipo}: {inicio} - {fim}"
 
     __table_args__ = (
         CheckConstraint(
@@ -236,8 +236,7 @@ class Aulas_Ativas(db.Model):
         return (
             f"<Aulas_Ativas(id_aula_ativa={self.id_aula_ativa}, id_aula={self.id_aula}, "
             f"inicio_ativacao={self.inicio_ativacao}, fim_ativacao={self.fim_ativacao}, "
-            f"id_semana={self.id_semana}, id_turno={self.id_turno}, "
-            f"tipo_aula={self.tipo_aula})>"
+            f"id_semana={self.id_semana}, tipo_aula={self.tipo_aula})>"
         )
     
 class OrigemEnum(enum.Enum):
