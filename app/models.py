@@ -150,8 +150,10 @@ class Aulas(db.Model):
     id_aula: Mapped[int] = mapped_column(primary_key=True)
     horario_inicio: Mapped[time] = mapped_column(nullable=False)
     horario_fim: Mapped[time] = mapped_column(nullable=False)
+    id_turno: Mapped[int] = mapped_column(ForeignKey('turnos.id'), nullable=False)
 
     aulas_ativas: Mapped[list['Aulas_Ativas']] = relationship(back_populates='aulas')
+    turno_info: Mapped['Turnos'] = relationship(back_populates='aulas')
 
     @property
     def horario_intervalo(self):
@@ -183,7 +185,7 @@ class Turnos(db.Model):
     horario_inicio: Mapped[time] = mapped_column(nullable=False)
     horario_fim: Mapped[time] = mapped_column(nullable=False)
 
-    aulas_ativas: Mapped[list['Aulas_Ativas']] = relationship(back_populates='turno_info')
+    aulas: Mapped[list['Aulas']] = relationship(back_populates='turno_info')
 
     def __repr__(self) -> str:
         return (
@@ -204,7 +206,6 @@ class Aulas_Ativas(db.Model):
     inicio_ativacao: Mapped[date | None] = mapped_column()
     fim_ativacao: Mapped[date | None] = mapped_column()
     id_semana: Mapped[int] = mapped_column(ForeignKey('dias_da_semana.id'), nullable=False)
-    id_turno: Mapped[int] = mapped_column(ForeignKey('turnos.id'), nullable=False)
 
     tipo_aula: Mapped[TipoAulaEnum] = mapped_column(
         Enum(TipoAulaEnum, name="tipoaula_enum", create_constraint=True),
@@ -230,7 +231,6 @@ class Aulas_Ativas(db.Model):
     reservas_fixas: Mapped[list['Reservas_Fixas']] = relationship(back_populates='aulas_ativas')
 
     dia_da_semana: Mapped['Dias_da_Semana'] = relationship(back_populates='aulas_ativas')
-    turno_info: Mapped['Turnos'] = relationship(back_populates='aulas_ativas')
 
     def __repr__(self) -> str:
         return (

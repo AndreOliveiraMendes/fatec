@@ -60,6 +60,8 @@ def get_user_info(userid):
         permissao = Permissoes.query.get(userid)
         if permissao:
             perm = permissao.permissao
+    else:
+        session.pop(userid)
     return username, perm
 
 def formatar_valor(valor):

@@ -5,7 +5,9 @@
 {% block content_head %}
     <div class="panel panel-default">
         <div class="panel-heading">{{ generate_database_head("aulas_ativas") }}</div>
-        <div class="panel-body">{{ generate_head(url_for("aulas_ativas.gerenciar_aulas_ativas") , acao, disable=disable) }}</div>
+        <div class="panel-body">
+            {{ generate_head(url_for("aulas_ativas.gerenciar_aulas_ativas") , acao, disable=disable) }}
+        </div>
     </div>
 {% endblock content_head %}
 {% block abertura %}
@@ -27,43 +29,49 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>id_aula_ativa</td>
+                    <td>
+                        <code>id_aula_ativa</code>
+                    </td>
                     <td>INT (auto_increment, PK)</td>
                     <td>Identificador único da aula ativa no sistema</td>
                     <td>-</td>
                 </tr>
                 <tr>
-                    <td>id_aula</td>
+                    <td>
+                        <code>id_aula</code>
+                    </td>
                     <td>INT (FK)</td>
                     <td>Chave estrangeira para o registro de aulas</td>
                     <td>-</td>
                 </tr>
                 <tr>
-                    <td>inicio_ativacao</td>
+                    <td>
+                        <code>inicio_ativacao</code>
+                    </td>
                     <td>DATE</td>
                     <td>Data de início do período de ativação da aula</td>
                     <td>Formato: dd/mm/aaaa</td>
                 </tr>
                 <tr>
-                    <td>fim_ativacao</td>
+                    <td>
+                        <code>fim_ativacao</code>
+                    </td>
                     <td>DATE</td>
                     <td>Data de término do período de ativação da aula</td>
                     <td>Formato: dd/mm/aaaa</td>
                 </tr>
                 <tr>
-                    <td>id_semana</td>
+                    <td>
+                        <code>id_semana</code>
+                    </td>
                     <td>INT (FK)</td>
                     <td>Chave estrangeira para o dia da semana</td>
                     <td>1 a 7 (Domingo a Sábado)</td>
                 </tr>
                 <tr>
-                    <td>id_turno</td>
-                    <td>INT (FK)</td>
-                    <td>Chave estrangeira para o turno associado à aula</td>
-                    <td>-</td>
-                </tr>
-                <tr>
-                    <td>tipo_aula</td>
+                    <td>
+                        <code>tipo_aula</code>
+                    </td>
                     <td>ENUM('AULA','EVENTO','OUTROS')</td>
                     <td>Categoria da aula ou evento</td>
                     <td>
@@ -96,7 +104,6 @@
                         <th>inicio_ativacao</th>
                         <th>fim_ativacao</th>
                         <th>dia da semana</th>
-                        <th>turno</th>
                         <th>tipo</th>
                         <th>ação</th>
                     </tr>
@@ -109,7 +116,6 @@
                             <td>{{ at.inicio_ativacao if at.inicio_ativacao else '-' }}</td>
                             <td>{{ at.fim_ativacao if at.fim_ativacao else '-' }}</td>
                             <td>{{ at.dia_da_semana.nome }}</td>
-                            <td>{{ at.turno_info.nome }}</td>
                             <td>{{ at.tipo_aula.value }}</td>
                             <td>
                                 <form method="post" class="form-inline">
@@ -177,7 +183,6 @@
                        class="form-control">
             </div>
             {{ gerar_select("semana", "Selecione o dia da semana", dias_da_semana, "id", "nome", "id_semana", optional=True) }}
-            {{ gerar_select("turno", "Selecione o turno", turnos, "id", "nome", "id_turno", optional=True) }}
             <div class="form-group">
                 <label for="tipo_aula" class="control-label">Tipo de Aula</label>
                 <select id="tipo_aula"
@@ -205,7 +210,6 @@
                             <th>inicio_ativacao</th>
                             <th>fim_ativacao</th>
                             <th>dia da semana</th>
-                            <th>turno</th>
                             <th>tipo</th>
                             <th>ação</th>
                         </tr>
@@ -218,7 +222,6 @@
                                 <td>{{ at.inicio_ativacao if at.inicio_ativacao else '-' }}</td>
                                 <td>{{ at.fim_ativacao if at.fim_ativacao else '-' }}</td>
                                 <td>{{ at.dia_da_semana.nome }}</td>
-                                <td>{{ at.turno_info.nome }}</td>
                                 <td>{{ at.tipo_aula.value }}</td>
                                 <td>
                                     <form method="post" class="form-inline">
@@ -278,7 +281,6 @@
                    placeholder="término do periodo em que a aula é valida, caso seja temporaria">
         </div>
         {{ gerar_select("id_semana", "Selecione o dia da semana", dias_da_semana, "id", "nome", "id_semana") }}
-        {{ gerar_select("id_turno", "Selecione o turno", turnos, "id", "nome", "id_turno") }}
         <div class="form-group">
             <label for="tipo">Tipo:</label>
             <select class="form-control" id="tipo" name="tipo_aula" required>

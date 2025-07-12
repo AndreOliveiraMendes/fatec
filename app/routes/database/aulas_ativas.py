@@ -4,7 +4,7 @@ from flask import flash, session, render_template, request, redirect, url_for, j
 from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy import or_, and_
 from config.general import PER_PAGE
-from app.models import db, Aulas_Ativas, Aulas, Dias_da_Semana, Turnos, TipoAulaEnum
+from app.models import db, Aulas_Ativas, Aulas, Dias_da_Semana, TipoAulaEnum
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, parse_date_string, get_user_info, \
     get_query_params, registrar_log_generico_usuario, get_session_or_request, register_return
@@ -17,15 +17,12 @@ def get_aulas():
 def get_dias_da_semana():
     return db.session.query(Dias_da_Semana.id, Dias_da_Semana.nome).order_by(Dias_da_Semana.id).all()
 
-def get_turnos():
-    return db.session.query(Turnos.id, Turnos.nome).order_by(Turnos.id).all()
-
 def get_aulas_ativas():
     return Aulas_Ativas.query.all()
 
-def check_aula_ativa(inicio, fim, aula, semana, turno, tipo, id = None):
+def check_aula_ativa(inicio, fim, aula, semana, tipo, id = None):
     base_filter = [Aulas_Ativas.id_aula == aula, Aulas_Ativas.id_semana == semana,
-                   Aulas_Ativas.id_turno == turno, Aulas_Ativas.tipo_aula == tipo]
+                   Aulas_Ativas.tipo_aula == tipo]
     if id:
         base_filter.append(Aulas_Ativas.id_aula_ativa != id)
     query = Aulas_Ativas.query
@@ -48,7 +45,7 @@ def check_aula_ativa(inicio, fim, aula, semana, turno, tipo, id = None):
         raise IntegrityError(
             statement=None,
             params=None,
-            orig=Exception("Já existe uma aula ativa com os mesmos dados (aula, semana, turno e tipo).")
+            orig=Exception("Já existe uma aula ativa com os mesmos dados (aula, semana e tipo).")
             )
 
 
@@ -71,14 +68,12 @@ def gerenciar_aulas_ativas():
         elif acao == 'procurar' and bloco == 0:
             extras['aulas'] = get_aulas()
             extras['dias_da_semana'] = get_dias_da_semana()
-            extras['turnos'] = get_turnos()
         elif acao == 'procurar' and bloco == 1:
             id_aula_ativa = none_if_empty(request.form.get('id_aula_ativa'), int)
             id_aula = none_if_empty(request.form.get('id_aula'), int)
             inicio_ativacao = parse_date_string(request.form.get('inicio_ativacao'))
             fim_ativacao = parse_date_string(request.form.get('fim_ativacao'))
             id_semana = none_if_empty(request.form.get('id_semana'), int)
-            id_turno = none_if_empty(request.form.get('id_turno'), int)
             tipo_aula = none_if_empty(request.form.get('tipo_aula'))
             filter = []
             query_params = get_query_params(request)
@@ -93,8 +88,6 @@ def gerenciar_aulas_ativas():
                 filter.append(Aulas_Ativas.fim_ativacao == fim_ativacao)
             if id_semana:
                 filter.append(Aulas_Ativas.id_semana == id_semana)
-            if id_turno:
-                filter.append(Aulas_Ativas.id_turno == id_turno)
             if tipo_aula:
                 filter.append(Aulas_Ativas.tipo_aula == tipo_aula)
             if filter:
@@ -105,22 +98,22 @@ def gerenciar_aulas_ativas():
             else:
                 flash("especifique pelo menos um campo de busca", "danger")
                 redirect_action, bloco = register_return('aulas_ativas.gerenciar_aulas_ativas', acao, extras,
-                    aulas=get_aulas(), dias_da_semana=get_dias_da_semana(), turnos=get_turnos())
+                    aulas=get_aulas(), dias_da_semana=get_dias_da_semana())
 
         elif acao == 'inserir' and bloco == 0:
             extras['aulas'] = get_aulas()
             extras['dias_da_semana'] = get_dias_da_semana()
-            extras['turnos'] = get_turnos()
         elif acao == 'inserir' and bloco == 1:
             id_aula = none_if_empty(request.form.get('id_aula'), int)
             inicio_ativacao = parse_date_string(request.form.get('inicio_ativacao'))
             fim_ativacao = parse_date_string(request.form.get('fim_ativacao'))
             id_semana = none_if_empty(request.form.get('id_semana'), int)
-            id_turno = none_if_empty(request.form.get('id_turno'), int)
             tipo_aula = none_if_empty(request.form.get('tipo_aula'))
             try:
-                check_aula_ativa(inicio_ativacao, fim_ativacao, id_aula, id_semana, id_turno, tipo_aula)
-                nova_aula_ativa = Aulas_Ativas(id_aula = id_aula, inicio_ativacao = inicio_ativacao, fim_ativacao = fim_ativacao, id_semana = id_semana, id_turno = id_turno, tipo_aula = TipoAulaEnum(tipo_aula))
+                check_aula_ativa(inicio_ativacao, fim_ativacao, id_aula, id_semana, tipo_aula)
+                nova_aula_ativa = Aulas_Ativas(
+                    id_aula = id_aula, inicio_ativacao = inicio_ativacao, fim_ativacao = fim_ativacao,
+                    id_semana = id_semana, tipo_aula = TipoAulaEnum(tipo_aula))
                 db.session.add(nova_aula_ativa)
 
                 db.session.flush()
@@ -133,7 +126,7 @@ def gerenciar_aulas_ativas():
                 flash(f"Erro ao cadastrar aula ativa:{str(e.orig)}", "danger")
             
             redirect_action, bloco = register_return('aulas_ativas.gerenciar_aulas_ativas', acao, extras,
-                aulas=get_aulas(), dias_da_semana=get_dias_da_semana(), turnos=get_turnos())
+                aulas=get_aulas(), dias_da_semana=get_dias_da_semana())
 
         elif acao in ['editar', 'excluir'] and bloco == 0:
             extras['aulas_ativas'] = get_aulas_ativas()
@@ -143,24 +136,21 @@ def gerenciar_aulas_ativas():
             extras['aula_ativa'] = aula_ativa
             extras['aulas'] = get_aulas()
             extras['dias_da_semana'] = get_dias_da_semana()
-            extras['turnos'] = get_turnos()
         elif acao == 'editar' and bloco == 2:
             id_aula_ativa = none_if_empty(request.form.get('id_aula_ativa'), int)
             id_aula = none_if_empty(request.form.get('id_aula'), int)
             inicio_ativacao = parse_date_string(request.form.get('inicio_ativacao'))
             fim_ativacao = parse_date_string(request.form.get('fim_ativacao'))
             id_semana = none_if_empty(request.form.get('id_semana'), int)
-            id_turno = none_if_empty(request.form.get('id_turno'), int)
             tipo_aula = none_if_empty(request.form.get('tipo_aula'))
             aula_ativa = Aulas_Ativas.query.get_or_404(id_aula_ativa)
             try:
-                check_aula_ativa(inicio_ativacao, fim_ativacao, id_aula, id_semana, id_turno, tipo_aula, id_aula_ativa)
+                check_aula_ativa(inicio_ativacao, fim_ativacao, id_aula, id_semana, tipo_aula, id_aula_ativa)
                 dados_anteriores = copy.copy(aula_ativa)
                 aula_ativa.id_aula = id_aula
                 aula_ativa.inicio_ativacao = inicio_ativacao
                 aula_ativa.fim_ativacao = fim_ativacao
                 aula_ativa.id_semana = id_semana
-                aula_ativa.id_turno = id_turno
                 aula_ativa.tipo_aula = tipo_aula
 
                 db.session.flush()
