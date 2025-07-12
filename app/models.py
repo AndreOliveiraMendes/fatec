@@ -239,6 +239,10 @@ class Aulas_Ativas(db.Model):
             f"id_semana={self.id_semana}, id_turno={self.id_turno}, "
             f"tipo_aula={self.tipo_aula})>"
         )
+    
+class OrigemEnum(enum.Enum):
+    SISTEMA = "Sistema"
+    USUARIO = "Usuario"
 
 class Historicos(db.Model):
     __tablename__ = 'historicos'
@@ -251,6 +255,12 @@ class Historicos(db.Model):
     message: Mapped[str] = mapped_column(TEXT, nullable=False)
     chave_primaria: Mapped[str] = mapped_column(TEXT, nullable=False)
     observacao: Mapped[str | None] = mapped_column(TEXT)
+
+    origem: Mapped[OrigemEnum] = mapped_column(
+        Enum(OrigemEnum, name="origem_enum", create_constraint=True),
+        server_default=OrigemEnum.SISTEMA.value
+    )
+
 
     usuarios: Mapped['Usuarios'] = relationship(back_populates='historicos')
 

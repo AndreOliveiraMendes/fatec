@@ -60,6 +60,7 @@
                         <th>Data/Hora</th>
                         <th>Mensagem</th>
                         <th class="visible-md visible-lg">Chave Primária</th>
+                        <th class="visible-md visible-lg">Origem</th>
                         <th class="visible-md visible-lg">Observação</th>
                     </tr>
                 </thead>
@@ -74,17 +75,35 @@
                                 <td class="visible-md visible-lg">-</td>
                                 <td class="visible-md visible-lg">-</td>
                             {% endif %}
-                            <td>{{ h.tabela or '-' }}</td>
+                            <td>
+                                {% if is_mobile %}
+                                    <button data-toggle="collapse" data-target="#detalhes{{ h.id_historico }}">{{ h.tabela or '-' }}</button>
+                                {% endif %}
+                            </td>
                             <td>{{ h.categoria or '-' }}</td>
                             <td>{{ h.data_hora.strftime("%d/%m/%Y %H:%M") if h.data_hora else '-' }}</td>
                             <td>{{ h.message }}</td>
                             <td class="visible-md visible-lg">{{ h.chave_primaria }}</td>
+                            <td class="visible-md visible-lg">{{ h.origem.value }}</td>
                             <td class="visible-md visible-lg">{{ h.observacao or '-' }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+        {% if is_mobile %}
+            {% for h in historicos %}
+                <div id="detalhes{{ h.id_historico }}" class="collapse">
+                    <p>origem: {{ h.origem.value }}</p>
+                    <p>dia: {{ h.data_hora.strftime("%d/%m/%Y %H:%M") if h.data_hora else '-' }}</p>
+                    {% if h.id_usuario %}
+                        <p>usuario: ({{ h.id_usuario }}) {{ h.usuarios.pessoas.nome_pessoa }}</p>
+                    {% else %}
+                        <p>usuario: (-) SISTEMA</p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% endif %}
         {{ paginacao(pagination, acao, bloco) }}
     {% else %}
         <div class="alert alert-info" role="alert">Nenhum histórico encontrado.</div>

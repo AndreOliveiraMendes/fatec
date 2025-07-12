@@ -25,6 +25,9 @@ def gerenciar_Historicos():
     extras = {}
     disable_action(extras, disabled)
     include_action(extras, include)
+    user_agent = request.headers.get('User-Agent')
+    is_mobile = 'Mobile' in user_agent
+    extras['is_mobile'] = is_mobile
     if request.method == 'POST':
         if acao in disabled:
             abort(403, description="Esta funcionalidade está desabilitada no momento.")

@@ -1,7 +1,7 @@
 import enum
 from flask import session, redirect, url_for
 from datetime import datetime
-from app.models import db, Usuarios, Pessoas, Permissoes, Historicos
+from app.models import db, Usuarios, Permissoes, Historicos, OrigemEnum
 from sqlalchemy.inspection import inspect
 from typing import Literal
 from config import AFTER_ACTION
@@ -110,6 +110,7 @@ def registrar_log_generico_sistema(acao:Literal['Login'], objeto, antes=None, ob
         data_hora = datetime.now(),
         message = "; ".join(campos),
         chave_primaria = dict_format(dados_chave),
+        origem = OrigemEnum('Sistema'),
         observacao = observacao
     )
     db.session.add(historico)
@@ -150,6 +151,7 @@ def registrar_log_generico_usuario(userid, acao:Literal['Inserção', 'Edição'
         data_hora = datetime.now(),
         message = "; ".join(campos),
         chave_primaria = dict_format(dados_chave),
+        origem = OrigemEnum('Usuario'),
         observacao = observacao
     )
     db.session.add(historico)
