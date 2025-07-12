@@ -13,11 +13,13 @@
                 </a>
             </div>
         </div>
+        <!-- database -->
         <div class="panel panel-danger">
             <div class="panel-heading">
                 <h3 class="panel-title">Banco de Dados</h3>
             </div>
             <div class="panel-body">
+                <!-- painel de controle -->
                 <div class="btn-group" role="group">
                     <button class="btn btn-warning"
                             type="button"
@@ -29,6 +31,9 @@
                     </button>
                     <a href="{{ url_for('main.database') }}" class="btn btn-success">
                         <span class="glyphicon glyphicon-book"></span> Visualizar banco de dados
+                    </a>
+                    <a href="{{ url_for('main.dump') }}" class="btn btn-info">
+                        <span class="glyphicon glyphicon-level-up"></span> Dump (experimental)
                     </a>
                 </div>
                 <!-- Área colapsável principal -->

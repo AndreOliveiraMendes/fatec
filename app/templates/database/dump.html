@@ -1,0 +1,37 @@
+{% extends "base" %}
+{% from "macros/form.html" import generate_navigation %}
+{% block title %}
+    Banco de Dados
+{% endblock title %}
+{% block content %}
+    {{ generate_navigation() }}
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered table-condensed table-striped">
+            <thead>
+                <tr>
+                    <th>Tabela</th>
+                    <th>Profundidade</th>
+                    <th>Ver SQL</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for table, depth, sql in topologic_tables %}
+                    <tr>
+                        <td>{{ table }}</td>
+                        <td>{{ depth }}</td>
+                        <td>
+                            <pre id="{{ loop.index }}"><code>{{ sql }}</code></pre>
+                            <button onclick="copyToClipboard('{{ loop.index }}')">Copiar</button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <script>
+    function copyToClipboard(id) {
+        var text = document.getElementById(id).innerText;
+        navigator.clipboard.writeText(text);
+    }
+    </script>
+{% endblock content %}
