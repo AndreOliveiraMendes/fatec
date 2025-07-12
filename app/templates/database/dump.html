@@ -11,7 +11,7 @@
                 <tr>
                     <th>Tabela</th>
                     <th>Profundidade</th>
-                    <th>Ver SQL</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -20,13 +20,25 @@
                         <td>{{ table }}</td>
                         <td>{{ depth }}</td>
                         <td>
-                            <pre id="{{ loop.index }}"><code>{{ sql }}</code></pre>
-                            <button onclick="copyToClipboard('{{ loop.index }}')">Copiar</button>
+                            <button class="btn btn-primary"
+                                    data-toggle="collapse"
+                                    data-target="#sql_{{ table }}">Ver SQL</button>
+                        </td>
+                    </tr>
+                    <tr class="collapse" id="sql_{{ table }}">
+                        <td colspan="3">
+                            <pre id="code_{{ loop.index }}"><code>{{ sql|string|trim ~ ';' }}</code></pre>
+                            <button onclick="copyToClipboard('code_{{ loop.index }}')">Copiar</button>
                         </td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
+    </div>
+    <div class="text-center">
+        <a href="{{ url_for('main.dump_file') }}" class="btn btn-success">
+            <span class="glyphicon glyphicon-download"></span> Baixar SQL
+        </a>
     </div>
     <script>
     function copyToClipboard(id) {
