@@ -24,12 +24,12 @@
                 {% for campo, descricao in [
                     ('id_historico', 'Identificador do histórico'),
                     ('id_usuario', 'Identificador do usuário responsável pela ação'),
-                    ('id_pessoa', 'Identificador da pessoa responsável pela ação'),
                     ('tabela', 'Tabela sobre a qual a ação foi efetuada'),
                     ('categoria', 'Categoria da ação realizada (INSERT/DELETE/UPDATE)'),
                     ('data_hora', 'Momento em que a ação foi efetivada'),
                     ('message', 'Descrição do que foi realizado'),
                     ('chave_primaria', 'Identificadores da linha modificada pela ação'),
+                    ('origem', 'se a ação foi efetuada pelo sistema ou pelo usuário'),
                     ('observacao', 'Observação adicional que complementa a ação realizada')
                     ] %}
                     <tr>
