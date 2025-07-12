@@ -5,45 +5,77 @@
 {% endblock title %}
 {% block content %}
     {{ generate_navigation() }}
-    <div class="table-responsive">
-        <table class="table table-hover table-bordered table-condensed table-striped">
-            <thead>
-                <tr>
-                    <th>Tabela</th>
-                    <th>Profundidade</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for table, depth, sql in topologic_tables %}
+    {% if topologic_tables %}
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered table-condensed table-striped">
+                <thead>
                     <tr>
-                        <td>{{ table }}</td>
-                        <td>{{ depth }}</td>
-                        <td>
-                            <button class="btn btn-primary"
-                                    data-toggle="collapse"
-                                    data-target="#sql_{{ table }}">Ver SQL</button>
-                        </td>
+                        <th>Tabela</th>
+                        <th>Profundidade</th>
+                        <th></th>
                     </tr>
-                    <tr class="collapse" id="sql_{{ table }}">
-                        <td colspan="3">
-                            <pre id="code_{{ loop.index }}"><code>{{ sql|string|trim ~ ';' }}</code></pre>
-                            <button onclick="copyToClipboard('code_{{ loop.index }}')">Copiar</button>
-                        </td>
+                </thead>
+                <tbody>
+                    {% for table, depth, sql in topologic_tables %}
+                        <tr>
+                            <td>{{ table }}</td>
+                            <td>{{ depth }}</td>
+                            <td>
+                                <button class="btn btn-primary"
+                                        data-toggle="collapse"
+                                        data-target="#sql_{{ table }}">Ver SQL</button>
+                            </td>
+                        </tr>
+                        <tr class="collapse" id="sql_{{ table }}">
+                            <td colspan="3">
+                                <pre id="code_{{ loop.index }}"><code>{{ sql|string|trim ~ ';' }}</code></pre>
+                                <button onclick="copyToClipboard('code_{{ loop.index }}')">Copiar</button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="text-center">
+            <a href="{{ url_for('main.dump_file') }}" class="btn btn-success">
+                <span class="glyphicon glyphicon-download"></span> Baixar SQL
+            </a>
+        </div>
+        <script>
+        function copyToClipboard(id) {
+            var text = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(text);
+        }
+        </script>
+    {% else %}
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered table-condensed table-striped">
+                <thead>
+                    <tr>
+                        <th>Tabela</th>
+                        <th></th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    <div class="text-center">
-        <a href="{{ url_for('main.dump_file') }}" class="btn btn-success">
-            <span class="glyphicon glyphicon-download"></span> Baixar SQL
-        </a>
-    </div>
-    <script>
-    function copyToClipboard(id) {
-        var text = document.getElementById(id).innerText;
-        navigator.clipboard.writeText(text);
-    }
-    </script>
+                </thead>
+                <tbody>
+                    {% for table, sql in tables_sql %}
+                        <tr>
+                            <td>{{ table }}</td>
+                            <td>
+                                <button class="btn btn-primary"
+                                        data-toggle="collapse"
+                                        data-target="#sql_{{ table }}">Ver SQL</button>
+                            </td>
+                        </tr>
+                        <tr class="collapse" id="sql_{{ table }}">
+                            <td colspan="3">
+                                <pre id="code_{{ loop.index }}"><code>{{ sql|string|trim ~ ';' }}</code></pre>
+                                <button onclick="copyToClipboard('code_{{ loop.index }}')">Copiar</button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="alert alert-danger" role="alert">Não foi possível gerar o esquema: dependências cíclicas detectadas.</div>
+    {% endif %}
 {% endblock content %}

@@ -70,8 +70,11 @@ def dump():
     inspector = inspect(db.engine)
     tables = inspector.get_table_names()
     fks = {table:[fk['referred_table'] for fk in inspector.get_foreign_keys(table)] for table in tables}
-    topologic_tables = [table_info + (get_create_table(table_info[0]),) for table_info in get_topologic_sorted(fks)]
-    extras['topologic_tables'] = topologic_tables
+    if not has_cycle(fks):
+        topologic_tables = [table_info + (get_create_table(table_info[0]),) for table_info in get_topologic_sorted(fks)]
+        extras['topologic_tables'] = topologic_tables
+    else:
+        extras['tables_sql'] = [(table, get_create_table(table)) for table in tables]
 
     return render_template("database/dump.html", username=username, perm=perm, **extras)
 
