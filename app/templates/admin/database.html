@@ -30,7 +30,7 @@
     </div>
     {% for table in tables %}
         <h2>
-            <a name="a{{ loop.index0 }}">Tabela: {{ table }}</a>
+            <a id="a{{ loop.index0 }}">Tabela: {{ table }}</a>
         </h2>
         <div class="panel panel-default">
             <div class="panel-heading">
@@ -52,8 +52,8 @@
                             data-target="#chk{{ loop.index0 }}">CHK ({{ chks[table]|length }})</button>
                     <button class="btn btn-{{ classification(inds[table]) }}"
                             data-toggle="collapse"
-                            data-target="#ind{{ loop.index0 }}">Indice ({{ inds[table]|length }})</button>
-                    <button id="toggleAll"
+                            data-target="#ind{{ loop.index0 }}">Índice ({{ inds[table]|length }})</button>
+                    <button id="toggleAll{{ loop.index0 }}"
                             class="btn btn-primary"
                             data-toggle="collapse"
                             data-target="#pk{{ loop.index0 }},#campos{{ loop.index0 }},#fk{{ loop.index0 }},#uk{{ loop.index0 }},#chk{{ loop.index0 }},#ind{{ loop.index0 }}">
@@ -143,7 +143,7 @@
                                 <tr class="information">
                                     <th>Nome</th>
                                     <th>Nome do Campo</th>
-                                    <th>Indice Duplicado</th>
+                                    <th>Índice Duplicado</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -168,7 +168,7 @@
                             <thead>
                                 <tr class="information">
                                     <th>Nome</th>
-                                    <th>texto sql</th>
+                                    <th>Expressão SQL</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -209,7 +209,7 @@
                     </div>
                 {% else %}
                     <div id="ind{{ loop.index0 }}" class="panel panel-info collapse">
-                        <div class="panel-body">Não Possui Indices</div>
+                        <div class="panel-body">Não Possui Índices</div>
                     </div>
                 {% endif %}
             </div>
