@@ -1,6 +1,6 @@
 import os
 from flask import Flask
-from config import get_config, AUTO_CREATE_MYSQL
+from config.general import get_config, AUTO_CREATE_MYSQL
 from app.routes import register_blueprints
 from app.extensions import db
 

@@ -3,7 +3,7 @@ from flask import Blueprint
 from flask import flash, session, render_template, request, redirect, url_for, jsonify
 from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy import or_, and_
-from config import PER_PAGE
+from config.general import PER_PAGE
 from app.models import db, Aulas_Ativas, Aulas, Dias_da_Semana, Turnos, TipoAulaEnum
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, parse_date_string, get_user_info, \

@@ -4,7 +4,7 @@ from datetime import datetime
 from app.models import db, Usuarios, Permissoes, Historicos, OrigemEnum
 from sqlalchemy.inspection import inspect
 from typing import Literal
-from config import AFTER_ACTION
+from config.general import AFTER_ACTION
 
 IGNORED_FORM_FIELDS = ['page', 'acao', 'bloco']
 

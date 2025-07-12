@@ -3,7 +3,10 @@
     Turnos
 {% endblock title %}
 {% block content_head %}
-    {{ generate_head(url_for("turnos.gerenciar_turnos") , acao, disable = disable) }}
+    <div class="panel panel-default">
+        <div class="panel-heading">{{ generate_database_head("turnos") }}</div>
+        <div class="panel-body">{{ generate_head(url_for("turnos.gerenciar_turnos") , acao, disable=disable) }}</div>
+    </div>
 {% endblock content_head %}
 {% block abertura %}
     <h3>

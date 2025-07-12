@@ -2,7 +2,7 @@ import copy
 from flask import Blueprint
 from flask import flash, session, render_template, request, abort
 from sqlalchemy.exc import IntegrityError, OperationalError
-from config import PER_PAGE
+from config.general import PER_PAGE
 from app.models import db, Pessoas, Usuarios
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params, \

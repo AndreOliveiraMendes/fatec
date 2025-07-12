@@ -1,6 +1,7 @@
 from flask import url_for
 from markupsafe import Markup
 from app.auxiliar.constant import PERMISSIONS
+from config.database_views import TABLES_PER_LINE, SECOES
 
 def register_filters(app):
     @app.template_global()
@@ -77,6 +78,29 @@ def register_filters(app):
 
         html += '</div>\n</form>\n</div>'
         return Markup(html)
+    
+    @app.template_global()
+    def generate_database_head(current_table, max_per_line=TABLES_PER_LINE):
+        tables_info = [
+            (t[1].split('.')[0], t[1])
+            for sec in SECOES.values()
+            for t in sec['secoes']
+        ]
+
+        html = ''
+
+        # Quebra em blocos de até max_per_line
+        for i in range(0, len(tables_info), max_per_line):
+            html += '<ul class="nav nav-pills">'
+            for table, url in tables_info[i:i+max_per_line]:
+                active = ' class="active"' if table == current_table else ''
+                html += f'<li role="presentation"{active}>'
+                html += f'<a href="{url_for(url)}">{table}</a>'
+                html += '</li>'
+            html += '</ul>'
+
+        return Markup(html)
+
 
     @app.context_processor
     def inject_permissions():

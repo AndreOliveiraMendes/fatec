@@ -3,7 +3,10 @@
     Semestres
 {% endblock title %}
 {% block content_head %}
-    {{ generate_head(url_for("semestres.gerenciar_semestres") , acao) }}
+    <div class="panel panel-default">
+        <div class="panel-heading">{{ generate_database_head("semestres") }}</div>
+        <div class="panel-body">{{ generate_head(url_for("semestres.gerenciar_semestres") , acao, disable=disable) }}</div>
+    </div>
 {% endblock content_head %}
 {% block abertura %}
     <h3>

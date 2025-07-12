@@ -3,7 +3,12 @@
     Usuarios Especiais
 {% endblock title %}
 {% block content_head %}
-    {{ generate_head(url_for("usuarios_especiais.gerenciar_usuarios_especiais"), acao) }}
+    <div class="panel panel-default">
+        <div class="panel-heading">{{ generate_database_head("usuarios_especiais") }}</div>
+        <div class="panel-body">
+            {{ generate_head(url_for("usuarios_especiais.gerenciar_usuarios_especiais") , acao, disable=disable) }}
+        </div>
+    </div>
 {% endblock content_head %}
 {% block abertura %}
     <h3>

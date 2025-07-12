@@ -1,6 +1,6 @@
 import requests, copy
 from flask import Blueprint
-from config import TOMCAT_API_URL, API_BASIC_USER, API_BASIC_PASS
+from config.general import TOMCAT_API_URL, API_BASIC_USER, API_BASIC_PASS
 from flask import flash, session, render_template, request, redirect, url_for
 from app.models import db, Pessoas, Usuarios, Permissoes
 from app.auxiliar.decorators import login_required
