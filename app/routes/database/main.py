@@ -61,9 +61,9 @@ def database():
     extras['inds'] = {table:inspector.get_indexes(table) for table in tables}
     return render_template("database/database.html", username=username, perm=perm, **extras)
 
-@bp.route("/dump")
+@bp.route("/schema")
 @admin_required
-def dump():
+def schema():
     userid = session.get('userid')
     username, perm = get_user_info(userid)
     extras = {}
@@ -76,11 +76,11 @@ def dump():
     else:
         extras['tables_sql'] = [(table, get_create_table(table)) for table in tables]
 
-    return render_template("database/dump.html", username=username, perm=perm, **extras)
+    return render_template("database/schema.html", username=username, perm=perm, **extras)
 
-@bp.route("/dump/sql")
+@bp.route("/schema/sql")
 @admin_required
-def dump_file():
+def schema_file():
     inspector = inspect(db.engine)
     tables = inspector.get_table_names()
     fks = {table:[fk['referred_table'] for fk in inspector.get_foreign_keys(table)] for table in tables}
