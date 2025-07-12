@@ -95,6 +95,7 @@
                         <th>dia da semana</th>
                         <th>turno</th>
                         <th>tipo</th>
+                        <th>ação</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -107,11 +108,34 @@
                             <td>{{ at.dia_da_semana.nome }}</td>
                             <td>{{ at.turno_info.nome }}</td>
                             <td>{{ at.tipo_aula.value }}</td>
+                            <td>
+                                <form method="post" class="form-inline">
+                                    <input type="hidden" name="bloco" value="1">
+                                    <input type="hidden" name="id_aula_ativa" value="{{ at.id_aula_ativa }}">
+                                    <div class="btn-group">
+                                        <button type="submit"
+                                                name="acao"
+                                                value="editar"
+                                                class="btn btn-warning btn-sm"
+                                                title="Editar">
+                                            <i class="glyphicon glyphicon-pencil"></i>
+                                        </button>
+                                        <button type="submit"
+                                                name="acao"
+                                                value="excluir"
+                                                class="btn btn-danger btn-sm"
+                                                title="Excluir">
+                                            <i class="glyphicon glyphicon-trash"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+        {{ paginacao(pagination, acao, bloco) }}
     {% else %}
         <div class="alert alert-info" role="alert">Nenhuma aula ativa cadastrada.</div>
     {% endif %}
@@ -132,6 +156,7 @@
                        type="number"
                        class="form-control">
             </div>
+            {{ gerar_select("aula", "Selecione a aula", aulas, "id_aula", "horario_intervalo", optional=True) }}
             <div class="form-group">
                 <label for="inicio_ativacao" class="control-label">Inicio Ativação</label>
                 <input id="inicio_ativacao"
@@ -148,22 +173,81 @@
                        type="date"
                        class="form-control">
             </div>
+            {{ gerar_select("semana", "Selecione o dia da semana", dias_da_semana, "id", "nome", "id_semana", optional=True) }}
+            {{ gerar_select("turno", "Selecione o turno", turnos, "id", "nome", "id_turno", optional=True) }}
             <div class="form-group">
                 <label for="tipo_aula" class="control-label">Tipo de Aula</label>
                 <select id="tipo_aula"
                         name="tipo_aula"
                         class="select form-control"
                         aria-describedby="tipo_aulaHelpBlock">
-                    <option value="Selecione o Tipo de Aula"></option>
-                    <option value="Aulas">Aula</option>
-                    <option value="Eventos">Evento</option>
-                    <option value="Outras Finalidades">Outros</option>
+                    <option value="">Selecione o Tipo de Aula</option>
+                    <option value="Aula">Aulas</option>
+                    <option value="Evento">Eventos</option>
+                    <option value="Outros">Outras finalidas</option>
                 </select>
                 <span id="tipo_aulaHelpBlock" class="help-block">se o horario é destinado a aula, evento ou outra finalidade</span>
             </div>
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
+    <h3>Resultados da Busca:</h3>
+{% if aulas_ativas %}
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered table-hover">
+                <thead>
+                    <tr class="information">
+                        <th>id_aula_ativa</th>
+                        <th>aula</th>
+                        <th>inicio_ativacao</th>
+                        <th>fim_ativacao</th>
+                        <th>dia da semana</th>
+                        <th>turno</th>
+                        <th>tipo</th>
+                        <th>ação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for at in aulas_ativas %}
+                        <tr>
+                            <td>{{ at.id_aula_ativa }}</td>
+                            <td>{{ at.aulas.horario_intervalo }}</td>
+                            <td>{{ at.inicio_ativacao if at.inicio_ativacao else '-' }}</td>
+                            <td>{{ at.fim_ativacao if at.fim_ativacao else '-' }}</td>
+                            <td>{{ at.dia_da_semana.nome }}</td>
+                            <td>{{ at.turno_info.nome }}</td>
+                            <td>{{ at.tipo_aula.value }}</td>
+                            <td>
+                                <form method="post" class="form-inline">
+                                    <input type="hidden" name="bloco" value="1">
+                                    <input type="hidden" name="id_aula_ativa" value="{{ at.id_aula_ativa }}">
+                                    <div class="btn-group">
+                                        <button type="submit"
+                                                name="acao"
+                                                value="editar"
+                                                class="btn btn-warning btn-sm"
+                                                title="Editar">
+                                            <i class="glyphicon glyphicon-pencil"></i>
+                                        </button>
+                                        <button type="submit"
+                                                name="acao"
+                                                value="excluir"
+                                                class="btn btn-danger btn-sm"
+                                                title="Excluir">
+                                            <i class="glyphicon glyphicon-trash"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {{ paginacao(pagination, acao, bloco, query_params) }}
+{% else %}
+<div class="alert alert-info" role="alert">Nenhum resultado encontrado.</div>
+{% endif %}
     {% endif %}
 {% endblock procurar %}
 {% block inserir %}

@@ -68,8 +68,44 @@ def gerenciar_aulas_ativas():
             extras['aulas_ativas'] = aulas_ativas_paginadas.items
             extras['pagination'] = aulas_ativas_paginadas
 
-        elif acao == 'procurar':
-            pass
+        elif acao == 'procurar' and bloco == 0:
+            extras['aulas'] = get_aulas()
+            extras['dias_da_semana'] = get_dias_da_semana()
+            extras['turnos'] = get_turnos()
+        elif acao == 'procurar' and bloco == 1:
+            id_aula_ativa = none_if_empty(request.form.get('id_aula_ativa'), int)
+            id_aula = none_if_empty(request.form.get('id_aula'), int)
+            inicio_ativacao = parse_date_string(request.form.get('inicio_ativacao'))
+            fim_ativacao = parse_date_string(request.form.get('fim_ativacao'))
+            id_semana = none_if_empty(request.form.get('id_semana'), int)
+            id_turno = none_if_empty(request.form.get('id_turno'), int)
+            tipo_aula = none_if_empty(request.form.get('tipo_aula'))
+            filter = []
+            query_params = get_query_params(request)
+            query = Aulas_Ativas.query
+            if id_aula_ativa:
+                filter.append(Aulas_Ativas.id_aula_ativa == id_aula_ativa)
+            if id_aula:
+                filter.append(Aulas_Ativas.id_aula == id_aula)
+            if inicio_ativacao:
+                filter.append(Aulas_Ativas.inicio_ativacao == inicio_ativacao)
+            if fim_ativacao:
+                filter.append(Aulas_Ativas.fim_ativacao == fim_ativacao)
+            if id_semana:
+                filter.append(Aulas_Ativas.id_semana == id_semana)
+            if id_turno:
+                filter.append(Aulas_Ativas.id_turno == id_turno)
+            if tipo_aula:
+                filter.append(Aulas_Ativas.tipo_aula == tipo_aula)
+            if filter:
+                aulas_ativas_paginadas = query.filter(*filter).paginate(page=page, per_page=PER_PAGE, error_out=False)
+                extras['aulas_ativas'] = aulas_ativas_paginadas.items
+                extras['pagination'] = aulas_ativas_paginadas
+                extras['query_params'] = query_params
+            else:
+                flash("especifique pelo menos um campo de busca", "danger")
+                redirect_action, bloco = register_return('aulas_ativas.gerenciar_aulas_ativas', acao, extras,
+                    aulas=get_aulas(), dias_da_semana=get_dias_da_semana(), turnos=get_turnos())
 
         elif acao == 'inserir' and bloco == 0:
             extras['aulas'] = get_aulas()
