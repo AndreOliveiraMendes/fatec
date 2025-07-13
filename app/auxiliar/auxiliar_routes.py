@@ -94,7 +94,7 @@ def registrar_log_generico_sistema(acao:Literal['Login'], objeto, antes=None, ob
             valor_antigo = getattr(antes, nome, None)
             valor_antigo_fmt = formatar_valor(valor_antigo)
 
-            if valor_antigo != valor_novo:
+            if valor_antigo_fmt != valor_novo_fmt:
                 campos.append(f"{nome}: {valor_antigo_fmt} → {valor_novo_fmt}")
         else:
             campos.append(f"{nome}: {valor_novo_fmt}")
@@ -135,7 +135,7 @@ def registrar_log_generico_usuario(userid, acao:Literal['Inserção', 'Edição'
             valor_antigo = getattr(antes, nome, None)
             valor_antigo_fmt = formatar_valor(valor_antigo)
 
-            if valor_antigo != valor_novo:
+            if valor_antigo_fmt != valor_novo_fmt:
                 campos.append(f"{nome}: {valor_antigo_fmt} → {valor_novo_fmt}")
         else:
             campos.append(f"{nome}: {valor_novo_fmt}")
