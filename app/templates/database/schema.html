@@ -3,6 +3,17 @@
 {% block title %}
     Banco de Dados
 {% endblock title %}
+{% block extra_css %}
+    <link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism-tomorrow.css"
+          rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/prismjs/plugins/line-numbers/prism-line-numbers.css"
+          rel="stylesheet" />
+{% endblock extra_css %}
+{% block extra_script %}
+    <script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-sql.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs/plugins/line-numbers/prism-line-numbers.min.js"></script>
+{% endblock extra_script %}
 {% block content %}
     {{ generate_navigation() }}
     {% if topologic_tables %}
@@ -28,7 +39,7 @@
                         </tr>
                         <tr class="collapse" id="sql_{{ table }}">
                             <td colspan="3">
-                                <pre id="code_{{ loop.index }}"><code>{{ sql|string|trim ~ ';' }}</code></pre>
+                                <pre id="code_{{ loop.index }}" class="line-numbers"><code class="language-sql">{{ sql|string|trim ~ ';' | e }}</code></pre>
                                 <button onclick="copyToClipboard('code_{{ loop.index }}')">Copiar</button>
                             </td>
                         </tr>
@@ -68,7 +79,7 @@
                         </tr>
                         <tr class="collapse" id="sql_{{ table }}">
                             <td colspan="3">
-                                <pre id="code_{{ loop.index }}"><code>{{ sql|string|trim ~ ';' }}</code></pre>
+                                <pre id="code_{{ loop.index }}" class="line-numbers"><code class="language-sql">{{ sql|string|trim ~ ';' | e }}</code></pre>
                                 <button onclick="copyToClipboard('code_{{ loop.index }}')">Copiar</button>
                             </td>
                         </tr>
