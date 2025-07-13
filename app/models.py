@@ -212,13 +212,25 @@ class Aulas_Ativas(db.Model):
         server_default=TipoAulaEnum.AULA.value
     )
 
-    @property    
-    def selector_indentification(self):
-        inicio = self.inicio_ativacao.strftime('%d/%m/%Y') if self.inicio_ativacao else '???'
-        fim = self.fim_ativacao.strftime('%d/%m/%Y') if self.fim_ativacao else '???'
-        tipo = self.tipo_aula.value.capitalize()
+    @property
+    def selector_identification(self):
+        inicio = self.inicio_ativacao.strftime('%d/%m/%Y') if self.inicio_ativacao else None
+        fim = self.fim_ativacao.strftime('%d/%m/%Y') if self.fim_ativacao else None
 
-        return f"({self.id_aula}) ({self.id_semana}) {tipo}: {inicio} - {fim}"
+        tipo = self.tipo_aula.value.capitalize()
+        intervalo_aula = self.aulas.horario_intervalo
+        semana = self.dia_da_semana.nome.capitalize()
+
+        if inicio and fim:
+            intervalo_ativacao = f"de {inicio} até {fim}"
+        elif inicio:
+            intervalo_ativacao = f"a partir de {inicio}"
+        elif fim:
+            intervalo_ativacao = f"até o dia {fim}"
+        else:
+            intervalo_ativacao = "por um período indeterminado"
+
+        return f"{tipo}: {intervalo_aula} no {semana} ({intervalo_ativacao})"
 
     __table_args__ = (
         CheckConstraint(

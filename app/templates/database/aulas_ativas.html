@@ -293,3 +293,129 @@
         {{ action_buttons(acao, 1, False, 0) }}
     </form>
 {% endblock inserir %}
+{% block editar %}
+    {% if bloco == 0 %}
+        <h3>Editar Aulas Ativas</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for('aulas_ativas.gerenciar_aulas_ativas') }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            {{ gerar_select("id_aula_ativa", "Selecione a aula ativa", aulas_ativas, "id_aula_ativa", "selector_identification") }}
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <h3>Editar Aula Ativa</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for('aulas_ativas.gerenciar_aulas_ativas') }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label>ID Aula Ativa</label>
+                <input type="number"
+                       class="form-control"
+                       name="id_aula_ativa"
+                       value="{{ aula_ativa.id_aula_ativa }}"
+                       readonly>
+            </div>
+            {{ gerar_select("id_aula", "Selecione a aula", aulas, "id_aula", "horario_intervalo", selected=aula_ativa.id_aula) }}
+            <div class="form-group">
+                <label for="ia">Início da ativação:</label>
+                <input id="ia"
+                       name="inicio_ativacao"
+                       class="form-control"
+                       type="date"
+                       value="{{ aula_ativa.inicio_ativacao }}"
+                       placeholder="início do periodo em que a aula é valida, caso seja temporaria">
+            </div>
+            <div class="form-group">
+                <label for="fa">Término da ativação:</label>
+                <input id="fa"
+                       name="fim_ativacao"
+                       class="form-control"
+                       type="date"
+                       value="{{ aula_ativa.fim_ativacao }}"
+                       placeholder="término do periodo em que a aula é valida, caso seja temporaria">
+            </div>
+            {{ gerar_select("id_semana", "Selecione o dia da semana", dias_da_semana, "id", "nome", "id_semana", selected=aula_ativa.id_semana) }}
+            <div class="form-group">
+                <label for="tipo">Tipo:</label>
+                <select class="form-control" id="tipo" name="tipo_aula" required>
+                    <option value="">Selecione...</option>
+                    <option value="Aula"
+                            {% if aula_ativa.tipo_aula.value == 'Aula' %}selected{% endif %}>Aula</option>
+                    <option value="Evento"
+                            {% if aula_ativa.tipo_aula.value == 'Evento' %}selected{% endif %}>Evento</option>
+                    <option value="Outros"
+                            {% if aula_ativa.tipo_aula.value == 'Outros' %}selected{% endif %}>Outros</option>
+                </select>
+            </div>
+            {{ action_buttons(acao, 2, True, 0) }}
+        </form>
+    {% endif %}
+{% endblock editar %}
+{% block excluir %}
+    {% if bloco == 0 %}
+        <h3>Excluir Aulas Ativas</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for('aulas_ativas.gerenciar_aulas_ativas') }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            {{ gerar_select("id_aula_ativa", "Selecione a aula ativa", aulas_ativas, "id_aula_ativa", "selector_identification") }}
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <h3>Excluir Aula Ativa</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for('aulas_ativas.gerenciar_aulas_ativas') }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label>ID Aula Ativa</label>
+                <input type="number"
+                       class="form-control"
+                       name="id_aula_ativa"
+                       value="{{ aula_ativa.id_aula_ativa }}"
+                       readonly>
+            </div>
+            {{ gerar_select("id_aula", "Selecione a aula", aulas, "id_aula", "horario_intervalo", selected=aula_ativa.id_aula, extra='disabled') }}
+            <div class="form-group">
+                <label for="ia">Início da ativação:</label>
+                <input id="ia"
+                       name="inicio_ativacao"
+                       class="form-control"
+                       type="date"
+                       value="{{ aula_ativa.inicio_ativacao }}"
+                       placeholder="início do periodo em que a aula é valida, caso seja temporaria"
+                       disabled>
+            </div>
+            <div class="form-group">
+                <label for="fa">Término da ativação:</label>
+                <input id="fa"
+                       name="fim_ativacao"
+                       class="form-control"
+                       type="date"
+                       value="{{ aula_ativa.fim_ativacao }}"
+                       placeholder="término do periodo em que a aula é valida, caso seja temporaria"
+                       disabled>
+            </div>
+            {{ gerar_select("id_semana", "Selecione o dia da semana", dias_da_semana, "id", "nome", "id_semana", selected=aula_ativa.id_semana, extra='disabled') }}
+            <div class="form-group">
+                <label for="tipo">Tipo:</label>
+                <select class="form-control" id="tipo" name="tipo_aula" required disabled>
+                    <option value="">Selecione...</option>
+                    <option value="Aula"
+                            {% if aula_ativa.tipo_aula.value == 'Aula' %}selected{% endif %}>Aula</option>
+                    <option value="Evento"
+                            {% if aula_ativa.tipo_aula.value == 'Evento' %}selected{% endif %}>Evento</option>
+                    <option value="Outros"
+                            {% if aula_ativa.tipo_aula.value == 'Outros' %}selected{% endif %}>Outros</option>
+                </select>
+            </div>
+            {{ action_buttons(acao, 2, True, 0, False) }}
+        </form>
+    {% endif %}
+{% endblock excluir %}
