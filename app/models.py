@@ -4,6 +4,14 @@ from datetime import date, time, datetime
 from sqlalchemy import String, ForeignKey, CheckConstraint, TEXT, UniqueConstraint, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+class TipoReservaEnum(enum.Enum):
+    GRADUACAO = "Graduação"
+    ESPECIALIZACAO = "Especialização"
+    EAD = "EAD"
+    NAPTI = "NAPTI"
+    CURSO = "Curso"
+    USO_DOS_ALUNOS = "Uso dos Alunos" 
+
 class Reservas_Fixas(db.Model):
     __tablename__ = 'reservas_fixas'
 
@@ -13,8 +21,12 @@ class Reservas_Fixas(db.Model):
     tipo_responsavel: Mapped[int] = mapped_column(nullable=False)
     id_reserva_laboratorio: Mapped[int] = mapped_column(ForeignKey('laboratorios.id_laboratorio'), nullable=False)
     id_reserva_aula: Mapped[int] = mapped_column(ForeignKey('aulas_ativas.id_aula_ativa'), nullable=False)
-    tipo_reserva: Mapped[int] = mapped_column(server_default='0', nullable=False)
     id_reserva_semestre: Mapped[int] = mapped_column(ForeignKey('semestres.id_semestre'), nullable=False)
+
+    tipo_reserva: Mapped[TipoReservaEnum] = mapped_column(
+        Enum(TipoReservaEnum, name="tipo_reserva_enum", create_constraint=True),
+        server_default=TipoReservaEnum.GRADUACAO.value
+    )
 
     __table_args__ = (
         CheckConstraint(
@@ -28,6 +40,11 @@ class Reservas_Fixas(db.Model):
             )
             """,
             name='check_tipo_responsavel'
+        ), CheckConstraint(
+            """
+            tipo_responsavel = 0 OR tipo_responsavel = 1 Or tipo_responsavel = 2 
+            """,
+            name='check_tipo_responsavel_value'
         ), UniqueConstraint(
             'id_reserva_laboratorio',
             'id_reserva_aula',
@@ -150,10 +167,8 @@ class Aulas(db.Model):
     id_aula: Mapped[int] = mapped_column(primary_key=True)
     horario_inicio: Mapped[time] = mapped_column(nullable=False)
     horario_fim: Mapped[time] = mapped_column(nullable=False)
-    id_turno: Mapped[int] = mapped_column(ForeignKey('turnos.id'), nullable=False)
 
     aulas_ativas: Mapped[list['Aulas_Ativas']] = relationship(back_populates='aulas')
-    turno_info: Mapped['Turnos'] = relationship(back_populates='aulas')
 
     @property
     def horario_intervalo(self):
@@ -162,7 +177,7 @@ class Aulas(db.Model):
     def __repr__(self) -> str:
         return (
             f"<Aulas(id_aula={self.id_aula}, horario_inicio={self.horario_inicio}, "
-            f"horario_fim={self.horario_fim}, id_turno={self.id_turno})>"
+            f"horario_fim={self.horario_fim})>"
         )
     
 class Dias_da_Semana(db.Model):
@@ -185,8 +200,6 @@ class Turnos(db.Model):
     horario_inicio: Mapped[time] = mapped_column(nullable=False)
     horario_fim: Mapped[time] = mapped_column(nullable=False)
 
-    aulas: Mapped[list['Aulas']] = relationship(back_populates='turno_info')
-
     def __repr__(self) -> str:
         return (
             f"<Turnos(id={self.id}, nome={self.nome}, "
@@ -208,7 +221,7 @@ class Aulas_Ativas(db.Model):
     id_semana: Mapped[int] = mapped_column(ForeignKey('dias_da_semana.id'), nullable=False)
 
     tipo_aula: Mapped[TipoAulaEnum] = mapped_column(
-        Enum(TipoAulaEnum, name="tipoaula_enum", create_constraint=True),
+        Enum(TipoAulaEnum, name="tipo_aula_enum", create_constraint=True),
         server_default=TipoAulaEnum.AULA.value
     )
 

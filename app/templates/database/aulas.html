@@ -50,14 +50,6 @@
                     <td>Horário exato de término da aula.</td>
                     <td>formato HH:MM</td>
                 </tr>
-                <tr>
-                    <td>
-                        <code>id_turno</code>
-                    </td>
-                    <td>INT (FK)</td>
-                    <td>Chave estrangeira para o turno associado à aula</td>
-                    <td>-</td>
-                </tr>
             </tbody>
         </table>
     </div>
@@ -72,7 +64,6 @@
                         <th>ID Aula</th>
                         <th>Início da Aula</th>
                         <th>Término da Aula</th>
-                        <th>turno</th>
                         <th>Ação</th>
                     </tr>
                 </thead>
@@ -82,7 +73,6 @@
                             <td>{{ a.id_aula }}</td>
                             <td>{{ a.horario_inicio.strftime("%H:%M") }}</td>
                             <td>{{ a.horario_fim.strftime("%H:%M") }}</td>
-                            <td>{{ a.turno_info.nome }}</td>
                             <td>
                                 <form method="post" class="form-inline">
                                     <input type="hidden" name="bloco" value="1">
@@ -161,7 +151,6 @@
                        name="horario_fim_end"
                        placeholder="Fim da faixa">
             </div>
-            {{ gerar_select("turno", "Selecione o turno", turnos, "id", "nome", "id_turno", optional=True) }}
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
@@ -174,7 +163,6 @@
                             <th>ID Aula</th>
                             <th>Início da Aula</th>
                             <th>Término da Aula</th>
-                            <th>turno</th>
                             <th>Ação</th>
                         </tr>
                     </thead>
@@ -184,7 +172,6 @@
                                 <td>{{ a.id_aula }}</td>
                                 <td>{{ a.horario_inicio.strftime("%H:%M") }}</td>
                                 <td>{{ a.horario_fim.strftime("%H:%M") }}</td>
-                                <td>{{ a.turno_info.nome }}</td>
                                 <td>
                                     <form method="post" class="form-inline">
                                         <input type="hidden" name="bloco" value="1">
@@ -242,7 +229,6 @@
                        placeholder="Término da Aula"
                        required>
             </div>
-            {{ gerar_select("id_turno", "Selecione o turno", turnos, "id", "nome", "id_turno") }}
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
@@ -291,7 +277,6 @@
                        value="{{ aula.horario_fim.strftime('%H:%M') }}"
                        required>
             </div>
-            {{ gerar_select("id_turno", "Selecione o turno", turnos, "id", "nome", "id_turno", selected=aula.id_turno) }}
             {{ action_buttons(acao, 2, True, 0) }}
         </form>
     {% endif %}
@@ -341,7 +326,6 @@
                        required
                        disabled>
             </div>
-            {{ gerar_select("id_turno", "Selecione o turno", turnos, "id", "nome", "id_turno", selected=aula.id_turno, extra="disabled") }}
             {{ action_buttons(acao, 2, True, 0, False) }}
         </form>
     {% endif %}

@@ -1,6 +1,6 @@
 import copy
 from flask import Blueprint
-from flask import flash, session, render_template, request, redirect, url_for
+from flask import flash, session, render_template, request
 from sqlalchemy.exc import IntegrityError, OperationalError
 from config.general import PER_PAGE
 from app.models import db, Reservas_Fixas
@@ -15,5 +15,14 @@ bp = Blueprint('reservas_fixas', __name__, url_prefix="/database")
 @admin_required
 def gerenciar_reservas_fixas():
     redirect_action = None
-    flash("Pagina em Desenvolvimento", "warning")
-    return redirect(url_for('default.under_dev_page'))
+    acao = get_session_or_request(request, session, 'acao', 'abertura')
+    bloco = int(request.form.get('bloco', 0))
+    page = int(request.form.get('page', 1))
+    userid = session.get('userid')
+    username, perm = get_user_info(userid)
+    extras = {}
+    if request.method == 'POST':
+        pass
+    if redirect_action:
+        return redirect_action
+    return render_template("database/reservas_fixas.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
