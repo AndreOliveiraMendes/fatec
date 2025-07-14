@@ -26,6 +26,9 @@ def get_aulas():
 def get_semestres():
     return db.session.query(Semestres.id_semestre, Semestres.nome_semestre).order_by(Semestres.id_semestre).all()
 
+def get_reservas_fixas():
+    return Reservas_Fixas.query.all()
+
 @bp.route("/reservas_fixa", methods=['GET', 'POST'])
 @admin_required
 def gerenciar_reservas_fixas():
@@ -53,7 +56,6 @@ def gerenciar_reservas_fixas():
             id_responsavel = none_if_empty(request.form.get('id_responsavel'), int)
             id_responsavel_especial = none_if_empty(request.form.get('id_responsavel_especial'), int)
             tipo_responsavel = none_if_empty(request.form.get('tipo_responsavel'), int)
-            print(tipo_responsavel)
             id_reserva_laboratorio = none_if_empty(request.form.get('id_reserva_laboratorio'), int)
             id_reserva_aula = none_if_empty(request.form.get('id_reserva_aula'), int)
             id_reserva_semestre = none_if_empty(request.form.get('id_reserva_semestre'), int)
@@ -127,6 +129,68 @@ def gerenciar_reservas_fixas():
                 laboratorios=get_laboratorios(), aulas_ativas=get_aulas(), semestres=get_semestres()
             )
 
+        elif acao in ['editar', 'excluir'] and bloco == 0:
+            extras['reservas_fixas'] = get_reservas_fixas()
+        elif acao in ['editar', 'excluir'] and bloco == 1:
+            id_reserva_fixa = none_if_empty(request.form.get('id_reserva_fixa'), int)
+            reserva_fixa = Reservas_Fixas.query.get_or_404(id_reserva_fixa)
+            extras['reserva_fixa'] = reserva_fixa
+            extras['pessoas'] = get_pessoas()
+            extras['usuarios_especiais'] = get_usuarios_especiais()
+            extras['laboratorios'] = get_laboratorios()
+            extras['aulas_ativas'] = get_aulas()
+            extras['semestres'] = get_semestres()
+        elif acao == 'editar' and bloco == 2:
+            id_reserva_fixa = none_if_empty(request.form.get('id_reserva_fixa'), int)
+            id_responsavel = none_if_empty(request.form.get('id_responsavel'), int)
+            id_responsavel_especial = none_if_empty(request.form.get('id_responsavel_especial'), int)
+            tipo_responsavel = none_if_empty(request.form.get('tipo_responsavel'), int)
+            id_reserva_laboratorio = none_if_empty(request.form.get('id_reserva_laboratorio'), int)
+            id_reserva_aula = none_if_empty(request.form.get('id_reserva_aula'), int)
+            id_reserva_semestre = none_if_empty(request.form.get('id_reserva_semestre'), int)
+            tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
+            reserva_fixa = Reservas_Fixas.query.get_or_404(id_reserva_fixa)
+            try:
+                dados_anteriores = copy.copy(reserva_fixa)
+                reserva_fixa.id_responsavel = id_responsavel
+                reserva_fixa.id_responsavel_especial = id_responsavel_especial
+                reserva_fixa.tipo_responsavel = tipo_responsavel
+                reserva_fixa.id_reserva_laboratorio = id_reserva_laboratorio
+                reserva_fixa.id_reserva_aula = id_reserva_aula
+                reserva_fixa.id_reserva_semestre = id_reserva_semestre
+                reserva_fixa.tipo_reserva = tipo_reserva
+
+                db.session.flush()
+                registrar_log_generico_usuario(userid, 'Edição', reserva_fixa, dados_anteriores)
+
+                db.session.commit()
+                flash("Reserva editada com sucesso", "success")
+            except (IntegrityError, OperationalError) as e:
+                db.session.rollback()
+                flash(f"Erro ao editar reserva:{str(e.orig)}", "danger")
+
+            redirect_action, bloco = register_return('reservas_fixas.gerenciar_reservas_fixas', acao, extras,
+                reservas_fixas=get_reservas_fixas()
+            )
+        elif acao == 'excluir' and bloco == 2:
+            id_reserva_fixa = none_if_empty(request.form.get('id_reserva_fixa'), int)
+
+            reserva_fixa = Reservas_Fixas.query.get_or_404(id_reserva_fixa)
+            try:
+                db.session.delete(reserva_fixa)
+
+                db.session.flush()
+                registrar_log_generico_usuario(userid, 'Exclusão', reserva_fixa)
+
+                db.session.commit()
+                flash("Reserva excluidas com sucesso", "success")
+            except (IntegrityError, OperationalError) as e:
+                db.session.rollback()
+                flash(f"erro ao excluir reserva:{str(e.orig)}", "danger")
+
+            redirect_action, bloco = register_return('reservas_fixas.gerenciar_reservas_fixas', acao, extras,
+                reservas_fixas=get_reservas_fixas()
+            )
     if redirect_action:
         return redirect_action
     return render_template("database/reservas_fixas.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)

@@ -112,7 +112,7 @@
                     {% for at in aulas_ativas %}
                         <tr>
                             <td>{{ at.id_aula_ativa }}</td>
-                            <td>{{ at.aulas.horario_intervalo }}</td>
+                            <td>{{ at.aulas.selector_identification }}</td>
                             <td>{{ at.inicio_ativacao if at.inicio_ativacao else '-' }}</td>
                             <td>{{ at.fim_ativacao if at.fim_ativacao else '-' }}</td>
                             <td>{{ at.dia_da_semana.nome }}</td>
@@ -165,7 +165,7 @@
                        type="number"
                        class="form-control">
             </div>
-            {{ gerar_select("aula", "Selecione a aula", aulas, "id_aula", "horario_intervalo", optional=True) }}
+            {{ gerar_select("aula", "Selecione a aula", aulas, "id_aula", "selector_identification", optional=True) }}
             <div class="form-group">
                 <label for="inicio_ativacao" class="control-label">Inicio Ativação</label>
                 <input id="inicio_ativacao"
@@ -218,7 +218,7 @@
                         {% for at in aulas_ativas %}
                             <tr>
                                 <td>{{ at.id_aula_ativa }}</td>
-                                <td>{{ at.aulas.horario_intervalo }}</td>
+                                <td>{{ at.aulas.selector_identification }}</td>
                                 <td>{{ at.inicio_ativacao if at.inicio_ativacao else '-' }}</td>
                                 <td>{{ at.fim_ativacao if at.fim_ativacao else '-' }}</td>
                                 <td>{{ at.dia_da_semana.nome }}</td>
@@ -263,7 +263,7 @@
           action="{{ url_for('aulas_ativas.gerenciar_aulas_ativas') }}"
           method="post">
         <input type="hidden" name="acao" value="{{ acao }}">
-        {{ gerar_select("id_aula", "Selecione a aula", aulas, "id_aula", "horario_intervalo") }}
+        {{ gerar_select("id_aula", "Selecione a aula", aulas, "id_aula", "selector_identification") }}
         <div class="form-group">
             <label for="ia">Início da ativação:</label>
             <input id="ia"
@@ -319,7 +319,7 @@
                        value="{{ aula_ativa.id_aula_ativa }}"
                        readonly>
             </div>
-            {{ gerar_select("id_aula", "Selecione a aula", aulas, "id_aula", "horario_intervalo", selected=aula_ativa.id_aula) }}
+            {{ gerar_select("id_aula", "Selecione a aula", aulas, "id_aula", "selector_identification", selected=aula_ativa.id_aula) }}
             <div class="form-group">
                 <label for="ia">Início da ativação:</label>
                 <input id="ia"
@@ -381,7 +381,7 @@
                        value="{{ aula_ativa.id_aula_ativa }}"
                        readonly>
             </div>
-            {{ gerar_select("id_aula", "Selecione a aula", aulas, "id_aula", "horario_intervalo", selected=aula_ativa.id_aula, extra='disabled') }}
+            {{ gerar_select("id_aula", "Selecione a aula", aulas, "id_aula", "selector_identification", selected=aula_ativa.id_aula, extra='disabled') }}
             <div class="form-group">
                 <label for="ia">Início da ativação:</label>
                 <input id="ia"

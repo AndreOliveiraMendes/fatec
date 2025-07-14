@@ -58,7 +58,14 @@ class Reservas_Fixas(db.Model):
     laboratorios: Mapped['Laboratorios'] = relationship(back_populates='reservas_fixas')
     aulas_ativas: Mapped['Aulas_Ativas'] = relationship(back_populates='reservas_fixas')
     semestres: Mapped['Semestres'] = relationship(back_populates='reservas_fixas')
-    
+
+    @property
+    def selector_identification(self):
+        laboratorio = self.laboratorios.nome_laboratorio
+        aula = self.aulas_ativas.selector_identification
+        semestre = self.semestres.nome_semestre
+        return f" {aula} em {laboratorio} no {semestre}"
+
     def __repr__(self) -> str:
         return (
             f"<Reservas_Fixas(id_reserva_fixa={self.id_reserva_fixa}, id_responsavel={self.id_responsavel}, "
@@ -170,7 +177,7 @@ class Aulas(db.Model):
     aulas_ativas: Mapped[list['Aulas_Ativas']] = relationship(back_populates='aulas')
 
     @property
-    def horario_intervalo(self):
+    def selector_identification(self):
         return f"{self.horario_inicio.strftime('%H:%M')} - {self.horario_fim.strftime('%H:%M')}"
     
     def __repr__(self) -> str:
@@ -230,7 +237,7 @@ class Aulas_Ativas(db.Model):
         fim = self.fim_ativacao.strftime('%d/%m/%Y') if self.fim_ativacao else None
 
         tipo = self.tipo_aula.value.capitalize()
-        intervalo_aula = self.aulas.horario_intervalo
+        intervalo_aula = self.aulas.selector_identification
         semana = self.dia_da_semana.nome.capitalize()
 
         if inicio and fim:
@@ -242,7 +249,12 @@ class Aulas_Ativas(db.Model):
         else:
             intervalo_ativacao = "por um período indeterminado"
 
-        return f"{tipo}: {intervalo_aula} no {semana} ({intervalo_ativacao})"
+        if semana.lower() in ['sabado', 'domingo']:
+            artigo = 'no'
+        else:
+            artigo = 'na'
+
+        return f"{tipo}: {intervalo_aula} {artigo} {semana} ({intervalo_ativacao})"
 
     __table_args__ = (
         CheckConstraint(

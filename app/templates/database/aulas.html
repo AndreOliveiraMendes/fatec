@@ -242,7 +242,7 @@
               action="{{ url_for('aulas.gerenciar_aulas') }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
-            {{ gerar_select("id_aula", "Selecione a Aula", aulas, "id_aula", "horario_intervalo") }}
+            {{ gerar_select("id_aula", "Selecione a Aula", aulas, "id_aula", "selector_identification") }}
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
@@ -289,7 +289,7 @@
               action="{{ url_for('aulas.gerenciar_aulas') }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
-            {{ gerar_select("id_aula", "Selecione a Aula", aulas, "id_aula", "horario_intervalo") }}
+            {{ gerar_select("id_aula", "Selecione a Aula", aulas, "id_aula", "selector_identification") }}
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}

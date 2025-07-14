@@ -368,3 +368,224 @@
         });
     </script>
 {% endblock inserir %}
+{% block editar %}
+    {% if bloco == 0 %}
+        <h3>Editar Reservas Semanais</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for('reservas_fixas.gerenciar_reservas_fixas') }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            {{ gerar_select("reservas_fixas", "Selecione a reserva", reservas_fixas, "id_reserva_fixa", "selector_identification") }}
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <h3>Editar Reserva Semanal</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for('reservas_fixas.gerenciar_reservas_fixas') }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label>ID Reserva Semanal</label>
+                <input type="number"
+                       class="form-control"
+                       name="id_reserva_fixa"
+                       value="{{ reserva_fixa.id_reserva_fixa }}"
+                       readonly>
+            </div>
+            {{ gerar_select("responsavel", "Selecione a Pessoa", pessoas, "id_pessoa", "nome_pessoa", "id_responsavel", selected=reserva_fixa.id_responsavel) }}
+            {{ gerar_select("responsavel_especial", "Selecione o usuario especial", usuarios_especiais, "id_usuario_especial", "nome_usuario_especial", "id_responsavel_especial", selected=reserva_fixa.id_responsavel_especial) }}
+            <div class="form-group">
+                <label for="tipo_responsavel">Tipo de Responsável</label>
+                <select class="form-control"
+                        id="tipo_responsavel"
+                        name="tipo_responsavel"
+                        required>
+                    <option value="0"
+                            {% if reserva_fixa.tipo_responsavel == 0 %}selected{% endif %}>Usuário</option>
+                    <option value="1"
+                            {% if reserva_fixa.tipo_responsavel == 1 %}selected{% endif %}>Especial</option>
+                    <option value="2"
+                            {% if reserva_fixa.tipo_responsavel == 2 %}selected{% endif %}>Ambos</option>
+                </select>
+            </div>
+            {{ gerar_select("laboratorios", "Selecione o laboratorio", laboratorios, "id_laboratorio", "nome_laboratorio", "id_reserva_laboratorio", selected=reserva_fixa.id_reserva_laboratorio) }}
+            {{ gerar_select("aulas", "Selecione o horario", aulas_ativas, "id_aula_ativa", "selector_identification", "id_reserva_aula", selected=reserva_fixa.id_reserva_aula) }}
+            {{ gerar_select("semestre", "Selecione o semestre", semestres, "id_semestre", "nome_semestre", "id_reserva_semestre", selected=reserva_fixa.id_reserva_semestre) }}
+            <div class="form-group">
+                <label for="tipo_reserva">Tipo de Reserva</label>
+                <select class="form-control" id="tipo_reserva" name="tipo_reserva" required>
+                    <option value="" disabled selected>Selecione o tipo de reserva</option>
+                    <option value="Graduação"
+                            {% if reserva_fixa.tipo_reserva.value == 'Graduação' %}selected{% endif %}>
+                        Graduação
+                    </option>
+                    <option value="Especialização"
+                            {% if reserva_fixa.tipo_reserva.value == 'Especialização' %}selected{% endif %}>
+                        Especialização
+                    </option>
+                    <option value="EAD"
+                            {% if reserva_fixa.tipo_reserva.value == 'EAD' %}selected{% endif %}>EAD</option>
+                    <option value="NAPTI"
+                            {% if reserva_fixa.tipo_reserva.value == 'NAPTI' %}selected{% endif %}>NAPTI</option>
+                    <option value="Curso"
+                            {% if reserva_fixa.tipo_reserva.value == 'Curso' %}selected{% endif %}>Curso</option>
+                    <option value="Uso dos Alunos"
+                            {% if reserva_fixa.tipo_reserva.value == 'Uso dos Alunos' %}selected{% endif %}>
+                        Uso dos Alunos
+                    </option>
+                </select>
+            </div>
+            {{ action_buttons(acao, 2, True, 0) }}
+        </form>
+        <script>
+        document.getElementById('tipo_responsavel').addEventListener('change', function() {
+            var tipo = parseInt(this.value);
+            var responsavel = document.getElementById('responsavel');
+            var responsavelWrapper = responsavel.parentElement;
+
+            var responsavelEspecial = document.getElementById('responsavel_especial');
+            var responsavelEspecialWrapper = responsavelEspecial.parentElement;
+
+            function showEnable(elem, wrapper) {
+                elem.disabled = false;
+                wrapper.style.display = 'block';
+            }
+
+            function hideDisable(elem, wrapper) {
+                elem.disabled = true;
+                wrapper.style.display = 'none';
+            }
+
+            if (tipo === 0) {
+                showEnable(responsavel, responsavelWrapper);
+                hideDisable(responsavelEspecial, responsavelEspecialWrapper);
+            } else if (tipo === 1) {
+                hideDisable(responsavel, responsavelWrapper);
+                showEnable(responsavelEspecial, responsavelEspecialWrapper);
+            } else {
+                showEnable(responsavel, responsavelWrapper);
+                showEnable(responsavelEspecial, responsavelEspecialWrapper);
+            }
+        });
+
+        // ao carregar a página, aplica o estado inicial
+        window.addEventListener('load', function() {
+            document.getElementById('tipo_responsavel').dispatchEvent(new Event('change'));
+        });
+        </script>
+    {% endif %}
+{% endblock editar %}
+{% block excluir %}
+    {% if bloco == 0 %}
+        <h3>Excluir Reservas Semanais</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for('reservas_fixas.gerenciar_reservas_fixas') }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            {{ gerar_select("reservas_fixas", "Selecione a reserva", reservas_fixas, "id_reserva_fixa", "selector_identification") }}
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <h3>Excluir Reserva Semanal</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for('reservas_fixas.gerenciar_reservas_fixas') }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label>ID Reserva Semanal</label>
+                <input type="number"
+                       class="form-control"
+                       name="id_reserva_fixa"
+                       value="{{ reserva_fixa.id_reserva_fixa }}"
+                       readonly>
+            </div>
+            {{ gerar_select("responsavel", "Selecione a Pessoa", pessoas, "id_pessoa", "nome_pessoa", "id_responsavel", selected=reserva_fixa.id_responsavel, extra='disabled') }}
+            {{ gerar_select("responsavel_especial", "Selecione o usuario especial", usuarios_especiais, "id_usuario_especial", "nome_usuario_especial", "id_responsavel_especial", selected=reserva_fixa.id_responsavel_especial, extra='disabled') }}
+            <div class="form-group">
+                <label for="tipo_responsavel">Tipo de Responsável</label>
+                <select class="form-control"
+                        id="tipo_responsavel"
+                        name="tipo_responsavel"
+                        required
+                        disabled>
+                    <option value="0"
+                            {% if reserva_fixa.tipo_responsavel == 0 %}selected{% endif %}>Usuário</option>
+                    <option value="1"
+                            {% if reserva_fixa.tipo_responsavel == 1 %}selected{% endif %}>Especial</option>
+                    <option value="2"
+                            {% if reserva_fixa.tipo_responsavel == 2 %}selected{% endif %}>Ambos</option>
+                </select>
+            </div>
+            {{ gerar_select("laboratorios", "Selecione o laboratorio", laboratorios, "id_laboratorio", "nome_laboratorio", "id_reserva_laboratorio", selected=reserva_fixa.id_reserva_laboratorio, extra='disabled') }}
+            {{ gerar_select("aulas", "Selecione o horario", aulas_ativas, "id_aula_ativa", "selector_identification", "id_reserva_aula", selected=reserva_fixa.id_reserva_aula, extra='disabled') }}
+            {{ gerar_select("semestre", "Selecione o semestre", semestres, "id_semestre", "nome_semestre", "id_reserva_semestre", selected=reserva_fixa.id_reserva_semestre, extra='disabled') }}
+            <div class="form-group">
+                <label for="tipo_reserva">Tipo de Reserva</label>
+                <select class="form-control"
+                        id="tipo_reserva"
+                        name="tipo_reserva"
+                        required
+                        disabled>
+                    <option value="" disabled selected>Selecione o tipo de reserva</option>
+                    <option value="Graduação"
+                            {% if reserva_fixa.tipo_reserva.value == 'Graduação' %}selected{% endif %}>
+                        Graduação
+                    </option>
+                    <option value="Especialização"
+                            {% if reserva_fixa.tipo_reserva.value == 'Especialização' %}selected{% endif %}>
+                        Especialização
+                    </option>
+                    <option value="EAD"
+                            {% if reserva_fixa.tipo_reserva.value == 'EAD' %}selected{% endif %}>EAD</option>
+                    <option value="NAPTI"
+                            {% if reserva_fixa.tipo_reserva.value == 'NAPTI' %}selected{% endif %}>NAPTI</option>
+                    <option value="Curso"
+                            {% if reserva_fixa.tipo_reserva.value == 'Curso' %}selected{% endif %}>Curso</option>
+                    <option value="Uso dos Alunos"
+                            {% if reserva_fixa.tipo_reserva.value == 'Uso dos Alunos' %}selected{% endif %}>
+                        Uso dos Alunos
+                    </option>
+                </select>
+            </div>
+            {{ action_buttons(acao, 2, True, 0, False) }}
+        </form>
+        <script>
+        document.getElementById('tipo_responsavel').addEventListener('change', function() {
+            var tipo = parseInt(this.value);
+            var responsavel = document.getElementById('responsavel');
+            var responsavelWrapper = responsavel.parentElement;
+
+            var responsavelEspecial = document.getElementById('responsavel_especial');
+            var responsavelEspecialWrapper = responsavelEspecial.parentElement;
+
+            function showEnable(elem, wrapper) {
+                wrapper.style.display = 'block';
+            }
+
+            function hideDisable(elem, wrapper) {
+                wrapper.style.display = 'none';
+            }
+
+            if (tipo === 0) {
+                showEnable(responsavel, responsavelWrapper);
+                hideDisable(responsavelEspecial, responsavelEspecialWrapper);
+            } else if (tipo === 1) {
+                hideDisable(responsavel, responsavelWrapper);
+                showEnable(responsavelEspecial, responsavelEspecialWrapper);
+            } else {
+                showEnable(responsavel, responsavelWrapper);
+                showEnable(responsavelEspecial, responsavelEspecialWrapper);
+            }
+        });
+
+        // ao carregar a página, aplica o estado inicial
+        window.addEventListener('load', function() {
+            document.getElementById('tipo_responsavel').dispatchEvent(new Event('change'));
+        });
+        </script>
+    {% endif %}
+{% endblock excluir %}
