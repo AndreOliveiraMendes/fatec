@@ -41,6 +41,14 @@ def register_filters(app):
     @app.template_filter('has_flag')
     def has_flag(value, flag):
         return (value & flag) == flag
+    
+    @app.template_filter('tipo_responsavel_label')
+    def tipo_responsavel_label(value):
+        labels = ['Usuário', 'Especial', 'Ambos']
+        try:
+            return labels[value]
+        except (IndexError, TypeError):
+            return 'Desconhecido'
 
     @app.template_global()
     def generate_head(target_url, acao, include = None, disable = None):

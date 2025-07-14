@@ -150,7 +150,7 @@
                 <td>{{ rf.id_reserva_fixa }}</td>
                 <td>{{ rf.pessoas.nome_pessoa if rf.id_responsavel else '-' }}</td>
                 <td>{{ rf.usuarios_especiais.nome_usuario_especial if rf.id_responsavel_especial else '-' }}</td>
-                <td>{{ ['Usuário', 'Especial', 'Ambos'][rf.tipo_responsavel] }}</td>
+                <td>{{ rf.tipo_responsavel|tipo_responsavel_label }}</td>
                 <td>{{ rf.laboratorios.nome_laboratorio }}</td>
                 <td>{{ rf.aulas_ativas.selector_identification }}</td>
                 <td>{{ rf.semestres.nome_semestre }}</td>
