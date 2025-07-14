@@ -38,7 +38,7 @@ def gerenciar_semestres():
             filter = []
             query_params = get_query_params(request)
             query = Semestres.query
-            if id_semestre:
+            if id_semestre is not None:
                 filter.append(Semestres.id_semestre == id_semestre)
             if nome_semestre:
                 if emnome_semestre:

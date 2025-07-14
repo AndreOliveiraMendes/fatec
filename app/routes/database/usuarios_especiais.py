@@ -37,7 +37,7 @@ def gerenciar_usuarios_especiais():
             filter = []
             query_params = get_query_params(request)
             query = Usuarios_Especiais.query
-            if id_usuario_especial:
+            if id_usuario_especial is not None:
                 filter.append(Usuarios_Especiais.id_usuario_especial == id_usuario_especial)
             if nome_usuario_especial:
                 if exact_name_match:

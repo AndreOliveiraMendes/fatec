@@ -47,7 +47,7 @@ def gerenciar_pessoas():
             filter = []
             query_params = get_query_params(request)
             query = Pessoas.query
-            if id:
+            if id is not None:
                 filter.append(Pessoas.id_pessoa == id)
             if nome:
                 if exact_name_match:

@@ -42,8 +42,52 @@ def gerenciar_reservas_fixas():
             extras['reservas_fixas'] = reservas_fixas_paginada.items
             extras['pagination'] = reservas_fixas_paginada
 
-        elif acao == 'procurar':
-            pass
+        elif acao == 'procurar' and bloco == 0:
+            extras['pessoas'] = get_pessoas()
+            extras['usuarios_especiais'] = get_usuarios_especiais()
+            extras['laboratorios'] = get_laboratorios()
+            extras['aulas_ativas'] = get_aulas()
+            extras['semestres'] = get_semestres()
+        elif acao == 'procurar' and bloco == 1:
+            id_reserva_fixa = none_if_empty(request.form.get('id_reserva_fixa'), int)
+            id_responsavel = none_if_empty(request.form.get('id_responsavel'), int)
+            id_responsavel_especial = none_if_empty(request.form.get('id_responsavel_especial'), int)
+            tipo_responsavel = none_if_empty(request.form.get('tipo_responsavel'), int)
+            print(tipo_responsavel)
+            id_reserva_laboratorio = none_if_empty(request.form.get('id_reserva_laboratorio'), int)
+            id_reserva_aula = none_if_empty(request.form.get('id_reserva_aula'), int)
+            id_reserva_semestre = none_if_empty(request.form.get('id_reserva_semestre'), int)
+            tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
+            filter = []
+            query = Reservas_Fixas.query
+            query_params = get_query_params(request)
+            if id_reserva_fixa is not None:
+                filter.append(Reservas_Fixas.id_reserva_fixa == id_reserva_fixa)
+            if id_responsavel is not None:
+                filter.append(Reservas_Fixas.id_responsavel == id_responsavel)
+            if id_responsavel_especial is not None:
+                filter.append(Reservas_Fixas.id_responsavel_especial == id_responsavel_especial)
+            if tipo_responsavel is not None:
+                filter.append(Reservas_Fixas.tipo_responsavel == tipo_responsavel)
+            if id_reserva_laboratorio is not None:
+                filter.append(Reservas_Fixas.id_reserva_laboratorio == id_reserva_laboratorio)
+            if id_reserva_aula is not None:
+                filter.append(Reservas_Fixas.id_reserva_aula == id_reserva_aula)
+            if id_reserva_semestre is not None:
+                filter.append(Reservas_Fixas.id_reserva_semestre == id_reserva_semestre)
+            if tipo_reserva:
+                filter.append(Reservas_Fixas.tipo_reserva == tipo_reserva)
+            if filter:
+                reservas_fixas_paginada = query.filter(*filter).paginate(page=page, per_page=PER_PAGE, error_out=False)
+                extras['reservas_fixas'] = reservas_fixas_paginada.items
+                extras['pagination'] = reservas_fixas_paginada
+                extras['query_params'] = query_params
+            else:
+                flash("especifique ao menos um campo", "danger")
+                redirect_action, bloco = register_return('reservas_fixas.gerenciar_reservas_fixas',
+                    acao, extras, pessoas=get_pessoas(), usuarios_especiais=get_usuarios_especiais(),
+                    laboratorios=get_laboratorios(), aulas_ativas=get_aulas(), semestres=get_semestres()
+            )
 
         elif acao == 'inserir' and bloco == 0:
             extras['pessoas'] = get_pessoas()

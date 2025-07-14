@@ -56,7 +56,7 @@ def gerenciar_permissoes():
             filter = []
             query_params = get_query_params(request)
             query = Permissoes.query
-            if id_permissao_usuario:
+            if id_permissao_usuario is not None:
                 filter.append(Permissoes.id_permissao_usuario==id_permissao_usuario)
             if flag > 0:
                 if modobusca == 'ou':

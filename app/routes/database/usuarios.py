@@ -53,9 +53,9 @@ def gerenciar_usuarios():
             filter = []
             query_params = get_query_params(request)
             query = Usuarios.query
-            if id_usuario:
+            if id_usuario is not None:
                 filter.append(Usuarios.id_usuario == id_usuario)
-            if id_pessoa:
+            if id_pessoa is not None:
                 filter.append(Usuarios.id_pessoa == id_pessoa)
             if tipo_pessoa:
                 filter.append(Usuarios.tipo_pessoa == tipo_pessoa)

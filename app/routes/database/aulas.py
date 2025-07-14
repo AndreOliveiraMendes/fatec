@@ -38,7 +38,7 @@ def gerenciar_aulas():
             filter = []
             query_params = get_query_params(request)
             query = Aulas.query
-            if id_aula:
+            if id_aula is not None:
                 filter.append(Aulas.id_aula == id_aula)
             if horario_inicio_start or horario_inicio_end:
                 if horario_inicio_start and horario_inicio_end:

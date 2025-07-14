@@ -78,15 +78,15 @@ def gerenciar_aulas_ativas():
             filter = []
             query_params = get_query_params(request)
             query = Aulas_Ativas.query
-            if id_aula_ativa:
+            if id_aula_ativa is not None:
                 filter.append(Aulas_Ativas.id_aula_ativa == id_aula_ativa)
-            if id_aula:
+            if id_aula is not None:
                 filter.append(Aulas_Ativas.id_aula == id_aula)
             if inicio_ativacao:
                 filter.append(Aulas_Ativas.inicio_ativacao == inicio_ativacao)
             if fim_ativacao:
                 filter.append(Aulas_Ativas.fim_ativacao == fim_ativacao)
-            if id_semana:
+            if id_semana is not None:
                 filter.append(Aulas_Ativas.id_semana == id_semana)
             if tipo_aula:
                 filter.append(Aulas_Ativas.tipo_aula == tipo_aula)

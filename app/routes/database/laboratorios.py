@@ -39,7 +39,7 @@ def gerenciar_laboratorios():
             filter = []
             query_params = get_query_params(request)
             query = Laboratorios.query
-            if id_laboratorio:
+            if id_laboratorio is not None:
                 filter.append(Laboratorios.id_laboratorio == id_laboratorio)
             if nome_laboratorio:
                 if exact_name_match:
