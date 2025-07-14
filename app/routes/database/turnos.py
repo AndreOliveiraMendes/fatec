@@ -11,7 +11,7 @@ from app.auxiliar.auxiliar_routes import none_if_empty, parse_time_string, get_u
 bp = Blueprint('turnos', __name__, url_prefix="/database")
 
 def get_turnos():
-    return db.session.query(Turnos.id, Turnos.nome).order_by(Turnos.id).all()
+    return db.session.query(Turnos.id_turno, Turnos.nome_turno).order_by(Turnos.id_turno).all()
 
 @bp.route("/turnos", methods=["GET", "POST"])
 @admin_required
@@ -35,11 +35,11 @@ def gerenciar_turnos():
             extras['pagination'] = turnos_paginados
 
         elif acao == 'inserir' and bloco == 1:
-            nome = none_if_empty(request.form.get('nome'))
+            nome_turno = none_if_empty(request.form.get('nome_turno'))
             horario_inicio = parse_time_string(request.form.get('horario_inicio'))
             horario_fim = parse_time_string(request.form.get('horario_fim'))
             try:
-                novo_turno = Turnos(nome = nome, horario_inicio = horario_inicio, horario_fim = horario_fim)
+                novo_turno = Turnos(nome_turno = nome_turno, horario_inicio = horario_inicio, horario_fim = horario_fim)
                 db.session.add(novo_turno)
 
                 db.session.flush()
@@ -56,18 +56,18 @@ def gerenciar_turnos():
         elif acao in ['editar', 'excluir'] and bloco == 0:
             extras['turnos'] = get_turnos()
         elif acao in ['editar', 'excluir'] and bloco == 1:
-            id = none_if_empty(request.form.get('id'), int)
-            turno = Turnos.query.get_or_404(id)
+            id_turno = none_if_empty(request.form.get('id_turno'), int)
+            turno = Turnos.query.get_or_404(id_turno)
             extras['turno'] = turno
         elif acao == 'editar' and bloco == 2:
-            id = none_if_empty(request.form.get('id'), int)
-            nome = none_if_empty(request.form.get('nome'))
+            id_turno = none_if_empty(request.form.get('id_turno'), int)
+            nome_turno = none_if_empty(request.form.get('nome_turno'))
             horario_inicio = parse_time_string(request.form.get('horario_inicio'))
             horario_fim = parse_time_string(request.form.get('horario_fim'))
-            turno = Turnos.query.get_or_404(id)
+            turno = Turnos.query.get_or_404(id_turno)
             try:
                 dados_anteriores = copy.copy(turno)
-                turno.nome = nome
+                turno.nome_turno = nome_turno
                 turno.horario_inicio = horario_inicio
                 turno.horario_fim = horario_fim
                 db.session.flush
@@ -81,8 +81,8 @@ def gerenciar_turnos():
 
             redirect_action, bloco = register_return('turnos.gerenciar_turnos', acao, extras, turnos=get_turnos())
         elif acao == 'excluir' and bloco == 2:
-            id = none_if_empty(request.form.get('id'), int)
-            turno = Turnos.query.get_or_404(id)
+            id_turno = none_if_empty(request.form.get('id_turno'), int)
+            turno = Turnos.query.get_or_404(id_turno)
             try:
                 db.session.delete(turno)
                 db.session.flush()

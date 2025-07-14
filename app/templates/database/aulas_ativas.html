@@ -115,7 +115,7 @@
                             <td>{{ at.aulas.selector_identification }}</td>
                             <td>{{ at.inicio_ativacao if at.inicio_ativacao else '-' }}</td>
                             <td>{{ at.fim_ativacao if at.fim_ativacao else '-' }}</td>
-                            <td>{{ at.dia_da_semana.nome }}</td>
+                            <td>{{ at.dia_da_semana.nome_Semana }}</td>
                             <td>{{ at.tipo_aula.value }}</td>
                             <td>
                                 <form method="post" class="form-inline">
@@ -182,7 +182,7 @@
                        type="date"
                        class="form-control">
             </div>
-            {{ gerar_select("semana", "Selecione o dia da semana", dias_da_semana, "id", "nome", "id_semana", optional=True) }}
+            {{ gerar_select("semana", "Selecione o dia da semana", dias_da_semana, "id_semana", "nome_semana", optional=True) }}
             <div class="form-group">
                 <label for="tipo_aula" class="control-label">Tipo de Aula</label>
                 <select id="tipo_aula"
@@ -221,7 +221,7 @@
                                 <td>{{ at.aulas.selector_identification }}</td>
                                 <td>{{ at.inicio_ativacao if at.inicio_ativacao else '-' }}</td>
                                 <td>{{ at.fim_ativacao if at.fim_ativacao else '-' }}</td>
-                                <td>{{ at.dia_da_semana.nome }}</td>
+                                <td>{{ at.dia_da_semana.nome_semana }}</td>
                                 <td>{{ at.tipo_aula.value }}</td>
                                 <td>
                                     <form method="post" class="form-inline">
@@ -280,7 +280,7 @@
                    type="date"
                    placeholder="término do periodo em que a aula é valida, caso seja temporaria">
         </div>
-        {{ gerar_select("id_semana", "Selecione o dia da semana", dias_da_semana, "id", "nome", "id_semana") }}
+        {{ gerar_select("id_semana", "Selecione o dia da semana", dias_da_semana, "id_semana", "nome_semana") }}
         <div class="form-group">
             <label for="tipo">Tipo:</label>
             <select class="form-control" id="tipo" name="tipo_aula" required>
@@ -338,7 +338,7 @@
                        value="{{ aula_ativa.fim_ativacao }}"
                        placeholder="término do periodo em que a aula é valida, caso seja temporaria">
             </div>
-            {{ gerar_select("id_semana", "Selecione o dia da semana", dias_da_semana, "id", "nome", "id_semana", selected=aula_ativa.id_semana) }}
+            {{ gerar_select("id_semana", "Selecione o dia da semana", dias_da_semana, "id_semana", "nome_semana", selected=aula_ativa.id_semana) }}
             <div class="form-group">
                 <label for="tipo">Tipo:</label>
                 <select class="form-control" id="tipo" name="tipo_aula" required>
@@ -402,7 +402,7 @@
                        placeholder="término do periodo em que a aula é valida, caso seja temporaria"
                        disabled>
             </div>
-            {{ gerar_select("id_semana", "Selecione o dia da semana", dias_da_semana, "id", "nome", "id_semana", selected=aula_ativa.id_semana, extra='disabled') }}
+            {{ gerar_select("id_semana", "Selecione o dia da semana", dias_da_semana, "id_semana", "nome_semana", selected=aula_ativa.id_semana, extra='disabled') }}
             <div class="form-group">
                 <label for="tipo">Tipo:</label>
                 <select class="form-control" id="tipo" name="tipo_aula" required disabled>

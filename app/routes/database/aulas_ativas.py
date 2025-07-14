@@ -15,7 +15,7 @@ def get_aulas():
     return Aulas.query.all()
 
 def get_dias_da_semana():
-    return db.session.query(Dias_da_Semana.id, Dias_da_Semana.nome).order_by(Dias_da_Semana.id).all()
+    return db.session.query(Dias_da_Semana.id_semana, Dias_da_Semana.nome_semana).order_by(Dias_da_Semana.id_semana).all()
 
 def get_aulas_ativas():
     return Aulas_Ativas.query.all()

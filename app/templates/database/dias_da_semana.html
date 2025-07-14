@@ -29,14 +29,14 @@
             <tbody>
                 <tr>
                     <td>
-                        <code>id</code>
+                        <code>id_semana</code>
                     </td>
                     <td>INT (auto_increment, PK)</td>
                     <td>Identificador único do dia da semana (ex: 1 = Domingo, 2 = Segunda, ...).</td>
                 </tr>
                 <tr>
                     <td>
-                        <code>nome</code>
+                        <code>nome_semana</code>
                     </td>
                     <td>VARCHAR(15)</td>
                     <td>Nome do dia da semana (ex: Domingo, Segunda, etc). Deve ser único.</td>
@@ -52,7 +52,7 @@
             <table class="table table-striped table-bordered table-hover">
                 <thead>
                     <tr class="information">
-                        <th>ID</th>
+                        <th>Codigo</th>
                         <th>Nome</th>
                         <th>Ação</th>
                     </tr>
@@ -60,12 +60,12 @@
                 <tbody>
                     {% for ds in dias_da_semana %}
                         <tr>
-                            <td>{{ ds.id }}</td>
-                            <td>{{ ds.nome }}</td>
+                            <td>{{ ds.id_semana }}</td>
+                            <td>{{ ds.nome_semana }}</td>
                             <td>
                                 <form method="post" class="form-inline">
                                     <input type="hidden" name="bloco" value="1">
-                                    <input type="hidden" name="id" value="{{ ds.id }}">
+                                    <input type="hidden" name="id_semana" value="{{ ds.id_semana }}">
                                     <div class="btn-group">
                                         <button type="submit"
                                                 name="acao"
@@ -106,7 +106,7 @@
             <input type="number"
                    maxlength="100"
                    class="form-control"
-                   name="id"
+                   name="id_semana"
                    id="codigo"
                    placeholder="Digite o codigo"
                    required>
@@ -116,7 +116,7 @@
             <input type="text"
                    maxlength="100"
                    class="form-control"
-                   name="nome"
+                   name="nome_semana"
                    id="nome"
                    placeholder="Digite o nome"
                    required>
@@ -132,7 +132,7 @@
               action="{{ url_for('dias_da_semana.gerenciar_dias_da_semana') }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
-            {{ gerar_select("semana", "Selecione a semana", dias_da_semana, "id", "nome") }}
+            {{ gerar_select("semana", "Selecione a semana", dias_da_semana, "id_semana", "nome_semana") }}
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
@@ -147,9 +147,9 @@
                 <input type="number"
                        maxlength="100"
                        class="form-control"
-                       name="id"
+                       name="id_semana"
                        id="codigo"
-                       value="{{ dia_semana.id }}"
+                       value="{{ dia_semana.id_semana }}"
                        required
                        readonly>
             </div>
@@ -158,9 +158,9 @@
                 <input type="text"
                        maxlength="100"
                        class="form-control"
-                       name="nome"
+                       name="nome_semana"
                        id="nome"
-                       value="{{ dia_semana.nome }}"
+                       value="{{ dia_semana.nome_semana }}"
                        placeholder="Digite o nome"
                        required>
             </div>
@@ -176,7 +176,7 @@
               action="{{ url_for('dias_da_semana.gerenciar_dias_da_semana') }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
-            {{ gerar_select("semana", "Selecione a semana", dias_da_semana, "id", "nome") }}
+            {{ gerar_select("semana", "Selecione a semana", dias_da_semana, "id_semana", "nome_semana") }}
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
@@ -191,9 +191,9 @@
                 <input type="number"
                        maxlength="100"
                        class="form-control"
-                       name="id"
+                       name="id_semana"
                        id="codigo"
-                       value="{{ dia_semana.id }}"
+                       value="{{ dia_semana.id_semana }}"
                        required
                        readonly>
             </div>
@@ -202,9 +202,9 @@
                 <input type="text"
                        maxlength="100"
                        class="form-control"
-                       name="nome"
+                       name="nome_semana"
                        id="nome"
-                       value="{{ dia_semana.nome }}"
+                       value="{{ dia_semana.nome_semana }}"
                        placeholder="Digite o nome"
                        disabled
                        required>

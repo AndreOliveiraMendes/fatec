@@ -28,7 +28,7 @@
             <tbody>
                 <tr>
                     <td>
-                        <code>id</code>
+                        <code>id_turno</code>
                     </td>
                     <td>INT (auto_increment, PK)</td>
                     <td>Identificador único do turno no sistema</td>
@@ -36,7 +36,7 @@
                 </tr>
                 <tr>
                     <td>
-                        <code>nome</code>
+                        <code>nome_turno</code>
                     </td>
                     <td>VARCHAR(15)</td>
                     <td>Nome do turno no sistema</td>
@@ -79,14 +79,14 @@
                 <tbody>
                     {% for t in turnos %}
                         <tr>
-                            <td>{{ t.id }}</td>
-                            <td>{{ t.nome }}</td>
+                            <td>{{ t.id_turno }}</td>
+                            <td>{{ t.nome_turno }}</td>
                             <td>{{ t.horario_inicio.strftime("%H:%M") }}</td>
                             <td>{{ t.horario_fim.strftime("%H:%M") }}</td>
                             <td>
                                 <form method="post" class="form-inline">
                                     <input type="hidden" name="bloco" value="1">
-                                    <input type="hidden" name="id" value="{{ t.id }}">
+                                    <input type="hidden" name="id_turno" value="{{ t.id_turno }}">
                                     <div class="btn-group">
                                         <button type="submit"
                                                 name="acao"
@@ -126,7 +126,7 @@
             <label for="nome">nome:</label>
             <input type="text"
                    class="form-control"
-                   name="nome"
+                   name="nome_turno"
                    id="nome"
                    placeholder="Nome do Turno"
                    required>
@@ -158,7 +158,7 @@
               action="{{ url_for('turnos.gerenciar_turnos') }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
-            {{ gerar_select("turno", "Selecione o turno", turnos, "id", "nome") }}
+            {{ gerar_select("turno", "Selecione o turno", turnos, "id_turno", "nome_turno") }}
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
@@ -172,20 +172,20 @@
                 <label for="codigo">codigo:</label>
                 <input type="text"
                        class="form-control"
-                       name="id"
+                       name="id_turno"
                        id="codigo"
-                       placeholder="Nome do Turno"
-                       value="{{ turno.id }}"
+                       placeholder="Codigo do Turno"
+                       value="{{ turno.id_turno }}"
                        readonly>
             </div>
             <div class="form-group">
                 <label for="nome">nome:</label>
                 <input type="text"
                        class="form-control"
-                       name="nome"
+                       name="nome_turno"
                        id="nome"
                        placeholder="Nome do Turno"
-                       value="{{ turno.nome }}"
+                       value="{{ turno.nome_turno }}"
                        required>
             </div>
             <div class="form-group">
@@ -218,7 +218,7 @@
               action="{{ url_for('turnos.gerenciar_turnos') }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
-            {{ gerar_select("turno", "Selecione o turno", turnos, "id", "nome") }}
+            {{ gerar_select("turno", "Selecione o turno", turnos, "id_turno", "nome_turno") }}
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
@@ -232,20 +232,20 @@
                 <label for="codigo">codigo:</label>
                 <input type="text"
                        class="form-control"
-                       name="id"
+                       name="id_turno"
                        id="codigo"
-                       placeholder="Nome do Turno"
-                       value="{{ turno.id }}"
+                       placeholder="Codigo do Turno"
+                       value="{{ turno.id_turno }}"
                        readonly>
             </div>
             <div class="form-group">
                 <label for="nome">nome:</label>
                 <input type="text"
                        class="form-control"
-                       name="nome"
+                       name="nome_turno"
                        id="nome"
                        placeholder="Nome do Turno"
-                       value="{{ turno.nome }}"
+                       value="{{ turno.nome_turno }}"
                        disabled
                        required>
             </div>
