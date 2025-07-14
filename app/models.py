@@ -64,8 +64,7 @@ class Reservas_Fixas(db.Model):
             f"<Reservas_Fixas(id_reserva_fixa={self.id_reserva_fixa}, id_responsavel={self.id_responsavel}, "
             f"id_responsavel_especial={self.id_responsavel_especial}, tipo_responsavel={self.tipo_responsavel}, "
             f"id_reserva_laboratorio={self.id_reserva_laboratorio}, id_reserva_aula={self.id_reserva_aula}, "
-            f"status_reserva={self.status_reserva}, tipo_reserva={self.tipo_reserva}, "
-            f"id_reserva_semestre={self.id_reserva_semestre})>"
+            f"tipo_reserva={self.tipo_reserva}, id_reserva_semestre={self.id_reserva_semestre})>"
         )
 
 class Usuarios_Especiais(db.Model):
