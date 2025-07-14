@@ -42,7 +42,7 @@ class Reservas_Fixas(db.Model):
             name='check_tipo_responsavel'
         ), CheckConstraint(
             """
-            tipo_responsavel = 0 OR tipo_responsavel = 1 Or tipo_responsavel = 2 
+            tipo_responsavel IN (0,1,2)
             """,
             name='check_tipo_responsavel_value'
         ), UniqueConstraint(
