@@ -17,7 +17,7 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 ├── .env.dev
 ├── .env.dev.example
 ├── .env.example
-├── .env.prod
+├── .env.pod
 ├── .gitignore
 ├── .vscode
 │   └── settings.json
@@ -50,6 +50,7 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │   │   │   ├── dias_semana.py
 │   │   │   ├── historicos.py
 │   │   │   ├── laboratorios.py
+│   │   │   ├── main.py
 │   │   │   ├── permissoes.py
 │   │   │   ├── pessoas.py
 │   │   │   ├── reservas_fixas.py
@@ -80,27 +81,52 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │       │   ├── aulas.html
 │       │   ├── aulas_ativas.html
 │       │   ├── base_crude
-│       │   ├── dias_semanas.html
+│       │   ├── database.html
+│       │   ├── dias_da_semana.html
 │       │   ├── historicos.html
 │       │   ├── laboratorios.html
 │       │   ├── permissoes.html
 │       │   ├── pessoas.html
+│       │   ├── reservas_fixas.html
+│       │   ├── schema.html
 │       │   ├── semestres.html
+│       │   ├── turnos.html
 │       │   ├── usuarios.html
 │       │   └── usuarios_especiais.html
 │       ├── homepage.html
 │       ├── http
 │       │   ├── 401.html
 │       │   ├── 403.html
-│       │   └── 404.html
+│       │   ├── 404.html
+│       │   └── 422.html
 │       ├── macros
 │       │   ├── form.html
 │       │   └── pagination.html
 │       ├── under_dev.html
 │       └── usuario
 │           └── perfil.html
-├── config.py
+├── config
+│   ├── __init__.py
+│   ├── database_views.py
+│   └── general.py
 ├── configurar_vscode.bat
+├── data
+├── laboratorio
+│   ├── .skeema
+│   └── laboratorio
+│       ├── .skeema
+│       ├── aulas.sql
+│       ├── aulas_ativas.sql
+│       ├── dias_da_semana.sql
+│       ├── historicos.sql
+│       ├── laboratorios.sql
+│       ├── permissoes.sql
+│       ├── pessoas.sql
+│       ├── reservas_fixas.sql
+│       ├── semestres.sql
+│       ├── turnos.sql
+│       ├── usuarios.sql
+│       └── usuarios_especiais.sql
 ├── requirements.txt
 ├── schema.sql
 ├── start-dev.bat
@@ -113,7 +139,7 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 
 ✅ **.env** → define qual modo de ambiente está ativo.  
 ✅ **.env.dev / .env.prod** → configurações específicas.  
-✅ **config.py** → carrega a config certa via `load_dotenv`.  
+✅ **config/** → modulo centralizado de configuração do projeto.  
 ✅ **wsgi.py** → entrada recomendada para Gunicorn.  
 ✅ **app/main.py** → app factory com Blueprint registration.  
 ✅ **app/extensions.py** → inicialização centralizada de extensões.  
