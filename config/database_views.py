@@ -26,6 +26,13 @@ SECOES = {
             ('Reservas Temporarias', 'reservas_temporarias.gerenciar_reservas_temporarias', 'warning', 'crud')
         ]
     },
+    'Operacional / Configuração':{
+        'icon': 'glyphicon glyphicon-cog',
+        'secoes': [
+            ('Status Reserva Fixa', 'default.under_dev_page', 'warning', 'crud'),
+            ('Status Reserva Temporaria', 'default.under_dev_page', 'warning', 'crud')
+        ]
+    },
     'Logs / Histórico': {
         'icon': 'glyphicon glyphicon-list-alt',
         'secoes': [

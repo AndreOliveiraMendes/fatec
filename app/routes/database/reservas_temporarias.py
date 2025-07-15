@@ -15,5 +15,14 @@ bp = Blueprint('reservas_temporarias', __name__, url_prefix="/database")
 @admin_required
 def gerenciar_reservas_temporarias():
     redirect_action = None
-    flash("Pagina em Desenvolvimento", "warning")
-    return redirect(url_for('default.under_dev_page'))
+    acao = get_session_or_request(request, session, 'acao', 'abertura')
+    bloco = int(request.form.get('bloco', 0))
+    page = int(request.form.get('page', 1))
+    userid = session.get('userid')
+    username, perm = get_user_info(userid)
+    extras = {}
+    if request.method == 'POST':
+        pass
+    if redirect_action:
+        return redirect_action
+    return render_template("database/reservas_temporarias.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
