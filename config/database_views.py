@@ -29,8 +29,7 @@ SECOES = {
     'Operacional / Configuração':{
         'icon': 'glyphicon glyphicon-cog',
         'secoes': [
-            ('Status Reserva Fixa', 'default.under_dev_page', 'warning', 'crud'),
-            ('Status Reserva Temporaria', 'default.under_dev_page', 'warning', 'crud')
+            ('Status Reserva', 'default.under_dev_page', 'warning', 'crud')
         ]
     },
     'Logs / Histórico': {
