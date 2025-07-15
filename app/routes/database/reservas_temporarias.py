@@ -23,7 +23,7 @@ def get_laboratorios():
 def get_aulas():
     return Aulas_Ativas.query.all()
 
-@bp.route("/reservas_temporarias")
+@bp.route("/reservas_temporarias", methods=['GET', 'POST'])
 @admin_required
 def gerenciar_reservas_temporarias():
     redirect_action = None
