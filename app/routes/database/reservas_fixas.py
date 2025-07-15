@@ -6,8 +6,8 @@ from config.general import PER_PAGE
 from app.models import db, Reservas_Fixas, Pessoas, Usuarios_Especiais, Laboratorios, \
     Aulas_Ativas, Semestres, TipoReservaEnum
 from app.auxiliar.decorators import admin_required
-from app.auxiliar.auxiliar_routes import none_if_empty, parse_time_string, get_user_info, \
-    get_query_params, registrar_log_generico_usuario, get_session_or_request, register_return
+from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params,\
+    registrar_log_generico_usuario, get_session_or_request, register_return
 
 bp = Blueprint('reservas_fixas', __name__, url_prefix="/database")
 
@@ -123,6 +123,9 @@ def gerenciar_reservas_fixas():
             except (IntegrityError, OperationalError) as e:
                 db.session.rollback()
                 flash(f"erro ao cadastrar reserva:{str(e.orig)}", "danger")
+            except ValueError as ve:
+                db.session.rollback()
+                flash(f"Erro ao cadastrar reserva:{str(ve)}", "danger")
 
             redirect_action, bloco = register_return('reservas_fixas.gerenciar_reservas_fixas',
                 acao, extras, pessoas=get_pessoas(), usuarios_especiais=get_usuarios_especiais(),
@@ -158,7 +161,7 @@ def gerenciar_reservas_fixas():
                 reserva_fixa.id_reserva_laboratorio = id_reserva_laboratorio
                 reserva_fixa.id_reserva_aula = id_reserva_aula
                 reserva_fixa.id_reserva_semestre = id_reserva_semestre
-                reserva_fixa.tipo_reserva = tipo_reserva
+                reserva_fixa.tipo_reserva = TipoReservaEnum(tipo_reserva)
 
                 db.session.flush()
                 registrar_log_generico_usuario(userid, 'Edição', reserva_fixa, dados_anteriores)
@@ -168,6 +171,9 @@ def gerenciar_reservas_fixas():
             except (IntegrityError, OperationalError) as e:
                 db.session.rollback()
                 flash(f"Erro ao editar reserva:{str(e.orig)}", "danger")
+            except ValueError as ve:
+                db.session.rollback()
+                flash(f"Erro ao editar reserva:{str(ve)}", "danger")
 
             redirect_action, bloco = register_return('reservas_fixas.gerenciar_reservas_fixas', acao, extras,
                 reservas_fixas=get_reservas_fixas()

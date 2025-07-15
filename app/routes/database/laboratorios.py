@@ -73,6 +73,9 @@ def gerenciar_laboratorios():
             except (IntegrityError, OperationalError) as e:
                 db.session.rollback()
                 flash(f"Erro ao cadastrar laboratorio: {str(e.orig)}", "danger")
+            except ValueError as ve:
+                db.session.rollback()
+                flash(f"Erro ao cadastrar laboratorio:{str(ve)}", "danger")
 
             redirect_action, bloco = register_return('laboratorios.gerenciar_laboratorios', acao, extras)
 
@@ -104,6 +107,9 @@ def gerenciar_laboratorios():
             except (IntegrityError, OperationalError) as e:
                 db.session.rollback()
                 flash(f"Erro ao editar laboratorio: {str(e.orig)}", "danger")
+            except ValueError as ve:
+                db.session.rollback()
+                flash(f"Erro ao editar laboratorio:{str(ve)}", "danger")
 
             redirect_action, bloco = register_return('laboratorios.gerenciar_laboratorios', acao, extras, laboratorios=get_laboratorios())
         elif acao == 'excluir' and bloco == 2:

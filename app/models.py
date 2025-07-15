@@ -4,6 +4,12 @@ from datetime import date, time, datetime
 from sqlalchemy import String, ForeignKey, CheckConstraint, TEXT, UniqueConstraint, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+def parse_time(time):
+    return time.strftime('%H:%M') if time else None
+
+def parse_date(date):
+    return date.strftime('%d/%m/%Y') if date else None
+
 class TipoReservaEnum(enum.Enum):
     GRADUACAO = "Graduação"
     ESPECIALIZACAO = "Especialização"
@@ -108,6 +114,9 @@ class Reservas_Temporarias(db.Model):
             tipo_responsavel IN (0,1,2)
             """,
             name='check_tipo_responsavel_value_temporaria'
+        ), CheckConstraint(
+            "inicio_reserva <= fim_reserva",
+            name='chk_reserva_inicio_menor_fim'
         )
     )
 
@@ -115,6 +124,15 @@ class Reservas_Temporarias(db.Model):
     usuarios_especiais: Mapped['Usuarios_Especiais'] = relationship(back_populates='reservas_temporarias')
     laboratorios: Mapped['Laboratorios'] = relationship(back_populates='reservas_temporarias')
     aulas_ativas: Mapped['Aulas_Ativas'] = relationship(back_populates='reservas_temporarias')
+
+    def __repr__(self) -> str:
+        return (
+            f"<Reservas_Fixas(id_reserva_fixa={self.id_reserva_temporaria}, id_responsavel={self.id_responsavel}, "
+            f"id_responsavel_especial={self.id_responsavel_especial}, tipo_responsavel={self.tipo_responsavel}, "
+            f"id_reserva_laboratorio={self.id_reserva_laboratorio}, id_reserva_aula={self.id_reserva_aula}, "
+            f"tipo_reserva={self.tipo_reserva}, inicio_reserva={self.inicio_reserva}, "
+            f"fim_reserva={self.fim_reserva})>"
+        )
 
 class Usuarios_Especiais(db.Model):
     __tablename__ = 'usuarios_especiais'
@@ -231,7 +249,9 @@ class Aulas(db.Model):
 
     @property
     def selector_identification(self):
-        return f"{self.horario_inicio.strftime('%H:%M')} - {self.horario_fim.strftime('%H:%M')}"
+        inicio = parse_time(self.horario_inicio)
+        fim = parse_time(self.horario_fim)
+        return f"{inicio} - {fim}"
     
     def __repr__(self) -> str:
         return (
@@ -294,8 +314,8 @@ class Aulas_Ativas(db.Model):
 
     @property
     def selector_identification(self):
-        inicio = self.inicio_ativacao.strftime('%d/%m/%Y') if self.inicio_ativacao else None
-        fim = self.fim_ativacao.strftime('%d/%m/%Y') if self.fim_ativacao else None
+        inicio = parse_date(self.inicio_ativacao)
+        fim = parse_date(self.fim_ativacao)
 
         tipo = self.tipo_aula.value.capitalize()
         intervalo_aula = self.aulas.selector_identification
@@ -320,7 +340,7 @@ class Aulas_Ativas(db.Model):
     __table_args__ = (
         CheckConstraint(
             'inicio_ativacao IS NULL OR fim_ativacao IS NULL OR inicio_ativacao <= fim_ativacao',
-            name='chk_inicio_menor_fim'
+            name='chk_aula_ativa_inicio_menor_fim'
         ),
     )
 

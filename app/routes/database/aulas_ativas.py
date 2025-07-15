@@ -23,7 +23,7 @@ def get_aulas_ativas():
 def check_aula_ativa(inicio, fim, aula, semana, tipo, id = None):
     base_filter = [Aulas_Ativas.id_aula == aula, Aulas_Ativas.id_semana == semana,
                    Aulas_Ativas.tipo_aula == tipo]
-    if id:
+    if id is not None:
         base_filter.append(Aulas_Ativas.id_aula_ativa != id)
     query = Aulas_Ativas.query
     if inicio and fim:
@@ -46,7 +46,7 @@ def check_aula_ativa(inicio, fim, aula, semana, tipo, id = None):
             statement=None,
             params=None,
             orig=Exception("Já existe uma aula ativa com os mesmos dados (aula, semana e tipo).")
-            )
+        )
 
 
 @bp.route("/aulas_ativas", methods=["GET", "POST"])
@@ -124,6 +124,9 @@ def gerenciar_aulas_ativas():
             except (IntegrityError, OperationalError) as e:
                 db.session.rollback()
                 flash(f"Erro ao cadastrar aula ativa:{str(e.orig)}", "danger")
+            except ValueError as ve:
+                db.session.rollback()
+                flash(f"Erro ao cadastrar:{str(ve)}", "danger")
             
             redirect_action, bloco = register_return('aulas_ativas.gerenciar_aulas_ativas', acao, extras,
                 aulas=get_aulas(), dias_da_semana=get_dias_da_semana())
@@ -151,7 +154,7 @@ def gerenciar_aulas_ativas():
                 aula_ativa.inicio_ativacao = inicio_ativacao
                 aula_ativa.fim_ativacao = fim_ativacao
                 aula_ativa.id_semana = id_semana
-                aula_ativa.tipo_aula = tipo_aula
+                aula_ativa.tipo_aula = TipoAulaEnum(tipo_aula)
 
                 db.session.flush()
                 registrar_log_generico_usuario(userid, 'Edição', aula_ativa, dados_anteriores)
@@ -161,6 +164,9 @@ def gerenciar_aulas_ativas():
             except (IntegrityError, OperationalError) as e:
                 db.session.rollback()
                 flash(f"Erro ao editar aula ativa:{str(e.orig)}", "danger")
+            except ValueError as ve:
+                db.session.rollback()
+                flash(f"Erro ao cadastrar:{str(ve)}", "danger")
 
             redirect_action, bloco = register_return('aulas_ativas.gerenciar_aulas_ativas', acao, extras,
                 aulas_ativas=get_aulas_ativas())
