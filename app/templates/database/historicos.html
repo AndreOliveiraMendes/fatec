@@ -66,9 +66,29 @@
 {% block extra %}
     {% if acao == 'exportar' %}
         {% if bloco == 0 %}
-            <h3>Menu de exportação</h3>
+            <h3>Menu de Exportação</h3>
             {{ search_form() }}
         {% else %}
+            <h3>Exportando {{ count }} registros</h3>
+            <form action="{{ url_for('historicos.exportar_historicos') }}"
+                  method="post">
+                {{ manter_parametros(query_params) }}
+                <div class="form-group">
+                    <label for="formato">Formato de exportação</label>
+                    <select class="form-control" id="formato" name="formato">
+                        <option value="csv">CSV</option>
+                        <option value="json">JSON</option>
+                    </select>
+                </div>
+                <div class="btn-group">
+                    <button type="reset" class="btn btn-warning">
+                        <span class="glyphicon glyphicon-erraser"></span> Resetar
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        <span class="glyphicon glyphicon-download"></span> Baixar Historico
+                    </button>
+                </div>
+            </form>
         {% endif %}
     {% endif %}
 {% endblock extra %}

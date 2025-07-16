@@ -398,10 +398,9 @@ class Historicos(db.Model):
     def __repr__(self) -> str:
         return (
             f"<Historicos(id_historico={self.id_historico}, id_usuario={self.id_usuario}, "
-            f"id_pessoa={self.id_pessoa}, tabela={self.tabela}, "
-            f"categoria={self.categoria}, data_hora={self.data_hora}, "
-            f"message={self.message}, chave_primaria={self.chave_primaria}, "
-            f"observacao={self.observacao})>"
+            f"tabela={self.tabela}, categoria={self.categoria}, "
+            f"data_hora={self.data_hora}, message={self.message}, "
+            f"chave_primaria={self.chave_primaria}, observacao={self.observacao})>"
         )
 
 class Semestres(db.Model):

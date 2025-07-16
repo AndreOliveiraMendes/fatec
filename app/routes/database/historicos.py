@@ -1,5 +1,6 @@
-import copy
-from flask import Blueprint
+import copy, csv, json
+from io import StringIO
+from flask import Blueprint, Response, jsonify
 from flask import flash, session, render_template, request, abort
 from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy import and_, or_
@@ -7,7 +8,7 @@ from config.general import PER_PAGE
 from app.models import db, Historicos, Usuarios
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, parse_datetime_string, get_user_info, \
-    get_query_params, registrar_log_generico_usuario, disable_action, include_action, get_session_or_request, \
+    get_query_params, disable_action, include_action, get_session_or_request, formatar_valor, \
     register_return
 
 bp = Blueprint('historicos', __name__, url_prefix="/database")
@@ -94,7 +95,7 @@ def gerenciar_Historicos():
             extras['historicos'] = historicos_paginados.items
             extras['pagination'] = historicos_paginados
 
-        if acao == 'procurar' and bloco == 0:
+        if acao in ['procurar', 'exportar'] and bloco == 0:
             extras['usuarios'] = get_usuarios()
             extras['tabelas'] = get_tabelas()
             extras['categorias'] = get_categorias()
@@ -112,6 +113,42 @@ def gerenciar_Historicos():
                     usuarios=get_usuarios(), tabelas=get_tabelas(), categorias=get_categorias(),
                     origens=get_origens()
                 )
+        elif acao == 'exportar' and bloco == 1:
+            data_filter, query, query_params = get_data()
+            if data_filter:
+                query = query.filter(*data_filter)
+            extras['count'] = query.count()
+            extras['query_params'] = query_params
     if redirect_action:
         return redirect_action
     return render_template("database/historicos.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
+
+@bp.route("/historicos/exportar", methods=['POST'])
+def exportar_historicos():
+    data_filter, query, query_params = get_data()
+    if data_filter:
+        query = query.filter(*data_filter)
+    formato = request.form.get('formato', 'csv')
+    header = [c.name for c in Historicos.__table__.columns]
+    resultados = query.all()
+    if formato == 'csv':
+        utf8_bom = '\ufeff'
+        si = StringIO()
+        si.write(utf8_bom)
+        writer = csv.writer(si)
+        writer.writerow(header)
+        for row in resultados:
+            writer.writerow([getattr(row, col) for col in header])
+        output = si.getvalue()
+        si.close()
+        return Response(
+            output,
+            mimetype="text/csv; charset=utf-8",
+            headers={"Content-Disposition": f"attachment;filename=Historico.csv"}
+        )
+    elif formato == 'json':
+        data = [
+            {col: formatar_valor(getattr(row, col)) for col in header}
+            for row in resultados
+        ]
+        return jsonify(data)
