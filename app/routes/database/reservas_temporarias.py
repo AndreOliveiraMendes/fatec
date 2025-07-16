@@ -43,6 +43,19 @@ def check_reserva_temporaria(inicio, fim, laboratorio, aula, id = None):
 def get_reservas_temporarias():
     return Reservas_Temporarias.query.all()
 
+def filtro_intervalo(inicio_procura, fim_procura):
+    if inicio_procura and fim_procura:
+        return and_(
+            Reservas_Temporarias.fim_reserva >= inicio_procura,
+            Reservas_Temporarias.inicio_reserva <= fim_procura
+        )
+    elif inicio_procura:
+        return Reservas_Temporarias.fim_reserva >= inicio_procura
+    elif fim_procura:
+        return Reservas_Temporarias.inicio_reserva <= fim_procura
+    else:
+        raise ValueError("Especifique ao menos um valor")
+
 @bp.route("/reservas_temporarias", methods=['GET', 'POST'])
 @admin_required
 def gerenciar_reservas_temporarias():
@@ -90,17 +103,7 @@ def gerenciar_reservas_temporarias():
             if id_reserva_aula is not None:
                 filter.append(Reservas_Temporarias.id_reserva_aula == id_reserva_aula)
             if inicio_procura or fim_procura:
-                if inicio_procura and fim_procura:
-                    filter.append(
-                        and_(
-                            Reservas_Temporarias.fim_reserva >= inicio_procura,
-                            Reservas_Temporarias.inicio_reserva <= fim_procura
-                        )
-                    )
-                elif inicio_procura:
-                    filter.append(Reservas_Temporarias.fim_reserva >= inicio_procura)
-                else:
-                    filter.append(Reservas_Temporarias.inicio_reserva <= fim_procura)
+                filter.append(filtro_intervalo(inicio_procura, fim_procura))
             if tipo_reserva:
                 filter.append(Reservas_Temporarias.tipo_reserva == tipo_reserva)
             if filter:

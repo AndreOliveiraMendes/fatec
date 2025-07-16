@@ -48,6 +48,39 @@ def check_aula_ativa(inicio, fim, aula, semana, tipo, id = None):
             orig=Exception("Já existe uma aula ativa com os mesmos dados (aula, semana e tipo).")
         )
 
+def filtro_intervalo(inicio_procura, fim_procura):
+    if inicio_procura and fim_procura:
+        return or_(
+            and_(
+                Aulas_Ativas.inicio_ativacao.is_not(None),
+                Aulas_Ativas.fim_ativacao.is_not(None),
+                Aulas_Ativas.fim_ativacao >= inicio_procura,
+                Aulas_Ativas.inicio_ativacao <= fim_procura
+            ), and_(
+                Aulas_Ativas.inicio_ativacao.is_(None),
+                Aulas_Ativas.fim_ativacao.is_not(None),
+                Aulas_Ativas.fim_ativacao >= inicio_procura
+            ), and_(
+                Aulas_Ativas.inicio_ativacao.is_not(None),
+                Aulas_Ativas.fim_ativacao.is_(None),
+                Aulas_Ativas.inicio_ativacao <= fim_procura
+            ), and_(
+                Aulas_Ativas.inicio_ativacao.is_(None),
+                Aulas_Ativas.fim_ativacao.is_(None)
+            )
+        )
+    elif inicio_procura:
+        return or_(
+            Aulas_Ativas.fim_ativacao >= inicio_procura,
+            Aulas_Ativas.fim_ativacao.is_(None)
+        )
+    elif fim_procura:
+        return or_(
+            Aulas_Ativas.inicio_ativacao <= fim_procura,
+            Aulas_Ativas.inicio_ativacao.is_(None)
+        )
+    else:
+        raise ValueError("Especifique ao menos um valor")
 
 @bp.route("/aulas_ativas", methods=["GET", "POST"])
 @admin_required
@@ -83,43 +116,7 @@ def gerenciar_aulas_ativas():
             if id_aula is not None:
                 filter.append(Aulas_Ativas.id_aula == id_aula)
             if inicio_procura or fim_procura:
-                if inicio_procura and fim_procura:
-                    filter.append(
-                        or_(
-                            and_(
-                                Aulas_Ativas.inicio_ativacao.is_not(None),
-                                Aulas_Ativas.fim_ativacao.is_not(None),
-                                Aulas_Ativas.fim_ativacao >= inicio_procura,
-                                Aulas_Ativas.inicio_ativacao <= fim_procura
-                            ), and_(
-                                Aulas_Ativas.inicio_ativacao.is_(None),
-                                Aulas_Ativas.fim_ativacao.is_not(None),
-                                Aulas_Ativas.fim_ativacao >= inicio_procura
-                            ), and_(
-                                Aulas_Ativas.inicio_ativacao.is_not(None),
-                                Aulas_Ativas.fim_ativacao.is_(None),
-                                Aulas_Ativas.inicio_ativacao <= fim_procura
-                            ), and_(
-                                Aulas_Ativas.inicio_ativacao.is_(None),
-                                Aulas_Ativas.fim_ativacao.is_(None)
-                            )
-
-                        )
-                    )
-                elif inicio_procura:
-                    filter.append(
-                        or_(
-                            Aulas_Ativas.fim_ativacao >= inicio_procura,
-                            Aulas_Ativas.fim_ativacao.is_(None)
-                            )
-                        )
-                else:
-                    filter.append(
-                        or_(
-                            Aulas_Ativas.inicio_ativacao <= fim_procura,
-                            Aulas_Ativas.inicio_ativacao.is_(None)
-                            )
-                        )
+                filter.append(filtro_intervalo(inicio_procura, fim_procura))
             if id_semana is not None:
                 filter.append(Aulas_Ativas.id_semana == id_semana)
             if tipo_aula:
