@@ -2,7 +2,7 @@ import copy
 from flask import Blueprint
 from flask import flash, session, render_template, request, abort
 from sqlalchemy.exc import IntegrityError, OperationalError
-from sqlalchemy import select
+from sqlalchemy import and_, or_
 from config.general import PER_PAGE
 from app.models import db, Historicos, Usuarios
 from app.auxiliar.decorators import admin_required
@@ -20,6 +20,26 @@ def get_tabelas():
 
 def get_categorias():
     return db.session.query(Historicos.categoria).distinct().all()
+
+def get_origens():
+    return db.session.query(Historicos.origem).distinct().all()
+
+def filtro_intervalo(inicio_procura, fim_procura):
+    if inicio_procura and fim_procura:
+        return inicio_procura <= Historicos.data_hora <= fim_procura
+    elif inicio_procura:
+        return inicio_procura <= Historicos.data_hora
+    elif fim_procura:
+        return fim_procura >= Historicos.data_hora
+    else:
+        raise ValueError("Especifique ao menos um valor")
+    
+def get_conteudo(conteudo):
+    return or_(
+        Historicos.message.ilike(f"%{conteudo}%"),
+        Historicos.chave_primaria.ilike(f"%{conteudo}%"),
+        Historicos.observacao.ilike(f"%{conteudo}%")
+    )
 
 @bp.route("/historicos", methods=["GET", "POST"])
 @admin_required
@@ -50,4 +70,45 @@ def gerenciar_Historicos():
             extras['usuarios'] = get_usuarios()
             extras['tabelas'] = get_tabelas()
             extras['categorias'] = get_categorias()
+            extras['origens'] = get_origens()
+        elif acao == 'procurar' and bloco == 1:
+            id_historico = none_if_empty(request.form.get('id_historico'), int)
+            id_usuario = none_if_empty(request.form.get('id_usuario'), int)
+            tabela = none_if_empty(request.form.get('tabela'))
+            categoria = none_if_empty(request.form.get('categoria'))
+            inicio_procura = none_if_empty(request.form.get('inicio_procura'))
+            fim_procura = none_if_empty(request.form.get('fim_procura'))
+            origem = none_if_empty(request.form.get('origem'))
+            conteudo = none_if_empty(request.form.get('conteudo'))
+            filter = []
+            query = Historicos.query
+            query_params = get_query_params(request)
+            if id_historico is not None:
+                filter.append(Historicos.id_historico == id_historico)
+            if id_usuario is not None:
+                filter.append(Historicos.id_usuario == id_usuario)
+            if tabela:
+                filter.append(Historicos.tabela == tabela)
+            if categoria:
+                filter.append(Historicos.categoria == categoria)
+            if inicio_procura or fim_procura:
+                filter.append(filtro_intervalo(inicio_procura, fim_procura))
+            if origem:
+                filter.append(Historicos.origem == origem)
+            if conteudo:
+                filter.append(get_conteudo(conteudo))
+            print(filter)
+            if filter:
+                historicos_paginados = query.filter(*filter).paginate(page=page, per_page=PER_PAGE, error_out=False)
+                extras['historicos'] = historicos_paginados.items
+                extras['pagination'] = historicos_paginados
+                extras['query_params'] = query_params
+            else:
+                flash("especifique ao menos um campo:", "danger")
+                redirect_action, bloco = register_return('historicos.gerenciar_Historicos', acao, extras,
+                    usuarios=get_usuarios(), tabelas=get_tabelas(), categorias=get_categorias(),
+                    origens=get_origens()
+                )
+    if redirect_action:
+        return redirect_action
     return render_template("database/historicos.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
