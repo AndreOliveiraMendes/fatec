@@ -21,28 +21,37 @@ def none_if_empty(value, cast_type=str):
     except (ValueError, TypeError):
         return None
 
-def parse_time_string(value):
+def parse_time_string(value, format = None):
     if not value:
         return None
     try:
-        return datetime.strptime(value, "%H:%M").time()
+        if format:
+            return datetime.strptime(value, format).time()
+        else:
+            return datetime.strptime(value, "%H:%M").time()
     except ValueError:
         return None
     
 
-def parse_date_string(value):
+def parse_date_string(value, format = None):
     if not value:
         return None
     try:
-        return datetime.strptime(value, "%Y-%m-%d").date()
+        if format:
+            return datetime.strptime(value, format).date()
+        else:
+            return datetime.strptime(value, "%Y-%m-%d").date()
     except ValueError:
         return None
 
-def parse_datetime_string(value):
+def parse_datetime_string(value, format = None):
     if not value:
         return None
     try:
-        return datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
+        if format:
+            return datetime.strptime(value, format)
+        else:
+            return datetime.strptime(value, "%Y-%m-%dT%H:%M")
     except ValueError:
         return None
 

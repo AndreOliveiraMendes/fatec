@@ -6,7 +6,7 @@ from sqlalchemy import and_, or_
 from config.general import PER_PAGE
 from app.models import db, Historicos, Usuarios
 from app.auxiliar.decorators import admin_required
-from app.auxiliar.auxiliar_routes import none_if_empty, parse_time_string, get_user_info, \
+from app.auxiliar.auxiliar_routes import none_if_empty, parse_datetime_string, get_user_info, \
     get_query_params, registrar_log_generico_usuario, disable_action, include_action, get_session_or_request, \
     register_return
 
@@ -76,8 +76,8 @@ def gerenciar_Historicos():
             id_usuario = none_if_empty(request.form.get('id_usuario'), int)
             tabela = none_if_empty(request.form.get('tabela'))
             categoria = none_if_empty(request.form.get('categoria'))
-            inicio_procura = none_if_empty(request.form.get('inicio_procura'))
-            fim_procura = none_if_empty(request.form.get('fim_procura'))
+            inicio_procura = parse_datetime_string(request.form.get('inicio_procura'))
+            fim_procura = parse_datetime_string(request.form.get('fim_procura'))
             origem = none_if_empty(request.form.get('origem'))
             conteudo = none_if_empty(request.form.get('conteudo'))
             filter = []
@@ -97,7 +97,6 @@ def gerenciar_Historicos():
                 filter.append(Historicos.origem == origem)
             if conteudo:
                 filter.append(get_conteudo(conteudo))
-            print(filter)
             if filter:
                 historicos_paginados = query.filter(*filter).paginate(page=page, per_page=PER_PAGE, error_out=False)
                 extras['historicos'] = historicos_paginados.items
