@@ -125,6 +125,14 @@ class Reservas_Temporarias(db.Model):
     laboratorios: Mapped['Laboratorios'] = relationship(back_populates='reservas_temporarias')
     aulas_ativas: Mapped['Aulas_Ativas'] = relationship(back_populates='reservas_temporarias')
 
+    @property
+    def selector_identification(self):
+        laboratorio = self.laboratorios.nome_laboratorio
+        aula = self.aulas_ativas.selector_identification
+        inicio = parse_date(self.inicio_reserva)
+        fim = parse_date(self.fim_reserva)
+        return f" {aula} em {laboratorio} de {inicio} ate {fim}"
+
     def __repr__(self) -> str:
         return (
             f"<Reservas_Fixas(id_reserva_fixa={self.id_reserva_temporaria}, id_responsavel={self.id_responsavel}, "

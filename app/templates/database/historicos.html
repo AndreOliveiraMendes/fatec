@@ -81,6 +81,8 @@
                             <td>
                                 {% if is_mobile %}
                                     <button data-toggle="collapse" data-target="#detalhes{{ h.id_historico }}">{{ h.tabela or '-' }}</button>
+                                {% else %}
+                                {{ h.tabela or '-' }}
                                 {% endif %}
                             </td>
                             <td>{{ h.categoria or '-' }}</td>
