@@ -57,7 +57,6 @@
                     <tr class="information">
                         <th class="visible-md visible-lg">ID</th>
                         <th class="visible-md visible-lg">Usuário</th>
-                        <th class="visible-md visible-lg">Pessoa</th>
                         <th>Tabela</th>
                         <th>Categoria</th>
                         <th>Data/Hora</th>
@@ -72,8 +71,9 @@
                         <tr>
                             <td class="visible-md visible-lg">{{ h.id_historico }}</td>
                             {% if h.id_usuario %}
-                                <td class="visible-md visible-lg">({{ h.id_usuario }}) {{ h.usuarios.pessoas.nome_pessoa }}</td>
-                                <td class="visible-md visible-lg">({{ h.usuarios.pessoas.id_pessoa }}) {{ h.usuarios.pessoas.nome_pessoa }}</td>
+                                <td class="visible-md visible-lg">
+                                    ({{ h.id_usuario }}, {{ h.usuarios.pessoas.id_pessoa }}) {{ h.usuarios.pessoas.nome_pessoa }}
+                                </td>
                             {% else %}
                                 <td class="visible-md visible-lg">-</td>
                                 <td class="visible-md visible-lg">-</td>
@@ -82,7 +82,7 @@
                                 {% if is_mobile %}
                                     <button data-toggle="collapse" data-target="#detalhes{{ h.id_historico }}">{{ h.tabela or '-' }}</button>
                                 {% else %}
-                                {{ h.tabela or '-' }}
+                                    {{ h.tabela or '-' }}
                                 {% endif %}
                             </td>
                             <td>{{ h.categoria or '-' }}</td>
@@ -102,7 +102,7 @@
                     <p>origem: {{ h.origem.value }}</p>
                     <p>dia: {{ h.data_hora.strftime("%d/%m/%Y %H:%M") if h.data_hora else '-' }}</p>
                     {% if h.id_usuario %}
-                        <p>usuario: ({{ h.id_usuario }}) {{ h.usuarios.pessoas.nome_pessoa }}</p>
+                        <p>usuario: ({{ h.id_usuario }}, {{ h.usuarios.pessoas.id_pessoa }}) {{ h.usuarios.pessoas.nome_pessoa }}</p>
                     {% else %}
                         <p>usuario: (-) SISTEMA</p>
                     {% endif %}
