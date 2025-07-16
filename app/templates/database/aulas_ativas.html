@@ -113,8 +113,8 @@
                         <tr>
                             <td>{{ at.id_aula_ativa }}</td>
                             <td>{{ at.aulas.selector_identification }}</td>
-                            <td>{{ at.inicio_ativacao.strftime('%d/%m/%Y') if at.inicio_ativacao else '-' }}</td>
-                            <td>{{ at.fim_ativacao.strftime('%d/%m/%Y') if at.fim_ativacao else '-' }}</td>
+                            <td>{{ at.inicio_ativacao.strftime("%d/%m/%Y") if at.inicio_ativacao else '-' }}</td>
+                            <td>{{ at.fim_ativacao.strftime("%d/%m/%Y") if at.fim_ativacao else '-' }}</td>
                             <td>{{ at.dia_da_semana.nome_semana.capitalize() }}</td>
                             <td>{{ at.tipo_aula.value }}</td>
                             <td>
@@ -167,20 +167,24 @@
             </div>
             {{ gerar_select("aula", "Selecione a aula", aulas, "id_aula", "selector_identification", optional=True) }}
             <div class="form-group">
-                <label for="inicio_ativacao" class="control-label">Inicio Ativação</label>
-                <input id="inicio_ativacao"
-                       name="inicio_ativacao"
-                       placeholder="data de inicio, se especificada"
-                       type="date"
-                       class="form-control">
-            </div>
-            <div class="form-group">
-                <label for="fim_ativacao" class="control-label">Fim Ativação</label>
-                <input id="fim_ativacao"
-                       name="fim_ativacao"
-                       placeholder="data de termino, se especificada"
-                       type="date"
-                       class="form-control">
+                <label for="inicio_procura">Início intervalo de procura / Fim intervalo de procura</label>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6">
+                        <input type="date"
+                               class="form-control"
+                               name="inicio_procura"
+                               id="inicio_procura"
+                               placeholder="Início do intervalo">
+                    </div>
+                    <div class="col-xs-12 col-sm-6">
+                        <input type="date"
+                               class="form-control"
+                               name="fim_procura"
+                               id="fim_procura"
+                               placeholder="Fim do intervalo">
+                    </div>
+                </div>
+                <p class="help-block">Procura por aulas ativas que estejam dentro do período selecionado.</p>
             </div>
             {{ gerar_select("semana", "Selecione o dia da semana", dias_da_semana, "id_semana", "nome_semana", optional=True) }}
             <div class="form-group">
@@ -219,8 +223,8 @@
                             <tr>
                                 <td>{{ at.id_aula_ativa }}</td>
                                 <td>{{ at.aulas.selector_identification }}</td>
-                                <td>{{ at.inicio_ativacao.strftime('%d/%m/%Y') if at.inicio_ativacao else '-' }}</td>
-                                <td>{{ at.fim_ativacao.strftime('%d/%m/%Y') if at.fim_ativacao else '-' }}</td>
+                                <td>{{ at.inicio_ativacao.strftime("%d/%m/%Y") if at.inicio_ativacao else '-' }}</td>
+                                <td>{{ at.fim_ativacao.strftime("%d/%m/%Y") if at.fim_ativacao else '-' }}</td>
                                 <td>{{ at.dia_da_semana.nome_semana.capitalize() }}</td>
                                 <td>{{ at.tipo_aula.value }}</td>
                                 <td>

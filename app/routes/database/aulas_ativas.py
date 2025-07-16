@@ -71,8 +71,8 @@ def gerenciar_aulas_ativas():
         elif acao == 'procurar' and bloco == 1:
             id_aula_ativa = none_if_empty(request.form.get('id_aula_ativa'), int)
             id_aula = none_if_empty(request.form.get('id_aula'), int)
-            inicio_ativacao = parse_date_string(request.form.get('inicio_ativacao'))
-            fim_ativacao = parse_date_string(request.form.get('fim_ativacao'))
+            inicio_procura = parse_date_string(request.form.get('inicio_procura'))
+            fim_procura = parse_date_string(request.form.get('fim_procura'))
             id_semana = none_if_empty(request.form.get('id_semana'), int)
             tipo_aula = none_if_empty(request.form.get('tipo_aula'))
             filter = []
@@ -82,10 +82,44 @@ def gerenciar_aulas_ativas():
                 filter.append(Aulas_Ativas.id_aula_ativa == id_aula_ativa)
             if id_aula is not None:
                 filter.append(Aulas_Ativas.id_aula == id_aula)
-            if inicio_ativacao:
-                filter.append(Aulas_Ativas.inicio_ativacao == inicio_ativacao)
-            if fim_ativacao:
-                filter.append(Aulas_Ativas.fim_ativacao == fim_ativacao)
+            if inicio_procura or fim_procura:
+                if inicio_procura and fim_procura:
+                    filter.append(
+                        or_(
+                            and_(
+                                Aulas_Ativas.inicio_ativacao.is_not(None),
+                                Aulas_Ativas.fim_ativacao.is_not(None),
+                                Aulas_Ativas.fim_ativacao >= inicio_procura,
+                                Aulas_Ativas.inicio_ativacao <= fim_procura
+                            ), and_(
+                                Aulas_Ativas.inicio_ativacao.is_(None),
+                                Aulas_Ativas.fim_ativacao.is_not(None),
+                                Aulas_Ativas.fim_ativacao >= inicio_procura
+                            ), and_(
+                                Aulas_Ativas.inicio_ativacao.is_not(None),
+                                Aulas_Ativas.fim_ativacao.is_(None),
+                                Aulas_Ativas.inicio_ativacao <= fim_procura
+                            ), and_(
+                                Aulas_Ativas.inicio_ativacao.is_(None),
+                                Aulas_Ativas.fim_ativacao.is_(None)
+                            )
+
+                        )
+                    )
+                elif inicio_procura:
+                    filter.append(
+                        or_(
+                            Aulas_Ativas.fim_ativacao >= inicio_procura,
+                            Aulas_Ativas.fim_ativacao.is_(None)
+                            )
+                        )
+                else:
+                    filter.append(
+                        or_(
+                            Aulas_Ativas.inicio_ativacao <= fim_procura,
+                            Aulas_Ativas.inicio_ativacao.is_(None)
+                            )
+                        )
             if id_semana is not None:
                 filter.append(Aulas_Ativas.id_semana == id_semana)
             if tipo_aula:
