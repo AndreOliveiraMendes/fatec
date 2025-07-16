@@ -152,3 +152,5 @@ def exportar_historicos():
             for row in resultados
         ]
         return jsonify(data)
+    else:
+        abort(400, description="Formato inválido")
