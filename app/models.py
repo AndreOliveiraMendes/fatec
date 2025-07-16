@@ -174,6 +174,12 @@ class Usuarios(db.Model):
             f"tipo_pessoa={self.tipo_pessoa}, situacao_pessoa={self.situacao_pessoa}, "
             f"grupo_pessoa={self.grupo_pessoa})>"
         )
+    
+    def __str__(self):
+        uid = self.id_usuario
+        pid = self.id_pessoa
+        nome = self.pessoas.nome_pessoa
+        return f"({uid}, {pid}) {nome}"
 
 class Pessoas(db.Model):
     __tablename__ = 'pessoas'

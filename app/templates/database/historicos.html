@@ -5,7 +5,9 @@
 {% block content_head %}
     <div class="panel panel-default">
         <div class="panel-heading">{{ generate_database_head("historicos") }}</div>
-        <div class="panel-body">{{ generate_head(url_for("historicos.gerenciar_Historicos") , acao, disable=disable) }}</div>
+        <div class="panel-body">
+            {{ generate_head(url_for("historicos.gerenciar_Historicos") , acao, disable=disable, include=include) }}
+        </div>
     </div>
 {% endblock content_head %}
 {% block abertura %}
@@ -76,7 +78,6 @@
                                 </td>
                             {% else %}
                                 <td class="visible-md visible-lg">-</td>
-                                <td class="visible-md visible-lg">-</td>
                             {% endif %}
                             <td>
                                 {% if is_mobile %}
@@ -114,3 +115,61 @@
         <div class="alert alert-info" role="alert">Nenhum histórico encontrado.</div>
     {% endif %}
 {% endblock listar %}
+{% block procurar %}
+    {% if bloco == 0 %}
+        <h3>Procurar Historicos</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for('historicos.gerenciar_Historicos') }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label for="codigo">ID</label>
+                <input type="number" class="form-control" id="codigo" name="id_historico">
+            </div>
+            <div class="form-group">
+                <label for="user">Usuario</label>
+                <select id="user" class="form-control" name="id_usuario">
+                    <option value="">Selectione um usuario (id usuario, id pessoa)</option>
+                    {% for u in usuarios %}<option value="{{ u.id_usuarios }}">{{ u }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="tabela">Tabela:</label>
+                <input type="text"
+                       id="tabela"
+                       name="tabela"
+                       list="lista_tabelas"
+                       class="form-control">
+                <datalist id="lista_tabelas">
+                    {% for t in tabelas %}<option value="{{ t[0] }}"></option>{% endfor %}
+                </datalist>
+            </div>
+            <div class="form-group">
+                <label for="categoria">categoria:</label>
+                <input type="text"
+                       id="categoria"
+                       name="categoria"
+                       list="lista_categorias"
+                       class="form-control">
+                <datalist id="lista_categorias">
+                    {% for c in categorias %}<option value="{{ c[0] }}"></option>{% endfor %}
+                </datalist>
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6">
+                        <label for="inicio">Início:</label>
+                        <input type="datetime-local" id="inicio" name="inicio" class="form-control">
+                    </div>
+                    <div class="col-xs-12 col-sm-6">
+                        <label for="fim">Fim:</label>
+                        <input type="datetime-local" id="fim" name="fim" class="form-control">
+                    </div>
+                </div>
+            </div>
+            {{ action_buttons(acao, 2, True, 0) }}
+        </form>
+    {% else %}
+    {% endif %}
+{% endblock procurar %}
