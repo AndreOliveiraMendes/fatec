@@ -52,6 +52,114 @@
     <h3>
         Registros de <strong>Historicos</strong>
     </h3>
+    {{ result_table(pagination, acao, bloco, "Nenhum histórico encontrado.") }}
+{% endblock listar %}
+{% block procurar %}
+    {% if bloco == 0 %}
+        <h3>Procurar Historicos</h3>
+        {{ search_form() }}
+    {% else %}
+        <h3>Resultados da busca:</h3>
+        {{ result_table(pagination, acao, bloco, "Nenhum resultado encontrado.", query_params) }}
+    {% endif %}
+{% endblock procurar %}
+{% block extra %}
+    {% if acao == 'exportar' %}
+        {% if bloco == 0 %}
+            <h3>Menu de exportação</h3>
+            {{ search_form() }}
+        {% else %}
+        {% endif %}
+    {% endif %}
+{% endblock extra %}
+{% macro search_form() %}
+    <form class="form-group"
+          role="form"
+          action="{{ url_for('historicos.gerenciar_Historicos') }}"
+          method="post">
+        <input type="hidden" name="acao" value="{{ acao }}">
+        <div class="form-group">
+            <label for="codigo">ID</label>
+            <input type="number"
+                   class="form-control"
+                   id="codigo"
+                   name="id_historico"
+                   placeholder="Digite o Codigo do registro historico">
+        </div>
+        <div class="form-group">
+            <label for="user">Usuario</label>
+            <select id="user" class="form-control" name="id_usuario">
+                <option value="">Selectione um usuario (id usuario, id pessoa)</option>
+                {% for u in usuarios %}<option value="{{ u.id_usuario }}">{{ u }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="tabela">Tabela:</label>
+            <input type="text"
+                   id="tabela"
+                   name="tabela"
+                   list="lista_tabelas"
+                   class="form-control"
+                   placeholder="qual tabela?">
+            <datalist id="lista_tabelas">
+                {% for t in tabelas %}<option value="{{ t[0] }}"></option>{% endfor %}
+            </datalist>
+        </div>
+        <div class="form-group">
+            <label for="categoria">categoria:</label>
+            <input type="text"
+                   id="categoria"
+                   name="categoria"
+                   list="lista_categorias"
+                   class="form-control"
+                   placeholder="qual categoria?">
+            <datalist id="lista_categorias">
+                {% for c in categorias %}<option value="{{ c[0] }}"></option>{% endfor %}
+            </datalist>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-xs-12 col-sm-6">
+                    <label for="inicio">Data e Hora de Início (dd/mm/aaaa hh:mm):</label>
+                    <input type="datetime-local"
+                           id="inicio"
+                           name="inicio_procura"
+                           class="form-control">
+                </div>
+                <div class="col-xs-12 col-sm-6">
+                    <label for="fim">Data e Hora de Fim (dd/mm/aaaa hh:mm):</label>
+                    <input type="datetime-local"
+                           id="fim"
+                           name="fim_procura"
+                           class="form-control">
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="origem">origem:</label>
+            <input type="text"
+                   id="origem"
+                   name="origem"
+                   list="lista_origens"
+                   class="form-control"
+                   placeholder="origem da ação">
+            <datalist id="lista_origens">
+                {% for o in origens %}<option value="{{ o[0].value }}"></option>{% endfor %}
+            </datalist>
+        </div>
+        <div class="form-group">
+            <label for="conteudo">Conteúdo geral</label>
+            <input type="text"
+                   class="form-control"
+                   id="conteudo"
+                   name="conteudo"
+                   placeholder="Digite parte da mensagem, chave ou observação">
+            <p class="help-block">Procura em Mensagem, Chave Primária e Observação</p>
+        </div>
+        {{ action_buttons(acao, 1, False, 0) }}
+    </form>
+{% endmacro %}
+{% macro result_table(pagination, acao, bloco, message, query_params=None) %}
     {% if historicos %}
         <div class="table-responsive">
             <table class="table table-striped table-bordered table-hover">
@@ -110,162 +218,8 @@
                 </div>
             {% endfor %}
         {% endif %}
-        {{ paginacao(pagination, acao, bloco) }}
+        {{ paginacao(pagination, acao, bloco, query_params) }}
     {% else %}
-        <div class="alert alert-info" role="alert">Nenhum histórico encontrado.</div>
+        <div class="alert alert-warning" role="alert">{{ message }}</div>
     {% endif %}
-{% endblock listar %}
-{% block procurar %}
-    {% if bloco == 0 %}
-        <h3>Procurar Historicos</h3>
-        <form class="form-group"
-              role="form"
-              action="{{ url_for('historicos.gerenciar_Historicos') }}"
-              method="post">
-            <input type="hidden" name="acao" value="{{ acao }}">
-            <div class="form-group">
-                <label for="codigo">ID</label>
-                <input type="number"
-                       class="form-control"
-                       id="codigo"
-                       name="id_historico"
-                       placeholder="Digite o Codigo do registro historico">
-            </div>
-            <div class="form-group">
-                <label for="user">Usuario</label>
-                <select id="user" class="form-control" name="id_usuario">
-                    <option value="">Selectione um usuario (id usuario, id pessoa)</option>
-                    {% for u in usuarios %}<option value="{{ u.id_usuario }}">{{ u }}</option>{% endfor %}
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="tabela">Tabela:</label>
-                <input type="text"
-                       id="tabela"
-                       name="tabela"
-                       list="lista_tabelas"
-                       class="form-control"
-                       placeholder="qual tabela?">
-                <datalist id="lista_tabelas">
-                    {% for t in tabelas %}<option value="{{ t[0] }}"></option>{% endfor %}
-                </datalist>
-            </div>
-            <div class="form-group">
-                <label for="categoria">categoria:</label>
-                <input type="text"
-                       id="categoria"
-                       name="categoria"
-                       list="lista_categorias"
-                       class="form-control"
-                       placeholder="qual categoria?">
-                <datalist id="lista_categorias">
-                    {% for c in categorias %}<option value="{{ c[0] }}"></option>{% endfor %}
-                </datalist>
-            </div>
-            <div class="form-group">
-                <div class="row">
-                    <div class="col-xs-12 col-sm-6">
-                        <label for="inicio">Data e Hora de Início (dd/mm/aaaa hh:mm):</label>
-                        <input type="datetime-local"
-                               id="inicio"
-                               name="inicio_procura"
-                               class="form-control">
-                    </div>
-                    <div class="col-xs-12 col-sm-6">
-                        <label for="fim">Data e Hora de Fim (dd/mm/aaaa hh:mm):</label>
-                        <input type="datetime-local"
-                               id="fim"
-                               name="fim_procura"
-                               class="form-control">
-                    </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="origem">origem:</label>
-                <input type="text"
-                       id="origem"
-                       name="origem"
-                       list="lista_origens"
-                       class="form-control"
-                       placeholder="origem da ação">
-                <datalist id="lista_origens">
-                    {% for o in origens %}<option value="{{ o[0].value }}"></option>{% endfor %}
-                </datalist>
-            </div>
-            <div class="form-group">
-                <label for="conteudo">Conteúdo geral</label>
-                <input type="text"
-                       class="form-control"
-                       id="conteudo"
-                       name="conteudo"
-                       placeholder="Digite parte da mensagem, chave ou observação">
-                <p class="help-block">Procura em Mensagem, Chave Primária e Observação</p>
-            </div>
-            {{ action_buttons(acao, 1, False, 0) }}
-        </form>
-    {% else %}
-        <h3>Resultados da busca:</h3>
-        {% if historicos %}
-            <div class="table-responsive">
-                <table class="table table-striped table-bordered table-hover">
-                    <thead>
-                        <tr class="information">
-                            <th class="visible-md visible-lg">ID</th>
-                            <th class="visible-md visible-lg">Usuário</th>
-                            <th>Tabela</th>
-                            <th>Categoria</th>
-                            <th>Data/Hora</th>
-                            <th>Mensagem</th>
-                            <th class="visible-md visible-lg">Chave Primária</th>
-                            <th class="visible-md visible-lg">Origem</th>
-                            <th class="visible-md visible-lg">Observação</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for h in historicos %}
-                            <tr>
-                                <td class="visible-md visible-lg">{{ h.id_historico }}</td>
-                                {% if h.id_usuario %}
-                                    <td class="visible-md visible-lg">
-                                        ({{ h.id_usuario }}, {{ h.usuarios.pessoas.id_pessoa }}) {{ h.usuarios.pessoas.nome_pessoa }}
-                                    </td>
-                                {% else %}
-                                    <td class="visible-md visible-lg">-</td>
-                                {% endif %}
-                                <td>
-                                    {% if is_mobile %}
-                                        <button data-toggle="collapse" data-target="#detalhes{{ h.id_historico }}">{{ h.tabela or '-' }}</button>
-                                    {% else %}
-                                        {{ h.tabela or '-' }}
-                                    {% endif %}
-                                </td>
-                                <td>{{ h.categoria or '-' }}</td>
-                                <td>{{ h.data_hora.strftime("%d/%m/%Y %H:%M") if h.data_hora else '-' }}</td>
-                                <td>{{ h.message }}</td>
-                                <td class="visible-md visible-lg">{{ h.chave_primaria }}</td>
-                                <td class="visible-md visible-lg">{{ h.origem.value }}</td>
-                                <td class="visible-md visible-lg">{{ h.observacao or '-' }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% if is_mobile %}
-                {% for h in historicos %}
-                    <div id="detalhes{{ h.id_historico }}" class="collapse">
-                        <p>origem: {{ h.origem.value }}</p>
-                        <p>dia: {{ h.data_hora.strftime("%d/%m/%Y %H:%M") if h.data_hora else '-' }}</p>
-                        {% if h.id_usuario %}
-                            <p>usuario: ({{ h.id_usuario }}, {{ h.usuarios.pessoas.id_pessoa }}) {{ h.usuarios.pessoas.nome_pessoa }}</p>
-                        {% else %}
-                            <p>usuario: (-) SISTEMA</p>
-                        {% endif %}
-                    </div>
-                {% endfor %}
-            {% endif %}
-            {{ paginacao(pagination, acao, bloco, query_params) }}
-        {% else %}
-            <div class="alert alert-warning" role="alert">Nenhum resultado encontrado.</div>
-        {% endif %}
-    {% endif %}
-{% endblock procurar %}
+{% endmacro %}

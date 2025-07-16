@@ -41,6 +41,34 @@ def get_conteudo(conteudo):
         Historicos.observacao.ilike(f"%{conteudo}%")
     )
 
+def get_data():
+    id_historico = none_if_empty(request.form.get('id_historico'), int)
+    id_usuario = none_if_empty(request.form.get('id_usuario'), int)
+    tabela = none_if_empty(request.form.get('tabela'))
+    categoria = none_if_empty(request.form.get('categoria'))
+    inicio_procura = parse_datetime_string(request.form.get('inicio_procura'))
+    fim_procura = parse_datetime_string(request.form.get('fim_procura'))
+    origem = none_if_empty(request.form.get('origem'))
+    conteudo = none_if_empty(request.form.get('conteudo'))
+    filter = []
+    query = Historicos.query
+    query_params = get_query_params(request)
+    if id_historico is not None:
+        filter.append(Historicos.id_historico == id_historico)
+    if id_usuario is not None:
+        filter.append(Historicos.id_usuario == id_usuario)
+    if tabela:
+        filter.append(Historicos.tabela == tabela)
+    if categoria:
+        filter.append(Historicos.categoria == categoria)
+    if inicio_procura or fim_procura:
+        filter.append(filtro_intervalo(inicio_procura, fim_procura))
+    if origem:
+        filter.append(Historicos.origem == origem)
+    if conteudo:
+        filter.append(get_conteudo(conteudo))
+    return filter, query, query_params
+
 @bp.route("/historicos", methods=["GET", "POST"])
 @admin_required
 def gerenciar_Historicos():
@@ -72,33 +100,9 @@ def gerenciar_Historicos():
             extras['categorias'] = get_categorias()
             extras['origens'] = get_origens()
         elif acao == 'procurar' and bloco == 1:
-            id_historico = none_if_empty(request.form.get('id_historico'), int)
-            id_usuario = none_if_empty(request.form.get('id_usuario'), int)
-            tabela = none_if_empty(request.form.get('tabela'))
-            categoria = none_if_empty(request.form.get('categoria'))
-            inicio_procura = parse_datetime_string(request.form.get('inicio_procura'))
-            fim_procura = parse_datetime_string(request.form.get('fim_procura'))
-            origem = none_if_empty(request.form.get('origem'))
-            conteudo = none_if_empty(request.form.get('conteudo'))
-            filter = []
-            query = Historicos.query
-            query_params = get_query_params(request)
-            if id_historico is not None:
-                filter.append(Historicos.id_historico == id_historico)
-            if id_usuario is not None:
-                filter.append(Historicos.id_usuario == id_usuario)
-            if tabela:
-                filter.append(Historicos.tabela == tabela)
-            if categoria:
-                filter.append(Historicos.categoria == categoria)
-            if inicio_procura or fim_procura:
-                filter.append(filtro_intervalo(inicio_procura, fim_procura))
-            if origem:
-                filter.append(Historicos.origem == origem)
-            if conteudo:
-                filter.append(get_conteudo(conteudo))
-            if filter:
-                historicos_paginados = query.filter(*filter).paginate(page=page, per_page=PER_PAGE, error_out=False)
+            data_filter, query, query_params = get_data()
+            if data_filter:
+                historicos_paginados = query.filter(*data_filter).paginate(page=page, per_page=PER_PAGE, error_out=False)
                 extras['historicos'] = historicos_paginados.items
                 extras['pagination'] = historicos_paginados
                 extras['query_params'] = query_params
