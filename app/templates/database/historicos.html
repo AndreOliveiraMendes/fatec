@@ -14,7 +14,7 @@
     <h3>
         Visualização da Tabela <strong>Historicos</strong>
     </h3>
-    <p>
+    <p class="text-muted text-center">
         A tabela <code>historicos</code> possui os seguintes campos:
     </p>
     <div class="table-responsive">
@@ -22,25 +22,27 @@
             <thead>
                 <tr class="information">
                     <th>Campo</th>
+                    <th>Tipo</th>
                     <th>Descrição</th>
                 </tr>
             </thead>
             <tbody>
-                {% for campo, descricao in [
-                    ('id_historico', 'Identificador do histórico'),
-                    ('id_usuario', 'Identificador do usuário responsável pela ação'),
-                    ('tabela', 'Tabela sobre a qual a ação foi efetuada'),
-                    ('categoria', 'Categoria da ação realizada (INSERT/DELETE/UPDATE)'),
-                    ('data_hora', 'Momento em que a ação foi efetivada'),
-                    ('message', 'Descrição do que foi realizado'),
-                    ('chave_primaria', 'Identificadores da linha modificada pela ação'),
-                    ('origem', 'se a ação foi efetuada pelo sistema ou pelo usuário'),
-                    ('observacao', 'Observação adicional que complementa a ação realizada')
+                {% for campo, tipo, descricao in [
+                    ('id_historico', 'INT (auto_increment, PK)', 'Identificador do histórico'),
+                    ('id_usuario', 'INT (FK)', 'Identificador do usuário responsável pela ação'),
+                    ('tabela', 'VARCHAR(100)', 'Tabela sobre a qual a ação foi efetuada'),
+                    ('categoria', 'VARCHAR(100)', 'Categoria da ação realizada (INSERT/DELETE/UPDATE)'),
+                    ('data_hora', 'DATETIME', 'Momento em que a ação foi efetivada'),
+                    ('message', 'TEXT', 'Descrição do que foi realizado'),
+                    ('chave_primaria', 'TEXT', 'Identificadores da linha modificada pela ação'),
+                    ('origem', 'TEXT', 'se a ação foi efetuada pelo sistema ou pelo usuário'),
+                    ('observacao', "ENUM('SISTEMA', 'USUARIO')", 'Observação adicional que complementa a ação realizada')
                     ] %}
                     <tr>
                         <td>
                             <code>{{ campo }}</code>
                         </td>
+                        <td>{{ tipo }}</td>
                         <td>{{ descricao }}</td>
                     </tr>
                 {% endfor %}

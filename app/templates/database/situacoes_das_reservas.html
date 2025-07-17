@@ -10,3 +10,63 @@
         </div>
     </div>
 {% endblock content_head %}
+{% block abertura %}
+    <h3>
+        Gerenciamento da Tabela <strong>SITUACOES DAS RESERVAS</strong>
+    </h3>
+    <p class="text-muted text-center">
+        a tabela <code>situacoes_das_reservas</code> possui os seguintes campos
+    </p>
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover">
+            <thead>
+                <tr class="information">
+                    <th>Campo</th>
+                    <th>Tipo</th>
+                    <th>Descrição</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <code>id_situacao</code>
+                    </td>
+                    <td>INT (auto_increment, PK)</td>
+                    <td>Indentificador Único da situação da reserva no sistema</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>id_laboratorio</code>
+                    </td>
+                    <td>INT (FK)</td>
+                    <td>
+                        Chave Estrangeira para a tabela <code>laboratorios</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>id_aula</code>
+                    </td>
+                    <td>INT (FK)</td>
+                    <td>
+                        Chave Estrangeira para a tabela <code>aulas_ativas</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>dia</code>
+                    </td>
+                    <td>DATE</td>
+                    <td>dia referido pela situação</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>situacao_chave</code>
+                    </td>
+                    <td>ENUM('NAO_PEGOU_A_CHAVE','PEGOU_A_CHAVE','DEVOLVEU_A_CHAVE')</td>
+                    <td>situação da chave (não pegou, pegou, devolvida)</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+{% endblock abertura %}

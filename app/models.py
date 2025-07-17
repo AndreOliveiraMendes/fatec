@@ -28,6 +28,15 @@ class Situacoes_Das_Reserva(db.Model):
         server_default=SituacaoChaveEnum.NAO_PEGOU_A_CHAVE.name
     )
 
+    __table_args__ = (
+        UniqueConstraint(
+            'id_laboratorio',
+            'id_aula',
+            'dia',
+            name="uq_situacao_lab_aula_dia"
+        ),
+    )
+
     laboratorios: Mapped['Laboratorios'] = relationship(back_populates='situacoes_das_reservas')
     aulas_ativas: Mapped['Aulas_Ativas'] = relationship(back_populates='situacoes_das_reservas')
 
