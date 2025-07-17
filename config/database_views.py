@@ -29,7 +29,7 @@ SECOES = {
     'Operacional / Configuração':{
         'icon': 'glyphicon glyphicon-cog',
         'secoes': [
-            ('Status Reserva', 'default.under_dev_page', 'warning', 'crud')
+            ('Situacoes das reservas', 'situacoes_das_reservas.gerenciar_situacoes_das_reservas', 'warning', 'crud')
         ]
     },
     'Logs / Histórico': {

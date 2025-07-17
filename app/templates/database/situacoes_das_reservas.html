@@ -1,0 +1,12 @@
+{% extends "database/base_crude" %}
+{% block title %}
+    Situações das Reservas
+{% endblock title %}
+{% block content_head %}
+    <div class="panel panel-default">
+        <div class="panel-heading">{{ generate_database_head("situacoes_das_reservas") }}</div>
+        <div class="panel-body">
+            {{ generate_head(url_for("situacoes_das_reservas.gerenciar_situacoes_das_reservas") , acao, disable=disable) }}
+        </div>
+    </div>
+{% endblock content_head %}

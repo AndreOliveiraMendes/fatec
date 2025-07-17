@@ -44,7 +44,7 @@ class TipoReservaEnum(enum.Enum):
     EAD = "EAD"
     NAPTI = "NAPTI"
     CURSO = "Curso"
-    USO_DOS_ALUNOS = "Uso dos Alunos" 
+    USO_DOS_ALUNOS = "Uso dos Alunos"
 
 class Reservas_Fixas(db.Model):
     __tablename__ = 'reservas_fixas'

@@ -1,9 +1,8 @@
-import copy, csv, json
+import csv
 from io import StringIO
 from flask import Blueprint, Response, jsonify
 from flask import flash, session, render_template, request, abort
-from sqlalchemy.exc import IntegrityError, OperationalError
-from sqlalchemy import and_, or_
+from sqlalchemy import or_
 from config.general import PER_PAGE
 from app.models import db, Historicos, Usuarios
 from app.auxiliar.decorators import admin_required
