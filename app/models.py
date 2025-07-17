@@ -10,6 +10,34 @@ def parse_time(time):
 def parse_date(date):
     return date.strftime('%d/%m/%Y') if date else None
 
+class SituacaoChaveEnum(enum.Enum):
+    NAO_PEGOU_A_CHAVE = "não pegou a chave"
+    PEGOU_A_CHAVE = "pegou a chave"
+    DEVOLVEU_A_CHAVE = "devolveu a chave"
+
+class Situacoes_Das_Reserva(db.Model):
+    __tablename__ = "situacoes_das_reservas"
+
+    id_situacao:Mapped[int] = mapped_column(primary_key=True)
+    id_laboratorio:Mapped[int] = mapped_column(ForeignKey("laboratorios.id_laboratorio"), nullable=False)
+    id_aula:Mapped[int] = mapped_column(ForeignKey("aulas_ativas.id_aula_ativa"), nullable=False)
+    dia:Mapped[date] = mapped_column(nullable=False)
+
+    situacao_chave: Mapped[SituacaoChaveEnum] = mapped_column(
+        Enum(SituacaoChaveEnum, name="situacao_chave_enum", create_constraint=True),
+        server_default=SituacaoChaveEnum.NAO_PEGOU_A_CHAVE.name
+    )
+
+    laboratorios: Mapped['Laboratorios'] = relationship(back_populates='situacoes_das_reservas')
+    aulas_ativas: Mapped['Aulas_Ativas'] = relationship(back_populates='situacoes_das_reservas')
+
+    def __repr__(self) -> str:
+        return (
+            f"<SituacaoReserva(id_situacao={self.id_situacao}, id_laboratorio={self.id_laboratorio}, "
+            f"id_aula={self.id_aula}, dia={self.dia} "
+            f"situacao_chave={self.situacao_chave.value})>"
+        )
+
 class TipoReservaEnum(enum.Enum):
     GRADUACAO = "Graduação"
     ESPECIALIZACAO = "Especialização"
@@ -31,7 +59,7 @@ class Reservas_Fixas(db.Model):
 
     tipo_reserva: Mapped[TipoReservaEnum] = mapped_column(
         Enum(TipoReservaEnum, name="tipo_reserva_enum", create_constraint=True),
-        server_default=TipoReservaEnum.GRADUACAO.value
+        server_default=TipoReservaEnum.GRADUACAO.name
     )
 
     __table_args__ = (
@@ -94,7 +122,7 @@ class Reservas_Temporarias(db.Model):
 
     tipo_reserva: Mapped[TipoReservaEnum] = mapped_column(
         Enum(TipoReservaEnum, name="tipo_reserva_enum", create_constraint=True),
-        server_default=TipoReservaEnum.GRADUACAO.value
+        server_default=TipoReservaEnum.GRADUACAO.name
     )
 
     __table_args__ = (
@@ -226,17 +254,18 @@ class Laboratorios(db.Model):
 
     disponibilidade: Mapped[DisponibilidadeEnum] = mapped_column(
         Enum(DisponibilidadeEnum, name="disponibilidade_enum", create_constraint=True),
-        server_default=DisponibilidadeEnum.DISPONIVEL.value
+        server_default=DisponibilidadeEnum.DISPONIVEL.name
     )
 
     tipo: Mapped[TipoLaboratorioEnum] = mapped_column(
         Enum(TipoLaboratorioEnum, name="tipo_laboratorio_enum", create_constraint=True),
         nullable=False,
-        server_default=TipoLaboratorioEnum.LABORATORIO.value
+        server_default=TipoLaboratorioEnum.LABORATORIO.name
     )
 
     reservas_fixas: Mapped[list['Reservas_Fixas']] = relationship(back_populates='laboratorios')
     reservas_temporarias: Mapped[list['Reservas_Temporarias']] = relationship(back_populates='laboratorios')
+    situacoes_das_reservas: Mapped[list['Situacoes_Das_Reserva']] = relationship(back_populates='laboratorios') 
 
     def __repr__(self) -> str:
         return (
@@ -323,7 +352,7 @@ class Aulas_Ativas(db.Model):
 
     tipo_aula: Mapped[TipoAulaEnum] = mapped_column(
         Enum(TipoAulaEnum, name="tipo_aula_enum", create_constraint=True),
-        server_default=TipoAulaEnum.AULA.value
+        server_default=TipoAulaEnum.AULA.name
     )
 
     @property
@@ -361,6 +390,7 @@ class Aulas_Ativas(db.Model):
     aulas: Mapped['Aulas'] = relationship(back_populates='aulas_ativas')
     reservas_fixas: Mapped[list['Reservas_Fixas']] = relationship(back_populates='aulas_ativas')
     reservas_temporarias: Mapped[list['Reservas_Temporarias']] = relationship(back_populates='aulas_ativas')
+    situacoes_das_reservas: Mapped[list['Situacoes_Das_Reserva']] = relationship(back_populates='aulas_ativas')
 
     dia_da_semana: Mapped['Dias_da_Semana'] = relationship(back_populates='aulas_ativas')
 
@@ -389,9 +419,8 @@ class Historicos(db.Model):
 
     origem: Mapped[OrigemEnum] = mapped_column(
         Enum(OrigemEnum, name="origem_enum", create_constraint=True),
-        server_default=OrigemEnum.SISTEMA.value
+        server_default=OrigemEnum.SISTEMA.name
     )
-
 
     usuarios: Mapped['Usuarios'] = relationship(back_populates='historicos')
 
