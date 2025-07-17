@@ -19,9 +19,9 @@ class Situacoes_Das_Reserva(db.Model):
     __tablename__ = "situacoes_das_reservas"
 
     id_situacao:Mapped[int] = mapped_column(primary_key=True)
-    id_laboratorio:Mapped[int] = mapped_column(ForeignKey("laboratorios.id_laboratorio"), nullable=False)
-    id_aula:Mapped[int] = mapped_column(ForeignKey("aulas_ativas.id_aula_ativa"), nullable=False)
-    dia:Mapped[date] = mapped_column(nullable=False)
+    id_situacao_laboratorio:Mapped[int] = mapped_column(ForeignKey("laboratorios.id_laboratorio"), nullable=False)
+    id_situacao_aula:Mapped[int] = mapped_column(ForeignKey("aulas_ativas.id_aula_ativa"), nullable=False)
+    situacao_dia:Mapped[date] = mapped_column(nullable=False)
 
     situacao_chave: Mapped[SituacaoChaveEnum] = mapped_column(
         Enum(SituacaoChaveEnum, name="situacao_chave_enum", create_constraint=True),
@@ -30,9 +30,9 @@ class Situacoes_Das_Reserva(db.Model):
 
     __table_args__ = (
         UniqueConstraint(
-            'id_laboratorio',
-            'id_aula',
-            'dia',
+            'id_situacao_laboratorio',
+            'id_situacao_aula',
+            'situacao_dia',
             name="uq_situacao_lab_aula_dia"
         ),
     )
@@ -42,8 +42,8 @@ class Situacoes_Das_Reserva(db.Model):
 
     def __repr__(self) -> str:
         return (
-            f"<SituacaoReserva(id_situacao={self.id_situacao}, id_laboratorio={self.id_laboratorio}, "
-            f"id_aula={self.id_aula}, dia={self.dia} "
+            f"<SituacaoReserva(id_situacao={self.id_situacao}, id_laboratorio={self.id_situacao_laboratorio}, "
+            f"id_aula={self.id_situacao_aula}, dia={self.situacao_dia} "
             f"situacao_chave={self.situacao_chave.value})>"
         )
 

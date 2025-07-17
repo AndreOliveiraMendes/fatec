@@ -33,11 +33,12 @@ def gerenciar_situacoes_das_reservas():
             extras['pagination'] = situacoes_das_reservas_paginadas
 
         elif acao == 'procurar':
+            pass
+
+        elif acao == 'inserir' and bloco == 0:
             extras['laboratorios'] = get_laboratorios()
             extras['aulas_ativas'] = get_aulas()
 
-        elif acao == 'inserir' and bloco == 0:
-            pass
     if redirect_action:
         return redirect_action
     return render_template("database/situacoes_das_reservas.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)

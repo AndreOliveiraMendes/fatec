@@ -79,6 +79,34 @@
 {% endblock procurar %}
 {% block inserir %}
     <h3>Inserir Situacoes das Reservas</h3>
+    <form class="form-group"
+          role="form"
+          action="{{ url_for('reservas_fixas.gerenciar_reservas_fixas') }}"
+          method="post">
+        <input type="hidden" name="acao" value="{{ acao }}">
+        {{ gerar_select("laboratorios", "Selecione o laboratorio", laboratorios, "id_laboratorio", "nome_laboratorio", "id_situacao_laboratorio") }}
+        {{ gerar_select("aulas", "Selecione o horario", aulas_ativas, "id_aula_ativa", "selector_identification", "id_situacao_aula") }}
+        <div class="form-group">
+            <label for="situacao_dia">Dia da Reserva:</label>
+            <input type="date"
+                   class="form-control"
+                   id="situacao_dia"
+                   name="situacao_dia"
+                   required>
+        </div>
+        <div class="form-group">
+            <label for="situacao_chave">Situação da Reserva:</label>
+            <select class="form-control"
+                    id="situacao_chave"
+                    name="situacao_chave"
+                    required>
+                <option value="não pegou a chave">não pegou a chave</option>
+                <option value="pegou a chave">pegou a chave</option>
+                <option value="devolveu a chave">devolveu a chave</option>
+            </select>
+        </div>
+        {{ action_buttons(acao, 1, False, 0) }}
+    </form>
 {% endblock inserir %}
 {% macro result_table(message) %}
     {% if situacoes_das_reservas %}
