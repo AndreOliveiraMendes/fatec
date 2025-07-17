@@ -129,64 +129,7 @@
 {% endblock abertura %}
 {% block listar %}
     <h3>Lista de Reservas Semanais</h3>
-    {% if reservas_fixas %}
-        <div class="table-responsive">
-            <table class="table table-striped table-bordered table-hover">
-                <thead>
-                    <tr class="information">
-                        <td>Codigo</td>
-                        <td>Responsável</td>
-                        <td>Responsável Especial</td>
-                        <td>Tipo de Responsável</td>
-                        <td>Laboratorio</td>
-                        <td>Horario</td>
-                        <td>Semestre</td>
-                        <td>Finalidade</td>
-                        <td>Ação</td>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for rf in reservas_fixas %}
-                        <tr>
-                            <td>{{ rf.id_reserva_fixa }}</td>
-                            <td>{{ rf.pessoas.nome_pessoa if rf.id_responsavel else '-' }}</td>
-                            <td>{{ rf.usuarios_especiais.nome_usuario_especial if rf.id_responsavel_especial else '-' }}</td>
-                            <td>{{ rf.tipo_responsavel|tipo_responsavel_label }}</td>
-                            <td>{{ rf.laboratorios.nome_laboratorio }}</td>
-                            <td>{{ rf.aulas_ativas.selector_identification }}</td>
-                            <td>{{ rf.semestres.nome_semestre }}</td>
-                            <td>{{ rf.tipo_reserva.value }}</td>
-                            <td>
-                                <form method="post" class="form-inline">
-                                    <input type="hidden" name="bloco" value="1">
-                                    <input type="hidden" name="id_reserva_fixa" value="{{ rf.id_reserva_fixa }}">
-                                    <div class="btn-group-vertical">
-                                        <button type="submit"
-                                                name="acao"
-                                                value="editar"
-                                                class="btn btn-warning"
-                                                title="Editar">
-                                            <i class="glyphicon glyphicon-pencil"></i>
-                                        </button>
-                                        <button type="submit"
-                                                name="acao"
-                                                value="excluir"
-                                                class="btn btn-danger"
-                                                title="Excluir">
-                                            <i class="glyphicon glyphicon-trash"></i>
-                                        </button>
-                                    </div>
-                                </form>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {{ paginacao(pagination, acao, bloco) }}
-    {% else %}
-        <div class="alert alert-info" role="alert">Nenhuma reserva semanal cadastrada.</div>
-    {% endif %}
+    {{ result_table("Nenhuma reserva semanal cadastrada.") }}
 {% endblock listar %}
 {% block procurar %}
     {% if bloco == 0 %}
@@ -234,64 +177,7 @@
         </form>
     {% else %}
         <h3>Resultados da Busca</h3>
-        {% if reservas_fixas %}
-            <div class="table-responsive">
-                <table class="table table-striped table-bordered table-hover">
-                    <thead>
-                        <tr class="information">
-                            <td>Codigo</td>
-                            <td>Responsável</td>
-                            <td>Responsável Especial</td>
-                            <td>Tipo de Responsável</td>
-                            <td>Laboratorio</td>
-                            <td>Horario</td>
-                            <td>Semestre</td>
-                            <td>Finalidade</td>
-                            <td>Ação</td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for rf in reservas_fixas %}
-                            <tr>
-                                <td>{{ rf.id_reserva_fixa }}</td>
-                                <td>{{ rf.pessoas.nome_pessoa if rf.id_responsavel else '-' }}</td>
-                                <td>{{ rf.usuarios_especiais.nome_usuario_especial if rf.id_responsavel_especial else '-' }}</td>
-                                <td>{{ rf.tipo_responsavel|tipo_responsavel_label }}</td>
-                                <td>{{ rf.laboratorios.nome_laboratorio }}</td>
-                                <td>{{ rf.aulas_ativas.selector_identification }}</td>
-                                <td>{{ rf.semestres.nome_semestre }}</td>
-                                <td>{{ rf.tipo_reserva.value }}</td>
-                                <td>
-                                    <form method="post" class="form-inline">
-                                        <input type="hidden" name="bloco" value="1">
-                                        <input type="hidden" name="id_reserva_fixa" value="{{ rf.id_reserva_fixa }}">
-                                        <div class="btn-group-vertical">
-                                            <button type="submit"
-                                                    name="acao"
-                                                    value="editar"
-                                                    class="btn btn-warning"
-                                                    title="Editar">
-                                                <i class="glyphicon glyphicon-pencil"></i>
-                                            </button>
-                                            <button type="submit"
-                                                    name="acao"
-                                                    value="excluir"
-                                                    class="btn btn-danger"
-                                                    title="Excluir">
-                                                <i class="glyphicon glyphicon-trash"></i>
-                                            </button>
-                                        </div>
-                                    </form>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {{ paginacao(pagination, acao, bloco, query_params) }}
-        {% else %}
-            <div class="alert alert-info" role="alert">Nenhum resultado encontrado.</div>
-        {% endif %}
+        {{ result_table("Nenhum resultado encontrado.") }}
     {% endif %}
 {% endblock procurar %}
 {% block inserir %}
@@ -589,3 +475,67 @@
         </script>
     {% endif %}
 {% endblock excluir %}
+{% macro result_table(message) %}
+    {% if reservas_fixas %}
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered table-hover">
+                <thead>
+                    <tr class="information">
+                        <td>Codigo</td>
+                        <td>Responsável</td>
+                        <td>Responsável Especial</td>
+                        <td>Tipo de Responsável</td>
+                        <td>Laboratorio</td>
+                        <td>Horario</td>
+                        <td>Semestre</td>
+                        <td>Finalidade</td>
+                        <td>Ação</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rf in reservas_fixas %}
+                        <tr>
+                            <td>{{ rf.id_reserva_fixa }}</td>
+                            <td>{{ rf.pessoas.nome_pessoa if rf.id_responsavel else '-' }}</td>
+                            <td>{{ rf.usuarios_especiais.nome_usuario_especial if rf.id_responsavel_especial else '-' }}</td>
+                            <td>{{ rf.tipo_responsavel|tipo_responsavel_label }}</td>
+                            <td>{{ rf.laboratorios.nome_laboratorio }}</td>
+                            <td>{{ rf.aulas_ativas.selector_identification }}</td>
+                            <td>{{ rf.semestres.nome_semestre }}</td>
+                            <td>{{ rf.tipo_reserva.value }}</td>
+                            <td>
+                                <form method="post" class="form-inline">
+                                    <input type="hidden" name="bloco" value="1">
+                                    <input type="hidden" name="id_reserva_fixa" value="{{ rf.id_reserva_fixa }}">
+                                    <div class="btn-group-vertical">
+                                        <button type="submit"
+                                                name="acao"
+                                                value="editar"
+                                                class="btn btn-warning"
+                                                title="Editar">
+                                            <i class="glyphicon glyphicon-pencil"></i>
+                                        </button>
+                                        <button type="submit"
+                                                name="acao"
+                                                value="excluir"
+                                                class="btn btn-danger"
+                                                title="Excluir">
+                                            <i class="glyphicon glyphicon-trash"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if query_params %}
+            {{ paginacao(pagination, acao, bloco, query_params) }}
+        {% else %}
+            {{ paginacao(pagination, acao, bloco) }}
+        {% endif %}
+    {% else %}
+        <div class="alert alert-info" role="alert">{{ message }}</div>
+    {% endif %}
+{% endmacro %}

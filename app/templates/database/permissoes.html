@@ -65,69 +65,7 @@
 {% endblock abertura %}
 {% block listar %}
     <h3>Lista de Permissoes</h3>
-    {% if permissoes %}
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped table-hover">
-                <thead>
-                    <tr class="information">
-                        <th>Usuario</th>
-                        <th>permissao</th>
-                        <th>FIXA</th>
-                        <th>TEMP</th>
-                        <th>ADMIN</th>
-                        <th>Ação</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for p in permissoes %}
-                        <tr>
-                            <td>({{ p.id_permissao_usuario }}) {{ p.usuarios.pessoas.nome_pessoa }}</td>
-                            <td>{{ p.permissao }}</td>
-                            <td>
-                                <i title="Permissão de reserva fixa"
-                                   class="{% if p.permissao|has_flag(FIXA) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}"></i>
-                            </td>
-                            <td>
-                                <i title="Permissão de reserva temporária"
-                                   class="{% if p.permissao|has_flag(TEMP) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}"></i>
-                            </td>
-                            <td>
-                                <i title="Permissão de administrador"
-                                   class="{% if p.permissao|has_flag(ADMIN) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}"></i>
-                            </td>
-                            <td>
-                                <form method="post" class="form-inline">
-                                    <input type="hidden" name="bloco" value="1">
-                                    <input type="hidden" name="id_usuario" value="{{ p.id_permissao_usuario }}">
-                                    <div class="btn-group">
-                                        <button type="submit"
-                                                name="acao"
-                                                value="editar"
-                                                class="btn btn-warning btn-sm"
-                                                title="Editar">
-                                            <i class="glyphicon glyphicon-pencil"></i>
-                                        </button>
-                                        {% if p.id_permissao_usuario != userid %}
-                                            <button type="submit"
-                                                    name="acao"
-                                                    value="excluir"
-                                                    class="btn btn-danger btn-sm"
-                                                    title="Excluir">
-                                                <i class="glyphicon glyphicon-trash"></i>
-                                            </button>
-                                        {% endif %}
-                                    </div>
-                                </form>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {{ paginacao(pagination, acao, bloco) }}
-    {% else %}
-        <div class="alert alert-warning" role="alert">Nenhum permissão existente</div>
-    {% endif %}
+    {{ result_table("Nenhum permissão existente") }}
 {% endblock listar %}
 {% block procurar %}
     {% if bloco == 0 %}
@@ -179,69 +117,7 @@
         </form>
     {% elif bloco == 1 %}
         <h3>Procurar Permissoes</h3>
-        {% if permissoes %}
-            <div class="table-responsive">
-                <table class="table table-bordered table-striped table-hover">
-                    <thead>
-                        <tr class="information">
-                            <th>Usuario</th>
-                            <th>permissao</th>
-                            <th>FIXA</th>
-                            <th>TEMP</th>
-                            <th>ADMIN</th>
-                            <th>Ação</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for p in permissoes %}
-                            <tr>
-                                <td>({{ p.id_permissao_usuario }}) {{ p.usuarios.pessoas.nome_pessoa }}</td>
-                                <td>{{ p.permissao }}</td>
-                                <td>
-                                    <i title="Permissão de reserva fixa"
-                                       class="{% if p.permissao|has_flag(FIXA) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}"></i>
-                                </td>
-                                <td>
-                                    <i title="Permissão de reserva temporária"
-                                       class="{% if p.permissao|has_flag(TEMP) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}"></i>
-                                </td>
-                                <td>
-                                    <i title="Permissão de administrador"
-                                       class="{% if p.permissao|has_flag(ADMIN) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}"></i>
-                                </td>
-                                <td>
-                                    <form method="post" class="form-inline">
-                                        <input type="hidden" name="bloco" value="1">
-                                        <input type="hidden" name="id_usuario" value="{{ p.id_permissao_usuario }}">
-                                        <div class="btn-group">
-                                            <button type="submit"
-                                                    name="acao"
-                                                    value="editar"
-                                                    class="btn btn-warning btn-sm"
-                                                    title="Editar">
-                                                <i class="glyphicon glyphicon-pencil"></i>
-                                            </button>
-                                            {% if p.id_permissao_usuario != userid %}
-                                                <button type="submit"
-                                                        name="acao"
-                                                        value="excluir"
-                                                        class="btn btn-danger btn-sm"
-                                                        title="Excluir">
-                                                    <i class="glyphicon glyphicon-trash"></i>
-                                                </button>
-                                            {% endif %}
-                                        </div>
-                                    </form>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {{ paginacao(pagination, acao, bloco, query_params) }}
-        {% else %}
-            <div class="alert alert-warning" role="alert">Nenhum resultado encontrado</div>
-        {% endif %}
+        {{ result_table("Nenhum resultado encontrado") }}
     {% endif %}
 {% endblock procurar %}
 {% block inserir %}
@@ -417,3 +293,72 @@
         </form>
     {% endif %}
 {% endblock excluir %}
+{% macro result_table(message) %}
+    {% if permissoes %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover">
+                <thead>
+                    <tr class="information">
+                        <th>Usuario</th>
+                        <th>permissao</th>
+                        <th>FIXA</th>
+                        <th>TEMP</th>
+                        <th>ADMIN</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in permissoes %}
+                        <tr>
+                            <td>({{ p.id_permissao_usuario }}) {{ p.usuarios.pessoas.nome_pessoa }}</td>
+                            <td>{{ p.permissao }}</td>
+                            <td>
+                                <i title="Permissão de reserva fixa"
+                                   class="{% if p.permissao|has_flag(FIXA) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}"></i>
+                            </td>
+                            <td>
+                                <i title="Permissão de reserva temporária"
+                                   class="{% if p.permissao|has_flag(TEMP) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}"></i>
+                            </td>
+                            <td>
+                                <i title="Permissão de administrador"
+                                   class="{% if p.permissao|has_flag(ADMIN) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}"></i>
+                            </td>
+                            <td>
+                                <form method="post" class="form-inline">
+                                    <input type="hidden" name="bloco" value="1">
+                                    <input type="hidden" name="id_usuario" value="{{ p.id_permissao_usuario }}">
+                                    <div class="btn-group">
+                                        <button type="submit"
+                                                name="acao"
+                                                value="editar"
+                                                class="btn btn-warning btn-sm"
+                                                title="Editar">
+                                            <i class="glyphicon glyphicon-pencil"></i>
+                                        </button>
+                                        {% if p.id_permissao_usuario != userid %}
+                                            <button type="submit"
+                                                    name="acao"
+                                                    value="excluir"
+                                                    class="btn btn-danger btn-sm"
+                                                    title="Excluir">
+                                                <i class="glyphicon glyphicon-trash"></i>
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if query_params %}
+            {{ paginacao(pagination, acao, bloco, query_params) }}
+        {% else %}
+            {{ paginacao(pagination, acao, bloco) }}
+        {% endif %}
+    {% else %}
+        <div class="alert alert-warning" role="alert">{{ message }}</div>
+    {% endif %}
+{% endmacro %}

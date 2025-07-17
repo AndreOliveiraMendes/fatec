@@ -87,54 +87,7 @@
 {% endblock abertura %}
 {% block listar %}
     <h3>Lista de Laboratórios</h3>
-    {% if laboratorios %}
-        <div class="table-responsive">
-            <table class="table table-striped table-bordered table-hover">
-                <thead class="information">
-                    <th>ID do laboratório</th>
-                    <th>Nome do laboratório</th>
-                    <th>Disponibilidade</th>
-                    <th>Tipo de Laboratório</th>
-                    <th>ação</th>
-                </thead>
-                <tbody>
-                    {% for l in laboratorios %}
-                        <tr>
-                            <td>{{ l.id_laboratorio }}</td>
-                            <td>{{ l.nome_laboratorio }}</td>
-                            <td>{{ l.disponibilidade.value }}</td>
-                            <td>{{ l.tipo.value }}</td>
-                            <td>
-                                <form method="post" class="form-inline">
-                                    <input type="hidden" name="bloco" value="1">
-                                    <input type="hidden" name="id_laboratorio" value="{{ l.id_laboratorio }}">
-                                    <div class="btn-group">
-                                        <button type="submit"
-                                                name="acao"
-                                                value="editar"
-                                                class="btn btn-warning btn-sm"
-                                                title="Editar">
-                                            <i class="glyphicon glyphicon-pencil"></i>
-                                        </button>
-                                        <button type="submit"
-                                                name="acao"
-                                                value="excluir"
-                                                class="btn btn-danger btn-sm"
-                                                title="Excluir">
-                                            <i class="glyphicon glyphicon-trash"></i>
-                                        </button>
-                                    </div>
-                                </form>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {{ paginacao(pagination, acao, bloco) }}
-    {% else %}
-        <div class="alert alert-info" role="alert">Nenhum laboratório cadastrado.</div>
-    {% endif %}
+    {{ result_table("Nenhum laboratório cadastrado.") }}
 {% endblock listar %}
 {% block procurar %}
     {% if bloco == 0 %}
@@ -194,54 +147,7 @@
         </form>
     {% else %}
         <h3>Resultados da busca:</h3>
-        {% if laboratorios %}
-            <div class="table-responsive">
-                <table class="table table-striped table-bordered table-hover">
-                    <thead class="information">
-                        <th>ID do laboratório</th>
-                        <th>Nome do laboratório</th>
-                        <th>Disponibilidade</th>
-                        <th>Tipo de Laboratório</th>
-                        <th>ação</th>
-                    </thead>
-                    <tbody>
-                        {% for l in laboratorios %}
-                            <tr>
-                                <td>{{ l.id_laboratorio }}</td>
-                                <td>{{ l.nome_laboratorio }}</td>
-                                <td>{{ l.disponibilidade.value }}</td>
-                                <td>{{ l.tipo.value }}</td>
-                                <td>
-                                    <form method="post" class="form-inline">
-                                        <input type="hidden" name="bloco" value="1">
-                                        <input type="hidden" name="id_laboratorio" value="{{ l.id_laboratorio }}">
-                                        <div class="btn-group">
-                                            <button type="submit"
-                                                    name="acao"
-                                                    value="editar"
-                                                    class="btn btn-warning btn-sm"
-                                                    title="Editar">
-                                                <i class="glyphicon glyphicon-pencil"></i>
-                                            </button>
-                                            <button type="submit"
-                                                    name="acao"
-                                                    value="excluir"
-                                                    class="btn btn-danger btn-sm"
-                                                    title="Excluir">
-                                                <i class="glyphicon glyphicon-trash"></i>
-                                            </button>
-                                        </div>
-                                    </form>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {{ paginacao(pagination, acao, bloco, query_params) }}
-        {% else %}
-            <div class="alert alert-info" role="alert">Nenhum Resultado encontrado</div>
-        {% endif %}
+        {{ result_table("Nenhum Resultado encontrado") }}
     {% endif %}
 {% endblock procurar %}
 {% block inserir %}
@@ -430,3 +336,57 @@
         </form>
     {% endif %}
 {% endblock excluir %}
+{% macro result_table(message) %}
+    {% if laboratorios %}
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered table-hover">
+                <thead class="information">
+                    <th>ID do laboratório</th>
+                    <th>Nome do laboratório</th>
+                    <th>Disponibilidade</th>
+                    <th>Tipo de Laboratório</th>
+                    <th>ação</th>
+                </thead>
+                <tbody>
+                    {% for l in laboratorios %}
+                        <tr>
+                            <td>{{ l.id_laboratorio }}</td>
+                            <td>{{ l.nome_laboratorio }}</td>
+                            <td>{{ l.disponibilidade.value }}</td>
+                            <td>{{ l.tipo.value }}</td>
+                            <td>
+                                <form method="post" class="form-inline">
+                                    <input type="hidden" name="bloco" value="1">
+                                    <input type="hidden" name="id_laboratorio" value="{{ l.id_laboratorio }}">
+                                    <div class="btn-group">
+                                        <button type="submit"
+                                                name="acao"
+                                                value="editar"
+                                                class="btn btn-warning btn-sm"
+                                                title="Editar">
+                                            <i class="glyphicon glyphicon-pencil"></i>
+                                        </button>
+                                        <button type="submit"
+                                                name="acao"
+                                                value="excluir"
+                                                class="btn btn-danger btn-sm"
+                                                title="Excluir">
+                                            <i class="glyphicon glyphicon-trash"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if query_params %}
+            {{ paginacao(pagination, acao, bloco, query_params) }}
+        {% else %}
+            {{ paginacao(pagination, acao, bloco) }}
+        {% endif %}
+    {% else %}
+        <div class="alert alert-info" role="alert">{{ message }}</div>
+    {% endif %}
+{% endmacro %}

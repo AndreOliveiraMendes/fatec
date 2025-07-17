@@ -56,54 +56,7 @@
 {% endblock abertura %}
 {% block listar %}
     <h3>Lista de Aulas</h3>
-    {% if aulas %}
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped table-hover">
-                <thead>
-                    <tr class="information">
-                        <th>ID Aula</th>
-                        <th>Início da Aula</th>
-                        <th>Término da Aula</th>
-                        <th>Ação</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for a in aulas %}
-                        <tr>
-                            <td>{{ a.id_aula }}</td>
-                            <td>{{ a.horario_inicio.strftime("%H:%M") }}</td>
-                            <td>{{ a.horario_fim.strftime("%H:%M") }}</td>
-                            <td>
-                                <form method="post" class="form-inline">
-                                    <input type="hidden" name="bloco" value="1">
-                                    <input type="hidden" name="id_aula" value="{{ a.id_aula }}">
-                                    <div class="btn-group">
-                                        <button type="submit"
-                                                name="acao"
-                                                value="editar"
-                                                class="btn btn-warning btn-sm"
-                                                title="Editar">
-                                            <i class="glyphicon glyphicon-pencil"></i>
-                                        </button>
-                                        <button type="submit"
-                                                name="acao"
-                                                value="excluir"
-                                                class="btn btn-danger btn-sm"
-                                                title="Excluir">
-                                            <i class="glyphicon glyphicon-trash"></i>
-                                        </button>
-                                    </div>
-                                </form>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {{ paginacao(pagination, acao, bloco) }}
-    {% else %}
-        <div class="alert alert-info" role="alert">Nenhuma aula cadastrada.</div>
-    {% endif %}
+    {{ result_table("Nenhuma aula cadastrada.") }}
 {% endblock listar %}
 {% block procurar %}
     {% if bloco == 0 %}
@@ -155,54 +108,7 @@
         </form>
     {% else %}
         <h3>Resultados da Busca:</h3>
-        {% if aulas %}
-            <div class="table-responsive">
-                <table class="table table-bordered table-striped table-hover">
-                    <thead>
-                        <tr class="information">
-                            <th>ID Aula</th>
-                            <th>Início da Aula</th>
-                            <th>Término da Aula</th>
-                            <th>Ação</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for a in aulas %}
-                            <tr>
-                                <td>{{ a.id_aula }}</td>
-                                <td>{{ a.horario_inicio.strftime("%H:%M") }}</td>
-                                <td>{{ a.horario_fim.strftime("%H:%M") }}</td>
-                                <td>
-                                    <form method="post" class="form-inline">
-                                        <input type="hidden" name="bloco" value="1">
-                                        <input type="hidden" name="id_aula" value="{{ a.id_aula }}">
-                                        <div class="btn-group">
-                                            <button type="submit"
-                                                    name="acao"
-                                                    value="editar"
-                                                    class="btn btn-warning btn-sm"
-                                                    title="Editar">
-                                                <i class="glyphicon glyphicon-pencil"></i>
-                                            </button>
-                                            <button type="submit"
-                                                    name="acao"
-                                                    value="excluir"
-                                                    class="btn btn-danger btn-sm"
-                                                    title="Excluir">
-                                                <i class="glyphicon glyphicon-trash"></i>
-                                            </button>
-                                        </div>
-                                    </form>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {{ paginacao(pagination, acao, bloco, query_params) }}
-        {% else %}
-            <div class="alert alert-info" role="alert">Nenhum resultado encontrado.</div>
-        {% endif %}
+        {{ result_table("Nenhum resultado encontrado.") }}
     {% endif %}
 {% endblock procurar %}
 {% block inserir %}
@@ -330,3 +236,57 @@
         </form>
     {% endif %}
 {% endblock excluir %}
+{% macro result_table(message) %}
+    {% if aulas %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover">
+                <thead>
+                    <tr class="information">
+                        <th>ID Aula</th>
+                        <th>Início da Aula</th>
+                        <th>Término da Aula</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in aulas %}
+                        <tr>
+                            <td>{{ a.id_aula }}</td>
+                            <td>{{ a.horario_inicio.strftime("%H:%M") }}</td>
+                            <td>{{ a.horario_fim.strftime("%H:%M") }}</td>
+                            <td>
+                                <form method="post" class="form-inline">
+                                    <input type="hidden" name="bloco" value="1">
+                                    <input type="hidden" name="id_aula" value="{{ a.id_aula }}">
+                                    <div class="btn-group">
+                                        <button type="submit"
+                                                name="acao"
+                                                value="editar"
+                                                class="btn btn-warning btn-sm"
+                                                title="Editar">
+                                            <i class="glyphicon glyphicon-pencil"></i>
+                                        </button>
+                                        <button type="submit"
+                                                name="acao"
+                                                value="excluir"
+                                                class="btn btn-danger btn-sm"
+                                                title="Excluir">
+                                            <i class="glyphicon glyphicon-trash"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if query_params %}
+            {{ paginacao(pagination, acao, bloco, query_params) }}
+        {% else %}
+            {{ paginacao(pagination, acao, bloco) }}
+        {% endif %}
+    {% else %}
+        <div class="alert alert-info" role="alert">{{ message }}</div>
+    {% endif %}
+{% endmacro %}

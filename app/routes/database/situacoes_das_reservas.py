@@ -3,7 +3,7 @@ from flask import Blueprint
 from flask import flash, session, render_template, request
 from sqlalchemy.exc import IntegrityError, OperationalError
 from config.general import PER_PAGE
-from app.models import db, Aulas
+from app.models import db, Situacoes_Das_Reserva, SituacaoChaveEnum
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, parse_date_string, get_user_info, \
     get_query_params, registrar_log_generico_usuario, get_session_or_request, register_return
@@ -21,7 +21,10 @@ def gerenciar_situacoes_das_reservas():
     username, perm = get_user_info(userid)
     extras = {}
     if request.method == 'POST':
-        pass
+        if acao == 'listar':
+            situacoes_das_reservas_paginadas = Situacoes_Das_Reserva.query.paginate(page=page, per_page=PER_PAGE, error_out=False)
+            extras['situacoes_das_reservas'] = situacoes_das_reservas_paginadas.items
+            extras['pagination'] = situacoes_das_reservas_paginadas
     if redirect_action:
         return redirect_action
     return render_template("database/situacoes_das_reservas.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)

@@ -70,3 +70,11 @@
         </table>
     </div>
 {% endblock abertura %}
+{% block listar %}
+    <h3>Lista de Situacoes</h3>
+    {% if situacoes_das_reservas %}
+    tem
+    {% else %}
+    não tem
+    {% endif %}
+{% endblock listar %}

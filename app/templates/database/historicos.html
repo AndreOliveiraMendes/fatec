@@ -54,7 +54,7 @@
     <h3>
         Registros de <strong>Historicos</strong>
     </h3>
-    {{ result_table(pagination, acao, bloco, "Nenhum histórico encontrado.") }}
+    {{ result_table("Nenhum histórico encontrado.") }}
 {% endblock listar %}
 {% block procurar %}
     {% if bloco == 0 %}
@@ -62,7 +62,7 @@
         {{ search_form() }}
     {% else %}
         <h3>Resultados da busca:</h3>
-        {{ result_table(pagination, acao, bloco, "Nenhum resultado encontrado.", query_params) }}
+        {{ result_table("Nenhum resultado encontrado.") }}
     {% endif %}
 {% endblock procurar %}
 {% block extra %}
@@ -181,7 +181,7 @@
         {{ action_buttons(acao, 1, False, 0) }}
     </form>
 {% endmacro %}
-{% macro result_table(pagination, acao, bloco, message, query_params=None) %}
+{% macro result_table(message) %}
     {% if historicos %}
         <div class="table-responsive">
             <table class="table table-striped table-bordered table-hover">
@@ -240,7 +240,11 @@
                 </div>
             {% endfor %}
         {% endif %}
-        {{ paginacao(pagination, acao, bloco, query_params) }}
+        {% if query_params %}
+            {{ paginacao(pagination, acao, bloco, query_params) }}
+        {% else %}
+            {{ paginacao(pagination, acao, bloco) }}
+        {% endif %}
     {% else %}
         <div class="alert alert-warning" role="alert">{{ message }}</div>
     {% endif %}

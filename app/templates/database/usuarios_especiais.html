@@ -45,54 +45,7 @@
 {% endblock abertura %}
 {% block listar %}
     <h3>Lista de Usuarios Especiais</h3>
-    {% if usuarios_especiais %}
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped table-hover">
-                <thead>
-                    <tr class="information">
-                        <th>Id Usuario Especial</th>
-                        <th>Nome Usuario Especial</th>
-                        <th>Ação</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for ue in usuarios_especiais %}
-                        <tr>
-                            <td>{{ ue.id_usuario_especial }}</td>
-                            <td>{{ ue.nome_usuario_especial }}</td>
-                            <td>
-                                <form method="post" class="form-inline">
-                                    <input type="hidden" name="bloco" value="1">
-                                    <input type="hidden"
-                                           name="id_usuario_especial"
-                                           value="{{ ue.id_usuario_especial }}">
-                                    <div class="btn-group">
-                                        <button type="submit"
-                                                name="acao"
-                                                value="editar"
-                                                class="btn btn-warning btn-sm"
-                                                title="Editar">
-                                            <i class="glyphicon glyphicon-pencil"></i>
-                                        </button>
-                                        <button type="submit"
-                                                name="acao"
-                                                value="excluir"
-                                                class="btn btn-danger btn-sm"
-                                                title="Excluir">
-                                            <i class="glyphicon glyphicon-trash"></i>
-                                        </button>
-                                    </div>
-                                </form>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {{ paginacao(pagination, acao, bloco) }}
-    {% else %}
-        <div class="alert alert-warning" role="alert">Nenhum usuario especial encontrado</div>
-    {% endif %}
+    {{ result_table("Nenhum usuario especial encontrado") }}
 {% endblock listar %}
 {% block procurar %}
     {% if bloco == 0 %}
@@ -131,54 +84,7 @@
         </form>
     {% elif bloco == 1 %}
         <h3>Lista de Usuarios Especiais</h3>
-        {% if usuarios_especiais %}
-            <div class="table-responsive">
-                <table class="table table-bordered table-striped table-hover">
-                    <thead>
-                        <tr class="information">
-                            <th>Id Usuario Especial</th>
-                            <th>Nome Usuario Especial</th>
-                            <th>Ação</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for ue in usuarios_especiais %}
-                            <tr>
-                                <td>{{ ue.id_usuario_especial }}</td>
-                                <td>{{ ue.nome_usuario_especial }}</td>
-                                <td>
-                                    <form method="post" class="form-inline">
-                                        <input type="hidden" name="bloco" value="1">
-                                        <input type="hidden"
-                                               name="id_usuario_especial"
-                                               value="{{ ue.id_usuario_especial }}">
-                                        <div class="btn-group">
-                                            <button type="submit"
-                                                    name="acao"
-                                                    value="editar"
-                                                    class="btn btn-warning btn-sm"
-                                                    title="Editar">
-                                                <i class="glyphicon glyphicon-pencil"></i>
-                                            </button>
-                                            <button type="submit"
-                                                    name="acao"
-                                                    value="excluir"
-                                                    class="btn btn-danger btn-sm"
-                                                    title="Excluir">
-                                                <i class="glyphicon glyphicon-trash"></i>
-                                            </button>
-                                        </div>
-                                    </form>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {{ paginacao(pagination, acao, bloco, query_params) }}
-        {% else %}
-            <div class="alert alert-warning" role="alert">Nenhum resultado encontrado</div>
-        {% endif %}
+        {{ result_table("Nenhum resultado encontrado") }}
     {% endif %}
 {% endblock procurar %}
 {% block inserir %}
@@ -290,3 +196,57 @@
         </form>
     {% endif %}
 {% endblock excluir %}
+{% macro result_table(message) %}
+    {% if usuarios_especiais %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover">
+                <thead>
+                    <tr class="information">
+                        <th>Id Usuario Especial</th>
+                        <th>Nome Usuario Especial</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ue in usuarios_especiais %}
+                        <tr>
+                            <td>{{ ue.id_usuario_especial }}</td>
+                            <td>{{ ue.nome_usuario_especial }}</td>
+                            <td>
+                                <form method="post" class="form-inline">
+                                    <input type="hidden" name="bloco" value="1">
+                                    <input type="hidden"
+                                           name="id_usuario_especial"
+                                           value="{{ ue.id_usuario_especial }}">
+                                    <div class="btn-group">
+                                        <button type="submit"
+                                                name="acao"
+                                                value="editar"
+                                                class="btn btn-warning btn-sm"
+                                                title="Editar">
+                                            <i class="glyphicon glyphicon-pencil"></i>
+                                        </button>
+                                        <button type="submit"
+                                                name="acao"
+                                                value="excluir"
+                                                class="btn btn-danger btn-sm"
+                                                title="Excluir">
+                                            <i class="glyphicon glyphicon-trash"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if query_params %}
+            {{ paginacao(pagination, acao, bloco, query_params) }}
+        {% else %}
+            {{ paginacao(pagination, acao, bloco) }}
+        {% endif %}
+    {% else %}
+        <div class="alert alert-warning" role="alert">{{ message }}</div>
+    {% endif %}
+{% endmacro %}
