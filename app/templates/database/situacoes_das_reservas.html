@@ -72,9 +72,39 @@
 {% endblock abertura %}
 {% block listar %}
     <h3>Lista de Situacoes</h3>
-    {% if situacoes_das_reservas %}
-    tem
-    {% else %}
-    não tem
-    {% endif %}
+    {{ result_table("Nenhuma situação cadastrada") }}
 {% endblock listar %}
+{% block procurar %}
+    WIP
+{% endblock procurar %}
+{% block inserir %}
+    <h3>Inserir Situacoes das Reservas</h3>
+{% endblock inserir %}
+{% macro result_table(message) %}
+    {% if situacoes_das_reservas %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover">
+                <thead>
+                    <tr class="information">
+                        <td>Codigo</td>
+                        <td>Laboratorio</td>
+                        <td>Aula</td>
+                        <td>Dia</td>
+                        <td>Situacao</td>
+                    </tr>
+                </thead>
+                {% for sdr in situacoes_das_reservas %}
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info" role="alert">{{ message }}</div>
+    {% endif %}
+{% endmacro %}
