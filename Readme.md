@@ -13,11 +13,8 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 
 ```
 .
-├── .env
-├── .env.dev
 ├── .env.dev.example
 ├── .env.example
-├── .env.pod
 ├── .gitignore
 ├── .vscode
 │   └── settings.json
@@ -30,6 +27,7 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │   │   ├── auxiliar_routes.py
 │   │   ├── auxiliar_template.py
 │   │   ├── constant.py
+│   │   ├── dao.py
 │   │   ├── decorators.py
 │   │   └── error.py
 │   ├── extensions.py
@@ -56,6 +54,7 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │   │   │   ├── reservas_fixas.py
 │   │   │   ├── reservas_temporarias.py
 │   │   │   ├── semestres.py
+│   │   │   ├── situacoes_das_reservas.py
 │   │   │   ├── turnos.py
 │   │   │   ├── usuarios.py
 │   │   │   └── usuarios_especiais.py
@@ -88,13 +87,16 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │       │   ├── permissoes.html
 │       │   ├── pessoas.html
 │       │   ├── reservas_fixas.html
+│       │   ├── reservas_temporarias.html
 │       │   ├── schema.html
 │       │   ├── semestres.html
+│       │   ├── situacoes_das_reservas.html
 │       │   ├── turnos.html
 │       │   ├── usuarios.html
 │       │   └── usuarios_especiais.html
 │       ├── homepage.html
 │       ├── http
+│       │   ├── 400.html
 │       │   ├── 401.html
 │       │   ├── 403.html
 │       │   ├── 404.html
@@ -110,23 +112,6 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │   ├── database_views.py
 │   └── general.py
 ├── configurar_vscode.bat
-├── data
-├── laboratorio
-│   ├── .skeema
-│   └── laboratorio
-│       ├── .skeema
-│       ├── aulas.sql
-│       ├── aulas_ativas.sql
-│       ├── dias_da_semana.sql
-│       ├── historicos.sql
-│       ├── laboratorios.sql
-│       ├── permissoes.sql
-│       ├── pessoas.sql
-│       ├── reservas_fixas.sql
-│       ├── semestres.sql
-│       ├── turnos.sql
-│       ├── usuarios.sql
-│       └── usuarios_especiais.sql
 ├── requirements.txt
 ├── schema.sql
 ├── start-dev.bat
@@ -191,7 +176,7 @@ gunicorn -w 4 -b 0.0.0.0:5000 wsgi:app
 
 # 📌 Suggestion
 ✅ Use **POST → Redirect → GET** para evitar warnings ao recarregar.
-✅ o codigo usa Legacy (sqlalchemy), se possivel reescrever para sqlalchemy 2.0
 ✅ Planeje o uso de **volumes** ao containerizar o banco.
+✅ Planejar como pegar dados no crud quando a tabela for muito grande
 
 ---

@@ -1,28 +1,29 @@
 import csv
 from io import StringIO
-from flask import Blueprint, Response, jsonify
-from flask import flash, session, render_template, request, abort
-from sqlalchemy import or_
+from flask import Blueprint, Response, jsonify, flash, session, render_template, request, abort
+from flask_sqlalchemy.pagination import SelectPagination
+from sqlalchemy import select, func, or_
 from config.general import PER_PAGE
-from app.models import db, Historicos, Usuarios, OrigemEnum
+from app.models import db, Historicos, OrigemEnum
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, parse_datetime_string, get_user_info, \
     get_query_params, disable_action, include_action, get_session_or_request, formatar_valor, \
     register_return
+from app.auxiliar.dao import get_usuarios
 
 bp = Blueprint('historicos', __name__, url_prefix="/database")
 
-def get_usuarios():
-    return Usuarios.query.all()
-
 def get_tabelas():
-    return db.session.query(Historicos.tabela).distinct().all()
+    sel_tabelas = select(Historicos.tabela).distinct()
+    return db.session.execute(sel_tabelas).all()
 
 def get_categorias():
-    return db.session.query(Historicos.categoria).distinct().all()
+    sel_categorias = select(Historicos.categoria).distinct()
+    return db.session.execute(sel_categorias).all()
 
 def get_origens():
-    return db.session.query(Historicos.origem).distinct().all()
+    sel_origens = select(Historicos.origem).distinct()
+    return db.session.execute(sel_origens).all()
 
 def filtro_intervalo(inicio_procura, fim_procura):
     if inicio_procura and fim_procura:
@@ -51,7 +52,6 @@ def get_data():
     origem = none_if_empty(request.form.get('origem'))
     conteudo = none_if_empty(request.form.get('conteudo'))
     filter = []
-    query = Historicos.query
     query_params = get_query_params(request)
     if id_historico is not None:
         filter.append(Historicos.id_historico == id_historico)
@@ -67,7 +67,8 @@ def get_data():
         filter.append(Historicos.origem == OrigemEnum(origem))
     if conteudo:
         filter.append(get_conteudo(conteudo))
-    return filter, query, query_params
+    sel_historicos = select(Historicos)
+    return filter, sel_historicos, query_params
 
 @bp.route("/historicos", methods=["GET", "POST"])
 @admin_required
@@ -90,7 +91,10 @@ def gerenciar_Historicos():
         if acao in disabled:
             abort(403, description="Esta funcionalidade não foi implementada.")
         if acao == 'listar':
-            historicos_paginados = Historicos.query.paginate(page=page, per_page=PER_PAGE, error_out=False)
+            sel_historicos = select(Historicos)
+            historicos_paginados = SelectPagination(
+                select=sel_historicos, session=db.session, page=page, per_page=PER_PAGE, error_out=False
+            )
             extras['historicos'] = historicos_paginados.items
             extras['pagination'] = historicos_paginados
 
@@ -100,36 +104,43 @@ def gerenciar_Historicos():
             extras['categorias'] = get_categorias()
             extras['origens'] = get_origens()
         elif acao == 'procurar' and bloco == 1:
-            data_filter, query, query_params = get_data()
+            data_filter, sel_historicos, query_params = get_data()
             if data_filter:
-                historicos_paginados = query.filter(*data_filter).paginate(page=page, per_page=PER_PAGE, error_out=False)
+                sel_historicos = sel_historicos.where(*data_filter)
+                historicos_paginados = SelectPagination(
+                    select=sel_historicos, session=db.session,
+                    page=page, per_page=PER_PAGE, error_out=False
+                )
                 extras['historicos'] = historicos_paginados.items
                 extras['pagination'] = historicos_paginados
                 extras['query_params'] = query_params
             else:
                 flash("especifique ao menos um campo:", "danger")
-                redirect_action, bloco = register_return('historicos.gerenciar_Historicos', acao, extras,
+                redirect_action, bloco = register_return(
+                    'historicos.gerenciar_Historicos', acao, extras,
                     usuarios=get_usuarios(), tabelas=get_tabelas(), categorias=get_categorias(),
                     origens=get_origens()
                 )
         elif acao == 'exportar' and bloco == 1:
-            data_filter, query, query_params = get_data()
+            data_filter, sel_historicos, query_params = get_data()
             if data_filter:
-                query = query.filter(*data_filter)
-            extras['count'] = query.count()
+                sel_historicos = sel_historicos.where(*data_filter)
+            sel_count_historicos = select(func.count()).select_from(sel_historicos)
+            extras['count'] = db.session.execute(sel_count_historicos).scalar()
             extras['query_params'] = query_params
     if redirect_action:
         return redirect_action
-    return render_template("database/historicos.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
+    return render_template("database/historicos.html",
+        username=username, perm=perm, acao=acao, bloco=bloco, **extras)
 
 @bp.route("/historicos/exportar", methods=['POST'])
 def exportar_historicos():
-    data_filter, query, query_params = get_data()
+    data_filter, sel_historicos, query_params = get_data()
     if data_filter:
-        query = query.filter(*data_filter)
+        sel_historicos = sel_historicos.where(*data_filter)
     formato = request.form.get('formato', 'csv')
     header = [c.name for c in Historicos.__table__.columns]
-    resultados = query.all()
+    resultados = db.session.execute(sel_historicos).scalars().all()
     if formato == 'csv':
         utf8_bom = '\ufeff'
         si = StringIO()

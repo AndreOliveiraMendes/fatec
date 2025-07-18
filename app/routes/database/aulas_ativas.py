@@ -1,31 +1,23 @@
 import copy
-from flask import Blueprint
-from flask import flash, session, render_template, request, redirect, url_for, jsonify
+from flask import Blueprint, flash, session, render_template, request
+from flask_sqlalchemy.pagination import SelectPagination
+from sqlalchemy import select, func
 from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy import or_, and_
 from config.general import PER_PAGE
-from app.models import db, Aulas_Ativas, Aulas, Dias_da_Semana, TipoAulaEnum
+from app.models import db, Aulas_Ativas, TipoAulaEnum
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, parse_date_string, get_user_info, \
     get_query_params, registrar_log_generico_usuario, get_session_or_request, register_return
+from app.auxiliar.dao import get_aulas, get_dias_da_semana, get_aulas_ativas
 
 bp = Blueprint('aulas_ativas', __name__, url_prefix="/database")
-
-def get_aulas():
-    return Aulas.query.all()
-
-def get_dias_da_semana():
-    return db.session.query(Dias_da_Semana.id_semana, Dias_da_Semana.nome_semana).order_by(Dias_da_Semana.id_semana).all()
-
-def get_aulas_ativas():
-    return Aulas_Ativas.query.all()
 
 def check_aula_ativa(inicio, fim, aula, semana, tipo, id = None):
     base_filter = [Aulas_Ativas.id_aula == aula, Aulas_Ativas.id_semana == semana,
                    Aulas_Ativas.tipo_aula == tipo]
     if id is not None:
         base_filter.append(Aulas_Ativas.id_aula_ativa != id)
-    query = Aulas_Ativas.query
     if inicio and fim:
         base_filter.append(
             and_(
@@ -41,7 +33,8 @@ def check_aula_ativa(inicio, fim, aula, semana, tipo, id = None):
         base_filter.append(
             or_(Aulas_Ativas.inicio_ativacao.is_(None), Aulas_Ativas.inicio_ativacao <= fim)
             )
-    if query.filter(*base_filter).count() > 0:
+    countl_sel_aulas_ativas = select(func.count()).select_from(Aulas_Ativas).where(*base_filter)
+    if db.session.scalar(countl_sel_aulas_ativas) > 0:
         raise IntegrityError(
             statement=None,
             params=None,
@@ -94,7 +87,11 @@ def gerenciar_aulas_ativas():
     extras = {}
     if request.method == 'POST':
         if acao == 'listar':
-            aulas_ativas_paginadas = Aulas_Ativas.query.paginate(page=page, per_page=PER_PAGE, error_out=False)
+            sel_aulas_ativas = select(Aulas_Ativas)
+            aulas_ativas_paginadas = SelectPagination(
+                select=sel_aulas_ativas, session=db.session,
+                page=page, per_page=PER_PAGE, error_out=False
+            )
             extras['aulas_ativas'] = aulas_ativas_paginadas.items
             extras['pagination'] = aulas_ativas_paginadas
 
@@ -110,7 +107,6 @@ def gerenciar_aulas_ativas():
             tipo_aula = none_if_empty(request.form.get('tipo_aula'))
             filter = []
             query_params = get_query_params(request)
-            query = Aulas_Ativas.query
             if id_aula_ativa is not None:
                 filter.append(Aulas_Ativas.id_aula_ativa == id_aula_ativa)
             if id_aula is not None:
@@ -122,7 +118,11 @@ def gerenciar_aulas_ativas():
             if tipo_aula:
                 filter.append(Aulas_Ativas.tipo_aula == TipoAulaEnum(tipo_aula))
             if filter:
-                aulas_ativas_paginadas = query.filter(*filter).paginate(page=page, per_page=PER_PAGE, error_out=False)
+                sel_aulas_ativas = select(Aulas_Ativas).where(*filter)
+                aulas_ativas_paginadas = SelectPagination(
+                    select=sel_aulas_ativas, session=db.session,
+                    page=page, per_page=PER_PAGE, error_out=False
+                )
                 extras['aulas_ativas'] = aulas_ativas_paginadas.items
                 extras['pagination'] = aulas_ativas_paginadas
                 extras['query_params'] = query_params
@@ -166,7 +166,7 @@ def gerenciar_aulas_ativas():
             extras['aulas_ativas'] = get_aulas_ativas()
         elif acao in ['editar', 'excluir'] and bloco == 1:
             id_aula_ativa = none_if_empty(request.form.get('id_aula_ativa'), int)
-            aula_ativa = Aulas_Ativas.query.get_or_404(id_aula_ativa)
+            aula_ativa = db.get_or_404(Aulas_Ativas, id_aula_ativa)
             extras['aula_ativa'] = aula_ativa
             extras['aulas'] = get_aulas()
             extras['dias_da_semana'] = get_dias_da_semana()
@@ -177,7 +177,7 @@ def gerenciar_aulas_ativas():
             fim_ativacao = parse_date_string(request.form.get('fim_ativacao'))
             id_semana = none_if_empty(request.form.get('id_semana'), int)
             tipo_aula = none_if_empty(request.form.get('tipo_aula'))
-            aula_ativa = Aulas_Ativas.query.get_or_404(id_aula_ativa)
+            aula_ativa = db.get_or_404(Aulas_Ativas, id_aula_ativa)
             try:
                 check_aula_ativa(inicio_ativacao, fim_ativacao, id_aula, id_semana, tipo_aula, id_aula_ativa)
                 dados_anteriores = copy.copy(aula_ativa)
@@ -203,7 +203,7 @@ def gerenciar_aulas_ativas():
                 aulas_ativas=get_aulas_ativas())
         elif acao == 'excluir' and bloco == 2:
             id_aula_ativa = none_if_empty(request.form.get('id_aula_ativa'), int)
-            aula_ativa = Aulas_Ativas.query.get_or_404(id_aula_ativa)
+            aula_ativa = db.get_or_404(Aulas_Ativas, id_aula_ativa)
             try:
                 db.session.delete(aula_ativa)
 

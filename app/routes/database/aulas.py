@@ -1,17 +1,16 @@
 import copy
-from flask import Blueprint
-from flask import flash, session, render_template, request
+from flask import Blueprint, flash, session, render_template, request
+from flask_sqlalchemy.pagination import SelectPagination
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, OperationalError
 from config.general import PER_PAGE
 from app.models import db, Aulas
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, parse_time_string, get_user_info, \
     get_query_params, registrar_log_generico_usuario, get_session_or_request, register_return
+from app.auxiliar.dao import get_aulas
 
 bp = Blueprint('aulas', __name__, url_prefix="/database")
-
-def get_aulas():
-    return Aulas.query.all()
 
 @bp.route("/aulas", methods=["GET", "POST"])
 @admin_required
@@ -25,7 +24,11 @@ def gerenciar_aulas():
     extras = {}
     if request.method == 'POST':
         if acao == 'listar':
-            aulas_paginadas = Aulas.query.paginate(page=page, per_page=PER_PAGE, error_out=False)
+            sel_aulas = select(Aulas)
+            aulas_paginadas = SelectPagination(
+                select=sel_aulas, session=db.session,
+                page=page, per_page=PER_PAGE, error_out=False
+            )
             extras['aulas'] = aulas_paginadas.items
             extras['pagination'] = aulas_paginadas
 
@@ -37,7 +40,6 @@ def gerenciar_aulas():
             horario_fim_end = parse_time_string(request.form.get('horario_fim_end'))
             filter = []
             query_params = get_query_params(request)
-            query = Aulas.query
             if id_aula is not None:
                 filter.append(Aulas.id_aula == id_aula)
             if horario_inicio_start or horario_inicio_end:
@@ -55,7 +57,11 @@ def gerenciar_aulas():
                 else:
                     filter.append(Aulas.horario_fim <= horario_fim_end)
             if filter:
-                aulas_paginadas = query.filter(*filter).paginate(page=page, per_page=PER_PAGE, error_out=False)
+                sel_aulas = select(Aulas).where(*filter)
+                aulas_paginadas = SelectPagination(
+                    select=sel_aulas, session=db.session,
+                    page=page, per_page=PER_PAGE, error_out=False
+                )
                 extras['aulas'] = aulas_paginadas.items
                 extras['pagination'] = aulas_paginadas
                 extras['query_params'] = query_params
@@ -74,21 +80,21 @@ def gerenciar_aulas():
                 db.session.commit()
                 flash("Aula cadastrada com sucesso", "success")
             except (IntegrityError, OperationalError) as e:
-                flash(f"Erro ao cadastrar aula: {str(e.orig)}", "danger")
                 db.session.rollback()
+                flash(f"Erro ao cadastrar aula: {str(e.orig)}", "danger")
             redirect_action, bloco = register_return('aulas.gerenciar_aulas', acao, extras)
 
         elif acao in ['editar', 'excluir'] and bloco == 0:
             extras['aulas'] = get_aulas()
         elif acao in ['editar', 'excluir'] and bloco == 1:
             id_aula = none_if_empty(request.form.get('id_aula'), int)
-            aula = Aulas.query.get_or_404(id_aula)
+            aula = db.get_or_404(Aulas, id_aula)
             extras['aula'] = aula
         elif acao == 'editar' and bloco == 2:
             id_aula = none_if_empty(request.form.get('id_aula'), int)
             horario_inicio = parse_time_string(request.form.get('horario_inicio'))
             horario_fim = parse_time_string(request.form.get('horario_fim'))
-            aula = Aulas.query.get_or_404(id_aula)
+            aula = db.get_or_404(Aulas, id_aula)
             try:
                 dados_anteriores = copy.copy(aula)
                 aula.horario_inicio = horario_inicio
@@ -107,7 +113,7 @@ def gerenciar_aulas():
         elif acao == 'excluir' and bloco == 2:
             id_aula = none_if_empty(request.form.get('id_aula'), int)
 
-            aula = Aulas.query.get_or_404(id_aula)
+            aula = db.get_or_404(Aulas, id_aula)
             try:
                 db.session.delete(aula)
 

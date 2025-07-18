@@ -4,7 +4,8 @@
             <span class="glyphicon glyphicon-home"></span> Página Inicial
         </a>
         {% if admin %}
-            <a href="{{ url_for('admin.gerenciar_menu') }}" class="btn btn-warning btn-lg">
+            <a href="{{ url_for('admin.gerenciar_menu') }}"
+               class="btn btn-warning btn-lg">
                 <span class="glyphicon glyphicon-cog"></span> Painel Admin
             </a>
         {% endif %}
