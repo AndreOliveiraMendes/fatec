@@ -1,6 +1,6 @@
 from sqlalchemy import select
 from app.models import db, Pessoas, Usuarios, Usuarios_Especiais, Aulas, Laboratorios, Semestres, \
-    Dias_da_Semana, Turnos
+    Dias_da_Semana, Turnos, Aulas_Ativas
 
 #pessoas
 def get_pessoas(acao = None, userid = None):
@@ -47,3 +47,8 @@ def get_dias_da_semana():
 def get_turnos():
     stin = select(Turnos.id_turno, Turnos.nome_turno).order_by(Turnos.id_turno)
     return db.session.execute(stin).all()
+
+#Aulas Ativas
+def get_aulas_ativas():
+    saa = select(Aulas_Ativas)
+    return db.session.execute(saa).scalars().all()
