@@ -1,6 +1,7 @@
 import copy
-from flask import Blueprint
-from flask import flash, session, render_template, request, abort
+from flask import Blueprint, flash, session, render_template, request, abort
+from flask_sqlalchemy.pagination import SelectPagination
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, OperationalError
 from config.general import PER_PAGE
 from app.models import db, Pessoas, Usuarios
@@ -11,11 +12,11 @@ from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query
 bp = Blueprint('pessoas', __name__, url_prefix="/database")
 
 def get_pessoas_id_nome(acao, userid):
-    pessoas_id_nome = db.session.query(Pessoas.id_pessoa, Pessoas.nome_pessoa)
-    user = Usuarios.query.get(userid)
+    spin = select(Pessoas.id_pessoa, Pessoas.nome_pessoa)
+    user = db.session.get(Usuarios, userid)
     if acao == 'excluir' and user:
-        pessoas_id_nome = pessoas_id_nome.filter(Pessoas.id_pessoa!=user.id_pessoa)
-    return pessoas_id_nome.all()
+        spin = spin.where(Pessoas.id_pessoa != user.id_usuario)
+    return db.session.execute(spin).all()
 
 @bp.route("/pessoas", methods=["GET", "POST"])
 @admin_required
@@ -34,7 +35,8 @@ def gerenciar_pessoas():
             abort(403, description="Esta funcionalidade está desabilitada no momento.")
 
         if acao == 'listar':
-            pessoas_paginadas = Pessoas.query.paginate(page=page, per_page=PER_PAGE, error_out=False)
+            sp = select(Pessoas)
+            pessoas_paginadas = SelectPagination(select=sp, session=db.session, page=page, per_page=PER_PAGE, error_out=False)
             extras['pessoas'] = pessoas_paginadas.items
             extras['pagination'] = pessoas_paginadas
 
@@ -46,7 +48,6 @@ def gerenciar_pessoas():
             exact_email_match = 'ememail' in request.form
             filter = []
             query_params = get_query_params(request)
-            query = Pessoas.query
             if id is not None:
                 filter.append(Pessoas.id_pessoa == id)
             if nome:
@@ -60,7 +61,8 @@ def gerenciar_pessoas():
                 else:
                     filter.append(Pessoas.email_pessoa.ilike(f"%{email}%"))
             if filter:
-                pessoas_paginadas = query.filter(*filter).paginate(page=page, per_page=PER_PAGE, error_out=False)
+                spf = select(Pessoas).where(*filter)
+                pessoas_paginadas = SelectPagination(select=spf, session=db.session, page=page, per_page=PER_PAGE, error_out=False)
                 extras['pessoas'] = pessoas_paginadas.items
                 extras['pagination'] = pessoas_paginadas
                 extras['query_params'] = query_params
@@ -88,14 +90,13 @@ def gerenciar_pessoas():
             extras['pessoas'] = get_pessoas_id_nome(acao, userid)
         elif acao in ['editar', 'excluir'] and bloco == 1:
             id_pessoa = request.form.get('id_pessoa', None)
-            pessoa = Pessoas.query.get_or_404(id_pessoa)
-            extras['pessoa'] = pessoa
+            extras['pessoa'] = db.get_or_404(Pessoas, id_pessoa)
         elif acao == 'editar' and bloco == 2:
             id_pessoa = none_if_empty(request.form.get('id_pessoa'), int)
             nome = none_if_empty(request.form.get('nome', None))
             email = none_if_empty(request.form.get('email', None))
 
-            pessoa = Pessoas.query.get_or_404(id_pessoa)
+            pessoa = db.get_or_404(Pessoas, id_pessoa)
 
             try:
                 # Cria uma cópia dos dados antigos antes de editar
@@ -119,19 +120,20 @@ def gerenciar_pessoas():
 
             redirect_action, bloco = register_return('pessoas.gerenciar_pessoas', acao, extras, pessoas=get_pessoas_id_nome(acao, userid))
         elif acao == 'excluir' and bloco == 2:
-            user = Usuarios.query.get(userid)
+            user = db.session.get(Usuarios, userid)
             id_pessoa = none_if_empty(request.form.get('id_pessoa'), int)
 
-            pessoa = Pessoas.query.get_or_404(id_pessoa)
+            pessoa = db.get_or_404(Pessoas, id_pessoa)
 
-            if user.id_pessoa == id_pessoa:
+            if user and user.id_pessoa == id_pessoa:
                 flash("Voce não pode se excluir", "danger")
             else:
                 try:
+                    db.session.delete(pessoa)
+                    
                     db.session.flush()  # garante ID
                     registrar_log_generico_usuario(userid, "Exclusão", pessoa)
 
-                    db.session.delete(pessoa)
                     db.session.commit()
                     flash("Pessoa excluída com sucesso", "success")
 
