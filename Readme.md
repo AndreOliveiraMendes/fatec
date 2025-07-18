@@ -191,7 +191,7 @@ gunicorn -w 4 -b 0.0.0.0:5000 wsgi:app
 
 # 📌 Suggestion
 ✅ Use **POST → Redirect → GET** para evitar warnings ao recarregar.
-✅ o codigo usa Legacy (sqlalchemy), se possivel reescrever para sqlalchemy 2.0
 ✅ Planeje o uso de **volumes** ao containerizar o banco.
+✅ Planejar como pegar dados no crud quando a tabela for muito grande
 
 ---

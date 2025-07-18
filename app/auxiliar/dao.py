@@ -1,6 +1,6 @@
 from sqlalchemy import select
 from app.models import db, Pessoas, Usuarios, Usuarios_Especiais, Aulas, Laboratorios, Semestres, \
-    Dias_da_Semana, Turnos, Aulas_Ativas, Reservas_Fixas
+    Dias_da_Semana, Turnos, Aulas_Ativas, Reservas_Fixas, Reservas_Temporarias
 
 #pessoas
 def get_pessoas(acao = None, userid = None):
@@ -57,3 +57,8 @@ def get_aulas_ativas():
 def get_reservas_fixas():
     sel_reservas_fixas = select(Reservas_Fixas)
     return db.session.execute(sel_reservas_fixas).scalars().all()
+
+#Reservas Temporarias
+def get_reservas_temporarias():
+    sel_reservas_temporarias = select(Reservas_Temporarias)
+    return db.session.execute(sel_reservas_temporarias).scalars().all()
