@@ -1,6 +1,7 @@
 import copy
-from flask import Blueprint
-from flask import flash, session, render_template, request
+from flask import Blueprint, flash, session, render_template, request
+from flask_sqlalchemy.pagination import SelectPagination
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, OperationalError
 from config.general import PER_PAGE
 from app.models import db, Reservas_Fixas, Pessoas, Usuarios_Especiais, Laboratorios, \
@@ -8,26 +9,10 @@ from app.models import db, Reservas_Fixas, Pessoas, Usuarios_Especiais, Laborato
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params,\
     registrar_log_generico_usuario, get_session_or_request, register_return
+from app.auxiliar.dao import get_pessoas, get_usuarios_especiais, get_laboratorios, \
+    get_aulas, get_semestres, get_reservas_fixas
 
 bp = Blueprint('reservas_fixas', __name__, url_prefix="/database")
-
-def get_pessoas():
-    return db.session.query(Pessoas.id_pessoa, Pessoas.nome_pessoa).order_by(Pessoas.id_pessoa).all()
-
-def get_usuarios_especiais():
-    return db.session.query(Usuarios_Especiais.id_usuario_especial, Usuarios_Especiais.nome_usuario_especial).order_by(Usuarios_Especiais.id_usuario_especial).all()
-
-def get_laboratorios():
-    return db.session.query(Laboratorios.id_laboratorio, Laboratorios.nome_laboratorio).order_by(Laboratorios.id_laboratorio).all()
-
-def get_aulas():
-    return Aulas_Ativas.query.all()
-
-def get_semestres():
-    return db.session.query(Semestres.id_semestre, Semestres.nome_semestre).order_by(Semestres.id_semestre).all()
-
-def get_reservas_fixas():
-    return Reservas_Fixas.query.all()
 
 @bp.route("/reservas_fixa", methods=['GET', 'POST'])
 @admin_required
@@ -41,7 +26,8 @@ def gerenciar_reservas_fixas():
     extras = {}
     if request.method == 'POST':
         if acao == 'listar':
-            reservas_fixas_paginada = Reservas_Fixas.query.paginate(page=page, per_page=PER_PAGE, error_out=False)
+            srf = select(Reservas_Fixas)
+            reservas_fixas_paginada = SelectPagination(select=srf, session=db.session, page=page, per_page=PER_PAGE, error_out=False)
             extras['reservas_fixas'] = reservas_fixas_paginada.items
             extras['pagination'] = reservas_fixas_paginada
 
@@ -61,7 +47,6 @@ def gerenciar_reservas_fixas():
             id_reserva_semestre = none_if_empty(request.form.get('id_reserva_semestre'), int)
             tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
             filter = []
-            query = Reservas_Fixas.query
             query_params = get_query_params(request)
             if id_reserva_fixa is not None:
                 filter.append(Reservas_Fixas.id_reserva_fixa == id_reserva_fixa)
@@ -80,7 +65,8 @@ def gerenciar_reservas_fixas():
             if tipo_reserva:
                 filter.append(Reservas_Fixas.tipo_reserva == TipoReservaEnum(tipo_reserva))
             if filter:
-                reservas_fixas_paginada = query.filter(*filter).paginate(page=page, per_page=PER_PAGE, error_out=False)
+                srff = select(Reservas_Fixas).where(*filter)
+                reservas_fixas_paginada = SelectPagination(select=srff, session=db.session, page=page, per_page=PER_PAGE, error_out=False)
                 extras['reservas_fixas'] = reservas_fixas_paginada.items
                 extras['pagination'] = reservas_fixas_paginada
                 extras['query_params'] = query_params
@@ -136,7 +122,7 @@ def gerenciar_reservas_fixas():
             extras['reservas_fixas'] = get_reservas_fixas()
         elif acao in ['editar', 'excluir'] and bloco == 1:
             id_reserva_fixa = none_if_empty(request.form.get('id_reserva_fixa'), int)
-            reserva_fixa = Reservas_Fixas.query.get_or_404(id_reserva_fixa)
+            reserva_fixa = db.get_or_404(Reservas_Fixas, id_reserva_fixa)
             extras['reserva_fixa'] = reserva_fixa
             extras['pessoas'] = get_pessoas()
             extras['usuarios_especiais'] = get_usuarios_especiais()
@@ -152,7 +138,7 @@ def gerenciar_reservas_fixas():
             id_reserva_aula = none_if_empty(request.form.get('id_reserva_aula'), int)
             id_reserva_semestre = none_if_empty(request.form.get('id_reserva_semestre'), int)
             tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
-            reserva_fixa = Reservas_Fixas.query.get_or_404(id_reserva_fixa)
+            reserva_fixa = db.get_or_404(Reservas_Fixas, id_reserva_fixa)
             try:
                 dados_anteriores = copy.copy(reserva_fixa)
                 reserva_fixa.id_responsavel = id_responsavel
@@ -181,7 +167,7 @@ def gerenciar_reservas_fixas():
         elif acao == 'excluir' and bloco == 2:
             id_reserva_fixa = none_if_empty(request.form.get('id_reserva_fixa'), int)
 
-            reserva_fixa = Reservas_Fixas.query.get_or_404(id_reserva_fixa)
+            reserva_fixa = db.get_or_404(Reservas_Fixas, id_reserva_fixa)
             try:
                 db.session.delete(reserva_fixa)
 

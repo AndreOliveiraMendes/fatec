@@ -8,7 +8,7 @@ from app.models import db, Semestres
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, parse_date_string, get_user_info, \
     get_query_params, registrar_log_generico_usuario, get_session_or_request, register_return
-from app.auxiliar.dao import get_semestre
+from app.auxiliar.dao import get_semestres
 
 bp = Blueprint('semestres', __name__, url_prefix="/database")
 
@@ -76,7 +76,7 @@ def gerenciar_semestres():
             redirect_action, bloco = register_return('semestres.gerenciar_semestres', acao, extras)
 
         elif acao in ['editar', 'excluir'] and bloco == 0:
-            extras['semestres'] = get_semestre()
+            extras['semestres'] = get_semestres()
         elif acao in ['editar', 'excluir'] and bloco == 1:
             id_semestre = none_if_empty(request.form.get('id_semestre'), int)
             semestre = db.get_or_404(Semestres, id_semestre)
@@ -102,7 +102,7 @@ def gerenciar_semestres():
                 db.session.rollback()
                 flash(f"Erro ao editar semestre:{str(e.orig)}", "danger")
 
-            redirect_action, bloco = register_return('semestres.gerenciar_semestres', acao, extras, semestres=get_semestre())
+            redirect_action, bloco = register_return('semestres.gerenciar_semestres', acao, extras, semestres=get_semestres())
         elif acao == 'excluir' and bloco == 2:
             id_semestre = none_if_empty(request.form.get('id_semestre'), int)
 
@@ -119,7 +119,7 @@ def gerenciar_semestres():
                 db.session.rollback()
                 flash(f"Erro ao excluir semestre:{str(e.orig)}", "danger")
 
-            redirect_action, bloco = register_return('semestres.gerenciar_semestres', acao, extras, semestres=get_semestre())
+            redirect_action, bloco = register_return('semestres.gerenciar_semestres', acao, extras, semestres=get_semestres())
     if redirect_action:
         return redirect_action
     return render_template("database/semestres.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
