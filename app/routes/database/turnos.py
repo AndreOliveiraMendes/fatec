@@ -1,17 +1,16 @@
 import copy
-from flask import Blueprint
-from flask import flash, session, render_template, request, abort
+from flask import Blueprint, flash, session, render_template, request, abort
+from flask_sqlalchemy.pagination import SelectPagination
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, OperationalError
 from config.general import PER_PAGE
 from app.models import db, Turnos
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, parse_time_string, get_user_info, \
     registrar_log_generico_usuario, disable_action, get_session_or_request, register_return
+from app.auxiliar.dao import get_turnos
 
 bp = Blueprint('turnos', __name__, url_prefix="/database")
-
-def get_turnos():
-    return db.session.query(Turnos.id_turno, Turnos.nome_turno).order_by(Turnos.id_turno).all()
 
 @bp.route("/turnos", methods=["GET", "POST"])
 @admin_required
@@ -30,7 +29,8 @@ def gerenciar_turnos():
             abort(403, description="Esta funcionalidade não foi implementada.")
 
         if acao == 'listar':
-            turnos_paginados = Turnos.query.paginate(page=page, per_page=PER_PAGE, error_out=False)
+            st = select(Turnos).order_by(Turnos.id_turno)
+            turnos_paginados = SelectPagination(select=st, session=db.session, page=page, per_page=PER_PAGE, error_out=False)
             extras['turnos'] = turnos_paginados.items
             extras['pagination'] = turnos_paginados
 
@@ -57,14 +57,14 @@ def gerenciar_turnos():
             extras['turnos'] = get_turnos()
         elif acao in ['editar', 'excluir'] and bloco == 1:
             id_turno = none_if_empty(request.form.get('id_turno'), int)
-            turno = Turnos.query.get_or_404(id_turno)
+            turno = db.get_or_404(Turnos, id_turno)
             extras['turno'] = turno
         elif acao == 'editar' and bloco == 2:
             id_turno = none_if_empty(request.form.get('id_turno'), int)
             nome_turno = none_if_empty(request.form.get('nome_turno'))
             horario_inicio = parse_time_string(request.form.get('horario_inicio'))
             horario_fim = parse_time_string(request.form.get('horario_fim'))
-            turno = Turnos.query.get_or_404(id_turno)
+            turno = db.get_or_404(Turnos, id_turno)
             try:
                 dados_anteriores = copy.copy(turno)
                 turno.nome_turno = nome_turno
@@ -82,7 +82,7 @@ def gerenciar_turnos():
             redirect_action, bloco = register_return('turnos.gerenciar_turnos', acao, extras, turnos=get_turnos())
         elif acao == 'excluir' and bloco == 2:
             id_turno = none_if_empty(request.form.get('id_turno'), int)
-            turno = Turnos.query.get_or_404(id_turno)
+            turno = db.get_or_404(Turnos, id_turno)
             try:
                 db.session.delete(turno)
                 db.session.flush()
