@@ -10,7 +10,6 @@ from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query
     registrar_log_generico_usuario, disable_action, get_session_or_request, register_return
 from app.auxiliar.dao import get_pessoas, get_usuarios
 
-
 bp = Blueprint('usuarios', __name__, url_prefix="/database")
 
 @bp.route("/usuarios", methods=["GET", "POST"])
@@ -22,7 +21,7 @@ def gerenciar_usuarios():
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
     username, perm = get_user_info(userid)
-    disabled = []#['inserir', 'editar', 'excluir']
+    disabled = ['inserir', 'editar', 'excluir']
     extras = {}
     disable_action(extras, disabled)
     if request.method == 'POST':
