@@ -1,5 +1,6 @@
 from sqlalchemy import select
-from app.models import db, Pessoas, Usuarios, Usuarios_Especiais, Aulas, Laboratorios, Semestres
+from app.models import db, Pessoas, Usuarios, Usuarios_Especiais, Aulas, Laboratorios, Semestres,\
+    Dias_da_Semana
 
 #pessoas
 def get_pessoas(acao = None, userid = None):
@@ -36,3 +37,8 @@ def get_laboratorios():
 def get_semestre():
     ssin = select(Semestres.id_semestre, Semestres.nome_semestre)
     return db.session.execute(ssin).all()
+
+#dias da semana
+def get_dias_da_semana():
+    sds = select(Dias_da_Semana).order_by(Dias_da_Semana.id_semana)
+    return db.session.execute(sds).scalars().all()
