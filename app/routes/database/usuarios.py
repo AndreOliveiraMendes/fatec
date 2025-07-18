@@ -82,8 +82,8 @@ def gerenciar_usuarios():
                 db.session.commit()
                 flash("Usuario cadastrado com sucesso", "success")
             except (IntegrityError, OperationalError) as e:
-                flash(f"Erro ao inserir usuario: {str(e.orig)}", "danger")
                 db.session.rollback()
+                flash(f"Erro ao inserir usuario: {str(e.orig)}", "danger")
 
             redirect_action, bloco = register_return('usuarios.gerenciar_usuarios', acao, extras, pessoas=get_pessoas())
 

@@ -1,5 +1,5 @@
 from sqlalchemy import select
-from app.models import db, Pessoas, Usuarios
+from app.models import db, Pessoas, Usuarios, Usuarios_Especiais
 
 #pessoas
 def get_pessoas(acao = None, userid = None):
@@ -16,3 +16,8 @@ def get_usuarios(acao = None, userid = None):
     if acao == 'excluir' and userid is not None:
         suin = suin.where(Usuarios.id_usuario != userid)
     return db.session.execute(suin).all()
+
+#usuarios especiais
+def get_usuarios_especiais():
+    suein = select(Usuarios_Especiais.id_usuario_especial, Usuarios_Especiais.nome_usuario_especial)
+    return db.session.execute(suein).all()

@@ -75,9 +75,9 @@ def gerenciar_pessoas():
                 db.session.commit()
                 flash("Pessoa cadastrada com sucesso", "success")
             except (IntegrityError, OperationalError) as e:
-                flash(f"Erro ao inserir pessoa: {str(e.orig)}", "danger")
                 db.session.rollback()
-            
+                flash(f"Erro ao inserir pessoa: {str(e.orig)}", "danger")
+
             redirect_action, bloco = register_return('pessoas.gerenciar_pessoas', acao, extras)
 
         elif acao in ['editar', 'excluir'] and bloco == 0:
