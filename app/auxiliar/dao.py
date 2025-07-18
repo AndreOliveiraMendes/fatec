@@ -1,13 +1,13 @@
 from sqlalchemy import select
 from app.models import db, Pessoas, Usuarios, Usuarios_Especiais, Aulas, Laboratorios, Semestres, \
-    Dias_da_Semana, Turnos, Aulas_Ativas, Reservas_Fixas, Reservas_Temporarias
+    Dias_da_Semana, Turnos, Aulas_Ativas, Reservas_Fixas, Reservas_Temporarias, Situacoes_Das_Reserva
 
 #pessoas
 def get_pessoas(acao = None, userid = None):
     sel_pessoas = select(Pessoas.id_pessoa, Pessoas.nome_pessoa)
-    if userid:
+    if acao == 'excluir' and userid is not None:
         user = db.session.get(Usuarios, userid)
-        if acao == 'excluir' and user:
+        if user:
             sel_pessoas = sel_pessoas.where(Pessoas.id_pessoa != user.id_usuario)
     return db.session.execute(sel_pessoas).all()
 
@@ -62,3 +62,8 @@ def get_reservas_fixas():
 def get_reservas_temporarias():
     sel_reservas_temporarias = select(Reservas_Temporarias)
     return db.session.execute(sel_reservas_temporarias).scalars().all()
+
+#Situacoes das Reservas
+def get_situacoes():
+    sel_situacoes_das_reservas = select(Situacoes_Das_Reserva)
+    return db.session.execute(sel_situacoes_das_reservas).scalars().all()

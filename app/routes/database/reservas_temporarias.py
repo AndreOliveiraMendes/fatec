@@ -9,7 +9,7 @@ from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, parse_date_string, get_user_info, \
     get_query_params, registrar_log_generico_usuario, get_session_or_request, register_return
 from app.auxiliar.dao import get_pessoas, get_usuarios_especiais, get_laboratorios, \
-    get_aulas, get_reservas_temporarias
+    get_aulas_ativas, get_reservas_temporarias
 
 bp = Blueprint('reservas_temporarias', __name__, url_prefix="/database")
 
@@ -63,7 +63,7 @@ def gerenciar_reservas_temporarias():
             extras['pessoas'] = get_pessoas()
             extras['usuarios_especiais'] = get_usuarios_especiais()
             extras['laboratorios'] = get_laboratorios()
-            extras['aulas_ativas'] = get_aulas()
+            extras['aulas_ativas'] = get_aulas_ativas()
         elif acao == 'procurar' and bloco == 1:
             id_reserva_temporaria = none_if_empty(request.form.get('id_reserva_temporaria'), int)
             id_responsavel = none_if_empty(request.form.get('id_responsavel'), int)
@@ -102,13 +102,13 @@ def gerenciar_reservas_temporarias():
                 flash("especifique ao menos um campo de busca", "danger")
                 redirect_action, bloco = register_return('reservas_fixas.gerenciar_reservas_fixas', acao,
                     extras, pessoas=get_pessoas(), usuarios_especiais=get_usuarios_especiais(),
-                    laboratorios=get_laboratorios(), aulas_ativas=get_aulas())
+                    laboratorios=get_laboratorios(), aulas_ativas=get_aulas_ativas())
 
         elif acao == 'inserir' and bloco == 0:
             extras['pessoas'] = get_pessoas()
             extras['usuarios_especiais'] = get_usuarios_especiais()
             extras['laboratorios'] = get_laboratorios()
-            extras['aulas_ativas'] = get_aulas()
+            extras['aulas_ativas'] = get_aulas_ativas()
         elif acao == 'inserir' and bloco == 1:
             id_responsavel = none_if_empty(request.form.get('id_responsavel'), int)
             id_responsavel_especial = none_if_empty(request.form.get('id_responsavel_especial'), int)
@@ -143,7 +143,7 @@ def gerenciar_reservas_temporarias():
 
             redirect_action, bloco = register_return('reservas_fixas.gerenciar_reservas_fixas',
                 acao, extras, pessoas=get_pessoas(), usuarios_especiais=get_usuarios_especiais(),
-                laboratorios=get_laboratorios(), aulas_ativas=get_aulas())
+                laboratorios=get_laboratorios(), aulas_ativas=get_aulas_ativas())
         
         elif acao in ['editar', 'excluir'] and bloco == 0:
             extras['reservas_temporarias'] = get_reservas_temporarias()
@@ -154,7 +154,7 @@ def gerenciar_reservas_temporarias():
             extras['pessoas'] = get_pessoas()
             extras['usuarios_especiais'] = get_usuarios_especiais()
             extras['laboratorios'] = get_laboratorios()
-            extras['aulas_ativas'] = get_aulas()
+            extras['aulas_ativas'] = get_aulas_ativas()
         elif acao == 'editar' and bloco == 2:
             id_reserva_temporaria = none_if_empty(request.form.get('id_reserva_temporaria'), int)
             id_responsavel = none_if_empty(request.form.get('id_responsavel'), int)

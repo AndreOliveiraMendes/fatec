@@ -9,7 +9,7 @@ from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params,\
     registrar_log_generico_usuario, get_session_or_request, register_return
 from app.auxiliar.dao import get_pessoas, get_usuarios_especiais, get_laboratorios, \
-    get_aulas, get_semestres, get_reservas_fixas
+    get_aulas_ativas, get_semestres, get_reservas_fixas
 
 bp = Blueprint('reservas_fixas', __name__, url_prefix="/database")
 
@@ -34,7 +34,7 @@ def gerenciar_reservas_fixas():
             extras['pessoas'] = get_pessoas()
             extras['usuarios_especiais'] = get_usuarios_especiais()
             extras['laboratorios'] = get_laboratorios()
-            extras['aulas_ativas'] = get_aulas()
+            extras['aulas_ativas'] = get_aulas_ativas()
             extras['semestres'] = get_semestres()
         elif acao == 'procurar' and bloco == 1:
             id_reserva_fixa = none_if_empty(request.form.get('id_reserva_fixa'), int)
@@ -73,14 +73,14 @@ def gerenciar_reservas_fixas():
                 flash("especifique ao menos um campo", "danger")
                 redirect_action, bloco = register_return('reservas_fixas.gerenciar_reservas_fixas',
                     acao, extras, pessoas=get_pessoas(), usuarios_especiais=get_usuarios_especiais(),
-                    laboratorios=get_laboratorios(), aulas_ativas=get_aulas(), semestres=get_semestres()
+                    laboratorios=get_laboratorios(), aulas_ativas=get_aulas_ativas(), semestres=get_semestres()
             )
 
         elif acao == 'inserir' and bloco == 0:
             extras['pessoas'] = get_pessoas()
             extras['usuarios_especiais'] = get_usuarios_especiais()
             extras['laboratorios'] = get_laboratorios()
-            extras['aulas_ativas'] = get_aulas()
+            extras['aulas_ativas'] = get_aulas_ativas()
             extras['semestres'] = get_semestres()
         elif acao == 'inserir' and bloco == 1:
             id_responsavel = none_if_empty(request.form.get('id_responsavel'), int)
@@ -114,7 +114,7 @@ def gerenciar_reservas_fixas():
 
             redirect_action, bloco = register_return('reservas_fixas.gerenciar_reservas_fixas',
                 acao, extras, pessoas=get_pessoas(), usuarios_especiais=get_usuarios_especiais(),
-                laboratorios=get_laboratorios(), aulas_ativas=get_aulas(), semestres=get_semestres()
+                laboratorios=get_laboratorios(), aulas_ativas=get_aulas_ativas(), semestres=get_semestres()
             )
 
         elif acao in ['editar', 'excluir'] and bloco == 0:
@@ -126,7 +126,7 @@ def gerenciar_reservas_fixas():
             extras['pessoas'] = get_pessoas()
             extras['usuarios_especiais'] = get_usuarios_especiais()
             extras['laboratorios'] = get_laboratorios()
-            extras['aulas_ativas'] = get_aulas()
+            extras['aulas_ativas'] = get_aulas_ativas()
             extras['semestres'] = get_semestres()
         elif acao == 'editar' and bloco == 2:
             id_reserva_fixa = none_if_empty(request.form.get('id_reserva_fixa'), int)
