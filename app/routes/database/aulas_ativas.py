@@ -33,8 +33,8 @@ def check_aula_ativa(inicio, fim, aula, semana, tipo, id = None):
         base_filter.append(
             or_(Aulas_Ativas.inicio_ativacao.is_(None), Aulas_Ativas.inicio_ativacao <= fim)
             )
-    count_saac = select(func.count()).select_from(Aulas_Ativas).where(*base_filter)
-    if db.session.scalar(count_saac) > 0:
+    countl_sel_aulas_ativas = select(func.count()).select_from(Aulas_Ativas).where(*base_filter)
+    if db.session.scalar(countl_sel_aulas_ativas) > 0:
         raise IntegrityError(
             statement=None,
             params=None,
@@ -87,8 +87,11 @@ def gerenciar_aulas_ativas():
     extras = {}
     if request.method == 'POST':
         if acao == 'listar':
-            saa = select(Aulas_Ativas)
-            aulas_ativas_paginadas = SelectPagination(select=saa, session=db.session, page=page, per_page=PER_PAGE, error_out=False)
+            sel_aulas_ativas = select(Aulas_Ativas)
+            aulas_ativas_paginadas = SelectPagination(
+                select=sel_aulas_ativas, session=db.session,
+                page=page, per_page=PER_PAGE, error_out=False
+            )
             extras['aulas_ativas'] = aulas_ativas_paginadas.items
             extras['pagination'] = aulas_ativas_paginadas
 
@@ -115,8 +118,11 @@ def gerenciar_aulas_ativas():
             if tipo_aula:
                 filter.append(Aulas_Ativas.tipo_aula == TipoAulaEnum(tipo_aula))
             if filter:
-                saaf = select(Aulas_Ativas).where(*filter)
-                aulas_ativas_paginadas = SelectPagination(select=saaf, session=db.session, page=page, per_page=PER_PAGE, error_out=False)
+                sel_aulas_ativas = select(Aulas_Ativas).where(*filter)
+                aulas_ativas_paginadas = SelectPagination(
+                    select=sel_aulas_ativas, session=db.session,
+                    page=page, per_page=PER_PAGE, error_out=False
+                )
                 extras['aulas_ativas'] = aulas_ativas_paginadas.items
                 extras['pagination'] = aulas_ativas_paginadas
                 extras['query_params'] = query_params

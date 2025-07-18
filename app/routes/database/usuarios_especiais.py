@@ -24,8 +24,11 @@ def gerenciar_usuarios_especiais():
     extras = {}
     if request.method == 'POST':
         if acao == "listar":
-            sue = select(Usuarios_Especiais)
-            usuarios_especiais_paginados = SelectPagination(select=sue, session=db.session, page=page, per_page=PER_PAGE, error_out=False)
+            sel_users = select(Usuarios_Especiais)
+            usuarios_especiais_paginados = SelectPagination(
+                select=sel_users, session=db.session,
+                page=page, per_page=PER_PAGE, error_out=False
+            )
             extras['usuarios_especiais'] = usuarios_especiais_paginados.items
             extras['pagination'] = usuarios_especiais_paginados
 
@@ -41,16 +44,21 @@ def gerenciar_usuarios_especiais():
                 if exact_name_match:
                     filter.append(Usuarios_Especiais.nome_usuario_especial == nome_usuario_especial)
                 else:
-                    filter.append(Usuarios_Especiais.nome_usuario_especial.ilike(f"%{nome_usuario_especial}%"))
+                    filter.append(
+                        Usuarios_Especiais.nome_usuario_especial.ilike(f"%{nome_usuario_especial}%"))
             if filter:
-                suef = select(Usuarios_Especiais).where(*filter)
-                usuarios_especiais_paginados = SelectPagination(select=suef, session=db.session, page=page, per_page=PER_PAGE, error_out=False)
+                sel_users = select(Usuarios_Especiais).where(*filter)
+                usuarios_especiais_paginados = SelectPagination(
+                    select=sel_users, session=db.session,
+                    page=page, per_page=PER_PAGE, error_out=False
+                )
                 extras['usuarios_especiais'] = usuarios_especiais_paginados.items
                 extras['pagination'] = usuarios_especiais_paginados
                 extras['query_params'] = query_params
             else:
                 flash("especifique pelo menos um campo de busca", "danger")
-                redirect_action, bloco = register_return('usuarios_especiais.gerenciar_usuarios_especiais', acao, extras)
+                redirect_action, bloco = register_return(
+                    'usuarios_especiais.gerenciar_usuarios_especiais', acao, extras)
 
         elif acao == 'inserir' and bloco == 1:
             nome_usuario_especial = none_if_empty(request.form.get('nome_usuario_especial'))
@@ -65,7 +73,8 @@ def gerenciar_usuarios_especiais():
                 db.session.rollback()
                 flash(f"Erro ao inserir usuario especial: {str(e.orig)}", "danger")
 
-            redirect_action, bloco = register_return('usuarios_especiais.gerenciar_usuarios_especiais', acao, extras)
+            redirect_action, bloco = register_return('usuarios_especiais.gerenciar_usuarios_especiais',
+                acao, extras)
 
         elif acao in ['editar', 'excluir'] and bloco == 0:
             extras['usuarios_especiais'] = get_usuarios_especiais()
@@ -92,7 +101,8 @@ def gerenciar_usuarios_especiais():
                 db.session.rollback()
                 flash(f"Erro ao editar usuario especial: {str(e.orig)}", "danger")
 
-            redirect_action, bloco = register_return('usuarios_especiais.gerenciar_usuarios_especiais', acao, extras, usuarios_especiais=get_usuarios_especiais())
+            redirect_action, bloco = register_return('usuarios_especiais.gerenciar_usuarios_especiais',
+                acao, extras, usuarios_especiais=get_usuarios_especiais())
         elif acao == 'excluir' and bloco == 2:
             id_usuario_especial = none_if_empty(request.form.get('id_usuario_especial'), int)
 
@@ -109,7 +119,9 @@ def gerenciar_usuarios_especiais():
                 db.session.rollback()
                 flash(f"Erro ao excluir usuario especial: {str(e.orig)}", "danger")
 
-            redirect_action, bloco = register_return('usuarios_especiais.gerenciar_usuarios_especiais', acao, extras, usuarios_especiais=get_usuarios_especiais())
+            redirect_action, bloco = register_return('usuarios_especiais.gerenciar_usuarios_especiais',
+                acao, extras, usuarios_especiais=get_usuarios_especiais())
     if redirect_action:
         return redirect_action
-    return render_template("database/usuarios_especiais.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
+    return render_template("database/usuarios_especiais.html",
+        username=username, perm=perm, acao=acao, bloco=bloco, **extras)

@@ -91,8 +91,10 @@ def gerenciar_Historicos():
         if acao in disabled:
             abort(403, description="Esta funcionalidade não foi implementada.")
         if acao == 'listar':
-            sh = select(Historicos)
-            historicos_paginados = SelectPagination(select=sh, session=db.session, page=page, per_page=PER_PAGE, error_out=False)
+            sel_historicos = select(Historicos)
+            historicos_paginados = SelectPagination(
+                select=sel_historicos, session=db.session, page=page, per_page=PER_PAGE, error_out=False
+            )
             extras['historicos'] = historicos_paginados.items
             extras['pagination'] = historicos_paginados
 
@@ -105,13 +107,17 @@ def gerenciar_Historicos():
             data_filter, sel_historicos, query_params = get_data()
             if data_filter:
                 sel_historicos = sel_historicos.where(*data_filter)
-                historicos_paginados = SelectPagination(select=sel_historicos, session=db.session, page=page, per_page=PER_PAGE, error_out=False)
+                historicos_paginados = SelectPagination(
+                    select=sel_historicos, session=db.session,
+                    page=page, per_page=PER_PAGE, error_out=False
+                )
                 extras['historicos'] = historicos_paginados.items
                 extras['pagination'] = historicos_paginados
                 extras['query_params'] = query_params
             else:
                 flash("especifique ao menos um campo:", "danger")
-                redirect_action, bloco = register_return('historicos.gerenciar_Historicos', acao, extras,
+                redirect_action, bloco = register_return(
+                    'historicos.gerenciar_Historicos', acao, extras,
                     usuarios=get_usuarios(), tabelas=get_tabelas(), categorias=get_categorias(),
                     origens=get_origens()
                 )
@@ -124,7 +130,8 @@ def gerenciar_Historicos():
             extras['query_params'] = query_params
     if redirect_action:
         return redirect_action
-    return render_template("database/historicos.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
+    return render_template("database/historicos.html",
+        username=username, perm=perm, acao=acao, bloco=bloco, **extras)
 
 @bp.route("/historicos/exportar", methods=['POST'])
 def exportar_historicos():

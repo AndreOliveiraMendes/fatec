@@ -29,8 +29,11 @@ def gerenciar_turnos():
             abort(403, description="Esta funcionalidade não foi implementada.")
 
         if acao == 'listar':
-            st = select(Turnos).order_by(Turnos.id_turno)
-            turnos_paginados = SelectPagination(select=st, session=db.session, page=page, per_page=PER_PAGE, error_out=False)
+            sel_situacoes = select(Turnos).order_by(Turnos.id_turno)
+            turnos_paginados = SelectPagination(
+                select=sel_situacoes, session=db.session,
+                page=page, per_page=PER_PAGE, error_out=False
+            )
             extras['turnos'] = turnos_paginados.items
             extras['pagination'] = turnos_paginados
 
@@ -39,7 +42,8 @@ def gerenciar_turnos():
             horario_inicio = parse_time_string(request.form.get('horario_inicio'))
             horario_fim = parse_time_string(request.form.get('horario_fim'))
             try:
-                novo_turno = Turnos(nome_turno = nome_turno, horario_inicio = horario_inicio, horario_fim = horario_fim)
+                novo_turno = Turnos(
+                    nome_turno = nome_turno, horario_inicio = horario_inicio, horario_fim = horario_fim)
                 db.session.add(novo_turno)
 
                 db.session.flush()
@@ -79,7 +83,8 @@ def gerenciar_turnos():
                 db.session.rollback()
                 flash(f"Erro ao editar turno:{str(e.orig)}", "danger")
 
-            redirect_action, bloco = register_return('turnos.gerenciar_turnos', acao, extras, turnos=get_turnos())
+            redirect_action, bloco = register_return('turnos.gerenciar_turnos',
+                acao, extras, turnos=get_turnos())
         elif acao == 'excluir' and bloco == 2:
             id_turno = none_if_empty(request.form.get('id_turno'), int)
             turno = db.get_or_404(Turnos, id_turno)
@@ -94,8 +99,10 @@ def gerenciar_turnos():
                 db.session.rollback()
                 flash(f"Erro as excluir turno", "danger")
 
-            redirect_action, bloco = register_return('turnos.gerenciar_turnos', acao, extras, turnos=get_turnos())
+            redirect_action, bloco = register_return('turnos.gerenciar_turnos',
+                acao, extras, turnos=get_turnos())
 
     if redirect_action:
         return redirect_action
-    return render_template("database/turnos.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
+    return render_template("database/turnos.html",
+        username=username, perm=perm, acao=acao, bloco=bloco, **extras)

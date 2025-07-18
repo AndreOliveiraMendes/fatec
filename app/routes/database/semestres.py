@@ -24,8 +24,11 @@ def gerenciar_semestres():
     extras = {}
     if request.method == 'POST':
         if acao == 'listar':
-            ss = select(Semestres)
-            semestres_paginados = SelectPagination(select=ss, session=db.session, page=page, per_page=PER_PAGE, error_out=False)
+            sel_semestres = select(Semestres)
+            semestres_paginados = SelectPagination(
+                select=sel_semestres, session=db.session,
+                page=page, per_page=PER_PAGE, error_out=False
+            )
             extras['semestres'] = semestres_paginados.items
             extras['pagination'] = semestres_paginados
 
@@ -49,8 +52,11 @@ def gerenciar_semestres():
             if data_fim:
                 filter.append(Semestres.data_fim == data_fim)
             if filter:
-                ssf = select(Semestres).where(*filter)
-                semestres_paginados = semestres_paginados = SelectPagination(select=ssf, session=db.session, page=page, per_page=PER_PAGE, error_out=False)
+                sel_semestres = select(Semestres).where(*filter)
+                semestres_paginados = semestres_paginados = SelectPagination(
+                    select=sel_semestres, session=db.session,
+                    page=page, per_page=PER_PAGE, error_out=False
+                )
                 extras['semestres'] = semestres_paginados.items
                 extras['pagination'] = semestres_paginados
                 extras['query_params'] = query_params
@@ -63,7 +69,8 @@ def gerenciar_semestres():
             data_inicio = parse_date_string(request.form.get('data_inicio'))
             data_fim = parse_date_string(request.form.get('data_fim'))
             try:
-                novo_semestre = Semestres(nome_semestre = nome_semestre, data_inicio = data_inicio, data_fim = data_fim)
+                novo_semestre = Semestres(
+                    nome_semestre = nome_semestre, data_inicio = data_inicio, data_fim = data_fim)
                 db.session.add(novo_semestre)
                 db.session.flush()
                 registrar_log_generico_usuario(userid, "Inserção", novo_semestre)
@@ -102,7 +109,8 @@ def gerenciar_semestres():
                 db.session.rollback()
                 flash(f"Erro ao editar semestre:{str(e.orig)}", "danger")
 
-            redirect_action, bloco = register_return('semestres.gerenciar_semestres', acao, extras, semestres=get_semestres())
+            redirect_action, bloco = register_return('semestres.gerenciar_semestres',
+                acao, extras, semestres=get_semestres())
         elif acao == 'excluir' and bloco == 2:
             id_semestre = none_if_empty(request.form.get('id_semestre'), int)
 
@@ -119,7 +127,9 @@ def gerenciar_semestres():
                 db.session.rollback()
                 flash(f"Erro ao excluir semestre:{str(e.orig)}", "danger")
 
-            redirect_action, bloco = register_return('semestres.gerenciar_semestres', acao, extras, semestres=get_semestres())
+            redirect_action, bloco = register_return('semestres.gerenciar_semestres',
+                acao, extras, semestres=get_semestres())
     if redirect_action:
         return redirect_action
-    return render_template("database/semestres.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
+    return render_template("database/semestres.html",
+        username=username, perm=perm, acao=acao, bloco=bloco, **extras)

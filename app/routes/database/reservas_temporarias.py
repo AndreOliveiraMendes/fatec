@@ -54,8 +54,11 @@ def gerenciar_reservas_temporarias():
     extras = {}
     if request.method == 'POST':
         if acao == 'listar':
-            srt = select(Reservas_Temporarias)
-            reservas_temporarias_paginadas = SelectPagination(select=srt, session=db.session, page=page, per_page=PER_PAGE, error_out=False)
+            sel_reservas = select(Reservas_Temporarias)
+            reservas_temporarias_paginadas = SelectPagination(
+                select=sel_reservas, session=db.session,
+                page=page, per_page=PER_PAGE, error_out=False
+            )
             extras['reservas_temporarias'] = reservas_temporarias_paginadas.items
             extras['pagination'] = reservas_temporarias_paginadas
 
@@ -93,15 +96,18 @@ def gerenciar_reservas_temporarias():
             if tipo_reserva:
                 filter.append(Reservas_Temporarias.tipo_reserva == TipoReservaEnum(tipo_reserva))
             if filter:
-                srtf = select(Reservas_Temporarias).where(*filter)
-                reservas_temporarias_paginadas = SelectPagination(select=srtf, session=db.session, page=page, per_page=PER_PAGE, error_out=False)
+                sel_reservas = select(Reservas_Temporarias).where(*filter)
+                reservas_temporarias_paginadas = SelectPagination(
+                    select=sel_reservas, session=db.session,
+                    page=page, per_page=PER_PAGE, error_out=False
+                )
                 extras['reservas_temporarias'] = reservas_temporarias_paginadas.items
                 extras['pagination'] = reservas_temporarias_paginadas
                 extras['query_params'] = query_params
             else:
                 flash("especifique ao menos um campo de busca", "danger")
-                redirect_action, bloco = register_return('reservas_fixas.gerenciar_reservas_fixas', acao,
-                    extras, pessoas=get_pessoas(), usuarios_especiais=get_usuarios_especiais(),
+                redirect_action, bloco = register_return('reservas_fixas.gerenciar_reservas_fixas',
+                    acao, extras, pessoas=get_pessoas(), usuarios_especiais=get_usuarios_especiais(),
                     laboratorios=get_laboratorios(), aulas_ativas=get_aulas_ativas())
 
         elif acao == 'inserir' and bloco == 0:
@@ -120,7 +126,8 @@ def gerenciar_reservas_temporarias():
             tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
 
             try:
-                check_reserva_temporaria(inicio_reserva, fim_reserva, id_reserva_laboratorio, id_reserva_aula)
+                check_reserva_temporaria(inicio_reserva, fim_reserva,
+                    id_reserva_laboratorio, id_reserva_aula)
                 nova_reserva_temporaria = Reservas_Temporarias(
                     id_responsavel=id_responsavel, id_responsavel_especial=id_responsavel_especial,
                     tipo_responsavel=tipo_responsavel, id_reserva_laboratorio=id_reserva_laboratorio,
@@ -213,4 +220,5 @@ def gerenciar_reservas_temporarias():
 
     if redirect_action:
         return redirect_action
-    return render_template("database/reservas_temporarias.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
+    return render_template("database/reservas_temporarias.html",
+        username=username, perm=perm, acao=acao, bloco=bloco, **extras)

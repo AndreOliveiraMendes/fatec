@@ -29,8 +29,11 @@ def gerenciar_usuarios():
             abort(403, description="Esta funcionalidade está desabilitada no momento.")
 
         if acao == 'listar':
-            su = select(Usuarios)
-            usuarios_paginados = SelectPagination(select=su, session=db.session, page=page, per_page=PER_PAGE, error_out=False)
+            sel_users = select(Usuarios)
+            usuarios_paginados = SelectPagination(
+                select=sel_users, session=db.session,
+                page=page, per_page=PER_PAGE, error_out=False
+            )
             extras['usuarios'] = usuarios_paginados.items
             extras['pagination'] = usuarios_paginados
             extras['userid'] = userid
@@ -56,15 +59,19 @@ def gerenciar_usuarios():
             if grupo_pessoa:
                 filter.append(Usuarios.grupo_pessoa == grupo_pessoa)
             if filter:
-                suf = select(Usuarios).where(*filter)
-                usuarios_paginados = SelectPagination(select=suf, session=db.session, page=page, per_page=PER_PAGE, error_out=False)
+                sel_users = select(Usuarios).where(*filter)
+                usuarios_paginados = SelectPagination(
+                    select=sel_users, session=db.session,
+                    page=page, per_page=PER_PAGE, error_out=False
+                )
                 extras['usuarios'] = usuarios_paginados.items
                 extras['pagination'] = usuarios_paginados
                 extras['userid'] = userid
                 extras['query_params'] = query_params
             else:
                 flash("especifique pelo menos um campo de busca", "danger")
-                redirect_action, bloco = register_return('usuarios.gerenciar_usuarios', acao, extras, pessoas=get_pessoas())
+                redirect_action, bloco = register_return('usuarios.gerenciar_usuarios',
+                    acao, extras, pessoas=get_pessoas())
 
         elif acao == 'inserir' and bloco == 0:
             extras['pessoas'] = get_pessoas()
@@ -75,7 +82,9 @@ def gerenciar_usuarios():
             situacao_pessoa = none_if_empty(request.form.get('situacao_pessoa', None))
             grupo_pessoa = none_if_empty(request.form.get('grupo_pessoa', None))
             try:
-                novo_usuario = Usuarios(id_usuario=id_usuario, id_pessoa=id_pessoa, tipo_pessoa=tipo_pessoa, situacao_pessoa=situacao_pessoa, grupo_pessoa=grupo_pessoa)
+                novo_usuario = Usuarios(
+                    id_usuario=id_usuario, id_pessoa=id_pessoa, tipo_pessoa=tipo_pessoa,
+                    situacao_pessoa=situacao_pessoa, grupo_pessoa=grupo_pessoa)
                 db.session.add(novo_usuario)
                 db.session.flush()  # garante ID
                 registrar_log_generico_usuario(userid, "Inserção", novo_usuario)
@@ -85,7 +94,8 @@ def gerenciar_usuarios():
                 db.session.rollback()
                 flash(f"Erro ao inserir usuario: {str(e.orig)}", "danger")
 
-            redirect_action, bloco = register_return('usuarios.gerenciar_usuarios', acao, extras, pessoas=get_pessoas())
+            redirect_action, bloco = register_return('usuarios.gerenciar_usuarios',
+                acao, extras, pessoas=get_pessoas())
 
         elif acao in ['editar', 'excluir'] and bloco == 0:
             extras['usuarios'] = get_usuarios(acao, userid)
@@ -121,7 +131,8 @@ def gerenciar_usuarios():
                 db.session.rollback()
                 flash(f"Erro ao atualizar usuario: {str(e.orig)}", "danger")
 
-            redirect_action, bloco = register_return('usuarios.gerenciar_usuarios', acao, extras, usuarios=get_usuarios(acao, userid))
+            redirect_action, bloco = register_return('usuarios.gerenciar_usuarios',
+                acao, extras, usuarios=get_usuarios(acao, userid))
         elif acao == 'excluir' and bloco == 2:
             id_usuario = none_if_empty(request.form.get('id_usuario', None), int)
             
@@ -142,7 +153,9 @@ def gerenciar_usuarios():
                     db.session.rollback()
                     flash(f"Erro ao excluir usuario: {str(e.orig)}", "danger")
 
-            redirect_action, bloco = register_return('usuarios.gerenciar_usuarios', acao, extras, usuarios=get_usuarios(acao, userid))
+            redirect_action, bloco = register_return('usuarios.gerenciar_usuarios',
+                acao, extras, usuarios=get_usuarios(acao, userid))
     if redirect_action:
         return redirect_action
-    return render_template("database/usuarios.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
+    return render_template("database/usuarios.html",
+        username=username, perm=perm, acao=acao, bloco=bloco, **extras)

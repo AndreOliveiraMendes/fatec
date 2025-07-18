@@ -24,8 +24,11 @@ def gerenciar_situacoes_das_reservas():
     extras = {}
     if request.method == 'POST':
         if acao == 'listar':
-            ssdr = select(Situacoes_Das_Reserva)
-            situacoes_das_reservas_paginadas = SelectPagination(select=ssdr, session=db.session, page=page, per_page=PER_PAGE, error_out=False)
+            sel_situacoes = select(Situacoes_Das_Reserva)
+            situacoes_das_reservas_paginadas = SelectPagination(
+                select=sel_situacoes, session=db.session,
+                page=page, per_page=PER_PAGE, error_out=False
+            )
             extras['situacoes_das_reservas'] = situacoes_das_reservas_paginadas.items
             extras['pagination'] = situacoes_das_reservas_paginadas
 
@@ -51,8 +54,11 @@ def gerenciar_situacoes_das_reservas():
             if situacao_chave:
                 filter.append(Situacoes_Das_Reserva.situacao_chave == SituacaoChaveEnum(situacao_chave))
             if filter:
-                ssdrf = select(Situacoes_Das_Reserva).where(*filter)
-                situacoes_das_reservas_paginadas = SelectPagination(select=ssdrf, session=db.session, page=page, per_page=PER_PAGE, error_out=False)
+                sel_situacoes = select(Situacoes_Das_Reserva).where(*filter)
+                situacoes_das_reservas_paginadas = SelectPagination(
+                    select=sel_situacoes, session=db.session,
+                    page=page, per_page=PER_PAGE, error_out=False
+                )
                 extras['situacoes_das_reservas'] = situacoes_das_reservas_paginadas.items
                 extras['pagination'] = situacoes_das_reservas_paginadas
                 extras['query_params'] = query_params
@@ -162,4 +168,5 @@ def gerenciar_situacoes_das_reservas():
             )
     if redirect_action:
         return redirect_action
-    return render_template("database/situacoes_das_reservas.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
+    return render_template("database/situacoes_das_reservas.html",
+        username=username, perm=perm, acao=acao, bloco=bloco, **extras)

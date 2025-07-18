@@ -29,8 +29,11 @@ def gerenciar_dias_da_semana():
             abort(403, description="Esta funcionalidade não foi implementada.")
 
         if acao == 'listar':
-            sds = select(Dias_da_Semana).order_by(Dias_da_Semana.id_semana)
-            dias_da_semana_paginada = SelectPagination(select=sds, session=db.session, page=page, per_page=PER_PAGE, error_out=False)
+            sel_dias_semana = select(Dias_da_Semana).order_by(Dias_da_Semana.id_semana)
+            dias_da_semana_paginada = SelectPagination(
+                select=sel_dias_semana, session=db.session,
+                page=page, per_page=PER_PAGE, error_out=False
+            )
             extras['dias_da_semana'] = dias_da_semana_paginada.items
             extras['pagination'] = dias_da_semana_paginada
 

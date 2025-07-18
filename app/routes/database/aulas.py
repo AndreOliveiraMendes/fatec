@@ -24,8 +24,11 @@ def gerenciar_aulas():
     extras = {}
     if request.method == 'POST':
         if acao == 'listar':
-            sa = select(Aulas)
-            aulas_paginadas = SelectPagination(select=sa, session=db.session, page=page, per_page=PER_PAGE, error_out=False)
+            sel_aulas = select(Aulas)
+            aulas_paginadas = SelectPagination(
+                select=sel_aulas, session=db.session,
+                page=page, per_page=PER_PAGE, error_out=False
+            )
             extras['aulas'] = aulas_paginadas.items
             extras['pagination'] = aulas_paginadas
 
@@ -54,8 +57,11 @@ def gerenciar_aulas():
                 else:
                     filter.append(Aulas.horario_fim <= horario_fim_end)
             if filter:
-                saf = select(Aulas).where(*filter)
-                aulas_paginadas = SelectPagination(select=saf, session=db.session, page=page, per_page=PER_PAGE, error_out=False)
+                sel_aulas = select(Aulas).where(*filter)
+                aulas_paginadas = SelectPagination(
+                    select=sel_aulas, session=db.session,
+                    page=page, per_page=PER_PAGE, error_out=False
+                )
                 extras['aulas'] = aulas_paginadas.items
                 extras['pagination'] = aulas_paginadas
                 extras['query_params'] = query_params

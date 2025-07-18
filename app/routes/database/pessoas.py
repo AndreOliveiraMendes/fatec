@@ -29,8 +29,11 @@ def gerenciar_pessoas():
             abort(403, description="Esta funcionalidade está desabilitada no momento.")
 
         if acao == 'listar':
-            sp = select(Pessoas)
-            pessoas_paginadas = SelectPagination(select=sp, session=db.session, page=page, per_page=PER_PAGE, error_out=False)
+            sel_pessoas = select(Pessoas)
+            pessoas_paginadas = SelectPagination(
+                select=sel_pessoas, session=db.session,
+                page=page, per_page=PER_PAGE, error_out=False
+            )
             extras['pessoas'] = pessoas_paginadas.items
             extras['pagination'] = pessoas_paginadas
 
@@ -55,8 +58,11 @@ def gerenciar_pessoas():
                 else:
                     filter.append(Pessoas.email_pessoa.ilike(f"%{email}%"))
             if filter:
-                spf = select(Pessoas).where(*filter)
-                pessoas_paginadas = SelectPagination(select=spf, session=db.session, page=page, per_page=PER_PAGE, error_out=False)
+                sel_pessoas = select(Pessoas).where(*filter)
+                pessoas_paginadas = SelectPagination(
+                    select=sel_pessoas, session=db.session,
+                    page=page, per_page=PER_PAGE, error_out=False
+                )
                 extras['pessoas'] = pessoas_paginadas.items
                 extras['pagination'] = pessoas_paginadas
                 extras['query_params'] = query_params
@@ -112,7 +118,8 @@ def gerenciar_pessoas():
                 db.session.rollback()
                 flash(f"Erro ao atualizar pessoa: {str(e.orig)}", "danger")
 
-            redirect_action, bloco = register_return('pessoas.gerenciar_pessoas', acao, extras, pessoas=get_pessoas(acao, userid))
+            redirect_action, bloco = register_return('pessoas.gerenciar_pessoas',
+                acao, extras, pessoas=get_pessoas(acao, userid))
         elif acao == 'excluir' and bloco == 2:
             user = db.session.get(Usuarios, userid)
             id_pessoa = none_if_empty(request.form.get('id_pessoa'), int)
@@ -135,7 +142,9 @@ def gerenciar_pessoas():
                     db.session.rollback()
                     flash(f"Erro ao excluir pessoa: {str(e.orig)}", "danger")
 
-            redirect_action, bloco = register_return('pessoas.gerenciar_pessoas', acao, extras, pessoas=get_pessoas(acao, userid))
+            redirect_action, bloco = register_return('pessoas.gerenciar_pessoas',
+                acao, extras, pessoas=get_pessoas(acao, userid))
     if redirect_action:
         return redirect_action
-    return render_template("database/pessoas.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
+    return render_template("database/pessoas.html",
+        username=username, perm=perm, acao=acao, bloco=bloco, **extras)

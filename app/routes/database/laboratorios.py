@@ -24,8 +24,11 @@ def gerenciar_laboratorios():
     extras = {}
     if request.method == 'POST':
         if acao == 'listar':
-            sl = select(Laboratorios)
-            laboratorios_paginados = SelectPagination(select=sl, session=db.session, page=page, per_page=PER_PAGE, error_out=False)
+            sel_laboratorios = select(Laboratorios)
+            laboratorios_paginados = SelectPagination(
+                select=sel_laboratorios, session=db.session,
+                page=page, per_page=PER_PAGE, error_out=False
+            )
             extras['laboratorios'] = laboratorios_paginados.items
             extras['pagination'] = laboratorios_paginados
 
@@ -49,21 +52,30 @@ def gerenciar_laboratorios():
             if tipo:
                 filter.append(Laboratorios.tipo == TipoLaboratorioEnum(tipo))
             if filter:
-                slf = select(Laboratorios).where(*filter)
-                laboratorios_paginados = SelectPagination(select=slf, session=db.session, page=page, per_page=PER_PAGE, error_out=False)
+                sel_laboratorios = select(Laboratorios).where(*filter)
+                laboratorios_paginados = SelectPagination(
+                    select=sel_laboratorios, session=db.session,
+                    page=page, per_page=PER_PAGE, error_out=False
+                )
                 extras['laboratorios'] = laboratorios_paginados.items
                 extras['pagination'] = laboratorios_paginados
                 extras['query_params'] = query_params
             else:
                 flash("especifique pelo menos um campo de busca", "danger")
-                redirect_action, bloco = register_return('laboratorios.gerenciar_laboratorios', acao, extras)
+                redirect_action, bloco = register_return(
+                    'laboratorios.gerenciar_laboratorios', acao, extras
+                )
 
         elif acao == 'inserir' and bloco == 1:
             nome_laboratorio = none_if_empty(request.form.get('nome_laboratorio'))
             disponibilidade = none_if_empty(request.form.get('disponibilidade'))
             tipo = none_if_empty(request.form.get('tipo'))
             try:
-                novo_laboratorio = Laboratorios(nome_laboratorio=nome_laboratorio, disponibilidade=DisponibilidadeEnum(disponibilidade), tipo=TipoLaboratorioEnum(tipo))
+                novo_laboratorio = Laboratorios(
+                    nome_laboratorio=nome_laboratorio,
+                    disponibilidade=DisponibilidadeEnum(disponibilidade),
+                    tipo=TipoLaboratorioEnum(tipo)
+                )
                 db.session.add(novo_laboratorio)
                 db.session.flush()
                 registrar_log_generico_usuario(userid, "Inserção", novo_laboratorio)
@@ -76,7 +88,9 @@ def gerenciar_laboratorios():
                 db.session.rollback()
                 flash(f"Erro ao cadastrar laboratorio:{str(ve)}", "danger")
 
-            redirect_action, bloco = register_return('laboratorios.gerenciar_laboratorios', acao, extras)
+            redirect_action, bloco = register_return(
+                'laboratorios.gerenciar_laboratorios', acao, extras
+            )
 
         elif acao in ['editar', 'excluir'] and bloco == 0:
             extras['laboratorios'] = get_laboratorios()
@@ -110,7 +124,9 @@ def gerenciar_laboratorios():
                 db.session.rollback()
                 flash(f"Erro ao editar laboratorio:{str(ve)}", "danger")
 
-            redirect_action, bloco = register_return('laboratorios.gerenciar_laboratorios', acao, extras, laboratorios=get_laboratorios())
+            redirect_action, bloco = register_return(
+                'laboratorios.gerenciar_laboratorios', acao, extras, laboratorios=get_laboratorios()
+            )
         elif acao == 'excluir' and bloco == 2:
             id_laboratorio = none_if_empty(request.form.get('id_laboratorio'), int)
 
@@ -127,7 +143,10 @@ def gerenciar_laboratorios():
                 db.session.rollback()
                 flash(f"Erro ao excluir laboratorio: {str(e.orig)}", "danger")
 
-            redirect_action, bloco = register_return('laboratorios.gerenciar_laboratorios', acao, extras, laboratorios=get_laboratorios())
+            redirect_action, bloco = register_return(
+                'laboratorios.gerenciar_laboratorios', acao, extras, laboratorios=get_laboratorios()
+            )
     if redirect_action:
         return redirect_action
-    return render_template("database/laboratorios.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
+    return render_template("database/laboratorios.html",
+        username=username, perm=perm, acao=acao, bloco=bloco, **extras)

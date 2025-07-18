@@ -25,8 +25,11 @@ def gerenciar_reservas_fixas():
     extras = {}
     if request.method == 'POST':
         if acao == 'listar':
-            srf = select(Reservas_Fixas)
-            reservas_fixas_paginada = SelectPagination(select=srf, session=db.session, page=page, per_page=PER_PAGE, error_out=False)
+            sel_reservas = select(Reservas_Fixas)
+            reservas_fixas_paginada = SelectPagination(
+                select=sel_reservas, session=db.session,
+                page=page, per_page=PER_PAGE, error_out=False
+            )
             extras['reservas_fixas'] = reservas_fixas_paginada.items
             extras['pagination'] = reservas_fixas_paginada
 
@@ -64,8 +67,11 @@ def gerenciar_reservas_fixas():
             if tipo_reserva:
                 filter.append(Reservas_Fixas.tipo_reserva == TipoReservaEnum(tipo_reserva))
             if filter:
-                srff = select(Reservas_Fixas).where(*filter)
-                reservas_fixas_paginada = SelectPagination(select=srff, session=db.session, page=page, per_page=PER_PAGE, error_out=False)
+                sel_reservas = select(Reservas_Fixas).where(*filter)
+                reservas_fixas_paginada = SelectPagination(
+                    select=sel_reservas, session=db.session,
+                    page=page, per_page=PER_PAGE, error_out=False
+                )
                 extras['reservas_fixas'] = reservas_fixas_paginada.items
                 extras['pagination'] = reservas_fixas_paginada
                 extras['query_params'] = query_params
@@ -73,7 +79,8 @@ def gerenciar_reservas_fixas():
                 flash("especifique ao menos um campo", "danger")
                 redirect_action, bloco = register_return('reservas_fixas.gerenciar_reservas_fixas',
                     acao, extras, pessoas=get_pessoas(), usuarios_especiais=get_usuarios_especiais(),
-                    laboratorios=get_laboratorios(), aulas_ativas=get_aulas_ativas(), semestres=get_semestres()
+                    laboratorios=get_laboratorios(), aulas_ativas=get_aulas_ativas(),
+                    semestres=get_semestres()
             )
 
         elif acao == 'inserir' and bloco == 0:
@@ -114,7 +121,8 @@ def gerenciar_reservas_fixas():
 
             redirect_action, bloco = register_return('reservas_fixas.gerenciar_reservas_fixas',
                 acao, extras, pessoas=get_pessoas(), usuarios_especiais=get_usuarios_especiais(),
-                laboratorios=get_laboratorios(), aulas_ativas=get_aulas_ativas(), semestres=get_semestres()
+                laboratorios=get_laboratorios(), aulas_ativas=get_aulas_ativas(),
+                semestres=get_semestres()
             )
 
         elif acao in ['editar', 'excluir'] and bloco == 0:
@@ -160,8 +168,8 @@ def gerenciar_reservas_fixas():
                 db.session.rollback()
                 flash(f"Erro ao editar reserva:{str(ve)}", "danger")
 
-            redirect_action, bloco = register_return('reservas_fixas.gerenciar_reservas_fixas', acao, extras,
-                reservas_fixas=get_reservas_fixas()
+            redirect_action, bloco = register_return('reservas_fixas.gerenciar_reservas_fixas',
+                acao, extras, reservas_fixas=get_reservas_fixas()
             )
         elif acao == 'excluir' and bloco == 2:
             id_reserva_fixa = none_if_empty(request.form.get('id_reserva_fixa'), int)
@@ -179,9 +187,10 @@ def gerenciar_reservas_fixas():
                 db.session.rollback()
                 flash(f"erro ao excluir reserva:{str(e.orig)}", "danger")
 
-            redirect_action, bloco = register_return('reservas_fixas.gerenciar_reservas_fixas', acao, extras,
-                reservas_fixas=get_reservas_fixas()
+            redirect_action, bloco = register_return('reservas_fixas.gerenciar_reservas_fixas',
+                acao, extras, reservas_fixas=get_reservas_fixas()
             )
     if redirect_action:
         return redirect_action
-    return render_template("database/reservas_fixas.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
+    return render_template("database/reservas_fixas.html",
+        username=username, perm=perm, acao=acao, bloco=bloco, **extras)
