@@ -105,7 +105,7 @@ def gerenciar_reservas_temporarias():
             if inicio_procura or fim_procura:
                 filter.append(filtro_intervalo(inicio_procura, fim_procura))
             if tipo_reserva:
-                filter.append(Reservas_Temporarias.tipo_reserva == tipo_reserva)
+                filter.append(Reservas_Temporarias.tipo_reserva == TipoReservaEnum(tipo_reserva))
             if filter:
                 reservas_temporarias_paginadas = query.filter(*filter).paginate(page=page, per_page=PER_PAGE, error_out=False)
                 extras['reservas_temporarias'] = reservas_temporarias_paginadas.items

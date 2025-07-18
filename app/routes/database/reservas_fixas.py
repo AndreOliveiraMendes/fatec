@@ -78,7 +78,7 @@ def gerenciar_reservas_fixas():
             if id_reserva_semestre is not None:
                 filter.append(Reservas_Fixas.id_reserva_semestre == id_reserva_semestre)
             if tipo_reserva:
-                filter.append(Reservas_Fixas.tipo_reserva == tipo_reserva)
+                filter.append(Reservas_Fixas.tipo_reserva == TipoReservaEnum(tipo_reserva))
             if filter:
                 reservas_fixas_paginada = query.filter(*filter).paginate(page=page, per_page=PER_PAGE, error_out=False)
                 extras['reservas_fixas'] = reservas_fixas_paginada.items

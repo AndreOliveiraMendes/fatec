@@ -120,7 +120,7 @@ def gerenciar_aulas_ativas():
             if id_semana is not None:
                 filter.append(Aulas_Ativas.id_semana == id_semana)
             if tipo_aula:
-                filter.append(Aulas_Ativas.tipo_aula == tipo_aula)
+                filter.append(Aulas_Ativas.tipo_aula == TipoAulaEnum(tipo_aula))
             if filter:
                 aulas_ativas_paginadas = query.filter(*filter).paginate(page=page, per_page=PER_PAGE, error_out=False)
                 extras['aulas_ativas'] = aulas_ativas_paginadas.items

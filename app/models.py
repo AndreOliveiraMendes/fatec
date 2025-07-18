@@ -40,10 +40,17 @@ class Situacoes_Das_Reserva(db.Model):
     laboratorios: Mapped['Laboratorios'] = relationship(back_populates='situacoes_das_reservas')
     aulas_ativas: Mapped['Aulas_Ativas'] = relationship(back_populates='situacoes_das_reservas')
 
+    @property
+    def selector_identification(self):
+        aula = self.aulas_ativas.selector_identification
+        laboratorio = self.laboratorios.nome_laboratorio
+        dia = parse_date(self.situacao_dia)
+        return f" {dia} no {laboratorio} as {aula}"
+
     def __repr__(self) -> str:
         return (
-            f"<SituacaoReserva(id_situacao={self.id_situacao}, id_laboratorio={self.id_situacao_laboratorio}, "
-            f"id_aula={self.id_situacao_aula}, dia={self.situacao_dia} "
+            f"<SituacaoReserva(id_situacao={self.id_situacao}, id_situacao_laboratorio={self.id_situacao_laboratorio}, "
+            f"id_situacao_aula={self.id_situacao_aula}, situacao_dia={self.situacao_dia} "
             f"situacao_chave={self.situacao_chave.value})>"
         )
 
@@ -387,7 +394,7 @@ class Aulas_Ativas(db.Model):
         else:
             artigo = 'na'
 
-        return f"{tipo}: {intervalo_aula} {artigo} {semana} ({intervalo_ativacao})"
+        return f"{tipo}: {intervalo_aula} {artigo} {semana} (ativa:{intervalo_ativacao})"
 
     __table_args__ = (
         CheckConstraint(

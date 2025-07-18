@@ -4,7 +4,7 @@ from flask import Blueprint, Response, jsonify
 from flask import flash, session, render_template, request, abort
 from sqlalchemy import or_
 from config.general import PER_PAGE
-from app.models import db, Historicos, Usuarios
+from app.models import db, Historicos, Usuarios, OrigemEnum
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, parse_datetime_string, get_user_info, \
     get_query_params, disable_action, include_action, get_session_or_request, formatar_valor, \
@@ -64,7 +64,7 @@ def get_data():
     if inicio_procura or fim_procura:
         filter.append(filtro_intervalo(inicio_procura, fim_procura))
     if origem:
-        filter.append(Historicos.origem == origem)
+        filter.append(Historicos.origem == OrigemEnum(origem))
     if conteudo:
         filter.append(get_conteudo(conteudo))
     return filter, query, query_params

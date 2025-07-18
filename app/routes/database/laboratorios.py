@@ -47,9 +47,9 @@ def gerenciar_laboratorios():
                 else:
                     filter.append(Laboratorios.nome_laboratorio.ilike(f"%{nome_laboratorio}%"))
             if disponibilidade:
-                filter.append(Laboratorios.disponibilidade == disponibilidade)
+                filter.append(Laboratorios.disponibilidade == DisponibilidadeEnum(disponibilidade))
             if tipo:
-                filter.append(Laboratorios.tipo == tipo)
+                filter.append(Laboratorios.tipo == TipoLaboratorioEnum(tipo))
             if filter:
                 laboratorios_paginados = query.filter(*filter).paginate(page=page, per_page=PER_PAGE, error_out=False)
                 extras['laboratorios'] = laboratorios_paginados.items
