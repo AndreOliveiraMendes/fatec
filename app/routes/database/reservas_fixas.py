@@ -4,8 +4,7 @@ from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, OperationalError
 from config.general import PER_PAGE
-from app.models import db, Reservas_Fixas, Pessoas, Usuarios_Especiais, Laboratorios, \
-    Aulas_Ativas, Semestres, TipoReservaEnum
+from app.models import db, Reservas_Fixas, TipoReservaEnum
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params,\
     registrar_log_generico_usuario, get_session_or_request, register_return
