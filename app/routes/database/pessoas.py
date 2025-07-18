@@ -8,15 +8,9 @@ from app.models import db, Pessoas, Usuarios
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params, \
     registrar_log_generico_usuario, disable_action, get_session_or_request, register_return
+from app.auxiliar.dao import get_pessoas
 
 bp = Blueprint('pessoas', __name__, url_prefix="/database")
-
-def get_pessoas_id_nome(acao, userid):
-    spin = select(Pessoas.id_pessoa, Pessoas.nome_pessoa)
-    user = db.session.get(Usuarios, userid)
-    if acao == 'excluir' and user:
-        spin = spin.where(Pessoas.id_pessoa != user.id_usuario)
-    return db.session.execute(spin).all()
 
 @bp.route("/pessoas", methods=["GET", "POST"])
 @admin_required
@@ -87,7 +81,7 @@ def gerenciar_pessoas():
             redirect_action, bloco = register_return('pessoas.gerenciar_pessoas', acao, extras)
 
         elif acao in ['editar', 'excluir'] and bloco == 0:
-            extras['pessoas'] = get_pessoas_id_nome(acao, userid)
+            extras['pessoas'] = get_pessoas(acao, userid)
         elif acao in ['editar', 'excluir'] and bloco == 1:
             id_pessoa = request.form.get('id_pessoa', None)
             extras['pessoa'] = db.get_or_404(Pessoas, id_pessoa)
@@ -118,7 +112,7 @@ def gerenciar_pessoas():
                 db.session.rollback()
                 flash(f"Erro ao atualizar pessoa: {str(e.orig)}", "danger")
 
-            redirect_action, bloco = register_return('pessoas.gerenciar_pessoas', acao, extras, pessoas=get_pessoas_id_nome(acao, userid))
+            redirect_action, bloco = register_return('pessoas.gerenciar_pessoas', acao, extras, pessoas=get_pessoas(acao, userid))
         elif acao == 'excluir' and bloco == 2:
             user = db.session.get(Usuarios, userid)
             id_pessoa = none_if_empty(request.form.get('id_pessoa'), int)
@@ -141,7 +135,7 @@ def gerenciar_pessoas():
                     db.session.rollback()
                     flash(f"Erro ao excluir pessoa: {str(e.orig)}", "danger")
 
-            redirect_action, bloco = register_return('pessoas.gerenciar_pessoas', acao, extras, pessoas=get_pessoas_id_nome(acao, userid))
+            redirect_action, bloco = register_return('pessoas.gerenciar_pessoas', acao, extras, pessoas=get_pessoas(acao, userid))
     if redirect_action:
         return redirect_action
     return render_template("database/pessoas.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
