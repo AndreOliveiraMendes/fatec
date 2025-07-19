@@ -195,6 +195,13 @@ class Usuarios_Especiais(db.Model):
     reservas_fixas: Mapped[list['Reservas_Fixas']] = relationship(back_populates='usuarios_especiais')
     reservas_temporarias: Mapped[list['Reservas_Temporarias']] = relationship(back_populates='usuarios_especiais')
 
+    __table_args__ = (
+        UniqueConstraint(
+            'nome_usuario_especial',
+            name='uq_usuario_especial'
+        ),
+    )
+
     def __repr__(self) -> str:
         return f"<Usuarios_Especiais(id_usuario_especial={self.id_usuario_especial}, nome_usuario_especial={self.nome_usuario_especial})>"
 
@@ -279,6 +286,13 @@ class Laboratorios(db.Model):
         server_default=TipoLaboratorioEnum.LABORATORIO.name
     )
 
+    __table_args__ = (
+        UniqueConstraint(
+            'nome_laboratorio',
+            name='uq_laboratorio'
+        ),
+    )
+
     reservas_fixas: Mapped[list['Reservas_Fixas']] = relationship(back_populates='laboratorios')
     reservas_temporarias: Mapped[list['Reservas_Temporarias']] = relationship(back_populates='laboratorios')
     situacoes_das_reservas: Mapped[list['Situacoes_Das_Reserva']] = relationship(back_populates='laboratorios') 
@@ -343,7 +357,10 @@ class Turnos(db.Model):
             'horario_inicio',
             'horario_fim',
             name='uq_turno_inicio_fim'
-        ),
+        ), UniqueConstraint(
+            'nome_turno',
+            name='uq_turno_nome'
+        )
     )
 
     def __repr__(self) -> str:
@@ -463,7 +480,10 @@ class Semestres(db.Model):
             'data_inicio',
             'data_fim',
             name='uq_semestre_inicio_fim'
-        ),
+        ), UniqueConstraint(
+            'nome_semestre',
+            name='uq_semestre_nome'
+        )
     )
 
     def __repr__(self) -> str:

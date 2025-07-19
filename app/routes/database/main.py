@@ -2,8 +2,9 @@ from flask import Blueprint, session, render_template, abort, Response
 from app.models import db
 from app.auxiliar.auxiliar_routes import get_user_info
 from app.auxiliar.decorators import admin_required
-from sqlalchemy import inspect, Table, MetaData
+from sqlalchemy import inspect, Table, MetaData, UniqueConstraint
 from sqlalchemy.schema import CreateTable
+from sqlalchemy.dialects import mysql
 
 bp = Blueprint('main', __name__, url_prefix="/database")
 
@@ -37,10 +38,15 @@ def get_topologic_sorted(fks):
         interaction += 1
     return result
 
-def get_create_table(table):
+def get_create_table(table_name):
     metadata = MetaData()
-    tabela = Table(table, metadata, autoload_with=db.engine)
-    return CreateTable(tabela).compile(db.engine)
+    inspector = inspect(db.engine)
+    uks = inspector.get_unique_constraints(table_name)
+    tabela = Table(table_name, metadata, autoload_with=db.engine)
+    for uk in uks:
+        tabela.append_constraint(UniqueConstraint(*uk['column_names'], name=uk['name']))
+    ddl = CreateTable(tabela, if_not_exists=True).compile(db.engine, dialect=mysql.dialect())
+    return str(ddl)
 
 @bp.route("/")
 @admin_required
