@@ -1,6 +1,6 @@
 from flask import Blueprint
 from flask import session, render_template
-from app.models import Usuarios, Pessoas
+from app.models import db, Usuarios
 from app.auxiliar.auxiliar_routes import get_user_info
 from app.auxiliar.decorators import login_required
 
@@ -16,10 +16,9 @@ def home():
 @login_required
 def perfil():
     userid = session.get('userid')
-    user = Usuarios.query.get(userid)
-    pessoa = Pessoas.query.get(user.id_pessoa)
+    user = db.session.get(Usuarios, userid)
     username, perm = get_user_info(userid)
-    return render_template("usuario/perfil.html", username=username, perm=perm, usuario=user, pessoa=pessoa)
+    return render_template("usuario/perfil.html", username=username, perm=perm, usuario=user)
 
 @bp.route('/under_dev')
 def under_dev_page():

@@ -1,5 +1,6 @@
 from functools import wraps
 from flask import session, abort
+from app.models import db, Permissoes
 from app.auxiliar.constant import PERM_RESERVAS_FIXA, PERM_RESERVAS_TEMPORARIA, PERM_ADMIN
 
 def require_login():
@@ -9,9 +10,8 @@ def require_login():
     return userid
 
 def require_permission(flag):
-    from app.models import Permissoes
     userid = require_login()
-    perm = Permissoes.query.get(userid)
+    perm = db.session.get(Permissoes, userid)
     if not perm or not (perm.permissao & flag):
         abort(403)
 

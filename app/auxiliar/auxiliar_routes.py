@@ -62,11 +62,11 @@ def get_user_info(userid):
     username, perm = None, 0
     if not userid:
         return username, perm
-    user = Usuarios.query.get(userid)
+    user = db.session.get(Usuarios, userid)
     if user:
         pessoa = user.pessoas
         username = pessoa.nome_pessoa
-        permissao = Permissoes.query.get(userid)
+        permissao = db.session.get(Permissoes, userid)
         if permissao:
             perm = permissao.permissao
     else:
