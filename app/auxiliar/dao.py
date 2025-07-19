@@ -40,8 +40,8 @@ def get_semestres():
 
 #dias da semana
 def get_dias_da_semana():
-    sel_dias_da_semanas = select(Dias_da_Semana).order_by(Dias_da_Semana.id_semana)
-    return db.session.execute(sel_dias_da_semanas).scalars().all()
+    sel_dias_da_semana = select(Dias_da_Semana).order_by(Dias_da_Semana.id_semana)
+    return db.session.execute(sel_dias_da_semana).scalars().all()
 
 #turnos
 def get_turnos():
