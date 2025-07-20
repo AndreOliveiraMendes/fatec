@@ -4,5 +4,11 @@
     Configuração Rapida
 {% endblock title %}
 {% block content %}
-ola
+    {{ generate_navigation() }}
+    <p>bem vindo ao menu de Configuração rapida, escolha uma tabela para ajustar rapidamente</p>
+    <div class="btn-group-vertical">
+        <a href="{{ url_for('default.under_dev_page') }}" class="btn btn-info"><span class="glyphicon glyphicon-time"></span> horarios base (aulas)</a>
+        <a href="{{ url_for('default.under_dev_page') }}" class="btn btn-info"><span class="glyphicon glyphicon-list-alt"></span> dias da semana (dias_da_semana)</a>
+        <a href="{{ url_for('default.under_dev_page') }}" class="btn btn-info"><span class="glyphicon glyphicon-calendar"></span> horarios de aula (aulas_ativas)</a>
+    </div>
 {% endblock content %}
