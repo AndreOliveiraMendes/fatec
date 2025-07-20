@@ -38,18 +38,6 @@ def register_filters(app):
     def bitwise_and(x, y):
         return x & y
 
-    @app.template_filter('has_flag')
-    def has_flag(value, flag):
-        return (value & flag) == flag
-    
-    @app.template_filter('tipo_responsavel_label')
-    def tipo_responsavel_label(value):
-        labels = ['Usuário', 'Especial', 'Ambos']
-        try:
-            return labels[value]
-        except (IndexError, TypeError):
-            return 'Desconhecido'
-
     @app.template_global()
     def generate_head(target_url, acao, include = None, disable = None):
         botoes = [
@@ -109,6 +97,21 @@ def register_filters(app):
 
         return Markup(html)
 
+    @app.template_filter('has_flag')
+    def has_flag(value, flag):
+        return (value & flag) == flag
+    
+    @app.template_filter('tipo_responsavel_label')
+    def tipo_responsavel_label(value):
+        labels = ['Usuário', 'Especial', 'Ambos']
+        try:
+            return labels[value]
+        except (IndexError, TypeError):
+            return 'Desconhecido'
+
+    @app.template_filter('format')
+    def format(value):
+        return value if value else '-'
 
     @app.context_processor
     def inject_permissions():
