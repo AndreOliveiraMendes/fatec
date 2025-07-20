@@ -148,5 +148,5 @@ def gerenciar_laboratorios():
             )
     if redirect_action:
         return redirect_action
-    return render_template("database/laboratorios.html",
+    return render_template("database/table/laboratorios.html",
         username=username, perm=perm, acao=acao, bloco=bloco, **extras)

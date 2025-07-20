@@ -123,5 +123,5 @@ def gerenciar_usuarios_especiais():
                 acao, extras, usuarios_especiais=get_usuarios_especiais())
     if redirect_action:
         return redirect_action
-    return render_template("database/usuarios_especiais.html",
+    return render_template("database/table/usuarios_especiais.html",
         username=username, perm=perm, acao=acao, bloco=bloco, **extras)

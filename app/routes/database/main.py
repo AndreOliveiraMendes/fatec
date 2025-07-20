@@ -35,57 +35,6 @@ def get_create_table(table_name):
     ddl = CreateTable(tabela, if_not_exists=True).compile(db.engine, dialect=mysql.dialect())
     return str(ddl)
 
-@bp.route("/")
-@admin_required
-def database():
-    userid = session.get('userid')
-    username, perm = get_user_info(userid)
-    extras = {}
-    inspector = inspect(db.engine)
-    tables = inspector.get_table_names()
-    extras['tables'] = tables
-    extras['columns'] = {table:inspector.get_columns(table) for table in tables}
-    extras['pks'] = {table:inspector.get_pk_constraint(table) for table in tables}
-    extras['fks'] = {table:inspector.get_foreign_keys(table) for table in tables}
-    extras['uks'] = {table:inspector.get_unique_constraints(table) for table in tables}
-    extras['chks'] = {table:inspector.get_check_constraints(table) for table in tables}
-    extras['inds'] = {table:inspector.get_indexes(table) for table in tables}
-    return render_template("schema/database.html", username=username, perm=perm, **extras)
-
-@bp.route("/schema")
-@admin_required
-def schema():
-    userid = session.get('userid')
-    username, perm = get_user_info(userid)
-    extras = {}
-    inspector = inspect(db.engine)
-    tables = inspector.get_table_names()
-    fks = {table:[fk['referred_table'] for fk in inspector.get_foreign_keys(table)] for table in tables}
-    if not has_cycle(fks):
-        topologic_tables = [table_info + (get_create_table(table_info[0]),) for table_info in get_topologic_sorted(fks)]
-        extras['topologic_tables'] = topologic_tables
-    else:
-        extras['tables_sql'] = [(table, get_create_table(table)) for table in tables]
-
-    return render_template("schema/schema.html", username=username, perm=perm, **extras)
-
-@bp.route("/schema/sql")
-@admin_required
-def schema_file():
-    inspector = inspect(db.engine)
-    tables = inspector.get_table_names()
-    fks = {table:[fk['referred_table'] for fk in inspector.get_foreign_keys(table)] for table in tables}
-    if has_cycle(fks):
-        abort(422, description="Não foi possível gerar o esquema: dependências cíclicas detectadas.")
-    else:
-        tables_creation_sql = [get_create_table(table_info[0]) for table_info in get_topologic_sorted(fks)]
-        conteudo = "\n\n".join(map(lambda c: str(c).strip().rstrip(";\n") + ";", tables_creation_sql))
-        return Response(
-            conteudo,
-            mimetype="text/plain; charset=utf-8",
-            headers={"Content-Disposition": "attachment;filename=schema.sql"}
-        )
-
 def dfs(table, fks, visited):
     if table in visited:
         return visited[table] == 0
@@ -107,3 +56,54 @@ def has_cycle(fks):
         if cycles:
             return True
     return cycles
+
+@bp.route("/")
+@admin_required
+def database():
+    userid = session.get('userid')
+    username, perm = get_user_info(userid)
+    extras = {}
+    inspector = inspect(db.engine)
+    tables = inspector.get_table_names()
+    extras['tables'] = tables
+    extras['columns'] = {table:inspector.get_columns(table) for table in tables}
+    extras['pks'] = {table:inspector.get_pk_constraint(table) for table in tables}
+    extras['fks'] = {table:inspector.get_foreign_keys(table) for table in tables}
+    extras['uks'] = {table:inspector.get_unique_constraints(table) for table in tables}
+    extras['chks'] = {table:inspector.get_check_constraints(table) for table in tables}
+    extras['inds'] = {table:inspector.get_indexes(table) for table in tables}
+    return render_template("database/schema/database.html", username=username, perm=perm, **extras)
+
+@bp.route("/schema")
+@admin_required
+def schema():
+    userid = session.get('userid')
+    username, perm = get_user_info(userid)
+    extras = {}
+    inspector = inspect(db.engine)
+    tables = inspector.get_table_names()
+    fks = {table:[fk['referred_table'] for fk in inspector.get_foreign_keys(table)] for table in tables}
+    if not has_cycle(fks):
+        topologic_tables = [table_info + (get_create_table(table_info[0]),) for table_info in get_topologic_sorted(fks)]
+        extras['topologic_tables'] = topologic_tables
+    else:
+        extras['tables_sql'] = [(table, get_create_table(table)) for table in tables]
+
+    return render_template("database/schema/schema.html", username=username, perm=perm, **extras)
+
+@bp.route("/schema/sql")
+@admin_required
+def schema_file():
+    inspector = inspect(db.engine)
+    tables = inspector.get_table_names()
+    fks = {table:[fk['referred_table'] for fk in inspector.get_foreign_keys(table)] for table in tables}
+    if has_cycle(fks):
+        abort(422, description="Não foi possível gerar o esquema: dependências cíclicas detectadas.")
+    else:
+        tables_creation_sql = [get_create_table(table_info[0]) for table_info in get_topologic_sorted(fks)]
+        conteudo = "\n\n".join(map(lambda c: str(c).strip().rstrip(";\n") + ";", tables_creation_sql))
+        return Response(
+            conteudo,
+            mimetype="text/plain; charset=utf-8",
+            headers={"Content-Disposition": "attachment;filename=schema.sql"}
+        )

@@ -220,4 +220,4 @@ def gerenciar_aulas_ativas():
                 aulas_ativas=get_aulas_ativas())
     if redirect_action:
         return redirect_action
-    return render_template("database/aulas_ativas.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
+    return render_template("database/table/aulas_ativas.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)

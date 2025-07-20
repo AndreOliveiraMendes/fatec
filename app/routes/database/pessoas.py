@@ -146,5 +146,5 @@ def gerenciar_pessoas():
                 acao, extras, pessoas=get_pessoas(acao, userid))
     if redirect_action:
         return redirect_action
-    return render_template("database/pessoas.html",
+    return render_template("database/table/pessoas.html",
         username=username, perm=perm, acao=acao, bloco=bloco, **extras)

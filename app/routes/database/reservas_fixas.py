@@ -192,5 +192,5 @@ def gerenciar_reservas_fixas():
             )
     if redirect_action:
         return redirect_action
-    return render_template("database/reservas_fixas.html",
+    return render_template("database/table/reservas_fixas.html",
         username=username, perm=perm, acao=acao, bloco=bloco, **extras)

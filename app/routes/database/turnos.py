@@ -104,5 +104,5 @@ def gerenciar_turnos():
 
     if redirect_action:
         return redirect_action
-    return render_template("database/turnos.html",
+    return render_template("database/table/turnos.html",
         username=username, perm=perm, acao=acao, bloco=bloco, **extras)

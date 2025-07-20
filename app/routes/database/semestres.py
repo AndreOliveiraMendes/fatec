@@ -131,5 +131,5 @@ def gerenciar_semestres():
                 acao, extras, semestres=get_semestres())
     if redirect_action:
         return redirect_action
-    return render_template("database/semestres.html",
+    return render_template("database/table/semestres.html",
         username=username, perm=perm, acao=acao, bloco=bloco, **extras)

@@ -129,4 +129,4 @@ def gerenciar_aulas():
             redirect_action, bloco = register_return('aulas.gerenciar_aulas', acao, extras, aulas=get_aulas())
     if redirect_action:
         return redirect_action
-    return render_template("database/aulas.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
+    return render_template("database/table/aulas.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)

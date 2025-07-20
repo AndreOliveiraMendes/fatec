@@ -168,5 +168,5 @@ def gerenciar_situacoes_das_reservas():
             )
     if redirect_action:
         return redirect_action
-    return render_template("database/situacoes_das_reservas.html",
+    return render_template("database/table/situacoes_das_reservas.html",
         username=username, perm=perm, acao=acao, bloco=bloco, **extras)

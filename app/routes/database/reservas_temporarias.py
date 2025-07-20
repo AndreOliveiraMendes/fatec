@@ -220,5 +220,5 @@ def gerenciar_reservas_temporarias():
 
     if redirect_action:
         return redirect_action
-    return render_template("database/reservas_temporarias.html",
+    return render_template("database/table/reservas_temporarias.html",
         username=username, perm=perm, acao=acao, bloco=bloco, **extras)

@@ -130,7 +130,7 @@ def gerenciar_Historicos():
             extras['query_params'] = query_params
     if redirect_action:
         return redirect_action
-    return render_template("database/historicos.html",
+    return render_template("database/table/historicos.html",
         username=username, perm=perm, acao=acao, bloco=bloco, **extras)
 
 @bp.route("/historicos/exportar", methods=['POST'])

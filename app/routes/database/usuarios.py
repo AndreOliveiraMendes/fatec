@@ -157,5 +157,5 @@ def gerenciar_usuarios():
                 acao, extras, usuarios=get_usuarios(acao, userid))
     if redirect_action:
         return redirect_action
-    return render_template("database/usuarios.html",
+    return render_template("database/table/usuarios.html",
         username=username, perm=perm, acao=acao, bloco=bloco, **extras)

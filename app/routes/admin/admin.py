@@ -1,6 +1,5 @@
-from flask import Blueprint, session, render_template, request, redirect, url_for
-from app.models import db, Reservas_Fixas, Usuarios, Permissoes, Laboratorios, Aulas
-from app.auxiliar.decorators import login_required, admin_required
+from flask import Blueprint, session, render_template
+from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import get_user_info
 from config.database_views import SECOES
 

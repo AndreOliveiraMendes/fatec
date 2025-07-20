@@ -13,11 +13,13 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 
 ```
 .
+├── .dockerignore
 ├── .env.dev.example
 ├── .env.example
 ├── .gitignore
 ├── .vscode
 │   └── settings.json
+├── Dockerfile
 ├── LICENSE
 ├── Readme.md
 ├── app
@@ -77,23 +79,25 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │       │   └── logout.html
 │       ├── base
 │       ├── database
-│       │   ├── aulas.html
-│       │   ├── aulas_ativas.html
-│       │   ├── base_crude
-│       │   ├── database.html
-│       │   ├── dias_da_semana.html
-│       │   ├── historicos.html
-│       │   ├── laboratorios.html
-│       │   ├── permissoes.html
-│       │   ├── pessoas.html
-│       │   ├── reservas_fixas.html
-│       │   ├── reservas_temporarias.html
-│       │   ├── schema.html
-│       │   ├── semestres.html
-│       │   ├── situacoes_das_reservas.html
-│       │   ├── turnos.html
-│       │   ├── usuarios.html
-│       │   └── usuarios_especiais.html
+│       │   ├── schema
+│       │   │   ├── database.html
+│       │   │   └── schema.html
+│       │   └── table
+│       │       ├── aulas.html
+│       │       ├── aulas_ativas.html
+│       │       ├── base_crude
+│       │       ├── dias_da_semana.html
+│       │       ├── historicos.html
+│       │       ├── laboratorios.html
+│       │       ├── permissoes.html
+│       │       ├── pessoas.html
+│       │       ├── reservas_fixas.html
+│       │       ├── reservas_temporarias.html
+│       │       ├── semestres.html
+│       │       ├── situacoes_das_reservas.html
+│       │       ├── turnos.html
+│       │       ├── usuarios.html
+│       │       └── usuarios_especiais.html
 │       ├── homepage.html
 │       ├── http
 │       │   ├── 400.html
@@ -112,6 +116,7 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │   ├── database_views.py
 │   └── general.py
 ├── configurar_vscode.bat
+├── docker-compose.yml
 ├── requirements.txt
 ├── schema.sql
 ├── start-dev.bat
