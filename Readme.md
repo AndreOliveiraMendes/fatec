@@ -14,8 +14,12 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 ```
 .
 ├── .dockerignore
+├── .env
+├── .env.dev
 ├── .env.dev.example
 ├── .env.example
+├── .env.pod
+├── .env.teste
 ├── .gitignore
 ├── .vscode
 │   └── settings.json
@@ -60,9 +64,13 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │   │   │   ├── turnos.py
 │   │   │   ├── usuarios.py
 │   │   │   └── usuarios_especiais.py
-│   │   └── default
+│   │   ├── default
+│   │   │   ├── __init__.py
+│   │   │   └── default.py
+│   │   └── setup
 │   │       ├── __init__.py
-│   │       └── default.py
+│   │       ├── aulas.py
+│   │       └── menu.py
 │   ├── static
 │   │   ├── css
 │   │   │   └── custom.css
@@ -82,6 +90,9 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │       │   ├── schema
 │       │   │   ├── database.html
 │       │   │   └── schema.html
+│       │   ├── setup
+│       │   │   ├── aulas.html
+│       │   │   └── menu.html
 │       │   └── table
 │       │       ├── aulas.html
 │       │       ├── aulas_ativas.html
