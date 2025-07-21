@@ -1,4 +1,4 @@
-{% macro generate_navigation(admin=True) %}
+{% macro generate_navigation(admin=True, extras=None) %}
     <div class="form-group btn-group">
         <a href="{{ url_for('default.home') }}" class="btn btn-primary btn-lg">
             <span class="glyphicon glyphicon-home"></span> Página Inicial
@@ -8,6 +8,14 @@
                class="btn btn-warning btn-lg">
                 <span class="glyphicon glyphicon-cog"></span> Painel Admin
             </a>
+            {% if extras %}
+                {% for extra in extras %}
+                    <a href="{{ url_for(extra['url']) }}" class="btn btn-{{ extra['category'] }} btn-lg">
+                        <span class="glyphicon {{ extra['icon'] }}"></span> {{ extra['label'] }}
+                    </a>
+                {% endfor %}
+            {% else %}
+            {% endif %}
         {% endif %}
     </div>
 {% endmacro %}

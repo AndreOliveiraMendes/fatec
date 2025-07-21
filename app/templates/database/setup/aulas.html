@@ -4,12 +4,13 @@
     Inicialização Rapida - Aulas
 {% endblock title %}
 {% block content %}
+    {{ generate_navigation(extras = [{"url": "setup.fast_setup_menu", "label": "Setup Rapido", "icon": "glyphicon-flash", "category":"danger"}]) }}
     {% if stage == 0 %}
         <h3>Configuração Rapida dos Horarios Base</h3>
         <p>Selecione quantos horarios serão inseridos</p>
         <form class="form-group"
               role="form"
-              action="{{ url_for('setup.fast_setup_aulas') }}"
+              action="{{ url_for('setup_aulas.fast_setup_aulas') }}"
               method="get">
             <div class="form-group">
                 <label for="quantidade">Quantidade de horarios</label>
@@ -27,7 +28,7 @@
         <p>Escolha os horarios base de cada aula</p>
         <form class="form-group"
               role="form"
-              action="{{ url_for('setup.fast_setup_aulas') }}"
+              action="{{ url_for('setup_aulas.fast_setup_aulas') }}"
               method="post">
             {% for i in range(quantidade) %}
                 <div class="form-group row">
@@ -49,7 +50,7 @@
                     </div>
                 </div>
             {% endfor %}
-            {{ action_buttons('inserir', 2, False, 0, label='stage') }}
+            {{ action_buttons('inserir', 2, True, 0, label='stage') }}
         </form>
     {% endif %}
 {% endblock content %}
