@@ -110,6 +110,6 @@ def login():
 @bp.route("/logout")
 @login_required
 def logout():
-    session.clear()
+    session.pop('userid')
     flash("logout realizado com sucesso", "success")
     return render_template("auth/logout.html")
