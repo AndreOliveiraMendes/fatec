@@ -1,0 +1,55 @@
+{% extends "base" %}
+{% from "macros/form.html" import generate_navigation, action_buttons %}
+{% block title %}
+    Inicialização Rapida - Aulas
+{% endblock title %}
+{% block content %}
+    {% if stage == 0 %}
+        <h3>Configuração Rapida dos Horarios Base</h3>
+        <p>Selecione quantos horarios serão inseridos</p>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for('setup.fast_setup_aulas') }}"
+              method="get">
+            <div class="form-group">
+                <label for="quantidade">Quantidade de horarios</label>
+                <input type="number"
+                       id="quantidade"
+                       name="quantidade"
+                       required
+                       min="1"
+                       placeholder="Ex: 6">
+            </div>
+            {{ action_buttons('inserir', 1, False, 0, label='stage') }}
+        </form>
+    {% elif stage == 1 %}
+        <h3>Configuração Rapida dos Horarios Base</h3>
+        <p>Escolha os horarios base de cada aula</p>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for('setup.fast_setup_aulas') }}"
+              method="post">
+            {% for i in range(quantidade) %}
+                <div class="form-group row">
+                    <div class="col-sm-6">
+                        <label for="inicio_{{ i }}">Início da aula {{ i+1 }}</label>
+                        <input type="time"
+                               class="form-control"
+                               id="inicio_{{ i }}"
+                               name="inicio_{{ i }}"
+                               required>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="termino_{{ i }}">Término da aula {{ i }}</label>
+                        <input type="time"
+                               class="form-control"
+                               id="termino_{{ i }}"
+                               name="termino_{{ i }}"
+                               required>
+                    </div>
+                </div>
+            {% endfor %}
+            {{ action_buttons('inserir', 2, False, 0, label='stage') }}
+        </form>
+    {% endif %}
+{% endblock content %}

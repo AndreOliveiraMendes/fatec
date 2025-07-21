@@ -126,7 +126,7 @@ def registrar_log_generico_sistema(acao:Literal['Login'], objeto, antes=None, ob
     )
     db.session.add(historico)
 
-def registrar_log_generico_usuario(userid, acao:Literal['Inserção', 'Edição', 'Exclusão'], objeto, antes=None, observacao=None, skip_unchanged=False):
+def registrar_log_generico_usuario(userid, acao:Literal['Inserção', 'Edição', 'Exclusão', 'Quick-Setup'], objeto, antes=None, observacao=None, skip_unchanged=False):
     nome_tabela = getattr(objeto, "__tablename__", objeto.__class__.__name__)
     insp = inspect(objeto)
 

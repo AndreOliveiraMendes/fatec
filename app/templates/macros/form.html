@@ -29,11 +29,11 @@
         </select>
     </div>
 {% endmacro %}
-{% macro action_buttons(acao='salvar', bloco_submit='1', show_voltar=True, bloco_voltar='0', show_reset=True) %}
+{% macro action_buttons(acao='salvar', bloco_submit='1', show_voltar=True, bloco_voltar='0', show_reset=True, label='bloco') %}
     <div class="form-group btn-group text-center mt-3">
         {% if show_voltar %}
             <button type="submit"
-                    name="bloco"
+                    name="{{ label }}"
                     value="{{ bloco_voltar }}"
                     formnovalidate
                     class="btn btn-default">
@@ -46,7 +46,7 @@
             </button>
         {% endif %}
         <button type="submit"
-                name="bloco"
+                name="{{ label }}"
                 value="{{ bloco_submit }}"
                 class="btn btn-{{ 'primary' if acao != 'excluir' else 'danger' }}">
             {% if acao == 'salvar' %}

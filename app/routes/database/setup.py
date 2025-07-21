@@ -1,5 +1,7 @@
-from flask import Blueprint, session, render_template
-from app.auxiliar.auxiliar_routes import get_user_info
+from flask import Blueprint, session, render_template, request, flash, redirect, url_for
+from sqlalchemy.exc import IntegrityError, OperationalError
+from app.models import db, Aulas
+from app.auxiliar.auxiliar_routes import get_user_info, parse_time_string, registrar_log_generico_usuario
 from app.auxiliar.decorators import admin_required
 
 bp = Blueprint('setup', __name__, url_prefix="/database/fast_setup/")
@@ -11,3 +13,47 @@ def fast_setup_menu():
     username, perm = get_user_info(userid)
 
     return render_template('database/setup/menu.html', username=username, perm=perm)
+
+@bp.route("/aulas", methods=['GET', 'POST'])
+@admin_required
+def fast_setup_aulas():
+    userid = session.get('userid')
+    username, perm = get_user_info(userid)
+    stage = int(request.form.get('stage', request.args.get('stage', 0)))
+    extras = {}
+    if stage == 1:
+        extras['quantidade'] = int(request.args.get('quantidade', 1))
+    if stage == 2:
+        horarios = {}
+        for k, v in request.form.items():
+            aula, situacao = None, None
+            if 'inicio' in k:
+                aula, situacao = int(k.replace('inicio_', '')), 'inicio'
+            elif 'termino' in k:
+                aula, situacao = int(k.replace('termino_', '')), 'termino'
+            if aula is not None and not aula in horarios:
+                horarios[aula] = {}
+            if aula is not None:
+                horarios[aula][situacao] = parse_time_string(v)
+        max = next(i for i in range(len(horarios) + 1)
+            if i not in horarios or not horarios[i].get('inicio') or not horarios[i].get('termino'))
+        try:
+            aulas = []
+            for i in range(max):
+                inicio, termino = horarios[i].get('inicio'), horarios[i].get('termino')
+                aula = Aulas(horario_inicio=inicio, horario_fim=termino)
+                db.session.add(aula)
+                aulas.append(aula)
+
+            db.session.flush()
+            for aula in aulas:
+                registrar_log_generico_usuario(userid, 'Quick-Setup', aula)
+
+            db.session.commit()
+            flash("Configuração das aulas concluida com sucesso", "success")
+        except (IntegrityError, OperationalError) as e:
+            db.session.rollback()
+            flash(f"Falha ao executar a configuração rapida:{str(e.orig)}", "danger")
+
+        return redirect(url_for('setup.fast_setup_menu'))
+    return render_template('database/setup/aulas.html', username=username, perm=perm, stage=stage, **extras)
