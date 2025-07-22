@@ -172,7 +172,7 @@ Edite conforme necessário.
 
 ✅ Rode:
 ```bash
-python -m app.main
+python -m app
 ```
 
 ✅ Ou para produção (exemplo Gunicorn):
