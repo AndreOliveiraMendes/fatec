@@ -4,7 +4,7 @@
     Inicialização Rapida - Aulas
 {% endblock title %}
 {% block content %}
-    {{ generate_navigation(extras = [{"url": "setup.fast_setup_menu", "label": "Setup Rapido", "icon": "glyphicon-flash", "category":"danger"}]) }}
+    {{ generate_navigation(extras = extras) }}
     {% if stage == 0 %}
         <h3>Configuração Rapida dos Horarios Base</h3>
         <p>Selecione quantos horarios serão inseridos</p>

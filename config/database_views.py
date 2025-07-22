@@ -40,3 +40,10 @@ SECOES = {
     }
 }
 TABLES_PER_LINE = 10
+SETUP_HEAD = [
+    {
+        "url": "setup.fast_setup_menu",
+        "label": "Setup Rapido",
+        "icon": "glyphicon-flash",
+        "category":"danger"}
+    ]

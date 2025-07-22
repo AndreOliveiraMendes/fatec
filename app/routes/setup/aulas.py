@@ -3,6 +3,7 @@ from sqlalchemy.exc import IntegrityError, OperationalError
 from app.models import db, Aulas
 from app.auxiliar.auxiliar_routes import get_user_info, parse_time_string, registrar_log_generico_usuario
 from app.auxiliar.decorators import admin_required
+from config.database_views import SETUP_HEAD
 
 bp = Blueprint('setup_aulas', __name__, url_prefix="/database/fast_setup/")
 
@@ -12,7 +13,7 @@ def fast_setup_aulas():
     userid = session.get('userid')
     username, perm = get_user_info(userid)
     stage = int(request.form.get('stage', request.args.get('stage', 0)))
-    extras = {}
+    extras = {'extras':SETUP_HEAD}
     if stage == 1:
         extras['quantidade'] = int(request.args.get('quantidade', 1))
     if stage == 2:
