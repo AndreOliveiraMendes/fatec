@@ -49,4 +49,5 @@ def fast_setup_aulas():
             flash(f"Falha ao executar a configuração rapida:{str(e.orig)}", "danger")
 
         return redirect(url_for('setup.fast_setup_menu'))
-    return render_template('database/setup/aulas.html', username=username, perm=perm, stage=stage, **extras)
+    return render_template('database/setup/aulas.html',
+        username=username, perm=perm, stage=stage, **extras)
