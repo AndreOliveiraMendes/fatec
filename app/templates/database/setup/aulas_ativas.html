@@ -1,0 +1,76 @@
+{% extends "base" %}
+{% from "macros/form.html" import generate_navigation, action_buttons %}
+{% block title %}
+    Inicialização Rapida - Aulas
+{% endblock title %}
+{% block content %}
+    {{ generate_navigation(extras = extras) }}
+    {% if stage == 0 %}
+        <h3>Configuração Rapida dos Horarios</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for('setup_aulas_ativas.fast_setup_aulas_ativas') }}"
+              method="post">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover">
+                    <thead>
+                        <tr class="information">
+                            <th>
+                                aula
+                                <label class="check_all">
+                                    <input type="checkbox" id="checkAll" title="Selecionar todos">
+                                    <span class="glyphicon glyphicon-check"></span>
+                                </label>
+                            </th>
+                            {% for dia in dias_da_semana %}<th>{{ dia.nome_semana }}</th>{% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for aula in aulas %}
+                            <tr>
+                                <td>{{ aula.selector_identification }}</td>
+                                {% for dia in dias_da_semana %}
+                                    <td>
+                                        <input type="checkbox"
+                                               name="aula_ativa[{{ aula.id_aula }},{{ dia.id_semana }}]">
+                                    </td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-6">
+                    <label for="inicio">Início da ativação (se houver)</label>
+                    <input type="date" class="form-control" id="inicio" name="inicio">
+                </div>
+                <div class="col-sm-6">
+                    <label for="termino">Término da ativação (se houver)</label>
+                    <input type="date" class="form-control" id="termino" name="termino">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="tipo_aula" class="control-label">Tipo de Aula</label>
+                <select id="tipo_aula"
+                        name="tipo_aula"
+                        class="select form-control"
+                        aria-describedby="tipo_aulaHelpBlock"
+                        required>
+                    <option value="">Selecione o Tipo de Aula</option>
+                    <option value="Aula">Aulas</option>
+                    <option value="Evento">Eventos</option>
+                    <option value="Outros">Outras finalidas</option>
+                </select>
+                <span id="tipo_aulaHelpBlock" class="help-block">se o horario é destinado a aula, evento ou outra finalidade</span>
+            </div>
+            {{ action_buttons('inserir', 1, False, 0, label="stage") }}
+        </form>
+        <script>
+            document.getElementById('checkAll').addEventListener('change', function () {
+                const allCheckboxes = document.querySelectorAll('input[type="checkbox"][name^="aula_ativa["]');
+                allCheckboxes.forEach(cb => cb.checked = this.checked);
+            });
+        </script>
+    {% endif %}
+{% endblock content %}

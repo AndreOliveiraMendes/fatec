@@ -35,3 +35,7 @@ input[disabled] {
 .linha-3-3 {
     background-color:rgb(250, 133, 133);
 }
+
+.check_all {
+    font-weight:normal;
+}

@@ -341,7 +341,7 @@ class Dias_da_Semana(db.Model):
     aulas_ativas: Mapped[list['Aulas_Ativas']] = relationship(back_populates='dia_da_semana')
 
     def __repr__(self) -> str:
-        return f"<Dias_da_Semana(id={self.id_semana}, nome={self.nome_semana})>"
+        return f"<Dias_da_Semana(id_semana={self.id_semana}, nome_semana={self.nome_semana})>"
 
 
 class Turnos(db.Model):
@@ -365,7 +365,7 @@ class Turnos(db.Model):
 
     def __repr__(self) -> str:
         return (
-            f"<Turnos(id={self.id_turno}, nome={self.nome_turno}, "
+            f"<Turnos(id_turno={self.id_turno}, nome_turno={self.nome_turno}, "
             f"horario_inicio={self.horario_inicio}, horario_fim={self.horario_fim})>"
         )
     
@@ -417,7 +417,12 @@ class Aulas_Ativas(db.Model):
         CheckConstraint(
             'inicio_ativacao IS NULL OR fim_ativacao IS NULL OR inicio_ativacao <= fim_ativacao',
             name='chk_aula_ativa_inicio_menor_fim'
-        ),
+        ), UniqueConstraint(
+            'id_aula',
+            'id_semana',
+            'tipo_aula',
+            name='unique_aula_semana_tipo'
+        )
     )
 
     aulas: Mapped['Aulas'] = relationship(back_populates='aulas_ativas')
