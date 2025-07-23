@@ -16,7 +16,7 @@ def fast_setup_aulas():
     extras = {'extras':SETUP_HEAD}
     if stage == 1:
         extras['quantidade'] = int(request.args.get('quantidade', 1))
-    if stage == 2:
+    elif stage == 2:
         horarios = {}
         for k, v in request.form.items():
             aula, situacao = None, None
@@ -28,11 +28,11 @@ def fast_setup_aulas():
                 horarios[aula] = {}
             if aula is not None:
                 horarios[aula][situacao] = parse_time_string(v)
-        max = next(i for i in range(len(horarios) + 1)
+        quantidade_maxima = next(i for i in range(len(horarios) + 1)
             if i not in horarios or not horarios[i].get('inicio') or not horarios[i].get('termino'))
         try:
             aulas = []
-            for i in range(max):
+            for i in range(quantidade_maxima):
                 inicio, termino = horarios[i].get('inicio'), horarios[i].get('termino')
                 aula = Aulas(horario_inicio=inicio, horario_fim=termino)
                 db.session.add(aula)

@@ -41,11 +41,11 @@ def fast_setup_dias_da_semana():
                     dias_da_semana[row]['codigo'] = v
                 else:
                     dias_da_semana[row]['name'] = v
-        max = next(i for i in range(len(dias_da_semana) + 1)
+        quantidade_maxima = next(i for i in range(len(dias_da_semana) + 1)
             if i not in dias_da_semana or not dias_da_semana[i].get('codigo') or not dias_da_semana[i].get('name'))
         try:
             semana = []
-            for i in range(max):
+            for i in range(quantidade_maxima):
                 codigo, nome = dias_da_semana[i].get('codigo'), dias_da_semana[i].get('name')
                 dia_da_semana = Dias_da_Semana(id_semana=codigo, nome_semana=nome)
                 db.session.add(dia_da_semana)

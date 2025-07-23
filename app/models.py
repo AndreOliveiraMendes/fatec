@@ -357,10 +357,7 @@ class Turnos(db.Model):
             'horario_inicio',
             'horario_fim',
             name='uq_turno_inicio_fim'
-        ), UniqueConstraint(
-            'nome_turno',
-            name='uq_turno_nome'
-        )
+        ),
     )
 
     def __repr__(self) -> str:

@@ -5,4 +5,63 @@
 {% endblock title %}
 {% block content %}
     {{ generate_navigation(extras = extras) }}
+    {% if stage == 0 %}
+        <h3>Configuração Rapida dos turnos/periodos</h3>
+        <p>em quantos periodos vai ser dividido o dia?</p>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for('setup_turnos.fast_setup_turnos') }}"
+              method="get">
+            <div class="form-group">
+                <label for="quantidade">Quantidade de periodos</label>
+                <input type="number"
+                       id="quantidade"
+                       name="quantidade"
+                       required
+                       min="1"
+                       placeholder="Ex: 3">
+            </div>
+            {{ action_buttons('inserir', 1, False, 0, label='stage') }}
+        </form>
+    {% elif stage == 1 %}
+        <h3>Configuração Rapida dos turnos/periodos</h3>
+        <p>Escolha os horarios base de cada periodo</p>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for('setup_turnos.fast_setup_turnos') }}"
+              method="post">
+            {% for i in range(quantidade) %}
+                <div class="form-group row">
+                    <div class="col-sm-4">
+                        <label for="nome_{{ i }}">Nome do periodo {{ i+1 }}</label>
+                        <input type="text"
+                               class="form-control"
+                               id="nome_{{ i }}"
+                               name="nome_{{ i }}"
+                               {% if default %}value="{{ default[i][0] }}"{% endif %}
+                               required>
+                    </div>
+                    <div class="col-sm-4">
+                        <label for="inicio_{{ i }}">Início da periodo {{ i+1 }}</label>
+                        <input type="time"
+                               class="form-control"
+                               id="inicio_{{ i }}"
+                               name="inicio_{{ i }}"
+                               {% if default %}value="{{ default[i][1] }}"{% endif %}
+                               required>
+                    </div>
+                    <div class="col-sm-4">
+                        <label for="termino_{{ i }}">Término da periodo {{ i+1 }}</label>
+                        <input type="time"
+                               class="form-control"
+                               id="termino_{{ i }}"
+                               name="termino_{{ i }}"
+                               {% if default %}value="{{ default[i][2] }}"{% endif %}
+                               required>
+                    </div>
+                </div>
+            {% endfor %}
+            {{ action_buttons('inserir', 2, True, 0, label='stage') }}
+        </form>
+    {% endif %}
 {% endblock content %}
