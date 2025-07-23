@@ -142,7 +142,8 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 ✅ **.env.dev / .env.prod** → configurações específicas.  
 ✅ **config/** → modulo centralizado de configuração do projeto.  
 ✅ **wsgi.py** → entrada recomendada para Gunicorn.  
-✅ **app/main.py** → app factory com Blueprint registration.  
+✅ **app/__init__.py** → app factory com Blueprint registration.  
+✅ **app/__main__.py** → entrada para desenvolvimento local via python -m app.  
 ✅ **app/extensions.py** → inicialização centralizada de extensões.  
 ✅ **app/routes/** → Blueprints organizados por domínio.  
 ✅ **app/auxiliar/** → utilitários, decoradores, helpers para rotas.  

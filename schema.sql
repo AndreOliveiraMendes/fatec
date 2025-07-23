@@ -52,8 +52,7 @@ CREATE TABLE
         horario_fim TIME NOT NULL,
         PRIMARY KEY (id_turno),
         CONSTRAINT nome_turno UNIQUE (nome_turno),
-        CONSTRAINT uq_turno_inicio_fim UNIQUE (horario_inicio, horario_fim),
-        CONSTRAINT uq_turno_nome UNIQUE (nome_turno)
+        CONSTRAINT uq_turno_inicio_fim UNIQUE (horario_inicio, horario_fim)
     ) DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_0900_ai_ci ENGINE = InnoDB;
 
 CREATE TABLE

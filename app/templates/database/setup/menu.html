@@ -7,10 +7,8 @@
     {{ generate_navigation() }}
     <p>bem vindo ao menu de Configuração rapida, escolha uma tabela para ajustar rapidamente</p>
     <div class="btn-group-vertical">
-        <a href="{{ url_for('setup_aulas.fast_setup_aulas') }}" class="btn btn-info"><span class="glyphicon glyphicon-time"></span> horarios base (aulas)</a>
-        <a href="{{ url_for('setup_dias_da_semana.fast_setup_dias_da_semana') }}" class="btn btn-info"><span class="glyphicon glyphicon-list-alt"></span> dias da semana (dias_da_semana)</a>
-        <a href="{{ url_for('setup_aulas_ativas.fast_setup_aulas_ativas') }}" class="btn btn-info"><span class="glyphicon glyphicon-calendar"></span> horarios de aula (aulas_ativas)</a>
-        <a href="{{ url_for('setup_turnos.fast_setup_turnos') }}" class="btn btn-info"><span class="glyphicon glyphicon-adjust"></span> turnos (turnos)</a>
-        <a href="{{ url_for('default.under_dev_page') }}" class="btn btn-info"><span class="glyphicon glyphicon-blackboard"></span> laboratorios (laboratorios)</a>
+        {% for table in tables %}
+            <a href="{{ url_for(table['url']) }}" class="btn btn-info"><span class="glyphicon {{ table['icon'] }}"></span> {{ table['label'] }}</a>
+        {% endfor %}
     </div>
 {% endblock content %}
