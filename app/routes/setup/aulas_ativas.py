@@ -17,8 +17,16 @@ def fast_setup_aulas_ativas():
     stage = int(request.form.get('stage', request.args.get('stage', 0)))
     extras = {'extras':SETUP_HEAD}
     if stage == 0:
-        extras['dias_da_semana'] = get_dias_da_semana()
-        extras['aulas'] = get_aulas()
+        dias_da_semana = get_dias_da_semana()
+        aulas = get_aulas()
+        extras['dias_da_semana'] = dias_da_semana
+        extras['aulas'] = aulas
+        if len(dias_da_semana) == 0 or len(aulas) == 0:
+            if len(dias_da_semana) == 0:
+                flash("configure os dias da semana antes", "warning")
+            if len(aulas) == 0:
+                flash("configure os horarios bases antes", "warning")
+            return redirect(url_for('setup.fast_setup_menu'))
     elif stage == 1:
         checks = [key for key, value in request.form.items() if key.startswith('aula_ativa[') and value=='on']
         inicio = parse_date_string(request.form.get('inicio'))
