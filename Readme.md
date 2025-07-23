@@ -28,6 +28,7 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 ├── Readme.md
 ├── app
 │   ├── __init__.py
+│   ├── __main__.py
 │   ├── auxiliar
 │   │   ├── __init__.py
 │   │   ├── auxiliar_routes.py
@@ -37,7 +38,6 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │   │   ├── decorators.py
 │   │   └── error.py
 │   ├── extensions.py
-│   ├── main.py
 │   ├── models.py
 │   ├── routes
 │   │   ├── __init__.py
@@ -70,7 +70,11 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │   │   └── setup
 │   │       ├── __init__.py
 │   │       ├── aulas.py
-│   │       └── menu.py
+│   │       ├── aulas_ativas.py
+│   │       ├── dias_da_semana.py
+│   │       ├── laboratorios.py
+│   │       ├── menu.py
+│   │       └── turnos.py
 │   ├── static
 │   │   ├── css
 │   │   │   └── custom.css
@@ -92,7 +96,11 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │       │   │   └── schema.html
 │       │   ├── setup
 │       │   │   ├── aulas.html
-│       │   │   └── menu.html
+│       │   │   ├── aulas_ativas.html
+│       │   │   ├── dias_da_semana.html
+│       │   │   ├── laboratorios.html
+│       │   │   ├── menu.html
+│       │   │   └── turnos.html
 │       │   └── table
 │       │       ├── aulas.html
 │       │       ├── aulas_ativas.html
