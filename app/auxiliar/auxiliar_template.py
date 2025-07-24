@@ -112,6 +112,18 @@ def register_filters(app):
     @app.template_filter('format')
     def format(value):
         return value if value else '-'
+    
+    @app.template_filter('hora')
+    def format_hora(value):
+        return value.strftime('%H:%M') if value else ''
+
+    @app.template_filter('data')
+    def format_data(value):
+        return value.strftime('%d/%m/%Y') if value else ''
+
+    @app.template_filter('datahora')
+    def format_datahora(value):
+        return value.strftime('%d/%m/%Y %H:%M') if value else ''
 
     @app.context_processor
     def inject_permissions():

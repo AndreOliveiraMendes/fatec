@@ -292,7 +292,7 @@
                         <td>{{ sdr.id_situacao }}</td>
                         <td>{{ sdr.laboratorios.nome_laboratorio }}</td>
                         <td>{{ sdr.aulas_ativas.selector_identification }}</td>
-                        <td>{{ sdr.situacao_dia.strftime("%d/%m/%Y") }}</td>
+                        <td>{{ sdr.situacao_dia|data }}</td>
                         <td>{{ sdr.situacao_chave.value }}</td>
                         <td>
                             <form method="post" class="form-inline">

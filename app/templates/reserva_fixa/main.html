@@ -3,5 +3,12 @@
     Página Inicial
 {% endblock title %}
 {% block content %}
-reservas fixas
+    <h3>Reserva Semestral: dia {{ day|data }}</h3>
+    <p>Selecione um semestre para efetuar o cadastro da reserva semanal</p>
+    <div class="btn-group-vertical" role="group">
+        {% for semestre in semestres %}
+            <a href="{{ url_for('reservas_semanais.get_semestre', id_semestre=semestre.id_semestre) }}"
+               class="btn btn-{{ semestre.state }}">{{ semestre.nome_semestre }}</a>
+        {% endfor %}
+    </div>
 {% endblock content %}

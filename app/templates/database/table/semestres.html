@@ -272,8 +272,8 @@
                         <tr>
                             <td>{{ s.id_semestre }}</td>
                             <td>{{ s.nome_semestre }}</td>
-                            <td>{{ s.data_inicio.strftime("%d/%m/%Y") }}</td>
-                            <td>{{ s.data_fim.strftime("%d/%m/%Y") }}</td>
+                            <td>{{ s.data_inicio|data }}</td>
+                            <td>{{ s.data_fim|data }}</td>
                             <td>
                                 <form method="post" class="form-inline">
                                     <input type="hidden" name="bloco" value="1">

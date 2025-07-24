@@ -582,8 +582,8 @@
                             <td>{{ rt.tipo_responsavel|tipo_responsavel_label }}</td>
                             <td>{{ rt.laboratorios.nome_laboratorio }}</td>
                             <td>{{ rt.aulas_ativas.selector_identification }}</td>
-                            <td>{{ rt.inicio_reserva.strftime("%d/%m/%Y") }}</td>
-                            <td>{{ rt.fim_reserva.strftime("%d/%m/%Y") }}</td>
+                            <td>{{ rt.inicio_reserva|data }}</td>
+                            <td>{{ rt.fim_reserva|data }}</td>
                             <td>{{ rt.tipo_reserva.value }}</td>
                             <td>
                                 <form method="post" class="form-inline">

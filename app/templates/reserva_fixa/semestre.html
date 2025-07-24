@@ -1,0 +1,9 @@
+{% extends "base" %}
+{% block title %}
+    Semestre
+{% endblock title %}
+{% block content %}
+    <h3>Semestre: {{ semestre.nome_semestre }}</h3>
+    <p>Periodo: {{ semestre.data_inicio|data }} a {{ semestre.data_fim|data }}</p>
+    <p>Horario: {{ time|hora }}</p>
+{% endblock content %}

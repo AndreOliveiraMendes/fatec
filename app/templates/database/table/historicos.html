@@ -217,7 +217,7 @@
                                 {% endif %}
                             </td>
                             <td>{{ h.categoria or '-' }}</td>
-                            <td>{{ h.data_hora.strftime("%d/%m/%Y %H:%M") if h.data_hora else '-' }}</td>
+                            <td>{{ h.data_hora|datahora if h.data_hora else '-' }}</td>
                             <td>{{ h.message }}</td>
                             <td class="visible-md visible-lg">{{ h.chave_primaria }}</td>
                             <td class="visible-md visible-lg">{{ h.origem.value }}</td>
@@ -231,7 +231,7 @@
             {% for h in historicos %}
                 <div id="detalhes{{ h.id_historico }}" class="collapse">
                     <p>origem: {{ h.origem.value }}</p>
-                    <p>dia: {{ h.data_hora.strftime("%d/%m/%Y %H:%M") if h.data_hora else '-' }}</p>
+                    <p>dia: {{ h.data_hora|datahora if h.data_hora else '-' }}</p>
                     {% if h.id_usuario %}
                         <p>usuario: ({{ h.id_usuario }}, {{ h.usuarios.pessoas.id_pessoa }}) {{ h.usuarios.pessoas.nome_pessoa }}</p>
                     {% else %}
