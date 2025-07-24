@@ -5,5 +5,9 @@
 {% block content %}
     <h3>Semestre: {{ semestre.nome_semestre }}</h3>
     <p>Periodo: {{ semestre.data_inicio|data }} a {{ semestre.data_fim|data }}</p>
-    <p>Horario: {{ time|hora }}</p>
+    <div class="btn-group-vertical" role="group">
+        {% for turno in turnos %}
+            <a href="" class="btn btn-primary">{{ turno.nome_turno }} (das {{ turno.horario_inicio|hora }} as {{ turno.horario_fim|hora }})</a>
+        {% endfor %}
+    </div>
 {% endblock content %}
