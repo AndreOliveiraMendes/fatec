@@ -110,6 +110,8 @@
                 <div class="container">
                     <div class="row">
                         <div class="col-xs-12 text-center">
+                            {% block footer %}
+                            {% endblock footer %}
                             <p class="text-muted">© 2025 Seu Sistema. Todos os direitos reservados.</p>
                         </div>
                     </div>
