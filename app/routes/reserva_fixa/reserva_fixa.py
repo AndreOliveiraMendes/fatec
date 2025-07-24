@@ -1,4 +1,4 @@
-from flask import Blueprint, flash, session, render_template, request
+from flask import Blueprint, flash, session, render_template, redirect, url_for, request
 from sqlalchemy import select
 from datetime import date, datetime
 from app.models import db, Semestres
@@ -14,6 +14,9 @@ def main_page():
     extras = {'url':url}
     sel_semestre = select(Semestres).order_by(Semestres.data_inicio)
     semestres = db.session.execute(sel_semestre).scalars().all()
+    if len(semestres) == 0:
+        flash("cadastre ao menos um semestre", "danger")
+        return redirect(url_for('default.home'))
     today = date.today()
     extras['semestres'] = semestres
     for semestre in semestres:
