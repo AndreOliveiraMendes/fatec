@@ -10,18 +10,19 @@ from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query
     registrar_log_generico_usuario, get_session_or_request, register_return
 from app.auxiliar.dao import get_laboratorios
 
-bp = Blueprint('laboratorios', __name__, url_prefix="/database")
+bp = Blueprint('database_laboratorios', __name__, url_prefix="/database")
 
 @bp.route("/laboratorios", methods=["GET", "POST"])
 @admin_required
 def gerenciar_laboratorios():
+    url = 'database_laboratorios.gerenciar_laboratorios'
     redirect_action = None
     acao = get_session_or_request(request, session, 'acao', 'abertura')
     bloco = int(request.form.get('bloco', 0))
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
     username, perm = get_user_info(userid)
-    extras = {}
+    extras = {'url':url}
     if request.method == 'POST':
         if acao == 'listar':
             sel_laboratorios = select(Laboratorios)
@@ -63,7 +64,7 @@ def gerenciar_laboratorios():
             else:
                 flash("especifique pelo menos um campo de busca", "danger")
                 redirect_action, bloco = register_return(
-                    'laboratorios.gerenciar_laboratorios', acao, extras
+                    url, acao, extras
                 )
 
         elif acao == 'inserir' and bloco == 1:
@@ -89,7 +90,7 @@ def gerenciar_laboratorios():
                 flash(f"Erro ao cadastrar laboratorio:{str(ve)}", "danger")
 
             redirect_action, bloco = register_return(
-                'laboratorios.gerenciar_laboratorios', acao, extras
+                url, acao, extras
             )
 
         elif acao in ['editar', 'excluir'] and bloco == 0:
@@ -125,7 +126,7 @@ def gerenciar_laboratorios():
                 flash(f"Erro ao editar laboratorio:{str(ve)}", "danger")
 
             redirect_action, bloco = register_return(
-                'laboratorios.gerenciar_laboratorios', acao, extras, laboratorios=get_laboratorios()
+                url, acao, extras, laboratorios=get_laboratorios()
             )
         elif acao == 'excluir' and bloco == 2:
             id_laboratorio = none_if_empty(request.form.get('id_laboratorio'), int)
@@ -144,7 +145,7 @@ def gerenciar_laboratorios():
                 flash(f"Erro ao excluir laboratorio: {str(e.orig)}", "danger")
 
             redirect_action, bloco = register_return(
-                'laboratorios.gerenciar_laboratorios', acao, extras, laboratorios=get_laboratorios()
+                url, acao, extras, laboratorios=get_laboratorios()
             )
     if redirect_action:
         return redirect_action

@@ -4,9 +4,9 @@
 {% endblock title %}
 {% block content_head %}
     <div class="panel panel-default">
-        <div class="panel-heading">{{ generate_database_head("reservas_fixas") }}</div>
+        <div class="panel-heading">{{ generate_database_head("database_reservas_fixas") }}</div>
         <div class="panel-body">
-            {{ generate_head(url_for("reservas_fixas.gerenciar_reservas_fixas") , acao, disable=disable) }}
+            {{ generate_head(url_for(url) , acao, disable=disable) }}
         </div>
     </div>
 {% endblock content_head %}
@@ -136,7 +136,7 @@
         <h3>Procurar Reservas Semanais</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('reservas_fixas.gerenciar_reservas_fixas') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
@@ -184,7 +184,7 @@
     <h3>Inserir Reserva Semanal</h3>
     <form class="form-group"
           role="form"
-          action="{{ url_for('reservas_fixas.gerenciar_reservas_fixas') }}"
+          action="{{ url_for(url) }}"
           method="post">
         <input type="hidden" name="acao" value="{{ acao }}">
         {{ gerar_select("responsavel", "Selecione a Pessoa", pessoas, "id_pessoa", "nome_pessoa", "id_responsavel") }}
@@ -259,7 +259,7 @@
         <h3>Editar Reservas Semanais</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('reservas_fixas.gerenciar_reservas_fixas') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             {{ gerar_select("reservas_fixas", "Selecione a reserva", reservas_fixas, "id_reserva_fixa", "selector_identification") }}
@@ -269,7 +269,7 @@
         <h3>Editar Reserva Semanal</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('reservas_fixas.gerenciar_reservas_fixas') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
@@ -368,7 +368,7 @@
         <h3>Excluir Reservas Semanais</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('reservas_fixas.gerenciar_reservas_fixas') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             {{ gerar_select("reservas_fixas", "Selecione a reserva", reservas_fixas, "id_reserva_fixa", "selector_identification") }}
@@ -378,7 +378,7 @@
         <h3>Excluir Reserva Semanal</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('reservas_fixas.gerenciar_reservas_fixas') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">

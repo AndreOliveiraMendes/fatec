@@ -10,18 +10,19 @@ from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query
     registrar_log_generico_usuario, get_session_or_request, register_return
 from app.auxiliar.dao import get_usuarios_especiais
 
-bp = Blueprint('usuarios_especiais', __name__, url_prefix="/database")
+bp = Blueprint('database_usuarios_especiais', __name__, url_prefix="/database")
 
 @bp.route("/usuarios_especiais", methods=["GET", "POST"])
 @admin_required
 def gerenciar_usuarios_especiais():
+    url = 'database_usuarios_especiais.gerenciar_usuarios_especiais'
     redirect_action = None
     acao = get_session_or_request(request, session, 'acao', 'abertura')
     bloco = int(request.form.get('bloco', 0))
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
     username, perm = get_user_info(userid)
-    extras = {}
+    extras = {'url':url}
     if request.method == 'POST':
         if acao == "listar":
             sel_users = select(Usuarios_Especiais)
@@ -58,7 +59,7 @@ def gerenciar_usuarios_especiais():
             else:
                 flash("especifique pelo menos um campo de busca", "danger")
                 redirect_action, bloco = register_return(
-                    'usuarios_especiais.gerenciar_usuarios_especiais', acao, extras)
+                    url, acao, extras)
 
         elif acao == 'inserir' and bloco == 1:
             nome_usuario_especial = none_if_empty(request.form.get('nome_usuario_especial'))
@@ -73,7 +74,7 @@ def gerenciar_usuarios_especiais():
                 db.session.rollback()
                 flash(f"Erro ao inserir usuario especial: {str(e.orig)}", "danger")
 
-            redirect_action, bloco = register_return('usuarios_especiais.gerenciar_usuarios_especiais',
+            redirect_action, bloco = register_return(url,
                 acao, extras)
 
         elif acao in ['editar', 'excluir'] and bloco == 0:
@@ -101,7 +102,7 @@ def gerenciar_usuarios_especiais():
                 db.session.rollback()
                 flash(f"Erro ao editar usuario especial: {str(e.orig)}", "danger")
 
-            redirect_action, bloco = register_return('usuarios_especiais.gerenciar_usuarios_especiais',
+            redirect_action, bloco = register_return(url,
                 acao, extras, usuarios_especiais=get_usuarios_especiais())
         elif acao == 'excluir' and bloco == 2:
             id_usuario_especial = none_if_empty(request.form.get('id_usuario_especial'), int)
@@ -119,7 +120,7 @@ def gerenciar_usuarios_especiais():
                 db.session.rollback()
                 flash(f"Erro ao excluir usuario especial: {str(e.orig)}", "danger")
 
-            redirect_action, bloco = register_return('usuarios_especiais.gerenciar_usuarios_especiais',
+            redirect_action, bloco = register_return(url,
                 acao, extras, usuarios_especiais=get_usuarios_especiais())
     if redirect_action:
         return redirect_action

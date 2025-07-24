@@ -11,18 +11,19 @@ from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query
 from app.auxiliar.dao import get_pessoas, get_usuarios_especiais, get_laboratorios, \
     get_aulas_ativas, get_semestres, get_reservas_fixas
 
-bp = Blueprint('reservas_fixas', __name__, url_prefix="/database")
+bp = Blueprint('database_reservas_fixas', __name__, url_prefix="/database")
 
 @bp.route("/reservas_fixa", methods=['GET', 'POST'])
 @admin_required
 def gerenciar_reservas_fixas():
+    url = 'database_reservas_fixas.gerenciar_reservas_fixas'
     redirect_action = None
     acao = get_session_or_request(request, session, 'acao', 'abertura')
     bloco = int(request.form.get('bloco', 0))
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
     username, perm = get_user_info(userid)
-    extras = {}
+    extras = {'url':url}
     if request.method == 'POST':
         if acao == 'listar':
             sel_reservas = select(Reservas_Fixas)
@@ -77,7 +78,7 @@ def gerenciar_reservas_fixas():
                 extras['query_params'] = query_params
             else:
                 flash("especifique ao menos um campo", "danger")
-                redirect_action, bloco = register_return('reservas_fixas.gerenciar_reservas_fixas',
+                redirect_action, bloco = register_return(url,
                     acao, extras, pessoas=get_pessoas(), usuarios_especiais=get_usuarios_especiais(),
                     laboratorios=get_laboratorios(), aulas_ativas=get_aulas_ativas(),
                     semestres=get_semestres()
@@ -119,7 +120,7 @@ def gerenciar_reservas_fixas():
                 db.session.rollback()
                 flash(f"Erro ao cadastrar reserva:{str(ve)}", "danger")
 
-            redirect_action, bloco = register_return('reservas_fixas.gerenciar_reservas_fixas',
+            redirect_action, bloco = register_return(url,
                 acao, extras, pessoas=get_pessoas(), usuarios_especiais=get_usuarios_especiais(),
                 laboratorios=get_laboratorios(), aulas_ativas=get_aulas_ativas(),
                 semestres=get_semestres()
@@ -168,7 +169,7 @@ def gerenciar_reservas_fixas():
                 db.session.rollback()
                 flash(f"Erro ao editar reserva:{str(ve)}", "danger")
 
-            redirect_action, bloco = register_return('reservas_fixas.gerenciar_reservas_fixas',
+            redirect_action, bloco = register_return(url,
                 acao, extras, reservas_fixas=get_reservas_fixas()
             )
         elif acao == 'excluir' and bloco == 2:
@@ -187,7 +188,7 @@ def gerenciar_reservas_fixas():
                 db.session.rollback()
                 flash(f"erro ao excluir reserva:{str(e.orig)}", "danger")
 
-            redirect_action, bloco = register_return('reservas_fixas.gerenciar_reservas_fixas',
+            redirect_action, bloco = register_return(url,
                 acao, extras, reservas_fixas=get_reservas_fixas()
             )
     if redirect_action:

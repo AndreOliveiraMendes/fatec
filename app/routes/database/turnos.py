@@ -10,11 +10,12 @@ from app.auxiliar.auxiliar_routes import none_if_empty, parse_time_string, get_u
     registrar_log_generico_usuario, disable_action, get_session_or_request, register_return
 from app.auxiliar.dao import get_turnos
 
-bp = Blueprint('turnos', __name__, url_prefix="/database")
+bp = Blueprint('database_turnos', __name__, url_prefix="/database")
 
 @bp.route("/turnos", methods=["GET", "POST"])
 @admin_required
 def gerenciar_turnos():
+    url = 'database_turnos.gerenciar_turnos'
     redirect_action = None
     acao = get_session_or_request(request, session, 'acao', 'abertura')
     bloco = int(request.form.get('bloco', 0))
@@ -22,7 +23,7 @@ def gerenciar_turnos():
     userid = session.get('userid')
     username, perm = get_user_info(userid)
     disabled = ['procurar']
-    extras = {}
+    extras = {'url':url}
     disable_action(extras, disabled)
     if request.method == 'POST':
         if acao in disabled:
@@ -55,7 +56,7 @@ def gerenciar_turnos():
                 db.session.rollback()
                 flash(f"Erro ao cadastrar turno:{str(e.orig)}", "danger")
 
-            redirect_action, bloco = register_return('turnos.gerenciar_turnos', acao, extras)
+            redirect_action, bloco = register_return(url, acao, extras)
 
         elif acao in ['editar', 'excluir'] and bloco == 0:
             extras['turnos'] = get_turnos()
@@ -83,7 +84,7 @@ def gerenciar_turnos():
                 db.session.rollback()
                 flash(f"Erro ao editar turno:{str(e.orig)}", "danger")
 
-            redirect_action, bloco = register_return('turnos.gerenciar_turnos',
+            redirect_action, bloco = register_return(url,
                 acao, extras, turnos=get_turnos())
         elif acao == 'excluir' and bloco == 2:
             id_turno = none_if_empty(request.form.get('id_turno'), int)
@@ -99,7 +100,7 @@ def gerenciar_turnos():
                 db.session.rollback()
                 flash(f"Erro as excluir turno", "danger")
 
-            redirect_action, bloco = register_return('turnos.gerenciar_turnos',
+            redirect_action, bloco = register_return(url,
                 acao, extras, turnos=get_turnos())
 
     if redirect_action:

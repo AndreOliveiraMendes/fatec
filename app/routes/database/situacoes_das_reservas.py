@@ -10,18 +10,19 @@ from app.auxiliar.auxiliar_routes import none_if_empty, parse_date_string, get_u
     get_query_params, registrar_log_generico_usuario, get_session_or_request, register_return
 from app.auxiliar.dao import get_laboratorios, get_aulas_ativas, get_situacoes
 
-bp = Blueprint('situacoes_das_reservas', __name__, url_prefix="/database")
+bp = Blueprint('database_situacoes_das_reservas', __name__, url_prefix="/database")
 
 @bp.route("/situacoes_das_reservas", methods=["GET", "POST"])
 @admin_required
 def gerenciar_situacoes_das_reservas():
+    url = 'database_situacoes_das_reservas.gerenciar_situacoes_das_reservas'
     redirect_action = None
     acao = get_session_or_request(request, session, 'acao', 'abertura')
     bloco = int(request.form.get('bloco', 0))
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
     username, perm = get_user_info(userid)
-    extras = {}
+    extras = {'url':url}
     if request.method == 'POST':
         if acao == 'listar':
             sel_situacoes = select(Situacoes_Das_Reserva)
@@ -65,7 +66,7 @@ def gerenciar_situacoes_das_reservas():
             else:
                 flash("especifique ao menos um campo", "danger")
                 redirect_action, bloco = register_return(
-                    'situacoes_das_reservas.gerenciar_situacoes_das_reservas', acao, extras,
+                    url, acao, extras,
                     laboratorios=get_laboratorios(), aulas_ativas=get_aulas_ativas()
                 )
 
@@ -100,7 +101,7 @@ def gerenciar_situacoes_das_reservas():
                 flash(f"Erro ao cadastrar situação:{ve}", "danger")
 
             redirect_action, bloco = register_return(
-                'situacoes_das_reservas.gerenciar_situacoes_das_reservas', acao, extras,
+                url, acao, extras,
                 laboratorios=get_laboratorios(), aulas_ativas=get_aulas_ativas()
             )
 
@@ -140,7 +141,7 @@ def gerenciar_situacoes_das_reservas():
                 flash(f"Erro ao editar situação:{ve}", "danger")
 
             redirect_action, bloco = register_return(
-                'situacoes_das_reservas.gerenciar_situacoes_das_reservas', acao, extras,
+                url, acao, extras,
                 situacoes_das_reservas=get_situacoes()
             )
         elif acao == 'excluir' and bloco == 2:
@@ -163,7 +164,7 @@ def gerenciar_situacoes_das_reservas():
                 flash(f"Erro ao excluir situação:{ve}", "danger")
 
             redirect_action, bloco = register_return(
-                'situacoes_das_reservas.gerenciar_situacoes_das_reservas', acao, extras,
+                url, acao, extras,
                 situacoes_das_reservas=get_situacoes()
             )
     if redirect_action:

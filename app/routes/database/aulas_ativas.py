@@ -11,7 +11,7 @@ from app.auxiliar.auxiliar_routes import none_if_empty, parse_date_string, get_u
     get_query_params, registrar_log_generico_usuario, get_session_or_request, register_return
 from app.auxiliar.dao import get_aulas, get_dias_da_semana, get_aulas_ativas
 
-bp = Blueprint('aulas_ativas', __name__, url_prefix="/database")
+bp = Blueprint('database_aulas_ativas', __name__, url_prefix="/database")
 
 def check_aula_ativa(inicio, fim, aula, semana, tipo, id = None):
     base_filter = [Aulas_Ativas.id_aula == aula, Aulas_Ativas.id_semana == semana,
@@ -78,13 +78,14 @@ def filtro_intervalo(inicio_procura, fim_procura):
 @bp.route("/aulas_ativas", methods=["GET", "POST"])
 @admin_required
 def gerenciar_aulas_ativas():
+    url = 'database_aulas_ativas.gerenciar_aulas_ativas'
     redirect_action = None
     acao = get_session_or_request(request, session, 'acao', 'abertura')
     bloco = int(request.form.get('bloco', 0))
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
     username, perm = get_user_info(userid)
-    extras = {}
+    extras = {'url':url}
     if request.method == 'POST':
         if acao == 'listar':
             sel_aulas_ativas = select(Aulas_Ativas)
@@ -128,7 +129,7 @@ def gerenciar_aulas_ativas():
                 extras['query_params'] = query_params
             else:
                 flash("especifique pelo menos um campo de busca", "danger")
-                redirect_action, bloco = register_return('aulas_ativas.gerenciar_aulas_ativas', acao, extras,
+                redirect_action, bloco = register_return(url, acao, extras,
                     aulas=get_aulas(), dias_da_semana=get_dias_da_semana())
 
         elif acao == 'inserir' and bloco == 0:
@@ -159,7 +160,7 @@ def gerenciar_aulas_ativas():
                 db.session.rollback()
                 flash(f"Erro ao cadastrar:{str(ve)}", "danger")
             
-            redirect_action, bloco = register_return('aulas_ativas.gerenciar_aulas_ativas', acao, extras,
+            redirect_action, bloco = register_return(url, acao, extras,
                 aulas=get_aulas(), dias_da_semana=get_dias_da_semana())
 
         elif acao in ['editar', 'excluir'] and bloco == 0:
@@ -199,7 +200,7 @@ def gerenciar_aulas_ativas():
                 db.session.rollback()
                 flash(f"Erro ao cadastrar:{str(ve)}", "danger")
 
-            redirect_action, bloco = register_return('aulas_ativas.gerenciar_aulas_ativas', acao, extras,
+            redirect_action, bloco = register_return(url, acao, extras,
                 aulas_ativas=get_aulas_ativas())
         elif acao == 'excluir' and bloco == 2:
             id_aula_ativa = none_if_empty(request.form.get('id_aula_ativa'), int)
@@ -216,8 +217,9 @@ def gerenciar_aulas_ativas():
                 db.session.rollback()
                 flash(f"Erro ao excluir aula ativa:{str(e.orig)}", "danger")
 
-            redirect_action, bloco = register_return('aulas_ativas.gerenciar_aulas_ativas', acao, extras,
+            redirect_action, bloco = register_return(url, acao, extras,
                 aulas_ativas=get_aulas_ativas())
     if redirect_action:
         return redirect_action
-    return render_template("database/table/aulas_ativas.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
+    return render_template("database/table/aulas_ativas.html",
+        username=username, perm=perm, acao=acao, bloco=bloco, **extras)

@@ -10,11 +10,12 @@ from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, registrar
     disable_action, get_session_or_request, register_return
 from app.auxiliar.dao import get_dias_da_semana
 
-bp = Blueprint('dias_da_semana', __name__, url_prefix="/database")
+bp = Blueprint('database_dias_da_semana', __name__, url_prefix="/database")
 
 @bp.route("/dias_da_semana", methods=["GET", "POST"])
 @admin_required
 def gerenciar_dias_da_semana():
+    url = 'database_dias_da_semana.gerenciar_dias_da_semana'
     redirect_action = None
     acao = get_session_or_request(request, session, 'acao', 'abertura')
     bloco = int(request.form.get('bloco', 0))
@@ -22,7 +23,7 @@ def gerenciar_dias_da_semana():
     userid = session.get('userid')
     username, perm = get_user_info(userid)
     disabled = ['procurar']
-    extras = {}
+    extras = {'url':url}
     disable_action(extras, disabled)
     if request.method == 'POST':
         if acao in disabled:
@@ -53,7 +54,7 @@ def gerenciar_dias_da_semana():
                 db.session.rollback()
                 flash(f"Falah ao cadastrar semana:{str(e.orig)}", "danger")
 
-            redirect_action, bloco = register_return('dias_da_semana.gerenciar_dias_da_semana', acao, extras)
+            redirect_action, bloco = register_return(url, acao, extras)
 
         elif acao in ['editar', 'excluir'] and bloco == 0:
             extras['dias_da_semana'] = get_dias_da_semana()
@@ -78,7 +79,7 @@ def gerenciar_dias_da_semana():
                 db.session.rollback()
                 flash(f"Erro ao editar dia da semana:{str(e.orig)}", "danger")
 
-            redirect_action, bloco = register_return('dias_da_semana.gerenciar_dias_da_semana', acao, extras, dias_da_semana=get_dias_da_semana())
+            redirect_action, bloco = register_return(url, acao, extras, dias_da_semana=get_dias_da_semana())
         elif acao == 'excluir' and bloco == 2:
             id_semana = none_if_empty(request.form.get('id_semana'), int)
             dia_da_semana = db.get_or_404(Dias_da_Semana, id_semana)
@@ -94,7 +95,7 @@ def gerenciar_dias_da_semana():
                 db.session.rollback()
                 flash(f"erro ao excluir dia da semana:{str(e.orig)}", "danger")
 
-            redirect_action, bloco = register_return('dias_da_semana.gerenciar_dias_da_semana', acao, extras, dias_da_semana=get_dias_da_semana())
+            redirect_action, bloco = register_return(url, acao, extras, dias_da_semana=get_dias_da_semana())
     if redirect_action:
         return redirect_action
     return render_template("database/table/dias_da_semana.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)

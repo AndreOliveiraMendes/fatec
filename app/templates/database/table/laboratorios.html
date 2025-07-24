@@ -4,9 +4,9 @@
 {% endblock title %}
 {% block content_head %}
     <div class="panel panel-default">
-        <div class="panel-heading">{{ generate_database_head("laboratorios") }}</div>
+        <div class="panel-heading">{{ generate_database_head("database_laboratorios") }}</div>
         <div class="panel-body">
-            {{ generate_head(url_for("laboratorios.gerenciar_laboratorios") , acao, disable=disable) }}
+            {{ generate_head(url_for(url) , acao, disable=disable) }}
         </div>
     </div>
 {% endblock content_head %}
@@ -94,7 +94,7 @@
         <h3>Procurar laboratório</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('laboratorios.gerenciar_laboratorios') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
@@ -154,7 +154,7 @@
     <h3>Inserir laboratório</h3>
     <form class="form-group"
           role="form"
-          action="{{ url_for('laboratorios.gerenciar_laboratorios') }}"
+          action="{{ url_for(url) }}"
           method="post">
         <input type="hidden" name="acao" value="{{ acao }}">
         <div class="form-group">
@@ -195,7 +195,7 @@
         <h3>Editar laboratórios</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('laboratorios.gerenciar_laboratorios') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             {{ gerar_select("id_laboratorio", "Selecione o laboratorio", laboratorios, "id_laboratorio", "nome_laboratorio") }}
@@ -205,7 +205,7 @@
         <h3>Editar laboratório</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('laboratorios.gerenciar_laboratorios') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
@@ -267,7 +267,7 @@
         <h3>Excluir laboratório</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('laboratorios.gerenciar_laboratorios') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             {{ gerar_select("id_laboratorio", "Selecione o laboratorio", laboratorios, "id_laboratorio", "nome_laboratorio") }}
@@ -277,7 +277,7 @@
         <h3>Excluir laboratorio</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('laboratorios.gerenciar_laboratorios') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">

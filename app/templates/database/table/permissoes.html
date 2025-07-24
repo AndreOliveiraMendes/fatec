@@ -4,8 +4,8 @@
 {% endblock title %}
 {% block content_head %}
     <div class="panel panel-default">
-        <div class="panel-heading">{{ generate_database_head("permissoes") }}</div>
-        <div class="panel-body">{{ generate_head(url_for("permissoes.gerenciar_permissoes") , acao, disable=disable) }}</div>
+        <div class="panel-heading">{{ generate_database_head("database_permissoes") }}</div>
+        <div class="panel-body">{{ generate_head(url_for(url) , acao, disable=disable) }}</div>
     </div>
 {% endblock content_head %}
 {% block abertura %}
@@ -72,7 +72,7 @@
         <h3>Procurar Permissoes</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('permissoes.gerenciar_permissoes') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             {{ gerar_select("id_usuario", "Selecione o usuario", users, "id_usuario", "nome_pessoa", "id_permissao_usuario", optional=True) 
@@ -125,7 +125,7 @@
     {% if users %}
         <form class="form-group"
               role="form"
-              action="{{ url_for('permissoes.gerenciar_permissoes') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             {{ gerar_select("id_usuario", "Selecione o usuario", users, "id_usuario", "nome_pessoa", "id_permissao_usuario") }}
@@ -165,7 +165,7 @@
     {% if bloco == 0 %}
         <form class="form-group"
               role="form"
-              action="{{ url_for('permissoes.gerenciar_permissoes') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             {{ gerar_select("id_usuario", "Selecione o usuario", permissoes, "id_permissao_usuario", "nome_pessoa", "id_usuario") }}
@@ -174,7 +174,7 @@
     {% elif bloco == 1 %}
         <form class="form-group"
               role="form"
-              action="{{ url_for('permissoes.gerenciar_permissoes') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
@@ -232,7 +232,7 @@
     {% if bloco == 0 %}
         <form class="form-group"
               role="form"
-              action="{{ url_for('permissoes.gerenciar_permissoes') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             {{ gerar_select("id_usuario", "Selecione o usuario", permissoes, "id_permissao_usuario", "nome_pessoa", "id_usuario") }}
@@ -241,7 +241,7 @@
     {% elif bloco == 1 %}
         <form class="form-group"
               role="form"
-              action="{{ url_for('permissoes.gerenciar_permissoes') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">

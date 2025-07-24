@@ -4,8 +4,8 @@
 {% endblock title %}
 {% block content_head %}
     <div class="panel panel-default">
-        <div class="panel-heading">{{ generate_database_head("turnos") }}</div>
-        <div class="panel-body">{{ generate_head(url_for("turnos.gerenciar_turnos") , acao, disable=disable) }}</div>
+        <div class="panel-heading">{{ generate_database_head("database_turnos") }}</div>
+        <div class="panel-body">{{ generate_head(url_for(url) , acao, disable=disable) }}</div>
     </div>
 {% endblock content_head %}
 {% block abertura %}
@@ -119,7 +119,7 @@
     <h3>Inserir Turno</h3>
     <form class="form-group"
           role="form"
-          action="{{ url_for('turnos.gerenciar_turnos') }}"
+          action="{{ url_for(url) }}"
           method="post">
         <input type="hidden" name="acao" value="{{ acao }}">
         <div class="form-group">
@@ -155,7 +155,7 @@
         <h3>Editar Turnos</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('turnos.gerenciar_turnos') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             {{ gerar_select("turno", "Selecione o turno", turnos, "id_turno", "nome_turno") }}
@@ -165,7 +165,7 @@
         <h3>Editar Turno</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('turnos.gerenciar_turnos') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
@@ -215,7 +215,7 @@
         <h3>Excluir Turnos</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('turnos.gerenciar_turnos') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             {{ gerar_select("turno", "Selecione o turno", turnos, "id_turno", "nome_turno") }}
@@ -225,7 +225,7 @@
         <h3>Excluir Turno</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('turnos.gerenciar_turnos') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">

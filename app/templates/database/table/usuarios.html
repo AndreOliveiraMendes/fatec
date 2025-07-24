@@ -4,8 +4,8 @@
 {% endblock title %}
 {% block content_head %}
     <div class="panel panel-default">
-        <div class="panel-heading">{{ generate_database_head("usuarios") }}</div>
-        <div class="panel-body">{{ generate_head(url_for("usuarios.gerenciar_usuarios") , acao, disable=disable) }}</div>
+        <div class="panel-heading">{{ generate_database_head("database_usuarios") }}</div>
+        <div class="panel-body">{{ generate_head(url_for(url) , acao, disable=disable) }}</div>
     </div>
 {% endblock content_head %}
 {% block abertura %}
@@ -73,7 +73,7 @@
         <h3>Procurar Usuário</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('usuarios.gerenciar_usuarios') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
@@ -137,7 +137,7 @@
     <h3>Inserir Usuários</h3>
     <form class="form-group"
           role="form"
-          action="{{ url_for('usuarios.gerenciar_usuarios') }}"
+          action="{{ url_for(url) }}"
           method="post">
         <input type="hidden" name="acao" value="{{ acao }}">
         {{ gerar_select("pessoa", "Selecione a Pessoa", pessoas, "id_pessoa", "nome_pessoa") }}
@@ -192,7 +192,7 @@
         <h3>Editar Usuários</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('usuarios.gerenciar_usuarios') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             {{ gerar_select("id_usuario", "Selecione o usuario", usuarios, "id_usuario", "nome_pessoa") }}
@@ -202,7 +202,7 @@
         <h3>Editar Usuário</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('usuarios.gerenciar_usuarios') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
@@ -272,7 +272,7 @@
         <h3>Excluir Usuários</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('usuarios.gerenciar_usuarios') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             {{ gerar_select("id_usuario", "Selecione o usuario", usuarios, "id_usuario", "nome_pessoa") }}
@@ -282,7 +282,7 @@
         <h3>Excluir Usuário</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('usuarios.gerenciar_usuarios') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">

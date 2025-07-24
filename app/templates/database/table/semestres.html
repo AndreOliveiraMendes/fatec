@@ -4,8 +4,8 @@
 {% endblock title %}
 {% block content_head %}
     <div class="panel panel-default">
-        <div class="panel-heading">{{ generate_database_head("semestres") }}</div>
-        <div class="panel-body">{{ generate_head(url_for("semestres.gerenciar_semestres") , acao, disable=disable) }}</div>
+        <div class="panel-heading">{{ generate_database_head("database_semestres") }}</div>
+        <div class="panel-body">{{ generate_head(url_for(url) , acao, disable=disable) }}</div>
     </div>
 {% endblock content_head %}
 {% block abertura %}
@@ -66,7 +66,7 @@
         <h3>Procurar Semestres</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('semestres.gerenciar_semestres') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
@@ -113,7 +113,7 @@
     <h3>Inserir Semestres</h3>
     <form class="form-group"
           role="form"
-          action="{{ url_for('semestres.gerenciar_semestres') }}"
+          action="{{ url_for(url) }}"
           method="post">
         <input type="hidden" name="acao" value="{{ acao }}">
         <div class="form-group">
@@ -142,7 +142,7 @@
         <h3>Editar Semestres</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('semestres.gerenciar_semestres') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             {{ gerar_select("id_semestre", "Selecione o semestre", semestres, "id_semestre", "nome_semestre") }}
@@ -151,7 +151,7 @@
     {% else %}
         <form class="form-group"
               role="form"
-              action="{{ url_for('semestres.gerenciar_semestres') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
@@ -199,7 +199,7 @@
         <h3>Editar Semestres</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('semestres.gerenciar_semestres') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             {{ gerar_select("id_semestre", "Selecione o semestre", semestres, "id_semestre", "nome_semestre") }}
@@ -208,7 +208,7 @@
     {% else %}
         <form class="form-group"
               role="form"
-              action="{{ url_for('semestres.gerenciar_semestres') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">

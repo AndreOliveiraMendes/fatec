@@ -10,18 +10,19 @@ from app.auxiliar.auxiliar_routes import none_if_empty, parse_date_string, get_u
     get_query_params, registrar_log_generico_usuario, get_session_or_request, register_return
 from app.auxiliar.dao import get_semestres
 
-bp = Blueprint('semestres', __name__, url_prefix="/database")
+bp = Blueprint('database_semestres', __name__, url_prefix="/database")
 
 @bp.route("/semestres", methods=["GET", "POST"])
 @admin_required
 def gerenciar_semestres():
+    url = 'database_semestres.gerenciar_semestres'
     redirect_action = None
     acao = get_session_or_request(request, session, 'acao', 'abertura')
     bloco = int(request.form.get('bloco', 0))
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
     username, perm = get_user_info(userid)
-    extras = {}
+    extras = {'url':url}
     if request.method == 'POST':
         if acao == 'listar':
             sel_semestres = select(Semestres)
@@ -62,7 +63,7 @@ def gerenciar_semestres():
                 extras['query_params'] = query_params
             else:
                 flash("especifique pelo menos um campo de busca", "danger")
-                redirect_action, bloco = register_return('semestres.gerenciar_semestres', acao, extras)
+                redirect_action, bloco = register_return(url, acao, extras)
 
         elif acao == 'inserir' and bloco == 1:
             nome_semestre = none_if_empty(request.form.get('nome_semestre'))
@@ -80,7 +81,7 @@ def gerenciar_semestres():
                 db.session.rollback()
                 flash(f"Erro ao cadastrar semestre:{str(e.orig)}")
 
-            redirect_action, bloco = register_return('semestres.gerenciar_semestres', acao, extras)
+            redirect_action, bloco = register_return(url, acao, extras)
 
         elif acao in ['editar', 'excluir'] and bloco == 0:
             extras['semestres'] = get_semestres()
@@ -109,7 +110,7 @@ def gerenciar_semestres():
                 db.session.rollback()
                 flash(f"Erro ao editar semestre:{str(e.orig)}", "danger")
 
-            redirect_action, bloco = register_return('semestres.gerenciar_semestres',
+            redirect_action, bloco = register_return(url,
                 acao, extras, semestres=get_semestres())
         elif acao == 'excluir' and bloco == 2:
             id_semestre = none_if_empty(request.form.get('id_semestre'), int)
@@ -127,7 +128,7 @@ def gerenciar_semestres():
                 db.session.rollback()
                 flash(f"Erro ao excluir semestre:{str(e.orig)}", "danger")
 
-            redirect_action, bloco = register_return('semestres.gerenciar_semestres',
+            redirect_action, bloco = register_return(url,
                 acao, extras, semestres=get_semestres())
     if redirect_action:
         return redirect_action

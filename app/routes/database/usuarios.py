@@ -10,11 +10,12 @@ from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query
     registrar_log_generico_usuario, disable_action, get_session_or_request, register_return
 from app.auxiliar.dao import get_pessoas, get_usuarios
 
-bp = Blueprint('usuarios', __name__, url_prefix="/database")
+bp = Blueprint('database_usuarios', __name__, url_prefix="/database")
 
 @bp.route("/usuarios", methods=["GET", "POST"])
 @admin_required
 def gerenciar_usuarios():
+    url = 'database_usuarios.gerenciar_usuarios'
     redirect_action = None
     acao = get_session_or_request(request, session, 'acao', 'abertura')
     bloco = int(request.form.get('bloco', 0))
@@ -22,7 +23,7 @@ def gerenciar_usuarios():
     userid = session.get('userid')
     username, perm = get_user_info(userid)
     disabled = ['inserir', 'editar', 'excluir']
-    extras = {}
+    extras = {'url':url}
     disable_action(extras, disabled)
     if request.method == 'POST':
         if acao in disabled:
@@ -70,7 +71,7 @@ def gerenciar_usuarios():
                 extras['query_params'] = query_params
             else:
                 flash("especifique pelo menos um campo de busca", "danger")
-                redirect_action, bloco = register_return('usuarios.gerenciar_usuarios',
+                redirect_action, bloco = register_return(url,
                     acao, extras, pessoas=get_pessoas())
 
         elif acao == 'inserir' and bloco == 0:
@@ -94,7 +95,7 @@ def gerenciar_usuarios():
                 db.session.rollback()
                 flash(f"Erro ao inserir usuario: {str(e.orig)}", "danger")
 
-            redirect_action, bloco = register_return('usuarios.gerenciar_usuarios',
+            redirect_action, bloco = register_return(url,
                 acao, extras, pessoas=get_pessoas())
 
         elif acao in ['editar', 'excluir'] and bloco == 0:
@@ -131,7 +132,7 @@ def gerenciar_usuarios():
                 db.session.rollback()
                 flash(f"Erro ao atualizar usuario: {str(e.orig)}", "danger")
 
-            redirect_action, bloco = register_return('usuarios.gerenciar_usuarios',
+            redirect_action, bloco = register_return(url,
                 acao, extras, usuarios=get_usuarios(acao, userid))
         elif acao == 'excluir' and bloco == 2:
             id_usuario = none_if_empty(request.form.get('id_usuario', None), int)
@@ -153,7 +154,7 @@ def gerenciar_usuarios():
                     db.session.rollback()
                     flash(f"Erro ao excluir usuario: {str(e.orig)}", "danger")
 
-            redirect_action, bloco = register_return('usuarios.gerenciar_usuarios',
+            redirect_action, bloco = register_return(url,
                 acao, extras, usuarios=get_usuarios(acao, userid))
     if redirect_action:
         return redirect_action

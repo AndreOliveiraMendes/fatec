@@ -4,10 +4,8 @@
 {% endblock title %}
 {% block content_head %}
     <div class="panel panel-default">
-        <div class="panel-heading">{{ generate_database_head("aulas_ativas") }}</div>
-        <div class="panel-body">
-            {{ generate_head(url_for("aulas_ativas.gerenciar_aulas_ativas") , acao, disable=disable) }}
-        </div>
+        <div class="panel-heading">{{ generate_database_head("database_aulas_ativas") }}</div>
+        <div class="panel-body">{{ generate_head(url_for(url) , acao, disable=disable) }}</div>
     </div>
 {% endblock content_head %}
 {% block abertura %}
@@ -101,7 +99,7 @@
         <h3>Procurar Aulas Ativas</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('aulas_ativas.gerenciar_aulas_ativas') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
@@ -158,7 +156,7 @@
     <h3>Inserir Aulas Ativas</h3>
     <form class="form-group"
           role="form"
-          action="{{ url_for('aulas_ativas.gerenciar_aulas_ativas') }}"
+          action="{{ url_for(url) }}"
           method="post">
         <input type="hidden" name="acao" value="{{ acao }}">
         {{ gerar_select("id_aula", "Selecione a aula", aulas, "id_aula", "selector_identification") }}
@@ -196,7 +194,7 @@
         <h3>Editar Aulas Ativas</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('aulas_ativas.gerenciar_aulas_ativas') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             {{ gerar_select("id_aula_ativa", "Selecione a aula ativa", aulas_ativas, "id_aula_ativa", "selector_identification") }}
@@ -206,7 +204,7 @@
         <h3>Editar Aula Ativa</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('aulas_ativas.gerenciar_aulas_ativas') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
@@ -258,7 +256,7 @@
         <h3>Excluir Aulas Ativas</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('aulas_ativas.gerenciar_aulas_ativas') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             {{ gerar_select("id_aula_ativa", "Selecione a aula ativa", aulas_ativas, "id_aula_ativa", "selector_identification") }}
@@ -268,7 +266,7 @@
         <h3>Excluir Aula Ativa</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('aulas_ativas.gerenciar_aulas_ativas') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">

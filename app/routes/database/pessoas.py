@@ -10,11 +10,12 @@ from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query
     registrar_log_generico_usuario, disable_action, get_session_or_request, register_return
 from app.auxiliar.dao import get_pessoas
 
-bp = Blueprint('pessoas', __name__, url_prefix="/database")
+bp = Blueprint('database_pessoas', __name__, url_prefix="/database")
 
 @bp.route("/pessoas", methods=["GET", "POST"])
 @admin_required
 def gerenciar_pessoas():
+    url = 'database_pessoas.gerenciar_pessoas'
     redirect_action = None
     acao = get_session_or_request(request, session, 'acao', 'abertura')
     bloco = int(request.form.get('bloco', 0))
@@ -22,7 +23,7 @@ def gerenciar_pessoas():
     userid = session.get('userid')
     username, perm = get_user_info(userid)
     disabled = ['inserir', 'editar', 'excluir']
-    extras = {}
+    extras = {'url':url}
     disable_action(extras, disabled)
     if request.method == 'POST':
         if acao in disabled:
@@ -68,7 +69,7 @@ def gerenciar_pessoas():
                 extras['query_params'] = query_params
             else:
                 flash("especifique pelo menos um campo de busca", "danger")
-                redirect_action, bloco = register_return('pessoas.gerenciar_pessoas', acao, extras)
+                redirect_action, bloco = register_return(url, acao, extras)
 
         elif acao == 'inserir' and bloco == 1:
             nome = none_if_empty(request.form.get('nome', None))
@@ -84,7 +85,7 @@ def gerenciar_pessoas():
                 db.session.rollback()
                 flash(f"Erro ao inserir pessoa: {str(e.orig)}", "danger")
 
-            redirect_action, bloco = register_return('pessoas.gerenciar_pessoas', acao, extras)
+            redirect_action, bloco = register_return(url, acao, extras)
 
         elif acao in ['editar', 'excluir'] and bloco == 0:
             extras['pessoas'] = get_pessoas(acao, userid)
@@ -118,7 +119,7 @@ def gerenciar_pessoas():
                 db.session.rollback()
                 flash(f"Erro ao atualizar pessoa: {str(e.orig)}", "danger")
 
-            redirect_action, bloco = register_return('pessoas.gerenciar_pessoas',
+            redirect_action, bloco = register_return(url,
                 acao, extras, pessoas=get_pessoas(acao, userid))
         elif acao == 'excluir' and bloco == 2:
             user = db.session.get(Usuarios, userid)
@@ -142,7 +143,7 @@ def gerenciar_pessoas():
                     db.session.rollback()
                     flash(f"Erro ao excluir pessoa: {str(e.orig)}", "danger")
 
-            redirect_action, bloco = register_return('pessoas.gerenciar_pessoas',
+            redirect_action, bloco = register_return(url,
                 acao, extras, pessoas=get_pessoas(acao, userid))
     if redirect_action:
         return redirect_action

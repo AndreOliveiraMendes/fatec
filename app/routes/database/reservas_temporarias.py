@@ -11,7 +11,7 @@ from app.auxiliar.auxiliar_routes import none_if_empty, parse_date_string, get_u
 from app.auxiliar.dao import get_pessoas, get_usuarios_especiais, get_laboratorios, \
     get_aulas_ativas, get_reservas_temporarias
 
-bp = Blueprint('reservas_temporarias', __name__, url_prefix="/database")
+bp = Blueprint('database_reservas_temporarias', __name__, url_prefix="/database")
 
 def check_reserva_temporaria(inicio, fim, laboratorio, aula, id = None):
     base_filter = [Reservas_Temporarias.id_reserva_laboratorio == laboratorio,
@@ -45,13 +45,14 @@ def filtro_intervalo(inicio_procura, fim_procura):
 @bp.route("/reservas_temporarias", methods=['GET', 'POST'])
 @admin_required
 def gerenciar_reservas_temporarias():
+    url = 'database_reservas_temporarias.gerenciar_reservas_temporarias'
     redirect_action = None
     acao = get_session_or_request(request, session, 'acao', 'abertura')
     bloco = int(request.form.get('bloco', 0))
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
     username, perm = get_user_info(userid)
-    extras = {}
+    extras = {'url':url}
     if request.method == 'POST':
         if acao == 'listar':
             sel_reservas = select(Reservas_Temporarias)
@@ -106,7 +107,7 @@ def gerenciar_reservas_temporarias():
                 extras['query_params'] = query_params
             else:
                 flash("especifique ao menos um campo de busca", "danger")
-                redirect_action, bloco = register_return('reservas_fixas.gerenciar_reservas_fixas',
+                redirect_action, bloco = register_return(url,
                     acao, extras, pessoas=get_pessoas(), usuarios_especiais=get_usuarios_especiais(),
                     laboratorios=get_laboratorios(), aulas_ativas=get_aulas_ativas())
 
@@ -148,7 +149,7 @@ def gerenciar_reservas_temporarias():
                 db.session.rollback()
                 flash(f"Erro ao cadastrar:{str(ve)}", "danger")
 
-            redirect_action, bloco = register_return('reservas_fixas.gerenciar_reservas_fixas',
+            redirect_action, bloco = register_return(url,
                 acao, extras, pessoas=get_pessoas(), usuarios_especiais=get_usuarios_especiais(),
                 laboratorios=get_laboratorios(), aulas_ativas=get_aulas_ativas())
         
@@ -197,7 +198,7 @@ def gerenciar_reservas_temporarias():
                 db.session.rollback()
                 flash(f"Erro ao editar reserva:{ve}", "danger")
 
-            redirect_action, bloco = register_return('reservas_fixas.gerenciar_reservas_fixas',
+            redirect_action, bloco = register_return(url,
                 acao, extras, reservas_temporarias=get_reservas_temporarias())
         elif acao == 'excluir' and bloco == 2:
             id_reserva_temporaria = none_if_empty(request.form.get('id_reserva_temporaria'), int)
@@ -215,7 +216,7 @@ def gerenciar_reservas_temporarias():
                 db.session.rollback()
                 flash(f"Erro ao excluir reserva:{str(e.orig)}")
 
-            redirect_action, bloco = register_return('reservas_fixas.gerenciar_reservas_fixas',
+            redirect_action, bloco = register_return(url,
                 acao, extras, reservas_temporarias=get_reservas_temporarias())
 
     if redirect_action:

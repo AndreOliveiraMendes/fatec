@@ -11,7 +11,7 @@ from app.auxiliar.auxiliar_routes import none_if_empty, parse_datetime_string, g
     register_return
 from app.auxiliar.dao import get_usuarios
 
-bp = Blueprint('historicos', __name__, url_prefix="/database")
+bp = Blueprint('database_historicos', __name__, url_prefix="/database")
 
 def get_tabelas():
     sel_tabelas = select(Historicos.tabela).distinct()
@@ -72,7 +72,8 @@ def get_data():
 
 @bp.route("/historicos", methods=["GET", "POST"])
 @admin_required
-def gerenciar_Historicos():
+def gerenciar_historicos():
+    url = 'database_historicos.gerenciar_historicos'
     redirect_action = None
     acao = get_session_or_request(request, session, 'acao', 'abertura')
     bloco = int(request.form.get('bloco', 0))
@@ -81,7 +82,7 @@ def gerenciar_Historicos():
     username, perm = get_user_info(userid)
     disabled = ['inserir', 'editar', 'excluir']
     include = [{'label':"Exportar", 'value':"exportar", 'icon':"glyphicon-download"}]
-    extras = {}
+    extras = {'url':url}
     disable_action(extras, disabled)
     include_action(extras, include)
     user_agent = request.headers.get('User-Agent')
@@ -117,7 +118,7 @@ def gerenciar_Historicos():
             else:
                 flash("especifique ao menos um campo:", "danger")
                 redirect_action, bloco = register_return(
-                    'historicos.gerenciar_Historicos', acao, extras,
+                    url, acao, extras,
                     usuarios=get_usuarios(), tabelas=get_tabelas(), categorias=get_categorias(),
                     origens=get_origens()
                 )

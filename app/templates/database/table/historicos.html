@@ -4,9 +4,9 @@
 {% endblock title %}
 {% block content_head %}
     <div class="panel panel-default">
-        <div class="panel-heading">{{ generate_database_head("historicos") }}</div>
+        <div class="panel-heading">{{ generate_database_head("database_historicos") }}</div>
         <div class="panel-body">
-            {{ generate_head(url_for("historicos.gerenciar_Historicos") , acao, disable=disable, include=include) }}
+            {{ generate_head(url_for(url) , acao, disable=disable, include=include) }}
         </div>
     </div>
 {% endblock content_head %}
@@ -72,7 +72,7 @@
             {{ search_form() }}
         {% else %}
             <h3>Exportando {{ count }} registros</h3>
-            <form action="{{ url_for('historicos.exportar_historicos') }}"
+            <form action="{{ url_for('database_historicos.exportar_historicos') }}"
                   method="post">
                 {{ manter_parametros(query_params) }}
                 <div class="form-group">
@@ -97,7 +97,7 @@
 {% macro search_form() %}
     <form class="form-group"
           role="form"
-          action="{{ url_for('historicos.gerenciar_Historicos') }}"
+          action="{{ url_for(url) }}"
           method="post">
         <input type="hidden" name="acao" value="{{ acao }}">
         <div class="form-group">

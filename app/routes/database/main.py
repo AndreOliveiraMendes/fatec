@@ -6,7 +6,7 @@ from sqlalchemy import inspect, Table, MetaData, UniqueConstraint
 from sqlalchemy.schema import CreateTable
 from sqlalchemy.dialects import mysql
 
-bp = Blueprint('main', __name__, url_prefix="/database")
+bp = Blueprint('database_main', __name__, url_prefix="/database")
 
 def get_topologic_sorted(fks):
     result, sorted_tables = [], []
