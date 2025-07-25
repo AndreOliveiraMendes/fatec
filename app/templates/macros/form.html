@@ -41,8 +41,10 @@
     <div class="form-group btn-group text-center mt-3">
         {% if show_voltar %}
             <button type="submit"
+                    {% if label %}
                     name="{{ label }}"
                     value="{{ bloco_voltar }}"
+                    {% endif %}
                     formnovalidate
                     class="btn btn-default">
                 <i class="glyphicon glyphicon-arrow-left"></i> Voltar
@@ -54,8 +56,10 @@
             </button>
         {% endif %}
         <button type="submit"
-                name="{{ label }}"
-                value="{{ bloco_submit }}"
+                {% if label %}
+                    name="{{ label }}"
+                    value="{{ bloco_voltar }}"
+                {% endif %}
                 class="btn btn-{{ 'primary' if acao != 'excluir' else 'danger' }}">
             {% if acao == 'salvar' %}
                 <i class="glyphicon glyphicon-floppy-disk"></i> Salvar

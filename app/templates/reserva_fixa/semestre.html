@@ -12,9 +12,17 @@
             <span class="glyphicon glyphicon-home"></span> Início
         </a>
     </div>
-    <h3>Semestre: {{ semestre.nome_semestre }}</h3>
-    <p>Periodo: {{ semestre.data_inicio|data }} a {{ semestre.data_fim|data }}</p>
-    <p>Selecione o turno</p>
+    <h3>
+        <strong>Reserva Semestral:</strong> Dia {{ day|data }}
+        <br>
+        <strong>Semestre:</strong> {{ semestre.nome_semestre }}
+    </h3>
+    <p>
+        <strong>Período:</strong> {{ semestre.data_inicio|data }} às {{ semestre.data_fim|data }}
+    </p>
+    <p>
+        Selecione o <strong>turno</strong>
+    </p>
     <div class="btn-group-vertical" role="group">
         {% for turno in turnos %}
             <a href="{{ url_for('reservas_semanais.get_turno', id_semestre=semestre.id_semestre, id_turno=turno.id_turno) }}"

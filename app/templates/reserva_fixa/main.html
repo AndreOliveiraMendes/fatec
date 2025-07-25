@@ -8,8 +8,12 @@
             <span class="glyphicon glyphicon-home"></span> Início
         </a>
     </div>
-    <h3>Reserva Semestral: dia {{ day|data }}</h3>
-    <p>Selecione um semestre para efetuar o cadastro da reserva semanal</p>
+    <h3>
+        <strong>Reserva Semestral:</strong> Dia {{ day|data }}
+    </h3>
+    <p>
+        Selecione um <strong>semestre</strong> para efetuar o cadastro da <strong>reserva semanal</strong>.
+    </p>
     <div class="btn-group-vertical" role="group">
         {% for semestre in semestres %}
             <a href="{{ url_for('reservas_semanais.get_semestre', id_semestre=semestre.id_semestre) }}"
@@ -18,11 +22,11 @@
     </div>
 {% endblock content %}
 {% block footer %}
-    <div>
+    <small class="text-muted">
         <strong>Legenda:</strong>
         <span class="label label-default">Semestre expirado</span>
         <span class="label label-primary">Semestre em curso</span>
         <span class="label label-success">Semestre futuro</span>
-    </div>
+    </small>
     <hr>
 {% endblock footer %}

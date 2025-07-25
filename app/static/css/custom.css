@@ -95,3 +95,25 @@ body {
     color: #003366;
     font-weight: bold;
 }
+
+.tabela-reserva {
+  border-collapse: collapse;
+  width: max-content; /* para permitir rolagem horizontal */
+  overflow-x: auto;
+}
+
+.tabela-reserva th,
+.tabela-reserva td {
+  padding: 8px;
+  text-align: center;
+  border: 1px solid #ddd;
+  white-space: nowrap;
+}
+
+.tabela-reserva th:first-child,
+.tabela-reserva td:first-child {
+  position: sticky;
+  left: 0;
+  background-color: #5bc0de; /* cor de fundo para não sumir sob as outras colunas */
+  z-index: 2; /* acima dos outros */
+}
