@@ -63,3 +63,35 @@ body {
     padding: 20px 0;
     border-top: 1px solid #e5e5e5;
 }
+
+.pills-group li {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.pills-group li a {
+    transition: background-color 0.3s ease, border 0.3s ease, color 0.3s ease;
+    border: 1px solid transparent;
+    border-radius: 6px;
+}
+
+.pills-group li:hover {
+    transform: scale(1.05);
+}
+
+.pills-group:hover li:not(:hover) {
+    opacity: 0.2;
+    transform: scale(0.98);
+}
+
+.pills-group li a:hover {
+    background-color: #e6f0ff;
+    border-color: #99c2ff;
+    color: #004080;
+}
+
+.pills-group li.active a {
+    background-color: #cce0ff;
+    border-color: #66a3ff;
+    color: #003366;
+    font-weight: bold;
+}

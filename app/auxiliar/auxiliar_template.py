@@ -86,6 +86,7 @@ def register_filters(app):
         html = ''
 
         # Quebra em blocos de até max_per_line
+        html += '<div class="pills-group">'
         for i in range(0, len(tables_info), max_per_line):
             html += '<ul class="nav nav-pills">'
             for table, url, nome in tables_info[i:i+max_per_line]:
@@ -94,6 +95,7 @@ def register_filters(app):
                 html += f'<a href="{url_for(url)}">{nome}</a>'
                 html += '</li>'
             html += '</ul>'
+        html += '</div>'
 
         return Markup(html)
 
