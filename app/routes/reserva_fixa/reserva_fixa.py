@@ -46,3 +46,13 @@ def get_semestre(id_semestre):
     extras['turnos'] = turnos
     extras['time'] = now.time()
     return render_template('reserva_fixa/semestre.html', username=username, perm=perm, **extras)
+
+@bp.route('/semestre/<int:id_semestre>/turno/<int:id_turno>')
+def get_turno(id_semestre, id_turno):
+    userid = session.get('userid')
+    username, perm = get_user_info(userid)
+    semestre = db.get_or_404(Semestres, id_semestre)
+    turno = db.get_or_404(Turnos, id_turno)
+    extras = {'semestre':semestre, 'turno':turno}
+
+    return render_template('reserva_fixa/turno.html', username=username, perm=perm, **extras)

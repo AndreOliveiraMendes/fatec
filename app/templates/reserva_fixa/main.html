@@ -3,6 +3,11 @@
     Página Inicial
 {% endblock title %}
 {% block content %}
+    <div class="btn-group">
+        <a href="{{ url_for('default.home') }}" class="btn btn-default">
+            <span class="glyphicon glyphicon-home"></span> Início
+        </a>
+    </div>
     <h3>Reserva Semestral: dia {{ day|data }}</h3>
     <p>Selecione um semestre para efetuar o cadastro da reserva semanal</p>
     <div class="btn-group-vertical" role="group">
