@@ -1,12 +1,21 @@
-{% macro generate_navigation(admin=True) %}
+{% macro generate_navigation(admin=True, extras=None) %}
     <div class="form-group btn-group">
         <a href="{{ url_for('default.home') }}" class="btn btn-primary btn-lg">
             <span class="glyphicon glyphicon-home"></span> Página Inicial
         </a>
         {% if admin %}
-            <a href="{{ url_for('admin.gerenciar_menu') }}" class="btn btn-warning btn-lg">
+            <a href="{{ url_for('admin.gerenciar_menu') }}"
+               class="btn btn-warning btn-lg">
                 <span class="glyphicon glyphicon-cog"></span> Painel Admin
             </a>
+            {% if extras %}
+                {% for extra in extras %}
+                    <a href="{{ url_for(extra['url']) }}" class="btn btn-{{ extra['category'] }} btn-lg">
+                        <span class="glyphicon {{ extra['icon'] }}"></span> {{ extra['label'] }}
+                    </a>
+                {% endfor %}
+            {% else %}
+            {% endif %}
         {% endif %}
     </div>
 {% endmacro %}
@@ -28,11 +37,11 @@
         </select>
     </div>
 {% endmacro %}
-{% macro action_buttons(acao='salvar', bloco_submit='1', show_voltar=True, bloco_voltar='0', show_reset=True) %}
+{% macro action_buttons(acao='salvar', bloco_submit='1', show_voltar=True, bloco_voltar='0', show_reset=True, label='bloco') %}
     <div class="form-group btn-group text-center mt-3">
         {% if show_voltar %}
             <button type="submit"
-                    name="bloco"
+                    name="{{ label }}"
                     value="{{ bloco_voltar }}"
                     formnovalidate
                     class="btn btn-default">
@@ -45,7 +54,7 @@
             </button>
         {% endif %}
         <button type="submit"
-                name="bloco"
+                name="{{ label }}"
                 value="{{ bloco_submit }}"
                 class="btn btn-{{ 'primary' if acao != 'excluir' else 'danger' }}">
             {% if acao == 'salvar' %}

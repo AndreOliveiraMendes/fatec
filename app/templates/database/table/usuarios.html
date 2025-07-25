@@ -1,18 +1,18 @@
-{% extends "database/base_crude" %}
+{% extends "database/table/base_crude" %}
 {% block title %}
     Usuários
 {% endblock title %}
 {% block content_head %}
     <div class="panel panel-default">
-        <div class="panel-heading">{{ generate_database_head("usuarios") }}</div>
-        <div class="panel-body">{{ generate_head(url_for("usuarios.gerenciar_usuarios") , acao, disable=disable) }}</div>
+        <div class="panel-heading">{{ generate_database_head("database_usuarios") }}</div>
+        <div class="panel-body">{{ generate_head(url_for(url) , acao, disable=disable) }}</div>
     </div>
 {% endblock content_head %}
 {% block abertura %}
     <h3>
         Gerenciamento da Tabela <strong>Usuários</strong>
     </h3>
-    <p>
+    <p class="text-muted text-center">
         A tabela <code>usuarios</code> possui os seguintes campos:
     </p>
     <div class="table-responsive">
@@ -66,71 +66,14 @@
 {% endblock abertura %}
 {% block listar %}
     <h3>Lista de Usuários</h3>
-    {% if usuarios %}
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped table-hover">
-                <thead>
-                    <tr class="information">
-                        <th class="text-center">ID Usuário</th>
-                        <th class="text-center">Pessoa</th>
-                        <th>Tipo Pessoa</th>
-                        <th>Situação Pessoa</th>
-                        <th>Grupo Pessoa</th>
-                        {% if not disable_editar or not disable_excluir %}<th class="text-center">Ação</th>{% endif %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for u in usuarios %}
-                        <tr>
-                            <td class="text-center">{{ u.id_usuario }}</td>
-                            <td class="text-center">({{ u.id_pessoa }}) {{ u.pessoas.nome_pessoa }}</td>
-                            <td>{{ u.tipo_pessoa }}</td>
-                            <td>{{ u.situacao_pessoa }}</td>
-                            <td>{{ u.grupo_pessoa if u.grupo_pessoa }}</td>
-                            {% if not disable_editar or not disable_excluir %}
-                                <td class="text-center">
-                                    <form method="post" class="form-inline">
-                                        <input type="hidden" name="bloco" value="1">
-                                        <input type="hidden" name="id_usuario" value="{{ u.id_usuario }}">
-                                        <div class="btn-group">
-                                            {% if not disable_editar %}
-                                                <button type="submit"
-                                                        name="acao"
-                                                        value="editar"
-                                                        class="btn btn-warning btn-sm"
-                                                        title="Editar">
-                                                    <i class="glyphicon glyphicon-pencil"></i>
-                                                </button>
-                                            {% endif %}
-                                            {% if not disable_excluir and u.id_usuario != userid %}
-                                                <button type="submit"
-                                                        name="acao"
-                                                        value="excluir"
-                                                        class="btn btn-danger btn-sm"
-                                                        title="Excluir">
-                                                    <i class="glyphicon glyphicon-trash"></i>
-                                                </button>
-                                            {% endif %}
-                                        </div>
-                                    </form>
-                                </td>
-                            {% endif %}
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {{ paginacao(pagination, acao, bloco) }}
-    {% else %}
-        <div class="alert alert-info" role="alert">Nenhum usuário cadastrado.</div>
-    {% endif %}
+    {{ result_table("Nenhum usuário cadastrado.") }}
 {% endblock listar %}
 {% block procurar %}
     {% if bloco == 0 %}
         <h3>Procurar Usuário</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('usuarios.gerenciar_usuarios') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
@@ -187,71 +130,14 @@
         </form>
     {% elif bloco == 1 %}
         <h3>Resultados da busca:</h3>
-        {% if usuarios %}
-            <div class="table-responsive">
-                <table class="table table-bordered table-striped table-hover">
-                    <thead>
-                        <tr class="information">
-                            <th class="text-center">ID Usuário</th>
-                            <th class="text-center">Pessoa</th>
-                            <th>Tipo Pessoa</th>
-                            <th>Situacao Pessoa</th>
-                            <th>Grupo Pessoa</th>
-                            {% if not disable_editar or not disable_excluir %}<th>Ação</th>{% endif %}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for u in usuarios %}
-                            <tr>
-                                <td>{{ u.id_usuario }}</td>
-                                <td class="text-center">({{ u.id_pessoa }}) {{ u.pessoas.nome_pessoa }}</td>
-                                <td>{{ u.tipo_pessoa }}</td>
-                                <td>{{ u.situacao_pessoa }}</td>
-                                <td>{{ u.grupo_pessoa if u.grupo_pessoa }}</td>
-                                {% if not disable_editar or not disable_excluir %}
-                                    <td>
-                                        <form method="post" class="form-inline">
-                                            <input type="hidden" name="bloco" value="1">
-                                            <input type="hidden" name="id_usuario" value="{{ u.id_usuario }}">
-                                            <div class="btn-group">
-                                                {% if not disable_editar %}
-                                                    <button type="submit"
-                                                            name="acao"
-                                                            value="editar"
-                                                            class="btn btn-warning btn-sm"
-                                                            title="Editar">
-                                                        <i class="glyphicon glyphicon-pencil"></i>
-                                                    </button>
-                                                {% endif %}
-                                                {% if u.id_usuario != userid and not disable_excluir %}
-                                                    <button type="submit"
-                                                            name="acao"
-                                                            value="excluir"
-                                                            class="btn btn-danger btn-sm"
-                                                            title="Excluir">
-                                                        <i class="glyphicon glyphicon-trash"></i>
-                                                    </button>
-                                                {% endif %}
-                                            </div>
-                                        </form>
-                                    </td>
-                                {% endif %}
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {{ paginacao(pagination, acao, bloco, query_params) }}
-        {% else %}
-            <div class="alert alert-warning" role="alert">Nenhum resultado encontrado.</div>
-        {% endif %}
+        {{ result_table("Nenhum resultado encontrado.") }}
     {% endif %}
 {% endblock procurar %}
 {% block inserir %}
     <h3>Inserir Usuários</h3>
     <form class="form-group"
           role="form"
-          action="{{ url_for('usuarios.gerenciar_usuarios') }}"
+          action="{{ url_for(url) }}"
           method="post">
         <input type="hidden" name="acao" value="{{ acao }}">
         {{ gerar_select("pessoa", "Selecione a Pessoa", pessoas, "id_pessoa", "nome_pessoa") }}
@@ -306,7 +192,7 @@
         <h3>Editar Usuários</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('usuarios.gerenciar_usuarios') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             {{ gerar_select("id_usuario", "Selecione o usuario", usuarios, "id_usuario", "nome_pessoa") }}
@@ -316,7 +202,7 @@
         <h3>Editar Usuário</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('usuarios.gerenciar_usuarios') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
@@ -386,7 +272,7 @@
         <h3>Excluir Usuários</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('usuarios.gerenciar_usuarios') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             {{ gerar_select("id_usuario", "Selecione o usuario", usuarios, "id_usuario", "nome_pessoa") }}
@@ -396,7 +282,7 @@
         <h3>Excluir Usuário</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('usuarios.gerenciar_usuarios') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
@@ -462,3 +348,67 @@
         </form>
     {% endif %}
 {% endblock excluir %}
+{% macro result_table(message) %}
+    {% if usuarios %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover">
+                <thead>
+                    <tr class="information">
+                        <th class="text-center">ID Usuário</th>
+                        <th class="text-center">Pessoa</th>
+                        <th>Tipo Pessoa</th>
+                        <th>Situação Pessoa</th>
+                        <th>Grupo Pessoa</th>
+                        {% if not disable_editar or not disable_excluir %}<th class="text-center">Ação</th>{% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in usuarios %}
+                        <tr>
+                            <td class="text-center">{{ u.id_usuario }}</td>
+                            <td class="text-center">({{ u.id_pessoa }}) {{ u.pessoas.nome_pessoa }}</td>
+                            <td>{{ u.tipo_pessoa }}</td>
+                            <td>{{ u.situacao_pessoa }}</td>
+                            <td>{{ u.grupo_pessoa if u.grupo_pessoa }}</td>
+                            {% if not disable_editar or not disable_excluir %}
+                                <td class="text-center">
+                                    <form method="post" class="form-inline">
+                                        <input type="hidden" name="bloco" value="1">
+                                        <input type="hidden" name="id_usuario" value="{{ u.id_usuario }}">
+                                        <div class="btn-group">
+                                            {% if not disable_editar %}
+                                                <button type="submit"
+                                                        name="acao"
+                                                        value="editar"
+                                                        class="btn btn-warning btn-sm"
+                                                        title="Editar">
+                                                    <i class="glyphicon glyphicon-pencil"></i>
+                                                </button>
+                                            {% endif %}
+                                            {% if not disable_excluir and u.id_usuario != userid %}
+                                                <button type="submit"
+                                                        name="acao"
+                                                        value="excluir"
+                                                        class="btn btn-danger btn-sm"
+                                                        title="Excluir">
+                                                    <i class="glyphicon glyphicon-trash"></i>
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                    </form>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if query_params %}
+            {{ paginacao(pagination, acao, bloco, query_params) }}
+        {% else %}
+            {{ paginacao(pagination, acao, bloco) }}
+        {% endif %}
+    {% else %}
+        <div class="alert alert-info" role="alert">{{ message }}</div>
+    {% endif %}
+{% endmacro %}

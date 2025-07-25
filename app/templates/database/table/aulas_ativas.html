@@ -1,0 +1,377 @@
+{% extends "database/table/base_crude" %}
+{% block title %}
+    Aulas Ativas
+{% endblock title %}
+{% block content_head %}
+    <div class="panel panel-default">
+        <div class="panel-heading">{{ generate_database_head("database_aulas_ativas") }}</div>
+        <div class="panel-body">{{ generate_head(url_for(url) , acao, disable=disable) }}</div>
+    </div>
+{% endblock content_head %}
+{% block abertura %}
+    <h3>
+        Gerenciamento da Tabela <strong>Aulas Ativas</strong>
+    </h3>
+    <p>
+        A tabela <code>aulas_ativas</code> possui os seguintes campos:
+    </p>
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover">
+            <thead>
+                <tr class="information">
+                    <th>Campo</th>
+                    <th>Tipo</th>
+                    <th>Descrição</th>
+                    <th>Valores Possíveis</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <code>id_aula_ativa</code>
+                    </td>
+                    <td>INT (auto_increment, PK)</td>
+                    <td>Identificador único da aula ativa no sistema</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>id_aula</code>
+                    </td>
+                    <td>INT (FK)</td>
+                    <td>Chave estrangeira para o registro de aulas</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>inicio_ativacao</code>
+                    </td>
+                    <td>DATE</td>
+                    <td>Data de início do período de ativação da aula</td>
+                    <td>Formato: dd/mm/aaaa</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>fim_ativacao</code>
+                    </td>
+                    <td>DATE</td>
+                    <td>Data de término do período de ativação da aula</td>
+                    <td>Formato: dd/mm/aaaa</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>id_semana</code>
+                    </td>
+                    <td>INT (FK)</td>
+                    <td>Chave estrangeira para o dia da semana</td>
+                    <td>1 a 7 (Domingo a Sábado)</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>tipo_aula</code>
+                    </td>
+                    <td>ENUM('AULA','EVENTO','OUTROS')</td>
+                    <td>Categoria da aula ou evento</td>
+                    <td>
+                        <ul class="valores_possiveis_format">
+                            <li>
+                                <code>AULA</code> – Aula regular
+                            </li>
+                            <li>
+                                <code>EVENTO</code> – Evento especial (palestras, workshops)
+                            </li>
+                            <li>
+                                <code>OUTROS</code> – Casos diversos
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+{% endblock abertura %}
+{% block listar %}
+    <h3>Lista de Aulas Ativas</h3>
+    {{ result_table("Nenhuma aula ativa cadastrada.") }}
+{% endblock listar %}
+{% block procurar %}
+    {% if bloco == 0 %}
+        <h3>Procurar Aulas Ativas</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label for="id_aula_ativa" class="control-label">Codigo da Aula Ativa</label>
+                <input id="id_aula_ativa"
+                       name="id_aula_ativa"
+                       placeholder="Codigo da aula ativa"
+                       type="number"
+                       class="form-control">
+            </div>
+            {{ gerar_select("aula", "Selecione a aula", aulas, "id_aula", "selector_identification", optional=True) }}
+            <div class="form-group">
+                <label for="inicio_procura">Início intervalo de procura / Fim intervalo de procura</label>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6">
+                        <input type="date"
+                               class="form-control"
+                               name="inicio_procura"
+                               id="inicio_procura"
+                               placeholder="Início do intervalo">
+                    </div>
+                    <div class="col-xs-12 col-sm-6">
+                        <input type="date"
+                               class="form-control"
+                               name="fim_procura"
+                               id="fim_procura"
+                               placeholder="Fim do intervalo">
+                    </div>
+                </div>
+                <p class="help-block">Procura por aulas ativas que estejam dentro do período selecionado.</p>
+            </div>
+            {{ gerar_select("semana", "Selecione o dia da semana", dias_da_semana, "id_semana", "nome_semana", optional=True) }}
+            <div class="form-group">
+                <label for="tipo_aula" class="control-label">Tipo de Aula</label>
+                <select id="tipo_aula"
+                        name="tipo_aula"
+                        class="select form-control"
+                        aria-describedby="tipo_aulaHelpBlock">
+                    <option value="">Selecione o Tipo de Aula</option>
+                    <option value="Aula">Aulas</option>
+                    <option value="Evento">Eventos</option>
+                    <option value="Outros">Outras finalidas</option>
+                </select>
+                <span id="tipo_aulaHelpBlock" class="help-block">se o horario é destinado a aula, evento ou outra finalidade</span>
+            </div>
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <h3>Resultados da Busca:</h3>
+        {{ result_table("Nenhum resultado encontrado.") }}
+    {% endif %}
+{% endblock procurar %}
+{% block inserir %}
+    <h3>Inserir Aulas Ativas</h3>
+    <form class="form-group"
+          role="form"
+          action="{{ url_for(url) }}"
+          method="post">
+        <input type="hidden" name="acao" value="{{ acao }}">
+        {{ gerar_select("id_aula", "Selecione a aula", aulas, "id_aula", "selector_identification") }}
+        <div class="form-group">
+            <label for="ia">Início da ativação:</label>
+            <input id="ia"
+                   name="inicio_ativacao"
+                   class="form-control"
+                   type="date"
+                   placeholder="início do periodo em que a aula é valida, caso seja temporaria">
+        </div>
+        <div class="form-group">
+            <label for="fa">Término da ativação:</label>
+            <input id="fa"
+                   name="fim_ativacao"
+                   class="form-control"
+                   type="date"
+                   placeholder="término do periodo em que a aula é valida, caso seja temporaria">
+        </div>
+        {{ gerar_select("id_semana", "Selecione o dia da semana", dias_da_semana, "id_semana", "nome_semana") }}
+        <div class="form-group">
+            <label for="tipo">Tipo:</label>
+            <select class="form-control" id="tipo" name="tipo_aula" required>
+                <option value="">Selecione...</option>
+                <option value="Aula">Aula</option>
+                <option value="Evento">Evento</option>
+                <option value="Outros">Outros</option>
+            </select>
+        </div>
+        {{ action_buttons(acao, 1, False, 0) }}
+    </form>
+{% endblock inserir %}
+{% block editar %}
+    {% if bloco == 0 %}
+        <h3>Editar Aulas Ativas</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            {{ gerar_select("id_aula_ativa", "Selecione a aula ativa", aulas_ativas, "id_aula_ativa", "selector_identification") }}
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <h3>Editar Aula Ativa</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label>ID Aula Ativa</label>
+                <input type="number"
+                       class="form-control"
+                       name="id_aula_ativa"
+                       value="{{ aula_ativa.id_aula_ativa }}"
+                       readonly>
+            </div>
+            {{ gerar_select("id_aula", "Selecione a aula", aulas, "id_aula", "selector_identification", selected=aula_ativa.id_aula) }}
+            <div class="form-group">
+                <label for="ia">Início da ativação:</label>
+                <input id="ia"
+                       name="inicio_ativacao"
+                       class="form-control"
+                       type="date"
+                       value="{{ aula_ativa.inicio_ativacao }}"
+                       placeholder="início do periodo em que a aula é valida, caso seja temporaria">
+            </div>
+            <div class="form-group">
+                <label for="fa">Término da ativação:</label>
+                <input id="fa"
+                       name="fim_ativacao"
+                       class="form-control"
+                       type="date"
+                       value="{{ aula_ativa.fim_ativacao }}"
+                       placeholder="término do periodo em que a aula é valida, caso seja temporaria">
+            </div>
+            {{ gerar_select("id_semana", "Selecione o dia da semana", dias_da_semana, "id_semana", "nome_semana", selected=aula_ativa.id_semana) }}
+            <div class="form-group">
+                <label for="tipo">Tipo:</label>
+                <select class="form-control" id="tipo" name="tipo_aula" required>
+                    <option value="">Selecione...</option>
+                    <option value="Aula"
+                            {% if aula_ativa.tipo_aula.value == 'Aula' %}selected{% endif %}>Aula</option>
+                    <option value="Evento"
+                            {% if aula_ativa.tipo_aula.value == 'Evento' %}selected{% endif %}>Evento</option>
+                    <option value="Outros"
+                            {% if aula_ativa.tipo_aula.value == 'Outros' %}selected{% endif %}>Outros</option>
+                </select>
+            </div>
+            {{ action_buttons(acao, 2, True, 0) }}
+        </form>
+    {% endif %}
+{% endblock editar %}
+{% block excluir %}
+    {% if bloco == 0 %}
+        <h3>Excluir Aulas Ativas</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            {{ gerar_select("id_aula_ativa", "Selecione a aula ativa", aulas_ativas, "id_aula_ativa", "selector_identification") }}
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <h3>Excluir Aula Ativa</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label>ID Aula Ativa</label>
+                <input type="number"
+                       class="form-control"
+                       name="id_aula_ativa"
+                       value="{{ aula_ativa.id_aula_ativa }}"
+                       readonly>
+            </div>
+            {{ gerar_select("id_aula", "Selecione a aula", aulas, "id_aula", "selector_identification", selected=aula_ativa.id_aula, extra='disabled') }}
+            <div class="form-group">
+                <label for="ia">Início da ativação:</label>
+                <input id="ia"
+                       name="inicio_ativacao"
+                       class="form-control"
+                       type="date"
+                       value="{{ aula_ativa.inicio_ativacao }}"
+                       placeholder="início do periodo em que a aula é valida, caso seja temporaria"
+                       disabled>
+            </div>
+            <div class="form-group">
+                <label for="fa">Término da ativação:</label>
+                <input id="fa"
+                       name="fim_ativacao"
+                       class="form-control"
+                       type="date"
+                       value="{{ aula_ativa.fim_ativacao }}"
+                       placeholder="término do periodo em que a aula é valida, caso seja temporaria"
+                       disabled>
+            </div>
+            {{ gerar_select("id_semana", "Selecione o dia da semana", dias_da_semana, "id_semana", "nome_semana", selected=aula_ativa.id_semana, extra='disabled') }}
+            <div class="form-group">
+                <label for="tipo">Tipo:</label>
+                <select class="form-control" id="tipo" name="tipo_aula" required disabled>
+                    <option value="">Selecione...</option>
+                    <option value="Aula"
+                            {% if aula_ativa.tipo_aula.value == 'Aula' %}selected{% endif %}>Aula</option>
+                    <option value="Evento"
+                            {% if aula_ativa.tipo_aula.value == 'Evento' %}selected{% endif %}>Evento</option>
+                    <option value="Outros"
+                            {% if aula_ativa.tipo_aula.value == 'Outros' %}selected{% endif %}>Outros</option>
+                </select>
+            </div>
+            {{ action_buttons(acao, 2, True, 0, False) }}
+        </form>
+    {% endif %}
+{% endblock excluir %}
+{% macro result_table(message) %}
+    {% if aulas_ativas %}
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered table-hover">
+                <thead>
+                    <tr class="information">
+                        <th>id_aula_ativa</th>
+                        <th>aula</th>
+                        <th>inicio_ativacao</th>
+                        <th>fim_ativacao</th>
+                        <th>dia da semana</th>
+                        <th>tipo</th>
+                        <th>ação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for at in aulas_ativas %}
+                        <tr>
+                            <td>{{ at.id_aula_ativa }}</td>
+                            <td>{{ at.aulas.selector_identification }}</td>
+                            <td>{{ at.inicio_ativacao|data if at.inicio_ativacao else '-' }}</td>
+                            <td>{{ at.fim_ativacao|data if at.fim_ativacao else '-' }}</td>
+                            <td>{{ at.dia_da_semana.nome_semana.capitalize() }}</td>
+                            <td>{{ at.tipo_aula.value }}</td>
+                            <td>
+                                <form method="post" class="form-inline">
+                                    <input type="hidden" name="bloco" value="1">
+                                    <input type="hidden" name="id_aula_ativa" value="{{ at.id_aula_ativa }}">
+                                    <div class="btn-group">
+                                        <button type="submit"
+                                                name="acao"
+                                                value="editar"
+                                                class="btn btn-warning btn-sm"
+                                                title="Editar">
+                                            <i class="glyphicon glyphicon-pencil"></i>
+                                        </button>
+                                        <button type="submit"
+                                                name="acao"
+                                                value="excluir"
+                                                class="btn btn-danger btn-sm"
+                                                title="Excluir">
+                                            <i class="glyphicon glyphicon-trash"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if query_params %}
+            {{ paginacao(pagination, acao, bloco, query_params) }}
+        {% else %}
+            {{ paginacao(pagination, acao, bloco) }}
+        {% endif %}
+    {% else %}
+        <div class="alert alert-info" role="alert">{{ message }}</div>
+    {% endif %}
+{% endmacro %}

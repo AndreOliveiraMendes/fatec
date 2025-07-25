@@ -1,0 +1,46 @@
+version: "3.8"
+
+services:
+  app:
+    build: .
+    container_name: fatec_app
+    environment:
+      - TOMCAT_HOST=fake_api
+      - TOMCAT_PORT=5001
+    env_file:
+      - .env
+      - .env.pod
+    ports:
+      - "8000:5000"
+    depends_on:
+      db
+      fake_api
+    command: ["python", "-m", "app.main"]
+
+  db:
+    image: docker.io/library/mysql:8.0
+    container_name: fatec_db
+    env_file:
+      - .env.pod
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  fake_api:
+    build: ../fake_api/
+    container_name: fake_api_server
+    ports:
+      - "5001:5001"
+    volumes:
+      - $HOME/fake_api_data_podman:/app/data
+    env_file:
+      - ../fake_api/.env
+
+volumes:
+  db_data:

@@ -21,28 +21,37 @@ def none_if_empty(value, cast_type=str):
     except (ValueError, TypeError):
         return None
 
-def parse_time_string(value):
+def parse_time_string(value, format = None):
     if not value:
         return None
     try:
-        return datetime.strptime(value, "%H:%M").time()
+        if format:
+            return datetime.strptime(value, format).time()
+        else:
+            return datetime.strptime(value, "%H:%M").time()
     except ValueError:
         return None
     
 
-def parse_date_string(value):
+def parse_date_string(value, format = None):
     if not value:
         return None
     try:
-        return datetime.strptime(value, "%Y-%m-%d").date()
+        if format:
+            return datetime.strptime(value, format).date()
+        else:
+            return datetime.strptime(value, "%Y-%m-%d").date()
     except ValueError:
         return None
 
-def parse_datetime_string(value):
+def parse_datetime_string(value, format = None):
     if not value:
         return None
     try:
-        return datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
+        if format:
+            return datetime.strptime(value, format)
+        else:
+            return datetime.strptime(value, "%Y-%m-%dT%H:%M")
     except ValueError:
         return None
 
@@ -53,15 +62,15 @@ def get_user_info(userid):
     username, perm = None, 0
     if not userid:
         return username, perm
-    user = Usuarios.query.get(userid)
+    user = db.session.get(Usuarios, userid)
     if user:
         pessoa = user.pessoas
         username = pessoa.nome_pessoa
-        permissao = Permissoes.query.get(userid)
+        permissao = db.session.get(Permissoes, userid)
         if permissao:
             perm = permissao.permissao
     else:
-        session.pop(userid)
+        session.pop('userid')
     return username, perm
 
 def formatar_valor(valor):
@@ -94,7 +103,7 @@ def registrar_log_generico_sistema(acao:Literal['Login'], objeto, antes=None, ob
             valor_antigo = getattr(antes, nome, None)
             valor_antigo_fmt = formatar_valor(valor_antigo)
 
-            if valor_antigo != valor_novo:
+            if valor_antigo_fmt != valor_novo_fmt:
                 campos.append(f"{nome}: {valor_antigo_fmt} → {valor_novo_fmt}")
         else:
             campos.append(f"{nome}: {valor_novo_fmt}")
@@ -117,7 +126,7 @@ def registrar_log_generico_sistema(acao:Literal['Login'], objeto, antes=None, ob
     )
     db.session.add(historico)
 
-def registrar_log_generico_usuario(userid, acao:Literal['Inserção', 'Edição', 'Exclusão'], objeto, antes=None, observacao=None, skip_unchanged=False):
+def registrar_log_generico_usuario(userid, acao:Literal['Inserção', 'Edição', 'Exclusão', 'Quick-Setup'], objeto, antes=None, observacao=None, skip_unchanged=False):
     nome_tabela = getattr(objeto, "__tablename__", objeto.__class__.__name__)
     insp = inspect(objeto)
 
@@ -135,7 +144,7 @@ def registrar_log_generico_usuario(userid, acao:Literal['Inserção', 'Edição'
             valor_antigo = getattr(antes, nome, None)
             valor_antigo_fmt = formatar_valor(valor_antigo)
 
-            if valor_antigo != valor_novo:
+            if valor_antigo_fmt != valor_novo_fmt:
                 campos.append(f"{nome}: {valor_antigo_fmt} → {valor_novo_fmt}")
         else:
             campos.append(f"{nome}: {valor_novo_fmt}")

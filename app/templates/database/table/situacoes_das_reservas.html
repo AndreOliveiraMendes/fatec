@@ -1,0 +1,326 @@
+{% extends "database/table/base_crude" %}
+{% block title %}
+    Situações das Reservas
+{% endblock title %}
+{% block content_head %}
+    <div class="panel panel-default">
+        <div class="panel-heading">{{ generate_database_head("database_situacoes_das_reservas") }}</div>
+        <div class="panel-body">
+            {{ generate_head(url_for(url) , acao, disable=disable) }}
+        </div>
+    </div>
+{% endblock content_head %}
+{% block abertura %}
+    <h3>
+        Gerenciamento da Tabela <strong>SITUACOES DAS RESERVAS</strong>
+    </h3>
+    <p class="text-muted text-center">
+        a tabela <code>situacoes_das_reservas</code> possui os seguintes campos
+    </p>
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover">
+            <thead>
+                <tr class="information">
+                    <th>Campo</th>
+                    <th>Tipo</th>
+                    <th>Descrição</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <code>id_situacao</code>
+                    </td>
+                    <td>INT (auto_increment, PK)</td>
+                    <td>Indentificador Único da situação da reserva no sistema</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>id_laboratorio</code>
+                    </td>
+                    <td>INT (FK)</td>
+                    <td>
+                        Chave Estrangeira para a tabela <code>laboratorios</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>id_aula</code>
+                    </td>
+                    <td>INT (FK)</td>
+                    <td>
+                        Chave Estrangeira para a tabela <code>aulas_ativas</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>dia</code>
+                    </td>
+                    <td>DATE</td>
+                    <td>dia referido pela situação</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>situacao_chave</code>
+                    </td>
+                    <td>ENUM('NAO_PEGOU_A_CHAVE','PEGOU_A_CHAVE','DEVOLVEU_A_CHAVE')</td>
+                    <td>situação da chave (não pegou, pegou, devolvida)</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+{% endblock abertura %}
+{% block listar %}
+    <h3>Lista de Situações</h3>
+    {{ result_table("Nenhuma situação cadastrada") }}
+{% endblock listar %}
+{% block procurar %}
+    {% if bloco == 0 %}
+        <h3>Procurando Situações</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label for="codigo">Codigo da Situação</label>
+                <input type="number"
+                       class="form-control"
+                       id="id_situacao"
+                       name="id_situacao"
+                       placeholder="Digite o codigo da situação">
+            </div>
+            {{ gerar_select("laboratorios", "Selecione o laboratorio", laboratorios, "id_laboratorio", "nome_laboratorio", "id_situacao_laboratorio", optional=True) }}
+            {{ gerar_select("aulas", "Selecione o horario", aulas_ativas, "id_aula_ativa", "selector_identification", "id_situacao_aula", optional=True) }}
+            <div class="form-group">
+                <label for="situacao_dia">Dia da Reserva:</label>
+                <input type="date"
+                       class="form-control"
+                       id="situacao_dia"
+                       name="situacao_dia">
+            </div>
+            <div class="form-group">
+                <label for="situacao_chave">Situação da Reserva:</label>
+                <select class="form-control" id="situacao_chave" name="situacao_chave">
+                    <option value="">Selecione uma Situação da Reserva</option>
+                    <option value="não pegou a chave">não pegou a chave</option>
+                    <option value="pegou a chave">pegou a chave</option>
+                    <option value="devolveu a chave">devolveu a chave</option>
+                </select>
+            </div>
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <h3>Resultado das Busca:</h3>
+        {{ result_table("Nenhum resultado encontrado") }}
+    {% endif %}
+{% endblock procurar %}
+{% block inserir %}
+    <h3>Inserir Situacoes das Reservas</h3>
+    <form class="form-group"
+          role="form"
+          action="{{ url_for(url) }}"
+          method="post">
+        <input type="hidden" name="acao" value="{{ acao }}">
+        {{ gerar_select("laboratorios", "Selecione o laboratorio", laboratorios, "id_laboratorio", "nome_laboratorio", "id_situacao_laboratorio") }}
+        {{ gerar_select("aulas", "Selecione o horario", aulas_ativas, "id_aula_ativa", "selector_identification", "id_situacao_aula") }}
+        <div class="form-group">
+            <label for="situacao_dia">Dia da Reserva:</label>
+            <input type="date"
+                   class="form-control"
+                   id="situacao_dia"
+                   name="situacao_dia"
+                   required>
+        </div>
+        <div class="form-group">
+            <label for="situacao_chave">Situação da Reserva:</label>
+            <select class="form-control"
+                    id="situacao_chave"
+                    name="situacao_chave"
+                    required>
+                <option value="">Selecione uma Situação da Reserva</option>
+                <option value="não pegou a chave">não pegou a chave</option>
+                <option value="pegou a chave">pegou a chave</option>
+                <option value="devolveu a chave">devolveu a chave</option>
+            </select>
+        </div>
+        {{ action_buttons(acao, 1, False, 0) }}
+    </form>
+{% endblock inserir %}
+{% block editar %}
+    {% if bloco == 0 %}
+        <h3>Editar Situações</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            {{ gerar_select("situacao", "Selecione a Situação", situacoes_das_reservas, "id_situacao", "selector_identification") }}
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <h3>Editar Situação</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label for="codigo">Codigo da Situação</label>
+                <input type="number"
+                       class="form-control"
+                       id="id_situacao"
+                       name="id_situacao"
+                       value="{{ situacao_da_reserva.id_situacao }}"
+                       readonly>
+            </div>
+            {{ gerar_select("laboratorios", "Selecione o laboratorio", laboratorios, "id_laboratorio", "nome_laboratorio", "id_situacao_laboratorio", selected=situacao_da_reserva.id_situacao_laboratorio) }}
+            {{ gerar_select("aulas", "Selecione o horario", aulas_ativas, "id_aula_ativa", "selector_identification", "id_situacao_aula", selected=situacao_da_reserva.id_situacao_aula) }}
+            <div class="form-group">
+                <label for="situacao_dia">Dia da Reserva:</label>
+                <input type="date"
+                       class="form-control"
+                       id="situacao_dia"
+                       name="situacao_dia"
+                       value="{{ situacao_da_reserva.situacao_dia }}"
+                       required>
+            </div>
+            <div class="form-group">
+                <label for="situacao_chave">Situação da Reserva:</label>
+                <select class="form-control"
+                        id="situacao_chave"
+                        name="situacao_chave"
+                        required>
+                    <option value="não pegou a chave"
+                            {% if situacao_da_reserva.situacao_chave.value == 'não pegou a chave' %}selected{% endif %}>
+                        não pegou a chave
+                    </option>
+                    <option value="pegou a chave"
+                            {% if situacao_da_reserva.situacao_chave.value == 'pegou a chave' %}selected{% endif %}>
+                        pegou a chave
+                    </option>
+                    <option value="devolveu a chave"
+                            {% if situacao_da_reserva.situacao_chave.value == 'devolveu a chave' %}selected{% endif %}>
+                        devolveu a chave
+                    </option>
+                </select>
+            </div>
+            {{ action_buttons(acao, 2, True, 0) }}
+        </form>
+    {% endif %}
+{% endblock editar %}
+{% block excluir %}
+    {% if bloco == 0 %}
+        <h3>Excluir Situações</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            {{ gerar_select("situacao", "Selecione a Situação", situacoes_das_reservas, "id_situacao", "selector_identification") }}
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <h3>Excluir Situação</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label for="codigo">Codigo da Situação</label>
+                <input type="number"
+                       class="form-control"
+                       id="id_situacao"
+                       name="id_situacao"
+                       value="{{ situacao_da_reserva.id_situacao }}"
+                       readonly>
+            </div>
+            {{ gerar_select("laboratorios", "Selecione o laboratorio", laboratorios, "id_laboratorio", "nome_laboratorio", "id_situacao_laboratorio", selected=situacao_da_reserva.id_situacao_laboratorio, extra='disabled') }}
+            {{ gerar_select("aulas", "Selecione o horario", aulas_ativas, "id_aula_ativa", "selector_identification", "id_situacao_aula", selected=situacao_da_reserva.id_situacao_aula, extra='disabled') }}
+            <div class="form-group">
+                <label for="situacao_dia">Dia da Reserva:</label>
+                <input type="date"
+                       class="form-control"
+                       id="situacao_dia"
+                       name="situacao_dia"
+                       value="{{ situacao_da_reserva.situacao_dia }}"
+                       required
+                       disabled>
+            </div>
+            <div class="form-group">
+                <label for="situacao_chave">Situação da Reserva:</label>
+                <select class="form-control"
+                        id="situacao_chave"
+                        name="situacao_chave"
+                        required
+                        disabled>
+                    <option value="não pegou a chave"
+                            {% if situacao_da_reserva.situacao_chave.value == 'não pegou a chave' %}selected{% endif %}>
+                        não pegou a chave
+                    </option>
+                    <option value="pegou a chave"
+                            {% if situacao_da_reserva.situacao_chave.value == 'pegou a chave' %}selected{% endif %}>
+                        pegou a chave
+                    </option>
+                    <option value="devolveu a chave"
+                            {% if situacao_da_reserva.situacao_chave.value == 'devolveu a chave' %}selected{% endif %}>
+                        devolveu a chave
+                    </option>
+                </select>
+            </div>
+            {{ action_buttons(acao, 2, True, 0, False) }}
+        </form>
+    {% endif %}
+{% endblock excluir %}
+{% macro result_table(message) %}
+    {% if situacoes_das_reservas %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover">
+                <thead>
+                    <tr class="information">
+                        <td>Codigo</td>
+                        <td>Laboratorio</td>
+                        <td>Aula</td>
+                        <td>Dia</td>
+                        <td>Situacao</td>
+                        <td>Ação</td>
+                    </tr>
+                </thead>
+                {% for sdr in situacoes_das_reservas %}
+                    <tr>
+                        <td>{{ sdr.id_situacao }}</td>
+                        <td>{{ sdr.laboratorios.nome_laboratorio }}</td>
+                        <td>{{ sdr.aulas_ativas.selector_identification }}</td>
+                        <td>{{ sdr.situacao_dia|data }}</td>
+                        <td>{{ sdr.situacao_chave.value }}</td>
+                        <td>
+                            <form method="post" class="form-inline">
+                                <input type="hidden" name="bloco" value="1">
+                                <input type="hidden" name="id_situacao" value="{{ sdr.id_situacao }}">
+                                <div class="btn-group">
+                                    <button type="submit"
+                                            name="acao"
+                                            value="editar"
+                                            class="btn btn-warning btn-sm"
+                                            title="Editar">
+                                        <i class="glyphicon glyphicon-pencil"></i>
+                                    </button>
+                                    <button type="submit"
+                                            name="acao"
+                                            value="excluir"
+                                            class="btn btn-danger btn-sm"
+                                            title="Excluir">
+                                        <i class="glyphicon glyphicon-trash"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info" role="alert">{{ message }}</div>
+    {% endif %}
+{% endmacro %}

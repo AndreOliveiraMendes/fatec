@@ -1,0 +1,70 @@
+{% extends "base" %}
+{% from "macros/form.html" import generate_navigation, action_buttons %}
+{% block title %}
+    Inicialização Rapida - Laboratorios
+{% endblock title %}
+{% block content %}
+    {{ generate_navigation(extras = extras) }}
+    {% if stage == 0 %}
+        <h3>Configuração Rapida de Laboratorios</h3>
+        <p>Selecione quantos laboratorios serão adicionados</p>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for('setup_laboratorios.fast_setup_laboratorios') }}"
+              method="get">
+            <div class="form-group">
+                <label for="quantidade">Quantidade de horarios</label>
+                <input type="number"
+                       id="quantidade"
+                       name="quantidade"
+                       required
+                       min="1"
+                       placeholder="Ex: 11">
+            </div>
+            {{ action_buttons('inserir', 1, False, 0, label='stage') }}
+        </form>
+    {% elif stage == 1 %}
+        <h3>Configuração Rapida de Laboratorios</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for('setup_laboratorios.fast_setup_laboratorios') }}"
+              method="post">
+            <div class="form-group">
+                <label for="prefix">Prefixo comum</label>
+                <input type="text" id="prefix" name="prefix" placeholder="Ex: laboratorio">
+            </div>
+            {% for i in range(quantidade) %}
+                <div class="form-group row">
+                    <div class="col-sm-4">
+                        <label for="nome_laboratorio_{{ i }}">Nome do Laboratório {{ i+1 }}</label>
+                        <input type="text"
+                               class="form-control"
+                               id="nome_laboratorio_{{ i }}"
+                               name="nome_laboratorio_{{ i }}"
+                               required>
+                    </div>
+                    <div class="col-sm-4">
+                        <label for="disponibilidade_{{ i }}">Disponibilidade</label>
+                        <select class="form-control"
+                                id="disponibilidade_{{ i }}"
+                                name="disponibilidade_{{ i }}">
+                            <option value="">Selecione uma disponibilidade</option>
+                            <option value="Disponivel">Disponível</option>
+                            <option value="Indisponivel">Indisponível</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-4">
+                        <label for="tipo_{{ i }}">Tipo</label>
+                        <select class="form-control" id="tipo_{{ i }}" name="tipo_{{ i }}">
+                            <option value="">Selecione um tipo</option>
+                            <option value="Laboratório">Laboratório</option>
+                            <option value="Sala">Sala</option>
+                            <option value="Externo">Externo</option>
+                        </select>
+                    </div>
+                </div>
+            {% endfor %}
+            {{ action_buttons('inserir', 2, True, 0, label='stage') }}
+        </form>
+    {% endif %}
+{% endblock content %}

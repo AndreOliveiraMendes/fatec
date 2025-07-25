@@ -1,0 +1,14 @@
+{% extends "base" %}
+{% from "macros/form.html" import generate_navigation %}
+{% block title %}
+    Configuração Rapida
+{% endblock title %}
+{% block content %}
+    {{ generate_navigation() }}
+    <p>bem vindo ao menu de Configuração rapida, escolha uma tabela para ajustar rapidamente</p>
+    <div class="btn-group-vertical">
+        {% for table in tables %}
+            <a href="{{ url_for(table['url']) }}" class="btn btn-info"><span class="glyphicon {{ table['icon'] }}"></span> {{ table['label'] }}</a>
+        {% endfor %}
+    </div>
+{% endblock content %}

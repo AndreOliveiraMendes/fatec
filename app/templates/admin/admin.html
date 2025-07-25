@@ -29,11 +29,14 @@
                             aria-controls="collapseDatabase">
                         <span class="glyphicon glyphicon-cog"></span> Manipular Banco de Dados
                     </button>
-                    <a href="{{ url_for('main.database') }}" class="btn btn-success">
+                    <a href="{{ url_for('database_main.database') }}" class="btn btn-success">
                         <span class="glyphicon glyphicon-book"></span> Visualizar banco de dados
                     </a>
-                    <a href="{{ url_for('main.schema') }}" class="btn btn-info">
+                    <a href="{{ url_for('database_main.schema') }}" class="btn btn-info">
                         <span class="glyphicon glyphicon-level-up"></span> Schema (experimental)
+                    </a>
+                    <a href="{{ url_for('setup.fast_setup_menu') }}" class="btn btn-danger">
+                        <span class="glyphicon glyphicon-flash"></span> Setup Rapido
                     </a>
                 </div>
                 <!-- Área colapsável principal -->
@@ -64,6 +67,21 @@
                                 {% endfor %}
                             </div>
                         {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-warning">
+            <div class="panel-heading">
+                <h3 class="panel-title">Gerenciar Reservas</h3>
+            </div>
+            <div class="panel panel-body">
+                <div class="well">
+                    <div class="btn-group" role="group">
+                        <a href="{{ url_for('default.under_dev_page') }}"
+                           class="btn btn-success">
+                            <span class="glyphicon glyphicon-cog"></span> Status Reservas
+                        </a>
                     </div>
                 </div>
             </div>

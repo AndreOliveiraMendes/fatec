@@ -1,5 +1,5 @@
 import requests, copy
-from flask import Blueprint
+from flask import Blueprint, current_app
 from config.general import TOMCAT_API_URL, API_BASIC_USER, API_BASIC_PASS
 from flask import flash, session, render_template, request, redirect, url_for
 from app.models import db, Pessoas, Usuarios, Permissoes
@@ -29,7 +29,7 @@ def check_login(id, password):
             grupo_pessoa = usuario_json["grupo"]
 
             # Pessoas
-            pessoa = Pessoas.query.get(id_pessoa)
+            pessoa = db.session.get(Pessoas, id_pessoa)
             old_pessoa = None
             if not pessoa:
                 pessoa = Pessoas(id_pessoa=id_pessoa)
@@ -40,7 +40,7 @@ def check_login(id, password):
             db.session.add(pessoa)
 
             # Usuarios
-            user = Usuarios.query.get(id_usuario)
+            user = db.session.get(Usuarios, id_usuario)
             old_user = None
             if not user:
                 user = Usuarios(id_usuario=id_usuario)
@@ -53,7 +53,7 @@ def check_login(id, password):
             db.session.add(user)
 
             # Permissoes
-            perm = Permissoes.query.get(id_usuario)
+            perm = db.session.get(Permissoes, id_usuario)
             old_perm = None
             if not perm:
                 if user.grupo_pessoa in ['ADMINISTRADOR', 'REDE']:

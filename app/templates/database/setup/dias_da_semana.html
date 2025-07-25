@@ -1,0 +1,38 @@
+{% extends "base" %}
+{% from "macros/form.html" import generate_navigation, action_buttons %}
+{% block title %}
+    Inicialização Rapida - Dias da Semana
+{% endblock title %}
+{% block content %}
+    {{ generate_navigation(extras = extras) }}
+    {% if stage == 0 %}
+        <h3>Configuração Rapida dos Dias da Semana</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for('setup_dias_da_semana.fast_setup_dias_da_semana') }}"
+              method="post">
+            {% for code, dia in dias_da_semana.items() %}
+                <div class="form-group row">
+                    <div class="col-sm-6">
+                        <label for="id_semana_{{ loop.index0 }}">Código</label>
+                        <input type="number"
+                               class="form-control"
+                               name="id_semana_{{ loop.index0 }}"
+                               id="id_semana_{{ loop.index0 }}"
+                               value="{{ code }}">
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="nome_semana_{{ loop.index0 }}">Dia da Semana</label>
+                        <input type="text"
+                               class="form-control"
+                               name="nome_semana_{{ loop.index0 }}"
+                               id="nome_semana_{{ loop.index0 }}"
+                               maxlength="15"
+                               value="{{ dia }}">
+                    </div>
+                </div>
+            {% endfor %}
+            {{ action_buttons('inserir', 1, False, 0, label='stage') }}
+        </form>
+    {% endif %}
+{% endblock content %}

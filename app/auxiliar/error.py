@@ -3,6 +3,7 @@ from app.auxiliar.auxiliar_routes import get_user_info
 from config.general import SHOW_DEBUG_ERRORS
 
 ERROR_MESSAGES = {
+    400: "Requisição inválida",
     401: "Você precisa fazer login para acessar esta página.",
     403: "Você não possui as permissões necessárias para acessar esta página.",
     404: "A página requisitada não existe.",
@@ -19,6 +20,16 @@ def debug_message(e, code):
         flash(ERROR_MESSAGES.get(code, "Ocorreu um erro inesperado."), "danger")
 
 def register_error_handler(app):
+    @app.errorhandler(400)
+    def bad_request_error(e):
+        userid = session.get('userid')
+        username, perm = get_user_info(userid)
+        mensagem = getattr(e, 'description', 'Bad Request')
+        if wants_json_response():
+            return jsonify({"error": "Bad Request"}), 400
+        debug_message(e, 400)
+        return render_template("http/400.html", username=username, perm=perm, message=mensagem), 400
+
     @app.errorhandler(401)
     def unauthorized_error(e):
         if wants_json_response():

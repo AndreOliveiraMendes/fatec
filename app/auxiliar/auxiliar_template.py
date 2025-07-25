@@ -38,10 +38,6 @@ def register_filters(app):
     def bitwise_and(x, y):
         return x & y
 
-    @app.template_filter('has_flag')
-    def has_flag(value, flag):
-        return (value & flag) == flag
-
     @app.template_global()
     def generate_head(target_url, acao, include = None, disable = None):
         botoes = [
@@ -90,6 +86,7 @@ def register_filters(app):
         html = ''
 
         # Quebra em blocos de até max_per_line
+        html += '<div class="pills-group">'
         for i in range(0, len(tables_info), max_per_line):
             html += '<ul class="nav nav-pills">'
             for table, url, nome in tables_info[i:i+max_per_line]:
@@ -98,9 +95,37 @@ def register_filters(app):
                 html += f'<a href="{url_for(url)}">{nome}</a>'
                 html += '</li>'
             html += '</ul>'
+        html += '</div>'
 
         return Markup(html)
 
+    @app.template_filter('has_flag')
+    def has_flag(value, flag):
+        return (value & flag) == flag
+    
+    @app.template_filter('tipo_responsavel_label')
+    def tipo_responsavel_label(value):
+        labels = ['Usuário', 'Especial', 'Ambos']
+        try:
+            return labels[value]
+        except (IndexError, TypeError):
+            return 'Desconhecido'
+
+    @app.template_filter('format')
+    def format(value):
+        return value if value else '-'
+    
+    @app.template_filter('hora')
+    def format_hora(value):
+        return value.strftime('%H:%M') if value else ''
+
+    @app.template_filter('data')
+    def format_data(value):
+        return value.strftime('%d/%m/%Y') if value else ''
+
+    @app.template_filter('datahora')
+    def format_datahora(value):
+        return value.strftime('%d/%m/%Y %H:%M') if value else ''
 
     @app.context_processor
     def inject_permissions():

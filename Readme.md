@@ -13,27 +13,31 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 
 ```
 .
+├── .dockerignore
 ├── .env
 ├── .env.dev
 ├── .env.dev.example
 ├── .env.example
-├── .env.prod
+├── .env.pod
+├── .env.teste
 ├── .gitignore
 ├── .vscode
 │   └── settings.json
+├── Dockerfile
 ├── LICENSE
 ├── Readme.md
 ├── app
 │   ├── __init__.py
+│   ├── __main__.py
 │   ├── auxiliar
 │   │   ├── __init__.py
 │   │   ├── auxiliar_routes.py
 │   │   ├── auxiliar_template.py
 │   │   ├── constant.py
+│   │   ├── dao.py
 │   │   ├── decorators.py
 │   │   └── error.py
 │   ├── extensions.py
-│   ├── main.py
 │   ├── models.py
 │   ├── routes
 │   │   ├── __init__.py
@@ -50,17 +54,27 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │   │   │   ├── dias_semana.py
 │   │   │   ├── historicos.py
 │   │   │   ├── laboratorios.py
+│   │   │   ├── main.py
 │   │   │   ├── permissoes.py
 │   │   │   ├── pessoas.py
 │   │   │   ├── reservas_fixas.py
 │   │   │   ├── reservas_temporarias.py
 │   │   │   ├── semestres.py
+│   │   │   ├── situacoes_das_reservas.py
 │   │   │   ├── turnos.py
 │   │   │   ├── usuarios.py
 │   │   │   └── usuarios_especiais.py
-│   │   └── default
+│   │   ├── default
+│   │   │   ├── __init__.py
+│   │   │   └── default.py
+│   │   └── setup
 │   │       ├── __init__.py
-│   │       └── default.py
+│   │       ├── aulas.py
+│   │       ├── aulas_ativas.py
+│   │       ├── dias_da_semana.py
+│   │       ├── laboratorios.py
+│   │       ├── menu.py
+│   │       └── turnos.py
 │   ├── static
 │   │   ├── css
 │   │   │   └── custom.css
@@ -77,30 +91,51 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │       │   └── logout.html
 │       ├── base
 │       ├── database
-│       │   ├── aulas.html
-│       │   ├── aulas_ativas.html
-│       │   ├── base_crude
-│       │   ├── dias_semanas.html
-│       │   ├── historicos.html
-│       │   ├── laboratorios.html
-│       │   ├── permissoes.html
-│       │   ├── pessoas.html
-│       │   ├── semestres.html
-│       │   ├── usuarios.html
-│       │   └── usuarios_especiais.html
+│       │   ├── schema
+│       │   │   ├── database.html
+│       │   │   └── schema.html
+│       │   ├── setup
+│       │   │   ├── aulas.html
+│       │   │   ├── aulas_ativas.html
+│       │   │   ├── dias_da_semana.html
+│       │   │   ├── laboratorios.html
+│       │   │   ├── menu.html
+│       │   │   └── turnos.html
+│       │   └── table
+│       │       ├── aulas.html
+│       │       ├── aulas_ativas.html
+│       │       ├── base_crude
+│       │       ├── dias_da_semana.html
+│       │       ├── historicos.html
+│       │       ├── laboratorios.html
+│       │       ├── permissoes.html
+│       │       ├── pessoas.html
+│       │       ├── reservas_fixas.html
+│       │       ├── reservas_temporarias.html
+│       │       ├── semestres.html
+│       │       ├── situacoes_das_reservas.html
+│       │       ├── turnos.html
+│       │       ├── usuarios.html
+│       │       └── usuarios_especiais.html
 │       ├── homepage.html
 │       ├── http
+│       │   ├── 400.html
 │       │   ├── 401.html
 │       │   ├── 403.html
-│       │   └── 404.html
+│       │   ├── 404.html
+│       │   └── 422.html
 │       ├── macros
 │       │   ├── form.html
 │       │   └── pagination.html
 │       ├── under_dev.html
 │       └── usuario
 │           └── perfil.html
-├── config.py
+├── config
+│   ├── __init__.py
+│   ├── database_views.py
+│   └── general.py
 ├── configurar_vscode.bat
+├── docker-compose.yml
 ├── requirements.txt
 ├── schema.sql
 ├── start-dev.bat
@@ -113,9 +148,10 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 
 ✅ **.env** → define qual modo de ambiente está ativo.  
 ✅ **.env.dev / .env.prod** → configurações específicas.  
-✅ **config.py** → carrega a config certa via `load_dotenv`.  
+✅ **config/** → modulo centralizado de configuração do projeto.  
 ✅ **wsgi.py** → entrada recomendada para Gunicorn.  
-✅ **app/main.py** → app factory com Blueprint registration.  
+✅ **app/__init__.py** → app factory com Blueprint registration.  
+✅ **app/__main__.py** → entrada para desenvolvimento local via python -m app.  
 ✅ **app/extensions.py** → inicialização centralizada de extensões.  
 ✅ **app/routes/** → Blueprints organizados por domínio.  
 ✅ **app/auxiliar/** → utilitários, decoradores, helpers para rotas.  
@@ -145,7 +181,7 @@ Edite conforme necessário.
 
 ✅ Rode:
 ```bash
-python -m app.main
+python -m app
 ```
 
 ✅ Ou para produção (exemplo Gunicorn):
@@ -166,5 +202,7 @@ gunicorn -w 4 -b 0.0.0.0:5000 wsgi:app
 # 📌 Suggestion
 ✅ Use **POST → Redirect → GET** para evitar warnings ao recarregar.  
 ✅ Planeje o uso de **volumes** ao containerizar o banco.  
+✅ Planejar como pegar dados no crud quando a tabela for muito grande  
+✅ Usar WTForms para fazer os forms
 
 ---

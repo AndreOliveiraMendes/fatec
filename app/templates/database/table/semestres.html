@@ -1,18 +1,18 @@
-{% extends "database/base_crude" %}
+{% extends "database/table/base_crude" %}
 {% block title %}
     Semestres
 {% endblock title %}
 {% block content_head %}
     <div class="panel panel-default">
-        <div class="panel-heading">{{ generate_database_head("semestres") }}</div>
-        <div class="panel-body">{{ generate_head(url_for("semestres.gerenciar_semestres") , acao, disable=disable) }}</div>
+        <div class="panel-heading">{{ generate_database_head("database_semestres") }}</div>
+        <div class="panel-body">{{ generate_head(url_for(url) , acao, disable=disable) }}</div>
     </div>
 {% endblock content_head %}
 {% block abertura %}
     <h3>
         Gerenciamento da Tabela <strong>Semestres</strong>
     </h3>
-    <p>
+    <p class="text-muted text-center">
         A tabela <code>semestres</code> possui os seguintes campos:
     </p>
     <div class="table-responsive">
@@ -59,63 +59,14 @@
 {% endblock abertura %}
 {% block listar %}
     <h3>Lista de Semestres</h3>
-    {% if semestres %}
-        <div class="table-responsive">
-            <table class="table table-striped table-bordered table-hover">
-                <thead>
-                    <tr class="information">
-                        <td>ID semestre</td>
-                        <td>Nome do semestre</td>
-                        <td>Início do semestre</td>
-                        <td>Término do semestre</td>
-                        <td>Ação</td>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for s in semestres %}
-                        <tr>
-                            <td>{{ s.id_semestre }}</td>
-                            <td>{{ s.nome_semestre }}</td>
-                            <td>{{ s.data_inicio.strftime("%d/%m/%Y") }}</td>
-                            <td>{{ s.data_fim.strftime("%d/%m/%Y") }}</td>
-                            <td>
-                                <form method="post" class="form-inline">
-                                    <input type="hidden" name="bloco" value="1">
-                                    <input type="hidden" name="id_semestre" value="{{ s.id_semestre }}">
-                                    <div class="btn-group">
-                                        <button type="submit"
-                                                name="acao"
-                                                value="editar"
-                                                class="btn btn-warning btn-sm"
-                                                title="Editar">
-                                            <i class="glyphicon glyphicon-pencil"></i>
-                                        </button>
-                                        <button type="submit"
-                                                name="acao"
-                                                value="excluir"
-                                                class="btn btn-danger btn-sm"
-                                                title="Excluir">
-                                            <i class="glyphicon glyphicon-trash"></i>
-                                        </button>
-                                    </div>
-                                </form>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {{ paginacao(pagination, acao, bloco) }}
-    {% else %}
-        <div class="alert alert-info" role="alert">Nenhum semestre cadastrado.</div>
-    {% endif %}
+    {{ result_table("Nenhum semestre cadastrado.") }}
 {% endblock listar %}
 {% block procurar %}
     {% if bloco == 0 %}
         <h3>Procurar Semestres</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('semestres.gerenciar_semestres') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
@@ -155,63 +106,14 @@
         </form>
     {% else %}
         <h3>Resultado da Busca:</h3>
-        {% if semestres %}
-            <div class="table-responsive">
-                <table class="table table-striped table-bordered table-hover">
-                    <thead>
-                        <tr class="information">
-                            <td>ID semestre</td>
-                            <td>Nome do Semestre</td>
-                            <td>Início do semestre</td>
-                            <td>Término do semestre</td>
-                            <td>Ação</td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for s in semestres %}
-                            <tr>
-                                <td>{{ s.id_semestre }}</td>
-                                <td>{{ s.nome_semestre }}</td>
-                                <td>{{ s.data_inicio.strftime("%d/%m/%Y") }}</td>
-                                <td>{{ s.data_fim.strftime("%d/%m/%Y") }}</td>
-                                <td>
-                                    <form method="post" class="form-inline">
-                                        <input type="hidden" name="bloco" value="1">
-                                        <input type="hidden" name="id_semestre" value="{{ s.id_semestre }}">
-                                        <div class="btn-group">
-                                            <button type="submit"
-                                                    name="acao"
-                                                    value="editar"
-                                                    class="btn btn-warning btn-sm"
-                                                    title="Editar">
-                                                <i class="glyphicon glyphicon-pencil"></i>
-                                            </button>
-                                            <button type="submit"
-                                                    name="acao"
-                                                    value="excluir"
-                                                    class="btn btn-danger btn-sm"
-                                                    title="Excluir">
-                                                <i class="glyphicon glyphicon-trash"></i>
-                                            </button>
-                                        </div>
-                                    </form>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {{ paginacao(pagination, acao, bloco, query_params) }}
-        {% else %}
-            <div class="alert alert-info" role="alert">Nenhum resultado encontrado.</div>
-        {% endif %}
+        {{ result_table("Nenhum resultado encontrado.") }}
     {% endif %}
 {% endblock procurar %}
 {% block inserir %}
     <h3>Inserir Semestres</h3>
     <form class="form-group"
           role="form"
-          action="{{ url_for('semestres.gerenciar_semestres') }}"
+          action="{{ url_for(url) }}"
           method="post">
         <input type="hidden" name="acao" value="{{ acao }}">
         <div class="form-group">
@@ -240,7 +142,7 @@
         <h3>Editar Semestres</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('semestres.gerenciar_semestres') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             {{ gerar_select("id_semestre", "Selecione o semestre", semestres, "id_semestre", "nome_semestre") }}
@@ -249,7 +151,7 @@
     {% else %}
         <form class="form-group"
               role="form"
-              action="{{ url_for('semestres.gerenciar_semestres') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
@@ -297,7 +199,7 @@
         <h3>Editar Semestres</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('semestres.gerenciar_semestres') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             {{ gerar_select("id_semestre", "Selecione o semestre", semestres, "id_semestre", "nome_semestre") }}
@@ -306,7 +208,7 @@
     {% else %}
         <form class="form-group"
               role="form"
-              action="{{ url_for('semestres.gerenciar_semestres') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
@@ -352,3 +254,59 @@
         </form>
     {% endif %}
 {% endblock excluir %}
+{% macro result_table(message) %}
+    {% if semestres %}
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered table-hover">
+                <thead>
+                    <tr class="information">
+                        <td>ID semestre</td>
+                        <td>Nome do semestre</td>
+                        <td>Início do semestre</td>
+                        <td>Término do semestre</td>
+                        <td>Ação</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in semestres %}
+                        <tr>
+                            <td>{{ s.id_semestre }}</td>
+                            <td>{{ s.nome_semestre }}</td>
+                            <td>{{ s.data_inicio|data }}</td>
+                            <td>{{ s.data_fim|data }}</td>
+                            <td>
+                                <form method="post" class="form-inline">
+                                    <input type="hidden" name="bloco" value="1">
+                                    <input type="hidden" name="id_semestre" value="{{ s.id_semestre }}">
+                                    <div class="btn-group">
+                                        <button type="submit"
+                                                name="acao"
+                                                value="editar"
+                                                class="btn btn-warning btn-sm"
+                                                title="Editar">
+                                            <i class="glyphicon glyphicon-pencil"></i>
+                                        </button>
+                                        <button type="submit"
+                                                name="acao"
+                                                value="excluir"
+                                                class="btn btn-danger btn-sm"
+                                                title="Excluir">
+                                            <i class="glyphicon glyphicon-trash"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if query_params %}
+            {{ paginacao(pagination, acao, bloco, query_params) }}
+        {% else %}
+            {{ paginacao(pagination, acao, bloco) }}
+        {% endif %}
+    {% else %}
+        <div class="alert alert-info" role="alert">{{ message }}</div>
+    {% endif %}
+{% endmacro %}

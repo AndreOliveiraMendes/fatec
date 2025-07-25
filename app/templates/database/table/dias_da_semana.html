@@ -1,12 +1,12 @@
-{% extends "database/base_crude" %}
+{% extends "database/table/base_crude" %}
 {% block title %}
     Dias da Semana
 {% endblock title %}
 {% block content_head %}
     <div class="panel panel-default">
-        <div class="panel-heading">{{ generate_database_head("dias_da_semana") }}</div>
+        <div class="panel-heading">{{ generate_database_head("database_dias_da_semana") }}</div>
         <div class="panel-body">
-            {{ generate_head(url_for("dias_da_semana.gerenciar_dias_da_semana") , acao, disable=disable) }}
+            {{ generate_head(url_for(url) , acao, disable=disable) }}
         </div>
     </div>
 {% endblock content_head %}
@@ -14,7 +14,7 @@
     <h3>
         Gerenciamento da Tabela <strong>Dias da Semana</strong>
     </h3>
-    <p>
+    <p class="text-muted text-center">
         A tabela <code>dias_da_semana</code> armazena os dias da semana utilizados para referência em reservas e agendamentos. Cada dia possui um identificador único e um nome.
     </p>
     <div class="table-responsive">
@@ -29,14 +29,14 @@
             <tbody>
                 <tr>
                     <td>
-                        <code>id</code>
+                        <code>id_semana</code>
                     </td>
-                    <td>INT (auto_increment, PK)</td>
+                    <td>INT (PK)</td>
                     <td>Identificador único do dia da semana (ex: 1 = Domingo, 2 = Segunda, ...).</td>
                 </tr>
                 <tr>
                     <td>
-                        <code>nome</code>
+                        <code>nome_semana</code>
                     </td>
                     <td>VARCHAR(15)</td>
                     <td>Nome do dia da semana (ex: Domingo, Segunda, etc). Deve ser único.</td>
@@ -52,7 +52,7 @@
             <table class="table table-striped table-bordered table-hover">
                 <thead>
                     <tr class="information">
-                        <th>ID</th>
+                        <th>Codigo</th>
                         <th>Nome</th>
                         <th>Ação</th>
                     </tr>
@@ -60,12 +60,12 @@
                 <tbody>
                     {% for ds in dias_da_semana %}
                         <tr>
-                            <td>{{ ds.id }}</td>
-                            <td>{{ ds.nome }}</td>
+                            <td>{{ ds.id_semana }}</td>
+                            <td>{{ ds.nome_semana }}</td>
                             <td>
                                 <form method="post" class="form-inline">
                                     <input type="hidden" name="bloco" value="1">
-                                    <input type="hidden" name="id" value="{{ ds.id }}">
+                                    <input type="hidden" name="id_semana" value="{{ ds.id_semana }}">
                                     <div class="btn-group">
                                         <button type="submit"
                                                 name="acao"
@@ -98,7 +98,7 @@
     <h3>inserir dia da semana</h3>
     <form class="form-group"
           role="form"
-          action="{{ url_for('dias_da_semana.gerenciar_dias_da_semana') }}"
+          action="{{ url_for(url) }}"
           method="post">
         <input type="hidden" name="acao" value="{{ acao }}">
         <div class="form-group">
@@ -106,7 +106,7 @@
             <input type="number"
                    maxlength="100"
                    class="form-control"
-                   name="id"
+                   name="id_semana"
                    id="codigo"
                    placeholder="Digite o codigo"
                    required>
@@ -116,7 +116,7 @@
             <input type="text"
                    maxlength="100"
                    class="form-control"
-                   name="nome"
+                   name="nome_semana"
                    id="nome"
                    placeholder="Digite o nome"
                    required>
@@ -129,17 +129,17 @@
         <h3>editar dias da semana</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('dias_da_semana.gerenciar_dias_da_semana') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
-            {{ gerar_select("semana", "Selecione a semana", dias_da_semana, "id", "nome") }}
+            {{ gerar_select("semana", "Selecione a semana", dias_da_semana, "id_semana", "nome_semana") }}
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
         <h3>editar dia da semana</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('dias_da_semana.gerenciar_dias_da_semana') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
@@ -147,9 +147,9 @@
                 <input type="number"
                        maxlength="100"
                        class="form-control"
-                       name="id"
+                       name="id_semana"
                        id="codigo"
-                       value="{{ dia_semana.id }}"
+                       value="{{ dia_semana.id_semana }}"
                        required
                        readonly>
             </div>
@@ -158,9 +158,9 @@
                 <input type="text"
                        maxlength="100"
                        class="form-control"
-                       name="nome"
+                       name="nome_semana"
                        id="nome"
-                       value="{{ dia_semana.nome }}"
+                       value="{{ dia_semana.nome_semana }}"
                        placeholder="Digite o nome"
                        required>
             </div>
@@ -173,17 +173,17 @@
         <h3>excluir dias da semana</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('dias_da_semana.gerenciar_dias_da_semana') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
-            {{ gerar_select("semana", "Selecione a semana", dias_da_semana, "id", "nome") }}
+            {{ gerar_select("semana", "Selecione a semana", dias_da_semana, "id_semana", "nome_semana") }}
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
         <h3>excluir dia da semana</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('dias_da_semana.gerenciar_dias_da_semana') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
@@ -191,9 +191,9 @@
                 <input type="number"
                        maxlength="100"
                        class="form-control"
-                       name="id"
+                       name="id_semana"
                        id="codigo"
-                       value="{{ dia_semana.id }}"
+                       value="{{ dia_semana.id_semana }}"
                        required
                        readonly>
             </div>
@@ -202,9 +202,9 @@
                 <input type="text"
                        maxlength="100"
                        class="form-control"
-                       name="nome"
+                       name="nome_semana"
                        id="nome"
-                       value="{{ dia_semana.nome }}"
+                       value="{{ dia_semana.nome_semana }}"
                        placeholder="Digite o nome"
                        disabled
                        required>

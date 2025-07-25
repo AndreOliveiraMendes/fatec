@@ -38,19 +38,19 @@
                     <button class="btn btn-info"
                             data-toggle="collapse"
                             data-target="#pk{{ loop.index0 }}">PK</button>
-                    <button class="btn btn-{{ classification(columns[table]) }}"
+                    <button class="btn btn-info"
                             data-toggle="collapse"
                             data-target="#campos{{ loop.index0 }}">Campos ({{ columns[table]|length }})</button>
-                    <button class="btn btn-{{ classification(fks[table]) }}"
+                    <button class="btn btn-info"
                             data-toggle="collapse"
                             data-target="#fk{{ loop.index0 }}">FK ({{ fks[table]|length }})</button>
-                    <button class="btn btn-{{ classification(uks[table]) }}"
+                    <button class="btn btn-info"
                             data-toggle="collapse"
                             data-target="#uk{{ loop.index0 }}">UK ({{ uks[table]|length }})</button>
-                    <button class="btn btn-{{ classification(chks[table]) }}"
+                    <button class="btn btn-info"
                             data-toggle="collapse"
                             data-target="#chk{{ loop.index0 }}">CHK ({{ chks[table]|length }})</button>
-                    <button class="btn btn-{{ classification(inds[table]) }}"
+                    <button class="btn btn-info"
                             data-toggle="collapse"
                             data-target="#ind{{ loop.index0 }}">Índice ({{ inds[table]|length }})</button>
                     <button id="toggleAll{{ loop.index0 }}"
@@ -73,7 +73,7 @@
                         <tbody>
                             <tr>
                                 <td>{{ ';'.join(pks[table]['constrained_columns']) }}</td>
-                                <td>{{ format(pks[table]['name']) }}</td>
+                                <td>{{ pks[table]['name']|format }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -95,8 +95,8 @@
                                 <tr>
                                     <td>{{ column['name'] }}</td>
                                     <td>{{ column['type'] }}</td>
-                                    <td>{{ format(column['default']) }}</td>
-                                    <td>{{ format(column['comment']) }}</td>
+                                    <td>{{ column['default']|format }}</td>
+                                    <td>{{ column['comment']|format }}</td>
                                     <td>{{ column['nullable'] }}</td>
                                     <td>{{ column['autoincrement'] }}</td>
                                 </tr>
@@ -122,10 +122,10 @@
                                     <tr>
                                         <td>{{ fk['name'] }}</td>
                                         <td>{{ ';'.join(fk['constrained_columns']) }}</td>
-                                        <td>{{ format(fk['referred_schema']) }}</td>
+                                        <td>{{ fk['referred_schema']|format }}</td>
                                         <td>{{ fk['referred_table'] }}</td>
                                         <td>{{ ';'.join(fk['referred_columns']) }}</td>
-                                        <td>{{ format(fk['options']) }}</td>
+                                        <td>{{ fk['options']|format }}</td>
                                     </tr>
                                 {% endfor %}
                             </tbody>
@@ -214,5 +214,8 @@
                 {% endif %}
             </div>
         </div>
+        <h3>
+            <a href="">voltar ao topo</a>
+        </h3>
     {% endfor %}
 {% endblock content %}

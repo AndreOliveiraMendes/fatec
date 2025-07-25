@@ -1,0 +1,17 @@
+{% extends "base" %}
+{% block title %}
+    Semestre
+{% endblock title %}
+{% block content %}
+    <div class="btn-group">
+        <a href="{{ url_for('reservas_semanais.get_semestre', id_semestre=semestre.id_semestre) }}"
+           class="btn btn-default">
+            <span class="glyphicon glyphicon-arrow-left"></span> Voltar
+        </a>
+        <a href="{{ url_for('default.home') }}" class="btn btn-default">
+            <span class="glyphicon glyphicon-home"></span> Início
+        </a>
+    </div>
+    <h3>Semestre: {{ semestre.nome_semestre }} Turno: {{ turno.nome_turno }}</h3>
+    <p>Periodo: {{ semestre.data_inicio|data }} a {{ semestre.data_fim|data }} Horario: {{ turno.horario_inicio|hora }} a {{ turno.horario_fim|hora }}</p>
+{% endblock content %}

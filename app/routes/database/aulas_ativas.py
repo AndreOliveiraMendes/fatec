@@ -1,31 +1,23 @@
 import copy
-from flask import Blueprint
-from flask import flash, session, render_template, request, redirect, url_for, jsonify
+from flask import Blueprint, flash, session, render_template, request
+from flask_sqlalchemy.pagination import SelectPagination
+from sqlalchemy import select, func
 from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy import or_, and_
 from config.general import PER_PAGE
-from app.models import db, Aulas_Ativas, Aulas, Dias_da_Semana, TipoAulaEnum
+from app.models import db, Aulas_Ativas, TipoAulaEnum
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, parse_date_string, get_user_info, \
     get_query_params, registrar_log_generico_usuario, get_session_or_request, register_return
+from app.auxiliar.dao import get_aulas, get_dias_da_semana, get_aulas_ativas
 
-bp = Blueprint('aulas_ativas', __name__, url_prefix="/database")
-
-def get_aulas():
-    return Aulas.query.all()
-
-def get_dias_da_semana():
-    return db.session.query(Dias_da_Semana.id, Dias_da_Semana.nome).order_by(Dias_da_Semana.id).all()
-
-def get_aulas_ativas():
-    return Aulas_Ativas.query.all()
+bp = Blueprint('database_aulas_ativas', __name__, url_prefix="/database")
 
 def check_aula_ativa(inicio, fim, aula, semana, tipo, id = None):
     base_filter = [Aulas_Ativas.id_aula == aula, Aulas_Ativas.id_semana == semana,
                    Aulas_Ativas.tipo_aula == tipo]
-    if id:
+    if id is not None:
         base_filter.append(Aulas_Ativas.id_aula_ativa != id)
-    query = Aulas_Ativas.query
     if inicio and fim:
         base_filter.append(
             and_(
@@ -41,27 +33,66 @@ def check_aula_ativa(inicio, fim, aula, semana, tipo, id = None):
         base_filter.append(
             or_(Aulas_Ativas.inicio_ativacao.is_(None), Aulas_Ativas.inicio_ativacao <= fim)
             )
-    if query.filter(*base_filter).count() > 0:
+    countl_sel_aulas_ativas = select(func.count()).select_from(Aulas_Ativas).where(*base_filter)
+    if db.session.scalar(countl_sel_aulas_ativas) > 0:
         raise IntegrityError(
             statement=None,
             params=None,
             orig=Exception("Já existe uma aula ativa com os mesmos dados (aula, semana e tipo).")
-            )
+        )
 
+def filtro_intervalo(inicio_procura, fim_procura):
+    if inicio_procura and fim_procura:
+        return or_(
+            and_(
+                Aulas_Ativas.inicio_ativacao.is_not(None),
+                Aulas_Ativas.fim_ativacao.is_not(None),
+                Aulas_Ativas.fim_ativacao >= inicio_procura,
+                Aulas_Ativas.inicio_ativacao <= fim_procura
+            ), and_(
+                Aulas_Ativas.inicio_ativacao.is_(None),
+                Aulas_Ativas.fim_ativacao.is_not(None),
+                Aulas_Ativas.fim_ativacao >= inicio_procura
+            ), and_(
+                Aulas_Ativas.inicio_ativacao.is_not(None),
+                Aulas_Ativas.fim_ativacao.is_(None),
+                Aulas_Ativas.inicio_ativacao <= fim_procura
+            ), and_(
+                Aulas_Ativas.inicio_ativacao.is_(None),
+                Aulas_Ativas.fim_ativacao.is_(None)
+            )
+        )
+    elif inicio_procura:
+        return or_(
+            Aulas_Ativas.fim_ativacao >= inicio_procura,
+            Aulas_Ativas.fim_ativacao.is_(None)
+        )
+    elif fim_procura:
+        return or_(
+            Aulas_Ativas.inicio_ativacao <= fim_procura,
+            Aulas_Ativas.inicio_ativacao.is_(None)
+        )
+    else:
+        raise ValueError("Especifique ao menos um valor")
 
 @bp.route("/aulas_ativas", methods=["GET", "POST"])
 @admin_required
 def gerenciar_aulas_ativas():
+    url = 'database_aulas_ativas.gerenciar_aulas_ativas'
     redirect_action = None
     acao = get_session_or_request(request, session, 'acao', 'abertura')
     bloco = int(request.form.get('bloco', 0))
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
     username, perm = get_user_info(userid)
-    extras = {}
+    extras = {'url':url}
     if request.method == 'POST':
         if acao == 'listar':
-            aulas_ativas_paginadas = Aulas_Ativas.query.paginate(page=page, per_page=PER_PAGE, error_out=False)
+            sel_aulas_ativas = select(Aulas_Ativas)
+            aulas_ativas_paginadas = SelectPagination(
+                select=sel_aulas_ativas, session=db.session,
+                page=page, per_page=PER_PAGE, error_out=False
+            )
             extras['aulas_ativas'] = aulas_ativas_paginadas.items
             extras['pagination'] = aulas_ativas_paginadas
 
@@ -71,33 +102,34 @@ def gerenciar_aulas_ativas():
         elif acao == 'procurar' and bloco == 1:
             id_aula_ativa = none_if_empty(request.form.get('id_aula_ativa'), int)
             id_aula = none_if_empty(request.form.get('id_aula'), int)
-            inicio_ativacao = parse_date_string(request.form.get('inicio_ativacao'))
-            fim_ativacao = parse_date_string(request.form.get('fim_ativacao'))
+            inicio_procura = parse_date_string(request.form.get('inicio_procura'))
+            fim_procura = parse_date_string(request.form.get('fim_procura'))
             id_semana = none_if_empty(request.form.get('id_semana'), int)
             tipo_aula = none_if_empty(request.form.get('tipo_aula'))
             filter = []
             query_params = get_query_params(request)
-            query = Aulas_Ativas.query
-            if id_aula_ativa:
+            if id_aula_ativa is not None:
                 filter.append(Aulas_Ativas.id_aula_ativa == id_aula_ativa)
-            if id_aula:
+            if id_aula is not None:
                 filter.append(Aulas_Ativas.id_aula == id_aula)
-            if inicio_ativacao:
-                filter.append(Aulas_Ativas.inicio_ativacao == inicio_ativacao)
-            if fim_ativacao:
-                filter.append(Aulas_Ativas.fim_ativacao == fim_ativacao)
-            if id_semana:
+            if inicio_procura or fim_procura:
+                filter.append(filtro_intervalo(inicio_procura, fim_procura))
+            if id_semana is not None:
                 filter.append(Aulas_Ativas.id_semana == id_semana)
             if tipo_aula:
-                filter.append(Aulas_Ativas.tipo_aula == tipo_aula)
+                filter.append(Aulas_Ativas.tipo_aula == TipoAulaEnum(tipo_aula))
             if filter:
-                aulas_ativas_paginadas = query.filter(*filter).paginate(page=page, per_page=PER_PAGE, error_out=False)
+                sel_aulas_ativas = select(Aulas_Ativas).where(*filter)
+                aulas_ativas_paginadas = SelectPagination(
+                    select=sel_aulas_ativas, session=db.session,
+                    page=page, per_page=PER_PAGE, error_out=False
+                )
                 extras['aulas_ativas'] = aulas_ativas_paginadas.items
                 extras['pagination'] = aulas_ativas_paginadas
                 extras['query_params'] = query_params
             else:
                 flash("especifique pelo menos um campo de busca", "danger")
-                redirect_action, bloco = register_return('aulas_ativas.gerenciar_aulas_ativas', acao, extras,
+                redirect_action, bloco = register_return(url, acao, extras,
                     aulas=get_aulas(), dias_da_semana=get_dias_da_semana())
 
         elif acao == 'inserir' and bloco == 0:
@@ -124,15 +156,18 @@ def gerenciar_aulas_ativas():
             except (IntegrityError, OperationalError) as e:
                 db.session.rollback()
                 flash(f"Erro ao cadastrar aula ativa:{str(e.orig)}", "danger")
+            except ValueError as ve:
+                db.session.rollback()
+                flash(f"Erro ao cadastrar:{str(ve)}", "danger")
             
-            redirect_action, bloco = register_return('aulas_ativas.gerenciar_aulas_ativas', acao, extras,
+            redirect_action, bloco = register_return(url, acao, extras,
                 aulas=get_aulas(), dias_da_semana=get_dias_da_semana())
 
         elif acao in ['editar', 'excluir'] and bloco == 0:
             extras['aulas_ativas'] = get_aulas_ativas()
         elif acao in ['editar', 'excluir'] and bloco == 1:
             id_aula_ativa = none_if_empty(request.form.get('id_aula_ativa'), int)
-            aula_ativa = Aulas_Ativas.query.get_or_404(id_aula_ativa)
+            aula_ativa = db.get_or_404(Aulas_Ativas, id_aula_ativa)
             extras['aula_ativa'] = aula_ativa
             extras['aulas'] = get_aulas()
             extras['dias_da_semana'] = get_dias_da_semana()
@@ -143,7 +178,7 @@ def gerenciar_aulas_ativas():
             fim_ativacao = parse_date_string(request.form.get('fim_ativacao'))
             id_semana = none_if_empty(request.form.get('id_semana'), int)
             tipo_aula = none_if_empty(request.form.get('tipo_aula'))
-            aula_ativa = Aulas_Ativas.query.get_or_404(id_aula_ativa)
+            aula_ativa = db.get_or_404(Aulas_Ativas, id_aula_ativa)
             try:
                 check_aula_ativa(inicio_ativacao, fim_ativacao, id_aula, id_semana, tipo_aula, id_aula_ativa)
                 dados_anteriores = copy.copy(aula_ativa)
@@ -151,7 +186,7 @@ def gerenciar_aulas_ativas():
                 aula_ativa.inicio_ativacao = inicio_ativacao
                 aula_ativa.fim_ativacao = fim_ativacao
                 aula_ativa.id_semana = id_semana
-                aula_ativa.tipo_aula = tipo_aula
+                aula_ativa.tipo_aula = TipoAulaEnum(tipo_aula)
 
                 db.session.flush()
                 registrar_log_generico_usuario(userid, 'Edição', aula_ativa, dados_anteriores)
@@ -161,12 +196,15 @@ def gerenciar_aulas_ativas():
             except (IntegrityError, OperationalError) as e:
                 db.session.rollback()
                 flash(f"Erro ao editar aula ativa:{str(e.orig)}", "danger")
+            except ValueError as ve:
+                db.session.rollback()
+                flash(f"Erro ao cadastrar:{str(ve)}", "danger")
 
-            redirect_action, bloco = register_return('aulas_ativas.gerenciar_aulas_ativas', acao, extras,
+            redirect_action, bloco = register_return(url, acao, extras,
                 aulas_ativas=get_aulas_ativas())
         elif acao == 'excluir' and bloco == 2:
             id_aula_ativa = none_if_empty(request.form.get('id_aula_ativa'), int)
-            aula_ativa = Aulas_Ativas.query.get_or_404(id_aula_ativa)
+            aula_ativa = db.get_or_404(Aulas_Ativas, id_aula_ativa)
             try:
                 db.session.delete(aula_ativa)
 
@@ -179,8 +217,9 @@ def gerenciar_aulas_ativas():
                 db.session.rollback()
                 flash(f"Erro ao excluir aula ativa:{str(e.orig)}", "danger")
 
-            redirect_action, bloco = register_return('aulas_ativas.gerenciar_aulas_ativas', acao, extras,
+            redirect_action, bloco = register_return(url, acao, extras,
                 aulas_ativas=get_aulas_ativas())
     if redirect_action:
         return redirect_action
-    return render_template("database/aulas_ativas.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
+    return render_template("database/table/aulas_ativas.html",
+        username=username, perm=perm, acao=acao, bloco=bloco, **extras)

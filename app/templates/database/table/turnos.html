@@ -1,18 +1,18 @@
-{% extends "database/base_crude" %}
+{% extends "database/table/base_crude" %}
 {% block title %}
     Turnos
 {% endblock title %}
 {% block content_head %}
     <div class="panel panel-default">
-        <div class="panel-heading">{{ generate_database_head("turnos") }}</div>
-        <div class="panel-body">{{ generate_head(url_for("turnos.gerenciar_turnos") , acao, disable=disable) }}</div>
+        <div class="panel-heading">{{ generate_database_head("database_turnos") }}</div>
+        <div class="panel-body">{{ generate_head(url_for(url) , acao, disable=disable) }}</div>
     </div>
 {% endblock content_head %}
 {% block abertura %}
     <h3>
         Gerenciamento da tabela <strong>Turnos</strong>
     </h3>
-    <p>
+    <p class="text-muted text-center">
         a tabela <code>turnos</code> possui os seguintes campos:
     </p>
     <div class="table-responsive">
@@ -28,7 +28,7 @@
             <tbody>
                 <tr>
                     <td>
-                        <code>id</code>
+                        <code>id_turno</code>
                     </td>
                     <td>INT (auto_increment, PK)</td>
                     <td>Identificador único do turno no sistema</td>
@@ -36,7 +36,7 @@
                 </tr>
                 <tr>
                     <td>
-                        <code>nome</code>
+                        <code>nome_turno</code>
                     </td>
                     <td>VARCHAR(15)</td>
                     <td>Nome do turno no sistema</td>
@@ -79,14 +79,14 @@
                 <tbody>
                     {% for t in turnos %}
                         <tr>
-                            <td>{{ t.id }}</td>
-                            <td>{{ t.nome }}</td>
-                            <td>{{ t.horario_inicio.strftime("%H:%M") }}</td>
-                            <td>{{ t.horario_fim.strftime("%H:%M") }}</td>
+                            <td>{{ t.id_turno }}</td>
+                            <td>{{ t.nome_turno }}</td>
+                            <td>{{ t.horario_inicio|hora }}</td>
+                            <td>{{ t.horario_fim|hora }}</td>
                             <td>
                                 <form method="post" class="form-inline">
                                     <input type="hidden" name="bloco" value="1">
-                                    <input type="hidden" name="id" value="{{ t.id }}">
+                                    <input type="hidden" name="id_turno" value="{{ t.id_turno }}">
                                     <div class="btn-group">
                                         <button type="submit"
                                                 name="acao"
@@ -112,21 +112,21 @@
         </div>
         {{ paginacao(pagination, acao, bloco) }}
     {% else %}
-        <div class="alert alert-info" role="alert">Nenhum turno cadastrado.</div>
+        <div class="alert alert-danger" role="alert">Nenhum turno cadastrado.</div>
     {% endif %}
 {% endblock listar %}
 {% block inserir %}
     <h3>Inserir Turno</h3>
     <form class="form-group"
           role="form"
-          action="{{ url_for('turnos.gerenciar_turnos') }}"
+          action="{{ url_for(url) }}"
           method="post">
         <input type="hidden" name="acao" value="{{ acao }}">
         <div class="form-group">
             <label for="nome">nome:</label>
             <input type="text"
                    class="form-control"
-                   name="nome"
+                   name="nome_turno"
                    id="nome"
                    placeholder="Nome do Turno"
                    required>
@@ -155,37 +155,37 @@
         <h3>Editar Turnos</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('turnos.gerenciar_turnos') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
-            {{ gerar_select("turno", "Selecione o turno", turnos, "id", "nome") }}
+            {{ gerar_select("turno", "Selecione o turno", turnos, "id_turno", "nome_turno") }}
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
         <h3>Editar Turno</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('turnos.gerenciar_turnos') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
                 <label for="codigo">codigo:</label>
                 <input type="text"
                        class="form-control"
-                       name="id"
+                       name="id_turno"
                        id="codigo"
-                       placeholder="Nome do Turno"
-                       value="{{ turno.id }}"
+                       placeholder="Codigo do Turno"
+                       value="{{ turno.id_turno }}"
                        readonly>
             </div>
             <div class="form-group">
                 <label for="nome">nome:</label>
                 <input type="text"
                        class="form-control"
-                       name="nome"
+                       name="nome_turno"
                        id="nome"
                        placeholder="Nome do Turno"
-                       value="{{ turno.nome }}"
+                       value="{{ turno.nome_turno }}"
                        required>
             </div>
             <div class="form-group">
@@ -194,7 +194,7 @@
                        class="form-control"
                        name="horario_inicio"
                        placeholder="Início do Turno"
-                       value="{{ turno.horario_inicio.strftime('%H:%M') }}"
+                       value="{{ turno.horario_inicio|hora }}"
                        required>
             </div>
             <div class="form-group">
@@ -203,7 +203,7 @@
                        class="form-control"
                        name="horario_fim"
                        placeholder="Término do Turno"
-                       value="{{ turno.horario_fim.strftime('%H:%M') }}"
+                       value="{{ turno.horario_fim|hora }}"
                        required>
             </div>
             {{ action_buttons(acao, 2, True, 0) }}
@@ -215,37 +215,37 @@
         <h3>Excluir Turnos</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('turnos.gerenciar_turnos') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
-            {{ gerar_select("turno", "Selecione o turno", turnos, "id", "nome") }}
+            {{ gerar_select("turno", "Selecione o turno", turnos, "id_turno", "nome_turno") }}
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
         <h3>Excluir Turno</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('turnos.gerenciar_turnos') }}"
+              action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
                 <label for="codigo">codigo:</label>
                 <input type="text"
                        class="form-control"
-                       name="id"
+                       name="id_turno"
                        id="codigo"
-                       placeholder="Nome do Turno"
-                       value="{{ turno.id }}"
+                       placeholder="Codigo do Turno"
+                       value="{{ turno.id_turno }}"
                        readonly>
             </div>
             <div class="form-group">
                 <label for="nome">nome:</label>
                 <input type="text"
                        class="form-control"
-                       name="nome"
+                       name="nome_turno"
                        id="nome"
                        placeholder="Nome do Turno"
-                       value="{{ turno.nome }}"
+                       value="{{ turno.nome_turno }}"
                        disabled
                        required>
             </div>
@@ -255,7 +255,7 @@
                        class="form-control"
                        name="horario_inicio"
                        placeholder="Início do Turno"
-                       value="{{ turno.horario_inicio.strftime('%H:%M') }}"
+                       value="{{ turno.horario_inicio|hora }}"
                        disabled
                        required>
             </div>
@@ -265,7 +265,7 @@
                        class="form-control"
                        name="horario_fim"
                        placeholder="Término do Turno"
-                       value="{{ turno.horario_fim.strftime('%H:%M') }}"
+                       value="{{ turno.horario_fim|hora }}"
                        disabled
                        required>
             </div>
