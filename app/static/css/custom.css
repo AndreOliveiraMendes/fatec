@@ -116,6 +116,7 @@ body {
     left: 0;
     background-color: #5bc0de;
     z-index: 3;
+    vertical-align: middle;
     /* acima do conteúdo normal */
 }
 

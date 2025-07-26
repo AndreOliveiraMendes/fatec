@@ -2,6 +2,9 @@
 {% block title %}
     Reservas
 {% endblock title %}
+{% block extra_head %}
+    {{ refresh_page(60) }}
+{% endblock extra_head %}
 {% block content %}
     <h3>Agora: {{ datetime|datahora }}</h3>
     <div class="panel panel-info">
@@ -116,3 +119,8 @@
     </div>
     -->
 {% endblock content %}
+{% block footer %}
+    <p class="text-muted">
+        <small>Esta página se atualiza automaticamente a cada 60 segundos.</small>
+    </p>
+{% endblock footer %}

@@ -35,6 +35,11 @@ def register_filters(app):
         return Markup(script)
 
     @app.template_global()
+    def refresh_page(time):
+        script = f"""<meta http-equiv="refresh" content="{time}">"""
+        return Markup(script)
+
+    @app.template_global()
     def bitwise_and(x, y):
         return x & y
 
