@@ -58,7 +58,7 @@
         <button type="submit"
                 {% if label %}
                     name="{{ label }}"
-                    value="{{ bloco_voltar }}"
+                    value="{{ bloco_submit }}"
                 {% endif %}
                 class="btn btn-{{ 'primary' if acao != 'excluir' else 'danger' }}">
             {% if acao == 'salvar' %}
