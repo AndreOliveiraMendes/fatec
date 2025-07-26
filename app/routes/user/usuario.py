@@ -16,7 +16,7 @@ def perfil():
 
 @bp.route("/reservas")
 @login_required
-def veficiar_reservas():
+def verificar_reservas():
     userid = session.get('userid')
     username, perm = get_user_info(userid)
     return render_template("usuario/reserva.html", username=username, perm=perm)
