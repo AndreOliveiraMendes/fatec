@@ -4,7 +4,7 @@ from datetime import datetime
 from app.models import db, Usuarios, Permissoes, Historicos, OrigemEnum
 from sqlalchemy.inspection import inspect
 from typing import Literal
-from config.general import AFTER_ACTION
+from config.general import AFTER_ACTION, LOCAL_TIMEZONE
 
 IGNORED_FORM_FIELDS = ['page', 'acao', 'bloco']
 
@@ -118,7 +118,7 @@ def registrar_log_generico_sistema(acao:Literal['Login'], objeto, antes=None, ob
         id_usuario = None,
         tabela = nome_tabela,
         categoria = acao,
-        data_hora = datetime.now(),
+        data_hora = datetime.now(LOCAL_TIMEZONE),
         message = "; ".join(campos),
         chave_primaria = dict_format(dados_chave),
         origem = OrigemEnum('Sistema'),
@@ -159,7 +159,7 @@ def registrar_log_generico_usuario(userid, acao:Literal['Inserção', 'Edição'
         id_usuario = userid,
         tabela = nome_tabela,
         categoria = acao,
-        data_hora = datetime.now(),
+        data_hora = datetime.now(LOCAL_TIMEZONE),
         message = "; ".join(campos),
         chave_primaria = dict_format(dados_chave),
         origem = OrigemEnum('Usuario'),

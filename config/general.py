@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+from tzlocal import get_localzone
 
 def str_to_bool(s):
     return str(s).lower() in ['true', '1', 'yes', 'on']
@@ -34,3 +35,4 @@ PER_PAGE = int(os.getenv("PER_PAGE", "10"))
 AFTER_ACTION = os.getenv("AFTER_ACTION", "noredirect")
 FLASK_HOST = os.getenv('FLASK_HOST', '127.0.0.1')
 FLASK_PORT = int(os.getenv('FLASK_PORT', '5000'))
+LOCAL_TIMEZONE = get_localzone()

@@ -6,6 +6,7 @@ from app.models import db, Usuarios, Reservas_Fixas, Reservas_Temporarias
 from app.auxiliar.auxiliar_routes import get_user_info, registrar_log_generico_usuario
 from app.auxiliar.decorators import login_required
 from app.auxiliar.dao import get_semestres
+from config.general import LOCAL_TIMEZONE
 
 bp = Blueprint('usuario', __name__, url_prefix='/usuario')
 
@@ -31,10 +32,13 @@ def verificar_reservas():
     userid = session.get('userid')
     username, perm = get_user_info(userid)
     semestres = get_semestres()
-    today = datetime.now()
+    today = datetime.now(LOCAL_TIMEZONE)
     extras = {'datetime':today}
     extras['semestres'] = semestres
-    semestre_id = request.args.get("semestre", default=semestres[0].id_semestre, type=int)
+    if not semestres:
+        flash("nenhum semestre definido", "danger")
+        return redirect(url_for('default.home'))
+    semestre_id = request.args.get("semestre", default=semestres[0].id_semestre if semestres else '', type=int)
     extras['semestre_selecionado'] = semestre_id
     reservas_fixas = get_reservas_fixas(userid, semestre_id)
     extras['reservas_fixas'] = reservas_fixas

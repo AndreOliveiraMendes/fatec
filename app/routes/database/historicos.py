@@ -2,8 +2,8 @@ import csv
 from io import StringIO
 from flask import Blueprint, Response, jsonify, flash, session, render_template, request, abort
 from flask_sqlalchemy.pagination import SelectPagination
-from sqlalchemy import select, func, or_
-from config.general import PER_PAGE
+from sqlalchemy import select, func, or_, between
+from config.general import PER_PAGE, LOCAL_TIMEZONE
 from app.models import db, Historicos, OrigemEnum
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, parse_datetime_string, get_user_info, \
@@ -27,7 +27,7 @@ def get_origens():
 
 def filtro_intervalo(inicio_procura, fim_procura):
     if inicio_procura and fim_procura:
-        return inicio_procura <= Historicos.data_hora <= fim_procura
+        return between(Historicos.data_hora, inicio_procura, fim_procura)
     elif inicio_procura:
         return inicio_procura <= Historicos.data_hora
     elif fim_procura:
@@ -142,6 +142,8 @@ def exportar_historicos():
     formato = request.form.get('formato', 'csv')
     header = [c.name for c in Historicos.__table__.columns]
     resultados = db.session.execute(sel_historicos).scalars().all()
+    for row in resultados:
+        row.data_hora = row.data_hora.replace(tzinfo=LOCAL_TIMEZONE)
     if formato == 'csv':
         utf8_bom = '\ufeff'
         si = StringIO()

@@ -7,6 +7,7 @@ from app.models import db, Semestres, Turnos, Reservas_Fixas, TipoReservaEnum, U
 from app.auxiliar.auxiliar_routes import get_user_info, registrar_log_generico_usuario
 from app.auxiliar.dao import get_aulas_ativas_reserva, get_laboratorios
 from collections import Counter
+from config.general import LOCAL_TIMEZONE
 
 bp = Blueprint('reservas_semanais', __name__, url_prefix="/reserva_fixa")
 
@@ -48,7 +49,7 @@ def get_semestre(id_semestre):
     if len(turnos) == 0:
         flash("cadastre ao menos 1 turno", "danger")
         return redirect(url_for('default.home'))
-    now = datetime.now()
+    now = datetime.now(LOCAL_TIMEZONE)
     extras['turnos'] = turnos
     return render_template('reserva_fixa/semestre.html', username=username, perm=perm, **extras)
 
