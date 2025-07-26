@@ -39,7 +39,7 @@ def get_laboratorios(todos=True):
 
 #semestre
 def get_semestres():
-    sel_semestres = select(Semestres.id_semestre, Semestres.nome_semestre)
+    sel_semestres = select(Semestres.id_semestre, Semestres.nome_semestre).order_by(Semestres.data_inicio)
     return db.session.execute(sel_semestres).all()
 
 #dias da semana

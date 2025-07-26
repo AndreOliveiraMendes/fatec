@@ -3,5 +3,116 @@
     Reservas
 {% endblock title %}
 {% block content %}
-WIP
+    <h3>Agora: {{ datetime|datahora }}</h3>
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h3 class="panel-title">Reservas Semanais</h3>
+        </div>
+        <div class="panel-body">
+            <form method="get" action="{{ url_for('usuario.verificar_reservas') }}">
+                <label for="semestre">Semestre:</label>
+                <select name="semestre"
+                        id="semestre"
+                        class="form-control"
+                        onchange="this.form.submit()">
+                    {% for s in semestres %}
+                        <option value="{{ s.id_semestre }}"
+                                {% if s.id_semestre == semestre_selecionado %}selected{% endif %}>
+                            {{ s.nome_semestre }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </form>
+            {% if reservas_fixas %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                            <tr class="information">
+                                <th>Laboratório</th>
+                                <th>Semana</th>
+                                <th>Horário</th>
+                                <th>Tipo</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in reservas_fixas %}
+                                <tr>
+                                    <td>{{ r.laboratorios.nome_laboratorio }}</td>
+                                    <td>{{ r.aulas_ativas.dia_da_semana.nome_semana }}</td>
+                                    <td>{{ r.aulas_ativas.aulas.horario_inicio|hora }} às {{ r.aulas_ativas.aulas.horario_fim|hora }}</td>
+                                    <td>{{ r.tipo_reserva.value }}</td>
+                                    <td>
+                                        <a href="#modalCancelar{{ r.id_reserva_fixa }}"
+                                           data-toggle="modal"
+                                           class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-trash"></span> Cancelar</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% for r in reservas_fixas %}
+                    <div id="modalCancelar{{ r.id_reserva_fixa }}"
+                         class="modal fade"
+                         tabindex="-1"
+                         role="dialog">
+                        <div class="modal-dialog modal-sm" role="document">
+                            <div class="modal-content">
+                                <form method="post"
+                                      action="{{ url_for('usuario.cancelar_reserva_fixa', id_reserva=r.id_reserva_fixa) }}">
+                                    <div class="modal-header bg-danger">
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                                            <span aria-hidden="true">×</span>
+                                        </button>
+                                        <h4 class="modal-title">Confirmar cancelamento</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>
+                                            Deseja cancelar a reserva no <strong>{{ r.laboratorios.nome_laboratorio }}</strong> na <strong>{{ r.aulas_ativas.dia_da_semana.nome_semana }}</strong>?
+                                        </p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-danger">Sim, cancelar</button>
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Voltar</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="alert alert-warning" role="alert">Nenhuma reserva no semestre selecionado</div>
+            {% endif %}
+        </div>
+    </div>
+    <!--
+    <div class="panel panel-warning">
+        <div class="panel-heading">
+            <h3 class="panel-title">Reservas Temporárias</h3>
+        </div>
+        <div class="panel-body">
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>Laboratório</th>
+                        <th>Data</th>
+                        <th>Horário</th>
+                        <th>Tipo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in reservas_temporarias %}
+                        <tr>
+                            <td>{{ r.laboratorio.nome_laboratorio }}</td>
+                            <td>{{ r.data|data }}</td>
+                            <td>{{ r.horario_inicio }} às {{ r.horario_fim }}</td>
+                            <td>{{ r.tipo }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    -->
 {% endblock content %}
