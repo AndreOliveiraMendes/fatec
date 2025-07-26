@@ -5,12 +5,11 @@ from datetime import date, datetime
 from app.models import db, Semestres, Turnos, Reservas_Fixas, TipoReservaEnum, Usuarios, \
     Pessoas, Usuarios_Especiais
 from app.auxiliar.auxiliar_routes import get_user_info, registrar_log_generico_usuario
-from app.auxiliar.dao import get_aulas_ativas_reserva, get_laboratorios
+from app.auxiliar.dao import get_aulas_ativas_reserva_semestre, get_laboratorios
 from collections import Counter
 from config.general import LOCAL_TIMEZONE
 
 bp = Blueprint('reservas_semanais', __name__, url_prefix="/reserva_fixa")
-
 
 @bp.route('/')
 def main_page():
@@ -61,7 +60,7 @@ def get_turno(id_semestre, id_turno):
     turno = db.get_or_404(Turnos, id_turno)
     today = date.today()
     extras = {'semestre':semestre, 'turno':turno, 'day':today}
-    aulas = get_aulas_ativas_reserva(today, turno)
+    aulas = get_aulas_ativas_reserva_semestre(semestre, turno)
     contagem_dias = Counter(info[2].id_semana for info in aulas)
     head1 = {
         info[2].id_semana: (info[2].nome_semana, contagem_dias[info[2].id_semana])
