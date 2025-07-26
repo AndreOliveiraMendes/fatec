@@ -35,14 +35,17 @@
             <table class="table table-bordered table-striped table-hover tabela-reserva">
                 <thead>
                     <tr class="information">
-                        <th>Laboratorios</th>
-                        {% for info in aulas %}<th>{{ info[2].nome_semana }} às {{ info[1].selector_identification }}</th>{% endfor %}
+                        <th rowspan="2" class="col-fixa">Laboratorios</th>
+                        {% for dia, qt in head1.values() %}<td colspan="{{ qt }}">{{ dia }}</td>{% endfor %}
+                    </tr>
+                    <tr class="information">
+                        {% for hora in head2 %}<td>{{ hora }}</td>{% endfor %}
                     </tr>
                 </thead>
                 <tbody>
                     {% for laboratorio in laboratorios %}
                         <tr>
-                            <td>{{ laboratorio.nome_laboratorio }}</td>
+                            <td class="col-fixa">{{ laboratorio.nome_laboratorio }}</td>
                             {% for info in aulas %}
                                 <td>
                                     <input type="checkbox"
@@ -57,10 +60,8 @@
         <div class="form-group">
             <label for="tipo_reserva">Destinação da Reserva:</label>
             <select id="tipo_reserva" name="tipo_serva" required>
-            <option value="">Selecione o tipo de reserva</option>
-            {% for tr in tipo_reserva %}
-            <option value="{{ tr.value }}">{{ tr.value }}</option>
-            {% endfor %}
+                <option value="">Selecione o tipo de reserva</option>
+                {% for tr in tipo_reserva %}<option value="{{ tr.value }}">{{ tr.value }}</option>{% endfor %}
             </select>
         </div>
         {{ action_buttons('inserir', show_voltar=False, label='') }}

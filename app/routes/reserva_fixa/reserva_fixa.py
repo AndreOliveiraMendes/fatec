@@ -4,6 +4,7 @@ from datetime import date, datetime
 from app.models import db, Semestres, Turnos, Reservas_Fixas, TipoReservaEnum
 from app.auxiliar.auxiliar_routes import get_user_info
 from app.auxiliar.dao import get_aulas_ativas_reserva, get_laboratorios
+from collections import Counter
 
 bp = Blueprint('reservas_semanais', __name__, url_prefix="/reserva_fixa")
 
@@ -58,6 +59,14 @@ def get_turno(id_semestre, id_turno):
     today = date.today()
     extras = {'semestre':semestre, 'turno':turno, 'day':today}
     aulas = get_aulas_ativas_reserva(today, turno)
+    contagem_dias = Counter(info[2].id_semana for info in aulas)
+    head1 = {
+        info[2].id_semana: (info[2].nome_semana, contagem_dias[info[2].id_semana])
+        for info in aulas
+    }
+    head2 = [info[1].selector_identification for info in aulas]
+    extras['head1'] = head1
+    extras['head2'] = head2
     laboratorios = get_laboratorios(False)
     if len(aulas) == 0 or len(laboratorios) == 0:
         if len(aulas) == 0:
