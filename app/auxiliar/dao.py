@@ -184,3 +184,36 @@ def get_aulas_ativas_reserva_semestre(semestre:Semestres, turno:Turnos):
     #efetua o query e executa ele
     sel_aulas_ativas = select(Aulas_Ativas, Aulas, Dias_da_Semana).select_from(Aulas_Ativas).join(Aulas).join(Dias_da_Semana).where(*filtro).order_by(Aulas_Ativas.id_semana, Aulas.horario_inicio)
     return db.session.execute(sel_aulas_ativas).all()
+
+def get_aulas_extras(semestre:Semestres, turno:Turnos):
+    filtro = []
+    #aulas que não ocupam todo semestre
+    filtro.append(
+        or_(
+            and_(
+                Aulas_Ativas.inicio_ativacao.is_not(None),
+                Aulas_Ativas.fim_ativacao.is_(None),
+                Aulas_Ativas.inicio_ativacao <= semestre.data_fim,
+                Aulas_Ativas.inicio_ativacao > semestre.data_inicio
+            ), and_(
+                Aulas_Ativas.inicio_ativacao.is_(None),
+                Aulas_Ativas.fim_ativacao.is_not(None),
+                Aulas_Ativas.fim_ativacao >= semestre.data_inicio,
+                Aulas_Ativas.fim_ativacao < semestre.data_fim
+            ), and_(
+                Aulas_Ativas.inicio_ativacao.is_not(None),
+                Aulas_Ativas.fim_ativacao.is_not(None),
+                Aulas_Ativas.inicio_ativacao <= semestre.data_fim,
+                Aulas_Ativas.fim_ativacao >= semestre.data_inicio,
+                or_(
+                    Aulas_Ativas.inicio_ativacao > semestre.data_inicio,
+                    Aulas_Ativas.fim_ativacao < semestre.data_fim
+                )
+            )
+        )
+    )
+
+    #logica usual do turno
+    filtro.append(get_aula_turno(turno))
+    sel_aulas_ativas = select(Aulas_Ativas, Aulas, Dias_da_Semana).select_from(Aulas_Ativas).join(Aulas).join(Dias_da_Semana).where(*filtro).order_by(Aulas_Ativas.id_semana, Aulas.horario_inicio)
+    return db.session.execute(sel_aulas_ativas).all()

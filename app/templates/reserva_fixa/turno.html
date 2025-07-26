@@ -67,4 +67,33 @@
         </div>
         {{ action_buttons('inserir', show_voltar=False, label='') }}
     </form>
+    {% if aulas_extras %}
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">Horarios Extras</h3>
+            </div>
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped table-hover">
+                        <thead>
+                            <tr class="information">
+                                <th>Dia da Semana</th>
+                                <th>Horario</th>
+                                <th>Intervalo de validade</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for info in aulas_extras %}
+                                <tr>
+                                    <td>{{ info[2].nome_semana }}</td>
+                                    <td>{{ info[1].horario_inicio|hora }} - {{ info[1].horario_fim|hora }}</td>
+                                    <td>{{ info[0].inicio_ativacao|data }} - {{ info[0].fim_ativacao|data }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% endif %}
 {% endblock content %}

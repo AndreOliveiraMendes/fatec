@@ -5,7 +5,7 @@ from datetime import date, datetime
 from app.models import db, Semestres, Turnos, Reservas_Fixas, TipoReservaEnum, Usuarios, \
     Pessoas, Usuarios_Especiais
 from app.auxiliar.auxiliar_routes import get_user_info, registrar_log_generico_usuario
-from app.auxiliar.dao import get_aulas_ativas_reserva_semestre, get_laboratorios
+from app.auxiliar.dao import get_aulas_ativas_reserva_semestre, get_laboratorios, get_aulas_extras
 from collections import Counter
 from config.general import LOCAL_TIMEZONE
 
@@ -97,6 +97,7 @@ def get_turno(id_semestre, id_turno):
         helper[(r.id_reserva_laboratorio, r.id_reserva_aula)] = title
     extras['helper'] = helper
     extras['tipo_reserva'] = TipoReservaEnum
+    extras['aulas_extras'] = get_aulas_extras(semestre, turno)
     return render_template('reserva_fixa/turno.html', username=username, perm=perm, **extras)
 
 @bp.route('/semestre/<int:id_semestre>/turno/<int:id_turno>', methods=['POST'])
