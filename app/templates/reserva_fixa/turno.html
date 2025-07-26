@@ -49,6 +49,7 @@
                             {% for info in aulas %}
                                 <td>
                                     <input type="checkbox"
+                                           {% if helper[(laboratorio.id_laboratorio, info[0].id_aula_ativa)] %}class="form-check-input checkbox-danger" title="{{ helper[(laboratorio.id_laboratorio, info[0].id_aula_ativa)] }}" disabled{% endif %}
                                            name="reserva[{{ laboratorio.id_laboratorio }},{{ info[0].id_aula_ativa }}]">
                                 </td>
                             {% endfor %}
@@ -59,7 +60,7 @@
         </div>
         <div class="form-group">
             <label for="tipo_reserva">Destinação da Reserva:</label>
-            <select id="tipo_reserva" name="tipo_serva" required>
+            <select id="tipo_reserva" class="form-control" name="tipo_reserva" required>
                 <option value="">Selecione o tipo de reserva</option>
                 {% for tr in tipo_reserva %}<option value="{{ tr.value }}">{{ tr.value }}</option>{% endfor %}
             </select>

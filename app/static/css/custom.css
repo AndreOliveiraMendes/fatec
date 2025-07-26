@@ -97,31 +97,33 @@ body {
 }
 
 .tabela-reserva {
-  border-collapse: collapse;
-  width: max-content;
-  overflow-x: auto;
+    border-collapse: collapse;
+    width: max-content;
+    overflow-x: auto;
 }
 
 .tabela-reserva th,
 .tabela-reserva td {
-  padding: 8px;
-  text-align: center;
-  border: 1px solid #5bc0de;
-  white-space: nowrap;
+    padding: 8px;
+    text-align: center;
+    border: 1px solid #5bc0de;
+    white-space: nowrap;
 }
 
 /* Apenas os cabeçalhos e células da coluna fixa */
 .tabela-reserva .col-fixa {
-  position: sticky;
-  left: 0;
-  background-color: #5bc0de;
-  z-index: 3; /* acima do conteúdo normal */
+    position: sticky;
+    left: 0;
+    background-color: #5bc0de;
+    z-index: 3;
+    /* acima do conteúdo normal */
 }
 
 /* Cabeçalhos do topo */
 .tabela-reserva thead tr:first-child th {
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  background-color: #5bc0de; /* ou outra cor para cabeçalho superior */
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background-color: #5bc0de;
+    /* ou outra cor para cabeçalho superior */
 }

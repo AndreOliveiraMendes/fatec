@@ -1,8 +1,10 @@
 from flask import Blueprint, flash, session, render_template, redirect, url_for, request
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError, OperationalError
 from datetime import date, datetime
-from app.models import db, Semestres, Turnos, Reservas_Fixas, TipoReservaEnum
-from app.auxiliar.auxiliar_routes import get_user_info
+from app.models import db, Semestres, Turnos, Reservas_Fixas, TipoReservaEnum, Usuarios, \
+    Pessoas, Usuarios_Especiais
+from app.auxiliar.auxiliar_routes import get_user_info, registrar_log_generico_usuario
 from app.auxiliar.dao import get_aulas_ativas_reserva, get_laboratorios
 from collections import Counter
 
@@ -77,16 +79,61 @@ def get_turno(id_semestre, id_turno):
     extras['laboratorios'] = laboratorios
     extras['aulas'] = aulas
     sel_reservas = select(Reservas_Fixas).where(Reservas_Fixas.id_reserva_semestre == id_semestre)
-    reservas = db.session.execute(sel_reservas).all()
-    extras['reservas'] = reservas
+    reservas = db.session.execute(sel_reservas).scalars().all()
+    helper = {}
+    for r in reservas:
+        title = 'reservado por '
+        empty = True
+        if r.tipo_responsavel == 0 or r.tipo_responsavel == 2:
+            responsavel = db.get_or_404(Pessoas, r.id_responsavel)
+            title += responsavel.nome_pessoa
+            empty = False
+        if r.tipo_responsavel == 1 or r.tipo_responsavel == 2:
+            responsavel = db.get_or_404(Usuarios_Especiais, r.id_responsavel_especial)
+            if empty:
+                title += responsavel.nome_usuario_especial
+            else:
+                title += f"({responsavel.nome_usuario_especial})"
+        helper[(r.id_reserva_laboratorio, r.id_reserva_aula)] = title
+    extras['helper'] = helper
     extras['tipo_reserva'] = TipoReservaEnum
     return render_template('reserva_fixa/turno.html', username=username, perm=perm, **extras)
 
 @bp.route('/semestre/<int:id_semestre>/turno/<int:id_turno>', methods=['POST'])
 def efetuar_reserva(id_semestre, id_turno):
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = db.get_or_404(Usuarios, userid)
     semestre = db.get_or_404(Semestres, id_semestre)
-    turno = db.get_or_404(Turnos, id_turno)
-    print(request.form)
-    return "ok"
+    tipo_reserva = request.form.get('tipo_reserva')
+    checks = [key for key, value in request.form.items() if key.startswith('reserva') and value == 'on']
+    try:
+        reservas_efetuadas = []
+        for check in checks:
+            lab, aula = map(int, check.replace('reserva[', '').replace(']', '').split(','))
+
+            reserva = Reservas_Fixas(
+                id_responsavel = user.pessoas.id_pessoa,
+                id_responsavel_especial = None,
+                tipo_responsavel = 0,
+                id_reserva_laboratorio = lab,
+                id_reserva_aula = aula,
+                id_reserva_semestre = semestre.id_semestre,
+                tipo_reserva = TipoReservaEnum(tipo_reserva)
+            )
+            db.session.add(reserva)
+            reservas_efetuadas.append(reserva)
+
+        db.session.flush()
+        for reserva in reservas_efetuadas:
+            registrar_log_generico_usuario(userid, 'Inserção', reserva, observacao='atraves de reserva')
+
+        db.session.commit()
+        flash("reserva efetuada com sucesso", "success")
+    except (IntegrityError, OperationalError) as e:
+        db.session.rollback()
+        flash(f"Erro ao efetuar reserva:{str(e.orig)}", "danger")
+    except ValueError as ve:
+        db.session.rollback()
+        flash(f"Erro ao efetuar reserva:{str(ve)}", "danger")
+
+    return redirect(url_for('default.home'))
