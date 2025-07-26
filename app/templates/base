@@ -72,7 +72,10 @@
                                         <a href="{{ url_for('auth.logout') }}"><i class="glyphicon glyphicon-log-out"></i> Sair</a>
                                     </li>
                                     <li>
-                                        <a href="{{ url_for('default.perfil') }}"><i class="glyphicon glyphicon-user"></i> Perfil</a>
+                                        <a href="{{ url_for('usuario.perfil') }}"><i class="glyphicon glyphicon-user"></i> Perfil</a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ url_for('usuario.veficiar_reservas') }}"><i class="glyphicon glyphicon-list"></i> Verificar Reservas</a>
                                     </li>
                                 {% else %}
                                     <li>
