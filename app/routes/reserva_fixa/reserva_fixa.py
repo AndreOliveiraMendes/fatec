@@ -13,10 +13,9 @@ bp = Blueprint('reservas_semanais', __name__, url_prefix="/reserva_fixa")
 
 @bp.route('/')
 def main_page():
-    url = 'reservas_semanais.main_page'
     userid = session.get('userid')
     username, perm = get_user_info(userid)
-    extras = {'url':url}
+    extras = {}
     sel_semestre = select(Semestres).order_by(Semestres.data_inicio)
     semestres = db.session.execute(sel_semestre).scalars().all()
     if len(semestres) == 0:

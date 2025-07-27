@@ -1,7 +1,7 @@
 {% extends "base" %}
 {% from "macros/form.html" import action_buttons %}
 {% block title %}
-    Semestre
+    Turno
 {% endblock title %}
 {% block content %}
     <div class="btn-group">
@@ -71,14 +71,21 @@
         <div class="panel panel-info">
             <div class="panel-heading">
                 <h3 class="panel-title">
-                    <i class="glyphicon glyphicon-time"></i> Horários Extras
-                    <small data-toggle="tooltip"
-                           title="Horários válidos apenas durante parte do semestre">
-                        <i class="glyphicon glyphicon-info-sign text-muted"></i>
-                    </small>
+                    <button class="btn btn-primary"
+                            type="button"
+                            data-toggle="collapse"
+                            data-target="#collapseExtraAulas"
+                            aria-expanded="false"
+                            aria-controls="collapseExtraAulas">
+                        <i class="glyphicon glyphicon-time"></i> Horários Extras
+                        <small data-toggle="tooltip"
+                               title="Horários válidos apenas durante parte do semestre">
+                            <i class="glyphicon glyphicon-info-sign text-muted"></i>
+                        </small>
+                    </button>
                 </h3>
             </div>
-            <div class="panel-body">
+            <div class="panel-body collapse" id="collapseExtraAulas">
                 <div class="table-responsive">
                     <table class="table table-bordered table-striped table-hover">
                         <thead>

@@ -2,7 +2,7 @@ from sqlalchemy import select, and_, or_, between, union_all, literal
 from datetime import date
 from app.models import db, Pessoas, Usuarios, Usuarios_Especiais, Aulas, Laboratorios, Semestres, \
     Dias_da_Semana, Turnos, Aulas_Ativas, Reservas_Fixas, Reservas_Temporarias, Situacoes_Das_Reserva, \
-    DisponibilidadeEnum
+    DisponibilidadeEnum, TipoAulaEnum
 
 #pessoas
 def get_pessoas(acao = None, userid = None):
@@ -79,36 +79,6 @@ def get_aula_turno(turno:Turnos):
         between(Aulas.horario_fim, turno.horario_inicio, turno.horario_fim)
     )
 
-#aulas ativas para um determinado dia
-def get_aulas_ativas_reserva_dia(day:date, turno:Turnos):
-    filtro = []
-    #verifica quais horarios estão disponiveis hoje
-    filtro.append(
-        or_(
-            and_(
-                Aulas_Ativas.inicio_ativacao.is_(None),
-                Aulas_Ativas.fim_ativacao.is_(None)
-            ), and_(
-                Aulas_Ativas.inicio_ativacao.is_not(None),
-                Aulas_Ativas.fim_ativacao.is_(None),
-                Aulas_Ativas.inicio_ativacao <= day
-            ), and_(
-                Aulas_Ativas.inicio_ativacao.is_(None),
-                Aulas_Ativas.fim_ativacao.is_not(None),
-                Aulas_Ativas.fim_ativacao >= day
-            ), and_(
-                Aulas_Ativas.inicio_ativacao.is_not(None),
-                Aulas_Ativas.fim_ativacao.is_not(None),
-                between(day, Aulas_Ativas.inicio_ativacao, Aulas_Ativas.fim_ativacao)
-            )
-        )
-    )
-    #verifica quais horarios estão naquele turno
-    filtro.append(get_aula_turno(turno))
-    #efetua o query e executa ele
-    sel_aulas_ativas = select(Aulas_Ativas, Aulas, Dias_da_Semana).select_from(Aulas_Ativas).join(Aulas).join(Dias_da_Semana).where(*filtro).order_by(Aulas_Ativas.id_semana, Aulas.horario_inicio)
-    return db.session.execute(sel_aulas_ativas).all()
-
 def get_aulas_ativas_reservas_dias(dias_turnos: list[tuple[date, Turnos]]):
     selects = []
 
@@ -181,6 +151,8 @@ def get_aulas_ativas_reserva_semestre(semestre:Semestres, turno:Turnos):
     )
     #verifica quais horarios estão naquele turno
     filtro.append(get_aula_turno(turno))
+    #verifica se o horario é destinado a aula
+    filtro.append(Aulas_Ativas.tipo_aula == TipoAulaEnum.AULA.name)
     #efetua o query e executa ele
     sel_aulas_ativas = select(Aulas_Ativas, Aulas, Dias_da_Semana).select_from(Aulas_Ativas).join(Aulas).join(Dias_da_Semana).where(*filtro).order_by(Aulas_Ativas.id_semana, Aulas.horario_inicio)
     return db.session.execute(sel_aulas_ativas).all()
@@ -215,5 +187,8 @@ def get_aulas_extras(semestre:Semestres, turno:Turnos):
 
     #logica usual do turno
     filtro.append(get_aula_turno(turno))
+    #pega somente as "aulas"
+    filtro.append(Aulas_Ativas.tipo_aula == TipoAulaEnum.AULA.name)
+    #executa o select
     sel_aulas_ativas = select(Aulas_Ativas, Aulas, Dias_da_Semana).select_from(Aulas_Ativas).join(Aulas).join(Dias_da_Semana).where(*filtro).order_by(Aulas_Ativas.id_semana, Aulas.horario_inicio)
     return db.session.execute(sel_aulas_ativas).all()

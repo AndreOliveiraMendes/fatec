@@ -67,14 +67,20 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │   │   ├── default
 │   │   │   ├── __init__.py
 │   │   │   └── default.py
-│   │   └── setup
+│   │   ├── reserva_fixa
+│   │   │   ├── __init__.py
+│   │   │   └── reserva_fixa.py
+│   │   ├── setup
+│   │   │   ├── __init__.py
+│   │   │   ├── aulas.py
+│   │   │   ├── aulas_ativas.py
+│   │   │   ├── dias_da_semana.py
+│   │   │   ├── laboratorios.py
+│   │   │   ├── menu.py
+│   │   │   └── turnos.py
+│   │   └── user
 │   │       ├── __init__.py
-│   │       ├── aulas.py
-│   │       ├── aulas_ativas.py
-│   │       ├── dias_da_semana.py
-│   │       ├── laboratorios.py
-│   │       ├── menu.py
-│   │       └── turnos.py
+│   │       └── usuario.py
 │   ├── static
 │   │   ├── css
 │   │   │   └── custom.css
@@ -127,9 +133,14 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │       ├── macros
 │       │   ├── form.html
 │       │   └── pagination.html
+│       ├── reserva_fixa
+│       │   ├── main.html
+│       │   ├── semestre.html
+│       │   └── turno.html
 │       ├── under_dev.html
 │       └── usuario
-│           └── perfil.html
+│           ├── perfil.html
+│           └── reserva.html
 ├── config
 │   ├── __init__.py
 │   ├── database_views.py
