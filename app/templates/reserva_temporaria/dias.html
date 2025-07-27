@@ -17,7 +17,10 @@
         <strong>Faixa de dias selecionado:</strong> {{ dias|min|data }} - {{ dias|max|data }}
     </h3>
     <p>Escoha os turnos e objetivo da reserva</p>
-    <form class="form-group" action="{{ url_for('reservas_esporádicas.process_turnos') }}" role="form" method="post">
+    <form class="form-group"
+          role="form"
+          action="{{ url_for('reservas_esporádicas.process_turnos') }}"
+          method="post">
         <div class="table-responsive">
             <table class="table table-bordered table-striped table-hover tabela-reserva">
                 <thead>

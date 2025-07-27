@@ -1,4 +1,4 @@
-from sqlalchemy import select, and_, or_, between, union_all, literal
+from sqlalchemy import select, and_, or_, between, union_all, literal, text
 from datetime import date
 from app.models import db, Pessoas, Usuarios, Usuarios_Especiais, Aulas, Laboratorios, Semestres, \
     Dias_da_Semana, Turnos, Aulas_Ativas, Reservas_Fixas, Reservas_Temporarias, Situacoes_Das_Reserva, \
@@ -79,28 +79,44 @@ def get_aula_turno(turno:Turnos):
         between(Aulas.horario_fim, turno.horario_inicio, turno.horario_fim)
     )
 
-def get_aulas_ativas_reservas_dias(dias_turnos: list[tuple[date, Turnos]]):
+def get_aula_intervalo(inicio:date, fim:date):
+    return or_(
+        and_(
+            Aulas_Ativas.inicio_ativacao.is_(None),
+            Aulas_Ativas.fim_ativacao.is_(None)
+        ), and_(
+            Aulas_Ativas.inicio_ativacao.is_not(None),
+            Aulas_Ativas.fim_ativacao.is_(None),
+            Aulas_Ativas.inicio_ativacao <= fim
+        ), and_(
+            Aulas_Ativas.inicio_ativacao.is_(None),
+            Aulas_Ativas.fim_ativacao.is_not(None),
+            Aulas_Ativas.fim_ativacao >= inicio
+        ), and_(
+            Aulas_Ativas.inicio_ativacao.is_not(None),
+            Aulas_Ativas.fim_ativacao.is_not(None),
+            Aulas_Ativas.inicio_ativacao <= fim,
+            Aulas_Ativas.fim_ativacao >= inicio
+        )
+    )
+
+def get_aulas_ativas_reservas_dias(dias_turnos: list[tuple[date, Turnos]], tipo_aula:TipoAulaEnum):
     selects = []
 
     for day, turno in dias_turnos:
         filtros = []
 
-        # Filtro de ativação (mesmo da sua função original)
-        filtros.append(
-            or_(
-                and_(Aulas_Ativas.inicio_ativacao.is_(None), Aulas_Ativas.fim_ativacao.is_(None)),
-                and_(Aulas_Ativas.inicio_ativacao <= day, Aulas_Ativas.fim_ativacao.is_(None)),
-                and_(Aulas_Ativas.inicio_ativacao.is_(None), Aulas_Ativas.fim_ativacao >= day),
-                and_(
-                    Aulas_Ativas.inicio_ativacao.is_not(None),
-                    Aulas_Ativas.fim_ativacao.is_not(None),
-                    between(day, Aulas_Ativas.inicio_ativacao, Aulas_Ativas.fim_ativacao)
-                )
-            )
-        )
+        # Filtro de ativação no dia
+        filtros.append(get_aula_intervalo(day, day))
+
+        # Filtro de dia da semana
+        filtros.append(Aulas_Ativas.id_semana == day.weekday() + 1)
 
         # Filtro de turno
         filtros.append(get_aula_turno(turno))
+
+        # Filtro de tipo de horario
+        filtros.append(Aulas_Ativas.tipo_aula == tipo_aula)
 
         # SELECT individual com labels (pra saber de que dia/turno veio)
         sel = (
@@ -109,7 +125,7 @@ def get_aulas_ativas_reservas_dias(dias_turnos: list[tuple[date, Turnos]]):
                 Aulas,
                 Dias_da_Semana,
                 literal(day).label("dia_consulta"),
-                literal(turno.name).label("turno_consulta")
+                literal(turno.nome_turno).label("turno_consulta")
             )
             .select_from(Aulas_Ativas)
             .join(Aulas)
@@ -120,7 +136,7 @@ def get_aulas_ativas_reservas_dias(dias_turnos: list[tuple[date, Turnos]]):
         selects.append(sel)
 
     # Junta todos os selects com UNION ALL
-    consulta_final = union_all(*selects).order_by("id_semana", "horario_inicio")
+    consulta_final = union_all(*selects).order_by(text("dia_consulta"), "horario_inicio")
 
     return db.session.execute(consulta_final).all()
 
@@ -128,27 +144,7 @@ def get_aulas_ativas_reservas_dias(dias_turnos: list[tuple[date, Turnos]]):
 def get_aulas_ativas_reserva_semestre(semestre:Semestres, turno:Turnos):
     filtro = []
     #verifica quais horarios estão disponiveis naquele semestre
-    filtro.append(
-        or_(
-            and_(
-                Aulas_Ativas.inicio_ativacao.is_(None),
-                Aulas_Ativas.fim_ativacao.is_(None)
-            ), and_(
-                Aulas_Ativas.inicio_ativacao.is_not(None),
-                Aulas_Ativas.fim_ativacao.is_(None),
-                Aulas_Ativas.inicio_ativacao <= semestre.data_fim
-            ), and_(
-                Aulas_Ativas.inicio_ativacao.is_(None),
-                Aulas_Ativas.fim_ativacao.is_not(None),
-                Aulas_Ativas.fim_ativacao >= semestre.data_inicio
-            ), and_(
-                Aulas_Ativas.inicio_ativacao.is_not(None),
-                Aulas_Ativas.fim_ativacao.is_not(None),
-                Aulas_Ativas.inicio_ativacao <= semestre.data_fim,
-                Aulas_Ativas.fim_ativacao >= semestre.data_inicio
-            )
-        )
-    )
+    filtro.append(get_aula_intervalo(semestre.data_inicio, semestre.data_fim))
     #verifica quais horarios estão naquele turno
     filtro.append(get_aula_turno(turno))
     #verifica se o horario é destinado a aula
