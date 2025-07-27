@@ -1,6 +1,6 @@
 import enum
 from flask import session, redirect, url_for
-from datetime import datetime
+from datetime import date, datetime, timedelta
 from app.models import db, Usuarios, Permissoes, Historicos, OrigemEnum
 from sqlalchemy.inspection import inspect
 from typing import Literal
@@ -192,3 +192,7 @@ def register_return(url, acao, extras = None, bloco = 0, **args):
         if AFTER_ACTION == 'redirectback':
             session['acao'] = acao
         return redirect(url_for(url)), None
+
+def time_range(start:date, end:date):
+    for d in range((end - start).days + 1):
+        yield start + timedelta(d)

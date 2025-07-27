@@ -4,5 +4,49 @@
     dias
 {% endblock title %}
 {% block content %}
-<h3>dias selecionados</h3>
+    <div class="btn-group">
+        <a href="{{ url_for('reservas_esporádicas.main_page') }}"
+           class="btn btn-default">
+            <span class="glyphicon glyphicon-arrow-left"></span> Voltar
+        </a>
+        <a href="{{ url_for('default.home') }}" class="btn btn-default">
+            <span class="glyphicon glyphicon-home"></span> Início
+        </a>
+    </div>
+    <h3>
+        <strong>Faixa de dias selecionado:</strong> {{ dias|min|data }} - {{ dias|max|data }}
+    </h3>
+    <p>Escoha os turnos e objetivo da reserva</p>
+    <form class="form-group" action="{{ url_for('reservas_esporádicas.process_turnos') }}" role="form" method="post">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover tabela-reserva">
+                <thead>
+                    <tr class="information">
+                        <td class="col-fixa">Turnos</td>
+                        {% for dia in dias %}<td>{{ dia|data }}</td>{% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for turno in turnos %}
+                        <tr>
+                            <td class="col-fixa">{{ turno.nome_turno }}</td>
+                            {% for dia in dias %}
+                                <td>
+                                    <input type="checkbox" name="info[{{ dia }},{{ turno.id_turno }}]">
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="form-group">
+            <label for="tipo_horario">Destinação do horario</label>
+            <select class="form-control" id="tipo_horario" name="tipo_horario" required>
+                <option value="">selecione para qual finalidade sera o horario</option>
+                {% for ta in tipo_aula %}<option value="{{ ta.value }}">{{ ta.value }}</option>{% endfor %}
+            </select>
+        </div>
+        {{ action_buttons('inserir', show_voltar=False, label='') }}
+    </form>
 {% endblock content %}
