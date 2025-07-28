@@ -1,14 +1,12 @@
 {% extends "base" %}
 {% from "macros/form.html" import action_buttons %}
+{% from "macros/navigation.html" import go_back %}
 {% block title %}
     Turno
 {% endblock title %}
 {% block content %}
     <div class="btn-group">
-        <a href="{{ url_for('reservas_semanais.get_semestre', id_semestre=semestre.id_semestre) }}"
-           class="btn btn-default">
-            <span class="glyphicon glyphicon-arrow-left"></span> Voltar
-        </a>
+        {{ go_back() }}
         <a href="{{ url_for('default.home') }}" class="btn btn-default">
             <span class="glyphicon glyphicon-home"></span> Início
         </a>
@@ -47,11 +45,23 @@
                         <tr>
                             <td class="col-fixa">{{ laboratorio.nome_laboratorio }}</td>
                             {% for info in aulas %}
-                                <td>
-                                    <input type="checkbox"
-                                           {% if helper[(laboratorio.id_laboratorio, info[0].id_aula_ativa)] %}class="form-check-input checkbox-danger" title="{{ helper[(laboratorio.id_laboratorio, info[0].id_aula_ativa)] }}" disabled{% endif %}
-                                           name="reserva[{{ laboratorio.id_laboratorio }},{{ info[0].id_aula_ativa }}]">
-                                </td>
+                                {% set reservado = helper[(laboratorio.id_laboratorio, info[0].id_aula_ativa)] %}
+                                {% if reservado %}
+                                    <td class="reservado" title="{{ reservado }}">
+                                        <span class="sr-only">Reservado</span>
+                                        <input type="checkbox"
+                                               class="form-check-input checkbox-danger"
+                                               title="{{ reservado }}"
+                                               name="reserva[{{ laboratorio.id_laboratorio }},{{ info[0].id_aula_ativa }}]"
+                                               disabled>
+                                    </td>
+                                {% else %}
+                                    <td>
+                                        <input type="checkbox"
+                                               class="form-check-input"
+                                               name="reserva[{{ laboratorio.id_laboratorio }},{{ info[0].id_aula_ativa }}]">
+                                    </td>
+                                {% endif %}
                             {% endfor %}
                         </tr>
                     {% endfor %}

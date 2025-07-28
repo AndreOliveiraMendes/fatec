@@ -1,13 +1,11 @@
 {% extends "base" %}
+{% from "macros/navigation.html" import go_back %}
 {% block title %}
     Semestre
 {% endblock title %}
 {% block content %}
     <div class="btn-group">
-        <a href="{{ url_for('reservas_semanais.main_page') }}"
-           class="btn btn-default">
-            <span class="glyphicon glyphicon-arrow-left"></span> Voltar
-        </a>
+        {{ go_back() }}
         <a href="{{ url_for('default.home') }}" class="btn btn-default">
             <span class="glyphicon glyphicon-home"></span> Início
         </a>

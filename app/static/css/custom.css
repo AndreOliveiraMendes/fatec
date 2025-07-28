@@ -119,3 +119,9 @@ body {
     vertical-align: middle;
     /* acima do conteúdo normal */
 }
+
+/* horarios reservados */
+.reservado {
+    background-color: #eee;
+    cursor: not-allowed;
+}

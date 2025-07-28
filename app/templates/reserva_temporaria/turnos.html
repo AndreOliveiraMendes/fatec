@@ -1,14 +1,12 @@
 {% extends "base" %}
 {% from "macros/form.html" import action_buttons %}
+{% from "macros/navigation.html" import go_back %}
 {% block title %}
     turnos
 {% endblock title %}
 {% block content %}
     <div class="btn-group">
-        <a href="{{ url_for('reservas_esporádicas.main_page') }}"
-           class="btn btn-default">
-            <span class="glyphicon glyphicon-arrow-left"></span> Voltar
-        </a>
+        {{ go_back() }}
         <a href="{{ url_for('default.home') }}" class="btn btn-default">
             <span class="glyphicon glyphicon-home"></span> Início
         </a>
@@ -41,7 +39,7 @@
                             {% for info in aulas %}
                                 <td>
                                     <input type="checkbox"
-                                           name="reserva[{{ laboratorio.id_laboratorio }},{{ info.id_aula_ativa }}]">
+                                           name="reserva[{{ laboratorio.id_laboratorio }},{{ info.id_aula_ativa }},{{ info.dia_consulta }}]">
                                 </td>
                             {% endfor %}
                         </tr>
