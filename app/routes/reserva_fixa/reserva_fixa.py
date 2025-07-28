@@ -60,10 +60,17 @@ def get_turno(id_semestre, id_turno):
     today = date.today()
     extras = {'semestre':semestre, 'turno':turno, 'day':today}
     aulas = get_aulas_ativas_reserva_semestre(semestre, turno)
-    contagem_dias = Counter(info[2].id_semana for info in aulas)
-    label = {info[2].id_semana:info[2].nome_semana for info in aulas}
-    head1 = [(label[info[0]], info[1]) for info in contagem_dias.items()]
-    head2 = [info[1].selector_identification for info in aulas]
+    contagem_dias = Counter()
+    label = {}
+    head2 = []
+
+    for info in aulas:
+        semana = info[2]
+        contagem_dias[semana.id_semana] += 1
+        label[semana.id_semana] = semana.nome_semana
+        head2.append(info[1].selector_identification)
+
+    head1 = [(label[id_semana], count) for id_semana, count in contagem_dias.items()]
     extras['head1'] = head1
     extras['head2'] = head2
     laboratorios = get_laboratorios(False)
