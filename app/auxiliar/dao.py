@@ -2,7 +2,7 @@ from sqlalchemy import select, and_, or_, between, union_all, literal, text
 from datetime import date
 from app.models import db, Pessoas, Usuarios, Usuarios_Especiais, Aulas, Laboratorios, Semestres, \
     Dias_da_Semana, Turnos, Aulas_Ativas, Reservas_Fixas, Reservas_Temporarias, Situacoes_Das_Reserva, \
-    DisponibilidadeEnum, TipoAulaEnum
+    DisponibilidadeEnum, TipoAulaEnum, TipoLaboratorioEnum
 
 #pessoas
 def get_pessoas(acao = None, userid = None):
@@ -31,10 +31,14 @@ def get_aulas():
     return db.session.execute(sel_aulas).scalars().all()
 
 #laboratorios
-def get_laboratorios(todos=True):
+def get_laboratorios(todos=True, sala=False):
     sel_laboratorios = select(Laboratorios.id_laboratorio, Laboratorios.nome_laboratorio)
     if not todos:
-        sel_laboratorios.where(Laboratorios.disponibilidade == DisponibilidadeEnum.DISPONIVEL)
+        filtro = []
+        filtro.append(Laboratorios.disponibilidade == DisponibilidadeEnum.DISPONIVEL)
+        if not sala:
+            filtro.append(Laboratorios.tipo == TipoLaboratorioEnum.LABORATORIO)
+        sel_laboratorios.where(*filtro)
     return db.session.execute(sel_laboratorios).all()
 
 #semestre

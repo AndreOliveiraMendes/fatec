@@ -5,7 +5,7 @@ from datetime import date, datetime
 from app.models import db, TipoAulaEnum, Turnos
 from app.auxiliar.auxiliar_routes import get_user_info, registrar_log_generico_usuario, parse_date_string, \
     time_range, none_if_empty
-from app.auxiliar.dao import get_turnos, get_aulas_ativas_reservas_dias
+from app.auxiliar.dao import get_turnos, get_laboratorios, get_aulas_ativas_reservas_dias
 from collections import Counter
 
 bp = Blueprint('reservas_esporádicas', __name__, url_prefix="/reserva_temporaria")
@@ -43,6 +43,40 @@ def process_turnos():
     tipo_aula = TipoAulaEnum(tipo_horario)
     brute_chks = [(key.replace('info[', '').replace(']', '').split(',')) for key, value in request.form.items() if 'info' in key and value == 'on']
     chks = [(parse_date_string(chk[0]), db.get_or_404(Turnos, chk[1])) for chk in brute_chks]
-    aulas_ativas = get_aulas_ativas_reservas_dias(chks, tipo_aula)
-    extras['aulas_ativas'] = aulas_ativas
+    aulas = get_aulas_ativas_reservas_dias(chks, tipo_aula)
+    laboratorios = get_laboratorios(False, True)
+    if len(aulas) == 0 or len(laboratorios) == 0:
+        if len(aulas) == 0:
+            flash("não há horarios disponiveis nesse turno", "danger")
+        if len(laboratorios) == 0:
+            flash("não há laboratorio disponiveis para reserva", "danger")
+        return redirect(url_for('default.home'))
+    extras['laboratorios'] = laboratorios
+    extras['aulas'] = aulas
+
+    contagem_dias = Counter()
+    contagem_turnos = Counter()
+    label_dia = {}
+    head1 = []
+    head2 = []
+    head3 = []
+
+    for info in aulas:
+        dia_consulta = parse_date_string(info.dia_consulta)
+        turno = info.turno_consulta
+        contagem_dias[dia_consulta] += 1
+        contagem_turnos[(dia_consulta, turno)] += 1
+        label_dia[dia_consulta] = info.nome_semana
+        head3.append((info.horario_inicio, info.horario_fim))
+
+    for dia, count in contagem_dias.items():
+        head1.append((dia, label_dia[dia], count))
+    for info, count in contagem_turnos.items():
+        turno = info[1]
+        head2.append((turno, count))
+
+    extras['head1'] = head1
+    extras['head2'] = head2
+    extras['head3'] = head3
+
     return render_template('reserva_temporaria/turnos.html', username=username, perm=perm, **extras)

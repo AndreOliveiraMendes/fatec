@@ -60,6 +60,15 @@ def get_turno(id_semestre, id_turno):
     today = date.today()
     extras = {'semestre':semestre, 'turno':turno, 'day':today}
     aulas = get_aulas_ativas_reserva_semestre(semestre, turno)
+    laboratorios = get_laboratorios(False)
+    if len(aulas) == 0 or len(laboratorios) == 0:
+        if len(aulas) == 0:
+            flash("não há horarios disponiveis nesse turno", "danger")
+        if len(laboratorios) == 0:
+            flash("não há laboratorio disponiveis para reserva", "danger")
+        return redirect(url_for('default.home'))
+    extras['laboratorios'] = laboratorios
+    extras['aulas'] = aulas
     contagem_dias = Counter()
     label = {}
     head2 = []
@@ -73,15 +82,6 @@ def get_turno(id_semestre, id_turno):
     head1 = [(label[id_semana], count) for id_semana, count in contagem_dias.items()]
     extras['head1'] = head1
     extras['head2'] = head2
-    laboratorios = get_laboratorios(False)
-    if len(aulas) == 0 or len(laboratorios) == 0:
-        if len(aulas) == 0:
-            flash("não há horarios disponiveis nesse turno", "danger")
-        if len(laboratorios) == 0:
-            flash("não há laboratorio disponiveis para reserva", "danger")
-        return redirect(url_for('default.home'))
-    extras['laboratorios'] = laboratorios
-    extras['aulas'] = aulas
     sel_reservas = select(Reservas_Fixas).where(Reservas_Fixas.id_reserva_semestre == id_semestre)
     reservas = db.session.execute(sel_reservas).scalars().all()
     helper = {}

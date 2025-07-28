@@ -119,12 +119,3 @@ body {
     vertical-align: middle;
     /* acima do conteúdo normal */
 }
-
-/* Cabeçalhos do topo */
-.tabela-reserva thead tr:first-child th {
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    background-color: #5bc0de;
-    /* ou outra cor para cabeçalho superior */
-}

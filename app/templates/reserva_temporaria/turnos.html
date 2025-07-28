@@ -4,10 +4,55 @@
     turnos
 {% endblock title %}
 {% block content %}
+    <div class="btn-group">
+        <a href="{{ url_for('reservas_esporádicas.main_page') }}"
+           class="btn btn-default">
+            <span class="glyphicon glyphicon-arrow-left"></span> Voltar
+        </a>
+        <a href="{{ url_for('default.home') }}" class="btn btn-default">
+            <span class="glyphicon glyphicon-home"></span> Início
+        </a>
+    </div>
+    <h3>Reserva Esporádica</h3>
+    <p>
+        <strong>Laboratorios disponiveis:</strong> {{ laboratorios|length }}
+        <br>
+        <strong>Horarios disponiveis:</strong> {{ aulas|length }}
+    </p>
     <form class="form-group" role="form" method="post">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover tabela-reserva">
+                <thead>
+                    <tr class="information">
+                        <th rowspan="3" class="col-fixa">Laboratorios</th>
+                        {% for dia, semana, qt in head1 %}<th colspan="{{ qt }}">{{ dia|data }} - {{ semana }}</th>{% endfor %}
+                    </tr>
+                    <tr class="information">
+                        {% for turno, qt in head2 %}<th colspan="{{ qt }}">{{ turno }}</th>{% endfor %}
+                    </tr>
+                    <tr class="information">
+                        {% for inicio, fim in head3 %}<th>{{ inicio|hora }} - {{ fim|hora }}</th>{% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for laboratorio in laboratorios %}
+                        <tr>
+                            <td class="col-fixa">{{ laboratorio.nome_laboratorio }}</td>
+                            {% for info in aulas %}
+                                <td>
+                                    <input type="checkbox"
+                                           name="reserva[{{ laboratorio.id_laboratorio }},{{ info.id_aula_ativa }}]">
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {{ action_buttons('inserir', show_voltar=False, label='') }}
     </form>
 {% endblock content %}
-{# 
+{#
     {'id_aula_ativa': 28,
     'id_aula': 4,
     'inicio_ativacao': None,
