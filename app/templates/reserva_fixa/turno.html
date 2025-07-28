@@ -36,7 +36,7 @@
                 <thead>
                     <tr class="information">
                         <th rowspan="2" class="col-fixa">Laboratorios</th>
-                        {% for dia, qt in head1.values() %}<td colspan="{{ qt }}">{{ dia }}</td>{% endfor %}
+                        {% for dia, qt in head1 %}<td colspan="{{ qt }}">{{ dia }}</td>{% endfor %}
                     </tr>
                     <tr class="information">
                         {% for hora in head2 %}<td>{{ hora }}</td>{% endfor %}
