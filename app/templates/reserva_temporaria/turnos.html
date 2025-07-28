@@ -17,7 +17,7 @@
         <br>
         <strong>Horarios disponiveis:</strong> {{ aulas|length }}
     </p>
-    <form class="form-group" role="form" method="post">
+    <form class="form-group" role="form" action="{{ url_for('reservas_esporádicas.efetuar_reserva') }}" method="post">
         <div class="table-responsive">
             <table class="table table-bordered table-striped table-hover tabela-reserva">
                 <thead>
@@ -46,6 +46,13 @@
                     {% endfor %}
                 </tbody>
             </table>
+        </div>
+        <div class="form-group">
+            <label for="tipo_reserva">Destinação da Reserva:</label>
+            <select id="tipo_reserva" class="form-control" name="tipo_reserva" required>
+                <option value="">Selecione o tipo de reserva</option>
+                {% for tr in tipo_reserva %}<option value="{{ tr.value }}">{{ tr.value }}</option>{% endfor %}
+            </select>
         </div>
         {{ action_buttons('inserir', show_voltar=False, label='') }}
     </form>

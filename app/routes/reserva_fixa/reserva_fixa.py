@@ -111,6 +111,9 @@ def efetuar_reserva(id_semestre, id_turno):
     semestre = db.get_or_404(Semestres, id_semestre)
     tipo_reserva = request.form.get('tipo_reserva')
     checks = [key for key, value in request.form.items() if key.startswith('reserva') and value == 'on']
+    if not checks:
+        flash("voce não selecionou reserva alguma", "warning")
+        return redirect(url_for('default.home'))
     try:
         reservas_efetuadas = []
         for check in checks:

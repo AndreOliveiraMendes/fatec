@@ -2,13 +2,28 @@ from flask import Blueprint, flash, session, render_template, redirect, url_for,
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, OperationalError
 from datetime import date, datetime
-from app.models import db, TipoAulaEnum, Turnos
+from app.models import db, TipoAulaEnum, TipoReservaEnum, Turnos
 from app.auxiliar.auxiliar_routes import get_user_info, registrar_log_generico_usuario, parse_date_string, \
     time_range, none_if_empty
 from app.auxiliar.dao import get_turnos, get_laboratorios, get_aulas_ativas_reservas_dias
 from collections import Counter
 
 bp = Blueprint('reservas_esporádicas', __name__, url_prefix="/reserva_temporaria")
+
+def agrupar_dias(dias:list[date]):
+    if not dias:
+        return []
+    
+    dias = sorted(dias)
+    grupos = [[dias[0]]]
+
+    for dia in dias[1:]:
+        if (dia - grupos[-1][-1]).days <= 7:
+            grupos[-1].append(dia)
+        else:
+            grupos.append([dia])
+    
+    return grupos
 
 @bp.route('/', methods=['GET', 'POST'])
 def main_page():
@@ -47,7 +62,7 @@ def process_turnos():
     laboratorios = get_laboratorios(False, True)
     if len(aulas) == 0 or len(laboratorios) == 0:
         if len(aulas) == 0:
-            flash("não há horarios disponiveis nesse turno", "danger")
+            flash(f"não há horarios desta finalizada ({tipo_aula.value}) disponiveis nesse turno", "danger")
         if len(laboratorios) == 0:
             flash("não há laboratorio disponiveis para reserva", "danger")
         return redirect(url_for('default.home'))
@@ -79,4 +94,32 @@ def process_turnos():
     extras['head2'] = head2
     extras['head3'] = head3
 
+    extras['tipo_reserva'] = TipoReservaEnum
     return render_template('reserva_temporaria/turnos.html', username=username, perm=perm, **extras)
+
+@bp.route("/turno", methods=['POST'])
+def efetuar_reserva():
+    userid = session.get('userid')
+    username, perm = get_user_info(userid)
+    tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
+    
+    dias_reservados = {}
+    for key, value in request.form.items():
+        if key.startswith('reserva') and value == 'on':
+            lab, aula, dia = key.replace('reserva[', '').replace(']', '').split(",")
+            lab = int(lab)
+            aula = int(aula)
+            dia = parse_date_string(dia)
+            if not (lab, aula) in dias_reservados:
+                dias_reservados[(lab, aula)] = []
+            dias_reservados[(lab, aula)].append(dia)
+
+    if not dias_reservados:
+        flash("voce não selecionou nenhum dia para reserva", "warning")
+        return redirect(url_for('default.home'))
+    
+    for key, value in dias_reservados.items():
+        dias_reservados[key] = agrupar_dias(value)
+    print(dias_reservados)
+
+    return "ok"

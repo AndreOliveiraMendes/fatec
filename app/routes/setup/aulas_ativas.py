@@ -33,6 +33,9 @@ def fast_setup_aulas_ativas():
         termino = parse_date_string(request.form.get('termino'))
         tipo = none_if_empty(request.form.get('tipo_aula'))
 
+        if not checks:
+            flash("voce não selecionou horarios", "warning")
+            return redirect(url_for('setup.fast_setup_menu'))
         try:
             aulas_ativas = []
             for check in checks:

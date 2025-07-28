@@ -30,6 +30,9 @@ def fast_setup_aulas():
                 horarios[aula][situacao] = parse_time_string(v)
         quantidade_maxima = next(i for i in range(len(horarios) + 1)
             if i not in horarios or not horarios[i].get('inicio') or not horarios[i].get('termino'))
+        if quantidade_maxima == 0:
+            flash("voce não selecionou horarios", "warning")
+            return redirect(url_for('setup.fast_setup_menu'))
         try:
             aulas = []
             for i in range(quantidade_maxima):

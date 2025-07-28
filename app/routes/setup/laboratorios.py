@@ -40,6 +40,9 @@ def fast_setup_laboratorios():
             i for i in range(len(data) + 1) if i not in data or not data[i].get('nome_laboratorio')
         )
 
+        if quantidade_maxima == 0:
+            flash("não há nada definido para realizar a configuração", "warning")
+            return redirect(url_for('setup.fast_setup_menu'))
         try:
             laboratorios = []
             for i in range(quantidade_maxima):

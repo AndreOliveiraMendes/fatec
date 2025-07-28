@@ -43,6 +43,9 @@ def fast_setup_dias_da_semana():
                     dias_da_semana[row]['name'] = v
         quantidade_maxima = next(i for i in range(len(dias_da_semana) + 1)
             if i not in dias_da_semana or not dias_da_semana[i].get('codigo') or not dias_da_semana[i].get('name'))
+        if quantidade_maxima == 0:
+            flash("não há nada definido para realizar a configuração", "warning")
+            return redirect(url_for('setup.fast_setup_menu'))
         try:
             semana = []
             for i in range(quantidade_maxima):

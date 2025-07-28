@@ -38,6 +38,9 @@ def fast_setup_turnos():
             or not turnos[i].get('nome')
             or not turnos[i].get('inicio')
             or not turnos[i].get('fim'))
+        if quantidade_maxima == 0:
+            flash("não há nada definido para realizar a configuração", "warning")
+            return redirect(url_for('setup.fast_setup_menu'))
         try:
             periodos = []
             for i in range(quantidade_maxima):
