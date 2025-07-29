@@ -1,10 +1,10 @@
 from flask import Blueprint, session, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy.pagination import SelectPagination
-from datetime import datetime
-from sqlalchemy import select
+from datetime import datetime, date
+from sqlalchemy import select, between
 from sqlalchemy.exc import IntegrityError, OperationalError
 from app.models import db, Usuarios, Reservas_Fixas, Reservas_Temporarias
-from app.auxiliar.auxiliar_routes import get_user_info, registrar_log_generico_usuario
+from app.auxiliar.auxiliar_routes import get_user_info, registrar_log_generico_usuario, parse_date_string
 from app.auxiliar.decorators import login_required
 from app.auxiliar.dao import get_semestres
 from config.general import LOCAL_TIMEZONE
@@ -22,11 +22,12 @@ def get_reservas_fixas(userid, semestre, page):
     )
     return pagination
 
-def get_reservas_temporarias(userid, page):
+def get_reservas_temporarias(userid, dia, page):
     user = db.session.get(Usuarios, userid)
-    sel_reservas = select(Reservas_Temporarias).where(
-        Reservas_Temporarias.id_responsavel == user.pessoas.id_pessoa
-    )
+    filtro = [Reservas_Temporarias.id_responsavel == user.pessoas.id_pessoa]
+    if dia is not None:
+        filtro.append(between(dia, Reservas_Temporarias.inicio_reserva, Reservas_Temporarias.fim_reserva))
+    sel_reservas = select(Reservas_Temporarias).where(*filtro).order_by(Reservas_Temporarias.inicio_reserva)
     pagination = SelectPagination(select=sel_reservas, session=db.session,
         page=page, per_page=5, error_out=False
     )
@@ -89,3 +90,20 @@ def cancelar_reserva_fixa(id_reserva):
         flash(f"erro ao excluir reserva:{str(e.orig)}", "danger")
 
     return redirect(url_for('usuario.gerenciar_reserva_fixa'))
+
+@bp.route("/reserva/reservas_temporarias")
+@login_required
+def gerenciar_reserva_temporaria():
+    userid = session.get('userid')
+    username, perm = get_user_info(userid)
+    today = datetime.now(LOCAL_TIMEZONE)
+    extras = {'datetime':today}
+    dia = parse_date_string(request.args.get('dia'))
+    page = int(request.args.get("page", 1))
+    extras['dia_selecionado'] = dia
+    reservas_temporarias = get_reservas_temporarias(userid, dia, page)
+    extras['reservas_temporarias'] = reservas_temporarias.items
+    extras['pagination'] = reservas_temporarias
+    args_extras = {key:value for key, value in request.args.items() if key != 'page'}
+    extras['args_extras'] = args_extras
+    return render_template("usuario/reserva_temporaria.html", username=username, perm=perm, **extras)

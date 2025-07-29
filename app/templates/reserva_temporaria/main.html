@@ -10,15 +10,15 @@
         </a>
     </div>
     <h3>
-        <strong>Reserva Esporádica</strong> dia: {{ day|data }}
+        <strong>Reserva Avulsa</strong> dia: {{ day|data }}
     </h3>
     <p>Escolha os dias a seren reservados</p>
     <form class="form-group"
           role="form"
-          action="{{ url_for('reservas_esporádicas.main_page') }}"
+          action="{{ url_for('reservas_fixas.main_page') }}"
           method="post">
         <div class="form-group">
-            <label for="dia_inicio">primeiro dia da reserva esporádica:</label>
+            <label for="dia_inicio">primeiro dia da reserva Avulsa:</label>
             <input type="date"
                    class="form-control"
                    id="dia_inicio"
@@ -26,7 +26,7 @@
                    required>
         </div>
         <div class="form-group">
-            <label for="dia_fim">primeiro dia da reserva esporádica:</label>
+            <label for="dia_fim">primeiro dia da reserva Avulsa:</label>
             <input type="date" class="form-control" id="dia_fim" name="dia_fim" required>
         </div>
         {{ action_buttons('inserir', show_voltar=False, label='') }}

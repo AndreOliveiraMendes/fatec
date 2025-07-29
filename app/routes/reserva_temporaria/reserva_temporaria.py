@@ -10,7 +10,7 @@ from app.auxiliar.dao import get_turnos, get_laboratorios, get_aulas_ativas_rese
     check_reserva_temporaria
 from collections import Counter
 
-bp = Blueprint('reservas_esporádicas', __name__, url_prefix="/reserva_temporaria")
+bp = Blueprint('reservas_fixas', __name__, url_prefix="/reserva_temporaria")
 
 def agrupar_dias(dias:list[date]):
     if not dias:

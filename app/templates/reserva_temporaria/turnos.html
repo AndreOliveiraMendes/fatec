@@ -11,7 +11,7 @@
             <span class="glyphicon glyphicon-home"></span> Início
         </a>
     </div>
-    <h3>Reserva Esporádica</h3>
+    <h3>Reserva Avulsa</h3>
     <p>
         <strong>Laboratorios disponiveis:</strong> {{ laboratorios|length }}
         <br>
@@ -19,7 +19,7 @@
     </p>
     <form class="form-group"
           role="form"
-          action="{{ url_for('reservas_esporádicas.efetuar_reserva') }}"
+          action="{{ url_for('reservas_fixas.efetuar_reserva') }}"
           method="post">
         <div class="table-responsive">
             <table class="table table-bordered table-striped table-hover tabela-reserva">

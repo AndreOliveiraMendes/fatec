@@ -1,9 +1,9 @@
-from flask import url_for
+from flask import url_for, Flask
 from markupsafe import Markup
 from app.auxiliar.constant import PERMISSIONS
 from config.database_views import TABLES_PER_LINE, SECOES
 
-def register_filters(app):
+def register_filters(app:Flask):
     @app.template_global()
     def dynamic_redirect(seconds=5, message=None, target_url=None):
         if message is None:
@@ -37,6 +37,21 @@ def register_filters(app):
     @app.template_global()
     def refresh_page(time):
         script = f"""<meta http-equiv="refresh" content="{time}">"""
+        return Markup(script)
+
+    @app.template_global()
+    def refresh_page_full_minute_script():
+        script = (
+            f"""function scheduleReload() {{\n"""
+            f"""    const now = new Date();\n"""
+            f"""    const msUntilNextMinute = 60000 - (now.getSeconds() * 1000 + now.getMilliseconds());\n"""
+            f"""    setTimeout(() => {{\n"""
+            f"""        location.reload();\n"""
+            f"""    }}, msUntilNextMinute);\n"""
+            f"""}}\n"""
+            f"""\n"""
+            f"""scheduleReload();"""
+        )
         return Markup(script)
 
     @app.template_global()

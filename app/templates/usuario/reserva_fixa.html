@@ -5,7 +5,7 @@
     Reservas Semestrais (fixas)
 {% endblock title %}
 {% block extra_head %}
-    {{ refresh_page(60) }}
+    <noscript>{{ refresh_page(60) }}</noscript>
 {% endblock extra_head %}
 {% block content %}
     <div class="btn-group">
@@ -26,7 +26,7 @@
                         id="semestre"
                         class="form-control"
                         onchange="this.form.submit()">
-                        <option value="">selecione o semestre</option>
+                    <option value="">selecione o semestre</option>
                     {% for s in semestres %}
                         <option value="{{ s.id_semestre }}"
                                 {% if s.id_semestre == semestre_selecionado %}selected{% endif %}>
@@ -57,7 +57,7 @@
                                     <td>{{ r.aulas_ativas.aulas.horario_inicio|hora }} às {{ r.aulas_ativas.aulas.horario_fim|hora }}</td>
                                     <td>{{ r.tipo_reserva.value }}</td>
                                     <td>
-                                        <a href="#modalCancelara{{ r.id_reserva_fixa }}"
+                                        <a href="#modalCancelar{{ r.id_reserva_fixa }}"
                                            data-toggle="modal"
                                            class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-trash"></span> Cancelar</a>
                                     </td>
@@ -68,7 +68,7 @@
                 </div>
                 {{ render_pagination(pagination, 'usuario.gerenciar_reserva_fixa', args_extras) }}
                 {% for r in reservas_fixas %}
-                    <div id="modalCancelara{{ r.id_reserva_fixa }}"
+                    <div id="modalCancelar{{ r.id_reserva_fixa }}"
                          class="modal fade"
                          tabindex="-1"
                          role="dialog">
@@ -102,8 +102,11 @@
         </div>
     </div>
 {% endblock content %}
+{% block extra_script %}
+    <script>{{ refresh_page_full_minute_script() }}</script>
+{% endblock extra_script %}
 {% block footer %}
     <p class="text-muted">
-        <small>Esta página se atualiza automaticamente a cada 60 segundos.</small>
+        <small>Esta página se atualiza automaticamente.</small>
     </p>
 {% endblock footer %}

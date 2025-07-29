@@ -12,7 +12,8 @@
     <div class="btn-group-vertical">
         <a href="{{ url_for('usuario.gerenciar_reserva_fixa') }}"
            class="btn btn-primary">Reserva Semestral</a>
-        <a href="" class="btn btn-primary">Reserva Exporadica</a>
+        <a href="{{ url_for('usuario.gerenciar_reservas_temporarias') }}"
+           class="btn btn-primary">Reserva Avulsa</a>
     </div>
 {% endblock content %}
 {% block footer %}
