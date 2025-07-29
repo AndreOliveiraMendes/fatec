@@ -193,6 +193,8 @@ def register_return(url, acao, extras = None, bloco = 0, **args):
             session['acao'] = acao
         return redirect(url_for(url)), None
 
-def time_range(start:date, end:date):
-    for d in range((end - start).days + 1):
-        yield start + timedelta(d)
+def time_range(start:date, end:date, step:int = 1):
+    day = start
+    while start <= day <= end:
+        yield day
+        day += timedelta(step)

@@ -17,7 +17,10 @@
         <br>
         <strong>Horarios disponiveis:</strong> {{ aulas|length }}
     </p>
-    <form class="form-group" role="form" action="{{ url_for('reservas_esporádicas.efetuar_reserva') }}" method="post">
+    <form class="form-group"
+          role="form"
+          action="{{ url_for('reservas_esporádicas.efetuar_reserva') }}"
+          method="post">
         <div class="table-responsive">
             <table class="table table-bordered table-striped table-hover tabela-reserva">
                 <thead>
@@ -37,10 +40,23 @@
                         <tr>
                             <td class="col-fixa">{{ laboratorio.nome_laboratorio }}</td>
                             {% for info in aulas %}
-                                <td>
-                                    <input type="checkbox"
-                                           name="reserva[{{ laboratorio.id_laboratorio }},{{ info.id_aula_ativa }},{{ info.dia_consulta }}]">
-                                </td>
+                                {% set reservado = helper[(laboratorio.id_laboratorio, info.id_aula_ativa, info.dia_consulta)] %}
+                                {% if reservado %}
+                                    <td class="reservado" title="{{ reservado }}">
+                                        <span class="sr-only">Reservado</span>
+                                        <input type="checkbox"
+                                               class="form-check-input checkbox-danger"
+                                               title="{{ reservado }}"
+                                               name="reserva[{{ laboratorio.id_laboratorio }},{{ info.id_aula_ativa }},{{ info.dia_consulta }}]"
+                                               disabled>
+                                    </td>
+                                {% else %}
+                                    <td>
+                                        <input type="checkbox"
+                                               class="form-check-input"
+                                               name="reserva[{{ laboratorio.id_laboratorio }},{{ info.id_aula_ativa }},{{ info.dia_consulta }}]">
+                                    </td>
+                                {% endif %}
                             {% endfor %}
                         </tr>
                     {% endfor %}

@@ -1,11 +1,13 @@
 from flask import Blueprint, flash, session, render_template, redirect, url_for, request, abort
-from sqlalchemy import select
+from sqlalchemy import select, between
 from sqlalchemy.exc import IntegrityError, OperationalError
-from datetime import date, datetime
-from app.models import db, TipoAulaEnum, TipoReservaEnum, Turnos
-from app.auxiliar.auxiliar_routes import get_user_info, registrar_log_generico_usuario, parse_date_string, \
-    time_range, none_if_empty
-from app.auxiliar.dao import get_turnos, get_laboratorios, get_aulas_ativas_reservas_dias
+from datetime import date
+from app.models import db, Reservas_Temporarias, TipoAulaEnum, TipoReservaEnum, Turnos, Usuarios, \
+    Pessoas, Usuarios_Especiais
+from app.auxiliar.auxiliar_routes import get_user_info, registrar_log_generico_usuario, \
+    parse_date_string, time_range, none_if_empty
+from app.auxiliar.dao import get_turnos, get_laboratorios, get_aulas_ativas_reservas_dias, \
+    check_reserva_temporaria
 from collections import Counter
 
 bp = Blueprint('reservas_esporádicas', __name__, url_prefix="/reserva_temporaria")
@@ -95,12 +97,37 @@ def process_turnos():
     extras['head3'] = head3
 
     extras['tipo_reserva'] = TipoReservaEnum
+    filtro = []
+    inicio, fim = min(label_dia.keys()), max(label_dia.keys())
+    filtro.append(between(Reservas_Temporarias.inicio_reserva, inicio, fim))
+    filtro.append(between(Reservas_Temporarias.fim_reserva, inicio, fim))
+    sel_reserva = select(Reservas_Temporarias).where(*filtro)
+    reservas = db.session.execute(sel_reserva).scalars().all()
+    helper = {}
+    for r in reservas:
+        title = 'reservado por '
+        empty = True
+        if r.tipo_responsavel == 0 or r.tipo_responsavel == 2:
+            responsavel = db.get_or_404(Pessoas, r.id_responsavel)
+            title += responsavel.nome_pessoa
+            empty = False
+        if r.tipo_responsavel == 1 or r.tipo_responsavel == 2:
+            responsavel = db.get_or_404(Usuarios_Especiais, r.id_responsavel_especial)
+            if empty:
+                title += responsavel.nome_usuario_especial
+            else:
+                title += f"({responsavel.nome_usuario_especial})"
+
+        days = [day.strftime('%Y-%m-%d') for day in time_range(r.inicio_reserva, r.fim_reserva, 7)]
+        for day in days:
+            helper[(r.id_reserva_laboratorio, r.id_reserva_aula, day)] = title
+    extras['helper'] = helper
     return render_template('reserva_temporaria/turnos.html', username=username, perm=perm, **extras)
 
 @bp.route("/turno", methods=['POST'])
 def efetuar_reserva():
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = db.get_or_404(Usuarios, userid)
     tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
     
     dias_reservados = {}
@@ -120,6 +147,38 @@ def efetuar_reserva():
     
     for key, value in dias_reservados.items():
         dias_reservados[key] = agrupar_dias(value)
-    print(dias_reservados)
+    try:
+        reservas_efetuadas = []
+        for info, days in dias_reservados.items():
+            lab, aula = info
+            for day_range in days:
+                inicio, fim = min(day_range), max(day_range)
+                check_reserva_temporaria(inicio, fim, lab, aula)
 
-    return "ok"
+                reserva = Reservas_Temporarias(
+                    id_responsavel = user.pessoas.id_pessoa,
+                    id_responsavel_especial = None,
+                    tipo_responsavel = 0,
+                    id_reserva_laboratorio = lab,
+                    id_reserva_aula = aula,
+                    inicio_reserva = inicio,
+                    fim_reserva = fim,
+                    tipo_reserva = TipoReservaEnum(tipo_reserva)
+                )
+                db.session.add(reserva)
+                reservas_efetuadas.append(reserva)
+
+        db.session.flush()
+        for reserva in reservas_efetuadas:
+            registrar_log_generico_usuario(userid, 'Inserção', reserva, observacao='atraves de reserva')
+
+        db.session.commit()
+        flash("reserva efetuada com sucesso", "success")
+    except (IntegrityError, OperationalError) as e:
+        db.session.rollback()
+        flash(f"Erro ao efetuar reserva:{str(e.orig)}", "danger")
+    except ValueError as ve:
+        db.session.rollback()
+        flash(f"Erro ao efetuar reserva:{str(ve)}", "danger")
+
+    return redirect(url_for('default.home'))

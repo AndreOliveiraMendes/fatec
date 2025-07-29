@@ -1,4 +1,5 @@
-from sqlalchemy import select, and_, or_, between, union_all, literal, text
+from sqlalchemy import select, and_, or_, between, union_all, literal, text, func
+from sqlalchemy.exc import IntegrityError
 from datetime import date
 from app.models import db, Pessoas, Usuarios, Usuarios_Especiais, Aulas, Laboratorios, Semestres, \
     Dias_da_Semana, Turnos, Aulas_Ativas, Reservas_Fixas, Reservas_Temporarias, Situacoes_Das_Reserva, \
@@ -141,6 +142,7 @@ def get_aulas_ativas_reservas_dias(dias_turnos: list[tuple[date, Turnos]], tipo_
 
     # Junta todos os selects com UNION ALL
     consulta_final = union_all(*selects).order_by(text("dia_consulta"), "horario_inicio")
+    print(consulta_final)
 
     return db.session.execute(consulta_final).all()
 
@@ -192,3 +194,20 @@ def get_aulas_extras(semestre:Semestres, turno:Turnos):
     #executa o select
     sel_aulas_ativas = select(Aulas_Ativas, Aulas, Dias_da_Semana).select_from(Aulas_Ativas).join(Aulas).join(Dias_da_Semana).where(*filtro).order_by(Aulas_Ativas.id_semana, Aulas.horario_inicio)
     return db.session.execute(sel_aulas_ativas).all()
+
+#condição unica da tabela reserva_temporaria
+def check_reserva_temporaria(inicio, fim, laboratorio, aula, id = None):
+    base_filter = [Reservas_Temporarias.id_reserva_laboratorio == laboratorio,
+        Reservas_Temporarias.id_reserva_aula == aula]
+    if id is not None:
+        base_filter.append(Reservas_Temporarias.id_reserva_temporaria != id)
+    base_filter.append(
+        and_(Reservas_Temporarias.fim_reserva >= inicio, Reservas_Temporarias.inicio_reserva <= fim)
+    )
+    count_rtc = select(func.count()).select_from(Reservas_Temporarias).where(*base_filter)
+    if db.session.scalar(count_rtc) > 0:
+        raise IntegrityError(
+            statement=None,
+            params=None,
+            orig=Exception("Já existe uma reserva para esse laboratorio e horario.")
+        )

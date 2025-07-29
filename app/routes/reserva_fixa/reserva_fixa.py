@@ -1,7 +1,7 @@
 from flask import Blueprint, flash, session, render_template, redirect, url_for, request
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, OperationalError
-from datetime import date, datetime
+from datetime import date
 from app.models import db, Semestres, Turnos, Reservas_Fixas, TipoReservaEnum, Usuarios, \
     Pessoas, Usuarios_Especiais
 from app.auxiliar.auxiliar_routes import get_user_info, registrar_log_generico_usuario
@@ -47,7 +47,6 @@ def get_semestre(id_semestre):
     if len(turnos) == 0:
         flash("cadastre ao menos 1 turno", "danger")
         return redirect(url_for('default.home'))
-    now = datetime.now(LOCAL_TIMEZONE)
     extras['turnos'] = turnos
     return render_template('reserva_fixa/semestre.html', username=username, perm=perm, **extras)
 

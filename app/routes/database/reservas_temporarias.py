@@ -9,25 +9,9 @@ from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import none_if_empty, parse_date_string, get_user_info, \
     get_query_params, registrar_log_generico_usuario, get_session_or_request, register_return
 from app.auxiliar.dao import get_pessoas, get_usuarios_especiais, get_laboratorios, \
-    get_aulas_ativas, get_reservas_temporarias
+    get_aulas_ativas, get_reservas_temporarias, check_reserva_temporaria
 
 bp = Blueprint('database_reservas_temporarias', __name__, url_prefix="/database")
-
-def check_reserva_temporaria(inicio, fim, laboratorio, aula, id = None):
-    base_filter = [Reservas_Temporarias.id_reserva_laboratorio == laboratorio,
-        Reservas_Temporarias.id_reserva_aula == aula]
-    if id is not None:
-        base_filter.append(Reservas_Temporarias.id_reserva_temporaria != id)
-    base_filter.append(
-        and_(Reservas_Temporarias.fim_reserva >= inicio, Reservas_Temporarias.inicio_reserva <= fim)
-    )
-    count_rtc = select(func.count()).select_from(Reservas_Temporarias).where(*base_filter)
-    if db.session.scalar(count_rtc) > 0:
-        raise IntegrityError(
-            statement=None,
-            params=None,
-            orig=Exception("Já existe uma reserva para esse laboratorio e horario.")
-        )
 
 def filtro_intervalo(inicio_procura, fim_procura):
     if inicio_procura and fim_procura:
