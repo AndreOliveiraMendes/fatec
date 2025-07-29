@@ -1,4 +1,5 @@
 {% extends "base" %}
+{% from "macros/pagination.html" import render_pagination %}
 {% block title %}
     Reservas
 {% endblock title %}
@@ -46,7 +47,7 @@
                                     <td>{{ r.aulas_ativas.aulas.horario_inicio|hora }} às {{ r.aulas_ativas.aulas.horario_fim|hora }}</td>
                                     <td>{{ r.tipo_reserva.value }}</td>
                                     <td>
-                                        <a href="#modalCancelar{{ r.id_reserva_fixa }}"
+                                        <a href="#modalCancelara{{ r.id_reserva_fixa }}"
                                            data-toggle="modal"
                                            class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-trash"></span> Cancelar</a>
                                     </td>
@@ -56,7 +57,7 @@
                     </table>
                 </div>
                 {% for r in reservas_fixas %}
-                    <div id="modalCancelar{{ r.id_reserva_fixa }}"
+                    <div id="modalCancelara{{ r.id_reserva_fixa }}"
                          class="modal fade"
                          tabindex="-1"
                          role="dialog">
@@ -89,35 +90,48 @@
             {% endif %}
         </div>
     </div>
-    <!--
-    <div class="panel panel-warning">
+    <div class="panel panel-info">
         <div class="panel-heading">
             <h3 class="panel-title">Reservas Temporárias</h3>
         </div>
         <div class="panel-body">
-            <table class="table table-striped table-bordered">
-                <thead>
-                    <tr>
-                        <th>Laboratório</th>
-                        <th>Data</th>
-                        <th>Horário</th>
-                        <th>Tipo</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for r in reservas_temporarias %}
-                        <tr>
-                            <td>{{ r.laboratorio.nome_laboratorio }}</td>
-                            <td>{{ r.data|data }}</td>
-                            <td>{{ r.horario_inicio }} às {{ r.horario_fim }}</td>
-                            <td>{{ r.tipo }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            {% if reservas_temporarias %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                            <tr class="information">
+                                <th>Laboratório</th>
+                                <th>Data</th>
+                                <th>Semana</th>
+                                <th>Horário</th>
+                                <th>Tipo</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in reservas_temporarias %}
+                                <tr>
+                                    <td>{{ r.laboratorios.nome_laboratorio }}</td>
+                                    <td>{{ r.inicio_reserva|data }} - {{ r.fim_reserva|data }}</td>
+                                    <td>{{ r.aulas_ativas.dia_da_semana.nome_semana }}</td>
+                                    <td>{{ r.aulas_ativas.aulas.horario_inicio|hora }} às {{ r.aulas_ativas.aulas.horario_fim|hora }}</td>
+                                    <td>{{ r.tipo_reserva.value }}</td>
+                                    <td>
+                                        <a href="#modalbCancelar{{ r.id_reserva_temporaria }}"
+                                           data-toggle="modal"
+                                           class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-trash"></span> Cancelar</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {{ render_pagination(pagination, 'usuario.verificar_reservas') }}
+            {% else %}
+                <div class="alert alert-warning" role="alert">Nenhuma reserva</div>
+            {% endif %}
         </div>
     </div>
-    -->
 {% endblock content %}
 {% block footer %}
     <p class="text-muted">

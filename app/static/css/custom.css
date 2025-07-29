@@ -125,3 +125,10 @@ body {
     background-color: #eee;
     cursor: not-allowed;
 }
+
+.ellipsis {
+  display: inline-block;
+  width: 1em;
+  text-align: center;
+  font-weight: bold;
+}

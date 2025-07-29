@@ -1,4 +1,5 @@
 from flask import Blueprint, session, render_template, request, redirect, url_for, flash
+from flask_sqlalchemy.pagination import SelectPagination
 from datetime import datetime
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, OperationalError
@@ -17,6 +18,16 @@ def get_reservas_fixas(userid, semestre):
         Reservas_Fixas.id_reserva_semestre == semestre
     )
     return db.session.execute(sel_reservas).scalars().all()
+
+def get_reservas_temporarias(userid, page):
+    user = db.session.get(Usuarios, userid)
+    sel_reservas = select(Reservas_Temporarias).where(
+        Reservas_Temporarias.id_responsavel == user.pessoas.id_pessoa
+    )
+    pagination = SelectPagination(select=sel_reservas, session=db.session,
+        page=page, per_page=5, error_out=False
+    )
+    return pagination
 
 @bp.route("/perfil")
 @login_required
@@ -39,9 +50,14 @@ def verificar_reservas():
         flash("nenhum semestre definido", "danger")
         return redirect(url_for('default.home'))
     semestre_id = request.args.get("semestre", default=semestres[0].id_semestre if semestres else '', type=int)
+    page = int(request.args.get("page", 1))
+    print(page)
     extras['semestre_selecionado'] = semestre_id
     reservas_fixas = get_reservas_fixas(userid, semestre_id)
+    reservas_temporarias = get_reservas_temporarias(userid, page)
     extras['reservas_fixas'] = reservas_fixas
+    extras['reservas_temporarias'] = reservas_temporarias.items
+    extras['pagination'] = reservas_temporarias
 
     return render_template("usuario/reserva.html", username=username, perm=perm, **extras)
 
