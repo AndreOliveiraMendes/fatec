@@ -142,7 +142,6 @@ def get_aulas_ativas_reservas_dias(dias_turnos: list[tuple[date, Turnos]], tipo_
 
     # Junta todos os selects com UNION ALL
     consulta_final = union_all(*selects).order_by(text("dia_consulta"), "horario_inicio")
-    print(consulta_final)
 
     return db.session.execute(consulta_final).all()
 
