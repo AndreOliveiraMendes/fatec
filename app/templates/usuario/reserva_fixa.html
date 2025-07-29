@@ -26,6 +26,7 @@
                         id="semestre"
                         class="form-control"
                         onchange="this.form.submit()">
+                        <option value="">selecione o semestre</option>
                     {% for s in semestres %}
                         <option value="{{ s.id_semestre }}"
                                 {% if s.id_semestre == semestre_selecionado %}selected{% endif %}>
@@ -40,6 +41,7 @@
                         <thead>
                             <tr class="information">
                                 <th>Laboratório</th>
+                                <th>Semestre</th>
                                 <th>Semana</th>
                                 <th>Horário</th>
                                 <th>Tipo</th>
@@ -50,6 +52,7 @@
                             {% for r in reservas_fixas %}
                                 <tr>
                                     <td>{{ r.laboratorios.nome_laboratorio }}</td>
+                                    <td>{{ r.semestres.nome_semestre }}</td>
                                     <td>{{ r.aulas_ativas.dia_da_semana.nome_semana }}</td>
                                     <td>{{ r.aulas_ativas.aulas.horario_inicio|hora }} às {{ r.aulas_ativas.aulas.horario_fim|hora }}</td>
                                     <td>{{ r.tipo_reserva.value }}</td>

@@ -13,10 +13,10 @@ bp = Blueprint('usuario', __name__, url_prefix='/usuario')
 
 def get_reservas_fixas(userid, semestre, page):
     user = db.session.get(Usuarios, userid)
-    sel_reservas = select(Reservas_Fixas).where(
-        Reservas_Fixas.id_responsavel == user.pessoas.id_pessoa,
-        Reservas_Fixas.id_reserva_semestre == semestre
-    )
+    filtro = [Reservas_Fixas.id_responsavel == user.pessoas.id_pessoa]
+    if semestre is not None:
+        filtro.append(Reservas_Fixas.id_reserva_semestre == semestre)
+    sel_reservas = select(Reservas_Fixas).where(*filtro).order_by(Reservas_Fixas.id_reserva_semestre)
     pagination = SelectPagination(select=sel_reservas, session=db.session,
         page=page, per_page=5, error_out=False
     )
@@ -61,7 +61,7 @@ def gerenciar_reserva_fixa():
     today = datetime.now(LOCAL_TIMEZONE)
     extras = {'datetime':today}
     extras['semestres'] = semestres
-    semestre_id = request.args.get("semestre", default=semestres[0].id_semestre if semestres else '', type=int)
+    semestre_id = request.args.get("semestre", type=int)
     page = int(request.args.get("page", 1))
     extras['semestre_selecionado'] = semestre_id
     reservas_fixas = get_reservas_fixas(userid, semestre_id, page)
