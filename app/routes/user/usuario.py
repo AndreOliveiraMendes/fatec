@@ -72,6 +72,23 @@ def gerenciar_reserva_fixa():
     extras['args_extras'] = args_extras
     return render_template("usuario/reserva_fixa.html", username=username, perm=perm, **extras)
 
+@bp.route("/reserva/reservas_temporarias")
+@login_required
+def gerenciar_reserva_temporaria():
+    userid = session.get('userid')
+    username, perm = get_user_info(userid)
+    today = datetime.now(LOCAL_TIMEZONE)
+    extras = {'datetime':today}
+    dia = parse_date_string(request.args.get('dia'))
+    page = int(request.args.get("page", 1))
+    extras['dia_selecionado'] = dia
+    reservas_temporarias = get_reservas_temporarias(userid, dia, page)
+    extras['reservas_temporarias'] = reservas_temporarias.items
+    extras['pagination'] = reservas_temporarias
+    args_extras = {key:value for key, value in request.args.items() if key != 'page'}
+    extras['args_extras'] = args_extras
+    return render_template("usuario/reserva_temporaria.html", username=username, perm=perm, **extras)
+
 @bp.route("/cancelar_reserva_fixa/<int:id_reserva>", methods=['POST'])
 @login_required
 def cancelar_reserva_fixa(id_reserva):
@@ -91,19 +108,20 @@ def cancelar_reserva_fixa(id_reserva):
 
     return redirect(url_for('usuario.gerenciar_reserva_fixa'))
 
-@bp.route("/reserva/reservas_temporarias")
-@login_required
-def gerenciar_reserva_temporaria():
+@bp.route("/cancelar_reserva_temporaria/<int:id_reserva>", methods=['POST'])
+def cancelar_reserva_temporaria(id_reserva):
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
-    today = datetime.now(LOCAL_TIMEZONE)
-    extras = {'datetime':today}
-    dia = parse_date_string(request.args.get('dia'))
-    page = int(request.args.get("page", 1))
-    extras['dia_selecionado'] = dia
-    reservas_temporarias = get_reservas_temporarias(userid, dia, page)
-    extras['reservas_temporarias'] = reservas_temporarias.items
-    extras['pagination'] = reservas_temporarias
-    args_extras = {key:value for key, value in request.args.items() if key != 'page'}
-    extras['args_extras'] = args_extras
-    return render_template("usuario/reserva_temporaria.html", username=username, perm=perm, **extras)
+    reserva = db.get_or_404(Reservas_Temporarias, id_reserva)
+    try:
+        db.session.delete(reserva)
+
+        db.session.flush()
+        registrar_log_generico_usuario(userid, 'Exclusão', reserva, observacao="atraves da listagem")
+
+        db.session.commit()
+        flash("Reserva cancelada com sucesso", "success")
+    except (IntegrityError, OperationalError) as e:
+        db.session.rollback()
+        flash(f"erro ao excluir reserva:{str(e.orig)}", "danger")
+
+    return redirect(url_for('usuario.gerenciar_reserva_temporaria'))

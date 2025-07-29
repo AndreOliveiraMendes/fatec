@@ -84,7 +84,15 @@
                                     </div>
                                     <div class="modal-body">
                                         <p>
-                                            Deseja cancelar a reserva no <strong>{{ r.laboratorios.nome_laboratorio }}</strong> na <strong>{{ r.aulas_ativas.dia_da_semana.nome_semana }}</strong>?
+                                            Deseja cancelar a reserva:
+                                            <br>
+                                            <strong>{{ r.laboratorios.nome_laboratorio }}</strong>
+                                            <br>
+                                            <strong>{{ r.aulas_ativas.dia_da_semana.nome_semana }}</strong>
+                                            <br>
+                                            <strong>{{ r.semestres.nome_semestre }}</strong>
+                                            <br>
+                                            <strong>{{ r.aulas_ativas.aulas.horario_inicio|hora }} às {{ r.aulas_ativas.aulas.horario_fim|hora }}</strong>?
                                         </p>
                                     </div>
                                     <div class="modal-footer">
