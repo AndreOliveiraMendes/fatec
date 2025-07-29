@@ -88,4 +88,4 @@ def cancelar_reserva_fixa(id_reserva):
         db.session.rollback()
         flash(f"erro ao excluir reserva:{str(e.orig)}", "danger")
 
-    return redirect(url_for('usuario.verificar_reservas'))
+    return redirect(url_for('usuario.gerenciar_reserva_fixa'))

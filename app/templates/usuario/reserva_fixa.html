@@ -1,5 +1,6 @@
 {% extends "base" %}
 {% from "macros/pagination.html" import render_pagination %}
+{% from "macros/navigation.html" import go_back %}
 {% block title %}
     Reservas Semestrais (fixas)
 {% endblock title %}
@@ -7,6 +8,12 @@
     {{ refresh_page(60) }}
 {% endblock extra_head %}
 {% block content %}
+    <div class="btn-group">
+        {{ go_back() }}
+        <a href="{{ url_for('default.home') }}" class="btn btn-default">
+            <span class="glyphicon glyphicon-home"></span> Início
+        </a>
+    </div>
     <h3>Agora: {{ datetime|datahora }}</h3>
     <div class="panel panel-info">
         <div class="panel-heading">
