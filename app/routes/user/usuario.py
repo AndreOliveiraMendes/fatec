@@ -11,13 +11,16 @@ from config.general import LOCAL_TIMEZONE
 
 bp = Blueprint('usuario', __name__, url_prefix='/usuario')
 
-def get_reservas_fixas(userid, semestre):
+def get_reservas_fixas(userid, semestre, page):
     user = db.session.get(Usuarios, userid)
     sel_reservas = select(Reservas_Fixas).where(
         Reservas_Fixas.id_responsavel == user.pessoas.id_pessoa,
         Reservas_Fixas.id_reserva_semestre == semestre
     )
-    return db.session.execute(sel_reservas).scalars().all()
+    pagination = SelectPagination(select=sel_reservas, session=db.session,
+        page=page, per_page=5, error_out=False
+    )
+    return pagination
 
 def get_reservas_temporarias(userid, page):
     user = db.session.get(Usuarios, userid)
@@ -39,29 +42,37 @@ def perfil():
 
 @bp.route("/reservas")
 @login_required
-def verificar_reservas():
+def menu_reservas_usuario():
+    userid = session.get('userid')
+    username, perm = get_user_info(userid)
+    today = datetime.now(LOCAL_TIMEZONE)
+    extras = {'datetime':today}
+    return render_template("usuario/menu_reserva.html", username=username, perm=perm, **extras)
+
+@bp.route("/reservas/reservas_fixas")
+@login_required
+def gerenciar_reserva_fixa():
     userid = session.get('userid')
     username, perm = get_user_info(userid)
     semestres = get_semestres()
-    today = datetime.now(LOCAL_TIMEZONE)
-    extras = {'datetime':today}
-    extras['semestres'] = semestres
     if not semestres:
         flash("nenhum semestre definido", "danger")
         return redirect(url_for('default.home'))
+    today = datetime.now(LOCAL_TIMEZONE)
+    extras = {'datetime':today}
+    extras['semestres'] = semestres
     semestre_id = request.args.get("semestre", default=semestres[0].id_semestre if semestres else '', type=int)
     page = int(request.args.get("page", 1))
-    print(page)
     extras['semestre_selecionado'] = semestre_id
-    reservas_fixas = get_reservas_fixas(userid, semestre_id)
-    reservas_temporarias = get_reservas_temporarias(userid, page)
-    extras['reservas_fixas'] = reservas_fixas
-    extras['reservas_temporarias'] = reservas_temporarias.items
-    extras['pagination'] = reservas_temporarias
-
-    return render_template("usuario/reserva.html", username=username, perm=perm, **extras)
+    reservas_fixas = get_reservas_fixas(userid, semestre_id, page)
+    extras['reservas_fixas'] = reservas_fixas.items
+    extras['pagination'] = reservas_fixas
+    args_extras = {key:value for key, value in request.args.items() if key != 'page'}
+    extras['args_extras'] = args_extras
+    return render_template("usuario/reserva_fixa.html", username=username, perm=perm, **extras)
 
 @bp.route("/cancelar_reserva_fixa/<int:id_reserva>", methods=['POST'])
+@login_required
 def cancelar_reserva_fixa(id_reserva):
     userid = session.get('userid')
     reserva = db.get_or_404(Reservas_Fixas, id_reserva)

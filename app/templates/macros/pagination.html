@@ -47,13 +47,14 @@
         </nav>
     {% endif %}
 {% endmacro %}
-{% macro render_pagination(pagination, endpoint) %}
+{% macro render_pagination(pagination, endpoint, args_extras = None) %}
+    {% if not args_extras %}{% set args_extras={} %}{% endif %}
     <div class="page-items">{{ pagination.first }} - {{ pagination.last }} of {{ pagination.total }}</div>
     <div class="pagination">
         {% for page in pagination.iter_pages() %}
             {% if page %}
                 {% if page != pagination.page %}
-                    <a href="{{ url_for(endpoint, page=page) }}">{{ page }}</a>
+                    <a href="{{ url_for(endpoint, page=page, **args_extras) }}">{{ page }}</a>
                 {% else %}
                     <strong>{{ page }}</strong>
                 {% endif %}

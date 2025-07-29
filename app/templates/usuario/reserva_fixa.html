@@ -1,7 +1,7 @@
 {% extends "base" %}
 {% from "macros/pagination.html" import render_pagination %}
 {% block title %}
-    Reservas
+    Reservas Semestrais (fixas)
 {% endblock title %}
 {% block extra_head %}
     {{ refresh_page(60) }}
@@ -13,7 +13,7 @@
             <h3 class="panel-title">Reservas Semanais</h3>
         </div>
         <div class="panel-body">
-            <form method="get" action="{{ url_for('usuario.verificar_reservas') }}">
+            <form method="get" action="{{ url_for('usuario.gerenciar_reserva_fixa') }}">
                 <label for="semestre">Semestre:</label>
                 <select name="semestre"
                         id="semestre"
@@ -56,6 +56,7 @@
                         </tbody>
                     </table>
                 </div>
+                {{ render_pagination(pagination, 'usuario.gerenciar_reserva_fixa', args_extras) }}
                 {% for r in reservas_fixas %}
                     <div id="modalCancelara{{ r.id_reserva_fixa }}"
                          class="modal fade"
@@ -87,48 +88,6 @@
                 {% endfor %}
             {% else %}
                 <div class="alert alert-warning" role="alert">Nenhuma reserva no semestre selecionado</div>
-            {% endif %}
-        </div>
-    </div>
-    <div class="panel panel-info">
-        <div class="panel-heading">
-            <h3 class="panel-title">Reservas Temporárias</h3>
-        </div>
-        <div class="panel-body">
-            {% if reservas_temporarias %}
-                <div class="table-responsive">
-                    <table class="table table-striped table-bordered">
-                        <thead>
-                            <tr class="information">
-                                <th>Laboratório</th>
-                                <th>Data</th>
-                                <th>Semana</th>
-                                <th>Horário</th>
-                                <th>Tipo</th>
-                                <th>Ação</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for r in reservas_temporarias %}
-                                <tr>
-                                    <td>{{ r.laboratorios.nome_laboratorio }}</td>
-                                    <td>{{ r.inicio_reserva|data }} - {{ r.fim_reserva|data }}</td>
-                                    <td>{{ r.aulas_ativas.dia_da_semana.nome_semana }}</td>
-                                    <td>{{ r.aulas_ativas.aulas.horario_inicio|hora }} às {{ r.aulas_ativas.aulas.horario_fim|hora }}</td>
-                                    <td>{{ r.tipo_reserva.value }}</td>
-                                    <td>
-                                        <a href="#modalbCancelar{{ r.id_reserva_temporaria }}"
-                                           data-toggle="modal"
-                                           class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-trash"></span> Cancelar</a>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {{ render_pagination(pagination, 'usuario.verificar_reservas') }}
-            {% else %}
-                <div class="alert alert-warning" role="alert">Nenhuma reserva</div>
             {% endif %}
         </div>
     </div>
