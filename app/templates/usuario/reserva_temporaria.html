@@ -17,19 +17,22 @@
     <h3>Agora: {{ datetime|datahora }}</h3>
     <div class="panel panel-info">
         <div class="panel-heading">
-            <h3 class="panel-title">Reservas Avulsas</h3>
+            <h3 class="panel-title">
+                Reservas Avulsas:
+                <hr>
+                <form method="get"
+                      action="{{ url_for('usuario.gerenciar_reserva_temporaria') }}">
+                    <label for="dia">Dia:</label>
+                    <input type="date"
+                           id="dia"
+                           name="dia"
+                           class="form-control"
+                           {% if dia_selecionado %}value="{{ dia_selecionado }}"{% endif %}
+                           onchange="this.form.submit()">
+                </form>
+            </h3>
         </div>
         <div class="panel-body">
-            <form method="get"
-                  action="{{ url_for('usuario.gerenciar_reserva_temporaria') }}">
-                <label for="dia">Dia:</label>
-                <input type="date"
-                       id="dia"
-                       name="dia"
-                       class="form-control"
-                       {% if dia_selecionado %}value="{{ dia_selecionado }}"{% endif %}
-                       onchange="this.form.submit()">
-            </form>
             {% if reservas_temporarias %}
                 <div class="table-responsive">
                     <table class="table table-striped table-bordered">

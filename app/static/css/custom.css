@@ -127,8 +127,8 @@ body {
 }
 
 .ellipsis {
-  display: inline-block;
-  width: 1em;
-  text-align: center;
-  font-weight: bold;
+    display: inline-block;
+    width: 1em;
+    text-align: center;
+    font-weight: bold;
 }

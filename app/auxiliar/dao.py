@@ -112,7 +112,7 @@ def get_aula_intervalo(inicio:date, fim:date):
         )
     )
 
-def get_aulas_ativas_reservas_dias(dias_turnos: list[tuple[date, Turnos]], tipo_aula:TipoAulaEnum):
+def get_aulas_ativas_reservas_dias(dias_turnos: list[tuple[date, Turnos|None]], tipo_aula:TipoAulaEnum):
     selects = []
 
     for day, turno in dias_turnos:
@@ -125,7 +125,8 @@ def get_aulas_ativas_reservas_dias(dias_turnos: list[tuple[date, Turnos]], tipo_
         filtros.append(Aulas_Ativas.id_semana == day.weekday() + 1)
 
         # Filtro de turno
-        filtros.append(get_aula_turno(turno))
+        if turno is not None:
+            filtros.append(get_aula_turno(turno))
 
         # Filtro de tipo de horario
         filtros.append(Aulas_Ativas.tipo_aula == tipo_aula)
@@ -153,12 +154,13 @@ def get_aulas_ativas_reservas_dias(dias_turnos: list[tuple[date, Turnos]], tipo_
     return db.session.execute(consulta_final).all()
 
 #aulas ativas para um determinado semestre
-def get_aulas_ativas_reserva_semestre(semestre:Semestres, turno:Turnos):
+def get_aulas_ativas_reserva_semestre(semestre:Semestres, turno:Turnos|None=None):
     filtro = []
     #verifica quais horarios estão disponiveis naquele semestre
     filtro.append(get_aula_intervalo(semestre.data_inicio, semestre.data_fim))
     #verifica quais horarios estão naquele turno
-    filtro.append(get_aula_turno(turno))
+    if turno is not None:
+        filtro.append(get_aula_turno(turno))
     #verifica se o horario é destinado a aula
     filtro.append(Aulas_Ativas.tipo_aula == TipoAulaEnum.AULA.name)
     #efetua o query e executa ele

@@ -1,0 +1,32 @@
+{% extends "base" %}
+{% from "macros/navigation.html" import go_back %}
+{% block title %}
+    Página Inicial
+{% endblock title %}
+{% block extra_head %}
+    <noscript>{{ refresh_page(60) }}</noscript>
+{% endblock extra_head %}
+{% block content %}
+    <h3>Consultar reservas</h3>
+    <p>
+        <strong>Dia:</strong> {{ dia|datahora }}
+    </p>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">manda</h3>
+        </div>
+        <div class="panel-body">
+            <div class="table-responsive">
+            
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+{% block extra_script %}
+    <script>{{ refresh_page_full_minute_script() }}</script>
+{% endblock extra_script %}
+{% block footer %}
+    <p class="text-muted">
+        <small>Esta página se atualiza automaticamente.</small>
+    </p>
+{% endblock footer %}
