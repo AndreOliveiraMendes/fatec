@@ -21,14 +21,17 @@
                 Reservas Avulsas:
                 <hr>
                 <form method="get"
+                      class="form-inline"
                       action="{{ url_for('usuario.gerenciar_reserva_temporaria') }}">
-                    <label for="dia">Dia:</label>
-                    <input type="date"
-                           id="dia"
-                           name="dia"
-                           class="form-control"
-                           {% if dia_selecionado %}value="{{ dia_selecionado }}"{% endif %}
-                           onchange="this.form.submit()">
+                    <div class="form-group">
+                        <label for="dia">Dia:</label>
+                        <input type="date"
+                               id="dia"
+                               name="dia"
+                               class="form-control"
+                               {% if dia_selecionado %}value="{{ dia_selecionado }}"{% endif %}
+                               onchange="this.form.submit()">
+                    </div>
                 </form>
             </h3>
         </div>

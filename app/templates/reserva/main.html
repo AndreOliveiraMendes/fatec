@@ -13,12 +13,56 @@
     </p>
     <div class="panel panel-default">
         <div class="panel-heading">
-            <h3 class="panel-title">manda</h3>
+            <h3 class="panel-title">
+                Reservas do dia: {{ reserva_dia|data }}
+                <hr>
+                <form method="get"
+                      class="form-inline"
+                      action="{{ url_for('consultar_reservas.main_page') }}">
+                    <div class="form-group">
+                        <label for="reserva-dia">dia:</label>
+                        <input type="date"
+                               class="form-control"
+                               value="{{ reserva_dia }}"
+                               id="reserva-dia"
+                               name="reserva-dia"
+                               onchange="this.form.submit()">
+                    </div>
+                    <div class="form-group">
+                        <label for="reserva_turno">Turno:</label>
+                        <select class="form-control"
+                                id="reserva_turno"
+                                name="reserva_turno"
+                                onchange="this.form.submit()">
+                            <option value="">Selecionar o turno</option>
+                            {% for turno in turnos %}
+                                <option value="{{ turno.id_turno }}"
+                                        {% if turno.id_turno == reserva_turno %}selected{% endif %}>
+                                    {{ turno.nome_turno }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="reserva_turno">Destino:</label>
+                        <select class="form-control"
+                                id="reserva_tipo_horario"
+                                name="reserva_tipo_horario"
+                                onchange="this.form.submit()">
+                            <option value="">Selecionar o destino</option>
+                            {% for aula in tipo_aula %}
+                                <option value="{{ aula.value }}"
+                                        {% if aula.value == reserva_tipo_horario %}selected{% endif %}>
+                                    {{ aula.value }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>
+            </h3>
         </div>
         <div class="panel-body">
-            <div class="table-responsive">
-            
-            </div>
+            <div class="table-responsive"></div>
         </div>
     </div>
 {% endblock content %}

@@ -20,20 +20,24 @@
             <h3 class="panel-title">
                 Reservas Semanais:
                 <hr>
-                <form method="get" action="{{ url_for('usuario.gerenciar_reserva_fixa') }}">
-                    <label for="semestre">Semestre:</label>
-                    <select name="semestre"
-                            id="semestre"
-                            class="form-control"
-                            onchange="this.form.submit()">
-                        <option value="">selecione o semestre</option>
-                        {% for s in semestres %}
-                            <option value="{{ s.id_semestre }}"
-                                    {% if s.id_semestre == semestre_selecionado %}selected{% endif %}>
-                                {{ s.nome_semestre }}
-                            </option>
-                        {% endfor %}
-                    </select>
+                <form method="get"
+                      class="form-inline"
+                      action="{{ url_for('usuario.gerenciar_reserva_fixa') }}">
+                    <div class="form-group">
+                        <label for="semestre">Semestre:</label>
+                        <select name="semestre"
+                                id="semestre"
+                                class="form-control"
+                                onchange="this.form.submit()">
+                            <option value="">selecione o semestre</option>
+                            {% for s in semestres %}
+                                <option value="{{ s.id_semestre }}"
+                                        {% if s.id_semestre == semestre_selecionado %}selected{% endif %}>
+                                    {{ s.nome_semestre }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
                 </form>
             </h3>
         </div>
