@@ -119,6 +119,27 @@ def register_filters(app:Flask):
 
         return Markup(html)
 
+    @app.template_global()
+    def validate_admin_selects():
+        return Markup("""
+        function validateAdminSelects(formId, select1Id, select2Id) {
+            const form = document.getElementById(formId);
+            if (!form) return;
+
+            form.addEventListener("submit", function (e) {
+                const s1 = document.getElementById(select1Id);
+                const s2 = document.getElementById(select2Id);
+                const v1 = s1?.value;
+                const v2 = s2?.value;
+
+                if (!v1 && !v2) {
+                    e.preventDefault();
+                    alert("Você deve selecionar pelo menos um dos campos: responsável especial ou responsável.");
+                }
+            });
+        }
+        """)
+
     @app.template_filter('has_flag')
     def has_flag(value, flag):
         return (value & flag) == flag

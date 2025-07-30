@@ -3,9 +3,11 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, OperationalError
 from datetime import date
 from app.models import db, Semestres, Turnos, Reservas_Fixas, TipoReservaEnum, Usuarios, \
-    Pessoas, Usuarios_Especiais
+    Pessoas, Usuarios_Especiais, Permissoes
 from app.auxiliar.auxiliar_routes import get_user_info, registrar_log_generico_usuario
-from app.auxiliar.dao import get_aulas_ativas_reserva_semestre, get_laboratorios, get_aulas_extras
+from app.auxiliar.dao import get_aulas_ativas_reserva_semestre, get_laboratorios, get_aulas_extras, \
+    get_pessoas, get_usuarios_especiais
+from app.auxiliar.constant import PERM_ADMIN
 from collections import Counter
 from config.general import LOCAL_TIMEZONE
 
@@ -96,11 +98,13 @@ def get_turno(id_semestre, id_turno):
             if empty:
                 title += responsavel.nome_usuario_especial
             else:
-                title += f"({responsavel.nome_usuario_especial})"
+                title += f" ({responsavel.nome_usuario_especial})"
         helper[(r.id_reserva_laboratorio, r.id_reserva_aula)] = title
     extras['helper'] = helper
     extras['tipo_reserva'] = TipoReservaEnum
     extras['aulas_extras'] = get_aulas_extras(semestre, turno)
+    extras['responsavel'] = get_pessoas()
+    extras['responsavel_especial'] = get_usuarios_especiais()
     return render_template('reserva_fixa/turno.html', username=username, perm=perm, **extras)
 
 @bp.route('/semestre/<int:id_semestre>/turno/<int:id_turno>', methods=['POST'])
@@ -109,6 +113,20 @@ def efetuar_reserva(id_semestre, id_turno):
     user = db.get_or_404(Usuarios, userid)
     semestre = db.get_or_404(Semestres, id_semestre)
     tipo_reserva = request.form.get('tipo_reserva')
+    responsavel = request.form.get('responsavel')
+    responsavel_especial = request.form.get('responsavel_especial')
+    tipo_responsavel = None
+    if responsavel_especial is None:
+        tipo_responsavel = 0
+    elif responsavel is None:
+        tipo_responsavel = 1
+    else:
+        tipo_responsavel = 2
+    perm = db.session.get(Permissoes, userid)
+    if not perm or perm.permissao & PERM_ADMIN == 0:
+        responsavel = user.id_pessoa
+        responsavel_especial = None
+        tipo_responsavel = 0
     checks = [key for key, value in request.form.items() if key.startswith('reserva') and value == 'on']
     if not checks:
         flash("voce não selecionou reserva alguma", "warning")
@@ -119,9 +137,9 @@ def efetuar_reserva(id_semestre, id_turno):
             lab, aula = map(int, check.replace('reserva[', '').replace(']', '').split(','))
 
             reserva = Reservas_Fixas(
-                id_responsavel = user.pessoas.id_pessoa,
-                id_responsavel_especial = None,
-                tipo_responsavel = 0,
+                id_responsavel = responsavel,
+                id_responsavel_especial = responsavel_especial,
+                tipo_responsavel = tipo_responsavel,
                 id_reserva_laboratorio = lab,
                 id_reserva_aula = aula,
                 id_reserva_semestre = semestre.id_semestre,

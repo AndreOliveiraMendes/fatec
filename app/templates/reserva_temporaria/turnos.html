@@ -20,6 +20,7 @@
     <form class="form-group"
           role="form"
           action="{{ url_for('reservas_fixas.efetuar_reserva') }}"
+          id="reserva"
           method="post">
         <div class="table-responsive">
             <table class="table table-bordered table-striped table-hover tabela-reserva">
@@ -70,21 +71,34 @@
                 {% for tr in tipo_reserva %}<option value="{{ tr.value }}">{{ tr.value }}</option>{% endfor %}
             </select>
         </div>
+        {% if perm and perm|has_flag(ADMIN) %}
+            <div class="form-group">
+                <label for="responsavel">Responsavel:</label>
+                <select id="responsavel" name="responsavel" class="form-control">
+                    <option value="">Selecione o responsavel pela reserva</option>
+                    {% for r in responsavel %}
+                        <option value="{{ r.id_pessoa }}">({{ r.id_pessoa }}) {{ r.nome_pessoa }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="responsavel_especial">Responsavel especial:</label>
+                <select id="responsavel_especial"
+                        name="responsavel_especial"
+                        class="form-control">
+                    <option value="">Selecione o responsavel especial pela reserva</option>
+                    {% for r in responsavel_especial %}
+                        <option value="{{ r.id_usuario_especial }}">({{ r.id_usuario_especial }}) {{ r.nome_usuario_especial }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        {% endif %}
         {{ action_buttons('inserir', show_voltar=False, label='') }}
     </form>
 {% endblock content %}
-{#
-    {'id_aula_ativa': 28,
-    'id_aula': 4,
-    'inicio_ativacao': None,
-    'fim_ativacao': None,
-    'id_semana': 7,
-    'tipo_aula': <TipoAulaEnum.AULA : 'Aula'>,
-    'id_aula_1': 4,
-    'horario_inicio': datetime.time(11, 10),
-    'horario_fim': datetime.time(12, 0),
-    'id_semana_1': 7,
-    'nome_semana': 'sabado',
-    'dia_consulta': '2025-07-06',
-    'turno_consulta': 'manha'}
-#}
+{% block extra_script %}
+    {% if perm and perm|has_flag(ADMIN) %}
+        <script>{{ validate_admin_selects() }}</script>
+        <script>validateAdminSelects("reserva", "responsavel", "responsavel_especial");</script>
+    {% endif %}
+{% endblock extra_script %}

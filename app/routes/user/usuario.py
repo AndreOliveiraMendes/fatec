@@ -1,9 +1,9 @@
 from flask import Blueprint, session, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy.pagination import SelectPagination
-from datetime import datetime, date
+from datetime import datetime
 from sqlalchemy import select, between
 from sqlalchemy.exc import IntegrityError, OperationalError
-from app.models import db, Usuarios, Reservas_Fixas, Reservas_Temporarias
+from app.models import db, Usuarios, Reservas_Fixas, Reservas_Temporarias, Aulas_Ativas, Aulas
 from app.auxiliar.auxiliar_routes import get_user_info, registrar_log_generico_usuario, parse_date_string
 from app.auxiliar.decorators import login_required
 from app.auxiliar.dao import get_semestres
@@ -16,7 +16,11 @@ def get_reservas_fixas(userid, semestre, page):
     filtro = [Reservas_Fixas.id_responsavel == user.pessoas.id_pessoa]
     if semestre is not None:
         filtro.append(Reservas_Fixas.id_reserva_semestre == semestre)
-    sel_reservas = select(Reservas_Fixas).where(*filtro).order_by(Reservas_Fixas.id_reserva_semestre)
+    sel_reservas = select(Reservas_Fixas).join(Aulas_Ativas).join(Aulas).where(*filtro).order_by(
+        Reservas_Fixas.id_reserva_semestre,
+        Aulas_Ativas.id_semana,
+        Aulas.horario_inicio
+    )
     pagination = SelectPagination(select=sel_reservas, session=db.session,
         page=page, per_page=5, error_out=False
     )
@@ -27,7 +31,11 @@ def get_reservas_temporarias(userid, dia, page):
     filtro = [Reservas_Temporarias.id_responsavel == user.pessoas.id_pessoa]
     if dia is not None:
         filtro.append(between(dia, Reservas_Temporarias.inicio_reserva, Reservas_Temporarias.fim_reserva))
-    sel_reservas = select(Reservas_Temporarias).where(*filtro).order_by(Reservas_Temporarias.inicio_reserva)
+    sel_reservas = select(Reservas_Temporarias).join(Aulas_Ativas).join(Aulas).where(*filtro).order_by(
+        Reservas_Temporarias.inicio_reserva,
+        Aulas_Ativas.id_semana,
+        Aulas.horario_inicio
+    )
     pagination = SelectPagination(select=sel_reservas, session=db.session,
         page=page, per_page=5, error_out=False
     )

@@ -3,11 +3,12 @@ from sqlalchemy import select, between
 from sqlalchemy.exc import IntegrityError, OperationalError
 from datetime import date
 from app.models import db, Reservas_Temporarias, TipoAulaEnum, TipoReservaEnum, Turnos, Usuarios, \
-    Pessoas, Usuarios_Especiais
+    Pessoas, Usuarios_Especiais, Permissoes
 from app.auxiliar.auxiliar_routes import get_user_info, registrar_log_generico_usuario, \
     parse_date_string, time_range, none_if_empty
 from app.auxiliar.dao import get_turnos, get_laboratorios, get_aulas_ativas_reservas_dias, \
-    check_reserva_temporaria
+    check_reserva_temporaria, get_pessoas, get_usuarios_especiais
+from app.auxiliar.constant import PERM_ADMIN
 from collections import Counter
 
 bp = Blueprint('reservas_fixas', __name__, url_prefix="/reserva_temporaria")
@@ -116,12 +117,14 @@ def process_turnos():
             if empty:
                 title += responsavel.nome_usuario_especial
             else:
-                title += f"({responsavel.nome_usuario_especial})"
+                title += f" ({responsavel.nome_usuario_especial})"
 
         days = [day.strftime('%Y-%m-%d') for day in time_range(r.inicio_reserva, r.fim_reserva, 7)]
         for day in days:
             helper[(r.id_reserva_laboratorio, r.id_reserva_aula, day)] = title
     extras['helper'] = helper
+    extras['responsavel'] = get_pessoas()
+    extras['responsavel_especial'] = get_usuarios_especiais()
     return render_template('reserva_temporaria/turnos.html', username=username, perm=perm, **extras)
 
 @bp.route("/turno", methods=['POST'])
@@ -129,6 +132,20 @@ def efetuar_reserva():
     userid = session.get('userid')
     user = db.get_or_404(Usuarios, userid)
     tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
+    responsavel = request.form.get('responsavel')
+    responsavel_especial = request.form.get('responsavel_especial')
+    tipo_responsavel = None
+    if responsavel_especial is None:
+        tipo_responsavel = 0
+    elif responsavel is None:
+        tipo_responsavel = 1
+    else:
+        tipo_responsavel = 2
+    perm = db.session.get(Permissoes, userid)
+    if not perm or perm.permissao & PERM_ADMIN == 0:
+        responsavel = user.id_pessoa
+        responsavel_especial = None
+        tipo_responsavel = 0
     
     dias_reservados = {}
     for key, value in request.form.items():
@@ -156,9 +173,9 @@ def efetuar_reserva():
                 check_reserva_temporaria(inicio, fim, lab, aula)
 
                 reserva = Reservas_Temporarias(
-                    id_responsavel = user.pessoas.id_pessoa,
-                    id_responsavel_especial = None,
-                    tipo_responsavel = 0,
+                    id_responsavel = responsavel,
+                    id_responsavel_especial = responsavel_especial,
+                    tipo_responsavel = tipo_responsavel,
                     id_reserva_laboratorio = lab,
                     id_reserva_aula = aula,
                     inicio_reserva = inicio,
