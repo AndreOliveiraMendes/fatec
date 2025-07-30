@@ -1,16 +1,23 @@
-from flask import Blueprint, flash, session, render_template, redirect, url_for, request, abort
-from sqlalchemy import select, and_
-from sqlalchemy.exc import IntegrityError, OperationalError
-from datetime import date
-from app.models import db, Reservas_Temporarias, TipoAulaEnum, TipoReservaEnum, Turnos, Usuarios, \
-    Pessoas, Usuarios_Especiais, Permissoes
-from app.auxiliar.auxiliar_routes import get_user_info, registrar_log_generico_usuario, \
-    parse_date_string, time_range, none_if_empty
-from app.auxiliar.dao import get_turnos, get_laboratorios, get_aulas_ativas_reservas_dias, \
-    check_reserva_temporaria, get_pessoas, get_usuarios_especiais
-from app.auxiliar.constant import PERM_ADMIN
-from app.auxiliar.decorators import login_required
 from collections import Counter
+from datetime import date
+
+from flask import (Blueprint, abort, flash, redirect, render_template, request,
+                   session, url_for)
+from sqlalchemy import and_, select
+from sqlalchemy.exc import IntegrityError, OperationalError
+
+from app.auxiliar.auxiliar_routes import (get_user_info, none_if_empty,
+                                          parse_date_string,
+                                          registrar_log_generico_usuario,
+                                          time_range)
+from app.auxiliar.constant import PERM_ADMIN
+from app.auxiliar.dao import (check_reserva_temporaria,
+                              get_aulas_ativas_reservas_dias, get_laboratorios,
+                              get_pessoas, get_turnos, get_usuarios_especiais)
+from app.auxiliar.decorators import login_required
+from app.models import (Permissoes, Pessoas, Reservas_Temporarias,
+                        TipoAulaEnum, TipoReservaEnum, Turnos, Usuarios,
+                        Usuarios_Especiais, db)
 
 bp = Blueprint('reservas_fixas', __name__, url_prefix="/reserva_temporaria")
 

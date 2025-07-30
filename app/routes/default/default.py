@@ -1,7 +1,6 @@
-from flask import Blueprint, session, render_template
-from app.models import db, Usuarios
+from flask import Blueprint, render_template, session
+
 from app.auxiliar.auxiliar_routes import get_user_info
-from app.auxiliar.decorators import login_required
 
 bp = Blueprint('default', __name__)
 

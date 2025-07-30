@@ -1,8 +1,12 @@
 import enum
-from app import db
-from datetime import date, time, datetime
-from sqlalchemy import String, ForeignKey, CheckConstraint, TEXT, UniqueConstraint, Enum
+from datetime import date, datetime, time
+
+from sqlalchemy import (TEXT, CheckConstraint, Enum, ForeignKey, String,
+                        UniqueConstraint)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from app import db
+
 
 def parse_time(time):
     return time.strftime('%H:%M') if time else None

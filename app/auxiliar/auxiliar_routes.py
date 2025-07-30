@@ -1,9 +1,11 @@
 import enum
-from flask import session, redirect, url_for
 from datetime import date, datetime, timedelta
-from app.models import db, Usuarios, Permissoes, Historicos, OrigemEnum
-from sqlalchemy.inspection import inspect
 from typing import Literal
+
+from flask import redirect, session, url_for
+from sqlalchemy.inspection import inspect
+
+from app.models import Historicos, OrigemEnum, Permissoes, Usuarios, db
 from config.general import AFTER_ACTION, LOCAL_TIMEZONE
 
 IGNORED_FORM_FIELDS = ['page', 'acao', 'bloco']

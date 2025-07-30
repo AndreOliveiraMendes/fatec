@@ -1,6 +1,8 @@
-import pkgutil
 import importlib
+import pkgutil
+
 from flask import Blueprint
+
 
 def register_blueprints(app):
     package_name = __name__

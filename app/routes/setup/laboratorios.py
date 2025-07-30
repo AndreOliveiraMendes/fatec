@@ -1,8 +1,12 @@
-from flask import Blueprint, session, render_template, request, flash, redirect, url_for
+from flask import (Blueprint, flash, redirect, render_template, request,
+                   session, url_for)
 from sqlalchemy.exc import IntegrityError, OperationalError
-from app.models import db, Laboratorios, TipoLaboratorioEnum, DisponibilidadeEnum
-from app.auxiliar.auxiliar_routes import get_user_info, registrar_log_generico_usuario, none_if_empty
+
+from app.auxiliar.auxiliar_routes import (get_user_info, none_if_empty,
+                                          registrar_log_generico_usuario)
 from app.auxiliar.decorators import admin_required
+from app.models import (DisponibilidadeEnum, Laboratorios, TipoLaboratorioEnum,
+                        db)
 from config.database_views import SETUP_HEAD
 
 bp = Blueprint('setup_laboratorios', __name__, url_prefix="/database/fast_setup/")

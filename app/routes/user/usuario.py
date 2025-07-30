@@ -1,12 +1,17 @@
-from flask import Blueprint, session, render_template, request, redirect, url_for, flash
-from flask_sqlalchemy.pagination import SelectPagination
 from datetime import datetime
-from sqlalchemy import select, between
+
+from flask import (Blueprint, flash, redirect, render_template, request,
+                   session, url_for)
+from flask_sqlalchemy.pagination import SelectPagination
+from sqlalchemy import between, select
 from sqlalchemy.exc import IntegrityError, OperationalError
-from app.models import db, Usuarios, Reservas_Fixas, Reservas_Temporarias, Aulas_Ativas, Aulas
-from app.auxiliar.auxiliar_routes import get_user_info, registrar_log_generico_usuario, parse_date_string
-from app.auxiliar.decorators import login_required
+
+from app.auxiliar.auxiliar_routes import (get_user_info, parse_date_string,
+                                          registrar_log_generico_usuario)
 from app.auxiliar.dao import get_semestres
+from app.auxiliar.decorators import login_required
+from app.models import (Aulas, Aulas_Ativas, Reservas_Fixas,
+                        Reservas_Temporarias, Usuarios, db)
 from config.general import LOCAL_TIMEZONE
 
 bp = Blueprint('usuario', __name__, url_prefix='/usuario')

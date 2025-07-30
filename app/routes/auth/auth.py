@@ -1,10 +1,14 @@
-import requests, copy
-from flask import Blueprint, current_app
-from config.general import TOMCAT_API_URL, API_BASIC_USER, API_BASIC_PASS
-from flask import flash, session, render_template, request, redirect, url_for
-from app.models import db, Pessoas, Usuarios, Permissoes
+import copy
+
+import requests
+from flask import (Blueprint, current_app, flash, redirect, render_template,
+                   request, session, url_for)
+
+from app.auxiliar.auxiliar_routes import (none_if_empty,
+                                          registrar_log_generico_sistema)
 from app.auxiliar.decorators import login_required
-from app.auxiliar.auxiliar_routes import none_if_empty, registrar_log_generico_sistema
+from app.models import Permissoes, Pessoas, Usuarios, db
+from config.general import API_BASIC_PASS, API_BASIC_USER, TOMCAT_API_URL
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 

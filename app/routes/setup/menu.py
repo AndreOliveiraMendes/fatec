@@ -1,4 +1,5 @@
-from flask import Blueprint, session, render_template
+from flask import Blueprint, render_template, session
+
 from app.auxiliar.auxiliar_routes import get_user_info
 from app.auxiliar.decorators import admin_required
 

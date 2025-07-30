@@ -1,9 +1,16 @@
-from sqlalchemy import select, and_, or_, between, union_all, literal, text, func
-from sqlalchemy.exc import IntegrityError
 from datetime import date
-from app.models import db, Pessoas, Usuarios, Usuarios_Especiais, Aulas, Laboratorios, Semestres, \
-    Dias_da_Semana, Turnos, Aulas_Ativas, Reservas_Fixas, Reservas_Temporarias, Situacoes_Das_Reserva, \
-    DisponibilidadeEnum, TipoAulaEnum, TipoLaboratorioEnum
+
+from sqlalchemy import (and_, between, func, literal, or_, select, text,
+                        union_all)
+from sqlalchemy.exc import IntegrityError
+
+from app.models import (Aulas, Aulas_Ativas, Dias_da_Semana,
+                        DisponibilidadeEnum, Laboratorios, Pessoas,
+                        Reservas_Fixas, Reservas_Temporarias, Semestres,
+                        Situacoes_Das_Reserva, TipoAulaEnum,
+                        TipoLaboratorioEnum, Turnos, Usuarios,
+                        Usuarios_Especiais, db)
+
 
 #pessoas
 def get_pessoas(acao = None, userid = None):

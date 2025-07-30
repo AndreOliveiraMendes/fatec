@@ -1,16 +1,21 @@
-from flask import Blueprint, flash, session, render_template, redirect, url_for, request
+from collections import Counter
+from datetime import date
+
+from flask import (Blueprint, flash, redirect, render_template, request,
+                   session, url_for)
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, OperationalError
-from datetime import date
-from app.models import db, Semestres, Turnos, Reservas_Fixas, TipoReservaEnum, Usuarios, \
-    Pessoas, Usuarios_Especiais, Permissoes
-from app.auxiliar.auxiliar_routes import get_user_info, registrar_log_generico_usuario
-from app.auxiliar.dao import get_aulas_ativas_reserva_semestre, get_laboratorios, get_aulas_extras, \
-    get_pessoas, get_usuarios_especiais
+
+from app.auxiliar.auxiliar_routes import (get_user_info,
+                                          registrar_log_generico_usuario)
 from app.auxiliar.constant import PERM_ADMIN
+from app.auxiliar.dao import (get_aulas_ativas_reserva_semestre,
+                              get_aulas_extras, get_laboratorios, get_pessoas,
+                              get_usuarios_especiais)
 from app.auxiliar.decorators import login_required
-from collections import Counter
-from config.general import LOCAL_TIMEZONE
+from app.models import (Permissoes, Pessoas, Reservas_Fixas, Semestres,
+                        TipoReservaEnum, Turnos, Usuarios, Usuarios_Especiais,
+                        db)
 
 bp = Blueprint('reservas_semanais', __name__, url_prefix="/reserva_fixa")
 

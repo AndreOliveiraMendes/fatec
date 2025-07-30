@@ -1,7 +1,9 @@
-from flask import url_for, Flask
+from flask import Flask, url_for
 from markupsafe import Markup
+
 from app.auxiliar.constant import PERMISSIONS
-from config.database_views import TABLES_PER_LINE, SECOES
+from config.database_views import SECOES, TABLES_PER_LINE
+
 
 def register_filters(app:Flask):
     @app.template_global()

@@ -1,4 +1,5 @@
-from flask import flash, session, request, jsonify, render_template
+from flask import flash, jsonify, render_template, request, session
+
 from app.auxiliar.auxiliar_routes import get_user_info
 from config.general import SHOW_DEBUG_ERRORS
 

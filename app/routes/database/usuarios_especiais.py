@@ -1,14 +1,19 @@
 import copy
-from flask import Blueprint, flash, session, render_template, request
+
+from flask import Blueprint, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, OperationalError
-from config.general import PER_PAGE
-from app.models import db, Usuarios_Especiais
-from app.auxiliar.decorators import admin_required
-from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, get_query_params, \
-    registrar_log_generico_usuario, get_session_or_request, register_return
+
+from app.auxiliar.auxiliar_routes import (get_query_params,
+                                          get_session_or_request,
+                                          get_user_info, none_if_empty,
+                                          register_return,
+                                          registrar_log_generico_usuario)
 from app.auxiliar.dao import get_usuarios_especiais
+from app.auxiliar.decorators import admin_required
+from app.models import Usuarios_Especiais, db
+from config.general import PER_PAGE
 
 bp = Blueprint('database_usuarios_especiais', __name__, url_prefix="/database")
 

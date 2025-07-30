@@ -1,14 +1,19 @@
 import copy
-from flask import Blueprint, flash, session, render_template, request, abort
+
+from flask import Blueprint, abort, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, OperationalError
-from config.general import PER_PAGE
-from app.models import db, Dias_da_Semana
-from app.auxiliar.decorators import admin_required
-from app.auxiliar.auxiliar_routes import none_if_empty, get_user_info, registrar_log_generico_usuario,\
-    disable_action, get_session_or_request, register_return
+
+from app.auxiliar.auxiliar_routes import (disable_action,
+                                          get_session_or_request,
+                                          get_user_info, none_if_empty,
+                                          register_return,
+                                          registrar_log_generico_usuario)
 from app.auxiliar.dao import get_dias_da_semana
+from app.auxiliar.decorators import admin_required
+from app.models import Dias_da_Semana, db
+from config.general import PER_PAGE
 
 bp = Blueprint('database_dias_da_semana', __name__, url_prefix="/database")
 

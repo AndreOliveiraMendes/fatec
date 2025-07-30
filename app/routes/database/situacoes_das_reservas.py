@@ -1,14 +1,19 @@
 import copy
-from flask import Blueprint, flash, session, render_template, request
+
+from flask import Blueprint, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, OperationalError
-from config.general import PER_PAGE
-from app.models import db, Situacoes_Das_Reserva, SituacaoChaveEnum
+
+from app.auxiliar.auxiliar_routes import (get_query_params,
+                                          get_session_or_request,
+                                          get_user_info, none_if_empty,
+                                          parse_date_string, register_return,
+                                          registrar_log_generico_usuario)
+from app.auxiliar.dao import get_aulas_ativas, get_laboratorios, get_situacoes
 from app.auxiliar.decorators import admin_required
-from app.auxiliar.auxiliar_routes import none_if_empty, parse_date_string, get_user_info, \
-    get_query_params, registrar_log_generico_usuario, get_session_or_request, register_return
-from app.auxiliar.dao import get_laboratorios, get_aulas_ativas, get_situacoes
+from app.models import SituacaoChaveEnum, Situacoes_Das_Reserva, db
+from config.general import PER_PAGE
 
 bp = Blueprint('database_situacoes_das_reservas', __name__, url_prefix="/database")
 

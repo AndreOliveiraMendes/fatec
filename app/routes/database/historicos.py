@@ -1,15 +1,21 @@
 import csv
 from io import StringIO
-from flask import Blueprint, Response, jsonify, flash, session, render_template, request, abort
+
+from flask import (Blueprint, Response, abort, flash, jsonify, render_template,
+                   request, session)
 from flask_sqlalchemy.pagination import SelectPagination
-from sqlalchemy import select, func, or_, between
-from config.general import PER_PAGE, LOCAL_TIMEZONE
-from app.models import db, Historicos, OrigemEnum
-from app.auxiliar.decorators import admin_required
-from app.auxiliar.auxiliar_routes import none_if_empty, parse_datetime_string, get_user_info, \
-    get_query_params, disable_action, include_action, get_session_or_request, formatar_valor, \
-    register_return
+from sqlalchemy import between, func, or_, select
+
+from app.auxiliar.auxiliar_routes import (disable_action, formatar_valor,
+                                          get_query_params,
+                                          get_session_or_request,
+                                          get_user_info, include_action,
+                                          none_if_empty, parse_datetime_string,
+                                          register_return)
 from app.auxiliar.dao import get_usuarios
+from app.auxiliar.decorators import admin_required
+from app.models import Historicos, OrigemEnum, db
+from config.general import LOCAL_TIMEZONE, PER_PAGE
 
 bp = Blueprint('database_historicos', __name__, url_prefix="/database")
 

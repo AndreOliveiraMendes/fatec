@@ -1,10 +1,11 @@
-from flask import Blueprint, session, render_template, abort, Response
-from app.models import db
+from flask import Blueprint, Response, abort, render_template, session
+from sqlalchemy import MetaData, Table, UniqueConstraint, inspect
+from sqlalchemy.dialects import mysql
+from sqlalchemy.schema import CreateTable
+
 from app.auxiliar.auxiliar_routes import get_user_info
 from app.auxiliar.decorators import admin_required
-from sqlalchemy import inspect, Table, MetaData, UniqueConstraint
-from sqlalchemy.schema import CreateTable
-from sqlalchemy.dialects import mysql
+from app.models import db
 
 bp = Blueprint('database_main', __name__, url_prefix="/database")
 

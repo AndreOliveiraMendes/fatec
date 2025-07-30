@@ -1,6 +1,7 @@
-from flask import Blueprint, session, render_template
-from app.auxiliar.decorators import admin_required
+from flask import Blueprint, render_template, session
+
 from app.auxiliar.auxiliar_routes import get_user_info
+from app.auxiliar.decorators import admin_required
 from config.database_views import SECOES
 
 bp = Blueprint('admin', __name__)

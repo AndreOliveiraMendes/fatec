@@ -1,6 +1,8 @@
 import os
+
 from dotenv import load_dotenv
 from tzlocal import get_localzone
+
 
 def str_to_bool(s):
     return str(s).lower() in ['true', '1', 'yes', 'on']

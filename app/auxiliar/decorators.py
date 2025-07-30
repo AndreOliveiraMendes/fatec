@@ -1,7 +1,11 @@
 from functools import wraps
-from flask import session, abort
-from app.models import db, Permissoes
-from app.auxiliar.constant import PERM_RESERVAS_FIXA, PERM_RESERVAS_TEMPORARIA, PERM_ADMIN
+
+from flask import abort, session
+
+from app.auxiliar.constant import (PERM_ADMIN, PERM_RESERVAS_FIXA,
+                                   PERM_RESERVAS_TEMPORARIA)
+from app.models import Permissoes, db
+
 
 def require_login():
     userid = session.get('userid')
