@@ -9,6 +9,7 @@ from app.auxiliar.auxiliar_routes import get_user_info, registrar_log_generico_u
 from app.auxiliar.dao import get_turnos, get_laboratorios, get_aulas_ativas_reservas_dias, \
     check_reserva_temporaria, get_pessoas, get_usuarios_especiais
 from app.auxiliar.constant import PERM_ADMIN
+from app.auxiliar.decorators import login_required
 from collections import Counter
 
 bp = Blueprint('reservas_fixas', __name__, url_prefix="/reserva_temporaria")
@@ -29,6 +30,7 @@ def agrupar_dias(dias:list[date]):
     return grupos
 
 @bp.route('/', methods=['GET', 'POST'])
+@login_required
 def main_page():
     userid = session.get('userid')
     username, perm = get_user_info(userid)
@@ -51,6 +53,7 @@ def main_page():
         return render_template('reserva_temporaria/dias.html', username=username, perm=perm, **extras)
 
 @bp.route('/dias', methods=['POST'])
+@login_required
 def process_turnos():
     userid = session.get('userid')
     username, perm = get_user_info(userid)
@@ -131,6 +134,7 @@ def process_turnos():
     return render_template('reserva_temporaria/turnos.html', username=username, perm=perm, **extras)
 
 @bp.route("/turno", methods=['POST'])
+@login_required
 def efetuar_reserva():
     userid = session.get('userid')
     user = db.get_or_404(Usuarios, userid)

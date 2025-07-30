@@ -117,6 +117,7 @@ def cancelar_reserva_fixa(id_reserva):
     return redirect(url_for('usuario.gerenciar_reserva_fixa'))
 
 @bp.route("/cancelar_reserva_temporaria/<int:id_reserva>", methods=['POST'])
+@login_required
 def cancelar_reserva_temporaria(id_reserva):
     userid = session.get('userid')
     reserva = db.get_or_404(Reservas_Temporarias, id_reserva)
