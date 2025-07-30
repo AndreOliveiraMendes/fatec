@@ -1,5 +1,5 @@
 from flask import Blueprint, flash, session, render_template, redirect, url_for, request, abort
-from sqlalchemy import select, or_, between
+from sqlalchemy import select, and_
 from sqlalchemy.exc import IntegrityError, OperationalError
 from datetime import date
 from app.models import db, Reservas_Temporarias, TipoAulaEnum, TipoReservaEnum, Turnos, Usuarios, \
@@ -101,9 +101,9 @@ def process_turnos():
     filtro = []
     inicio, fim = min(label_dia.keys()), max(label_dia.keys())
     sel_reserva = select(Reservas_Temporarias).where(
-        or_(
-            between(Reservas_Temporarias.inicio_reserva, inicio, fim),
-            between(Reservas_Temporarias.fim_reserva, inicio, fim)
+        and_(
+            Reservas_Temporarias.inicio_reserva <= fim,
+            Reservas_Temporarias.fim_reserva >= inicio
         )
     )
     reservas = db.session.execute(sel_reserva).scalars().all()
