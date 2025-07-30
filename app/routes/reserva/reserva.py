@@ -16,7 +16,6 @@ def main_page():
     reserva_dia = request.args.get('reserva-dia', default=today.date().strftime("%Y-%m-%d"))
     reserva_turno = request.args.get('reserva_turno', type=int)
     reserva_tipo_horario = request.args.get('reserva_tipo_horario')
-    extras['laboratorios'] = get_laboratorios(True, True)
     extras['turnos'] = get_turnos()
     extras['tipo_aula'] = TipoAulaEnum
     extras['reserva_dia'] = parse_date_string(reserva_dia)
