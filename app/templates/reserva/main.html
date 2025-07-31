@@ -9,12 +9,12 @@
 {% block content %}
     <h3>Consultar reservas</h3>
     <p>
-        <strong>Dia:</strong> {{ dia|datahora }}
+        <strong>Dia:</strong> {{ dia|datainfo(DATA_NUMERICA+HORA+SEMANA_COMPLETA) }}
     </p>
     <div class="panel panel-default">
         <div class="panel-heading">
             <h3 class="panel-title">
-                Reservas do dia: {{ reserva_dia|data }}
+                Reservas do dia: {{ reserva_dia|datainfo(DATA_NUMERICA+SEMANA_COMPLETA) }} {# 0x1 + 0x8 #}
                 <hr>
                 <form method="get"
                       class="form-inline"

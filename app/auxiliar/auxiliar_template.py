@@ -1,9 +1,34 @@
 from flask import Flask, url_for
 from markupsafe import Markup
 
-from app.auxiliar.constant import PERMISSIONS
+from app.auxiliar.constant import PERMISSIONS, DATA_FLAGS, DATA_NUMERICA, DATA_ABREV, DATA_COMPLETA, \
+    HORA, SEMANA_ABREV, SEMANA_COMPLETA
 from config.database_views import SECOES, TABLES_PER_LINE
 
+semana_inglesa = {
+    '%a': {  # abreviada
+        'Mon': 'Seg', 'Tue': 'Ter', 'Wed': 'Qua', 'Thu': 'Qui',
+        'Fri': 'Sex', 'Sat': 'Sáb', 'Sun': 'Dom'
+    },
+    '%A': {  # completa
+        'Monday': 'segunda-feira', 'Tuesday': 'terça-feira', 'Wednesday': 'quarta-feira',
+        'Thursday': 'quinta-feira', 'Friday': 'sexta-feira', 'Saturday': 'sábado', 'Sunday': 'domingo'
+    }
+}
+
+meses_ingleses = {
+    '%b': {  # abreviada
+        'Jan': 'Jan', 'Feb': 'Fev', 'Mar': 'Mar', 'Apr': 'Abr',
+        'May': 'Mai', 'Jun': 'Jun', 'Jul': 'Jul', 'Aug': 'Ago',
+        'Sep': 'Set', 'Oct': 'Out', 'Nov': 'Nov', 'Dec': 'Dez'
+    },
+    '%B': {  # completa
+        'January': 'janeiro', 'February': 'fevereiro', 'March': 'março',
+        'April': 'abril', 'May': 'maio', 'June': 'junho',
+        'July': 'julho', 'August': 'agosto', 'September': 'setembro',
+        'October': 'outubro', 'November': 'novembro', 'December': 'dezembro'
+    }
+}
 
 def register_filters(app:Flask):
     @app.template_global()
@@ -55,10 +80,6 @@ def register_filters(app:Flask):
             f"""scheduleReload();"""
         )
         return Markup(script)
-
-    @app.template_global()
-    def bitwise_and(x, y):
-        return x & y
 
     @app.template_global()
     def generate_head(target_url, acao, include = None, disable = None):
@@ -170,6 +191,45 @@ def register_filters(app:Flask):
     def format_datahora(value):
         return value.strftime('%d/%m/%Y %H:%M') if value else ''
 
+    @app.template_filter('datainfo')
+    def data_configuravel(value, flags):
+        if not value:
+            return ''
+        
+        info_dia, info_hora, info_semana = '', '', ''
+        if flags&(DATA_NUMERICA | DATA_ABREV | DATA_COMPLETA):
+            if flags&DATA_NUMERICA:
+                mask = '%d/%m/%Y'
+                info_dia = value.strftime(mask)
+            else:
+                mask = '%B'
+                if flags&DATA_ABREV:
+                    mask = '%b'
+                mes_ingles = value.strftime(mask)
+                dia = value.strftime('%d')
+                mes = meses_ingleses[mask][mes_ingles]
+                ano = value.strftime('%Y')
+                info_dia = f"{dia} de {mes} de {ano}"
+        if flags&HORA:
+            mask = '%H:%M'
+            info_hora = value.strftime(mask)
+        if flags&(SEMANA_ABREV|SEMANA_COMPLETA):
+            mask = '%A'
+            if flags&SEMANA_ABREV:
+                mask = '%a'
+            semana_ingles = value.strftime(mask)
+            info_semana = semana_inglesa[mask][semana_ingles]
+        info = ' '.join([info_dia, info_hora])
+        if info and info_semana:
+            info += f" ({info_semana})"
+        elif info_semana:
+            info += info_semana
+        return info
+
     @app.context_processor
     def inject_permissions():
         return PERMISSIONS
+    
+    @app.context_processor
+    def inject_data_flags():
+        return DATA_FLAGS
