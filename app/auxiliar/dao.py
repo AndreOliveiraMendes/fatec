@@ -112,6 +112,32 @@ def get_aula_intervalo(inicio:date, fim:date):
         )
     )
 
+def get_aulas_ativas_reservas_dia(dia: date, turno: Turnos|None=None, tipo_aula:TipoAulaEnum=TipoAulaEnum.AULA):
+    filtros = []
+
+    # Filtro de ativação no dia
+    filtros.append(get_aula_intervalo(dia, dia))
+
+    # Filtro de dia da semana
+    filtros.append(Aulas_Ativas.id_semana == dia.weekday() + 1)
+
+    # Filtro de turno
+    if turno is not None:
+        filtros.append(get_aula_turno(turno))
+
+    # Filtro de tipo de horario
+    filtros.append(Aulas_Ativas.tipo_aula == tipo_aula)
+
+    sel_aulas_ativas = (
+        select(Aulas_Ativas, Aulas, Dias_da_Semana)
+        .select_from(Aulas_Ativas)
+        .join(Aulas)
+        .join(Dias_da_Semana)
+        .where(*filtros)
+        .order_by(Aulas.horario_inicio)
+    )
+    return db.session.execute(sel_aulas_ativas).all()
+
 def get_aulas_ativas_reservas_dias(dias_turnos: list[tuple[date, Turnos|None]], tipo_aula:TipoAulaEnum):
     selects = []
 
@@ -131,6 +157,9 @@ def get_aulas_ativas_reservas_dias(dias_turnos: list[tuple[date, Turnos|None]], 
         # Filtro de tipo de horario
         filtros.append(Aulas_Ativas.tipo_aula == tipo_aula)
 
+        #nome turno
+        nome_turno = turno.nome_turno if turno else ""
+
         # SELECT individual com labels (pra saber de que dia/turno veio)
         sel = (
             select(
@@ -138,7 +167,7 @@ def get_aulas_ativas_reservas_dias(dias_turnos: list[tuple[date, Turnos|None]], 
                 Aulas,
                 Dias_da_Semana,
                 literal(day).label("dia_consulta"),
-                literal(turno.nome_turno).label("turno_consulta")
+                literal(nome_turno).label("turno_consulta")
             )
             .select_from(Aulas_Ativas)
             .join(Aulas)
@@ -154,17 +183,17 @@ def get_aulas_ativas_reservas_dias(dias_turnos: list[tuple[date, Turnos|None]], 
     return db.session.execute(consulta_final).all()
 
 #aulas ativas para um determinado semestre
-def get_aulas_ativas_reserva_semestre(semestre:Semestres, turno:Turnos|None=None):
-    filtro = []
+def get_aulas_ativas_reserva_semestre(semestre:Semestres, turno:Turnos|None=None, tipo_aula:TipoAulaEnum=TipoAulaEnum.AULA):
+    filtros = []
     #verifica quais horarios estão disponiveis naquele semestre
-    filtro.append(get_aula_intervalo(semestre.data_inicio, semestre.data_fim))
+    filtros.append(get_aula_intervalo(semestre.data_inicio, semestre.data_fim))
     #verifica quais horarios estão naquele turno
     if turno is not None:
-        filtro.append(get_aula_turno(turno))
+        filtros.append(get_aula_turno(turno))
     #verifica se o horario é destinado a aula
-    filtro.append(Aulas_Ativas.tipo_aula == TipoAulaEnum.AULA.name)
+    filtros.append(Aulas_Ativas.tipo_aula == tipo_aula)
     #efetua o query e executa ele
-    sel_aulas_ativas = select(Aulas_Ativas, Aulas, Dias_da_Semana).select_from(Aulas_Ativas).join(Aulas).join(Dias_da_Semana).where(*filtro).order_by(Aulas_Ativas.id_semana, Aulas.horario_inicio)
+    sel_aulas_ativas = select(Aulas_Ativas, Aulas, Dias_da_Semana).select_from(Aulas_Ativas).join(Aulas).join(Dias_da_Semana).where(*filtros).order_by(Aulas_Ativas.id_semana, Aulas.horario_inicio)
     return db.session.execute(sel_aulas_ativas).all()
 
 def get_aulas_extras(semestre:Semestres, turno:Turnos):
