@@ -14,7 +14,7 @@
     <div class="panel panel-default">
         <div class="panel-heading">
             <h3 class="panel-title">
-                Reservas do dia: {{ reserva_dia|datainfo(DATA_NUMERICA+SEMANA_COMPLETA) }} {# 0x1 + 0x8 #}
+                Reservas do dia: {{ reserva_dia|datainfo(DATA_NUMERICA+SEMANA_COMPLETA) }}
                 <hr>
                 <form method="get"
                       class="form-inline"
@@ -99,3 +99,4 @@
         <small>Esta página se atualiza automaticamente.</small>
     </p>
 {% endblock footer %}
+{# Blueprint\(('[^']+'),[^\)]+\) #}
