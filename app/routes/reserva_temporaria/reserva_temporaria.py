@@ -9,7 +9,8 @@ from sqlalchemy.exc import IntegrityError, OperationalError
 from app.auxiliar.auxiliar_routes import (get_user_info, none_if_empty,
                                           parse_date_string,
                                           registrar_log_generico_usuario,
-                                          time_range)
+                                          time_range,
+                                          get_data_reserva)
 from app.auxiliar.constant import PERM_ADMIN
 from app.auxiliar.dao import (check_reserva_temporaria,
                               get_aulas_ativas_reservas_dias, get_laboratorios,
@@ -119,18 +120,7 @@ def process_turnos():
     reservas = db.session.execute(sel_reserva).scalars().all()
     helper = {}
     for r in reservas:
-        title = 'reservado por '
-        empty = True
-        if r.tipo_responsavel == 0 or r.tipo_responsavel == 2:
-            responsavel = db.get_or_404(Pessoas, r.id_responsavel)
-            title += responsavel.nome_pessoa
-            empty = False
-        if r.tipo_responsavel == 1 or r.tipo_responsavel == 2:
-            responsavel = db.get_or_404(Usuarios_Especiais, r.id_responsavel_especial)
-            if empty:
-                title += responsavel.nome_usuario_especial
-            else:
-                title += f" ({responsavel.nome_usuario_especial})"
+        title = get_data_reserva(r)
 
         days = [day.strftime('%Y-%m-%d') for day in time_range(r.inicio_reserva, r.fim_reserva, 7)]
         for day in days:

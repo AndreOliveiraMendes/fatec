@@ -7,7 +7,8 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from app.auxiliar.auxiliar_routes import (get_user_info,
-                                          registrar_log_generico_usuario)
+                                          registrar_log_generico_usuario,
+                                          get_data_reserva)
 from app.auxiliar.constant import PERM_ADMIN
 from app.auxiliar.dao import (get_aulas_ativas_reserva_semestre,
                               get_aulas_extras, get_laboratorios, get_pessoas,
@@ -96,18 +97,7 @@ def get_turno(id_semestre, id_turno):
     reservas = db.session.execute(sel_reservas).scalars().all()
     helper = {}
     for r in reservas:
-        title = 'reservado por '
-        empty = True
-        if r.tipo_responsavel == 0 or r.tipo_responsavel == 2:
-            responsavel = db.get_or_404(Pessoas, r.id_responsavel)
-            title += responsavel.nome_pessoa
-            empty = False
-        if r.tipo_responsavel == 1 or r.tipo_responsavel == 2:
-            responsavel = db.get_or_404(Usuarios_Especiais, r.id_responsavel_especial)
-            if empty:
-                title += responsavel.nome_usuario_especial
-            else:
-                title += f" ({responsavel.nome_usuario_especial})"
+        title = get_data_reserva(r)
         helper[(r.id_reserva_laboratorio, r.id_reserva_aula)] = title
     extras['helper'] = helper
     extras['tipo_reserva'] = TipoReservaEnum

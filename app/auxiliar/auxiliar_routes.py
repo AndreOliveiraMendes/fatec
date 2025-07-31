@@ -5,7 +5,7 @@ from typing import Literal
 from flask import redirect, session, url_for
 from sqlalchemy.inspection import inspect
 
-from app.models import Historicos, OrigemEnum, Permissoes, Usuarios, db
+from app.models import Historicos, OrigemEnum, Permissoes, Usuarios, db, Reservas_Fixas, Reservas_Temporarias, Pessoas, Usuarios_Especiais
 from config.general import AFTER_ACTION, LOCAL_TIMEZONE
 
 IGNORED_FORM_FIELDS = ['page', 'acao', 'bloco']
@@ -200,3 +200,18 @@ def time_range(start:date, end:date, step:int = 1):
     while start <= day <= end:
         yield day
         day += timedelta(step)
+
+def get_data_reserva(reserva:Reservas_Fixas|Reservas_Temporarias, prefix='reservado por '):
+    title = prefix if prefix else ''
+    empty = True
+    if reserva.tipo_responsavel == 0 or reserva.tipo_responsavel == 2:
+        responsavel = db.get_or_404(Pessoas, reserva.id_responsavel)
+        title += responsavel.nome_pessoa
+        empty = False
+    if reserva.tipo_reserva == 1 or reserva.tipo_reserva == 2:
+        responsavel = db.get_or_404(Usuarios_Especiais, reserva.id_responsavel_especial)
+        if empty:
+            title += responsavel.nome_usuario_especial
+        else:
+            title += f" ({responsavel.nome_usuario_especial})"
+    return title
