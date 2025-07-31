@@ -35,7 +35,4 @@ def main_page():
         extras['skip'] = True
     extras['aulas'] = aulas
     extras['laboratorios'] = laboratorios
-    for info in aulas:
-        a, b, c = info[0], info[1], info[2]
-        print(f"{a.id_aula_ativa} {a.tipo_aula.value}|{b.id_aula}|{c.id_semana}")
     return render_template("reserva/main.html", username=username, perm=perm, **extras)
