@@ -1,3 +1,4 @@
+from math import ceil
 from flask import Blueprint, render_template, session, request
 from markupsafe import Markup
 from app.auxiliar.auxiliar_routes import get_user_info, parse_date_string, get_data_reserva
@@ -43,6 +44,15 @@ def get_reserva(lab, aula, dia):
     except MultipleResultsFound as e:
         return f"not ok:{e}"
 
+def divide(l, q):
+    result = []
+    qt = len(l)
+    for g in range(ceil(qt/q)):
+        result.append([])
+        for i in range(q*g, min(q*(g+1), len(l))):
+            result[-1].append(l[i])
+    return result
+
 @bp.route('/')
 def main_page():
     userid = session.get('userid')
@@ -69,3 +79,26 @@ def main_page():
     extras['laboratorios'] = laboratorios
     extras['get_reserva'] = get_reserva
     return render_template("reserva/main.html", username=username, perm=perm, **extras)
+
+@bp.route("/configurar")
+def configurar_tela_televisor():
+    userid = session.get('userid')
+    username, perm = get_user_info(userid)
+    extras = {}
+    extras['tipo_aula'] = TipoAulaEnum
+    return render_template("reserva/televisor_control.html", username=username, perm=perm, **extras)
+
+@bp.route("/televisor")
+def tela_televisor():
+    userid = session.get('userid')
+    username, perm = get_user_info(userid)
+    extras = {}
+    tipo_horario = request.args.get('reserva_tipo_horario', default=TipoAulaEnum.AULA.value)
+    intervalo = request.args.get('intervalo', type=int)
+    qt_lab = request.args.get('qt_lab', default=5, type=int)
+    lab = divide(get_laboratorios(), qt_lab)
+    extras['intervalo'] = intervalo*1000
+    extras['laboratorios'] = lab
+    today = datetime.now(LOCAL_TIMEZONE)
+    extras['hoje'] = today
+    return render_template("reserva/televisor.html", username=username, perm=perm, **extras)

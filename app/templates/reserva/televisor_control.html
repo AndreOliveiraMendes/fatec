@@ -1,0 +1,42 @@
+{% extends "base" %}
+{% from "macros/form.html" import action_buttons %}
+{% block title %}
+    Configurar Tela Televisor
+{% endblock title %}
+{% block content %}
+    <form class="form-group"
+          action="{{ url_for('consultar_reservas.tela_televisor') }}"
+          role="form"
+          method="get">
+        <div class="form-group">
+            <label for="reserva_turno">Destino:</label>
+            <select class="form-control"
+                    id="reserva_tipo_horario"
+                    name="reserva_tipo_horario"
+                    required>
+                {% for aula in tipo_aula %}<option value="{{ aula.value }}">{{ aula.value }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="intervalo">Tempo de Transição:</label>
+            <input type="number"
+                   class="form-control"
+                   placeholder="tempo em segundos (sem unidade)"
+                   id="intervalo"
+                   name="intervalo"
+                   min="0"
+                   required>
+        </div>
+        <div class="form-group">
+            <label for="qt_lab">quantidade maxima de laboratorios por vez:</label>
+            <input type="number"
+                   class="form-control"
+                   placeholder="numero de laboratorios por tela"
+                   id="qt_lab"
+                   name="qt_lab"
+                   min="1"
+                   required>
+        </div>
+        {{ action_buttons('montar', show_voltar=False, label='') }}
+    </form>
+{% endblock content %}

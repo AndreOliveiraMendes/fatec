@@ -34,69 +34,98 @@
     <body>
         <div id="wrap">
             <!-- Navbar -->
-            <nav class="navbar navbar-default">
-                <div class="container-fluid">
-                    <div class="navbar-header">
-                        <a class="navbar-brand"
-                           title="ir a pagina inicial"
-                           href="{{ url_for('default.home') }}">
-                            Sistema RLF
-                            {% if perm and perm|has_flag(FIXA) %}
-                                <i class="glyphicon glyphicon-calendar"
-                                   title="Permissão de Reserva Fixa"></i>
-                            {% endif %}
-                            {% if perm and perm|has_flag(TEMP) %}
-                                <i class="glyphicon glyphicon-time"
-                                   title="Permissão de Reserva Temporária"></i>
-                            {% endif %}
-                            {% if perm and perm|has_flag(ADMIN) %}
-                                <i class="glyphicon glyphicon-fire" title="Permissão de Administrador"></i>
-                            {% endif %}
-                        </a>
-                    </div>
-                    <ul class="nav navbar-nav navbar-right">
-                        <li class="dropdown">
-                            <a href="#"
-                               class="dropdown-toggle"
-                               data-toggle="dropdown"
-                               role="button"
-                               aria-haspopup="true"
-                               aria-expanded="false">
-                                {% if username %}
-                                    <i class="glyphicon glyphicon-user"></i> {{ username }} <span class="caret"></span>
-                                {% else %}
-                                    <i class="glyphicon glyphicon-user"></i> visitante <span class="caret"></span>
+            {% block navigation %}
+                <nav class="navbar navbar-default">
+                    <div class="container-fluid">
+                        <div class="navbar-header">
+                            <a class="navbar-brand"
+                               title="ir a pagina inicial"
+                               href="{{ url_for('default.home') }}">
+                                Sistema RLF
+                                {% if perm and perm|has_flag(FIXA) %}
+                                    <i class="glyphicon glyphicon-calendar"
+                                       title="Permissão de Reserva Fixa"></i>
+                                {% endif %}
+                                {% if perm and perm|has_flag(TEMP) %}
+                                    <i class="glyphicon glyphicon-time"
+                                       title="Permissão de Reserva Temporária"></i>
+                                {% endif %}
+                                {% if perm and perm|has_flag(ADMIN) %}
+                                    <i class="glyphicon glyphicon-fire" title="Permissão de Administrador"></i>
                                 {% endif %}
                             </a>
-                            <ul class="dropdown-menu">
-                                {% if username %}
+                        </div>
+                        <ul class="nav navbar-nav navbar-right">
+                            <li class="dropdown">
+                                <a href="#"
+                                   class="dropdown-toggle"
+                                   data-toggle="dropdown"
+                                   role="button"
+                                   aria-haspopup="true"
+                                   aria-expanded="false">
+                                    <i class="glyphicon glyphicon-search"></i> Reservas <span class="caret"></span>
+                                </a>
+                                <ul class="dropdown-menu">
                                     <li>
-                                        <a href="{{ url_for('auth.logout') }}"><i class="glyphicon glyphicon-log-out"></i> Sair</a>
+                                        <a href="{{ url_for('consultar_reservas.configurar_tela_televisor') }}">
+                                            <i class="glyphicon glyphicon-blackboard"></i> Tela Televisor
+                                        </a>
                                     </li>
-                                    <li>
-                                        <a href="{{ url_for('usuario.menu_reservas_usuario') }}"
-                                           title="Visualize suas reservas ativas"><i class="glyphicon glyphicon-list"></i> Verificar Reservas</a>
-                                    </li>
-                                    <li>
-                                        <a href="{{ url_for('usuario.perfil') }}"><i class="glyphicon glyphicon-user"></i> Perfil</a>
-                                    </li>
-                                {% else %}
-                                    <li>
-                                        <a href="{{ url_for('auth.login') }}"><i class="glyphicon glyphicon-log-in"></i> Login</a>
-                                    </li>
-                                {% endif %}
-                                <li role="separator" class="divider"></li>
+                                    <!--
                                 <li>
-                                    <a href="https://www.glyphicons.com/" target="_blank"><i class="glyphicon glyphicon-asterisk"></i> Glyphicons</a>
+                                    <a href="">
+                                        <span class="reserva-icon">
+                                            <i class="glyphicon glyphicon-user base-icon"></i>
+                                            <i class="glyphicon glyphicon-ok overlay-icon text-success"></i>
+                                        </span>
+                                    </a>
                                 </li>
-                                <li>
-                                    <a href="https://getbootstrap.com/docs/3.4/" target="_blank"><i class="glyphicon glyphicon-question-sign"></i> Bootstrap 3.4.1</a>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
+                                -->
+                                </ul>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#"
+                                   class="dropdown-toggle"
+                                   data-toggle="dropdown"
+                                   role="button"
+                                   aria-haspopup="true"
+                                   aria-expanded="false">
+                                    {% if username %}
+                                        <i class="glyphicon glyphicon-user"></i> {{ username }} <span class="caret"></span>
+                                    {% else %}
+                                        <i class="glyphicon glyphicon-user"></i> visitante <span class="caret"></span>
+                                    {% endif %}
+                                </a>
+                                <ul class="dropdown-menu">
+                                    {% if username %}
+                                        <li>
+                                            <a href="{{ url_for('auth.logout') }}"><i class="glyphicon glyphicon-log-out"></i> Sair</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ url_for('usuario.menu_reservas_usuario') }}"
+                                               title="Visualize suas reservas ativas"><i class="glyphicon glyphicon-list"></i> Verificar Reservas</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ url_for('usuario.perfil') }}"><i class="glyphicon glyphicon-user"></i> Perfil</a>
+                                        </li>
+                                    {% else %}
+                                        <li>
+                                            <a href="{{ url_for('auth.login') }}"><i class="glyphicon glyphicon-log-in"></i> Login</a>
+                                        </li>
+                                    {% endif %}
+                                    <li role="separator" class="divider"></li>
+                                    <li>
+                                        <a href="https://www.glyphicons.com/" target="_blank"><i class="glyphicon glyphicon-asterisk"></i> Glyphicons</a>
+                                    </li>
+                                    <li>
+                                        <a href="https://getbootstrap.com/docs/3.4/" target="_blank"><i class="glyphicon glyphicon-question-sign"></i> Bootstrap 3.4.1</a>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+            {% endblock navigation %}
             <!-- Main Content -->
             <div id="main" class="container text-center">
                 {% block flash_messages %}

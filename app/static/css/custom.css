@@ -132,3 +132,21 @@ body {
     text-align: center;
     font-weight: bold;
 }
+
+.reserva-icon {
+    position: relative;
+    display: inline-block;
+    width: 1.3em;
+    height: 1.3em;
+}
+
+.base-icon {
+    font-size: 1.3em;
+}
+
+.overlay-icon {
+    position: absolute;
+    font-size: 0.6em;
+    top: 60%;
+    right: 0;
+}
