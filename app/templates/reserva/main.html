@@ -18,7 +18,7 @@
                 <hr>
                 <form method="get"
                       class="form-inline"
-                      action="{{ url_for('consultar_reservas.main_page') }}">
+                      action="{{ url_for("consultar_reservas.main_page") }}">
                     <div class="form-group">
                         <label for="reserva-dia">dia:</label>
                         <input type="date"
@@ -80,7 +80,9 @@
                                 <tr>
                                     <td>{{ lab.nome_laboratorio }}</td>
                                     {% for aula_info in aulas %}
-                                        <td>{{ get_reserva(lab.id_laboratorio, aula_info[0].id_aula_ativa, reserva_dia) }}</td>
+                                        <td data-lab="{{ lab.id_laboratorio }}"
+                                            data-aula="{{ aula_info[0].id_aula_ativa }}"
+                                            data-dia="{{ reserva_dia }}">Carregando...</td>
                                     {% endfor %}
                                 </tr>
                             {% endfor %}
@@ -93,6 +95,27 @@
 {% endblock content %}
 {% block extra_script %}
     <script>{{ refresh_page_full_minute_script() }}</script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('td[data-lab]').forEach(td => {
+            const lab = td.dataset.lab;
+            const aula = td.dataset.aula;
+            const dia = td.dataset.dia;
+
+            // monta a URL completa com todos os parâmetros
+            const url = "{{ url_for('consultar_reservas.consulta', lab='__LAB__', aula='__AULA__', dia='__DIA__') }}"
+                        .replace('__LAB__', lab)
+                        .replace('__AULA__', aula)
+                        .replace('__DIA__', dia);
+
+            fetch(url)
+            .then(res => res.text())
+            .then(data => {
+                td.textContent = data;
+            });
+        });
+    });
+    </script>
 {% endblock extra_script %}
 {% block footer %}
     <p class="text-muted">

@@ -11,6 +11,10 @@ from sqlalchemy.exc import MultipleResultsFound
 
 bp = Blueprint('consultar_reservas', __name__, url_prefix="/consultar_reserva")
 
+@bp.route("/reserva/<lab>/<aula>/<dia>")
+def consulta(lab, aula, dia):
+    return get_reserva(lab, aula, dia)
+
 def get_reserva(lab, aula, dia):
     try:
         fixa, temp = None, None
