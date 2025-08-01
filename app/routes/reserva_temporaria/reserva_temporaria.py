@@ -6,11 +6,10 @@ from flask import (Blueprint, abort, flash, redirect, render_template, request,
 from sqlalchemy import and_, select
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from app.auxiliar.auxiliar_routes import (get_user_info, none_if_empty,
-                                          parse_date_string,
+from app.auxiliar.auxiliar_routes import (get_data_reserva, get_user_info,
+                                          none_if_empty, parse_date_string,
                                           registrar_log_generico_usuario,
-                                          time_range,
-                                          get_data_reserva)
+                                          time_range)
 from app.auxiliar.constant import PERM_ADMIN
 from app.auxiliar.dao import (check_reserva_temporaria,
                               get_aulas_ativas_reservas_dias, get_laboratorios,

@@ -6,8 +6,10 @@ from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import between, select
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from app.auxiliar.auxiliar_routes import (get_user_info, parse_date_string,
+from app.auxiliar.auxiliar_routes import (get_data_reserva, get_user_info,
+                                          parse_date_string,
                                           registrar_log_generico_usuario)
+from app.auxiliar.constant import PERM_ADMIN
 from app.auxiliar.dao import get_semestres
 from app.auxiliar.decorators import login_required
 from app.models import (Aulas, Aulas_Ativas, Reservas_Fixas,
@@ -16,9 +18,12 @@ from config.general import LOCAL_TIMEZONE
 
 bp = Blueprint('usuario', __name__, url_prefix='/usuario')
 
-def get_reservas_fixas(userid, semestre, page):
+def get_reservas_fixas(userid, semestre, page, all=False):
+    print(all)
     user = db.session.get(Usuarios, userid)
-    filtro = [Reservas_Fixas.id_responsavel == user.pessoas.id_pessoa]
+    filtro = []
+    if not all:
+        filtro.append(Reservas_Fixas.id_responsavel == user.pessoas.id_pessoa)
     if semestre is not None:
         filtro.append(Reservas_Fixas.id_reserva_semestre == semestre)
     sel_reservas = select(Reservas_Fixas).join(Aulas_Ativas).join(Aulas).where(*filtro).order_by(
@@ -31,9 +36,11 @@ def get_reservas_fixas(userid, semestre, page):
     )
     return pagination
 
-def get_reservas_temporarias(userid, dia, page):
+def get_reservas_temporarias(userid, dia, page, all=False):
     user = db.session.get(Usuarios, userid)
-    filtro = [Reservas_Temporarias.id_responsavel == user.pessoas.id_pessoa]
+    filtro = []
+    if not all:
+        filtro.append(Reservas_Temporarias.id_responsavel == user.pessoas.id_pessoa)
     if dia is not None:
         filtro.append(between(dia, Reservas_Temporarias.inicio_reserva, Reservas_Temporarias.fim_reserva))
     sel_reservas = select(Reservas_Temporarias).join(Aulas_Ativas).join(Aulas).where(*filtro).order_by(
@@ -78,11 +85,14 @@ def gerenciar_reserva_fixa():
     semestre_id = request.args.get("semestre", type=int)
     page = int(request.args.get("page", 1))
     extras['semestre_selecionado'] = semestre_id
-    reservas_fixas = get_reservas_fixas(userid, semestre_id, page)
+    all = "all" in request.args and perm&PERM_ADMIN > 0
+    extras['all'] = all
+    reservas_fixas = get_reservas_fixas(userid, semestre_id, page, all)
     extras['reservas_fixas'] = reservas_fixas.items
     extras['pagination'] = reservas_fixas
     args_extras = {key:value for key, value in request.args.items() if key != 'page'}
     extras['args_extras'] = args_extras
+    extras['get_data_reserva'] = get_data_reserva
     return render_template("usuario/reserva_fixa.html", username=username, perm=perm, **extras)
 
 @bp.route("/reserva/reservas_temporarias")
@@ -95,11 +105,14 @@ def gerenciar_reserva_temporaria():
     dia = parse_date_string(request.args.get('dia'))
     page = int(request.args.get("page", 1))
     extras['dia_selecionado'] = dia
-    reservas_temporarias = get_reservas_temporarias(userid, dia, page)
+    all = "all" in request.args and perm&PERM_ADMIN > 0
+    extras['all'] = all
+    reservas_temporarias = get_reservas_temporarias(userid, dia, page, all)
     extras['reservas_temporarias'] = reservas_temporarias.items
     extras['pagination'] = reservas_temporarias
     args_extras = {key:value for key, value in request.args.items() if key != 'page'}
     extras['args_extras'] = args_extras
+    extras['get_data_reserva'] = get_data_reserva
     return render_template("usuario/reserva_temporaria.html", username=username, perm=perm, **extras)
 
 @bp.route("/cancelar_reserva_fixa/<int:id_reserva>", methods=['POST'])

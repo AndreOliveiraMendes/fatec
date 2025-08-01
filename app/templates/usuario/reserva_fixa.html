@@ -38,6 +38,18 @@
                             {% endfor %}
                         </select>
                     </div>
+                    {% if perm|has_flag(ADMIN) %}
+                        <div class="form-group">
+                            <label for="all">Todos usuarios</label>
+                            <input type="checkbox"
+                                   id="all"
+                                   name="all"
+                                   class="form-control"
+                                   title="Mostrar reservas de todos os usuários"
+                                   {% if all %}checked{% endif %}
+                                   onchange="this.form.submit()">
+                        </div>
+                    {% endif %}
                 </form>
             </h3>
         </div>
@@ -47,6 +59,7 @@
                     <table class="table table-striped table-bordered">
                         <thead>
                             <tr class="information">
+                                {% if all %}<th>Responsavel</th>{% endif %}
                                 <th>Laboratório</th>
                                 <th>Semestre</th>
                                 <th>Semana</th>
@@ -58,6 +71,7 @@
                         <tbody>
                             {% for r in reservas_fixas %}
                                 <tr>
+                                    {% if all %}<td>{{ get_data_reserva(r, None) }}</td>{% endif %}
                                     <td>{{ r.laboratorios.nome_laboratorio }}</td>
                                     <td>{{ r.semestres.nome_semestre }}</td>
                                     <td>{{ r.aulas_ativas.dia_da_semana.nome_semana }}</td>

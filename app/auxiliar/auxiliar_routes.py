@@ -5,7 +5,9 @@ from typing import Literal
 from flask import redirect, session, url_for
 from sqlalchemy.inspection import inspect
 
-from app.models import Historicos, OrigemEnum, Permissoes, Usuarios, db, Reservas_Fixas, Reservas_Temporarias, Pessoas, Usuarios_Especiais
+from app.models import (Historicos, OrigemEnum, Permissoes, Pessoas,
+                        Reservas_Fixas, Reservas_Temporarias, Usuarios,
+                        Usuarios_Especiais, db)
 from config.general import AFTER_ACTION, LOCAL_TIMEZONE
 
 IGNORED_FORM_FIELDS = ['page', 'acao', 'bloco']

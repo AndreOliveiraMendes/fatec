@@ -1,8 +1,9 @@
 from flask import Flask, url_for
 from markupsafe import Markup
 
-from app.auxiliar.constant import PERMISSIONS, DATA_FLAGS, DATA_NUMERICA, DATA_ABREV, DATA_COMPLETA, \
-    HORA, SEMANA_ABREV, SEMANA_COMPLETA
+from app.auxiliar.constant import (DATA_ABREV, DATA_COMPLETA, DATA_FLAGS,
+                                   DATA_NUMERICA, HORA, PERMISSIONS,
+                                   SEMANA_ABREV, SEMANA_COMPLETA)
 from config.database_views import SECOES, TABLES_PER_LINE
 
 semana_inglesa = {
