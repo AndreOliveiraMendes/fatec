@@ -51,7 +51,7 @@
                         <tbody>
                             {% for aula in aulas %}
                                 <tr>
-                                    <td>{{ aula[1].horario_inicio|hora }} - {{ aula[1].horario_fim|hora }}</td>
+                                    <td><span class="glyphicon glyphicon-time"></span> {{ aula[1].horario_inicio|hora }} - {{ aula[1].horario_fim|hora }}</td>
                                     {% for lab in lab_group %}
                                         <td>{{ get_reserva(lab.id_laboratorio, aula[0].id_aula_ativa, hoje ) }}</td>
                                     {% endfor %}

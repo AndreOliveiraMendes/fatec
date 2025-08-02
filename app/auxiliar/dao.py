@@ -10,6 +10,7 @@ from app.models import (Aulas, Aulas_Ativas, Dias_da_Semana,
                         Situacoes_Das_Reserva, TipoAulaEnum,
                         TipoLaboratorioEnum, Turnos, Usuarios,
                         Usuarios_Especiais, db)
+from config.general import FIRST_DAY_OF_WEEK, INDEX_START
 
 
 #pessoas
@@ -91,6 +92,14 @@ def get_aula_turno(turno:Turnos):
         between(Aulas.horario_fim, turno.horario_inicio, turno.horario_fim)
     )
 
+def get_aula_semana(dia:date):
+    wd = dia.weekday()
+    if FIRST_DAY_OF_WEEK == 'domingo':
+        wd = (wd+1)%7
+    if INDEX_START == '1':
+        wd += 1
+    return Aulas_Ativas.id_semana == wd
+
 def get_aula_intervalo(inicio:date, fim:date):
     return or_(
         and_(
@@ -119,7 +128,7 @@ def get_aulas_ativas_reservas_dia(dia: date, turno: Turnos|None=None, tipo_aula:
     filtros.append(get_aula_intervalo(dia, dia))
 
     # Filtro de dia da semana
-    filtros.append(Aulas_Ativas.id_semana == (dia.weekday()+1)%7+1)
+    filtros.append(get_aula_semana(dia))
 
     # Filtro de turno
     if turno is not None:
@@ -141,14 +150,14 @@ def get_aulas_ativas_reservas_dia(dia: date, turno: Turnos|None=None, tipo_aula:
 def get_aulas_ativas_reservas_dias(dias_turnos: list[tuple[date, Turnos|None]], tipo_aula:TipoAulaEnum):
     selects = []
 
-    for day, turno in dias_turnos:
+    for dia, turno in dias_turnos:
         filtros = []
 
         # Filtro de ativação no dia
-        filtros.append(get_aula_intervalo(day, day))
+        filtros.append(get_aula_intervalo(dia, dia))
 
         # Filtro de dia da semana
-        filtros.append(Aulas_Ativas.id_semana == (day.weekday()+1)%7+1)
+        filtros.append(get_aula_semana(dia))
 
         # Filtro de turno
         if turno is not None:
@@ -166,7 +175,7 @@ def get_aulas_ativas_reservas_dias(dias_turnos: list[tuple[date, Turnos|None]], 
                 Aulas_Ativas,
                 Aulas,
                 Dias_da_Semana,
-                literal(day).label("dia_consulta"),
+                literal(dia).label("dia_consulta"),
                 literal(nome_turno).label("turno_consulta")
             )
             .select_from(Aulas_Ativas)

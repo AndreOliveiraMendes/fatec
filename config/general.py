@@ -26,15 +26,26 @@ def get_config():
     return Config
 
 # Variáveis extras
+# erros
 SHOW_DEBUG_ERRORS = str_to_bool(os.getenv("SHOW_DEBUG_ERRORS", "False"))
+
+# mysql database
 AUTO_CREATE_MYSQL = str_to_bool(os.getenv("AUTO_CREATE_MYSQL", "False"))
+
+# api
 TOMCAT_HOST = os.getenv("TOMCAT_HOST", "127.0.0.1")
 TOMCAT_PORT = os.getenv("TOMCAT_PORT", "5001")
 TOMCAT_API_URL = f"http://{TOMCAT_HOST}:{TOMCAT_PORT}/api/autenticar/json"
 API_BASIC_USER = os.getenv("API_BASIC_USER")
 API_BASIC_PASS = os.getenv("API_BASIC_PASS")
+
+# crude related
 PER_PAGE = int(os.getenv("PER_PAGE", "10"))
 AFTER_ACTION = os.getenv("AFTER_ACTION", "noredirect")
 FLASK_HOST = os.getenv('FLASK_HOST', '127.0.0.1')
 FLASK_PORT = int(os.getenv('FLASK_PORT', '5000'))
+
+# datatime related
 LOCAL_TIMEZONE = get_localzone()
+FIRST_DAY_OF_WEEK = os.getenv('FIRST_DAY_OF_WEEK', 'domingo')
+INDEX_START = os.getenv('INDEX_START', '0')
