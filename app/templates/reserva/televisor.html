@@ -26,9 +26,12 @@
                 </a>
             </div>
             <ul class="nav navbar-nav navbar-right">
-                <p class="navbar-text">
-                    {{ hoje|datainfo(DATA_COMPLETA+HORA+SEMANA_COMPLETA) }} <i class="glyphicon glyphicon-calendar"></i>
-                </p>
+                <li class="navbar-text nav-centered">
+                    <span>{{ hoje|datainfo(DATA_COMPLETA+HORA+SEMANA_COMPLETA) }}</span>
+                    <span class="circle-container">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                </li>
             </ul>
         </div>
     </nav>
@@ -51,10 +54,10 @@
                         <tbody>
                             {% for aula in aulas %}
                                 <tr>
-                                    <td><span class="glyphicon glyphicon-time"></span> {{ aula[1].horario_inicio|hora }} - {{ aula[1].horario_fim|hora }}</td>
-                                    {% for lab in lab_group %}
-                                        <td>{{ get_reserva(lab.id_laboratorio, aula[0].id_aula_ativa, hoje ) }}</td>
-                                    {% endfor %}
+                                    <td>
+                                        <span class="glyphicon glyphicon-time"></span> {{ aula[1].horario_inicio|hora }} - {{ aula[1].horario_fim|hora }}
+                                    </td>
+                                    {% for lab in lab_group %}<td>{{ get_reserva(lab.id_laboratorio, aula[0].id_aula_ativa, hoje) }}</td>{% endfor %}
                                 </tr>
                             {% endfor %}
                         </tbody>

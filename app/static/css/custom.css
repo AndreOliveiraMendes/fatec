@@ -158,3 +158,24 @@ body {
 .slide.active {
     display: block;
 }
+
+.circle-container {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #f0ad4e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.circle-container .glyphicon {
+    font-size: 25px;
+    color: #f73c3c;
+}
+
+.nav > li.nav-centered {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
