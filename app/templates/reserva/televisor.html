@@ -48,13 +48,13 @@
                      aria-hidden="{{ 'false' if loop.index0 == 0 else 'true' }}">
                     <table class="table table-striped table-bordered">
                         <thead>
-                            <th>Horário:</th>
+                            <th class="fixa">Horário:</th>
                             {% for lab in lab_group %}<th>{{ lab.nome_laboratorio }}</th>{% endfor %}
                         </thead>
                         <tbody>
                             {% for aula in aulas %}
                                 <tr>
-                                    <td>
+                                    <td class="fixa">
                                         <span class="glyphicon glyphicon-time"></span> {{ aula[1].horario_inicio|hora }} - {{ aula[1].horario_fim|hora }}
                                     </td>
                                     {% for lab in lab_group %}<td>{{ get_reserva(lab.id_laboratorio, aula[0].id_aula_ativa, hoje) }}</td>{% endfor %}

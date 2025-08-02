@@ -174,8 +174,15 @@ body {
     color: #f73c3c;
 }
 
-.nav > li.nav-centered {
+.nav>li.nav-centered {
     display: flex;
     align-items: center;
     gap: 6px;
+}
+
+td.fixa {
+    width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
