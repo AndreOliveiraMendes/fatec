@@ -12,15 +12,14 @@ from app.auxiliar.constant import PERM_ADMIN
 from app.auxiliar.dao import (get_aulas_ativas_reserva_semestre,
                               get_aulas_extras, get_laboratorios, get_pessoas,
                               get_usuarios_especiais)
-from app.auxiliar.decorators import login_required
-from app.models import (Permissoes, Pessoas, Reservas_Fixas, Semestres,
-                        TipoReservaEnum, Turnos, Usuarios, Usuarios_Especiais,
-                        db)
+from app.auxiliar.decorators import reserva_fixa_required
+from app.models import (Permissoes, Reservas_Fixas, Semestres,
+                        TipoReservaEnum, Turnos, Usuarios, db)
 
 bp = Blueprint('reservas_semanais', __name__, url_prefix="/reserva_fixa")
 
 @bp.route('/')
-@login_required
+@reserva_fixa_required
 def main_page():
     userid = session.get('userid')
     username, perm = get_user_info(userid)
@@ -45,7 +44,7 @@ def main_page():
     return render_template('reserva_fixa/main.html', username=username, perm=perm, **extras)
 
 @bp.route('/semestre/<int:id_semestre>')
-@login_required
+@reserva_fixa_required
 def get_semestre(id_semestre):
     userid = session.get('userid')
     username, perm = get_user_info(userid)
@@ -61,7 +60,7 @@ def get_semestre(id_semestre):
     return render_template('reserva_fixa/semestre.html', username=username, perm=perm, **extras)
 
 @bp.route('/semestre/<int:id_semestre>/turno/<int:id_turno>')
-@login_required
+@reserva_fixa_required
 def get_turno(id_semestre, id_turno):
     userid = session.get('userid')
     username, perm = get_user_info(userid)
@@ -106,7 +105,7 @@ def get_turno(id_semestre, id_turno):
     return render_template('reserva_fixa/turno.html', username=username, perm=perm, **extras)
 
 @bp.route('/semestre/<int:id_semestre>/turno/<int:id_turno>', methods=['POST'])
-@login_required
+@reserva_fixa_required
 def efetuar_reserva(id_semestre, id_turno):
     userid = session.get('userid')
     user = db.get_or_404(Usuarios, userid)

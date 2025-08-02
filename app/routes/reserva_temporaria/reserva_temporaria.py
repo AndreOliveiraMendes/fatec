@@ -14,10 +14,10 @@ from app.auxiliar.constant import PERM_ADMIN
 from app.auxiliar.dao import (check_reserva_temporaria,
                               get_aulas_ativas_reservas_dias, get_laboratorios,
                               get_pessoas, get_turnos, get_usuarios_especiais)
-from app.auxiliar.decorators import login_required
-from app.models import (Permissoes, Pessoas, Reservas_Temporarias,
+from app.auxiliar.decorators import reserva_temp_required
+from app.models import (Permissoes, Reservas_Temporarias,
                         TipoAulaEnum, TipoReservaEnum, Turnos, Usuarios,
-                        Usuarios_Especiais, db)
+                        db)
 
 bp = Blueprint('reservas_fixas', __name__, url_prefix="/reserva_temporaria")
 
@@ -37,7 +37,7 @@ def agrupar_dias(dias:list[date]):
     return grupos
 
 @bp.route('/', methods=['GET', 'POST'])
-@login_required
+@reserva_temp_required
 def main_page():
     userid = session.get('userid')
     username, perm = get_user_info(userid)
@@ -60,7 +60,7 @@ def main_page():
         return render_template('reserva_temporaria/dias.html', username=username, perm=perm, **extras)
 
 @bp.route('/dias', methods=['POST'])
-@login_required
+@reserva_temp_required
 def process_turnos():
     userid = session.get('userid')
     username, perm = get_user_info(userid)
@@ -130,7 +130,7 @@ def process_turnos():
     return render_template('reserva_temporaria/turnos.html', username=username, perm=perm, **extras)
 
 @bp.route("/turno", methods=['POST'])
-@login_required
+@reserva_temp_required
 def efetuar_reserva():
     userid = session.get('userid')
     user = db.get_or_404(Usuarios, userid)
