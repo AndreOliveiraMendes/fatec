@@ -3,26 +3,85 @@
 {% block title %}
     Tela Televisor
 {% endblock title %}
+{# sem navbar #}
 {% block navigation %}
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand"
+                   title="ir a pagina inicial"
+                   href="{{ url_for('default.home') }}">
+                    Sistema RLF
+                    {% if perm and perm|has_flag(FIXA) %}
+                        <i class="glyphicon glyphicon-calendar"
+                           title="Permissão de Reserva Fixa"></i>
+                    {% endif %}
+                    {% if perm and perm|has_flag(TEMP) %}
+                        <i class="glyphicon glyphicon-time"
+                           title="Permissão de Reserva Temporária"></i>
+                    {% endif %}
+                    {% if perm and perm|has_flag(ADMIN) %}
+                        <i class="glyphicon glyphicon-fire" title="Permissão de Administrador"></i>
+                    {% endif %}
+                </a>
+            </div>
+            <ul class="nav navbar-nav navbar-right">
+                <p class="navbar-text">
+                    {{ hoje|datainfo(DATA_COMPLETA+HORA+SEMANA_COMPLETA) }} <i class="glyphicon glyphicon-calendar"></i>
+                </p>
+            </ul>
+        </div>
+    </nav>
 {% endblock navigation %}
 {% block content %}
     <div id="grupolaboratorio"
-         class="carousel slide"
-         data-ride="carousel"
-         data-interval="{{ intervalo }}">
-        <!-- Indicadores (bolinhas) -->
-        <ol class="carousel-indicators">
-            {% for lab in laboratorios %}
-                <li data-target="#grupolaboratorio" data-slide-to="{{ loop.index0 }}" {% if loop.index0 == 0 %}class="active"{% endif %}></li>
-            {% endfor %}
-        </ol>
-        <!-- Itens -->
+         role="region"
+         aria-label="Grupo de Laboratórios"
+         aria-live="polite">
         <div class="carousel-inner">
-            {% for lab in laboratorios %}
-                <div class="item{% if loop.index0 == 0 %} active{% endif %}">
-                    <h3>Item {{ loop.index }}</h3>
+            {% for lab_group in laboratorios %}
+                <div class="slide{% if loop.index0 == 0 %} active{% endif %}"
+                     role="group"
+                     aria-hidden="{{ 'false' if loop.index0 == 0 else 'true' }}">
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                            <th>Horário:</th>
+                            {% for lab in lab_group %}<th>{{ lab.nome_laboratorio }}</th>{% endfor %}
+                        </thead>
+                        <tbody>
+                            {% for aula in aulas %}
+                                <tr>
+                                    <td>{{ aula[1].horario_inicio|hora }} - {{ aula[1].horario_fim|hora }}</td>
+                                    {% for lab in lab_group %}
+                                        <td>{{ get_reserva(lab.id_laboratorio, aula[0].id_aula_ativa, hoje ) }}</td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             {% endfor %}
         </div>
     </div>
 {% endblock content %}
+{% block extra_script %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const slides = document.querySelectorAll('#grupolaboratorio .slide');
+            let current = 0;
+            const intervalo = {{ intervalo|default(5000) }};  // ms
+
+            function showSlide(index) {
+                slides.forEach((slide, i) => {
+                    slide.classList.toggle('active', i === index);
+                    slide.setAttribute('aria-hidden', i !== index);
+                });
+            }
+
+            setInterval(() => {
+                current = (current + 1) % slides.length;
+                showSlide(current);
+            }, intervalo);
+        });
+    </script>
+{% endblock extra_script %}

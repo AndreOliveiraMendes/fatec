@@ -119,7 +119,7 @@ def get_aulas_ativas_reservas_dia(dia: date, turno: Turnos|None=None, tipo_aula:
     filtros.append(get_aula_intervalo(dia, dia))
 
     # Filtro de dia da semana
-    filtros.append(Aulas_Ativas.id_semana == dia.weekday() + 1)
+    filtros.append(Aulas_Ativas.id_semana == (dia.weekday()+1)%7+1)
 
     # Filtro de turno
     if turno is not None:
@@ -148,7 +148,7 @@ def get_aulas_ativas_reservas_dias(dias_turnos: list[tuple[date, Turnos|None]], 
         filtros.append(get_aula_intervalo(day, day))
 
         # Filtro de dia da semana
-        filtros.append(Aulas_Ativas.id_semana == day.weekday() + 1)
+        filtros.append(Aulas_Ativas.id_semana == (day.weekday()+1)%7+1)
 
         # Filtro de turno
         if turno is not None:

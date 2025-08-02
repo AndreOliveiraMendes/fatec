@@ -19,7 +19,6 @@ from config.general import LOCAL_TIMEZONE
 bp = Blueprint('usuario', __name__, url_prefix='/usuario')
 
 def get_reservas_fixas(userid, semestre, page, all=False):
-    print(all)
     user = db.session.get(Usuarios, userid)
     filtro = []
     if not all:

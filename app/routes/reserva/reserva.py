@@ -2,7 +2,7 @@ from math import ceil
 from flask import Blueprint, render_template, session, request
 from markupsafe import Markup
 from app.auxiliar.auxiliar_routes import get_user_info, parse_date_string, get_data_reserva
-from datetime import datetime
+from datetime import datetime, time
 from config.general import LOCAL_TIMEZONE
 from app.models import TipoAulaEnum
 from app.auxiliar.dao import get_laboratorios, get_turnos, get_aulas_ativas_reservas_dia
@@ -53,6 +53,17 @@ def divide(l, q):
             result[-1].append(l[i])
     return result
 
+def get_turno_by_time(hora:time):
+    try:
+        return db.session.execute(
+            select(Turnos).where(
+                Turnos.horario_inicio <= hora,
+                hora <= Turnos.horario_fim
+            )
+        ).scalar_one_or_none()
+    except MultipleResultsFound as e:
+        return None
+
 @bp.route('/')
 def main_page():
     userid = session.get('userid')
@@ -101,4 +112,8 @@ def tela_televisor():
     extras['laboratorios'] = lab
     today = datetime.now(LOCAL_TIMEZONE)
     extras['hoje'] = today
+    turno = get_turno_by_time(today.time())
+    aulas = get_aulas_ativas_reservas_dia(today.date(), turno, TipoAulaEnum(tipo_horario))
+    extras['aulas'] = aulas
+    extras['get_reserva'] = get_reserva
     return render_template("reserva/televisor.html", username=username, perm=perm, **extras)
