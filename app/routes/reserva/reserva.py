@@ -1,48 +1,15 @@
 from math import ceil
 from flask import Blueprint, render_template, session, request
-from markupsafe import Markup
-from app.auxiliar.auxiliar_routes import get_user_info, parse_date_string, get_data_reserva
+from app.auxiliar.auxiliar_routes import get_user_info, parse_date_string
 from datetime import datetime, time
 from config.general import LOCAL_TIMEZONE
 from app.models import TipoAulaEnum
 from app.auxiliar.dao import get_laboratorios, get_turnos, get_aulas_ativas_reservas_dia
-from app.models import db, Turnos, Reservas_Fixas, Reservas_Temporarias, Semestres
-from sqlalchemy import select, between
+from app.models import db, Turnos
+from sqlalchemy import select
 from sqlalchemy.exc import MultipleResultsFound
 
 bp = Blueprint('consultar_reservas', __name__, url_prefix="/consultar_reserva")
-
-def get_reserva(lab, aula, dia):
-    try:
-        fixa, temp = None, None
-        sel_semestre = select(Semestres).where(
-            between(dia, Semestres.data_inicio, Semestres.data_fim)
-        )
-        semestre = db.session.execute(sel_semestre).scalar_one_or_none()
-        if semestre:
-            sel_fixa = select(Reservas_Fixas).where(
-                Reservas_Fixas.id_reserva_laboratorio == lab,
-                Reservas_Fixas.id_reserva_aula == aula,
-                Reservas_Fixas.id_reserva_semestre == semestre.id_semestre
-            )
-            fixa = db.session.execute(sel_fixa).scalar_one_or_none()
-        sel_temp = select(Reservas_Temporarias).where(
-            Reservas_Temporarias.id_reserva_laboratorio == lab,
-            Reservas_Temporarias.id_reserva_aula == aula,
-            between(dia, Reservas_Temporarias.inicio_reserva, Reservas_Temporarias.fim_reserva)
-        )
-        temp = db.session.execute(sel_temp).scalar_one_or_none()
-        data = ""
-        if temp or fixa:
-            if temp:
-                data += get_data_reserva(temp, prefix = None)
-            else:
-                data += get_data_reserva(fixa, prefix = None)
-        else:
-            data += "Livre"
-        return Markup(data)
-    except MultipleResultsFound as e:
-        return f"not ok:{e}"
 
 def divide(l, q):
     result = []
@@ -88,7 +55,6 @@ def main_page():
         extras['skip'] = True
     extras['aulas'] = aulas
     extras['laboratorios'] = laboratorios
-    extras['get_reserva'] = get_reserva
     return render_template("reserva/main.html", username=username, perm=perm, **extras)
 
 @bp.route("/configurar")
@@ -115,5 +81,4 @@ def tela_televisor():
     turno = get_turno_by_time(today.time())
     aulas = get_aulas_ativas_reservas_dia(today.date(), turno, TipoAulaEnum(tipo_horario))
     extras['aulas'] = aulas
-    extras['get_reserva'] = get_reserva
     return render_template("reserva/televisor.html", username=username, perm=perm, **extras)

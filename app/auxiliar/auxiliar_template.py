@@ -1,6 +1,10 @@
 from flask import Flask, url_for
 from markupsafe import Markup
+from app.models import db, Semestres, Reservas_Fixas, Reservas_Temporarias
+from sqlalchemy import select, between
+from sqlalchemy.exc import MultipleResultsFound
 
+from app.auxiliar.auxiliar_routes import get_data_reserva
 from app.auxiliar.constant import (DATA_ABREV, DATA_COMPLETA, DATA_FLAGS,
                                    DATA_NUMERICA, HORA, PERMISSIONS,
                                    SEMANA_ABREV, SEMANA_COMPLETA)
@@ -163,6 +167,39 @@ def register_filters(app:Flask):
             });
         }
         """)
+    
+    @app.template_global()
+    def get_reserva(lab, aula, dia):
+        try:
+            fixa, temp = None, None
+            sel_semestre = select(Semestres).where(
+                between(dia, Semestres.data_inicio, Semestres.data_fim)
+            )
+            semestre = db.session.execute(sel_semestre).scalar_one_or_none()
+            if semestre:
+                sel_fixa = select(Reservas_Fixas).where(
+                    Reservas_Fixas.id_reserva_laboratorio == lab,
+                    Reservas_Fixas.id_reserva_aula == aula,
+                    Reservas_Fixas.id_reserva_semestre == semestre.id_semestre
+                )
+                fixa = db.session.execute(sel_fixa).scalar_one_or_none()
+            sel_temp = select(Reservas_Temporarias).where(
+                Reservas_Temporarias.id_reserva_laboratorio == lab,
+                Reservas_Temporarias.id_reserva_aula == aula,
+                between(dia, Reservas_Temporarias.inicio_reserva, Reservas_Temporarias.fim_reserva)
+            )
+            temp = db.session.execute(sel_temp).scalar_one_or_none()
+            data = ""
+            if temp or fixa:
+                if temp:
+                    data += get_data_reserva(temp, prefix = None)
+                else:
+                    data += get_data_reserva(fixa, prefix = None)
+            else:
+                data += "Livre"
+            return Markup(data)
+        except MultipleResultsFound as e:
+            return f"not ok:{e}"
 
     @app.template_filter('has_flag')
     def has_flag(value, flag):
