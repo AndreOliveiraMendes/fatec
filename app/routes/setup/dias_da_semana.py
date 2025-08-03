@@ -1,5 +1,5 @@
 from flask import (Blueprint, flash, redirect, render_template, request,
-                   session, url_for)
+                   session, url_for, abort)
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from app.auxiliar.auxiliar_routes import (get_user_info,
@@ -7,6 +7,7 @@ from app.auxiliar.auxiliar_routes import (get_user_info,
 from app.auxiliar.decorators import admin_required
 from app.models import Dias_da_Semana, db
 from config.database_views import SETUP_HEAD
+from config.general import FIRST_DAY_OF_WEEK, INDEX_START
 
 bp = Blueprint('setup_dias_da_semana', __name__, url_prefix="/database/fast_setup/")
 
@@ -19,16 +20,19 @@ def fast_setup_dias_da_semana():
     extras = {'extras':SETUP_HEAD}
 
     if stage == 0:
-        dias_da_semana = {
-            1: 'domingo',
-            2: 'segunda',
-            3: 'terça',
-            4: 'quarta',
-            5: 'quinta',
-            6: 'sexta',
-            7: 'sabado'
-        }
+        dias_da_semana = ["domingo", "segunda", "terça", "quarta", "quinta", "sexta", "sabado"]
+        fdow = FIRST_DAY_OF_WEEK.lower()
+
+        if fdow not in dias_da_semana or INDEX_START not in (0, 1):
+            abort(400)
+
+        # Gira a lista para que o primeiro dia da semana seja o configurado
+        while dias_da_semana[0] != fdow:
+            dias_da_semana.append(dias_da_semana.pop(0))
+
+        dias_da_semana = {i: sem for i, sem in enumerate(dias_da_semana, INDEX_START)}
         extras['dias_da_semana'] = dias_da_semana
+
     else:
         dias_da_semana = {}
         for k, v in request.form.items():

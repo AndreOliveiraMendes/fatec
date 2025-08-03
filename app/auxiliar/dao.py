@@ -12,6 +12,9 @@ from app.models import (Aulas, Aulas_Ativas, Dias_da_Semana,
                         Usuarios_Especiais, db)
 from config.general import FIRST_DAY_OF_WEEK, INDEX_START
 
+#constantes auxiliares
+Factor_Correcao = {"domingo":1, "segunda":0, "terça":6, "quarta":5, "quinta":4, "sexta":3, "sabado":2}
+
 #funções espeficas para crude
 #pessoas
 def get_pessoas(acao = None, userid = None):
@@ -94,9 +97,8 @@ def get_aula_turno(turno:Turnos):
 
 def get_aula_semana(dia:date):
     wd = dia.weekday()
-    if FIRST_DAY_OF_WEEK == 'domingo':
-        wd = (wd+1)%7
-    if INDEX_START == '1':
+    wd = (wd+Factor_Correcao[FIRST_DAY_OF_WEEK])%7
+    if INDEX_START == 1:
         wd += 1
     return Aulas_Ativas.id_semana == wd
 

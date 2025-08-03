@@ -48,4 +48,4 @@ FLASK_PORT = int(os.getenv('FLASK_PORT', '5000'))
 # datatime related
 LOCAL_TIMEZONE = get_localzone()
 FIRST_DAY_OF_WEEK = os.getenv('FIRST_DAY_OF_WEEK', 'domingo')
-INDEX_START = os.getenv('INDEX_START', '0')
+INDEX_START = int(os.getenv('INDEX_START', '0'))
