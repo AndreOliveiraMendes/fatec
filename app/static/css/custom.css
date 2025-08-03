@@ -159,25 +159,24 @@ body {
     display: block;
 }
 
-.circle-container {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: #f0ad4e;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.circle-container .glyphicon {
-    font-size: 25px;
-    color: #f73c3c;
-}
-
 .nav>li.nav-centered {
     display: flex;
     align-items: center;
     gap: 6px;
+}
+
+.circle-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    /* ajuste o tamanho como quiser */
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid #c00;
+    /* vermelho escuro */
+    color: #c00;
+    font-size: 20px;
 }
 
 td.fixa {
