@@ -7,7 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from app.auxiliar.auxiliar_routes import (get_data_reserva, get_user_info,
-                                          registrar_log_generico_usuario)
+                                          registrar_log_generico_usuario, none_if_empty)
 from app.auxiliar.constant import PERM_ADMIN
 from app.auxiliar.dao import (get_aulas_ativas_por_semestre,
                               get_aulas_extras, get_laboratorios, get_pessoas,
@@ -111,8 +111,8 @@ def efetuar_reserva(id_semestre, id_turno):
     user = db.get_or_404(Usuarios, userid)
     semestre = db.get_or_404(Semestres, id_semestre)
     tipo_reserva = request.form.get('tipo_reserva')
-    responsavel = request.form.get('responsavel')
-    responsavel_especial = request.form.get('responsavel_especial')
+    responsavel = none_if_empty(request.form.get('responsavel'))
+    responsavel_especial = none_if_empty(request.form.get('responsavel_especial'))
     tipo_responsavel = None
     if responsavel_especial is None:
         tipo_responsavel = 0

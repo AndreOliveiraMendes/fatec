@@ -135,8 +135,8 @@ def efetuar_reserva():
     userid = session.get('userid')
     user = db.get_or_404(Usuarios, userid)
     tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
-    responsavel = request.form.get('responsavel')
-    responsavel_especial = request.form.get('responsavel_especial')
+    responsavel = none_if_empty(request.form.get('responsavel'))
+    responsavel_especial = none_if_empty(request.form.get('responsavel_especial'))
     tipo_responsavel = None
     if responsavel_especial is None:
         tipo_responsavel = 0
