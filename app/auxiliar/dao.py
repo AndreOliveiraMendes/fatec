@@ -270,6 +270,9 @@ def get_reservas_por_dia(dia:date, turno:Turnos|None=None):
         if turno is not None:
             filtro_fixa.append(get_aula_turno(turno))
             filtro_temp.append(get_aula_turno(turno))
+        #dia da semana
+        filtro_fixa.append(get_aula_semana(dia))
+        filtro_temp.append(get_aula_semana(dia))
         sel_reserva_fixa = (
             select(Reservas_Fixas).where(
                 *filtro_fixa

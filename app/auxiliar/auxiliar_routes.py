@@ -210,7 +210,7 @@ def get_data_reserva(reserva:Reservas_Fixas|Reservas_Temporarias, prefix='reserv
         responsavel = db.get_or_404(Pessoas, reserva.id_responsavel)
         title += responsavel.nome_pessoa
         empty = False
-    if reserva.tipo_reserva == 1 or reserva.tipo_reserva == 2:
+    if reserva.tipo_responsavel== 1 or reserva.tipo_responsavel == 2:
         responsavel = db.get_or_404(Usuarios_Especiais, reserva.id_responsavel_especial)
         if empty:
             title += responsavel.nome_usuario_especial

@@ -1,10 +1,9 @@
 from flask import Flask, url_for
 from markupsafe import Markup
-from app.models import db, Semestres, Reservas_Fixas, Reservas_Temporarias
+from app.models import db, Semestres, Reservas_Fixas, Reservas_Temporarias, Pessoas, Usuarios_Especiais
 from sqlalchemy import select, between
 from sqlalchemy.exc import MultipleResultsFound
 
-from app.auxiliar.auxiliar_routes import get_data_reserva
 from app.auxiliar.constant import (DATA_ABREV, DATA_COMPLETA, DATA_FLAGS,
                                    DATA_NUMERICA, HORA, PERMISSIONS,
                                    SEMANA_ABREV, SEMANA_COMPLETA)
@@ -167,7 +166,23 @@ def register_filters(app:Flask):
             });
         }
         """)
-    
+
+    @app.template_global()
+    def get_data_reserva(reserva:Reservas_Fixas|Reservas_Temporarias, prefix='reservado por '):
+        title = prefix if prefix else ''
+        empty = True
+        if reserva.tipo_responsavel == 0 or reserva.tipo_responsavel == 2:
+            responsavel = db.get_or_404(Pessoas, reserva.id_responsavel)
+            title += responsavel.nome_pessoa
+            empty = False
+        if reserva.tipo_responsavel== 1 or reserva.tipo_responsavel == 2:
+            responsavel = db.get_or_404(Usuarios_Especiais, reserva.id_responsavel_especial)
+            if empty:
+                title += responsavel.nome_usuario_especial
+            else:
+                title += f" ({responsavel.nome_usuario_especial})"
+        return title
+
     @app.template_global()
     def get_reserva(lab, aula, dia):
         try:
