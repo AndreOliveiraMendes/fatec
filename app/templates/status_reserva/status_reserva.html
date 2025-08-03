@@ -3,5 +3,39 @@
     Status das Reservas
 {% endblock title %}
 {% block content %}
-
+    <h3>Hoje: {{ hoje|data }}</h3>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                <form method="get"
+                      class="form-inline"
+                      action="{{ url_for('situacao_reserva.gerenciar_status') }}">
+                    <div class="form-group">
+                        <label for="reserva-dia">dia:</label>
+                        <input type="date"
+                               class="form-control"
+                               value="{{ reserva_dia }}"
+                               id="reserva-dia"
+                               name="reserva-dia"
+                               onchange="this.form.submit()">
+                    </div>
+                    <div class="form-group">
+                        <label for="reserva_turno">Turno:</label>
+                        <select class="form-control"
+                                id="reserva_turno"
+                                name="reserva_turno"
+                                onchange="this.form.submit()">
+                            <option value="">Selecionar o turno</option>
+                            {% for turno in turnos %}
+                                <option value="{{ turno.id_turno }}"
+                                        {% if turno.id_turno == reserva_turno %}selected{% endif %}>
+                                    {{ turno.nome_turno }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>
+            </h3>
+        </div>
+    </div>
 {% endblock content %}

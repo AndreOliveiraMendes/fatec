@@ -2,7 +2,7 @@ from datetime import date
 
 from sqlalchemy import (and_, between, func, literal, or_, select, text,
                         union_all)
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, MultipleResultsFound
 
 from app.models import (Aulas, Aulas_Ativas, Dias_da_Semana,
                         DisponibilidadeEnum, Laboratorios, Pessoas,
@@ -12,7 +12,7 @@ from app.models import (Aulas, Aulas_Ativas, Dias_da_Semana,
                         Usuarios_Especiais, db)
 from config.general import FIRST_DAY_OF_WEEK, INDEX_START
 
-
+#funções espeficas para crude
 #pessoas
 def get_pessoas(acao = None, userid = None):
     sel_pessoas = select(Pessoas.id_pessoa, Pessoas.nome_pessoa)
@@ -257,3 +257,46 @@ def check_reserva_temporaria(inicio, fim, laboratorio, aula, id = None):
             params=None,
             orig=Exception("Já existe uma reserva para esse laboratorio e horario.")
         )
+
+# get reservas_fixas por dia
+def get_reservas_por_dia(dia:date, turno:Turnos|None=None):
+    sel_semestre = select(Semestres).where(
+        between(dia, Semestres.data_inicio, Semestres.data_fim)
+    )
+    try:
+        semestre = db.session.execute(sel_semestre).scalar_one_or_none()
+        filtro_fixa = [Reservas_Fixas.id_reserva_semestre == semestre.id_semestre]
+        filtro_temp = [between(dia, Reservas_Temporarias.inicio_reserva, Reservas_Temporarias.fim_reserva)]
+        if turno is not None:
+            filtro_fixa.append(get_aula_turno(turno))
+            filtro_temp.append(get_aula_turno(turno))
+        sel_reserva_fixa = (
+            select(Reservas_Fixas).where(
+                *filtro_fixa
+            ).select_from(Reservas_Fixas)
+            .join(Aulas_Ativas)
+            .join(Aulas)
+            .join(Laboratorios)
+            .order_by(
+                Aulas.horario_inicio,
+                Laboratorios.id_laboratorio
+            )
+        )
+        sel_reserva_temporaria = (
+            select(Reservas_Temporarias).where(
+                *filtro_temp
+            ).select_from(Reservas_Temporarias)
+            .join(Aulas_Ativas)
+            .join(Aulas)
+            .join(Laboratorios)
+            .order_by(
+                Aulas.horario_inicio,
+                Laboratorios.id_laboratorio
+            )
+        )
+        return (
+            db.session.execute(sel_reserva_fixa).scalars().all(),
+            db.session.execute(sel_reserva_temporaria).scalars().all()
+        )
+    except MultipleResultsFound as e:
+        pass
