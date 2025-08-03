@@ -4,7 +4,7 @@ from app.auxiliar.auxiliar_routes import get_user_info, parse_date_string
 from datetime import datetime, time
 from config.general import LOCAL_TIMEZONE
 from app.models import TipoAulaEnum
-from app.auxiliar.dao import get_laboratorios, get_turnos, get_aulas_ativas_reservas_dia
+from app.auxiliar.dao import get_laboratorios, get_turnos, get_aulas_ativas_por_dia
 from app.models import db, Turnos
 from sqlalchemy import select
 from sqlalchemy.exc import MultipleResultsFound
@@ -49,7 +49,7 @@ def main_page():
     if not reserva_tipo_horario:
         reserva_tipo_horario = TipoAulaEnum.AULA.value
     turno = db.session.get(Turnos, reserva_turno) if reserva_turno is not None else None
-    aulas = get_aulas_ativas_reservas_dia(reserva_dia, turno, TipoAulaEnum(reserva_tipo_horario))
+    aulas = get_aulas_ativas_por_dia(reserva_dia, turno, TipoAulaEnum(reserva_tipo_horario))
     laboratorios = get_laboratorios(True, True)
     if len(aulas) == 0 or len(laboratorios) == 0:
         extras['skip'] = True
@@ -79,6 +79,6 @@ def tela_televisor():
     today = datetime.now(LOCAL_TIMEZONE)
     extras['hoje'] = today
     turno = get_turno_by_time(today.time())
-    aulas = get_aulas_ativas_reservas_dia(today.date(), turno, TipoAulaEnum(tipo_horario))
+    aulas = get_aulas_ativas_por_dia(today.date(), turno, TipoAulaEnum(tipo_horario))
     extras['aulas'] = aulas
     return render_template("reserva/televisor.html", username=username, perm=perm, **extras)

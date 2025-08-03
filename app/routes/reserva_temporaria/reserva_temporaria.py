@@ -12,7 +12,7 @@ from app.auxiliar.auxiliar_routes import (get_data_reserva, get_user_info,
                                           time_range)
 from app.auxiliar.constant import PERM_ADMIN
 from app.auxiliar.dao import (check_reserva_temporaria,
-                              get_aulas_ativas_reservas_dias, get_laboratorios,
+                              get_aulas_ativas_por_lista_de_dias, get_laboratorios,
                               get_pessoas, get_turnos, get_usuarios_especiais)
 from app.auxiliar.decorators import reserva_temp_required
 from app.models import (Permissoes, Reservas_Temporarias,
@@ -71,7 +71,7 @@ def process_turnos():
     tipo_aula = TipoAulaEnum(tipo_horario)
     brute_chks = [(key.replace('info[', '').replace(']', '').split(',')) for key, value in request.form.items() if 'info' in key and value == 'on']
     chks = [(parse_date_string(chk[0]), db.get_or_404(Turnos, chk[1])) for chk in brute_chks]
-    aulas = get_aulas_ativas_reservas_dias(chks, tipo_aula)
+    aulas = get_aulas_ativas_por_lista_de_dias(chks, tipo_aula)
     laboratorios = get_laboratorios(False, True)
     if len(aulas) == 0 or len(laboratorios) == 0:
         if len(aulas) == 0:

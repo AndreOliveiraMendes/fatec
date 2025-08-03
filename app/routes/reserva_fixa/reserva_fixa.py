@@ -9,7 +9,7 @@ from sqlalchemy.exc import IntegrityError, OperationalError
 from app.auxiliar.auxiliar_routes import (get_data_reserva, get_user_info,
                                           registrar_log_generico_usuario)
 from app.auxiliar.constant import PERM_ADMIN
-from app.auxiliar.dao import (get_aulas_ativas_reserva_semestre,
+from app.auxiliar.dao import (get_aulas_ativas_por_semestre,
                               get_aulas_extras, get_laboratorios, get_pessoas,
                               get_usuarios_especiais)
 from app.auxiliar.decorators import reserva_fixa_required
@@ -68,7 +68,7 @@ def get_turno(id_semestre, id_turno):
     turno = db.get_or_404(Turnos, id_turno)
     today = date.today()
     extras = {'semestre':semestre, 'turno':turno, 'day':today}
-    aulas = get_aulas_ativas_reserva_semestre(semestre, turno)
+    aulas = get_aulas_ativas_por_semestre(semestre, turno)
     laboratorios = get_laboratorios(False)
     if len(aulas) == 0 or len(laboratorios) == 0:
         if len(aulas) == 0:
