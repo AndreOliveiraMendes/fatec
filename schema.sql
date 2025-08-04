@@ -5,7 +5,7 @@ CREATE TABLE
         horario_fim TIME NOT NULL,
         PRIMARY KEY (id_aula),
         CONSTRAINT uq_aula_inicio_fim UNIQUE (horario_inicio, horario_fim)
-    ) DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_0900_ai_ci ENGINE = InnoDB;
+    ) COLLATE utf8mb4_0900_ai_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;
 
 CREATE TABLE
     IF NOT EXISTS dias_da_semana (
@@ -13,7 +13,7 @@ CREATE TABLE
         nome_semana VARCHAR(15) NOT NULL,
         PRIMARY KEY (id_semana),
         CONSTRAINT nome_semana UNIQUE (nome_semana)
-    ) DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_0900_ai_ci ENGINE = InnoDB;
+    ) COLLATE utf8mb4_0900_ai_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;
 
 CREATE TABLE
     IF NOT EXISTS laboratorios (
@@ -23,7 +23,7 @@ CREATE TABLE
         tipo ENUM ('LABORATORIO', 'SALA', 'EXTERNO') NOT NULL DEFAULT 'LABORATORIO',
         PRIMARY KEY (id_laboratorio),
         CONSTRAINT uq_laboratorio UNIQUE (nome_laboratorio)
-    ) DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_0900_ai_ci ENGINE = InnoDB;
+    ) COLLATE utf8mb4_0900_ai_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;
 
 CREATE TABLE
     IF NOT EXISTS pessoas (
@@ -31,7 +31,7 @@ CREATE TABLE
         nome_pessoa VARCHAR(100) NOT NULL,
         email_pessoa VARCHAR(100),
         PRIMARY KEY (id_pessoa)
-    ) DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_0900_ai_ci ENGINE = InnoDB;
+    ) COLLATE utf8mb4_0900_ai_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;
 
 CREATE TABLE
     IF NOT EXISTS semestres (
@@ -42,7 +42,7 @@ CREATE TABLE
         PRIMARY KEY (id_semestre),
         CONSTRAINT uq_semestre_inicio_fim UNIQUE (data_inicio, data_fim),
         CONSTRAINT uq_semestre_nome UNIQUE (nome_semestre)
-    ) DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_0900_ai_ci ENGINE = InnoDB;
+    ) COLLATE utf8mb4_0900_ai_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;
 
 CREATE TABLE
     IF NOT EXISTS turnos (
@@ -53,7 +53,7 @@ CREATE TABLE
         PRIMARY KEY (id_turno),
         CONSTRAINT nome_turno UNIQUE (nome_turno),
         CONSTRAINT uq_turno_inicio_fim UNIQUE (horario_inicio, horario_fim)
-    ) DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_0900_ai_ci ENGINE = InnoDB;
+    ) COLLATE utf8mb4_0900_ai_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;
 
 CREATE TABLE
     IF NOT EXISTS usuarios_especiais (
@@ -61,7 +61,7 @@ CREATE TABLE
         nome_usuario_especial VARCHAR(100) NOT NULL,
         PRIMARY KEY (id_usuario_especial),
         CONSTRAINT uq_usuario_especial UNIQUE (nome_usuario_especial)
-    ) DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_0900_ai_ci ENGINE = InnoDB;
+    ) COLLATE utf8mb4_0900_ai_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;
 
 CREATE TABLE
     IF NOT EXISTS aulas_ativas (
@@ -82,7 +82,7 @@ CREATE TABLE
             )
         ),
         CONSTRAINT unique_aula_semana_tipo UNIQUE (id_aula, id_semana, tipo_aula)
-    ) DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_0900_ai_ci ENGINE = InnoDB;
+    ) COLLATE utf8mb4_0900_ai_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;
 
 CREATE TABLE
     IF NOT EXISTS usuarios (
@@ -93,7 +93,7 @@ CREATE TABLE
         grupo_pessoa VARCHAR(50),
         PRIMARY KEY (id_usuario),
         CONSTRAINT usuarios_ibfk_1 FOREIGN KEY (id_pessoa) REFERENCES pessoas (id_pessoa)
-    ) DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_0900_ai_ci ENGINE = InnoDB;
+    ) COLLATE utf8mb4_0900_ai_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;
 
 CREATE TABLE
     IF NOT EXISTS historicos (
@@ -108,7 +108,7 @@ CREATE TABLE
         origem ENUM ('SISTEMA', 'USUARIO') NOT NULL DEFAULT 'SISTEMA',
         PRIMARY KEY (id_historico),
         CONSTRAINT historicos_ibfk_1 FOREIGN KEY (id_usuario) REFERENCES usuarios (id_usuario)
-    ) DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_0900_ai_ci ENGINE = InnoDB;
+    ) COLLATE utf8mb4_0900_ai_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;
 
 CREATE TABLE
     IF NOT EXISTS permissoes (
@@ -116,7 +116,7 @@ CREATE TABLE
         permissao INTEGER NOT NULL,
         PRIMARY KEY (id_permissao_usuario),
         CONSTRAINT permissoes_ibfk_1 FOREIGN KEY (id_permissao_usuario) REFERENCES usuarios (id_usuario)
-    ) DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_0900_ai_ci ENGINE = InnoDB;
+    ) COLLATE utf8mb4_0900_ai_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;
 
 CREATE TABLE
     IF NOT EXISTS reservas_fixas (
@@ -135,6 +135,7 @@ CREATE TABLE
             'CURSO',
             'USO_DOS_ALUNOS'
         ) NOT NULL DEFAULT 'GRADUACAO',
+        observacoes TEXT,
         PRIMARY KEY (id_reserva_fixa),
         CONSTRAINT reservas_fixas_ibfk_1 FOREIGN KEY (id_responsavel) REFERENCES pessoas (id_pessoa),
         CONSTRAINT reservas_fixas_ibfk_2 FOREIGN KEY (id_responsavel_especial) REFERENCES usuarios_especiais (id_usuario_especial),
@@ -166,7 +167,7 @@ CREATE TABLE
             id_reserva_aula,
             id_reserva_semestre
         )
-    ) DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_0900_ai_ci ENGINE = InnoDB;
+    ) COLLATE utf8mb4_0900_ai_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;
 
 CREATE TABLE
     IF NOT EXISTS reservas_temporarias (
@@ -186,6 +187,7 @@ CREATE TABLE
             'CURSO',
             'USO_DOS_ALUNOS'
         ) NOT NULL DEFAULT 'GRADUACAO',
+        observacoes TEXT,
         PRIMARY KEY (id_reserva_temporaria),
         CONSTRAINT reservas_temporarias_ibfk_1 FOREIGN KEY (id_responsavel) REFERENCES pessoas (id_pessoa),
         CONSTRAINT reservas_temporarias_ibfk_2 FOREIGN KEY (id_responsavel_especial) REFERENCES usuarios_especiais (id_usuario_especial),
@@ -212,7 +214,7 @@ CREATE TABLE
         ),
         CONSTRAINT check_tipo_responsavel_value_temporaria CHECK ((`tipo_responsavel` in (0, 1, 2))),
         CONSTRAINT chk_reserva_inicio_menor_fim CHECK ((`inicio_reserva` <= `fim_reserva`))
-    ) DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_0900_ai_ci ENGINE = InnoDB;
+    ) COLLATE utf8mb4_0900_ai_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;
 
 CREATE TABLE
     IF NOT EXISTS situacoes_das_reservas (
@@ -233,4 +235,4 @@ CREATE TABLE
             id_situacao_aula,
             situacao_dia
         )
-    ) DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_0900_ai_ci ENGINE = InnoDB;
+    ) COLLATE utf8mb4_0900_ai_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;

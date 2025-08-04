@@ -82,6 +82,8 @@ class Reservas_Fixas(db.Model):
         server_default=TipoReservaEnum.GRADUACAO.name
     )
 
+    observacoes: Mapped[str | None] = mapped_column(TEXT, nullable=True)
+
     __table_args__ = (
         CheckConstraint(
             """
@@ -144,6 +146,8 @@ class Reservas_Temporarias(db.Model):
         Enum(TipoReservaEnum, name="tipo_reserva_enum", create_constraint=True),
         server_default=TipoReservaEnum.GRADUACAO.name
     )
+
+    observacoes: Mapped[str | None] = mapped_column(TEXT, nullable=True)
 
     __table_args__ = (
         CheckConstraint(
@@ -454,7 +458,7 @@ class Historicos(db.Model):
     data_hora: Mapped[datetime] = mapped_column(index=True, nullable=False)
     message: Mapped[str] = mapped_column(TEXT, nullable=False)
     chave_primaria: Mapped[str] = mapped_column(TEXT, nullable=False)
-    observacao: Mapped[str | None] = mapped_column(TEXT)
+    observacao: Mapped[str | None] = mapped_column(TEXT, nullable=True)
 
     origem: Mapped[OrigemEnum] = mapped_column(
         Enum(OrigemEnum, name="origem_enum", create_constraint=True),

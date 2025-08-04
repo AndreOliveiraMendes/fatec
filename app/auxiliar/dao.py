@@ -305,3 +305,27 @@ def get_reservas_por_dia(dia:date, turno:Turnos|None=None):
         )
     except MultipleResultsFound as e:
         pass
+
+# para gerenciar situacoes das reservas
+def check_first(reserva_fixa:Reservas_Fixas, reserva_temporaria:Reservas_Temporarias):
+    if reserva_fixa.aulas_ativas.aulas.horario_inicio < reserva_temporaria.aulas_ativas.aulas.horario_inicio:
+        return 0
+    elif reserva_fixa.aulas_ativas.aulas.horario_inicio > reserva_temporaria.aulas_ativas.aulas.horario_inicio:
+        return 1
+    else:
+        if reserva_fixa.id_reserva_laboratorio < reserva_temporaria.id_reserva_laboratorio:
+            return 0
+        elif reserva_fixa.id_reserva_laboratorio > reserva_temporaria.id_reserva_laboratorio:
+            return 1
+        else:
+            return 2
+
+def get_situacoes_por_dia(aula:Aulas_Ativas, laboratorio:Laboratorios, dia:date):
+    sel_situacoes = select(
+        Situacoes_Das_Reserva
+    ).where(
+        Situacoes_Das_Reserva.id_situacao_aula == aula.id_aula_ativa,
+        Situacoes_Das_Reserva.id_situacao_laboratorio == laboratorio.id_laboratorio,
+        Situacoes_Das_Reserva.situacao_dia == dia
+    )
+    return db.session.execute(sel_situacoes).scalars().all()
