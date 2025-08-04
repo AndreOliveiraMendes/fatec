@@ -1,4 +1,4 @@
-from flask import flash, jsonify, render_template, request, session
+from flask import Flask, flash, jsonify, render_template, request, session
 
 from app.auxiliar.auxiliar_routes import get_user_info
 from config.general import SHOW_DEBUG_ERRORS
@@ -20,7 +20,7 @@ def debug_message(e, code):
     else:
         flash(ERROR_MESSAGES.get(code, "Ocorreu um erro inesperado."), "danger")
 
-def register_error_handler(app):
+def register_error_handler(app:Flask):
     @app.errorhandler(400)
     def bad_request_error(e):
         userid = session.get('userid')

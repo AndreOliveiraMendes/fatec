@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, session, request
 from datetime import datetime
-from app.models import db, Turnos, Reservas_Fixas, Reservas_Temporarias, TipoAulaEnum
+from app.models import db, Turnos, Reservas_Fixas, Reservas_Temporarias, TipoAulaEnum, SituacaoChaveEnum
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import get_user_info, parse_date_string
 from app.auxiliar.dao import get_reservas_por_dia, get_turnos, get_situacoes_por_dia, check_first
@@ -76,4 +76,10 @@ def gerenciar_status():
         reserva['situacao'] = situacao
         reservas.append(reserva)
     extras['reservas'] = reservas
+    extras['situacaoChave'] = SituacaoChaveEnum
     return render_template("status_reserva/status_reserva.html", username=username, perm=perm, **extras)
+
+@bp.route('/atuacionar/<int:aula>/<int:lab>/<data:dia>')
+@admin_required
+def atuacionar(aula, lab, dia):
+    return "ok"

@@ -16,10 +16,12 @@ def create_app():
     configure_logging(app)
 
     with app.app_context():
-        register_blueprints(app)
-        from app.auxiliar import auxiliar_template, error
+        from app.auxiliar import auxiliar_template, error, url_custom_types
         auxiliar_template.register_filters(app)
         error.register_error_handler(app)
+        url_custom_types.registrar_custom_url_type(app)
+
+        register_blueprints(app)
 
         if AUTO_CREATE_MYSQL:
             db.create_all()
