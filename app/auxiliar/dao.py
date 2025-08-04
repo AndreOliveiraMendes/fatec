@@ -261,7 +261,7 @@ def check_reserva_temporaria(inicio, fim, laboratorio, aula, id = None):
         )
 
 # get reservas_fixas por dia
-def get_reservas_por_dia(dia:date, turno:Turnos|None=None):
+def get_reservas_por_dia(dia:date, turno:Turnos|None=None, tipo_horario:TipoAulaEnum|None=None):
     sel_semestre = select(Semestres).where(
         between(dia, Semestres.data_inicio, Semestres.data_fim)
     )
@@ -275,6 +275,10 @@ def get_reservas_por_dia(dia:date, turno:Turnos|None=None):
         #dia da semana
         filtro_fixa.append(get_aula_semana(dia))
         filtro_temp.append(get_aula_semana(dia))
+        #tipo horario
+        if tipo_horario is not None:
+            filtro_fixa.append(Aulas_Ativas.tipo_aula == tipo_horario)
+            filtro_temp.append(Aulas_Ativas.tipo_aula == tipo_horario)
         sel_reserva_fixa = (
             select(Reservas_Fixas).where(
                 *filtro_fixa

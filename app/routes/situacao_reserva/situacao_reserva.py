@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, session, request
 from datetime import datetime
-from app.models import db, Turnos, Reservas_Fixas, Reservas_Temporarias
+from app.models import db, Turnos, Reservas_Fixas, Reservas_Temporarias, TipoAulaEnum
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import get_user_info, parse_date_string
 from app.auxiliar.dao import get_reservas_por_dia, get_turnos, get_situacoes_por_dia, check_first
@@ -16,15 +16,21 @@ def gerenciar_status():
     extras = {'hoje':hoje}
     reserva_dia = parse_date_string(request.args.get('reserva-dia', default=hoje.date().strftime("%Y-%m-%d")))
     reserva_turno = request.args.get('reserva_turno', type=int)
+    reserva_tipo_horario = request.args.get('reserva_tipo_horario', default=TipoAulaEnum.AULA.value)
     extras['turnos'] = get_turnos()
+    extras['tipo_aula'] = TipoAulaEnum
     extras['reserva_dia'] = reserva_dia
     extras['reserva_turno'] = reserva_turno
+    extras['reserva_tipo_horario'] = reserva_tipo_horario
     turno = None
+
+    if not reserva_tipo_horario:
+        reserva_tipo_horario = TipoAulaEnum.AULA.value
     if reserva_turno is not None:
         turno = db.session.get(Turnos, reserva_turno)
     if not reserva_dia:
         reserva_dia = hoje.date()
-    reservas_fixas, reservas_temporarias = get_reservas_por_dia(reserva_dia, turno)
+    reservas_fixas, reservas_temporarias = get_reservas_por_dia(reserva_dia, turno, TipoAulaEnum(reserva_tipo_horario))
     reservas = []
     i, j, control_1, control_2 = 0, 0, len(reservas_fixas), len(reservas_temporarias)
     while i < control_1 or j < control_2:

@@ -35,6 +35,21 @@
                             {% endfor %}
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label for="reserva_turno">Destino:</label>
+                        <select class="form-control"
+                                id="reserva_tipo_horario"
+                                name="reserva_tipo_horario"
+                                onchange="this.form.submit()"
+                                required>
+                            {% for aula in tipo_aula %}
+                                <option value="{{ aula.value }}"
+                                        {% if aula.value == reserva_tipo_horario %}selected{% endif %}>
+                                    {{ aula.value }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
                 </form>
             </h3>
         </div>
@@ -66,7 +81,7 @@
                     </table>
                 </div>
             {% else %}
-                <div class="alert alert-danger" role="alert">Nenhuma reserva encontrada nesse dia/turno</div>
+                <div class="alert alert-danger" role="alert">Nenhuma reserva encontrada nesse dia/turno/horario</div>
             {% endif %}
         </div>
     </div>
