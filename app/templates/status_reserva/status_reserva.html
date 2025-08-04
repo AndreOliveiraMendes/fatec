@@ -17,7 +17,8 @@
                                value="{{ reserva_dia }}"
                                id="reserva-dia"
                                name="reserva-dia"
-                               onchange="this.form.submit()">
+                               onchange="if (this.checkValidity()) this.form.submit();"
+                               required>
                     </div>
                     <div class="form-group">
                         <label for="reserva_turno">Turno:</label>
@@ -64,7 +65,7 @@
                     </table>
                 </div>
             {% else %}
-                <div class="alert alert-danger" role="alert">Nenhuma reserva</div>
+                <div class="alert alert-danger" role="alert">Nenhuma reserva encontrada nesse dia/turno</div>
             {% endif %}
         </div>
     </div>

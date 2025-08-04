@@ -48,6 +48,8 @@ def main_page():
 
     if not reserva_tipo_horario:
         reserva_tipo_horario = TipoAulaEnum.AULA.value
+    if not reserva_dia:
+        reserva_dia = today.date()
     turno = db.session.get(Turnos, reserva_turno) if reserva_turno is not None else None
     aulas = get_aulas_ativas_por_dia(reserva_dia, turno, TipoAulaEnum(reserva_tipo_horario))
     laboratorios = get_laboratorios(True, True)

@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, session, request
 from datetime import datetime
-from app.models import Reservas_Fixas, Reservas_Temporarias
+from app.models import db, Turnos, Reservas_Fixas, Reservas_Temporarias
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.auxiliar_routes import get_user_info, parse_date_string
 from app.auxiliar.dao import get_reservas_por_dia, get_turnos
@@ -32,7 +32,10 @@ def gerenciar_status():
     extras['turnos'] = get_turnos()
     extras['reserva_dia'] = reserva_dia
     extras['reserva_turno'] = reserva_turno
-    reservas_fixas, reservas_temporarias = get_reservas_por_dia(reserva_dia, reserva_turno)
+    turno = db.session.get(Turnos, reserva_turno)
+    if not reserva_dia:
+        reserva_dia = hoje.date()
+    reservas_fixas, reservas_temporarias = get_reservas_por_dia(reserva_dia, turno)
     reservas = []
     i, j, control_1, control_2 = 0, 0, len(reservas_fixas), len(reservas_temporarias)
     while i < control_1 or j < control_2:

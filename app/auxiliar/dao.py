@@ -97,7 +97,7 @@ def get_aula_turno(turno:Turnos):
 
 def get_aula_semana(dia:date):
     wd = dia.weekday()
-    wd = (wd+Factor_Correcao[FIRST_DAY_OF_WEEK])%7
+    wd = (wd+Factor_Correcao[FIRST_DAY_OF_WEEK.lower()])%7
     if INDEX_START == 1:
         wd += 1
     return Aulas_Ativas.id_semana == wd
