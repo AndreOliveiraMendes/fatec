@@ -69,7 +69,7 @@
                     <table class="table table-striped table-bordered tabela-reserva">
                         <thead>
                             <tr class="information">
-                                <td>Local</td>
+                                <td class="col-fixa">Local</td>
                                 {% for aula_info in aulas %}
                                     <td>{{ aula_info[1].horario_inicio|hora }} - {{ aula_info[1].horario_fim|hora }}</td>
                                 {% endfor %}
@@ -78,7 +78,7 @@
                         <tbody>
                             {% for lab in laboratorios %}
                                 <tr>
-                                    <td>{{ lab.nome_laboratorio }}</td>
+                                    <td class="col-fixa">{{ lab.nome_laboratorio }}</td>
                                     {% for aula_info in aulas %}
                                         <td>
                                         {% set mostrar = perm and perm|has_flag(ADMIN) %}
