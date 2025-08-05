@@ -80,7 +80,12 @@
                                 <tr>
                                     <td>{{ lab.nome_laboratorio }}</td>
                                     {% for aula_info in aulas %}
-                                        <td>{{ get_reserva(lab.id_laboratorio, aula_info[0].id_aula_ativa, reserva_dia) }}</td>
+                                        <td>
+                                        {% set mostrar = perm and perm|has_flag(ADMIN) %}
+                                            {{ get_reserva(lab.id_laboratorio, aula_info[0].id_aula_ativa, reserva_dia, mostrar_icone=mostrar) }}
+                                
+                                            
+                                        </td>
                                     {% endfor %}
                                 </tr>
                             {% endfor %}

@@ -3,11 +3,12 @@ from markupsafe import Markup
 from sqlalchemy import between, select
 from sqlalchemy.exc import MultipleResultsFound
 
+from app.auxiliar.auxiliar_routes import get_unique_or_500
 from app.auxiliar.constant import (DATA_ABREV, DATA_COMPLETA, DATA_FLAGS,
                                    DATA_NUMERICA, HORA, PERMISSIONS,
                                    SEMANA_ABREV, SEMANA_COMPLETA)
 from app.models import (Pessoas, Reservas_Fixas, Reservas_Temporarias,
-                        Semestres, Usuarios_Especiais, db)
+                        Semestres, Usuarios_Especiais, db, Situacoes_Das_Reserva)
 from config.database_views import SECOES, TABLES_PER_LINE
 
 semana_inglesa = {
@@ -33,6 +34,13 @@ meses_ingleses = {
         'July': 'julho', 'August': 'agosto', 'September': 'setembro',
         'October': 'outubro', 'November': 'novembro', 'December': 'dezembro'
     }
+}
+
+mapa_icones_status = {
+    None: ("text-muted", "glyphicon-user", None),
+    "NAO_PEGOU_A_CHAVE": ("text-danger", "glyphicon-user", "glyphicon-remove"),
+    "PEGOU_A_CHAVE": ("text-success", "glyphicon-user", "glyphicon-ok"),
+    "DEVOLVEU_A_CHAVE": ("text-primary", "glyphicon-user", "glyphicon-log-out"),
 }
 
 def register_filters(app:Flask):
@@ -185,37 +193,55 @@ def register_filters(app:Flask):
         return title
 
     @app.template_global()
-    def get_reserva(lab, aula, dia):
-        try:
-            fixa, temp = None, None
-            sel_semestre = select(Semestres).where(
-                between(dia, Semestres.data_inicio, Semestres.data_fim)
+    def get_reserva(lab, aula, dia, mostrar_icone=False):
+        fixa, temp = None, None
+        semestre = get_unique_or_500(
+            Semestres,
+            between(dia, Semestres.data_inicio, Semestres.data_fim)
+        )
+        if semestre:
+            fixa = get_unique_or_500(
+                Reservas_Fixas,
+                Reservas_Fixas.id_reserva_laboratorio == lab,
+                Reservas_Fixas.id_reserva_aula == aula,
+                Reservas_Fixas.id_reserva_semestre == semestre.id_semestre
             )
-            semestre = db.session.execute(sel_semestre).scalar_one_or_none()
-            if semestre:
-                sel_fixa = select(Reservas_Fixas).where(
-                    Reservas_Fixas.id_reserva_laboratorio == lab,
-                    Reservas_Fixas.id_reserva_aula == aula,
-                    Reservas_Fixas.id_reserva_semestre == semestre.id_semestre
-                )
-                fixa = db.session.execute(sel_fixa).scalar_one_or_none()
-            sel_temp = select(Reservas_Temporarias).where(
-                Reservas_Temporarias.id_reserva_laboratorio == lab,
-                Reservas_Temporarias.id_reserva_aula == aula,
-                between(dia, Reservas_Temporarias.inicio_reserva, Reservas_Temporarias.fim_reserva)
-            )
-            temp = db.session.execute(sel_temp).scalar_one_or_none()
-            data = ""
-            if temp or fixa:
-                if temp:
-                    data += get_data_reserva(temp, prefix = None)
-                else:
-                    data += get_data_reserva(fixa, prefix = None)
+        temp = get_unique_or_500(
+            Reservas_Temporarias,
+            Reservas_Temporarias.id_reserva_laboratorio == lab,
+            Reservas_Temporarias.id_reserva_aula == aula,
+            between(dia, Reservas_Temporarias.inicio_reserva, Reservas_Temporarias.fim_reserva)
+        )
+        data = ""
+        if temp or fixa:
+            if temp:
+                data += get_data_reserva(temp, prefix = None)
             else:
-                data += "Livre"
-            return Markup(data)
-        except MultipleResultsFound as e:
-            return f"not ok:{e}"
+                data += get_data_reserva(fixa, prefix = None)
+            if mostrar_icone:
+                data += status_reserva(lab, aula, dia)
+        else:
+            data += "Livre"
+        return Markup(data)
+
+    @app.template_global()
+    def status_reserva(lab, aula, dia):
+        status = get_unique_or_500(
+            Situacoes_Das_Reserva,
+            Situacoes_Das_Reserva.id_situacao_laboratorio == lab,
+            Situacoes_Das_Reserva.id_situacao_aula == aula,
+            Situacoes_Das_Reserva.situacao_dia == dia
+        )
+        chave = status.situacao_chave.name if status else None
+        cor, base, overlay = mapa_icones_status[chave]
+        icon = f"""
+        <span class="reserva-icon { cor }">
+            <i class="glyphicon { base } base-icon"></i>
+        """
+        if overlay:
+            icon += f"""<i class="glyphicon { overlay } icon-contrast overlay-icon"></i>"""
+        icon += "</span>"
+        return Markup(icon);
 
     @app.template_filter('has_flag')
     def has_flag(value, flag):

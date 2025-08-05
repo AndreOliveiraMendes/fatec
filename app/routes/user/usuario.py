@@ -6,7 +6,7 @@ from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import between, select
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from app.auxiliar.auxiliar_routes import (get_data_reserva, get_user_info,
+from app.auxiliar.auxiliar_routes import (get_user_info,
                                           parse_date_string,
                                           registrar_log_generico_usuario)
 from app.auxiliar.constant import PERM_ADMIN
@@ -91,7 +91,6 @@ def gerenciar_reserva_fixa():
     extras['pagination'] = reservas_fixas
     args_extras = {key:value for key, value in request.args.items() if key != 'page'}
     extras['args_extras'] = args_extras
-    extras['get_data_reserva'] = get_data_reserva
     return render_template("usuario/reserva_fixa.html", username=username, perm=perm, **extras)
 
 @bp.route("/reserva/reservas_temporarias")
@@ -111,7 +110,6 @@ def gerenciar_reserva_temporaria():
     extras['pagination'] = reservas_temporarias
     args_extras = {key:value for key, value in request.args.items() if key != 'page'}
     extras['args_extras'] = args_extras
-    extras['get_data_reserva'] = get_data_reserva
     return render_template("usuario/reserva_temporaria.html", username=username, perm=perm, **extras)
 
 @bp.route("/cancelar_reserva_fixa/<int:id_reserva>", methods=['POST'])
