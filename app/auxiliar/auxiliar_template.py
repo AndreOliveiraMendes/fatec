@@ -1,12 +1,13 @@
 from flask import Flask, url_for
 from markupsafe import Markup
-from app.models import db, Semestres, Reservas_Fixas, Reservas_Temporarias, Pessoas, Usuarios_Especiais
-from sqlalchemy import select, between
+from sqlalchemy import between, select
 from sqlalchemy.exc import MultipleResultsFound
 
 from app.auxiliar.constant import (DATA_ABREV, DATA_COMPLETA, DATA_FLAGS,
                                    DATA_NUMERICA, HORA, PERMISSIONS,
                                    SEMANA_ABREV, SEMANA_COMPLETA)
+from app.models import (Pessoas, Reservas_Fixas, Reservas_Temporarias,
+                        Semestres, Usuarios_Especiais, db)
 from config.database_views import SECOES, TABLES_PER_LINE
 
 semana_inglesa = {

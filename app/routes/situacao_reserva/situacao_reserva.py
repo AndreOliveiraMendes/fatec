@@ -1,11 +1,18 @@
 from copy import copy
-from flask import Blueprint, render_template, session, request, flash, redirect, url_for
-from sqlalchemy.exc import IntegrityError, OperationalError
 from datetime import datetime
-from app.models import db, Turnos, TipoAulaEnum, SituacaoChaveEnum, Situacoes_Das_Reserva
+
+from flask import (Blueprint, flash, redirect, render_template, request,
+                   session, url_for)
+from sqlalchemy.exc import IntegrityError, OperationalError
+
+from app.auxiliar.auxiliar_routes import (get_unique_or_500, get_user_info,
+                                          parse_date_string,
+                                          registrar_log_generico_usuario)
+from app.auxiliar.dao import (check_first, get_reservas_por_dia,
+                              get_situacoes_por_dia, get_turnos)
 from app.auxiliar.decorators import admin_required
-from app.auxiliar.auxiliar_routes import get_user_info, parse_date_string, get_unique_or_500, registrar_log_generico_usuario
-from app.auxiliar.dao import get_reservas_por_dia, get_turnos, get_situacoes_por_dia, check_first
+from app.models import (SituacaoChaveEnum, Situacoes_Das_Reserva, TipoAulaEnum,
+                        Turnos, db)
 
 bp = Blueprint('situacao_reserva', __name__, url_prefix="/status_reserva")
 

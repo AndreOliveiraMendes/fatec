@@ -1,15 +1,15 @@
 import enum
 from datetime import date, datetime, timedelta
-from typing import Literal, TypeVar, Type
+from typing import Literal, Type, TypeVar
 
-from flask import redirect, session, url_for, abort
+from flask import abort, redirect, session, url_for
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, MultipleResultsFound
 from sqlalchemy.inspection import inspect
 
-from app.models import (Historicos, OrigemEnum, Permissoes, Pessoas,
+from app.models import (Base, Historicos, OrigemEnum, Permissoes, Pessoas,
                         Reservas_Fixas, Reservas_Temporarias, Usuarios,
-                        Usuarios_Especiais, db, Base)
+                        Usuarios_Especiais, db)
 from config.general import AFTER_ACTION, LOCAL_TIMEZONE
 
 IGNORED_FORM_FIELDS = ['page', 'acao', 'bloco']

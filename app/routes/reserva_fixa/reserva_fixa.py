@@ -7,14 +7,15 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from app.auxiliar.auxiliar_routes import (get_data_reserva, get_user_info,
-                                          registrar_log_generico_usuario, none_if_empty)
+                                          none_if_empty,
+                                          registrar_log_generico_usuario)
 from app.auxiliar.constant import PERM_ADMIN
-from app.auxiliar.dao import (get_aulas_ativas_por_semestre,
-                              get_aulas_extras, get_laboratorios, get_pessoas,
+from app.auxiliar.dao import (get_aulas_ativas_por_semestre, get_aulas_extras,
+                              get_laboratorios, get_pessoas,
                               get_usuarios_especiais)
 from app.auxiliar.decorators import reserva_fixa_required
-from app.models import (Permissoes, Reservas_Fixas, Semestres,
-                        TipoReservaEnum, Turnos, Usuarios, db)
+from app.models import (Permissoes, Reservas_Fixas, Semestres, TipoReservaEnum,
+                        Turnos, Usuarios, db)
 
 bp = Blueprint('reservas_semanais', __name__, url_prefix="/reserva_fixa")
 

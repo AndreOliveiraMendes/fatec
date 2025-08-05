@@ -1,5 +1,5 @@
-from flask import (Blueprint, flash, redirect, render_template, request,
-                   session, url_for, abort)
+from flask import (Blueprint, abort, flash, redirect, render_template, request,
+                   session, url_for)
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from app.auxiliar.auxiliar_routes import (get_user_info,

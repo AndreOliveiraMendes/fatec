@@ -1,13 +1,15 @@
-from math import ceil
-from flask import Blueprint, render_template, session, request
-from app.auxiliar.auxiliar_routes import get_user_info, parse_date_string
 from datetime import datetime, time
-from config.general import LOCAL_TIMEZONE
-from app.models import TipoAulaEnum
-from app.auxiliar.dao import get_laboratorios, get_turnos, get_aulas_ativas_por_dia
-from app.models import db, Turnos
+from math import ceil
+
+from flask import Blueprint, render_template, request, session
 from sqlalchemy import select
 from sqlalchemy.exc import MultipleResultsFound
+
+from app.auxiliar.auxiliar_routes import get_user_info, parse_date_string
+from app.auxiliar.dao import (get_aulas_ativas_por_dia, get_laboratorios,
+                              get_turnos)
+from app.models import TipoAulaEnum, Turnos, db
+from config.general import LOCAL_TIMEZONE
 
 bp = Blueprint('consultar_reservas', __name__, url_prefix="/consultar_reserva")
 

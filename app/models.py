@@ -5,7 +5,8 @@ from sqlalchemy import (TEXT, CheckConstraint, Enum, ForeignKey, String,
                         UniqueConstraint)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app import db, Base
+from app import Base, db
+
 
 def parse_time(time):
     return time.strftime('%H:%M') if time else None

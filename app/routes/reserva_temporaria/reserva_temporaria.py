@@ -12,12 +12,12 @@ from app.auxiliar.auxiliar_routes import (get_data_reserva, get_user_info,
                                           time_range)
 from app.auxiliar.constant import PERM_ADMIN
 from app.auxiliar.dao import (check_reserva_temporaria,
-                              get_aulas_ativas_por_lista_de_dias, get_laboratorios,
-                              get_pessoas, get_turnos, get_usuarios_especiais)
+                              get_aulas_ativas_por_lista_de_dias,
+                              get_laboratorios, get_pessoas, get_turnos,
+                              get_usuarios_especiais)
 from app.auxiliar.decorators import reserva_temp_required
-from app.models import (Permissoes, Reservas_Temporarias,
-                        TipoAulaEnum, TipoReservaEnum, Turnos, Usuarios,
-                        db)
+from app.models import (Permissoes, Reservas_Temporarias, TipoAulaEnum,
+                        TipoReservaEnum, Turnos, Usuarios, db)
 
 bp = Blueprint('reservas_fixas', __name__, url_prefix="/reserva_temporaria")
 

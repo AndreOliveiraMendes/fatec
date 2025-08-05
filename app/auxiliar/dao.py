@@ -1,6 +1,6 @@
 from datetime import date
-from flask import abort
 
+from flask import abort
 from sqlalchemy import (and_, between, func, literal, or_, select, text,
                         union_all)
 from sqlalchemy.exc import IntegrityError, MultipleResultsFound
