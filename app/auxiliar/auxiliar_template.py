@@ -168,17 +168,17 @@ def register_filters(app:Flask):
         """)
 
     @app.template_global()
-    def get_data_reserva(reserva:Reservas_Fixas|Reservas_Temporarias, prefix='reservado por '):
+    def get_data_reserva(reserva:Reservas_Fixas|Reservas_Temporarias, prefix='reservado '):
         title = prefix if prefix else ''
         empty = True
         if reserva.tipo_responsavel == 0 or reserva.tipo_responsavel == 2:
             responsavel = db.get_or_404(Pessoas, reserva.id_responsavel)
-            title += responsavel.nome_pessoa
+            title += "por " + responsavel.nome_pessoa
             empty = False
         if reserva.tipo_responsavel== 1 or reserva.tipo_responsavel == 2:
             responsavel = db.get_or_404(Usuarios_Especiais, reserva.id_responsavel_especial)
             if empty:
-                title += responsavel.nome_usuario_especial
+                title += "para " + responsavel.nome_usuario_especial
             else:
                 title += f" ({responsavel.nome_usuario_especial})"
         return title

@@ -8,7 +8,8 @@ ERROR_MESSAGES = {
     401: "Você precisa fazer login para acessar esta página.",
     403: "Você não possui as permissões necessárias para acessar esta página.",
     404: "A página requisitada não existe.",
-    422: "Entidade não processável."
+    422: "Entidade não processável.",
+    500: "Erro Interno do Servidor"
 }
 
 def wants_json_response():
@@ -66,3 +67,12 @@ def register_error_handler(app:Flask):
             return jsonify({"error": "Unprocessable Entity"}), 422
         debug_message(e, 422)
         return render_template('http/422.html', username=username, perm=perm, mensagem=mensagem), 422
+    
+    @app.errorhandler(500)
+    def internal_server_error(e):
+        userid = session.get('userid')
+        username, perm = get_user_info(userid)
+        if wants_json_response():
+            return jsonify({"error": "Internal Server Error"}), 500
+        debug_message(e, 500)
+        return render_template('http/500.html', username=username, perm=perm), 500

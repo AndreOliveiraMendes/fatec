@@ -135,6 +135,7 @@ def efetuar_reserva():
     userid = session.get('userid')
     user = db.get_or_404(Usuarios, userid)
     tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
+    observacoes = none_if_empty(request.form.get('observacoes'))
     responsavel = none_if_empty(request.form.get('responsavel'))
     responsavel_especial = none_if_empty(request.form.get('responsavel_especial'))
     tipo_responsavel = None
@@ -183,7 +184,8 @@ def efetuar_reserva():
                     id_reserva_aula = aula,
                     inicio_reserva = inicio,
                     fim_reserva = fim,
-                    tipo_reserva = TipoReservaEnum(tipo_reserva)
+                    tipo_reserva = TipoReservaEnum(tipo_reserva),
+                    observacoes = observacoes
                 )
                 db.session.add(reserva)
                 reservas_efetuadas.append(reserva)

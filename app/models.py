@@ -5,8 +5,7 @@ from sqlalchemy import (TEXT, CheckConstraint, Enum, ForeignKey, String,
                         UniqueConstraint)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app import db
-
+from app import db, Base
 
 def parse_time(time):
     return time.strftime('%H:%M') if time else None
@@ -19,7 +18,7 @@ class SituacaoChaveEnum(enum.Enum):
     PEGOU_A_CHAVE = "pegou a chave"
     DEVOLVEU_A_CHAVE = "devolveu a chave"
 
-class Situacoes_Das_Reserva(db.Model):
+class Situacoes_Das_Reserva(Base):
     __tablename__ = "situacoes_das_reservas"
 
     id_situacao:Mapped[int] = mapped_column(primary_key=True)
@@ -66,7 +65,7 @@ class TipoReservaEnum(enum.Enum):
     CURSO = "Curso"
     USO_DOS_ALUNOS = "Uso dos Alunos"
 
-class Reservas_Fixas(db.Model):
+class Reservas_Fixas(Base):
     __tablename__ = 'reservas_fixas'
 
     id_reserva_fixa: Mapped[int] = mapped_column(primary_key=True)
@@ -130,7 +129,7 @@ class Reservas_Fixas(db.Model):
             f"tipo_reserva={self.tipo_reserva}, id_reserva_semestre={self.id_reserva_semestre})>"
         )
 
-class Reservas_Temporarias(db.Model):
+class Reservas_Temporarias(Base):
     __tablename__ = 'reservas_temporarias'
 
     id_reserva_temporaria: Mapped[int] = mapped_column(primary_key=True)
@@ -194,7 +193,7 @@ class Reservas_Temporarias(db.Model):
             f"fim_reserva={self.fim_reserva})>"
         )
 
-class Usuarios_Especiais(db.Model):
+class Usuarios_Especiais(Base):
     __tablename__ = 'usuarios_especiais'
 
     id_usuario_especial: Mapped[int] = mapped_column(primary_key=True)
@@ -214,7 +213,7 @@ class Usuarios_Especiais(db.Model):
         return f"<Usuarios_Especiais(id_usuario_especial={self.id_usuario_especial}, nome_usuario_especial={self.nome_usuario_especial})>"
 
     
-class Usuarios(db.Model):
+class Usuarios(Base):
     __tablename__ = 'usuarios'
 
     id_usuario: Mapped[int] = mapped_column(primary_key=True)
@@ -240,7 +239,7 @@ class Usuarios(db.Model):
         nome = self.pessoas.nome_pessoa
         return f"({uid}, {pid}) {nome}"
 
-class Pessoas(db.Model):
+class Pessoas(Base):
     __tablename__ = 'pessoas'
 
     id_pessoa: Mapped[int] = mapped_column(primary_key=True)
@@ -257,7 +256,7 @@ class Pessoas(db.Model):
             f"email_pessoa={self.email_pessoa})>"
         )
 
-class Permissoes(db.Model):
+class Permissoes(Base):
     __tablename__ = 'permissoes'
 
     id_permissao_usuario: Mapped[int] = mapped_column(ForeignKey('usuarios.id_usuario'), primary_key=True)
@@ -277,7 +276,7 @@ class TipoLaboratorioEnum(enum.Enum):
     SALA = "Sala"
     EXTERNO = "Externo"
 
-class Laboratorios(db.Model):
+class Laboratorios(Base):
     __tablename__ = 'laboratorios'
 
     id_laboratorio: Mapped[int] = mapped_column(primary_key=True)
@@ -311,7 +310,7 @@ class Laboratorios(db.Model):
             f"disponibilidade={self.disponibilidade.value}, tipo={self.tipo.value})>"
         )
 
-class Aulas(db.Model):
+class Aulas(Base):
     __tablename__ = 'aulas'
 
     id_aula: Mapped[int] = mapped_column(primary_key=True)
@@ -340,7 +339,7 @@ class Aulas(db.Model):
             f"horario_fim={self.horario_fim})>"
         )
     
-class Dias_da_Semana(db.Model):
+class Dias_da_Semana(Base):
     __tablename__ = 'dias_da_semana'
 
     id_semana: Mapped[int] = mapped_column(primary_key=True, autoincrement=False)
@@ -352,7 +351,7 @@ class Dias_da_Semana(db.Model):
         return f"<Dias_da_Semana(id_semana={self.id_semana}, nome_semana={self.nome_semana})>"
 
 
-class Turnos(db.Model):
+class Turnos(Base):
     __tablename__ = 'turnos'
 
     id_turno: Mapped[int] = mapped_column(primary_key=True)
@@ -379,7 +378,7 @@ class TipoAulaEnum(enum.Enum):
     EVENTO = "Evento"
     OUTROS = "Outros"
 
-class Aulas_Ativas(db.Model):
+class Aulas_Ativas(Base):
     __tablename__ = 'aulas_ativas'
 
     id_aula_ativa: Mapped[int] = mapped_column(primary_key=True)
@@ -448,7 +447,7 @@ class OrigemEnum(enum.Enum):
     SISTEMA = "Sistema"
     USUARIO = "Usuario"
 
-class Historicos(db.Model):
+class Historicos(Base):
     __tablename__ = 'historicos'
 
     id_historico: Mapped[int] = mapped_column(primary_key=True)
@@ -475,7 +474,7 @@ class Historicos(db.Model):
             f"chave_primaria={self.chave_primaria}, observacao={self.observacao})>"
         )
 
-class Semestres(db.Model):
+class Semestres(Base):
     __tablename__ = 'semestres'
 
     id_semestre: Mapped[int] = mapped_column(primary_key=True)

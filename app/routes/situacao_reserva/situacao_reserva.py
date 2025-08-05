@@ -1,8 +1,10 @@
-from flask import Blueprint, render_template, session, request
+from copy import copy
+from flask import Blueprint, render_template, session, request, flash, redirect, url_for
+from sqlalchemy.exc import IntegrityError, OperationalError
 from datetime import datetime
-from app.models import db, Turnos, Reservas_Fixas, Reservas_Temporarias, TipoAulaEnum, SituacaoChaveEnum
+from app.models import db, Turnos, TipoAulaEnum, SituacaoChaveEnum, Situacoes_Das_Reserva
 from app.auxiliar.decorators import admin_required
-from app.auxiliar.auxiliar_routes import get_user_info, parse_date_string
+from app.auxiliar.auxiliar_routes import get_user_info, parse_date_string, get_unique_or_500, registrar_log_generico_usuario
 from app.auxiliar.dao import get_reservas_por_dia, get_turnos, get_situacoes_por_dia, check_first
 
 bp = Blueprint('situacao_reserva', __name__, url_prefix="/status_reserva")
@@ -32,7 +34,9 @@ def gerenciar_status():
         reserva_dia = hoje.date()
     reservas_fixas, reservas_temporarias = get_reservas_por_dia(reserva_dia, turno, TipoAulaEnum(reserva_tipo_horario))
     reservas = []
-    i, j, control_1, control_2 = 0, 0, len(reservas_fixas), len(reservas_temporarias)
+    i, j = 0, 0
+    control_1 = len(reservas_fixas) if reservas_fixas else 0
+    control_2 = len(reservas_temporarias) if reservas_temporarias else 0
     while i < control_1 or j < control_2:
         reserva = {}
         if i < control_1 and j < control_2:
@@ -79,7 +83,40 @@ def gerenciar_status():
     extras['situacaoChave'] = SituacaoChaveEnum
     return render_template("status_reserva/status_reserva.html", username=username, perm=perm, **extras)
 
-@bp.route('/atuacionar/<int:aula>/<int:lab>/<data:dia>')
+@bp.route('/atuacionar/<int:aula>/<int:lab>/<data:dia>', methods=['POST'])
 @admin_required
 def atuacionar(aula, lab, dia):
-    return "ok"
+    userid = session.get('userid')
+    chave = request.form.get('situacao')
+    situacao = get_unique_or_500(
+        Situacoes_Das_Reserva,
+        Situacoes_Das_Reserva.id_situacao_aula==aula,
+        Situacoes_Das_Reserva.id_situacao_laboratorio==lab,
+        Situacoes_Das_Reserva.situacao_dia==dia
+    )
+    old_data = None
+    if situacao:
+        old_data = copy(situacao)
+    else:
+        situacao = Situacoes_Das_Reserva(
+            id_situacao_aula=aula,
+            id_situacao_laboratorio=lab,
+            situacao_dia=dia
+        )
+    try:
+        situacao.situacao_chave = SituacaoChaveEnum(chave)
+
+        db.session.add(situacao)
+
+        db.session.flush()
+        registrar_log_generico_usuario(userid, 'Inserção', situacao, old_data, "via menu situacao", True)
+
+        db.session.commit()
+        flash("atualizado com sucesso", "success")
+    except (IntegrityError, OperationalError) as e:
+        db.session.rollback()
+        flash(f"erro ao atualizar:{str(e.orig)}", "danger")
+    except ValueError as ve:
+        db.session.rollback()
+        flash(f"erro ao atualiza:{ve}", "danger")
+    return redirect(url_for('situacao_reserva.gerenciar_status'))

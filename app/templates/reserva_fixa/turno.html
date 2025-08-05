@@ -76,6 +76,14 @@
                 {% for tr in tipo_reserva %}<option value="{{ tr.value }}">{{ tr.value }}</option>{% endfor %}
             </select>
         </div>
+        <div class="form-group">
+            <label for="observacoes">Observações:</label>
+            <input type="text"
+                   id="observacoes"
+                   name="observacoes"
+                   class="form-control"
+                   placeholder="insira observações relevantes (softwares necessarios)">
+        </div>
         {% if perm and perm|has_flag(ADMIN) %}
             <div class="form-group">
                 <label for="responsavel">Responsavel:</label>

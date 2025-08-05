@@ -25,7 +25,7 @@
                         <select class="form-control"
                                 id="reserva_turno"
                                 name="reserva_turno"
-                                onchange="this.form.submit()">
+                                onchange="if (this.checkValidity()) this.form.submit();">
                             <option value="">Selecionar o turno</option>
                             {% for turno in turnos %}
                                 <option value="{{ turno.id_turno }}"
@@ -40,7 +40,7 @@
                         <select class="form-control"
                                 id="reserva_tipo_horario"
                                 name="reserva_tipo_horario"
-                                onchange="this.form.submit()"
+                                onchange="if (this.checkValidity()) this.form.submit();"
                                 required>
                             {% for aula in tipo_aula %}
                                 <option value="{{ aula.value }}"
@@ -74,7 +74,28 @@
                                     <td>{{ reserva.laboratorio.nome_laboratorio }}</td>
                                     <td>{{ get_data_reserva(reserva.fixa) if reserva.fixa else '' }}</td>
                                     <td>{{ get_data_reserva(reserva.temporaria) if reserva.temporaria else '' }}</td>
-                                    <td></td>
+                                    <td>
+                                        <form class="form-inline"
+                                              role="form"
+                                              action="{{ url_for('situacao_reserva.atuacionar', aula=reserva.horario.id_aula_ativa, lab=reserva.laboratorio.id_laboratorio, dia=reserva_dia) }}"
+                                              method="post">
+                                            <div class="form-group">
+                                                <label for="situacao">Situação:</label>
+                                                <select id="situacao"
+                                                        name="situacao"
+                                                        onchange="if (this.checkValidity()) this.form.submit();"
+                                                        required>
+                                                    <option value="">Inderteminada</option>
+                                                    {% for sit in situacaoChave %}
+                                                        <option value="{{ sit.value }}"
+                                                                {% if reserva.situacao and reserva.situacao.situacao_chave.value == sit.value %}selected{% endif %}>
+                                                            {{ sit.value }}
+                                                        </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </form>
+                                    </td>
                                 </tr>
                             {% endfor %}
                         </tbody>

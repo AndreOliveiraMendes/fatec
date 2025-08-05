@@ -1,0 +1,15 @@
+{% extends "base" %}
+{% block title %}
+    Erro Interno do Servidor
+{% endblock title %}
+{% block content %}
+    <div class="alert alert-danger" role="alert">
+        <h3>500 - Erro Interno do Servidor</h3>
+        {% if message %}
+            <p>{{ message }}</p>
+        {% else %}
+            <p>Ocorreu um erro inesperado. Tente novamente mais tarde.</p>
+        {% endif %}
+    </div>
+    <a href={{ url_for("default.home") }} class="btn btn-primary"><span class="glyphicon glyphicon-home"></span> Voltar à página de início</a>
+{% endblock content %}

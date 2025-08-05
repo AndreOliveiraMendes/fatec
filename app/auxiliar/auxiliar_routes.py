@@ -1,16 +1,20 @@
 import enum
 from datetime import date, datetime, timedelta
-from typing import Literal
+from typing import Literal, TypeVar, Type
 
-from flask import redirect, session, url_for
+from flask import redirect, session, url_for, abort
+from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError, MultipleResultsFound
 from sqlalchemy.inspection import inspect
 
 from app.models import (Historicos, OrigemEnum, Permissoes, Pessoas,
                         Reservas_Fixas, Reservas_Temporarias, Usuarios,
-                        Usuarios_Especiais, db)
+                        Usuarios_Especiais, db, Base)
 from config.general import AFTER_ACTION, LOCAL_TIMEZONE
 
 IGNORED_FORM_FIELDS = ['page', 'acao', 'bloco']
+
+T = TypeVar("T", bound=Base)
 
 def none_if_empty(value, cast_type=str):
     if value is None:
@@ -217,3 +221,11 @@ def get_data_reserva(reserva:Reservas_Fixas|Reservas_Temporarias, prefix='reserv
         else:
             title += f" ({responsavel.nome_usuario_especial})"
     return title
+
+def get_unique_or_500(model: Type[T], *args, **kwargs):
+    try:
+        return db.session.execute(
+            select(model).where(*args, **kwargs)
+        ).scalar_one_or_none()
+    except MultipleResultsFound:
+        abort(500)

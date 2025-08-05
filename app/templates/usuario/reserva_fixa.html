@@ -28,7 +28,7 @@
                         <select name="semestre"
                                 id="semestre"
                                 class="form-control"
-                                onchange="this.form.submit()">
+                                onchange="if (this.checkValidity()) this.form.submit();">
                             <option value="">selecione o semestre</option>
                             {% for s in semestres %}
                                 <option value="{{ s.id_semestre }}"
@@ -47,7 +47,7 @@
                                    class="form-control"
                                    title="Mostrar reservas de todos os usuários"
                                    {% if all %}checked{% endif %}
-                                   onchange="this.form.submit()">
+                                   onchange="if (this.checkValidity()) this.form.submit();">
                         </div>
                     {% endif %}
                 </form>

@@ -33,7 +33,7 @@
                         <select class="form-control"
                                 id="reserva_turno"
                                 name="reserva_turno"
-                                onchange="this.form.submit()">
+                                onchange="if (this.checkValidity()) this.form.submit();">
                             <option value="">Selecionar o turno</option>
                             {% for turno in turnos %}
                                 <option value="{{ turno.id_turno }}"
@@ -48,7 +48,7 @@
                         <select class="form-control"
                                 id="reserva_tipo_horario"
                                 name="reserva_tipo_horario"
-                                onchange="this.form.submit()"
+                                onchange="if (this.checkValidity()) this.form.submit();"
                                 required>
                             {% for aula in tipo_aula %}
                                 <option value="{{ aula.value }}"
