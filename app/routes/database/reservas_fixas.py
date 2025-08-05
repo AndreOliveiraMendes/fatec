@@ -55,6 +55,7 @@ def gerenciar_reservas_fixas():
             id_reserva_aula = none_if_empty(request.form.get('id_reserva_aula'), int)
             id_reserva_semestre = none_if_empty(request.form.get('id_reserva_semestre'), int)
             tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
+            observacoes = none_if_empty(request.form.get('observacoes'))
             filter = []
             query_params = get_query_params(request)
             if id_reserva_fixa is not None:
@@ -73,6 +74,8 @@ def gerenciar_reservas_fixas():
                 filter.append(Reservas_Fixas.id_reserva_semestre == id_reserva_semestre)
             if tipo_reserva:
                 filter.append(Reservas_Fixas.tipo_reserva == TipoReservaEnum(tipo_reserva))
+            if observacoes:
+                filter.append(Reservas_Fixas.observacoes.ilike(f"%{observacoes}%"))
             if filter:
                 sel_reservas = select(Reservas_Fixas).where(*filter)
                 reservas_fixas_paginada = SelectPagination(
@@ -104,13 +107,15 @@ def gerenciar_reservas_fixas():
             id_reserva_aula = none_if_empty(request.form.get('id_reserva_aula'), int)
             id_reserva_semestre = none_if_empty(request.form.get('id_reserva_semestre'), int)
             tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
+            observacoes = none_if_empty(request.form.get('observacoes'))
 
             try:
                 nova_reserva_fixa = Reservas_Fixas(
                     id_responsavel=id_responsavel, id_responsavel_especial=id_responsavel_especial,
                     tipo_responsavel=tipo_responsavel, id_reserva_laboratorio=id_reserva_laboratorio,
                     id_reserva_aula=id_reserva_aula, id_reserva_semestre=id_reserva_semestre,
-                    tipo_reserva=TipoReservaEnum(tipo_reserva)
+                    tipo_reserva=TipoReservaEnum(tipo_reserva),
+                    observacoes=observacoes
                 )
                 db.session.add(nova_reserva_fixa)
 
@@ -152,6 +157,7 @@ def gerenciar_reservas_fixas():
             id_reserva_aula = none_if_empty(request.form.get('id_reserva_aula'), int)
             id_reserva_semestre = none_if_empty(request.form.get('id_reserva_semestre'), int)
             tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
+            observacoes = none_if_empty(request.form.get('observacoes'))
             reserva_fixa = db.get_or_404(Reservas_Fixas, id_reserva_fixa)
             try:
                 dados_anteriores = copy.copy(reserva_fixa)
@@ -162,6 +168,7 @@ def gerenciar_reservas_fixas():
                 reserva_fixa.id_reserva_aula = id_reserva_aula
                 reserva_fixa.id_reserva_semestre = id_reserva_semestre
                 reserva_fixa.tipo_reserva = TipoReservaEnum(tipo_reserva)
+                reserva_fixa.observacoes = observacoes
 
                 db.session.flush()
                 registrar_log_generico_usuario(userid, 'Edição', reserva_fixa, dados_anteriores)

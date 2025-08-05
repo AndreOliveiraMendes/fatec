@@ -5,9 +5,7 @@
 {% block content_head %}
     <div class="panel panel-default">
         <div class="panel-heading">{{ generate_database_head("database_reservas_fixas") }}</div>
-        <div class="panel-body">
-            {{ generate_head(url_for(url) , acao, disable=disable) }}
-        </div>
+        <div class="panel-body">{{ generate_head(url_for(url) , acao, disable=disable) }}</div>
     </div>
 {% endblock content_head %}
 {% block abertura %}
@@ -123,6 +121,14 @@
                         </ul>
                     </td>
                 </tr>
+                <tr>
+                    <td>
+                        <code>observacoes</code>
+                    </td>
+                    <td>TEXT</td>
+                    <td>observação sobre a reserva (exemplo:sotfwares necessarios)</td>
+                    <td>-</td>
+                </tr>
             </tbody>
         </table>
     </div>
@@ -173,6 +179,14 @@
                     <option value="Uso dos Alunos">Uso dos Alunos</option>
                 </select>
             </div>
+            <div class="form-group">
+                <label for="observacoes">Observacao:</label>
+                <input type="text"
+                       class="form-control"
+                       id="observacoes"
+                       name="observacoes"
+                       placeholder="campo destinado a observações sobre a reserva">
+            </div>
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
@@ -214,6 +228,14 @@
                 <option value="Curso">Curso</option>
                 <option value="Uso dos Alunos">Uso dos Alunos</option>
             </select>
+        </div>
+        <div class="form-group">
+            <label for="observacoes">Observacao:</label>
+            <input type="text"
+                   class="form-control"
+                   id="observacoes"
+                   name="observacoes"
+                   placeholder="campo destinado a observações sobre a reserva">
         </div>
         {{ action_buttons(acao, 1, False, 0) }}
     </form>
@@ -322,6 +344,15 @@
                         Uso dos Alunos
                     </option>
                 </select>
+            </div>
+            <div class="form-group">
+                <label for="observacoes">Observacao:</label>
+                <input type="text"
+                       class="form-control"
+                       id="observacoes"
+                       name="observacoes"
+                       value="{{ reserva_fixa.observacoes if reserva_fixa.observacoes else '' }}"
+                       placeholder="campo destinado a observações sobre a reserva">
             </div>
             {{ action_buttons(acao, 2, True, 0) }}
         </form>
@@ -437,6 +468,16 @@
                     </option>
                 </select>
             </div>
+            <div class="form-group">
+                <label for="observacoes">Observacao:</label>
+                <input type="text"
+                       class="form-control"
+                       id="observacoes"
+                       name="observacoes"
+                       value="{{ reserva_fixa.observacoes if reserva_fixa.observacoes else '' }}"
+                       placeholder="campo destinado a observações sobre a reserva"
+                       disabled>
+            </div>
             {{ action_buttons(acao, 2, True, 0, False) }}
         </form>
         <script>
@@ -489,6 +530,7 @@
                         <td>Horario</td>
                         <td>Semestre</td>
                         <td>Finalidade</td>
+                        <td>Observação</td>
                         <td>Ação</td>
                     </tr>
                 </thead>
@@ -503,6 +545,7 @@
                             <td>{{ rf.aulas_ativas.selector_identification }}</td>
                             <td>{{ rf.semestres.nome_semestre }}</td>
                             <td>{{ rf.tipo_reserva.value }}</td>
+                            <td>{{ rf.observacoes if rf.observacoes else '-' }}</td>
                             <td>
                                 <form method="post" class="form-inline">
                                     <input type="hidden" name="bloco" value="1">

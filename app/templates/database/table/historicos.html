@@ -5,9 +5,7 @@
 {% block content_head %}
     <div class="panel panel-default">
         <div class="panel-heading">{{ generate_database_head("database_historicos") }}</div>
-        <div class="panel-body">
-            {{ generate_head(url_for(url) , acao, disable=disable, include=include) }}
-        </div>
+        <div class="panel-body">{{ generate_head(url_for(url) , acao, disable=disable, include=include) }}</div>
     </div>
 {% endblock content_head %}
 {% block abertura %}
@@ -35,8 +33,8 @@
                     ('data_hora', 'DATETIME', 'Momento em que a ação foi efetivada'),
                     ('message', 'TEXT', 'Descrição do que foi realizado'),
                     ('chave_primaria', 'TEXT', 'Identificadores da linha modificada pela ação'),
-                    ('origem', 'TEXT', 'se a ação foi efetuada pelo sistema ou pelo usuário'),
-                    ('observacao', "ENUM('SISTEMA', 'USUARIO')", 'Observação adicional que complementa a ação realizada')
+                    ('origem', "ENUM('SISTEMA', 'USUARIO')", 'se a ação foi efetuada pelo sistema ou pelo usuário'),
+                    ('observacao', 'TEXT', 'Observação adicional que complementa a ação realizada')
                     ] %}
                     <tr>
                         <td>
