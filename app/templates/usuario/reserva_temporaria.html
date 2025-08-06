@@ -73,9 +73,9 @@
                                     <td>{{ r.tipo_reserva.value }}</td>
                                     <td>
                                         <a href="#modalCancelar "
-                                            data-toggle="modal"
-                                            data-info-url="{{ url_for('usuario.info_reserva_temporaria', id_reserva=r.id_reserva_temporaria) }}"
-                                        class="btn btn-danger btn-xs btn-cancelar"><span class="glyphicon glyphicon-trash"></span> Cancelar</a>
+                                           data-toggle="modal"
+                                           data-info-url="{{ url_for('usuario.info_reserva_temporaria', id_reserva=r.id_reserva_temporaria) }}"
+                                           class="btn btn-danger btn-xs btn-cancelar"><span class="glyphicon glyphicon-trash"></span> Cancelar</a>
                                     </td>
                                 </tr>
                             {% endfor %}

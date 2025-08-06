@@ -91,40 +91,40 @@
                     </table>
                 </div>
                 {{ render_pagination(pagination, 'usuario.gerenciar_reserva_fixa', args_extras) }}
+                {# Modal único #}
+                <div id="modalCancelar" class="modal fade" tabindex="-1" role="dialog">
+                    <div class="modal-dialog modal-sm" role="document">
+                        <div class="modal-content">
+                            <form method="post" id="formCancelar" action="">
+                                <div class="modal-header bg-danger">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                                        <span aria-hidden="true">×</span>
+                                    </button>
+                                    <h4 class="modal-title">Confirmar cancelamento</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <p>Deseja cancelar a reserva:</p>
+                                    <p>
+                                        <strong id="modalLaboratorio"></strong>
+                                        <br>
+                                        <strong id="modalSemana"></strong>
+                                        <br>
+                                        <strong id="modalSemestre"></strong>
+                                        <br>
+                                        <strong id="modalHorario"></strong>
+                                    </p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-danger">Sim, cancelar</button>
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Voltar</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             {% else %}
                 <div class="alert alert-warning" role="alert">Nenhuma reserva no semestre selecionado</div>
             {% endif %}
-        </div>
-    </div>
-    {# Modal único #}
-    <div id="modalCancelar" class="modal fade" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-sm" role="document">
-            <div class="modal-content">
-                <form method="post" id="formCancelar" action="">
-                    <div class="modal-header bg-danger">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
-                            <span aria-hidden="true">×</span>
-                        </button>
-                        <h4 class="modal-title">Confirmar cancelamento</h4>
-                    </div>
-                    <div class="modal-body">
-                        <p>Deseja cancelar a reserva:</p>
-                        <p>
-                            <strong id="modalLaboratorio"></strong>
-                            <br>
-                            <strong id="modalSemana"></strong>
-                            <br>
-                            <strong id="modalSemestre"></strong>
-                            <br>
-                            <strong id="modalHorario"></strong>
-                        </p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-danger">Sim, cancelar</button>
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Voltar</button>
-                    </div>
-                </form>
-            </div>
         </div>
     </div>
 {% endblock content %}
