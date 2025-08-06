@@ -71,16 +71,6 @@
                                             <i class="glyphicon glyphicon-blackboard"></i> Tela Televisor
                                         </a>
                                     </li>
-                                    <!--
-                                <li>
-                                    <a href="">
-                                        <span class="reserva-icon">
-                                            <i class="glyphicon glyphicon-user base-icon"></i>
-                                            <i class="glyphicon glyphicon-ok overlay-icon text-success"></i>
-                                        </span>
-                                    </a>
-                                </li>
-                                -->
                                 </ul>
                             </li>
                             <li class="dropdown">
