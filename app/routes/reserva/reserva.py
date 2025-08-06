@@ -67,6 +67,7 @@ def configurar_tela_televisor():
     username, perm = get_user_info(userid)
     extras = {}
     extras['tipo_aula'] = TipoAulaEnum
+    extras['lab'] = get_laboratorios()
     return render_template("reserva/televisor_control.html", username=username, perm=perm, **extras)
 
 @bp.route("/televisor")
