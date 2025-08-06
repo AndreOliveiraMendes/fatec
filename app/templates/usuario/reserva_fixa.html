@@ -78,9 +78,12 @@
                                     <td>{{ r.aulas_ativas.aulas.horario_inicio|hora }} às {{ r.aulas_ativas.aulas.horario_fim|hora }}</td>
                                     <td>{{ r.tipo_reserva.value }}</td>
                                     <td>
-                                        <a href="#modalCancelar{{ r.id_reserva_fixa }}"
+                                        <a href="#modalCancelar"
                                            data-toggle="modal"
-                                           class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-trash"></span> Cancelar</a>
+                                           data-info-url="{{ url_for('usuario.info_reserva_fixa', id_reserva=r.id_reserva_fixa) }}"
+                                           class="btn btn-danger btn-xs btn-cancelar">
+                                            <span class="glyphicon glyphicon-trash"></span> Cancelar
+                                        </a>
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -88,51 +91,59 @@
                     </table>
                 </div>
                 {{ render_pagination(pagination, 'usuario.gerenciar_reserva_fixa', args_extras) }}
-                {% for r in reservas_fixas %}
-                    <div id="modalCancelar{{ r.id_reserva_fixa }}"
-                         class="modal fade"
-                         tabindex="-1"
-                         role="dialog">
-                        <div class="modal-dialog modal-sm" role="document">
-                            <div class="modal-content">
-                                <form method="post"
-                                      action="{{ url_for('usuario.cancelar_reserva_fixa', id_reserva=r.id_reserva_fixa) }}">
-                                    <div class="modal-header bg-danger">
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
-                                            <span aria-hidden="true">×</span>
-                                        </button>
-                                        <h4 class="modal-title">Confirmar cancelamento</h4>
-                                    </div>
-                                    <div class="modal-body">
-                                        <p>
-                                            Deseja cancelar a reserva:
-                                            <br>
-                                            <strong>{{ r.laboratorios.nome_laboratorio }}</strong>
-                                            <br>
-                                            <strong>{{ r.aulas_ativas.dia_da_semana.nome_semana }}</strong>
-                                            <br>
-                                            <strong>{{ r.semestres.nome_semestre }}</strong>
-                                            <br>
-                                            <strong>{{ r.aulas_ativas.aulas.horario_inicio|hora }} às {{ r.aulas_ativas.aulas.horario_fim|hora }}</strong>?
-                                        </p>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="submit" class="btn btn-danger">Sim, cancelar</button>
-                                        <button type="button" class="btn btn-default" data-dismiss="modal">Voltar</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
             {% else %}
                 <div class="alert alert-warning" role="alert">Nenhuma reserva no semestre selecionado</div>
             {% endif %}
         </div>
     </div>
+    {# Modal único #}
+    <div id="modalCancelar" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <form method="post" id="formCancelar" action="">
+                    <div class="modal-header bg-danger">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                        <h4 class="modal-title">Confirmar cancelamento</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>Deseja cancelar a reserva:</p>
+                        <p>
+                            <strong id="modalLaboratorio"></strong>
+                            <br>
+                            <strong id="modalSemana"></strong>
+                            <br>
+                            <strong id="modalSemestre"></strong>
+                            <br>
+                            <strong id="modalHorario"></strong>
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-danger">Sim, cancelar</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Voltar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 {% endblock content %}
 {% block extra_script %}
     <script>{{ refresh_page_full_minute_script() }}</script>
+    <script>
+        $(document).on('click', '.btn-cancelar', function () {
+            var infoUrl = $(this).data('info-url');
+
+            $.getJSON(infoUrl, function (data) {
+                $('#modalLaboratorio').text(data.laboratorio);
+                $('#modalSemana').text(data.semana);
+                $('#modalSemestre').text(data.semestre);
+                $('#modalHorario').text(data.horario);
+
+                $('#formCancelar').attr('action', data.cancel_url);
+            });
+        });
+    </script>
 {% endblock extra_script %}
 {% block footer %}
     <p class="text-muted">

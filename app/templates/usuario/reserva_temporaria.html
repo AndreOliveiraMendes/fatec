@@ -72,9 +72,10 @@
                                     <td>{{ r.aulas_ativas.aulas.horario_inicio|hora }} às {{ r.aulas_ativas.aulas.horario_fim|hora }}</td>
                                     <td>{{ r.tipo_reserva.value }}</td>
                                     <td>
-                                        <a href="#modalCancelar{{ r.id_reserva_temporaria }}"
-                                           data-toggle="modal"
-                                           class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-trash"></span> Cancelar</a>
+                                        <a href="#modalCancelar "
+                                            data-toggle="modal"
+                                            data-info-url="{{ url_for('usuario.info_reserva_temporaria', id_reserva=r.id_reserva_temporaria) }}"
+                                        class="btn btn-danger btn-xs btn-cancelar"><span class="glyphicon glyphicon-trash"></span> Cancelar</a>
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -82,43 +83,36 @@
                     </table>
                 </div>
                 {{ render_pagination(pagination, 'usuario.gerenciar_reserva_temporaria', args_extras) }}
-                {% for r in reservas_temporarias %}
-                    <div id="modalCancelar{{ r.id_reserva_temporaria }}"
-                         class="modal fade"
-                         tabindex="-1"
-                         role="dialog">
-                        <div class="modal-dialog modal-sm" role="document">
-                            <div class="modal-content">
-                                <form method="post"
-                                      action="{{ url_for('usuario.cancelar_reserva_temporaria', id_reserva=r.id_reserva_temporaria) }}">
-                                    <div class="modal-header bg-danger">
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
-                                            <span aria-hidden="true">×</span>
-                                        </button>
-                                        <h4 class="modal-title">Confirmar cancelamento</h4>
-                                    </div>
-                                    <div class="modal-body">
-                                        <p>
-                                            Deseja cancelar a reserva:
-                                            <br>
-                                            <strong>{{ r.laboratorios.nome_laboratorio }}</strong>
-                                            <br>
-                                            <strong>{{ r.inicio_reserva|data }} - {{ r.fim_reserva|data }}</strong>
-                                            <br>
-                                            <strong>{{ r.aulas_ativas.dia_da_semana.nome_semana }}</strong>
-                                            <br>
-                                            <strong>{{ r.aulas_ativas.aulas.horario_inicio|hora }} às {{ r.aulas_ativas.aulas.horario_fim|hora }}</strong>?
-                                        </p>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="submit" class="btn btn-danger">Sim, cancelar</button>
-                                        <button type="button" class="btn btn-default" data-dismiss="modal">Voltar</button>
-                                    </div>
-                                </form>
-                            </div>
+                <div id="modalCancelar" class="modal fade" tabindex="-1" role="dialog">
+                    <div class="modal-dialog modal-sm" role="document">
+                        <div class="modal-content">
+                            <form method="post" id="formCancelar" action="">
+                                <div class="modal-header bg-danger">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                                        <span aria-hidden="true">×</span>
+                                    </button>
+                                    <h4 class="modal-title">Confirmar cancelamento</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <p>Deseja cancelar a reserva:</p>
+                                    <p>
+                                        <strong id="modalLaboratorio"></strong>
+                                        <br>
+                                        <strong id="modalSemana"></strong>
+                                        <br>
+                                        <strong id="modalPeriodo"></strong>
+                                        <br>
+                                        <strong id="modalHorario"></strong>?
+                                    </p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-danger">Sim, cancelar</button>
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Voltar</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
-                {% endfor %}
+                </div>
             {% else %}
                 <div class="alert alert-warning" role="alert">Nenhuma reserva no dia selecionado</div>
             {% endif %}
@@ -127,6 +121,20 @@
 {% endblock content %}
 {% block extra_script %}
     <script>{{ refresh_page_full_minute_script() }}</script>
+    <script>
+        $(document).on('click', '.btn-cancelar', function () {
+            var infoUrl = $(this).data('info-url');
+
+            $.getJSON(infoUrl, function (data) {
+                $('#modalLaboratorio').text(data.laboratorio);
+                $('#modalSemana').text(data.semana);
+                $('#modalPeriodo').text(data.periodo);
+                $('#modalHorario').text(data.horario);
+
+                $('#formCancelar').attr('action', data.cancel_url);
+            });
+        });
+    </script>
 {% endblock extra_script %}
 {% block footer %}
     <p class="text-muted">

@@ -111,6 +111,30 @@ def gerenciar_reserva_temporaria():
     extras['args_extras'] = args_extras
     return render_template("usuario/reserva_temporaria.html", username=username, perm=perm, **extras)
 
+@bp.route("/info_reserva_fixa/<int:id_reserva>")
+@login_required
+def info_reserva_fixa(id_reserva):
+    reserva = db.get_or_404(Reservas_Fixas, id_reserva)
+    return {
+        "laboratorio": reserva.laboratorios.nome_laboratorio,
+        "semestre": reserva.semestres.nome_semestre,
+        "semana": reserva.aulas_ativas.dia_da_semana.nome_semana,
+        "horario": f"{reserva.aulas_ativas.aulas.horario_inicio:%H:%M} às {reserva.aulas_ativas.aulas.horario_fim:%H:%M}",
+        "cancel_url": url_for("usuario.cancelar_reserva_fixa", id_reserva=id_reserva)
+    }
+
+@bp.route("/info_reserva_temporaria/<int:id_reserva>")
+@login_required
+def info_reserva_temporaria(id_reserva):
+    reserva = db.get_or_404(Reservas_Temporarias, id_reserva)
+    return {
+        "laboratorio": reserva.laboratorios.nome_laboratorio,
+        "periodo": f"{reserva.inicio_reserva} - {reserva.fim_reserva}",
+        "semana": reserva.aulas_ativas.dia_da_semana.nome_semana,
+        "horario": f"{reserva.aulas_ativas.aulas.horario_inicio:%H:%M} às {reserva.aulas_ativas.aulas.horario_fim:%H:%M}",
+        "cancel_url": url_for("usuario.cancelar_reserva_temporaria", id_reserva=id_reserva)
+    }
+
 @bp.route("/cancelar_reserva_fixa/<int:id_reserva>", methods=['POST'])
 @login_required
 def cancelar_reserva_fixa(id_reserva):
