@@ -6,8 +6,7 @@ from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import between, select
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from app.auxiliar.auxiliar_routes import (get_user_info,
-                                          parse_date_string,
+from app.auxiliar.auxiliar_routes import (get_user_info, parse_date_string,
                                           registrar_log_generico_usuario)
 from app.auxiliar.constant import PERM_ADMIN
 from app.auxiliar.dao import get_semestres

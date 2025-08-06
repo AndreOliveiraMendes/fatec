@@ -6,8 +6,9 @@ from flask import (Blueprint, abort, flash, redirect, render_template, request,
 from sqlalchemy import and_, select
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from app.auxiliar.auxiliar_routes import (get_data_reserva, get_user_info,
-                                          none_if_empty, parse_date_string,
+from app.auxiliar.auxiliar_routes import (get_responsavel_reserva,
+                                          get_user_info, none_if_empty,
+                                          parse_date_string,
                                           registrar_log_generico_usuario,
                                           time_range)
 from app.auxiliar.constant import PERM_ADMIN
@@ -119,7 +120,7 @@ def process_turnos():
     reservas = db.session.execute(sel_reserva).scalars().all()
     helper = {}
     for r in reservas:
-        title = get_data_reserva(r)
+        title = get_responsavel_reserva(r)
 
         days = [day.strftime('%Y-%m-%d') for day in time_range(r.inicio_reserva, r.fim_reserva, 7)]
         for day in days:

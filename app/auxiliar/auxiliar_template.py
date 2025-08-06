@@ -1,14 +1,14 @@
 from flask import Flask, url_for
 from markupsafe import Markup
-from sqlalchemy import between, select
-from sqlalchemy.exc import MultipleResultsFound
+from sqlalchemy import between
 
-from app.auxiliar.auxiliar_routes import get_unique_or_500
+from app.auxiliar.auxiliar_routes import (get_responsavel_reserva,
+                                          get_unique_or_500)
 from app.auxiliar.constant import (DATA_ABREV, DATA_COMPLETA, DATA_FLAGS,
                                    DATA_NUMERICA, HORA, PERMISSIONS,
                                    SEMANA_ABREV, SEMANA_COMPLETA)
-from app.models import (Pessoas, Reservas_Fixas, Reservas_Temporarias,
-                        Semestres, Usuarios_Especiais, db, Situacoes_Das_Reserva)
+from app.models import (Reservas_Fixas, Reservas_Temporarias,
+                        Semestres, Situacoes_Das_Reserva)
 from config.database_views import SECOES, TABLES_PER_LINE
 
 semana_inglesa = {
@@ -176,21 +176,9 @@ def register_filters(app:Flask):
         }
         """)
 
-    @app.template_global()
-    def get_data_reserva(reserva:Reservas_Fixas|Reservas_Temporarias, prefix='reservado '):
-        title = prefix if prefix else ''
-        empty = True
-        if reserva.tipo_responsavel == 0 or reserva.tipo_responsavel == 2:
-            responsavel = db.get_or_404(Pessoas, reserva.id_responsavel)
-            title += "por " + responsavel.nome_pessoa
-            empty = False
-        if reserva.tipo_responsavel== 1 or reserva.tipo_responsavel == 2:
-            responsavel = db.get_or_404(Usuarios_Especiais, reserva.id_responsavel_especial)
-            if empty:
-                title += "para " + responsavel.nome_usuario_especial
-            else:
-                title += f" ({responsavel.nome_usuario_especial})"
-        return title
+    @app.template_global('get_responsavel_reserva')
+    def get_responsavel_reserva_template(reserva:Reservas_Fixas|Reservas_Temporarias, prefix='reservado '):
+        return get_responsavel_reserva(reserva, prefix)
 
     @app.template_global()
     def get_reserva(lab, aula, dia, mostrar_icone=False):
@@ -215,9 +203,9 @@ def register_filters(app:Flask):
         data = ""
         if temp or fixa:
             if temp:
-                data += get_data_reserva(temp, prefix = None)
+                data += get_responsavel_reserva(temp, prefix = None)
             else:
-                data += get_data_reserva(fixa, prefix = None)
+                data += get_responsavel_reserva(fixa, prefix = None)
             if mostrar_icone:
                 data += status_reserva(lab, aula, dia)
         else:

@@ -6,8 +6,8 @@ from flask import (Blueprint, flash, redirect, render_template, request,
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from app.auxiliar.auxiliar_routes import (get_data_reserva, get_user_info,
-                                          none_if_empty,
+from app.auxiliar.auxiliar_routes import (get_responsavel_reserva,
+                                          get_user_info, none_if_empty,
                                           registrar_log_generico_usuario)
 from app.auxiliar.constant import PERM_ADMIN
 from app.auxiliar.dao import (get_aulas_ativas_por_semestre, get_aulas_extras,
@@ -96,7 +96,7 @@ def get_turno(id_semestre, id_turno):
     reservas = db.session.execute(sel_reservas).scalars().all()
     helper = {}
     for r in reservas:
-        title = get_data_reserva(r)
+        title = get_responsavel_reserva(r)
         helper[(r.id_reserva_laboratorio, r.id_reserva_aula)] = title
     extras['helper'] = helper
     extras['tipo_reserva'] = TipoReservaEnum

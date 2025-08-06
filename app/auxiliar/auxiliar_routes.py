@@ -207,17 +207,22 @@ def time_range(start:date, end:date, step:int = 1):
         yield day
         day += timedelta(step)
 
-def get_data_reserva(reserva:Reservas_Fixas|Reservas_Temporarias, prefix='reservado '):
+def get_responsavel_reserva(reserva:Reservas_Fixas|Reservas_Temporarias, prefix='reservado '):
     title = prefix if prefix else ''
+    has_prefix = prefix
     empty = True
     if reserva.tipo_responsavel == 0 or reserva.tipo_responsavel == 2:
         responsavel = db.get_or_404(Pessoas, reserva.id_responsavel)
-        title += "por " + responsavel.nome_pessoa
+        if has_prefix:
+            title += "por "
+        title += responsavel.nome_pessoa
         empty = False
     if reserva.tipo_responsavel== 1 or reserva.tipo_responsavel == 2:
         responsavel = db.get_or_404(Usuarios_Especiais, reserva.id_responsavel_especial)
         if empty:
-            title += "para " + responsavel.nome_usuario_especial
+            if has_prefix:
+                title += "para "
+            title += responsavel.nome_usuario_especial
         else:
             title += f" ({responsavel.nome_usuario_especial})"
     return title
