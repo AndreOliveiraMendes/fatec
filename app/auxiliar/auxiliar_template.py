@@ -37,10 +37,10 @@ meses_ingleses = {
 }
 
 mapa_icones_status = {
-    None: ("text-muted", "glyphicon-user", None),
-    "NAO_PEGOU_A_CHAVE": ("text-danger", "glyphicon-user", "glyphicon-remove"),
-    "PEGOU_A_CHAVE": ("text-success", "glyphicon-user", "glyphicon-ok"),
-    "DEVOLVEU_A_CHAVE": ("text-primary", "glyphicon-user", "glyphicon-log-out"),
+    None: ("text-muted", "glyphicon-user", None, "indefinido"),
+    "NAO_PEGOU_A_CHAVE": ("text-danger", "glyphicon-user", "glyphicon-remove", "não pegou a chave"),
+    "PEGOU_A_CHAVE": ("text-success", "glyphicon-user", "glyphicon-ok", "esta em sala"),
+    "DEVOLVEU_A_CHAVE": ("text-primary", "glyphicon-user", "glyphicon-log-out", "reserva efetuada"),
 }
 
 def register_filters(app:Flask):
@@ -221,9 +221,9 @@ def register_filters(app:Flask):
             Situacoes_Das_Reserva.situacao_dia == dia
         )
         chave = status.situacao_chave.name if status else None
-        cor, base, overlay = mapa_icones_status[chave]
+        cor, base, overlay, tooltip = mapa_icones_status[chave]
         icon = f"""
-        <span class="reserva-icon { cor }">
+        <span class="reserva-icon { cor }" title="{ tooltip }">
             <i class="glyphicon { base } base-icon"></i>
         """
         if overlay:
