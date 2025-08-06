@@ -78,12 +78,26 @@
                                     <td>{{ r.aulas_ativas.aulas.horario_inicio|hora }} às {{ r.aulas_ativas.aulas.horario_fim|hora }}</td>
                                     <td>{{ r.tipo_reserva.value }}</td>
                                     <td>
-                                        <a href="#modalCancelar"
-                                           data-toggle="modal"
-                                           data-info-url="{{ url_for('usuario.info_reserva_fixa', id_reserva=r.id_reserva_fixa) }}"
-                                           class="btn btn-danger btn-xs btn-cancelar">
-                                            <span class="glyphicon glyphicon-trash"></span> Cancelar
-                                        </a>
+                                        <div class="btn-group">
+                                            <a href="#modalCancelar"
+                                               data-toggle="modal"
+                                               data-info-url="{{ url_for('usuario.info_reserva_fixa', id_reserva=r.id_reserva_fixa) }}"
+                                               class="btn btn-danger btn-xs btn-cancelar">
+                                                <span class="glyphicon glyphicon-trash"></span> Cancelar
+                                            </a>
+                                            <a href=""
+                                               data-toggle="modal"
+                                               data-info-url="{{ url_for('usuario.info_reserva_fixa', id_reserva=r.id_reserva_fixa) }}"
+                                               class="btn btn-warning btn-xs btn-editar">
+                                                <span class="glyphicon glyphicon-pencil"></span> Editar
+                                            </a>
+                                            <a href=""
+                                               data-toggle="modal"
+                                               data-info-url="{{ url_for('usuario.info_reserva_fixa', id_reserva=r.id_reserva_fixa) }}"
+                                               class="btn btn-info btn-xs btn-detalhes">
+                                                <span class="glyphicon glyphicon-search"></span> Detalhes
+                                            </a>
+                                        </div>
                                     </td>
                                 </tr>
                             {% endfor %}
