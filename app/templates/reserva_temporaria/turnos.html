@@ -25,14 +25,14 @@
         <div class="table-responsive">
             <table class="table table-bordered table-striped table-hover tabela-reserva">
                 <thead>
-                    <tr class="information">
+                    <tr>
                         <th rowspan="3" class="col-fixa">Laboratorios</th>
                         {% for dia, semana, qt in head1 %}<th colspan="{{ qt }}">{{ dia|data }} - {{ semana }}</th>{% endfor %}
                     </tr>
-                    <tr class="information">
+                    <tr>
                         {% for turno, qt in head2 %}<th colspan="{{ qt }}">{{ turno }}</th>{% endfor %}
                     </tr>
-                    <tr class="information">
+                    <tr>
                         {% for inicio, fim in head3 %}<th>{{ inicio|hora }} - {{ fim|hora }}</th>{% endfor %}
                     </tr>
                 </thead>

@@ -110,6 +110,10 @@ body {
     white-space: nowrap;
 }
 
+.tabela-reserva thead th{
+    background-color: #5bc0de;
+}
+
 /* Apenas os cabeçalhos e células da coluna fixa */
 .tabela-reserva .col-fixa {
     position: sticky;
@@ -192,4 +196,16 @@ td.fixa {
         1px -1px 0 white,
         -1px 1px 0 white,
         1px 1px 0 white;
+}
+
+.tabela-reserva-tv {
+    border-collapse: collapse;
+    width: max-content;
+    overflow-x: auto;
+    font-size: large;
+}
+
+.tabela-reserva-tv thead th{
+    background-color: #c00;
+    color: #ffffff;
 }

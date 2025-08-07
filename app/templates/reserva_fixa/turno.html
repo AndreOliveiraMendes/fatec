@@ -33,11 +33,11 @@
         <div class="table-responsive">
             <table class="table table-bordered table-striped table-hover tabela-reserva">
                 <thead>
-                    <tr class="information">
+                    <tr>
                         <th rowspan="2" class="col-fixa">Laboratorios</th>
                         {% for dia, qt in head1 %}<td colspan="{{ qt }}">{{ dia }}</td>{% endfor %}
                     </tr>
-                    <tr class="information">
+                    <tr>
                         {% for hora in head2 %}<td>{{ hora }}</td>{% endfor %}
                     </tr>
                 </thead>

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from flask import (Blueprint, flash, redirect, render_template, request,
+from flask import (Blueprint, abort, flash, redirect, render_template, request,
                    session, url_for)
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import between, select
@@ -11,7 +11,7 @@ from app.auxiliar.auxiliar_routes import (get_user_info, parse_date_string,
 from app.auxiliar.constant import PERM_ADMIN
 from app.auxiliar.dao import get_semestres
 from app.auxiliar.decorators import login_required
-from app.models import (Aulas, Aulas_Ativas, Reservas_Fixas,
+from app.models import (Aulas, Aulas_Ativas, Permissoes, Reservas_Fixas,
                         Reservas_Temporarias, Usuarios, db)
 from config.general import LOCAL_TIMEZONE
 
@@ -111,10 +111,18 @@ def gerenciar_reserva_temporaria():
     extras['args_extras'] = args_extras
     return render_template("usuario/reserva_temporaria.html", username=username, perm=perm, **extras)
 
+def check_ownership_or_admin(reserva:Reservas_Fixas|Reservas_Temporarias):
+    userid = session.get('userid')
+    user = db.get_or_404(Usuarios, userid)
+    perm = db.session.get(Permissoes, userid)
+    if reserva.id_responsavel != user.pessoas.id_pessoa and (not perm or perm&PERM_ADMIN == 0):
+        abort(403)
+
 @bp.route("/info_reserva_fixa/<int:id_reserva>")
 @login_required
 def info_reserva_fixa(id_reserva):
     reserva = db.get_or_404(Reservas_Fixas, id_reserva)
+    check_ownership_or_admin(reserva)
     return {
         "laboratorio": reserva.laboratorios.nome_laboratorio,
         "semestre": reserva.semestres.nome_semestre,
@@ -127,6 +135,7 @@ def info_reserva_fixa(id_reserva):
 @login_required
 def info_reserva_temporaria(id_reserva):
     reserva = db.get_or_404(Reservas_Temporarias, id_reserva)
+    check_ownership_or_admin(reserva)
     return {
         "laboratorio": reserva.laboratorios.nome_laboratorio,
         "periodo": f"{reserva.inicio_reserva} - {reserva.fim_reserva}",
