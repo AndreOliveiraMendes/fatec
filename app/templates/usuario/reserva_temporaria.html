@@ -9,11 +9,11 @@
 {% endblock extra_head %}
 {% block content %}
     <div class="btn-group">
-        {{ go_back() }}
         <a href="{{ url_for('default.home') }}" class="btn btn-default">
             <span class="glyphicon glyphicon-home"></span> Início
         </a>
-        <a href="{{ url_for('usuario.menu_reservas_usuario') }}" class="btn btn-primary">
+        <a href="{{ url_for('usuario.menu_reservas_usuario') }}"
+           class="btn btn-primary">
             <span class="glyphicon glyphicon-list"></span> Menu
         </a>
     </div>

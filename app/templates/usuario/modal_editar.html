@@ -20,16 +20,44 @@
                         <br>
                         <strong id="modalEHorario"></strong>
                     </p>
+                    {% if perm and perm|has_flag(ADMIN) %}
+                        <div class="form-group">
+                            <label for="modalEResponsavel">Responsavel:</label>
+                            <select id="modalEResponsavel" name="responsavel" class="form-control">
+                                <option value="">Selecione o responsavel pela reserva</option>
+                                {% for r in responsavel %}
+                                    <option value="{{ r.id_pessoa }}">({{ r.id_pessoa }}) {{ r.nome_pessoa }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="modalEResponsavelEspecial">Responsavel especial:</label>
+                            <select id="modalEResponsavelEspecial"
+                                    name="responsavel_especial"
+                                    class="form-control">
+                                <option value="">Selecione o responsavel especial pela reserva</option>
+                                {% for r in responsavel_especial %}
+                                    <option value="{{ r.id_usuario_especial }}">({{ r.id_usuario_especial }}) {{ r.nome_usuario_especial }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    {% endif %}
                     <div class="form-group">
                         <label for="modalETipoReserva">Destinação reserva:</label>
-                        <select id="modalETipoReserva" name="tipo_reserva" class="form-control" required>
+                        <select id="modalETipoReserva"
+                                name="tipo_reserva"
+                                class="form-control"
+                                required>
                             <option value="">Selecione o tipo de reserva</option>
                             {% for tr in TipoReserva %}<option value="{{ tr.value }}">{{ tr.value }}</option>{% endfor %}
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="modalEObservacao">Observações:</label>
-                        <input type="text" id="modalEObservacao" name="observacao" class="form-control">
+                        <input type="text"
+                               id="modalEObservacao"
+                               name="observacao"
+                               class="form-control">
                     </div>
                 </div>
                 <div class="modal-footer">

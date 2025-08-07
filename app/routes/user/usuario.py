@@ -9,7 +9,7 @@ from sqlalchemy.exc import IntegrityError, OperationalError
 from app.auxiliar.auxiliar_routes import (get_user_info, parse_date_string,
                                           registrar_log_generico_usuario)
 from app.auxiliar.constant import PERM_ADMIN
-from app.auxiliar.dao import get_semestres
+from app.auxiliar.dao import get_semestres, get_pessoas, get_usuarios_especiais
 from app.auxiliar.decorators import login_required
 from app.models import (Aulas, Aulas_Ativas, Permissoes, Reservas_Fixas,
                         Reservas_Temporarias, Usuarios, db, TipoReservaEnum)
@@ -91,6 +91,8 @@ def gerenciar_reserva_fixa():
     args_extras = {key:value for key, value in request.args.items() if key != 'page'}
     extras['args_extras'] = args_extras
     extras['TipoReserva'] = TipoReservaEnum
+    extras['responsavel'] = get_pessoas()
+    extras['responsavel_especial'] = get_usuarios_especiais()
     return render_template("usuario/reserva_fixa.html", username=username, perm=perm, **extras)
 
 @bp.route("/reserva/reservas_temporarias")
@@ -198,5 +200,4 @@ def editar_reserva_fixa(id_reserva):
 
     observacao = request.form.get('observacao')
     tipo_reserva = request.form.get('tipo_reserva')
-
     return "ok"
