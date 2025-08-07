@@ -13,6 +13,9 @@
         <a href="{{ url_for('default.home') }}" class="btn btn-default">
             <span class="glyphicon glyphicon-home"></span> Início
         </a>
+        <a href="{{ url_for('usuario.menu_reservas_usuario') }}" class="btn btn-primary">
+            <span class="glyphicon glyphicon-list"></span> Menu
+        </a>
     </div>
     <h3>Agora: {{ datetime|datahora }}</h3>
     <div class="panel panel-info">
@@ -85,7 +88,7 @@
                                                class="btn btn-warning btn-xs btn-editar">
                                                 <span class="glyphicon glyphicon-pencil"></span> Editar
                                             </a>
-                                            <a href=""
+                                            <a href="#modalDetalhes"
                                                data-toggle="modal"
                                                data-info-url="{{ url_for('usuario.info_reserva_temporaria', id_reserva=r.id_reserva_temporaria) }}"
                                                class="btn btn-info btn-xs btn-detalhes">
@@ -99,36 +102,8 @@
                     </table>
                 </div>
                 {{ render_pagination(pagination, 'usuario.gerenciar_reserva_temporaria', args_extras) }}
-                <div id="modalCancelar" class="modal fade" tabindex="-1" role="dialog">
-                    <div class="modal-dialog modal-sm" role="document">
-                        <div class="modal-content">
-                            <form method="post" id="formCancelar" action="">
-                                <div class="modal-header bg-danger">
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
-                                        <span aria-hidden="true">×</span>
-                                    </button>
-                                    <h4 class="modal-title">Confirmar cancelamento</h4>
-                                </div>
-                                <div class="modal-body">
-                                    <p>Deseja cancelar a reserva:</p>
-                                    <p>
-                                        <strong id="modalLaboratorio"></strong>
-                                        <br>
-                                        <strong id="modalSemana"></strong>
-                                        <br>
-                                        <strong id="modalPeriodo"></strong>
-                                        <br>
-                                        <strong id="modalHorario"></strong>?
-                                    </p>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="submit" class="btn btn-danger">Sim, cancelar</button>
-                                    <button type="button" class="btn btn-default" data-dismiss="modal">Voltar</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
+                {# Modal único #}
+                {% include "usuario/modal_cancelar.html" %}
             {% else %}
                 <div class="alert alert-warning" role="alert">Nenhuma reserva no dia selecionado</div>
             {% endif %}
@@ -142,12 +117,25 @@
             var infoUrl = $(this).data('info-url');
 
             $.getJSON(infoUrl, function (data) {
-                $('#modalLaboratorio').text(data.laboratorio);
-                $('#modalSemana').text(data.semana);
-                $('#modalPeriodo').text(data.periodo);
-                $('#modalHorario').text(data.horario);
-
+                $('#modalCLaboratorio').text(data.laboratorio);
+                $('#modalCSemana').text(data.semana);
+                $('#modalCSemestre').text(data.semestre);
+                $('#modalCHorario').text(data.horario);
                 $('#formCancelar').attr('action', data.cancel_url);
+            });
+        });
+        $(document).on('click', '.btn-detalhes', function () {
+            var infoUrl = $(this).data('info-url');
+
+            $.getJSON(infoUrl, function (data) {
+                $('#modalDLaboratorio').text(data.laboratorio);
+                $('#modalDSemana').text(data.semana);
+                $('#modalDSemestre').text(data.semestre);
+                $('#modalDHorario').text(data.horario);
+                if(data.observacao)
+                    $('#modalDObservacao').text(data.observacao);
+                else
+                    $('#modalDObservacao').text("sem observações")
             });
         });
     </script>

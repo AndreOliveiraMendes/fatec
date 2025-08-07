@@ -12,7 +12,7 @@ from app.auxiliar.constant import PERM_ADMIN
 from app.auxiliar.dao import get_semestres
 from app.auxiliar.decorators import login_required
 from app.models import (Aulas, Aulas_Ativas, Permissoes, Reservas_Fixas,
-                        Reservas_Temporarias, Usuarios, db)
+                        Reservas_Temporarias, Usuarios, db, TipoReservaEnum)
 from config.general import LOCAL_TIMEZONE
 
 bp = Blueprint('usuario', __name__, url_prefix='/usuario')
@@ -90,6 +90,7 @@ def gerenciar_reserva_fixa():
     extras['pagination'] = reservas_fixas
     args_extras = {key:value for key, value in request.args.items() if key != 'page'}
     extras['args_extras'] = args_extras
+    extras['TipoReserva'] = TipoReservaEnum
     return render_template("usuario/reserva_fixa.html", username=username, perm=perm, **extras)
 
 @bp.route("/reserva/reservas_temporarias")
@@ -115,7 +116,7 @@ def check_ownership_or_admin(reserva:Reservas_Fixas|Reservas_Temporarias):
     userid = session.get('userid')
     user = db.get_or_404(Usuarios, userid)
     perm = db.session.get(Permissoes, userid)
-    if reserva.id_responsavel != user.pessoas.id_pessoa and (not perm or perm&PERM_ADMIN == 0):
+    if reserva.id_responsavel != user.pessoas.id_pessoa and (not perm or perm.permissao&PERM_ADMIN == 0):
         abort(403)
 
 @bp.route("/info_reserva_fixa/<int:id_reserva>")
@@ -128,7 +129,10 @@ def info_reserva_fixa(id_reserva):
         "semestre": reserva.semestres.nome_semestre,
         "semana": reserva.aulas_ativas.dia_da_semana.nome_semana,
         "horario": f"{reserva.aulas_ativas.aulas.horario_inicio:%H:%M} às {reserva.aulas_ativas.aulas.horario_fim:%H:%M}",
-        "cancel_url": url_for("usuario.cancelar_reserva_fixa", id_reserva=id_reserva)
+        "observacao": reserva.observacoes,
+        "tiporeserva": reserva.tipo_reserva.value,
+        "cancel_url": url_for("usuario.cancelar_reserva_fixa", id_reserva=id_reserva),
+        "editar_url": url_for("usuario.editar_reserva_fixa", id_reserva=id_reserva)
     }
 
 @bp.route("/info_reserva_temporaria/<int:id_reserva>")
@@ -141,6 +145,8 @@ def info_reserva_temporaria(id_reserva):
         "periodo": f"{reserva.inicio_reserva} - {reserva.fim_reserva}",
         "semana": reserva.aulas_ativas.dia_da_semana.nome_semana,
         "horario": f"{reserva.aulas_ativas.aulas.horario_inicio:%H:%M} às {reserva.aulas_ativas.aulas.horario_fim:%H:%M}",
+        "observacao": reserva.observacoes,
+        "tiporeserva": reserva.tipo_reserva,
         "cancel_url": url_for("usuario.cancelar_reserva_temporaria", id_reserva=id_reserva)
     }
 
@@ -149,6 +155,7 @@ def info_reserva_temporaria(id_reserva):
 def cancelar_reserva_fixa(id_reserva):
     userid = session.get('userid')
     reserva = db.get_or_404(Reservas_Fixas, id_reserva)
+    check_ownership_or_admin(reserva)
     try:
         db.session.delete(reserva)
 
@@ -181,3 +188,11 @@ def cancelar_reserva_temporaria(id_reserva):
         flash(f"erro ao excluir reserva:{str(e.orig)}", "danger")
 
     return redirect(url_for('usuario.gerenciar_reserva_temporaria'))
+
+@bp.route("/editar_reservas_fixas/<int:id_reserva>", methods=['POST'])
+@login_required
+def editar_reserva_fixa(id_reserva):
+    userid = session.get('userid')
+    reserva = db.get_or_404(Reservas_Temporarias, id_reserva)
+    check_ownership_or_admin(reserva)
+    return "ok"
