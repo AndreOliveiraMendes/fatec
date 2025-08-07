@@ -195,4 +195,8 @@ def editar_reserva_fixa(id_reserva):
     userid = session.get('userid')
     reserva = db.get_or_404(Reservas_Temporarias, id_reserva)
     check_ownership_or_admin(reserva)
+
+    observacao = request.form.get('observacao')
+    tipo_reserva = request.form.get('tipo_reserva')
+
     return "ok"

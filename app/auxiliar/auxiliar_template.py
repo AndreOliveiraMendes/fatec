@@ -86,10 +86,15 @@ def register_filters(app:Flask):
             f"""    const now = new Date();\n"""
             f"""    const msUntilNextMinute = 60000 - (now.getSeconds() * 1000 + now.getMilliseconds());\n"""
             f"""    setTimeout(() => {{\n"""
-            f"""        location.reload();\n"""
+            f"""        // Só recarrega se nenhum modal estiver aberto\n"""
+            f"""        if ($('.modal.in, .modal.show').length === 0) {{\n"""
+            f"""            location.reload();\n"""
+            f"""        }} else {{\n"""
+            f"""            // Reagendar para o próximo minuto se um modal estiver aberto\n"""
+            f"""            scheduleReload();\n"""
+            f"""        }}\n"""
             f"""    }}, msUntilNextMinute);\n"""
             f"""}}\n"""
-            f"""\n"""
             f"""scheduleReload();"""
         )
         return Markup(script)
