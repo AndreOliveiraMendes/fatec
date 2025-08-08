@@ -75,6 +75,45 @@ def database():
     extras['inds'] = {table:inspector.get_indexes(table) for table in tables}
     return render_template("database/schema/database.html", username=username, perm=perm, **extras)
 
+@bp.route("/wiki")
+@admin_required
+def wiki():
+    userid = session.get('userid')
+    username, perm = get_user_info(userid)
+    extras = {}
+    inspector = inspect(db.engine)
+    tables = inspector.get_table_names()
+    extras['tables'] = tables
+    pks = {table:inspector.get_pk_constraint(table) for table in tables}
+    columns = {}
+    for table in tables:
+        print(f"<--{table}-->")
+        columns[table] = []
+        for field in inspector.get_columns(table):
+            column = {}
+            column['coluna'] = field['name']
+            column['tipo'] = field['type']
+            pk = field['name'] in pks[table]['constrained_columns']
+            if pk:
+                restrição = f"PK"
+                if field['autoincrement']:
+                    restrição += ', AUTO_INCREMENT'
+                column['restrição'] = restrição
+            else:
+                restrição = '' if field['nullable'] else 'NOT '
+                restrição += 'NULL'
+                column['restrição'] = restrição
+            default = 'NULL' if field['default'] is None else field['default']
+            column['default'] = default
+            columns[table].append(column)
+            print(field)
+    extras['columns'] = columns
+    #extras['fks'] = {table:inspector.get_foreign_keys(table) for table in tables}
+    #extras['uks'] = {table:inspector.get_unique_constraints(table) for table in tables}
+    #extras['chks'] = {table:inspector.get_check_constraints(table) for table in tables}
+    #extras['inds'] = {table:inspector.get_indexes(table) for table in tables}
+    return render_template("database/schema/wiki.html", username=username, perm=perm, **extras)
+
 @bp.route("/schema")
 @admin_required
 def schema():

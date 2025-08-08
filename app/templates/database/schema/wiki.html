@@ -1,0 +1,33 @@
+{% extends "base" %}
+{% from "macros/form.html" import generate_navigation %}
+{% block title %}
+    wiki - Banco de Dados
+{% endblock title %}
+{% block extra_css %}
+    <link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism-tomorrow.css"
+          rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/prismjs/plugins/line-numbers/prism-line-numbers.css"
+          rel="stylesheet" />
+{% endblock extra_css %}
+{% block extra_script %}
+    <script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-markdown.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs/plugins/line-numbers/prism-line-numbers.min.js"></script>
+{% endblock extra_script %}
+{% block content %}
+    <pre class="line-numbers">
+<code class="language-markdown"># 📚 Documentação do Banco de Dados
+{% for table in tables %}
+---
+
+## 🗂️ Tabela: `{{ table }}`
+
+| Coluna | Tipo | Restrições | default |
+| --- | --- | --- | --- |
+{%- for column in columns[table] %}
+| {{ column['coluna'] }} | {{ column['tipo'] }} | {{ column['restrição'] }} | {{ column['default'] }} |
+{%- endfor %}
+{% endfor %}
+</code>
+    </pre>
+{% endblock content %}

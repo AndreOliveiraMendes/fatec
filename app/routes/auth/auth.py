@@ -5,7 +5,7 @@ from flask import (Blueprint, current_app, flash, redirect, render_template,
                    request, session, url_for)
 
 from app.auxiliar.auxiliar_routes import (none_if_empty,
-                                          registrar_log_generico_sistema)
+                                          registrar_log_generico_sistema, get_user_info)
 from app.auxiliar.decorators import login_required
 from app.models import Permissoes, Pessoas, Usuarios, db
 from config.general import API_BASIC_PASS, API_BASIC_USER, TOMCAT_API_URL
@@ -103,6 +103,7 @@ def login():
             db.session.commit()
             session['userid'] = userid
             flash("login realizado com sucesso", "success")
+            current_app.logger.info(f"usuario {username} efetuou login no sistema")
             return render_template("auth/login_success.html", username=username, perm=perm)
         else:
             flash("falha ao realizar login", "danger")
@@ -114,6 +115,8 @@ def login():
 @bp.route("/logout")
 @login_required
 def logout():
-    session.pop('userid')
+    userid = session.pop('userid')
+    username, perm = get_user_info(userid)
+    current_app.logger.info(f"usuario {username} efetuou logout no sistema")
     flash("logout realizado com sucesso", "success")
     return render_template("auth/logout.html")

@@ -1,8 +1,8 @@
 from collections import Counter
 from datetime import date
 
-from flask import (Blueprint, flash, redirect, render_template, request,
-                   session, url_for, abort)
+from flask import (Blueprint, abort, flash, redirect, render_template, request,
+                   session, url_for)
 from markupsafe import Markup
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, OperationalError

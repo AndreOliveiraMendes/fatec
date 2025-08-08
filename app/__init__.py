@@ -1,5 +1,6 @@
 import logging
 import os
+from logging.handlers import TimedRotatingFileHandler
 
 from flask import Flask
 
@@ -31,7 +32,14 @@ def create_app():
 def configure_logging(app):
     if not os.path.exists('logs'):
         os.makedirs('logs')
-    handler = logging.FileHandler('logs/app.log')
+    #handler = logging.FileHandler('logs/app.log')
+    handler = TimedRotatingFileHandler(
+        filename='logs/app.log',
+        when='midnight',   # gira o arquivo todo dia à meia-noite
+        interval=1,        # a cada 1 unidade do "when"
+        backupCount=90,  # mantém só X dias de log
+        encoding='utf-8'
+    )
     handler.setLevel(logging.INFO)
 
     formatter = logging.Formatter(
