@@ -55,7 +55,9 @@
         <script>
         function copyToClipboard(id) {
             var text = document.getElementById(id).innerText;
-            navigator.clipboard.writeText(text);
+            navigator.clipboard.writeText(text)
+                .then(() => alert("Copiado!"))
+                .catch(err => console.error("Erro ao copiar:", err));
         }
         </script>
     {% else %}

@@ -13,9 +13,17 @@
     <script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-markdown.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/prismjs/plugins/line-numbers/prism-line-numbers.min.js"></script>
+    <script>
+        function copyToClipboard(id) {
+            var text = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(text)
+                .then(() => alert("Copiado!"))
+                .catch(err => console.error("Erro ao copiar:", err));
+        }
+    </script>
 {% endblock extra_script %}
 {% block content %}
-    <pre class="line-numbers">
+    <pre class="line-numbers" id="wikicode">
 <code class="language-markdown"># 📚 Documentação do Banco de Dados
 {% for table in tables %}
 ---
@@ -27,7 +35,19 @@
 {%- for column in columns[table] %}
 | {{ column['coluna'] }} | {{ column['tipo'] }} | {{ column['restrição'] }} | {{ column['default'] }} |
 {%- endfor %}
+
+**Primary Key**:
+* `({{ ', '.join(pks[table]['constrained_columns']) }})`
+
+{%- if fks[table] %}
+
+**Foreign Key**:
+{%- for fk in fks[table] %}
+* `{{ ', '.join(fk['constrained_columns']) }}` → `{{ fk['referred_table'] }}.{{ ', '.join(fk['referred_columns']) }}`
+{%- endfor %}
+{%- endif %}
 {% endfor %}
 </code>
     </pre>
+    <button onclick="copyToClipboard('wikicode')">Copiar</button>
 {% endblock content %}

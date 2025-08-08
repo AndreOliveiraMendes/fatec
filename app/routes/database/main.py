@@ -108,10 +108,11 @@ def wiki():
             columns[table].append(column)
             print(field)
     extras['columns'] = columns
-    #extras['fks'] = {table:inspector.get_foreign_keys(table) for table in tables}
-    #extras['uks'] = {table:inspector.get_unique_constraints(table) for table in tables}
-    #extras['chks'] = {table:inspector.get_check_constraints(table) for table in tables}
-    #extras['inds'] = {table:inspector.get_indexes(table) for table in tables}
+    extras['pks'] = pks
+    extras['fks'] = {table:inspector.get_foreign_keys(table) for table in tables}
+    extras['uks'] = {table:inspector.get_unique_constraints(table) for table in tables}
+    extras['chks'] = {table:inspector.get_check_constraints(table) for table in tables}
+    extras['inds'] = {table:inspector.get_indexes(table) for table in tables}
     return render_template("database/schema/wiki.html", username=username, perm=perm, **extras)
 
 @bp.route("/schema")
