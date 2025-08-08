@@ -44,6 +44,8 @@ def gerenciar_semestres():
             emnome_semestre = 'emnome_semestre' in request.form
             data_inicio = parse_date_string(request.form.get('data_inicio'))
             data_fim = parse_date_string(request.form.get('data_fim'))
+            data_inicio_reserva = parse_date_string(request.form.get('data_inicio_reserva'))
+            data_fim_reserva = parse_date_string(request.form.get('data_fim_reserva'))
             filter = []
             query_params = get_query_params(request)
             if id_semestre is not None:
@@ -57,6 +59,10 @@ def gerenciar_semestres():
                 filter.append(Semestres.data_inicio == data_inicio)
             if data_fim:
                 filter.append(Semestres.data_fim == data_fim)
+            if data_inicio_reserva:
+                filter.append(Semestres.data_inicio_reserva == data_inicio_reserva)
+            if data_fim_reserva:
+                filter.append(Semestres.data_fim_reserva == data_fim_reserva)
             if filter:
                 sel_semestres = select(Semestres).where(*filter)
                 semestres_paginados = semestres_paginados = SelectPagination(
@@ -74,9 +80,14 @@ def gerenciar_semestres():
             nome_semestre = none_if_empty(request.form.get('nome_semestre'))
             data_inicio = parse_date_string(request.form.get('data_inicio'))
             data_fim = parse_date_string(request.form.get('data_fim'))
+            data_inicio_reserva = parse_date_string(request.form.get('data_inicio_reserva'))
+            data_fim_reserva = parse_date_string(request.form.get('data_fim_reserva'))
             try:
                 novo_semestre = Semestres(
-                    nome_semestre = nome_semestre, data_inicio = data_inicio, data_fim = data_fim)
+                    nome_semestre = nome_semestre,
+                    data_inicio = data_inicio, data_fim = data_fim,
+                    data_inicio_reserva = data_inicio_reserva, data_fim_reserva = data_fim_reserva
+                )
                 db.session.add(novo_semestre)
                 db.session.flush()
                 registrar_log_generico_usuario(userid, "Inserção", novo_semestre)
@@ -84,7 +95,7 @@ def gerenciar_semestres():
                 flash("Semestre cadastrado com sucesso", "success")
             except (IntegrityError, OperationalError) as e:
                 db.session.rollback()
-                flash(f"Erro ao cadastrar semestre:{str(e.orig)}")
+                flash(f"Erro ao cadastrar semestre:{str(e.orig)}", "danger")
 
             redirect_action, bloco = register_return(url, acao, extras)
 
@@ -99,12 +110,16 @@ def gerenciar_semestres():
             nome_semestre = none_if_empty(request.form.get('nome_semestre'))
             data_inicio = parse_date_string(request.form.get('data_inicio'))
             data_fim = parse_date_string(request.form.get('data_fim'))
+            data_inicio_reserva = parse_date_string(request.form.get('data_inicio_reserva'))
+            data_fim_reserva = parse_date_string(request.form.get('data_fim_reserva'))
             semestre = db.get_or_404(Semestres, id_semestre)
             try:
                 dados_anteriores = copy.copy(semestre)
                 semestre.nome_semestre = nome_semestre
                 semestre.data_inicio = data_inicio
                 semestre.data_fim = data_fim
+                semestre.data_inicio_reserva = data_inicio_reserva
+                semestre.data_fim_reserva = data_fim_reserva
 
                 db.session.flush()
                 registrar_log_generico_usuario(userid, "Edição", semestre, dados_anteriores)

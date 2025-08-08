@@ -53,6 +53,20 @@
                     <td>DATE</td>
                     <td>Data de término do semestre.</td>
                 </tr>
+                <tr>
+                    <td>
+                        <code>data_inicio_reserva</code>
+                    </td>
+                    <td>DATE</td>
+                    <td>Data de início do cadastro das reservas no semestre</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>data_fim_reserva</code>
+                    </td>
+                    <td>DATE</td>
+                    <td>Data de início do cadastro das reservas no semestre</td>
+                </tr>
             </tbody>
         </table>
     </div>
@@ -102,6 +116,14 @@
                 <label>Data de término do semestre:</label>
                 <input type="date" class="form-control" name="data_fim">
             </div>
+            <div class="form-group">
+                <label>Data de início de cadastro no semestre:</label>
+                <input type="date" class="form-control" name="data_inicio_reserva">
+            </div>
+            <div class="form-group">
+                <label>Data de término de cadastro no semestre:</label>
+                <input type="date" class="form-control" name="data_fim_reserva">
+            </div>
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
@@ -133,6 +155,14 @@
         <div class="form-group">
             <label>Data de término do semestre:</label>
             <input type="date" class="form-control" name="data_fim" required>
+        </div>
+        <div class="form-group">
+            <label>Data de início de cadastro no semestre:</label>
+            <input type="date" class="form-control" name="data_inicio_reserva" required>
+        </div>
+        <div class="form-group">
+            <label>Data de término de cadastro no semestre:</label>
+            <input type="date" class="form-control" name="data_fim_reserva" required>
         </div>
         {{ action_buttons(acao, 1, False, 0) }}
     </form>
@@ -188,6 +218,22 @@
                        class="form-control"
                        name="data_fim"
                        value="{{ semestre.data_fim }}"
+                       required>
+            </div>
+            <div class="form-group">
+                <label>Data de início de cadastro no semestre:</label>
+                <input type="date"
+                       class="form-control"
+                       name="data_inicio_reserva"
+                       value="{{ semestre.data_inicio_reserva }}"
+                       required>
+            </div>
+            <div class="form-group">
+                <label>Data de término de cadastro no semestre:</label>
+                <input type="date"
+                       class="form-control"
+                       name="data_fim_reserva"
+                       value="{{ semestre.data_fim_reserva }}"
                        required>
             </div>
             {{ action_buttons(acao, 2, True, 0) }}
@@ -250,6 +296,24 @@
                        disabled
                        required>
             </div>
+            <div class="form-group">
+                <label>Data de início de cadastro no semestre:</label>
+                <input type="date"
+                       class="form-control"
+                       name="data_inicio_reserva"
+                       value="{{ semestre.data_inicio_reserva }}"
+                       disabled
+                       required>
+            </div>
+            <div class="form-group">
+                <label>Data de término de cadastro no semestre:</label>
+                <input type="date"
+                       class="form-control"
+                       name="data_fim_reserva"
+                       value="{{ semestre.data_fim_reserva }}"
+                       disabled
+                       required>
+            </div>
             {{ action_buttons(acao, 2, True, 0, False) }}
         </form>
     {% endif %}
@@ -264,6 +328,8 @@
                         <td>Nome do semestre</td>
                         <td>Início do semestre</td>
                         <td>Término do semestre</td>
+                        <td>Início de cadastro no semestre</td>
+                        <td>Término de casdastro no semestre</td>
                         <td>Ação</td>
                     </tr>
                 </thead>
@@ -274,6 +340,8 @@
                             <td>{{ s.nome_semestre }}</td>
                             <td>{{ s.data_inicio|data }}</td>
                             <td>{{ s.data_fim|data }}</td>
+                            <td>{{ s.data_inicio_reserva|data }}</td>
+                            <td>{{ s.data_fim_reserva|data }}</td>
                             <td>
                                 <form method="post" class="form-inline">
                                     <input type="hidden" name="bloco" value="1">

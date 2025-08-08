@@ -2,7 +2,8 @@ from collections import Counter
 from datetime import date
 
 from flask import (Blueprint, flash, redirect, render_template, request,
-                   session, url_for)
+                   session, url_for, abort)
+from markupsafe import Markup
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, OperationalError
 
@@ -19,6 +20,11 @@ from app.models import (Permissoes, Reservas_Fixas, Semestres, TipoReservaEnum,
 
 bp = Blueprint('reservas_semanais', __name__, url_prefix="/reserva_fixa")
 
+def check_semestre(semestre:Semestres, perm:Permissoes):
+    today = date.today()
+    if (today < semestre.data_inicio_reserva or today > semestre.data_fim_reserva) and not perm&PERM_ADMIN > 0:
+        abort(403)
+
 @bp.route('/')
 @reserva_fixa_required
 def main_page():
@@ -33,14 +39,19 @@ def main_page():
     today = date.today()
     extras['semestres'] = semestres
     for semestre in semestres:
-        state = ''
+        state, icon = '', ''
         if today < semestre.data_inicio:
             state = 'success'
         elif today <= semestre.data_fim:
             state = 'primary'
         else:
             state = 'default'
+        if today < semestre.data_inicio_reserva or today > semestre.data_fim_reserva:
+            if not perm&PERM_ADMIN > 0:
+                state += ' disabled'
+            icon = Markup("<span class='glyphicon glyphicon-lock'></span>")
         semestre.state = state
+        semestre.icon = icon
     extras['day'] = today
     return render_template('reserva_fixa/main.html', username=username, perm=perm, **extras)
 
@@ -50,6 +61,7 @@ def get_semestre(id_semestre):
     userid = session.get('userid')
     username, perm = get_user_info(userid)
     semestre = db.get_or_404(Semestres, id_semestre)
+    check_semestre(semestre, perm)
     today = date.today()
     extras = {'semestre':semestre, 'day':today}
     sel_turnos = select(Turnos).order_by(Turnos.horario_inicio)
@@ -66,6 +78,7 @@ def get_turno(id_semestre, id_turno):
     userid = session.get('userid')
     username, perm = get_user_info(userid)
     semestre = db.get_or_404(Semestres, id_semestre)
+    check_semestre(semestre, perm)
     turno = db.get_or_404(Turnos, id_turno)
     today = date.today()
     extras = {'semestre':semestre, 'turno':turno, 'day':today}

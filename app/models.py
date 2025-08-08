@@ -482,11 +482,17 @@ class Semestres(Base):
     nome_semestre: Mapped[str] = mapped_column(String(100), nullable=False)
     data_inicio: Mapped[date] = mapped_column(nullable=False)
     data_fim: Mapped[date] = mapped_column(nullable=False)
+    data_inicio_reserva: Mapped[date] = mapped_column(nullable=False)
+    data_fim_reserva: Mapped[date] = mapped_column(nullable=False)
 
     reservas_fixas: Mapped[list['Reservas_Fixas']] = relationship(back_populates='semestres')
 
     __table_args__ = (
         UniqueConstraint(
+            'data_inicio_reserva',
+            'data_fim_reserva',
+            name='uq_semestre_inicio_fim_reserva'
+        ), UniqueConstraint(
             'data_inicio',
             'data_fim',
             name='uq_semestre_inicio_fim'
@@ -499,5 +505,6 @@ class Semestres(Base):
     def __repr__(self) -> str:
         return (
             f"<Semestres(id_semestre={self.id_semestre}, nome_semestre={self.nome_semestre}, "
-            f"data_inicio={self.data_inicio}, data_fim={self.data_fim})>"
+            f"data_inicio={self.data_inicio}, data_fim={self.data_fim}, "
+            f"data_inicio_reserva={self.data_inicio_reserva}, data_fim_reserva={self.data_fim_reserva})>"
         )

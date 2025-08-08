@@ -17,7 +17,7 @@
     <div class="btn-group-vertical" role="group">
         {% for semestre in semestres %}
             <a href="{{ url_for('reservas_semanais.get_semestre', id_semestre=semestre.id_semestre) }}"
-               class="btn btn-{{ semestre.state }}">{{ semestre.nome_semestre }}</a>
+               class="btn btn-{{ semestre.state }}">{{ semestre.nome_semestre }} {{ semestre.icon|e }}</a>
         {% endfor %}
     </div>
 {% endblock content %}

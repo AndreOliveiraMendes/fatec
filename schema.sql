@@ -39,8 +39,11 @@ CREATE TABLE
         nome_semestre VARCHAR(100) NOT NULL,
         data_inicio DATE NOT NULL,
         data_fim DATE NOT NULL,
+        data_inicio_reserva DATE NOT NULL,
+        data_fim_reserva DATE NOT NULL,
         PRIMARY KEY (id_semestre),
         CONSTRAINT uq_semestre_inicio_fim UNIQUE (data_inicio, data_fim),
+        CONSTRAINT uq_semestre_inicio_fim_reserva UNIQUE (data_inicio_reserva, data_fim_reserva),
         CONSTRAINT uq_semestre_nome UNIQUE (nome_semestre)
     ) COLLATE utf8mb4_0900_ai_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;
 
