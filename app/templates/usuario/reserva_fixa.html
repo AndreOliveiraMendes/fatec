@@ -86,19 +86,19 @@
                                         <div class="btn-group">
                                             <a href="#modalCancelar"
                                                data-toggle="modal"
-                                               data-info-url="{{ url_for('usuario.info_reserva_fixa', id_reserva=r.id_reserva_fixa) }}"
+                                               data-info-url="{{ url_for('usuario.get_info_reserva', tipo_reserva='fixa', id_reserva=r.id_reserva_fixa) }}"
                                                class="btn btn-danger btn-xs btn-cancelar">
                                                 <span class="glyphicon glyphicon-trash"></span> Cancelar
                                             </a>
                                             <a href="#modalEditar"
                                                data-toggle="modal"
-                                               data-info-url="{{ url_for('usuario.info_reserva_fixa', id_reserva=r.id_reserva_fixa) }}"
+                                               data-info-url="{{ url_for('usuario.get_info_reserva', tipo_reserva='fixa', id_reserva=r.id_reserva_fixa) }}"
                                                class="btn btn-warning btn-xs btn-editar">
                                                 <span class="glyphicon glyphicon-pencil"></span> Editar
                                             </a>
                                             <a href="#modalDetalhes"
                                                data-toggle="modal"
-                                               data-info-url="{{ url_for('usuario.info_reserva_fixa', id_reserva=r.id_reserva_fixa) }}"
+                                               data-info-url="{{ url_for('usuario.get_info_reserva', tipo_reserva='fixa', id_reserva=r.id_reserva_fixa) }}"
                                                class="btn btn-info btn-xs btn-detalhes">
                                                 <span class="glyphicon glyphicon-search"></span> Detalhes
                                             </a>
@@ -145,6 +145,10 @@
                 $('#modalEObservacao').val(data.observacao);
                 $('#modalETipoReserva').val(data.tiporeserva);
                 $('#formEditar').attr('action', data.editar_url);
+                {% if perm and perm|has_flag(ADMIN) %}
+                    $('#modalEResponsavel').val(data.responsavel);
+                    $('#modalEResponsavelEspecial').val(data.responsavel_especial);
+                {% endif %}
             });
         });
         $(document).on('click', '.btn-detalhes', function () {
