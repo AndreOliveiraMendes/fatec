@@ -87,7 +87,6 @@ def wiki():
     pks = {table:inspector.get_pk_constraint(table) for table in tables}
     columns = {}
     for table in tables:
-        print(f"<--{table}-->")
         columns[table] = []
         for field in inspector.get_columns(table):
             column = {}
@@ -106,7 +105,6 @@ def wiki():
             default = 'NULL' if field['default'] is None else field['default']
             column['default'] = default
             columns[table].append(column)
-            print(field)
     extras['columns'] = columns
     extras['pks'] = pks
     extras['fks'] = {table:inspector.get_foreign_keys(table) for table in tables}

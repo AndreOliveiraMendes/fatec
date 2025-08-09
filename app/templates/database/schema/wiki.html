@@ -38,7 +38,13 @@
 
 **Primary Key**:
 * `({{ ', '.join(pks[table]['constrained_columns']) }})`
+{%- if uks[table] %}
 
+**Unique Key**:
+{%- for uk in uks[table] %}
+* `({{ ', '.join(uk['column_names']) }})`
+{%- endfor %}
+{%- endif %}
 {%- if fks[table] %}
 
 **Foreign Key**:
@@ -46,7 +52,26 @@
 * `{{ ', '.join(fk['constrained_columns']) }}` → `{{ fk['referred_table'] }}.{{ ', '.join(fk['referred_columns']) }}`
 {%- endfor %}
 {%- endif %}
+{%- if inds[table] %}
+
+**Indexes:**:
+{%- for ind in inds[table] %}
+* `({{ ', '.join(ind['column_names']) }})`
+{%- endfor %}
+{%- endif %}
+{%- if chks[table] %}
+
+**Check Constraint**:
+{%- for chk in chks[table] %}
+* `{{ chk['name'] }}`:
+  * {{ chk['sqltext'][1:-1] }}
+{%- endfor %}
+{%- endif %}
 {% endfor %}
+## ✅ 📌 Observações gerais
+* ✅ Engine: InnoDB
+* ✅ Charset: utf8mb4
+* ✅ Collation: utf8mb4_0900_ai_ci (or utf8mb4_general_ci for mysql 5.7)
 </code>
     </pre>
     <button onclick="copyToClipboard('wikicode')">Copiar</button>
