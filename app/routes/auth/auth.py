@@ -4,8 +4,8 @@ import requests
 from flask import (Blueprint, current_app, flash, redirect, render_template,
                    request, session, url_for)
 
-from app.auxiliar.auxiliar_routes import (none_if_empty,
-                                          registrar_log_generico_sistema, get_user_info)
+from app.auxiliar.auxiliar_routes import (get_user_info, none_if_empty,
+                                          registrar_log_generico_sistema)
 from app.auxiliar.decorators import login_required
 from app.models import Permissoes, Pessoas, Usuarios, db
 from config.general import API_BASIC_PASS, API_BASIC_USER, TOMCAT_API_URL
@@ -83,10 +83,13 @@ def check_login(id, password):
         elif response.status_code == 404:
             flash("Verifique suas credenciais de acesso", "danger")
         elif response.status_code == 401:
+            current_app.logger.error("falha de auteticação da api de login")
             flash("Falha de autenticação com a API externa. Avise o suporte ou responsável pela rede.", "danger")
         else:
+            current_app.logger.error(f"erro inesperado, status: {response.status_code}")
             flash("Erro inesperado", "danger")
     except requests.exceptions.ConnectionError as e:
+        current_app.logger.error(f"erro ao conectar: {e}")
         flash("Falha ao conectar à API externa.", "danger")
 
     return loged, userid, username, permission

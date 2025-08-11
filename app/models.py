@@ -484,6 +484,7 @@ class Semestres(Base):
     data_fim: Mapped[date] = mapped_column(nullable=False)
     data_inicio_reserva: Mapped[date] = mapped_column(nullable=False)
     data_fim_reserva: Mapped[date] = mapped_column(nullable=False)
+    dias_de_prioridade: Mapped[int] = mapped_column(nullable=False)
 
     reservas_fixas: Mapped[list['Reservas_Fixas']] = relationship(back_populates='semestres')
 

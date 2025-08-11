@@ -76,3 +76,30 @@
     </pre>
     <button onclick="copyToClipboard('wikicode')">Copiar</button>
 {% endblock content %}
+{#
+sqltext = input()
+def process_sql_text(sqltext, depth = 0):
+    sqltext = sqltext[1:-1]
+    lv = 0
+    exps = []
+    connectives = []
+    start, end = None, None
+    for i, c in enumerate(sqltext):
+        if c == '(':
+            if lv == 0:
+                start = i
+            lv += 1
+        elif c == ')':
+            lv -= 1
+            if lv == 0:
+                end = i
+        if start is not None and end is not None:
+            exp = sqltext[start:end + 1]
+            exps.append({"exp":exp, "start":start, "end":end})
+            start, end = None, None
+    for i in range(len(exps) - 1):
+        exp1, exp2 = exps[i], exps[i + 1]
+        print(sqltext[exp1['end'] + 1:exp2['start']].strip())
+    print(exps)
+    return sqltext
+#}
