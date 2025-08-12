@@ -507,5 +507,6 @@ class Semestres(Base):
         return (
             f"<Semestres(id_semestre={self.id_semestre}, nome_semestre={self.nome_semestre}, "
             f"data_inicio={self.data_inicio}, data_fim={self.data_fim}, "
-            f"data_inicio_reserva={self.data_inicio_reserva}, data_fim_reserva={self.data_fim_reserva})>"
+            f"data_inicio_reserva={self.data_inicio_reserva}, data_fim_reserva={self.data_fim_reserva}, "
+            f"dias_de_prioridade={self.dias_de_prioridade})>"
         )

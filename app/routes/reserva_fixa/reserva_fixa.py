@@ -1,9 +1,9 @@
 from collections import Counter
 from datetime import date
-import mysql
 
-from flask import (Blueprint, abort, flash, redirect, render_template, request,
-                   session, url_for)
+import mysql
+from flask import (Blueprint, abort, current_app, flash, redirect,
+                   render_template, request, session, url_for)
 from markupsafe import Markup
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, OperationalError
@@ -18,7 +18,8 @@ from app.auxiliar.dao import (get_aulas_ativas_por_semestre, get_aulas_extras,
 from app.auxiliar.decorators import reserva_fixa_required
 from app.models import (Permissoes, Reservas_Fixas, Semestres, TipoReservaEnum,
                         Turnos, Usuarios, db)
-from config.general import DISPONIBILIDADE_HOST, DISPONIBILIDADE_DATABASE, DISPONIBILIDADE_PASSWORD, DISPONIBILIDADE_USER
+from config.general import (DISPONIBILIDADE_DATABASE, DISPONIBILIDADE_HOST,
+                            DISPONIBILIDADE_PASSWORD, DISPONIBILIDADE_USER)
 
 bp = Blueprint('reservas_semanais', __name__, url_prefix="/reserva_fixa")
 
@@ -198,11 +199,14 @@ def efetuar_reserva(id_semestre, id_turno):
 
         db.session.commit()
         flash("reserva efetuada com sucesso", "success")
+        current_app.logger.info(f"reserva efetuada com sucesso para {reserva}")
     except (IntegrityError, OperationalError) as e:
         db.session.rollback()
         flash(f"Erro ao efetuar reserva:{str(e.orig)}", "danger")
+        current_app.logger.error(f"falha ao realizar reserva:{e}")
     except ValueError as ve:
         db.session.rollback()
         flash(f"Erro ao efetuar reserva:{str(ve)}", "danger")
+        current_app.logger.error(f"falha ao realizar reserva:{e}")
 
     return redirect(url_for('default.home'))
