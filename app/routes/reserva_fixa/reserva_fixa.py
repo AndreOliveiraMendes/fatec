@@ -1,5 +1,6 @@
 from collections import Counter
 from datetime import date
+import mysql
 
 from flask import (Blueprint, abort, flash, redirect, render_template, request,
                    session, url_for)
@@ -17,13 +18,42 @@ from app.auxiliar.dao import (get_aulas_ativas_por_semestre, get_aulas_extras,
 from app.auxiliar.decorators import reserva_fixa_required
 from app.models import (Permissoes, Reservas_Fixas, Semestres, TipoReservaEnum,
                         Turnos, Usuarios, db)
+from config.general import DISPONIBILIDADE_HOST, DISPONIBILIDADE_DATABASE, DISPONIBILIDADE_PASSWORD, DISPONIBILIDADE_USER
 
 bp = Blueprint('reservas_semanais', __name__, url_prefix="/reserva_fixa")
 
-def check_semestre(semestre:Semestres, perm:Permissoes):
+
+def get_prioridade():
+    conn = mysql.connector.connect(
+        host=DISPONIBILIDADE_HOST,
+        user=DISPONIBILIDADE_USER,
+        password=DISPONIBILIDADE_PASSWORD,
+        database=DISPONIBILIDADE_DATABASE
+    )
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT DISTINCT professor
+        FROM grade
+        INNER JOIN disciplina ON disciplina.codigo = grade.disciplina
+        WHERE professor is not NULL and lab == 1
+        ORDER BY professor
+    """)
+    prioridade = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return prioridade
+
+def check_semestre(semestre:Semestres, userid, perm:Permissoes):
+    if perm&PERM_ADMIN > 0:
+        return
     today = date.today()
-    if (today < semestre.data_inicio_reserva or today > semestre.data_fim_reserva) and not perm&PERM_ADMIN > 0:
+    if today < semestre.data_inicio_reserva or today > semestre.data_fim_reserva:
         abort(403)
+    if (today - semestre.data_inicio_reserva) <= semestre.dias_de_prioridade:
+        prioridade = get_prioridade()
+        user = db.get_or_404(Usuarios, userid)
+        if not user.pessoas.id_pessoa in prioridade:
+            abort(403)
 
 @bp.route('/')
 @reserva_fixa_required
@@ -61,7 +91,7 @@ def get_semestre(id_semestre):
     userid = session.get('userid')
     username, perm = get_user_info(userid)
     semestre = db.get_or_404(Semestres, id_semestre)
-    check_semestre(semestre, perm)
+    check_semestre(semestre, userid, perm)
     today = date.today()
     extras = {'semestre':semestre, 'day':today}
     sel_turnos = select(Turnos).order_by(Turnos.horario_inicio)
@@ -78,7 +108,7 @@ def get_turno(id_semestre, id_turno):
     userid = session.get('userid')
     username, perm = get_user_info(userid)
     semestre = db.get_or_404(Semestres, id_semestre)
-    check_semestre(semestre, perm)
+    check_semestre(semestre, userid, perm)
     turno = db.get_or_404(Turnos, id_turno)
     today = date.today()
     extras = {'semestre':semestre, 'turno':turno, 'day':today}
