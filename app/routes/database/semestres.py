@@ -46,6 +46,7 @@ def gerenciar_semestres():
             data_fim = parse_date_string(request.form.get('data_fim'))
             data_inicio_reserva = parse_date_string(request.form.get('data_inicio_reserva'))
             data_fim_reserva = parse_date_string(request.form.get('data_fim_reserva'))
+            dias_de_prioridade = none_if_empty(request.form.get('prioridade'), int)
             filter = []
             query_params = get_query_params(request)
             if id_semestre is not None:
@@ -63,6 +64,8 @@ def gerenciar_semestres():
                 filter.append(Semestres.data_inicio_reserva == data_inicio_reserva)
             if data_fim_reserva:
                 filter.append(Semestres.data_fim_reserva == data_fim_reserva)
+            if dias_de_prioridade is not None:
+                filter.append(Semestres.dias_de_prioridade == dias_de_prioridade)
             if filter:
                 sel_semestres = select(Semestres).where(*filter)
                 semestres_paginados = semestres_paginados = SelectPagination(
@@ -82,11 +85,13 @@ def gerenciar_semestres():
             data_fim = parse_date_string(request.form.get('data_fim'))
             data_inicio_reserva = parse_date_string(request.form.get('data_inicio_reserva'))
             data_fim_reserva = parse_date_string(request.form.get('data_fim_reserva'))
+            dias_de_prioridade = none_if_empty(request.form.get('prioridade'), int)
             try:
                 novo_semestre = Semestres(
                     nome_semestre = nome_semestre,
                     data_inicio = data_inicio, data_fim = data_fim,
-                    data_inicio_reserva = data_inicio_reserva, data_fim_reserva = data_fim_reserva
+                    data_inicio_reserva = data_inicio_reserva, data_fim_reserva = data_fim_reserva,
+                    dias_de_prioridade = dias_de_prioridade
                 )
                 db.session.add(novo_semestre)
                 db.session.flush()
@@ -112,6 +117,7 @@ def gerenciar_semestres():
             data_fim = parse_date_string(request.form.get('data_fim'))
             data_inicio_reserva = parse_date_string(request.form.get('data_inicio_reserva'))
             data_fim_reserva = parse_date_string(request.form.get('data_fim_reserva'))
+            dias_de_prioridade = none_if_empty(request.form.get('prioridade'), int)
             semestre = db.get_or_404(Semestres, id_semestre)
             try:
                 dados_anteriores = copy.copy(semestre)
@@ -120,6 +126,7 @@ def gerenciar_semestres():
                 semestre.data_fim = data_fim
                 semestre.data_inicio_reserva = data_inicio_reserva
                 semestre.data_fim_reserva = data_fim_reserva
+                semestre.dias_de_prioridade = dias_de_prioridade
 
                 db.session.flush()
                 registrar_log_generico_usuario(userid, "Edição", semestre, dados_anteriores)

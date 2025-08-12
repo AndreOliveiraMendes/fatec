@@ -67,6 +67,13 @@
                     <td>DATE</td>
                     <td>Data de início do cadastro das reservas no semestre</td>
                 </tr>
+                <tr>
+                    <td>
+                        <code>dias_de_prioridade</code>
+                    </td>
+                    <td>INT</td>
+                    <td>Dias reservados a reservas prioritaria (disciplinas que precisam de laboratorio)</td>
+                </tr>
             </tbody>
         </table>
     </div>
@@ -124,6 +131,14 @@
                 <label>Data de término de cadastro no semestre:</label>
                 <input type="date" class="form-control" name="data_fim_reserva">
             </div>
+            <div class="form-group">
+                <label for="ddp">Prioridade:</label>
+                <input type="number"
+                       class="form-control"
+                       name="prioridade"
+                       id="ddp"
+                       placeholder="Digite quantos dias reservados a reservas prioritarias">
+            </div>
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
@@ -163,6 +178,15 @@
         <div class="form-group">
             <label>Data de término de cadastro no semestre:</label>
             <input type="date" class="form-control" name="data_fim_reserva" required>
+        </div>
+        <div class="form-group">
+            <label for="ddp">Prioridade:</label>
+            <input type="number"
+                   class="form-control"
+                   name="prioridade"
+                   id="ddp"
+                   placeholder="Digite quantos dias reservados a reservas prioritarias"
+                   required>
         </div>
         {{ action_buttons(acao, 1, False, 0) }}
     </form>
@@ -234,6 +258,16 @@
                        class="form-control"
                        name="data_fim_reserva"
                        value="{{ semestre.data_fim_reserva }}"
+                       required>
+            </div>
+            <div class="form-group">
+                <label for="ddp">Prioridade:</label>
+                <input type="number"
+                       class="form-control"
+                       name="prioridade"
+                       id="ddp"
+                       value="{{ semestre.dias_de_prioridade }}"
+                       placeholder="Digite quantos dias reservados a reservas prioritarias"
                        required>
             </div>
             {{ action_buttons(acao, 2, True, 0) }}
@@ -314,6 +348,17 @@
                        disabled
                        required>
             </div>
+            <div class="form-group">
+                <label for="ddp">Prioridade:</label>
+                <input type="number"
+                       class="form-control"
+                       name="prioridade"
+                       id="ddp"
+                       value="{{ semestre.dias_de_prioridade }}"
+                       placeholder="Digite quantos dias reservados a reservas prioritarias"
+                       disabled
+                       required>
+            </div>
             {{ action_buttons(acao, 2, True, 0, False) }}
         </form>
     {% endif %}
@@ -330,6 +375,7 @@
                         <td>Término do semestre</td>
                         <td>Início de cadastro no semestre</td>
                         <td>Término de casdastro no semestre</td>
+                        <td>Dias de prioridade</td>
                         <td>Ação</td>
                     </tr>
                 </thead>
@@ -342,11 +388,12 @@
                             <td>{{ s.data_fim|data }}</td>
                             <td>{{ s.data_inicio_reserva|data }}</td>
                             <td>{{ s.data_fim_reserva|data }}</td>
+                            <td>{{ s.dias_de_prioridade }}</td>
                             <td>
                                 <form method="post" class="form-inline">
                                     <input type="hidden" name="bloco" value="1">
                                     <input type="hidden" name="id_semestre" value="{{ s.id_semestre }}">
-                                    <div class="btn-group">
+                                    <div class="btn-group-vertical">
                                         <button type="submit"
                                                 name="acao"
                                                 value="editar"
