@@ -13,9 +13,9 @@ services:
     ports:
       - "8000:5000"
     depends_on:
-      db
-      fake_api
-    command: ["python", "-m", "app.main"]
+      - db
+      - fake_api
+    command: ["python", "-m", "app"]
 
   db:
     image: docker.io/library/mysql:8.0
@@ -34,9 +34,9 @@ services:
 
   fake_api:
     build: ../fake_api/
-    container_name: fake_api_server
+    container_name: fake_api_server_podman
     ports:
-      - "5001:5001"
+      - "8001:5001"
     volumes:
       - $HOME/fake_api_data_podman:/app/data
     env_file:

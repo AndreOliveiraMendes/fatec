@@ -6,3 +6,4 @@ PyMySQL
 requests
 tzlocal
 mysql-connector-python
+gunicorn
