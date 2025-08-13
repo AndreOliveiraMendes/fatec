@@ -28,5 +28,5 @@ COPY config/ config/
 EXPOSE 5000
 
 # ▶️ Comando para iniciar o servidor (modo simples)
-CMD ["python", "-m", "app"]
-#CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "app:create_app()"]
+#CMD ["python", "-m", "app"]
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "wsgi:app"]
