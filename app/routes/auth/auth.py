@@ -24,13 +24,15 @@ def check_login(id, password):
             json = response.json()
             usuario_json = json["usuario"]
 
-            id_usuario = usuario_json["codigo"] 
-            id_pessoa = usuario_json["pessoa"]["codigo"]
-            nome_pessoa = usuario_json["pessoa"]["nome"]
-            email_pessoa = usuario_json["pessoa"]["email"]
-            tipo_pessoa = usuario_json["tipo"]
-            situacao_pessoa = usuario_json["situacao"]
-            grupo_pessoa = usuario_json["grupo"]
+            id_usuario = usuario_json.get("codigo")
+            tipo_pessoa = usuario_json.get("tipo")
+            situacao_pessoa = usuario_json.get("situacao")
+            grupo_pessoa = usuario_json.get("grupo")
+
+            pessoa = usuario_json.get("pessoa")
+            id_pessoa = pessoa.get("codigo")
+            nome_pessoa = pessoa.get("nome")
+            email_pessoa = pessoa.get("email")
 
             # Pessoas
             pessoa = db.session.get(Pessoas, id_pessoa)

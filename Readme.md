@@ -241,6 +241,7 @@ gunicorn -w 4 -b 0.0.0.0:5000 wsgi:app
 ✅ Use **POST → Redirect → GET** para evitar warnings ao recarregar.  
 ✅ Planeje o uso de **volumes** ao containerizar o banco.  
 ✅ Planejar como pegar dados no crud quando a tabela for muito grande  
-✅ Usar WTForms para fazer os forms
+✅ Usar WTForms para fazer os forms  
+✅ Implementar: Usuario -> 1 dispositivo por vez
 
 ---

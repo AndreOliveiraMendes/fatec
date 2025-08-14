@@ -35,7 +35,7 @@ AUTO_CREATE_MYSQL = str_to_bool(os.getenv("AUTO_CREATE_MYSQL", "False"))
 # api
 TOMCAT_HOST = os.getenv("TOMCAT_HOST", "127.0.0.1")
 TOMCAT_PORT = os.getenv("TOMCAT_PORT", "5001")
-TOMCAT_API_URL = f"http://{TOMCAT_HOST}:{TOMCAT_PORT}/api/autenticar/json"
+TOMCAT_API_URL = f"https://{TOMCAT_HOST}:{TOMCAT_PORT}/autenticar/json"
 API_BASIC_USER = os.getenv("API_BASIC_USER")
 API_BASIC_PASS = os.getenv("API_BASIC_PASS")
 
