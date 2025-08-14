@@ -5,6 +5,7 @@ import mysql
 from flask import (Blueprint, abort, current_app, flash, redirect,
                    render_template, request, session, url_for)
 from markupsafe import Markup
+from mysql.connector import DatabaseError, OperationalError
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, OperationalError
 
@@ -25,24 +26,25 @@ bp = Blueprint('reservas_semanais', __name__, url_prefix="/reserva_fixa")
 
 
 def get_prioridade():
-    conn = mysql.connector.connect(
-        host=DISPONIBILIDADE_HOST,
-        user=DISPONIBILIDADE_USER,
-        password=DISPONIBILIDADE_PASSWORD,
-        database=DISPONIBILIDADE_DATABASE
-    )
-    cursor = conn.cursor()
-    cursor.execute("""
-        SELECT DISTINCT professor
-        FROM grade
-        INNER JOIN disciplina ON disciplina.codigo = grade.disciplina
-        WHERE professor is not NULL and lab == 1
-        ORDER BY professor
-    """)
-    prioridade = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return prioridade
+    try:
+        with mysql.connector.connect(
+            host='DISPONIBILIDADE_HOST',
+            user=DISPONIBILIDADE_USER,
+            password=DISPONIBILIDADE_PASSWORD,
+            database=DISPONIBILIDADE_DATABASE
+        ) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("""
+                    SELECT DISTINCT professor
+                    FROM grade
+                    INNER JOIN disciplina ON disciplina.codigo = grade.disciplina
+                    WHERE professor is not NULL and lab = 1
+                    ORDER BY professor
+                """)
+                return True, cursor.fetchall()
+    except (DatabaseError, OperationalError) as e:
+        current_app.logger.error(f"erro ao ler banco, rodando sem regra de prioridade:{e}")
+        return False, None
 
 def check_semestre(semestre:Semestres, userid, perm:Permissoes):
     if perm&PERM_ADMIN > 0:
@@ -50,10 +52,10 @@ def check_semestre(semestre:Semestres, userid, perm:Permissoes):
     today = date.today()
     if today < semestre.data_inicio_reserva or today > semestre.data_fim_reserva:
         abort(403)
-    if (today - semestre.data_inicio_reserva) <= semestre.dias_de_prioridade:
-        prioridade = get_prioridade()
+    if (today - semestre.data_inicio_reserva).days < semestre.dias_de_prioridade:
+        has_priority, prioridade = get_prioridade()
         user = db.get_or_404(Usuarios, userid)
-        if not user.pessoas.id_pessoa in prioridade:
+        if has_priority and not user.pessoas.id_pessoa in prioridade:
             abort(403)
 
 @bp.route('/')
@@ -81,6 +83,8 @@ def main_page():
             if not perm&PERM_ADMIN > 0:
                 state += ' disabled'
             icon = Markup("<span class='glyphicon glyphicon-lock'></span>")
+        elif (today - semestre.data_inicio_reserva).days < semestre.dias_de_prioridade:
+            icon = Markup("<span class='glyphicon glyphicon-warning-sign'></span>")
         semestre.state = state
         semestre.icon = icon
     extras['day'] = today
