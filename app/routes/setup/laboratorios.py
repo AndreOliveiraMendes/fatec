@@ -25,8 +25,9 @@ def fast_setup_laboratorios():
         prefix = request.form.get('prefix')
         data = {}
         for key, value in request.form.items():
-            if key.startswith(('nome_laboratorio', 'disponibilidade', 'tipo')):
-                prefixos = ('nome_laboratorio_', 'disponibilidade_', 'tipo_')
+            if key.startswith(('nome_laboratorio', 'disponibilidade', 'tipo', 'descrição_laboratorio')):
+                print(key, value)
+                prefixos = ('nome_laboratorio_', 'disponibilidade_', 'tipo_', 'descrição_laboratorio_')
                 index = key
                 field = ''
                 for prefixo in prefixos:
@@ -55,7 +56,10 @@ def fast_setup_laboratorios():
                     nome = prefix + " " + nome
                 disponibilidade = data[i].get('disponibilidade')
                 tipo = data[i].get('tipo')
+                descrição = data[i].get('descrição_laboratorio')
                 laboratorio = Laboratorios(nome_laboratorio=nome)
+                if descrição:
+                    laboratorio.descrição = descrição
                 if disponibilidade:
                     laboratorio.disponibilidade = DisponibilidadeEnum(disponibilidade)
                 if tipo:

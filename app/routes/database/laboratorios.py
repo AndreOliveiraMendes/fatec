@@ -43,6 +43,7 @@ def gerenciar_laboratorios():
             id_laboratorio = none_if_empty(request.form.get('id_laboratorio'), int)
             nome_laboratorio = none_if_empty(request.form.get('nome_laboratorio'))
             exact_name_match = 'emnome' in request.form
+            descrição = none_if_empty(request.form.get('descrição'))
             disponibilidade = none_if_empty(request.form.get('disponibilidade'))
             tipo = none_if_empty(request.form.get('tipo'))
             filter = []
@@ -54,6 +55,8 @@ def gerenciar_laboratorios():
                     filter.append(Laboratorios.nome_laboratorio == nome_laboratorio)
                 else:
                     filter.append(Laboratorios.nome_laboratorio.ilike(f"%{nome_laboratorio}%"))
+            if descrição:
+                filter.append(Laboratorios.descrição.ilike(f"%{descrição}%"))
             if disponibilidade:
                 filter.append(Laboratorios.disponibilidade == DisponibilidadeEnum(disponibilidade))
             if tipo:
@@ -75,11 +78,13 @@ def gerenciar_laboratorios():
 
         elif acao == 'inserir' and bloco == 1:
             nome_laboratorio = none_if_empty(request.form.get('nome_laboratorio'))
+            descrição = none_if_empty(request.form.get('descrição'))
             disponibilidade = none_if_empty(request.form.get('disponibilidade'))
             tipo = none_if_empty(request.form.get('tipo'))
             try:
                 novo_laboratorio = Laboratorios(
                     nome_laboratorio=nome_laboratorio,
+                    descrição=descrição,
                     disponibilidade=DisponibilidadeEnum(disponibilidade),
                     tipo=TipoLaboratorioEnum(tipo)
                 )
@@ -108,6 +113,7 @@ def gerenciar_laboratorios():
         elif acao == 'editar' and bloco == 2:
             id_laboratorio = none_if_empty(request.form.get('id_laboratorio'), int)
             nome_laboratorio = none_if_empty(request.form.get('nome_laboratorio'))
+            descrição = none_if_empty(request.form.get('descrição'))
             disponibilidade = none_if_empty(request.form.get('disponibilidade'))
             tipo = none_if_empty(request.form.get('tipo'))
 
@@ -116,6 +122,7 @@ def gerenciar_laboratorios():
                 dados_anteriores = copy.copy(laboratorio)
 
                 laboratorio.nome_laboratorio = nome_laboratorio
+                laboratorio.descrição = descrição
                 laboratorio.disponibilidade = DisponibilidadeEnum(disponibilidade)
                 laboratorio.tipo = TipoLaboratorioEnum(tipo)
 

@@ -45,14 +45,14 @@ def get_aulas():
 
 #laboratorios
 def get_laboratorios(todos=True, sala=False):
-    sel_laboratorios = select(Laboratorios.id_laboratorio, Laboratorios.nome_laboratorio)
+    sel_laboratorios = select(Laboratorios)
     if not todos:
         filtro = []
         filtro.append(Laboratorios.disponibilidade == DisponibilidadeEnum.DISPONIVEL)
         if not sala:
             filtro.append(Laboratorios.tipo == TipoLaboratorioEnum.LABORATORIO)
         sel_laboratorios.where(*filtro)
-    return db.session.execute(sel_laboratorios).all()
+    return db.session.execute(sel_laboratorios).scalars().all()
 
 #semestre
 def get_semestres():

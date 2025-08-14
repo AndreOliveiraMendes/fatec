@@ -39,7 +39,7 @@
                 <tbody>
                     {% for laboratorio in laboratorios %}
                         <tr>
-                            <td class="col-fixa">{{ laboratorio.nome_laboratorio }}</td>
+                            <td class="col-fixa" title="{{ laboratorio.descrição }}">{{ laboratorio.nome_laboratorio }}</td>
                             {% for info in aulas %}
                                 {% set reservado = helper[(laboratorio.id_laboratorio, info.id_aula_ativa, info.dia_consulta)] %}
                                 {% if reservado %}

@@ -282,6 +282,7 @@ class Laboratorios(Base):
 
     id_laboratorio: Mapped[int] = mapped_column(primary_key=True)
     nome_laboratorio: Mapped[str] = mapped_column(String(100), nullable=False)
+    descrição: Mapped[str | None] = mapped_column(TEXT, nullable=True)
 
     disponibilidade: Mapped[DisponibilidadeEnum] = mapped_column(
         Enum(DisponibilidadeEnum, name="disponibilidade_enum", create_constraint=True),
