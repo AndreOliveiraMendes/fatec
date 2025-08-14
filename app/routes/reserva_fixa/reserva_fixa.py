@@ -28,7 +28,7 @@ bp = Blueprint('reservas_semanais', __name__, url_prefix="/reserva_fixa")
 def get_prioridade():
     try:
         with mysql.connector.connect(
-            host='DISPONIBILIDADE_HOST',
+            host=DISPONIBILIDADE_HOST,
             user=DISPONIBILIDADE_USER,
             password=DISPONIBILIDADE_PASSWORD,
             database=DISPONIBILIDADE_DATABASE
