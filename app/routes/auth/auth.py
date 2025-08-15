@@ -14,7 +14,10 @@ bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 def check_login(id, password):
     loged, userid, username, permission = False, None, None, None
-    authentication = { "login": id, "senha": password }
+    authentication = {
+        "login": id,
+        "senha": password
+    }
     auth = (API_BASIC_USER, API_BASIC_PASS)
     try:
         response = requests.post(TOMCAT_API_URL, data=authentication, auth=auth)
