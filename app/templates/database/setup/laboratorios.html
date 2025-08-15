@@ -35,7 +35,7 @@
             </div>
             {% for i in range(quantidade) %}
                 <div class="form-group row">
-                    <div class="col-sm-3">
+                    <div class="col-sm-4">
                         <label for="nome_laboratorio_{{ i }}">Nome do Laboratório {{ i+1 }}</label>
                         <input type="text"
                                class="form-control"
@@ -43,14 +43,7 @@
                                name="nome_laboratorio_{{ i }}"
                                required>
                     </div>
-                    <div class="col-sm-3">
-                        <label for="descrição_laboratorio_{{ i }}">Descrição do Laboratório {{ i+1 }}</label>
-                        <input type="text"
-                               class="form-control"
-                               id="descrição_laboratorio_{{ i }}"
-                               name="descrição_laboratorio_{{ i }}">
-                    </div>
-                    <div class="col-sm-3">
+                    <div class="col-sm-4">
                         <label for="disponibilidade_{{ i }}">Disponibilidade</label>
                         <select class="form-control"
                                 id="disponibilidade_{{ i }}"
@@ -60,7 +53,7 @@
                             <option value="Indisponivel">Indisponível</option>
                         </select>
                     </div>
-                    <div class="col-sm-3">
+                    <div class="col-sm-4">
                         <label for="tipo_{{ i }}">Tipo</label>
                         <select class="form-control" id="tipo_{{ i }}" name="tipo_{{ i }}">
                             <option value="">Selecione um tipo</option>
@@ -68,6 +61,15 @@
                             <option value="Sala">Sala</option>
                             <option value="Externo">Externo</option>
                         </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-sm-12">
+                        <label for="descrição_laboratorio_{{ i }}">Descrição do Laboratório {{ i+1 }}</label>
+                        <input type="text"
+                               class="form-control"
+                               id="descrição_laboratorio_{{ i }}"
+                               name="descrição_laboratorio_{{ i }}">
                     </div>
                 </div>
             {% endfor %}
