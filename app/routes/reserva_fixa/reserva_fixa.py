@@ -118,7 +118,7 @@ def get_turno(id_semestre, id_turno):
     today = date.today()
     extras = {'semestre':semestre, 'turno':turno, 'day':today}
     aulas = get_aulas_ativas_por_semestre(semestre, turno)
-    laboratorios = get_laboratorios(False)
+    laboratorios = get_laboratorios(perm&PERM_ADMIN)
     if len(aulas) == 0 or len(laboratorios) == 0:
         if len(aulas) == 0:
             flash("não há horarios disponiveis nesse turno", "danger")
