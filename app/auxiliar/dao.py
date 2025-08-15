@@ -51,7 +51,7 @@ def get_laboratorios(todos=True, sala=False):
         filtro.append(Laboratorios.disponibilidade == DisponibilidadeEnum.DISPONIVEL)
         if not sala:
             filtro.append(Laboratorios.tipo == TipoLaboratorioEnum.LABORATORIO)
-        sel_laboratorios.where(*filtro)
+        sel_laboratorios = sel_laboratorios.where(*filtro)
     return db.session.execute(sel_laboratorios).scalars().all()
 
 #semestre
