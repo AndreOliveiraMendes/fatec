@@ -1,8 +1,8 @@
 from collections import Counter
 from datetime import date
 
-from flask import (Blueprint, abort, flash, redirect, render_template, request,
-                   session, url_for)
+from flask import (Blueprint, abort, current_app, flash, redirect,
+                   render_template, request, session, url_for)
 from sqlalchemy import and_, select
 from sqlalchemy.exc import IntegrityError, OperationalError
 
@@ -109,7 +109,6 @@ def process_turnos():
     extras['head3'] = head3
 
     extras['tipo_reserva'] = TipoReservaEnum
-    filtro = []
     inicio, fim = min(label_dia.keys()), max(label_dia.keys())
     sel_reserva = select(Reservas_Temporarias).where(
         and_(
@@ -197,11 +196,14 @@ def efetuar_reserva():
 
         db.session.commit()
         flash("reserva efetuada com sucesso", "success")
+        current_app.logger.info(f"reserva efetuada com sucesso para {reserva}")
     except (IntegrityError, OperationalError) as e:
         db.session.rollback()
         flash(f"Erro ao efetuar reserva:{str(e.orig)}", "danger")
+        current_app.logger.error(f"falha ao realizar reserva:{e}")
     except ValueError as ve:
         db.session.rollback()
         flash(f"Erro ao efetuar reserva:{str(ve)}", "danger")
+        current_app.logger.error(f"falha ao realizar reserva:{e}")
 
     return redirect(url_for('default.home'))
