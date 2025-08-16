@@ -23,7 +23,7 @@
     </p>
     <div class="btn-group-vertical" role="group">
         <a href="{{ url_for('reservas_semanais.get_turno', id_semestre=semestre.id_semestre) }}"
-           class="btn btn-primary">Não especificado</a>
+           class="btn btn-info">Não especificado</a>
         {% for turno in turnos %}
             <a href="{{ url_for('reservas_semanais.get_turno', id_semestre=semestre.id_semestre, id_turno=turno.id_turno) }}"
                class="btn btn-primary">{{ turno.nome_turno }} (das {{ turno.horario_inicio|hora }} as {{ turno.horario_fim|hora }})</a>
