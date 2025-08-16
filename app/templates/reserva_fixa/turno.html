@@ -23,7 +23,7 @@
             <strong>Horário:</strong> {{ turno.horario_inicio|hora }} às {{ turno.horario_fim|hora }}
         {% else %}
             <br>
-            <strong>Horário:</strong> livre
+            <strong>Horário:</strong> 00:00 às 23:59
         {% endif %}
         <br>
         <strong>Laboratorios disponiveis:</strong> {{ laboratorios|length }}
