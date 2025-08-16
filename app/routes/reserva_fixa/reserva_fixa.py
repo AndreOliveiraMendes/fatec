@@ -6,12 +6,12 @@ from flask import (Blueprint, abort, current_app, flash, redirect,
                    render_template, request, session, url_for)
 from markupsafe import Markup
 from mysql.connector import DatabaseError, OperationalError
-from sqlalchemy import select
+from sqlalchemy import select, between
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from app.auxiliar.auxiliar_routes import (get_responsavel_reserva,
                                           get_user_info, none_if_empty,
-                                          registrar_log_generico_usuario)
+                                          registrar_log_generico_usuario, get_unique_or_500)
 from app.auxiliar.constant import PERM_ADMIN
 from app.auxiliar.dao import (get_aulas_ativas_por_semestre, get_aulas_extras,
                               get_laboratorios, get_pessoas,
@@ -107,14 +107,15 @@ def get_semestre(id_semestre):
     extras['turnos'] = turnos
     return render_template('reserva_fixa/semestre.html', username=username, perm=perm, **extras)
 
+@bp.route('/semestre/<int:id_semestre>/turno')
 @bp.route('/semestre/<int:id_semestre>/turno/<int:id_turno>')
 @reserva_fixa_required
-def get_turno(id_semestre, id_turno):
+def get_turno(id_semestre, id_turno=None):
     userid = session.get('userid')
     username, perm = get_user_info(userid)
     semestre = db.get_or_404(Semestres, id_semestre)
     check_semestre(semestre, userid, perm)
-    turno = db.get_or_404(Turnos, id_turno)
+    turno = db.get_or_404(Turnos, id_turno) if id_turno is not None else id_turno
     today = date.today()
     extras = {'semestre':semestre, 'turno':turno, 'day':today}
     aulas = get_aulas_ativas_por_semestre(semestre, turno)
@@ -128,18 +129,23 @@ def get_turno(id_semestre, id_turno):
     extras['laboratorios'] = laboratorios
     extras['aulas'] = aulas
     contagem_dias = Counter()
+    contagem_turnos = Counter()
     label = {}
     head2 = []
 
     for info in aulas:
         semana = info[2]
         contagem_dias[semana.id_semana] += 1
+        if id_turno is None:
+            turno = get_unique_or_500(Turnos, between(info[1].horario_inicio, Turnos.horario_inicio, Turnos.horario_fim))
+            contagem_turnos[(semana.id_semana, turno)] += 1
         label[semana.id_semana] = semana.nome_semana
         head2.append(info[1].selector_identification)
 
     head1 = [(label[id_semana], count) for id_semana, count in contagem_dias.items()]
     extras['head1'] = head1
     extras['head2'] = head2
+    extras['head_turno'] = contagem_turnos
     sel_reservas = select(Reservas_Fixas).where(Reservas_Fixas.id_reserva_semestre == id_semestre)
     reservas = db.session.execute(sel_reservas).scalars().all()
     helper = {}
@@ -153,9 +159,9 @@ def get_turno(id_semestre, id_turno):
     extras['responsavel_especial'] = get_usuarios_especiais()
     return render_template('reserva_fixa/turno.html', username=username, perm=perm, **extras)
 
-@bp.route('/semestre/<int:id_semestre>/turno/<int:id_turno>', methods=['POST'])
+@bp.route('/semestre/<int:id_semestre>', methods=['POST'])
 @reserva_fixa_required
-def efetuar_reserva(id_semestre, id_turno):
+def efetuar_reserva(id_semestre):
     userid = session.get('userid')
     user = db.get_or_404(Usuarios, userid)
     semestre = db.get_or_404(Semestres, id_semestre)

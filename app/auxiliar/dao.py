@@ -208,7 +208,7 @@ def get_aulas_ativas_por_semestre(semestre:Semestres, turno:Turnos|None=None, ti
     sel_aulas_ativas = select(Aulas_Ativas, Aulas, Dias_da_Semana).select_from(Aulas_Ativas).join(Aulas).join(Dias_da_Semana).where(*filtros).order_by(Aulas_Ativas.id_semana, Aulas.horario_inicio)
     return db.session.execute(sel_aulas_ativas).all()
 
-def get_aulas_extras(semestre:Semestres, turno:Turnos):
+def get_aulas_extras(semestre:Semestres, turno:Turnos|None):
     filtro = []
     #aulas que não ocupam todo semestre
     filtro.append(
@@ -237,7 +237,8 @@ def get_aulas_extras(semestre:Semestres, turno:Turnos):
     )
 
     #logica usual do turno
-    filtro.append(get_aula_turno(turno))
+    if turno:
+        filtro.append(get_aula_turno(turno))
     #pega somente as "aulas"
     filtro.append(Aulas_Ativas.tipo_aula == TipoAulaEnum.AULA.name)
     #executa o select

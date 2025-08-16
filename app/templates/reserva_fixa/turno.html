@@ -14,12 +14,17 @@
     <h3>
         <strong>Reserva Semestral:</strong> Dia {{ day|data }}
         <br>
-        <strong>Semestre:</strong> {{ semestre.nome_semestre }} — <strong>Turno:</strong> {{ turno.nome_turno }}
+        <strong>Semestre:</strong> {{ semestre.nome_semestre }} — <strong>Turno:</strong> {{ turno.nome_turno if turno else 'Livre' }}
     </h3>
     <p>
         <strong>Período:</strong> {{ semestre.data_inicio|data }} às {{ semestre.data_fim|data }}
-        <br>
-        <strong>Horário:</strong> {{ turno.horario_inicio|hora }} às {{ turno.horario_fim|hora }}
+        {% if turno %}
+            <br>
+            <strong>Horário:</strong> {{ turno.horario_inicio|hora }} às {{ turno.horario_fim|hora }}
+        {% else %}
+            <br>
+            <strong>Horário:</strong> livre
+        {% endif %}
         <br>
         <strong>Laboratorios disponiveis:</strong> {{ laboratorios|length }}
         <br>
@@ -27,18 +32,23 @@
     </p>
     <form class="form-group"
           role="form"
-          action="{{ url_for('reservas_semanais.efetuar_reserva', id_semestre=semestre.id_semestre, id_turno=turno.id_turno) }}"
+          action="{{ url_for('reservas_semanais.efetuar_reserva', id_semestre=semestre.id_semestre) }}"
           id="reserva"
           method="post">
         <div class="table-responsive">
             <table class="table table-bordered table-striped table-hover tabela-reserva">
                 <thead>
                     <tr>
-                        <th rowspan="2" class="col-fixa">Laboratorios</th>
-                        {% for dia, qt in head1 %}<td colspan="{{ qt }}">{{ dia }}</td>{% endfor %}
+                        <th rowspan="{{ 2 if turno else 3 }}" class="col-fixa">Laboratorios</th>
+                        {% for dia, qt in head1 %}<th colspan="{{ qt }}">{{ dia }}</th>{% endfor %}
                     </tr>
+                    {% if not turno %}
+                        <tr>
+                            {% for info, qt in head_turno.items() %}<th colspan="{{ qt }}">{{ info[1].nome_turno }}</th>{% endfor %}
+                        </tr>
+                    {% endif %}
                     <tr>
-                        {% for hora in head2 %}<td>{{ hora }}</td>{% endfor %}
+                        {% for hora in head2 %}<th>{{ hora }}</th>{% endfor %}
                     </tr>
                 </thead>
                 <tbody>
