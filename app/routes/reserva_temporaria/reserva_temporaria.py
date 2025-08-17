@@ -73,7 +73,7 @@ def process_turnos():
     brute_chks = [(key.replace('info[', '').replace(']', '').split(',')) for key, value in request.form.items() if 'info' in key and value == 'on']
     chks = [(parse_date_string(chk[0]), db.get_or_404(Turnos, chk[1])) for chk in brute_chks]
     aulas = get_aulas_ativas_por_lista_de_dias(chks, tipo_aula)
-    laboratorios = get_laboratorios(False, True)
+    laboratorios = get_laboratorios(perm&PERM_ADMIN, True)
     if len(aulas) == 0 or len(laboratorios) == 0:
         if len(aulas) == 0:
             flash(f"não há horarios desta finalizada ({tipo_aula.value}) disponiveis nesse turno", "danger")

@@ -6,12 +6,13 @@ from flask import (Blueprint, abort, current_app, flash, redirect,
                    render_template, request, session, url_for)
 from markupsafe import Markup
 from mysql.connector import DatabaseError, OperationalError
-from sqlalchemy import select, between
+from sqlalchemy import between, select
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from app.auxiliar.auxiliar_routes import (get_responsavel_reserva,
-                                          get_user_info, none_if_empty,
-                                          registrar_log_generico_usuario, get_unique_or_500)
+                                          get_unique_or_500, get_user_info,
+                                          none_if_empty,
+                                          registrar_log_generico_usuario)
 from app.auxiliar.constant import PERM_ADMIN
 from app.auxiliar.dao import (get_aulas_ativas_por_semestre, get_aulas_extras,
                               get_laboratorios, get_pessoas,
