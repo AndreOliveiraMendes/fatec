@@ -18,8 +18,8 @@ from app.auxiliar.dao import (get_aulas_ativas_por_semestre, get_aulas_extras,
                               get_laboratorios, get_pessoas,
                               get_usuarios_especiais)
 from app.auxiliar.decorators import reserva_fixa_required
-from app.models import (Permissoes, Reservas_Fixas, Semestres, TipoReservaEnum,
-                        Turnos, Usuarios, db, Laboratorios)
+from app.models import (Laboratorios, Permissoes, Reservas_Fixas, Semestres,
+                        TipoReservaEnum, Turnos, Usuarios, db)
 from config.general import (DISPONIBILIDADE_DATABASE, DISPONIBILIDADE_HOST,
                             DISPONIBILIDADE_PASSWORD, DISPONIBILIDADE_USER)
 
@@ -166,6 +166,19 @@ def get_lab_especifico(id_semestre, id_turno, id_lab):
         table_semanas[semana].append(aula_ativa)
     extras['aulas'] = table_aulas
     extras['semanas'] = table_semanas
+    extras['tipo_reserva'] = TipoReservaEnum
+    extras['aulas_extras'] = get_aulas_extras(semestre, turno)
+    extras['responsavel'] = get_pessoas()
+    extras['responsavel_especial'] = get_usuarios_especiais()
+    sel_reservas = select(Reservas_Fixas).where(
+        Reservas_Fixas.id_reserva_semestre == id_semestre,
+        Reservas_Fixas.id_reserva_laboratorio == id_lab)
+    reservas = db.session.execute(sel_reservas).scalars().all()
+    helper = {}
+    for r in reservas:
+        title = get_responsavel_reserva(r)
+        helper[(r.id_reserva_laboratorio, r.id_reserva_aula)] = title
+    extras['helper'] = helper
     extras['tipo_reserva'] = TipoReservaEnum
     extras['aulas_extras'] = get_aulas_extras(semestre, turno)
     extras['responsavel'] = get_pessoas()
