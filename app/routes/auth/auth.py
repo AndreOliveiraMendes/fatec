@@ -1,8 +1,8 @@
 import copy
 
 import requests
-from flask import (Blueprint, current_app, flash, redirect, render_template,
-                   request, session, url_for)
+from flask import (Blueprint, abort, current_app, flash, redirect,
+                   render_template, request, session, url_for)
 
 from app.auxiliar.auxiliar_routes import (get_user_info, none_if_empty,
                                           registrar_log_generico_sistema)
@@ -36,6 +36,9 @@ def check_login(id, password):
             id_pessoa = pessoa.get("codigo")
             nome_pessoa = pessoa.get("nome")
             email_pessoa = pessoa.get("email")
+
+            if tipo_pessoa == 'ALUNO':
+                abort(403)
 
             # Pessoas
             pessoa = db.session.get(Pessoas, id_pessoa)
