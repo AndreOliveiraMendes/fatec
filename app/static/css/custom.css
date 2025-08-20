@@ -126,7 +126,7 @@ body {
 
 /* horarios reservados */
 .reservado {
-    background-color: #eee;
+    background-color: #f50b0b;
     cursor: not-allowed;
 }
 

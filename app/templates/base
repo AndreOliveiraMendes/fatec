@@ -4,6 +4,8 @@
         <meta charset="UTF-8">
         <meta name="description"
               content="Sistema de Reservas de Laboratório da Fatec.">
+        <meta name="viewport"
+              content="width = device-width, initial-scale = 1, maximum-scale = 1">
         <meta name="keywords" content="reservas, laboratório, fatec, sistema">
         <title>
             {% block title %}
@@ -117,7 +119,7 @@
                 </nav>
             {% endblock navigation %}
             <!-- Main Content -->
-            <div id="main" class="container text-center">
+            <div id="main" class="container-fluid text-center">
                 {% block flash_messages %}
                     {% with messages = get_flashed_messages(with_categories=true) %}
                         {% if messages %}
@@ -132,7 +134,7 @@
             </div>
             <!-- Footer -->
             <footer class="footer">
-                <div class="container">
+                <div class="container-fluid">
                     <div class="row">
                         <div class="col-xs-12 text-center">
                             {% block footer %}

@@ -17,7 +17,7 @@
         <strong>Semestre:</strong> {{ semestre.nome_semestre }} — <strong>Turno:</strong> {{ turno.nome_turno if turno else 'Livre' }}
     </h3>
     <p>
-        <strong>Período:</strong> {{ semestre.data_inicio|data }} às {{ semestre.data_fim|data }}
+        <strong>Período:</strong> {{ semestre.data_inicio|data }} a {{ semestre.data_fim|data }}
         {% if turno %}
             <br>
             <strong>Horário:</strong> {{ turno.horario_inicio|hora }} às {{ turno.horario_fim|hora }}
@@ -27,144 +27,17 @@
         {% endif %}
         <br>
         <strong>Laboratorios disponiveis:</strong> {{ laboratorios|length }}
-        <br>
-        <strong>Horarios disponiveis:</strong> {{ aulas|length }}
     </p>
-    <form class="form-group"
-          role="form"
-          action="{{ url_for('reservas_semanais.efetuar_reserva', id_semestre=semestre.id_semestre) }}"
-          id="reserva"
-          method="post">
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped table-hover tabela-reserva">
-                <thead>
-                    <tr>
-                        <th rowspan="{{ 2 if turno else 3 }}" class="col-fixa">Laboratorios</th>
-                        {% for dia, qt in head1 %}<th colspan="{{ qt }}">{{ dia }}</th>{% endfor %}
-                    </tr>
-                    {% if not turno %}
-                        <tr>
-                            {% for info, qt in head_turno.items() %}<th colspan="{{ qt }}">{{ info[1].nome_turno }}</th>{% endfor %}
-                        </tr>
-                    {% endif %}
-                    <tr>
-                        {% for hora in head2 %}<th>{{ hora }}</th>{% endfor %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for laboratorio in laboratorios %}
-                        <tr>
-                            <td class="col-fixa {% if laboratorio.disponibilidade.value == 'Indisponivel' %}text-danger{% endif %}"
-                                title="{{ laboratorio.descrição }}">{{ laboratorio.nome_laboratorio }}</td>
-                            {% for info in aulas %}
-                                {% set reservado = helper[(laboratorio.id_laboratorio, info[0].id_aula_ativa)] %}
-                                {% if reservado %}
-                                    <td class="reservado" title="{{ reservado }}">
-                                        <span class="sr-only">Reservado</span>
-                                        <input type="checkbox"
-                                               class="form-check-input checkbox-danger"
-                                               title="{{ reservado }}"
-                                               name="reserva[{{ laboratorio.id_laboratorio }},{{ info[0].id_aula_ativa }}]"
-                                               disabled>
-                                    </td>
-                                {% else %}
-                                    <td>
-                                        <input type="checkbox"
-                                               class="form-check-input"
-                                               name="reserva[{{ laboratorio.id_laboratorio }},{{ info[0].id_aula_ativa }}]">
-                                    </td>
-                                {% endif %}
-                            {% endfor %}
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        <div class="form-group">
-            <label for="tipo_reserva">Destinação da Reserva:</label>
-            <select id="tipo_reserva" class="form-control" name="tipo_reserva" required>
-                <option value="">Selecione o tipo de reserva</option>
-                {% for tr in tipo_reserva %}<option value="{{ tr.value }}">{{ tr.value }}</option>{% endfor %}
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="observacoes">Observações:</label>
-            <input type="text"
-                   id="observacoes"
-                   name="observacoes"
-                   class="form-control"
-                   placeholder="insira observações relevantes (softwares necessarios)">
-        </div>
-        {% if perm and perm|has_flag(ADMIN) %}
-            <div class="form-group">
-                <label for="responsavel">Responsavel:</label>
-                <select id="responsavel" name="responsavel" class="form-control">
-                    <option value="">Selecione o responsavel pela reserva</option>
-                    {% for r in responsavel %}
-                        <option value="{{ r.id_pessoa }}">({{ r.id_pessoa }}) {{ r.nome_pessoa }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="responsavel_especial">Responsavel especial:</label>
-                <select id="responsavel_especial"
-                        name="responsavel_especial"
-                        class="form-control">
-                    <option value="">Selecione o responsavel especial pela reserva</option>
-                    {% for r in responsavel_especial %}
-                        <option value="{{ r.id_usuario_especial }}">({{ r.id_usuario_especial }}) {{ r.nome_usuario_especial }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-        {% endif %}
-        {{ action_buttons('inserir', show_voltar=False, label='') }}
-    </form>
-    {% if aulas_extras %}
-        <div class="panel panel-info">
-            <div class="panel-heading">
-                <h3 class="panel-title">
-                    <button class="btn btn-primary"
-                            type="button"
-                            data-toggle="collapse"
-                            data-target="#collapseExtraAulas"
-                            aria-expanded="false"
-                            aria-controls="collapseExtraAulas">
-                        <i class="glyphicon glyphicon-time"></i> Horários Extras
-                        <small data-toggle="tooltip"
-                               title="Horários válidos apenas durante parte do semestre">
-                            <i class="glyphicon glyphicon-info-sign text-muted"></i>
-                        </small>
-                    </button>
-                </h3>
-            </div>
-            <div class="panel-body collapse" id="collapseExtraAulas">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-striped table-hover">
-                        <thead>
-                            <tr class="information">
-                                <th>Dia da Semana</th>
-                                <th>Horario</th>
-                                <th>Intervalo de validade</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for info in aulas_extras %}
-                                <tr>
-                                    <td>{{ info[2].nome_semana }}</td>
-                                    <td>{{ info[1].horario_inicio|hora }} - {{ info[1].horario_fim|hora }}</td>
-                                    <td>{{ info[0].inicio_ativacao|data }} - {{ info[0].fim_ativacao|data }}</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    {% endif %}
+    <p>
+        Selecione o <strong>laboratorio</strong>
+    </p>
+    <div class="btn-group-vertical" role="group">
+        {% set id_turno = turno.id_turno if turno else None %}
+        <a href="{{ url_for('reservas_semanais.get_lab', id_semestre=semestre.id_semestre, id_turno=id_turno) }}"
+           class="btn btn-info">Não especificado</a>
+        {% for lab in laboratorios %}
+            <a href="{{ url_for('reservas_semanais.get_lab', id_semestre=semestre.id_semestre, id_turno=id_turno, id_lab=lab.id_laboratorio) }}"
+               class="btn btn-primary" title="{{ lab.descrição }}">{{ lab.nome_laboratorio }}</a>
+        {% endfor %}
+    </div>
 {% endblock content %}
-{% block extra_script %}
-    {% if perm and perm|has_flag(ADMIN) %}
-        <script>{{ validate_admin_selects() }}</script>
-        <script>validateAdminSelects("reserva", "responsavel", "responsavel_especial");</script>
-    {% endif %}
-{% endblock extra_script %}

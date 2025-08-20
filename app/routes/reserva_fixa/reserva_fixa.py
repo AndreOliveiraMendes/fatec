@@ -18,8 +18,8 @@ from app.auxiliar.dao import (get_aulas_ativas_por_semestre, get_aulas_extras,
                               get_laboratorios, get_pessoas,
                               get_usuarios_especiais)
 from app.auxiliar.decorators import reserva_fixa_required
-from app.models import (Permissoes, Reservas_Fixas, Semestres, TipoReservaEnum,
-                        Turnos, Usuarios, db)
+from app.models import (Laboratorios, Permissoes, Reservas_Fixas, Semestres,
+                        TipoReservaEnum, Turnos, Usuarios, db)
 from config.general import (DISPONIBILIDADE_DATABASE, DISPONIBILIDADE_HOST,
                             DISPONIBILIDADE_PASSWORD, DISPONIBILIDADE_USER)
 
@@ -129,6 +129,80 @@ def get_turno(id_semestre, id_turno=None):
         return redirect(url_for('default.home'))
     extras['laboratorios'] = laboratorios
     extras['aulas'] = aulas
+    return render_template('reserva_fixa/turno.html', username=username, perm=perm, **extras)
+
+@bp.route('/semestre/<int:id_semestre>/turno/lab')
+@bp.route('/semestre/<int:id_semestre>/turno/lab/<int:id_lab>')
+@bp.route('/semestre/<int:id_semestre>/turno/<int:id_turno>/lab')
+@bp.route('/semestre/<int:id_semestre>/turno/<int:id_turno>/lab/<int:id_lab>')
+@reserva_fixa_required
+def get_lab(id_semestre, id_turno=None, id_lab=None):
+    if id_lab is None:
+        return get_lab_geral(id_semestre, id_turno)
+    else:
+        return get_lab_especifico(id_semestre, id_turno, id_lab)
+
+def get_lab_especifico(id_semestre, id_turno, id_lab):
+    userid = session.get('userid')
+    username, perm = get_user_info(userid)
+    semestre = db.get_or_404(Semestres, id_semestre)
+    check_semestre(semestre, userid, perm)
+    turno = db.get_or_404(Turnos, id_turno) if id_turno is not None else id_turno
+    laboratorio = db.get_or_404(Laboratorios, id_lab)
+    today = date.today()
+    extras = {'semestre':semestre, 'turno':turno, 'laboratorio':laboratorio, 'day':today}
+    aulas = get_aulas_ativas_por_semestre(semestre, turno)
+    if len(aulas) == 0:
+        flash("não há horarios disponiveis nesse turno", "danger")
+        return redirect(url_for('default.home'))
+    table_aulas = []
+    table_semanas = {}
+    for info in aulas:
+        aula_ativa, aula, semana = info
+        if not aula in table_aulas:
+            table_aulas.append(aula)
+        if not semana in table_semanas:
+            table_semanas[semana] = []
+        table_semanas[semana].append(aula_ativa)
+    extras['aulas'] = table_aulas
+    extras['semanas'] = table_semanas
+    extras['tipo_reserva'] = TipoReservaEnum
+    extras['aulas_extras'] = get_aulas_extras(semestre, turno)
+    extras['responsavel'] = get_pessoas()
+    extras['responsavel_especial'] = get_usuarios_especiais()
+    sel_reservas = select(Reservas_Fixas).where(
+        Reservas_Fixas.id_reserva_semestre == id_semestre,
+        Reservas_Fixas.id_reserva_laboratorio == id_lab)
+    reservas = db.session.execute(sel_reservas).scalars().all()
+    helper = {}
+    for r in reservas:
+        title = get_responsavel_reserva(r)
+        helper[(r.id_reserva_laboratorio, r.id_reserva_aula)] = title
+    extras['helper'] = helper
+    extras['tipo_reserva'] = TipoReservaEnum
+    extras['aulas_extras'] = get_aulas_extras(semestre, turno)
+    extras['responsavel'] = get_pessoas()
+    extras['responsavel_especial'] = get_usuarios_especiais()
+    return render_template('reserva_fixa/especifico.html', username=username, perm=perm, **extras)
+
+def get_lab_geral(id_semestre, id_turno=None):
+    userid = session.get('userid')
+    username, perm = get_user_info(userid)
+    semestre = db.get_or_404(Semestres, id_semestre)
+    check_semestre(semestre, userid, perm)
+    turno = db.get_or_404(Turnos, id_turno) if id_turno is not None else id_turno
+    today = date.today()
+    extras = {'semestre':semestre, 'turno':turno, 'day':today}
+    aulas = get_aulas_ativas_por_semestre(semestre, turno)
+    laboratorios = get_laboratorios(perm&PERM_ADMIN)
+    if len(aulas) == 0 or len(laboratorios) == 0:
+        if len(aulas) == 0:
+            flash("não há horarios disponiveis nesse turno", "danger")
+        if len(laboratorios) == 0:
+            flash("não há laboratorio disponiveis para reserva", "danger")
+        return redirect(url_for('default.home'))
+    extras['laboratorios'] = laboratorios
+    extras['aulas'] = aulas
     contagem_dias = Counter()
     contagem_turnos = Counter()
     label = {}
@@ -158,7 +232,7 @@ def get_turno(id_semestre, id_turno=None):
     extras['aulas_extras'] = get_aulas_extras(semestre, turno)
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
-    return render_template('reserva_fixa/turno.html', username=username, perm=perm, **extras)
+    return render_template('reserva_fixa/geral.html', username=username, perm=perm, **extras)
 
 @bp.route('/semestre/<int:id_semestre>', methods=['POST'])
 @reserva_fixa_required
