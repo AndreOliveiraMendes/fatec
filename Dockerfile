@@ -16,9 +16,9 @@ RUN python -m pip install --root-user-action=ignore --upgrade pip && \
 #    apk del python3-dev build-base
 
 # 📂 Copia código da aplicação
-COPY app/ app/
-COPY config/ config/
-COPY wsgi.py wsgi.py
+#COPY app/ app/
+#COPY config/ config/
+#COPY wsgi.py wsgi.py
 
 # wait for it
 #COPY wait-for-it.sh app/
