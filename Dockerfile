@@ -28,6 +28,6 @@ COPY wsgi.py wsgi.py
 # 🌐 Expõe a porta Flask
 EXPOSE 5000
 
-# ▶️ Comando para iniciar o servidor (modo simples)
+# ▶️ Comando para iniciar o servidor (modo local/wsgi)
 #CMD ["python", "-m", "app"]
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "wsgi:app"]
+#CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "wsgi:app"]
