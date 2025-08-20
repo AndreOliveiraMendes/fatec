@@ -1,11 +1,11 @@
 {% extends "base" %}
 {% from "macros/pagination.html" import paginacao, paginacao_header, paginacao_button, paginacao_footer %}
-{% from "macros/form.html" import generate_navigation, gerar_select, action_buttons, manter_parametros %}
+{% from "macros/form.html" import generate_navigation_database, gerar_select, action_buttons, manter_parametros %}
 {% block title %}
     table
 {% endblock title %}
 {% block content %}
-    {{ generate_navigation() }}
+    {{ generate_navigation_database() }}
     {% block content_head %}
     {% endblock content_head %}
     {% if acao == 'abertura' %}

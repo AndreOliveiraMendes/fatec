@@ -1,5 +1,5 @@
 {% extends "base" %}
-{% from "macros/form.html" import generate_navigation %}
+{% from "macros/form.html" import generate_navigation_database %}
 {% block title %}
     Banco de Dados
 {% endblock title %}
@@ -15,7 +15,7 @@
     <script src="https://cdn.jsdelivr.net/npm/prismjs/plugins/line-numbers/prism-line-numbers.min.js"></script>
 {% endblock extra_script %}
 {% block content %}
-    {{ generate_navigation() }}
+    {{ generate_navigation_database() }}
     {% if topologic_tables %}
         <div class="table-responsive">
             <table class="table table-hover table-bordered table-condensed table-striped">

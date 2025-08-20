@@ -1,10 +1,10 @@
 {% extends "base" %}
-{% from "macros/form.html" import generate_navigation, action_buttons %}
+{% from "macros/form.html" import generate_navigation_database, action_buttons %}
 {% block title %}
     Inicialização Rapida - Turnos
 {% endblock title %}
 {% block content %}
-    {{ generate_navigation(extras = extras) }}
+    {{ generate_navigation_database(extras = extras) }}
     {% if stage == 0 %}
         <h3>Configuração Rapida dos turnos/periodos</h3>
         <p>em quantos periodos vai ser dividido o dia?</p>

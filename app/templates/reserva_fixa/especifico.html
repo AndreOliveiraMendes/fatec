@@ -1,0 +1,97 @@
+{% extends "base" %}
+{% from "macros/form.html" import action_buttons %}
+{% from "macros/navigation.html" import go_back %}
+{% block title %}
+    efetuar reserva
+{% endblock title %}
+{% block content %}
+    <h3>
+        <strong>Reserva Semestral:</strong> Dia {{ day|data }}
+        <br>
+        <strong>Semestre:</strong> {{ semestre.nome_semestre }} — <strong>Turno:</strong> {{ turno.nome_turno if turno else 'Livre' }}
+    </h3>
+    <p>
+        <strong>Período:</strong> {{ semestre.data_inicio|data }} a {{ semestre.data_fim|data }}
+        {% if turno %}
+            <br>
+            <strong>Horário:</strong> {{ turno.horario_inicio|hora }} às {{ turno.horario_fim|hora }}
+        {% else %}
+            <br>
+            <strong>Horário:</strong> 00:00 às 23:59
+        {% endif %}
+        <br>
+        <strong>Horarios disponiveis:</strong> {{ aulas|length }} <strong>Laboratorio:</strong> {{ laboratorio.nome_laboratorio }}
+        <br>
+        Especificação: {{ laboratorio.descrição }}
+    </p>
+    <form class="form-group"
+          role="form"
+          action="{{ url_for('reservas_semanais.efetuar_reserva', id_semestre=semestre.id_semestre) }}"
+          id="reserva"
+          method="post">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover tabela-reserva">
+                <thead>
+                    <tr class="information">
+                        <th>Dias da semana</th>
+                        {% for aula in aulas %}
+                        <th>{{ aula.horario_inicio|hora }} - {{ aula.horario_fim|hora }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                {% for semana, aulas in semanas.items() %}
+                <tr>
+                <td>{{ semana.nome_semana }}</td>
+                {% for aula in aulas %}
+                <td>{{ aula.id_aula_ativa }}</td>
+                {% endfor %}
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </form>
+    {% if aulas_extras %}
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    <button class="btn btn-primary"
+                            type="button"
+                            data-toggle="collapse"
+                            data-target="#collapseExtraAulas"
+                            aria-expanded="false"
+                            aria-controls="collapseExtraAulas">
+                        <i class="glyphicon glyphicon-time"></i> Horários Extras
+                        <small data-toggle="tooltip"
+                               title="Horários válidos apenas durante parte do semestre">
+                            <i class="glyphicon glyphicon-info-sign text-muted"></i>
+                        </small>
+                    </button>
+                </h3>
+            </div>
+            <div class="panel-body collapse" id="collapseExtraAulas">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped table-hover">
+                        <thead>
+                            <tr class="information">
+                                <th>Dia da Semana</th>
+                                <th>Horario</th>
+                                <th>Intervalo de validade</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for info in aulas_extras %}
+                                <tr>
+                                    <td>{{ info[2].nome_semana }}</td>
+                                    <td>{{ info[1].horario_inicio|hora }} - {{ info[1].horario_fim|hora }}</td>
+                                    <td>{{ info[0].inicio_ativacao|data }} - {{ info[0].fim_ativacao|data }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock content %}

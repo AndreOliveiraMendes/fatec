@@ -1,10 +1,10 @@
 {% extends "base" %}
-{% from "macros/form.html" import generate_navigation %}
+{% from "macros/form.html" import generate_navigation_database %}
 {% block title %}
     Configuração Rapida
 {% endblock title %}
 {% block content %}
-    {{ generate_navigation() }}
+    {{ generate_navigation_database() }}
     <p>bem vindo ao menu de Configuração rapida, escolha uma tabela para ajustar rapidamente</p>
     <div class="btn-group-vertical">
         {% for table in tables %}
