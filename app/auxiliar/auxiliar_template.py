@@ -1,6 +1,6 @@
 from flask import Flask, url_for
 from markupsafe import Markup
-from sqlalchemy import between
+from sqlalchemy import between, select
 
 from app.auxiliar.auxiliar_routes import (get_responsavel_reserva,
                                           get_unique_or_500)
@@ -8,7 +8,7 @@ from app.auxiliar.constant import (DATA_ABREV, DATA_COMPLETA, DATA_FLAGS,
                                    DATA_NUMERICA, HORA, PERMISSIONS,
                                    SEMANA_ABREV, SEMANA_COMPLETA)
 from app.models import (Reservas_Fixas, Reservas_Temporarias, Semestres,
-                        Situacoes_Das_Reserva)
+                        Situacoes_Das_Reserva, Laboratorios)
 from config.database_views import SECOES, TABLES_PER_LINE
 
 semana_inglesa = {
@@ -159,6 +159,11 @@ def register_filters(app:Flask):
         html += '</div>'
 
         return Markup(html)
+
+    @app.template_global()
+    def generate_reserva_head(current:Laboratorios|None=None):
+        sel_laboratorios = select(Laboratorios)
+        
 
     @app.template_global()
     def validate_admin_selects():

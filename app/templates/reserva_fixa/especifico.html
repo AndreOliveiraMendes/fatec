@@ -1,10 +1,11 @@
-{% extends "base" %}
+{% extends "base-fluid" %}
 {% from "macros/form.html" import action_buttons %}
 {% from "macros/navigation.html" import go_back %}
 {% block title %}
     efetuar reserva
 {% endblock title %}
 {% block content %}
+    {{ generate_reserva_head(laboratorio) }}
     <h3>
         <strong>Reserva Semestral:</strong> Dia {{ day|data }}
         <br>

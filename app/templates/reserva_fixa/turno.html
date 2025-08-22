@@ -1,4 +1,4 @@
-{% extends "base" %}
+{% extends "base-fixed" %}
 {% from "macros/form.html" import action_buttons %}
 {% from "macros/navigation.html" import go_back %}
 {% block title %}
@@ -36,8 +36,14 @@
         <a href="{{ url_for('reservas_semanais.get_lab', id_semestre=semestre.id_semestre, id_turno=id_turno) }}"
            class="btn btn-info">Não especificado</a>
         {% for lab in laboratorios %}
+            {% if lab.disponibilidade.value == 'Disponivel' %}
             <a href="{{ url_for('reservas_semanais.get_lab', id_semestre=semestre.id_semestre, id_turno=id_turno, id_lab=lab.id_laboratorio) }}"
                class="btn btn-primary" title="{{ lab.descrição }}">{{ lab.nome_laboratorio }}</a>
+            {% else %}
+            <a href="{{ url_for('reservas_semanais.get_lab', id_semestre=semestre.id_semestre, id_turno=id_turno, id_lab=lab.id_laboratorio) }}"
+               class="btn btn-primary {% if not perm or not perm|has_flag(ADMIN) %}disabled{% endif %}" title="{{ lab.descrição }}">{{ lab.nome_laboratorio }} <span class="glyphicon glyphicon-exclamation-sign"></span></a>
+            {% endif %}
+            
         {% endfor %}
     </div>
 {% endblock content %}
