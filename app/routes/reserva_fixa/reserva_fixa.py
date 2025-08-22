@@ -59,6 +59,12 @@ def check_semestre(semestre:Semestres, userid, perm:Permissoes):
         if has_priority and not user.pessoas.id_pessoa in prioridade:
             abort(403)
 
+def check_laboratorio(laboratorio:Laboratorios, userid, perm):
+    if perm&PERM_ADMIN > 0:
+        return
+    if laboratorio.disponibilidade.value == 'Indisponivel':
+        abort(403)
+
 @bp.route('/')
 @reserva_fixa_required
 def main_page():
@@ -149,6 +155,7 @@ def get_lab_especifico(id_semestre, id_turno, id_lab):
     check_semestre(semestre, userid, perm)
     turno = db.get_or_404(Turnos, id_turno) if id_turno is not None else id_turno
     laboratorio = db.get_or_404(Laboratorios, id_lab)
+    check_laboratorio(laboratorio, userid, perm)
     today = date.today()
     extras = {'semestre':semestre, 'turno':turno, 'laboratorio':laboratorio, 'day':today}
     aulas = get_aulas_ativas_por_semestre(semestre, turno)

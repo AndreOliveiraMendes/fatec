@@ -105,6 +105,8 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │       │   ├── login_success.html
 │       │   └── logout.html
 │       ├── base
+│       ├── base-fixed
+│       ├── base-fluid
 │       ├── database
 │       │   ├── schema
 │       │   │   ├── database.html
@@ -150,6 +152,8 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │       │   ├── televisor.html
 │       │   └── televisor_control.html
 │       ├── reserva_fixa
+│       │   ├── especifico.html
+│       │   ├── geral.html
 │       │   ├── main.html
 │       │   ├── semestre.html
 │       │   └── turno.html
@@ -171,9 +175,9 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 ├── config
 │   ├── __init__.py
 │   ├── database_views.py
-│   └── general.py
+│   ├── general.py
+│   └── painel.json
 ├── configurar_vscode.bat
-├── docker-compose.yml
 ├── requirements.txt
 ├── schema.sql
 ├── start-dev.bat

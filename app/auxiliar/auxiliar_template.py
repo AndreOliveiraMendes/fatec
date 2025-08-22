@@ -1,14 +1,14 @@
-from flask import Flask, url_for
+from flask import Flask, url_for, session
 from markupsafe import Markup
-from sqlalchemy import between
+from sqlalchemy import between, select
 
 from app.auxiliar.auxiliar_routes import (get_responsavel_reserva,
-                                          get_unique_or_500)
+                                          get_unique_or_500, get_user_info)
 from app.auxiliar.constant import (DATA_ABREV, DATA_COMPLETA, DATA_FLAGS,
                                    DATA_NUMERICA, HORA, PERMISSIONS,
-                                   SEMANA_ABREV, SEMANA_COMPLETA)
-from app.models import (Reservas_Fixas, Reservas_Temporarias, Semestres,
-                        Situacoes_Das_Reserva)
+                                   SEMANA_ABREV, SEMANA_COMPLETA, PERM_ADMIN)
+from app.models import (db, Reservas_Fixas, Reservas_Temporarias, Semestres,
+                        Situacoes_Das_Reserva, Laboratorios, Turnos)
 from config.database_views import SECOES, TABLES_PER_LINE
 
 semana_inglesa = {
@@ -159,6 +159,68 @@ def register_filters(app:Flask):
         html += '</div>'
 
         return Markup(html)
+
+    def lab_url(semestre:Semestres, turno:Turnos|None, laboratorio:Laboratorios|None):
+        id_semestre=semestre.id_semestre
+        id_turno=turno.id_turno if turno else None
+        id_laboratorio=laboratorio.id_laboratorio if laboratorio else None
+        return url_for('reservas_semanais.get_lab', id_semestre=id_semestre, id_turno=id_turno, id_lab=id_laboratorio)
+    @app.template_global()
+    def generate_reserva_head(semestre:Semestres, turno:Turnos, current:Laboratorios|None=None):
+        username, perm = get_user_info(session.get('userid'))
+        sel_laboratorios = select(Laboratorios)
+        laboratorios = db.session.execute(sel_laboratorios).scalars().all()
+        html = ''
+
+        html += '<div class="pills-group"><ul class="nav nav-pills">'
+        for lab in laboratorios:
+            active = ''
+            active_link = lab_url(semestre, turno, lab)
+            extra = ''
+            if current and current.id_laboratorio == lab.id_laboratorio:
+                active='active'
+                active_link = lab_url(semestre, turno, None)
+            if lab.disponibilidade.value == 'Indisponivel':
+                if perm&PERM_ADMIN == 0:
+                    active='disabled'
+                    active_link = ""
+                else:
+                    extra = ' <span class="glyphicon glyphicon-exclamation-sign">'
+            html += f'<li role="presentation" class="{active}">'
+            html += f'<a href="{active_link}" class="{active}">{lab.nome_laboratorio}{extra}</a>'
+            html += '</li>'
+        html += '</ul></div>'
+
+        return Markup(html)
+
+    @app.template_global()
+    def adjust_head_fix():
+        return Markup("""
+            window.onload = function() {
+                console.log("hello world");
+                const width = window.innerWidth; // Obtém a largura da viewport
+                const head = document.querySelector('.pills-group');
+                const parent = head.offsetParent;
+
+                const myDivRect = head.getBoundingClientRect();
+                const parentRect = parent.getBoundingClientRect();
+
+                const marginLeftparent = parentRect.left;
+                const marginRightparent = (width - parentRect.right);
+
+                const marginLefthead = myDivRect.left;
+                const marginRighhead = (width - myDivRect.right);
+
+                head.width = (width - 30)+'px';
+                head.style.marginLeft = 15-(marginLefthead - marginLeftparent)+'px';
+                head.style.marginRight = 15-(marginRighhead - marginRightparent)+'px';
+                console.log("calculating");
+                console.log(marginLeftparent);
+                console.log(marginLefthead);
+                console.log(head.style.marginLeft);
+                console.log(head.width);
+            };
+        """)
 
     @app.template_global()
     def validate_admin_selects():
