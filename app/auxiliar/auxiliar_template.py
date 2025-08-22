@@ -193,6 +193,34 @@ def register_filters(app:Flask):
 
         return Markup(html)
 
+    @app.template_global()
+    def adjust_head_fix():
+        return Markup("""
+            window.onload = function() {
+                console.log("hello world");
+                const width = window.innerWidth; // Obtém a largura da viewport
+                const head = document.querySelector('.pills-group');
+                const parent = head.offsetParent;
+
+                const myDivRect = head.getBoundingClientRect();
+                const parentRect = parent.getBoundingClientRect();
+
+                const marginLeftparent = parentRect.left;
+                const marginRightparent = (width - parentRect.right);
+
+                const marginLefthead = myDivRect.left;
+                const marginRighhead = (width - myDivRect.right);
+
+                head.width = (width - 30)+'px';
+                head.style.marginLeft = 15-(marginLefthead - marginLeftparent)+'px';
+                head.style.marginRight = 15-(marginRighhead - marginRightparent)+'px';
+                console.log("calculating");
+                console.log(marginLeftparent);
+                console.log(marginLefthead);
+                console.log(head.style.marginLeft);
+                console.log(head.width);
+            };
+        """)
 
     @app.template_global()
     def validate_admin_selects():
