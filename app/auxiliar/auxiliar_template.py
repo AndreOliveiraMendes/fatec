@@ -1,14 +1,14 @@
-from flask import Flask, url_for, session
+from flask import Flask, session, url_for
 from markupsafe import Markup
 from sqlalchemy import between, select
 
 from app.auxiliar.auxiliar_routes import (get_responsavel_reserva,
                                           get_unique_or_500, get_user_info)
 from app.auxiliar.constant import (DATA_ABREV, DATA_COMPLETA, DATA_FLAGS,
-                                   DATA_NUMERICA, HORA, PERMISSIONS,
-                                   SEMANA_ABREV, SEMANA_COMPLETA, PERM_ADMIN)
-from app.models import (db, Reservas_Fixas, Reservas_Temporarias, Semestres,
-                        Situacoes_Das_Reserva, Laboratorios, Turnos)
+                                   DATA_NUMERICA, HORA, PERM_ADMIN,
+                                   PERMISSIONS, SEMANA_ABREV, SEMANA_COMPLETA)
+from app.models import (Laboratorios, Reservas_Fixas, Reservas_Temporarias,
+                        Semestres, Situacoes_Das_Reserva, Turnos, db)
 from config.database_views import SECOES, TABLES_PER_LINE
 
 semana_inglesa = {

@@ -137,6 +137,13 @@ def get_turno(id_semestre, id_turno=None):
     extras['aulas'] = aulas
     return render_template('reserva_fixa/turno.html', username=username, perm=perm, **extras)
 
+@bp.before_request
+def return_counter():
+    if request.endpoint == "reservas_semanais.get_lab":
+        session["contador"] = session.get("contador", 0) + 1
+    else:
+        session.pop("contador", None)
+
 @bp.route('/semestre/<int:id_semestre>/turno/lab')
 @bp.route('/semestre/<int:id_semestre>/turno/lab/<int:id_lab>')
 @bp.route('/semestre/<int:id_semestre>/turno/<int:id_turno>/lab')
@@ -190,6 +197,7 @@ def get_lab_especifico(id_semestre, id_turno, id_lab):
     extras['aulas_extras'] = get_aulas_extras(semestre, turno)
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
+    extras['contador'] = session.get('contador')
     return render_template('reserva_fixa/especifico.html', username=username, perm=perm, **extras)
 
 def get_lab_geral(id_semestre, id_turno=None):
@@ -239,6 +247,7 @@ def get_lab_geral(id_semestre, id_turno=None):
     extras['aulas_extras'] = get_aulas_extras(semestre, turno)
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
+    extras['contador'] = session.get('contador')
     return render_template('reserva_fixa/geral.html', username=username, perm=perm, **extras)
 
 @bp.route('/semestre/<int:id_semestre>', methods=['POST'])

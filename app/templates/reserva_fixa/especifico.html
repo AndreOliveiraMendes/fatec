@@ -8,7 +8,7 @@
     {{ generate_reserva_head(semestre, turno, laboratorio) }}
     <div class="center-content">
         <div class="btn-group">
-            {{ go_back() }}
+            {{ go_back(contador) }}
             <a href="{{ url_for('default.home') }}" class="btn btn-default">
                 <span class="glyphicon glyphicon-home"></span> Início
             </a>

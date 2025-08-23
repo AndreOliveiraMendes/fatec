@@ -105,8 +105,6 @@ def wiki():
             default = 'NULL' if field['default'] is None else field['default']
             column['default'] = default
             columns[table].append(column)
-        for chk in inspector.get_check_constraints(table):
-            print(chk)
     extras['columns'] = columns
     extras['pks'] = pks
     extras['fks'] = {table:inspector.get_foreign_keys(table) for table in tables}
