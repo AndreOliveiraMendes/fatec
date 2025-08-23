@@ -144,6 +144,11 @@ def return_counter():
     else:
         session.pop("contador", None)
 
+@bp.before_app_request
+def clear_counter():
+    if not request.endpoint:
+        session.pop("contador", None)
+
 @bp.route('/semestre/<int:id_semestre>/turno/lab')
 @bp.route('/semestre/<int:id_semestre>/turno/lab/<int:id_lab>')
 @bp.route('/semestre/<int:id_semestre>/turno/<int:id_turno>/lab')
