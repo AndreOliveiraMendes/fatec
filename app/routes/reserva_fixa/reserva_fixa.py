@@ -114,29 +114,6 @@ def get_semestre(id_semestre):
     extras['turnos'] = turnos
     return render_template('reserva_fixa/semestre.html', username=username, perm=perm, **extras)
 
-@bp.route('/semestre/<int:id_semestre>/turno')
-@bp.route('/semestre/<int:id_semestre>/turno/<int:id_turno>')
-@reserva_fixa_required
-def get_turno(id_semestre, id_turno=None):
-    userid = session.get('userid')
-    username, perm = get_user_info(userid)
-    semestre = db.get_or_404(Semestres, id_semestre)
-    check_semestre(semestre, userid, perm)
-    turno = db.get_or_404(Turnos, id_turno) if id_turno is not None else id_turno
-    today = date.today()
-    extras = {'semestre':semestre, 'turno':turno, 'day':today}
-    aulas = get_aulas_ativas_por_semestre(semestre, turno)
-    laboratorios = get_laboratorios(perm&PERM_ADMIN)
-    if len(aulas) == 0 or len(laboratorios) == 0:
-        if len(aulas) == 0:
-            flash("não há horarios disponiveis nesse turno", "danger")
-        if len(laboratorios) == 0:
-            flash("não há laboratorio disponiveis para reserva", "danger")
-        return redirect(url_for('default.home'))
-    extras['laboratorios'] = laboratorios
-    extras['aulas'] = aulas
-    return render_template('reserva_fixa/turno.html', username=username, perm=perm, **extras)
-
 @bp.before_request
 def return_counter():
     if request.endpoint == "reservas_semanais.get_lab":
