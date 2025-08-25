@@ -98,8 +98,8 @@ body {
 
 .tabela-reserva {
     border-collapse: collapse;
-    width: max-content;
     overflow-x: auto;
+    width: 100%;
 }
 
 .tabela-reserva th,
@@ -215,4 +215,22 @@ td.fixa {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+}
+
+.btn-icon {
+    background: none;
+    /* tira fundo */
+    border: none;
+    /* tira borda */
+    padding: 0;
+    /* tira espaço interno extra */
+    margin: 0 5px;
+    /* espaço lateral entre ícones */
+    font-size: 20px;
+    /* tamanho do ícone */
+}
+
+.btn-icon:focus {
+    outline: none;
+    /* tira a borda de foco azul */
 }

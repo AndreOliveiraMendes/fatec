@@ -87,7 +87,12 @@ def gerenciar_status():
         reserva['situacao'] = situacao
         reservas.append(reserva)
     extras['reservas'] = reservas
-    extras['situacaoChave'] = SituacaoChaveEnum
+    icons = [
+        ["glyphicon-thumbs-down", "danger"],
+        ["glyphicon-thumbs-up", "success"],
+        ["glyphicon-ok", "info"] 
+    ]
+    extras['situacaoChave'] = list(zip(SituacaoChaveEnum, icons))
     return render_template("status_reserva/status_reserva.html", username=username, perm=perm, **extras)
 
 @bp.route('/atuacionar/<int:aula>/<int:lab>/<data:dia>', methods=['POST'])
