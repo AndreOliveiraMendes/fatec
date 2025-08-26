@@ -1,5 +1,9 @@
+import importlib.resources as resources
+import json
 from datetime import datetime, time
+from importlib.resources import as_file
 from math import ceil
+from pathlib import Path
 
 from flask import Blueprint, render_template, request, session
 from sqlalchemy import select
@@ -12,6 +16,33 @@ from app.models import TipoAulaEnum, Turnos, db
 from config.general import LOCAL_TIMEZONE
 
 bp = Blueprint('consultar_reservas', __name__, url_prefix="/consultar_reserva")
+
+DEFAULT_PAINEL_CFG = {
+    "titulo": "Painel Padrão",
+    "tema": "claro",
+    "versao": "1.0.0",
+    "tempo": "15",
+    "laboratorios": "6"
+}
+
+def carregar_painel_config():
+    resource = resources.files("config").joinpath("painel.json")
+
+    # pegar um Path real (mesmo se for empacotado)
+    with as_file(resource) as painel_path:
+        painel_file = Path(painel_path)
+
+        if not painel_file.exists() or painel_file.stat().st_size == 0:
+            # cria o arquivo com config padrão
+            painel_file.write_text(json.dumps(DEFAULT_PAINEL_CFG, indent=4, ensure_ascii=False), encoding="utf-8")
+            return DEFAULT_PAINEL_CFG
+
+        try:
+            return json.loads(painel_file.read_text(encoding="utf-8").strip() or "{}")
+        except json.JSONDecodeError:
+            # reescreve com padrão se estiver corrompido
+            painel_file.write_text(json.dumps(DEFAULT_PAINEL_CFG, indent=4, ensure_ascii=False), encoding="utf-8")
+            return DEFAULT_PAINEL_CFG
 
 def divide(l, q):
     result = []
@@ -68,6 +99,8 @@ def configurar_tela_televisor():
     extras = {}
     extras['tipo_aula'] = TipoAulaEnum
     extras['lab'] = get_laboratorios()
+    painel_cfg = carregar_painel_config()
+    extras['painel_cfg'] = painel_cfg
     return render_template("reserva/televisor_control.html", username=username, perm=perm, **extras)
 
 @bp.route("/televisor")

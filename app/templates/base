@@ -1,40 +1,41 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="description"
-              content="Sistema de Reservas de Laboratório da Fatec.">
-        <meta name="viewport"
-              content="width = device-width, initial-scale = 1, maximum-scale = 1">
-        <meta name="keywords" content="reservas, laboratório, fatec, sistema">
-        <title>
-            {% block title %}
-                Meu Sistema
-            {% endblock title %}
-        </title>
-        <link rel="icon"
-              type="image/svg+xml"
-              href="{{ url_for('static', filename='images/favicon.svg') }}">
-        <link rel="icon"
-              type="image/png"
-              href="{{ url_for('static', filename='images/favicon.png') }}">
-        <!-- Bootstrap CSS -->
-        <link rel="stylesheet"
-              href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-        <!-- Bootstrap Icons -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
-              rel="stylesheet">
-        <!-- Custom CSS -->
-        <link rel="stylesheet"
-              href="{{ url_for('static', filename='css/custom.css') }}">
-        <!-- Optional extra CSS for specific pages -->
-        {% block extra_css %}
-        {% endblock extra_css %}
-        {% block extra_head %}
-        {% endblock extra_head %}
-    </head>
-    <body>
-        {% block body %}
-        {% endblock body %}
-    </body>
+      <head>
+            <meta charset="UTF-8">
+            <meta name="description"
+                  content="Sistema de Reservas de Laboratório da Fatec.">
+            <meta name="viewport"
+                  content="width = device-width, initial-scale = 1, maximum-scale = 1">
+            <meta name="keywords" content="reservas, laboratório, fatec, sistema">
+            <title>
+                  {% block title %}
+                        Meu Sistema
+                  {% endblock title %}
+            </title>
+            <link rel="icon"
+                  type="image/svg+xml"
+                  href="{{ url_for('static', filename='images/favicon.svg') }}">
+            <link rel="icon"
+                  type="image/png"
+                  href="{{ url_for('static', filename='images/favicon.png') }}">
+            <!-- Bootstrap CSS -->
+            <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+            <!-- Custom CSS -->
+            <link rel="stylesheet"
+                  href="{{ url_for('static', filename='css/custom.css') }}">
+            <!-- Optional extra CSS for specific pages -->
+            {% block extra_css %}
+            {% endblock extra_css %}
+            {% block extra_head %}
+            {% endblock extra_head %}
+      </head>
+      <body>
+            {% block body %}
+            {% endblock body %}
+            <!-- JS Scripts -->
+            <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+            <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+            {% block extra_script %}
+            {% endblock extra_script %}
+      </body>
 </html>
