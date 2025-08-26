@@ -1,7 +1,5 @@
 {
-    "titulo": "Painel Padrão",
-    "tema": "claro",
-    "versao": "1.0.0",
+    "tipo": "Aula",
     "tempo": "15",
-    "laboratorios": "6"
+    "laboratorios": "7"
 }

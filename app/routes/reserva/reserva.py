@@ -5,7 +5,8 @@ from importlib.resources import as_file
 from math import ceil
 from pathlib import Path
 
-from flask import Blueprint, render_template, request, session
+from flask import (Blueprint, redirect, render_template, request, session,
+                   url_for)
 from sqlalchemy import select
 from sqlalchemy.exc import MultipleResultsFound
 
@@ -18,9 +19,7 @@ from config.general import LOCAL_TIMEZONE
 bp = Blueprint('consultar_reservas', __name__, url_prefix="/consultar_reserva")
 
 DEFAULT_PAINEL_CFG = {
-    "titulo": "Painel Padrão",
-    "tema": "claro",
-    "versao": "1.0.0",
+    "tipo": "Aula",
     "tempo": "15",
     "laboratorios": "6"
 }
@@ -92,15 +91,30 @@ def main_page():
     extras['laboratorios'] = laboratorios
     return render_template("reserva/main.html", username=username, perm=perm, **extras)
 
-@bp.route("/configurar")
+@bp.route("/configurar", methods=['GET', 'POST'])
 def configurar_tela_televisor():
     userid = session.get('userid')
     username, perm = get_user_info(userid)
     extras = {}
-    extras['tipo_aula'] = TipoAulaEnum
-    extras['lab'] = get_laboratorios()
-    painel_cfg = carregar_painel_config()
-    extras['painel_cfg'] = painel_cfg
+    if request.method == 'GET':
+        extras['tipo_aula'] = TipoAulaEnum
+        extras['lab'] = get_laboratorios()
+        painel_cfg = carregar_painel_config()
+        extras['painel_cfg'] = painel_cfg
+    else:
+        resource = resources.files("config").joinpath("painel.json")
+        tipo_horario = request.form.get('reserva_tipo_horario')
+        tempo = request.form.get('intervalo')
+        lab = request.form.get('qt_lab')
+        PAINEL_CFG = {
+            "tipo": tipo_horario,
+            "tempo": tempo,
+            "laboratorios": lab
+        }
+        with as_file(resource) as painel_path:
+            painel_file = Path(painel_path)
+            painel_file.write_text(json.dumps(PAINEL_CFG, indent=4, ensure_ascii=False), encoding="utf-8")
+        return redirect(url_for('default.home'))
     return render_template("reserva/televisor_control.html", username=username, perm=perm, **extras)
 
 @bp.route("/televisor")
@@ -108,9 +122,10 @@ def tela_televisor():
     userid = session.get('userid')
     username, perm = get_user_info(userid)
     extras = {}
-    tipo_horario = request.args.get('reserva_tipo_horario', default=TipoAulaEnum.AULA.value)
-    intervalo = request.args.get('intervalo', type=int)
-    qt_lab = request.args.get('qt_lab', default=5, type=int)
+    painel_cfg = carregar_painel_config()
+    tipo_horario = painel_cfg.get('tipo')
+    intervalo = int(painel_cfg.get('tempo'))*1000
+    qt_lab = int(painel_cfg.get('laboratorios'))
     lab = divide(get_laboratorios(), qt_lab)
     extras['intervalo'] = intervalo*1000
     extras['laboratorios'] = lab

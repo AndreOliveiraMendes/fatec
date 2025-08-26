@@ -5,16 +5,19 @@
 {% endblock title %}
 {% block content %}
     <form class="form-group"
-          action="{{ url_for('consultar_reservas.tela_televisor') }}"
+          action="{{ url_for('consultar_reservas.configurar_tela_televisor') }}"
           role="form"
-          method="get">
+          method="post">
         <div class="form-group">
             <label for="reserva_turno">Destino:</label>
             <select class="form-control"
                     id="reserva_tipo_horario"
                     name="reserva_tipo_horario"
                     required>
-                {% for aula in tipo_aula %}<option value="{{ aula.value }}">{{ aula.value }}</option>{% endfor %}
+                {% for aula in tipo_aula %}
+                    <option value="{{ aula.value }}"
+                            {% if painel_cfg.tipo == aula.value %}selected{% endif %}>{{ aula.value }}</option>
+                {% endfor %}
             </select>
         </div>
         <div class="form-group">
@@ -25,6 +28,7 @@
                    id="intervalo"
                    name="intervalo"
                    min="0"
+                   value="{{ painel_cfg.tempo }}"
                    required>
         </div>
         <div class="form-group">
@@ -36,6 +40,7 @@
                    name="qt_lab"
                    min="1"
                    max="{{ lab|length }}"
+                   value="{{ painel_cfg.laboratorios }}"
                    required>
         </div>
         {{ action_buttons('montar', show_voltar=False, label='') }}
