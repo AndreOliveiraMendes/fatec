@@ -4,7 +4,7 @@ from app.auxiliar.auxiliar_routes import get_user_info
 
 bp = Blueprint('default', __name__)
 
-@bp.route("/")
+@bp.route("/home")
 def home():
     userid = session.get('userid')
     username, perm = get_user_info(userid)
