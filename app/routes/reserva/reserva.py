@@ -46,10 +46,17 @@ def carregar_painel_config():
 def divide(l, q):
     result = []
     qt = len(l)
-    for g in range(ceil(qt/q)):
-        result.append([])
-        for i in range(q*g, min(q*(g+1), len(l))):
-            result[-1].append(l[i])
+    start = 0
+    extra = qt%q
+    merge = extra <= qt
+    qtq = qt//q
+    for g in range(qtq):
+        end = min(start + q + (1 if merge and g < extra else 0), qt)
+        result.append(l[start:end])
+        start += end - start
+    else:
+        if start < qt:
+            result.append(l[start:])
     return result
 
 def get_turno_by_time(hora:time):
