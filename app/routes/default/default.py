@@ -1,8 +1,12 @@
-from flask import Blueprint, render_template, session
+from flask import Blueprint, redirect, render_template, session, url_for
 
 from app.auxiliar.auxiliar_routes import get_user_info
 
 bp = Blueprint('default', __name__)
+
+@bp.route("/")
+def painel():
+    return redirect(url_for('consultar_reservas.tela_televisor'))
 
 @bp.route("/home")
 def home():
