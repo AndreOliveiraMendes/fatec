@@ -200,7 +200,7 @@ td.fixa {
 
 .tabela-reserva-tv {
     border-collapse: collapse;
-    width: max-content;
+    width: 100%;
     overflow-x: auto;
     font-size: large;
 }
@@ -217,6 +217,7 @@ td.fixa {
     justify-content: center;
 }
 
+/*botao com icone*/
 .btn-icon {
     background: none;
     /* tira fundo */
@@ -233,4 +234,9 @@ td.fixa {
 .btn-icon:focus {
     outline: none;
     /* tira a borda de foco azul */
+}
+
+/*gambiarra*/
+.full {
+    width: 100%;
 }

@@ -68,7 +68,7 @@
             </nav>
         {% endblock navigation %}
         <!-- Main Content -->
-        <div id="main" class="container-fluid">
+        <div id="main" class="container-fluid full">
             {% block flash_messages %}
                 {% with messages = get_flashed_messages(with_categories=true) %}
                     {% if messages %}
