@@ -124,7 +124,7 @@ def tela_televisor():
     extras = {}
     painel_cfg = carregar_painel_config()
     tipo_horario = painel_cfg.get('tipo')
-    intervalo = int(painel_cfg.get('tempo'))*1000
+    intervalo = int(painel_cfg.get('tempo'))
     qt_lab = int(painel_cfg.get('laboratorios'))
     lab = divide(get_laboratorios(), qt_lab)
     extras['intervalo'] = intervalo*1000
