@@ -51,7 +51,8 @@ def divide(l, q):
     merge = extra <= qt
     qtq = qt//q
     for g in range(qtq):
-        end = min(start + q + (1 if merge and g < extra else 0), qt)
+        end = start + q + (1 if merge and g < extra else 0)
+        end = min(end, qt)
         result.append(l[start:end])
         start += end - start
     else:

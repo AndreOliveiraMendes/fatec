@@ -205,6 +205,11 @@ td.fixa {
     font-size: large;
 }
 
+.tabela-reserva-tv th,
+.tabela-reserva-tv td {
+    text-align: center;
+}
+
 .tabela-reserva-tv thead th {
     background-color: #c00;
     color: #ffffff;

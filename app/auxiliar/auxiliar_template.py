@@ -290,7 +290,7 @@ def register_filters(app:Flask):
         chave = status.situacao_chave.name if status else None
         cor, base, overlay, tooltip = mapa_icones_status[chave]
         icon = f"""
-        <span class="reserva-icon { cor }" title="{ tooltip }">
+        <br><span class="reserva-icon { cor }" title="{ tooltip }">
             <i class="glyphicon { base } base-icon"></i>
         """
         if overlay:
