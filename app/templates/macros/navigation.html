@@ -19,29 +19,3 @@
         <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> Voltar
     </button>
 {% endmacro %}
-{% macro go_back_ahref(contador=None) %}
-    <a href="javascript:void(0);" 
-       onclick="
-        {%- if contador -%}
-            if (history.length > {{ contador }}) {
-                history.go(-{{ contador }});
-            } else if (history.length > 1) {
-                history.back();
-            } else {
-                window.location.href='{{ url_for("default.home") }}';
-            }
-        {%- else -%}
-            if (history.length > 1) {
-                history.back();
-            } else {
-                window.location.href='{{ url_for("default.home") }}';
-            }
-        {%- endif -%}
-       " 
-       class="btn btn-default"
-       title="Voltar"
-       aria-label="Voltar para a página anterior ou para a página inicial">
-        <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> 
-        Voltar
-    </a>
-{% endmacro %}
