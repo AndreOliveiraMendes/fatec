@@ -287,8 +287,8 @@ def get_reservas_por_dia(dia:date, turno:Turnos|None=None, tipo_horario:TipoAula
                 .join(Aulas)
                 .join(Laboratorios)
                 .order_by(
-                    Aulas.horario_inicio,
-                    Laboratorios.id_laboratorio
+                    Laboratorios.id_laboratorio,
+                    Aulas.horario_inicio
                 )
             )
             reservas_fixas = db.session.execute(sel_reserva_fixa).scalars().all()
@@ -308,8 +308,8 @@ def get_reservas_por_dia(dia:date, turno:Turnos|None=None, tipo_horario:TipoAula
             .join(Aulas)
             .join(Laboratorios)
             .order_by(
-                Aulas.horario_inicio,
-                Laboratorios.id_laboratorio
+                Laboratorios.id_laboratorio,
+                Aulas.horario_inicio
             )
         )
         reservas_temporarias = db.session.execute(sel_reserva_temporaria).scalars().all()
@@ -319,14 +319,14 @@ def get_reservas_por_dia(dia:date, turno:Turnos|None=None, tipo_horario:TipoAula
 
 # para gerenciar situacoes das reservas
 def check_first(reserva_fixa:Reservas_Fixas, reserva_temporaria:Reservas_Temporarias):
-    if reserva_fixa.aulas_ativas.aulas.horario_inicio < reserva_temporaria.aulas_ativas.aulas.horario_inicio:
+    if reserva_fixa.id_reserva_laboratorio < reserva_temporaria.id_reserva_laboratorio:
         return 0
-    elif reserva_fixa.aulas_ativas.aulas.horario_inicio > reserva_temporaria.aulas_ativas.aulas.horario_inicio:
+    elif reserva_fixa.id_reserva_laboratorio > reserva_temporaria.id_reserva_laboratorio:
         return 1
     else:
-        if reserva_fixa.id_reserva_laboratorio < reserva_temporaria.id_reserva_laboratorio:
+        if reserva_fixa.aulas_ativas.aulas.horario_inicio < reserva_temporaria.aulas_ativas.aulas.horario_inicio:
             return 0
-        elif reserva_fixa.id_reserva_laboratorio > reserva_temporaria.id_reserva_laboratorio:
+        elif reserva_fixa.aulas_ativas.aulas.horario_inicio > reserva_temporaria.aulas_ativas.aulas.horario_inicio:
             return 1
         else:
             return 2
