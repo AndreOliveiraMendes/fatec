@@ -96,6 +96,14 @@
                    class="form-control"
                    placeholder="insira observações relevantes (softwares necessarios)">
         </div>
+        <div class="form-group">
+            <label for="descricao">Descrição:</label>
+            <input type="text"
+                   id="descricao"
+                   name="descricao"
+                   class="form-control"
+                   placeholder="insira a descrição da reserva">
+        </div>
         {% if perm and perm|has_flag(ADMIN) %}
             <div class="form-group">
                 <label for="responsavel">Responsavel:</label>
@@ -165,8 +173,27 @@
 {% endblock content %}
 {% block extra_script %}
     {% if perm and perm|has_flag(ADMIN) %}
-        <script>{{ validate_admin_selects() }}</script>
+        <script>{{ validate_admin_selects() }};</script>
         <script>validateAdminSelects("reserva", "responsavel", "responsavel_especial");</script>
     {% endif %}
     <script>{{ adjust_head_fix() }}</script>
+    <script>
+    document.getElementById('tipo_reserva').addEventListener('change', function() {
+        var value = this.value;
+        var descricao = document.getElementById('descricao');
+        var descricaoWrapper = descricao.parentElement;
+
+        if(value == 'Graduação'){
+            descricao.disabled = false;
+            descricaoWrapper.style.display = 'block';
+        } else {
+            descricao.disabled = true;
+            descricaoWrapper.style.display = 'none';
+        }
+    });
+
+    window.addEventListener('load', function() {
+        document.getElementById('tipo_reserva').dispatchEvent(new Event('change'));
+    });
+    </script>
 {% endblock extra_script %}

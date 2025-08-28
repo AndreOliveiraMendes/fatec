@@ -240,6 +240,7 @@ def efetuar_reserva(id_semestre):
     semestre = db.get_or_404(Semestres, id_semestre)
     tipo_reserva = request.form.get('tipo_reserva')
     observacoes = none_if_empty(request.form.get('observacoes'))
+    descricao = none_if_empty(request.form.get('descricao'))
     responsavel = none_if_empty(request.form.get('responsavel'))
     responsavel_especial = none_if_empty(request.form.get('responsavel_especial'))
     tipo_responsavel = None
@@ -273,6 +274,8 @@ def efetuar_reserva(id_semestre):
                 tipo_reserva = TipoReservaEnum(tipo_reserva),
                 observacoes = observacoes
             )
+            if descricao:
+                reserva.descricao = descricao
             db.session.add(reserva)
             reservas_efetuadas.append(reserva)
 
