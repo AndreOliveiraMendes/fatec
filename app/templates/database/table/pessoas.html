@@ -28,6 +28,7 @@
                 {% for campo, tipo, descricao in [
                     ('id_pessoa', 'INT (auto_increment, PK)', 'Identificador único da pessoa no sistema.'),
                     ('nome_pessoa', 'VARCHAR(100)', 'Nome completo da pessoa.'),
+                    ('alias', 'VARCHAR(100)', 'Nome alternativo (exibição no painel)'),
                     ('email_pessoa', 'VARCHAR(100)', 'Email para contato (opcional).')
                     ] %}
                     <tr>
@@ -80,6 +81,23 @@
                 </div>
             </div>
             <div class="form-group">
+                <label for="alias">alias:</label>
+                <div class="input-group">
+                    <input type="text"
+                           maxlength="100"
+                           class="form-control"
+                           name="alias"
+                           id="alias"
+                           placeholder="Digite o alias">
+                    <span class="input-group-addon">
+                        <label for="emalias">
+                            <input type="checkbox" name="emalias" id="emalias">
+                            Exata
+                        </label>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
                 <label for="email">Email:</label>
                 <div class="input-group">
                     <input type="email"
@@ -119,6 +137,15 @@
                    id="nome"
                    placeholder="Digite o nome"
                    required>
+        </div>
+        <div class="form-group">
+            <label for="alias">alias:</label>
+            <input type="text"
+                   maxlength="100"
+                   class="form-control"
+                   name="alias"
+                   id="alias"
+                   placeholder="Digite o alias">
         </div>
         <div class="form-group">
             <label for="email">Email:</label>
@@ -171,6 +198,16 @@
                        value="{{ pessoa.nome_pessoa }}"
                        placeholder="Digite o nome"
                        required>
+            </div>
+            <div class="form-group">
+                <label for="alias">alias:</label>
+                <input type="text"
+                       maxlength="100"
+                       class="form-control"
+                       name="alias"
+                       id="alias"
+                       value="{{ pessoa.alias if pessoa.alias else '' }}"
+                       placeholder="Digite o alias">
             </div>
             <div class="form-group">
                 <label for="email">Email:</label>
@@ -227,6 +264,17 @@
                        required>
             </div>
             <div class="form-group">
+                <label for="alias">alias:</label>
+                <input type="text"
+                       maxlength="100"
+                       class="form-control"
+                       name="alias"
+                       id="alias"
+                       value="{{ pessoa.alias if pessoa.alias else '' }}"
+                       placeholder="Digite o alias"
+                       disabled>
+            </div>
+            <div class="form-group">
                 <label for="email">Email:</label>
                 <input type="email"
                        maxlength="100"
@@ -248,6 +296,7 @@
                     <tr class="information">
                         <th class="text-center">ID Pessoa</th>
                         <th>Nome Pessoa</th>
+                        <th>Alias</th>
                         <th>Email Pessoa</th>
                         {% if not disable_editar or not disable_excluir %}<th class="text-center">Ação</th>{% endif %}
                     </tr>
@@ -257,6 +306,7 @@
                         <tr>
                             <td class="text-center">{{ p.id_pessoa }}</td>
                             <td>{{ p.nome_pessoa }}</td>
+                            <td>{{ p.alias if p.alias else '-' }}</td>
                             <td>{{ p.email_pessoa if p.email_pessoa }}</td>
                             {% if not disable_editar or not disable_excluir %}
                                 <td class="text-center">

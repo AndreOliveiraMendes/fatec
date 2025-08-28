@@ -34,7 +34,7 @@ def check_login(id, password):
 
             pessoa = usuario_json.get("pessoa")
             id_pessoa = pessoa.get("codigo")
-            nome_pessoa = pessoa.get("nome")
+            nome_pessoa = pessoa.get("nome", '')
             email_pessoa = pessoa.get("email")
 
             if tipo_pessoa == 'ALUNO':
@@ -45,6 +45,9 @@ def check_login(id, password):
             old_pessoa = None
             if not pessoa:
                 pessoa = Pessoas(id_pessoa=id_pessoa)
+                aux = nome_pessoa.split()
+                if len(aux) > 1:
+                    pessoa.alias = f"{aux[0]} {aux[-1]}"
             else:
                 old_pessoa = copy.copy(pessoa)
             pessoa.nome_pessoa = nome_pessoa

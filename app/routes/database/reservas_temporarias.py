@@ -69,6 +69,7 @@ def gerenciar_reservas_temporarias():
             fim_procura = parse_date_string(request.form.get('fim_procura'))
             tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
             observacoes = none_if_empty(request.form.get('observacoes'))
+            descricao = none_if_empty(request.form.get('descricao'))
             filter = []
             query_params = get_query_params(request)
             if id_reserva_temporaria is not None:
@@ -89,6 +90,8 @@ def gerenciar_reservas_temporarias():
                 filter.append(Reservas_Temporarias.tipo_reserva == TipoReservaEnum(tipo_reserva))
             if observacoes:
                 filter.append(Reservas_Temporarias.observacoes.ilike(f"%{observacoes}%"))
+            if descricao:
+                filter.append(Reservas_Temporarias.descricao.ilike(f"%{descricao}%"))
             if filter:
                 sel_reservas = select(Reservas_Temporarias).where(*filter)
                 reservas_temporarias_paginadas = SelectPagination(
@@ -119,6 +122,7 @@ def gerenciar_reservas_temporarias():
             fim_reserva = parse_date_string(request.form.get('fim_reserva'))
             tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
             observacoes = none_if_empty(request.form.get('observacoes'))
+            descricao = none_if_empty(request.form.get('descricao'))
 
             try:
                 check_reserva_temporaria(inicio_reserva, fim_reserva,
@@ -128,7 +132,8 @@ def gerenciar_reservas_temporarias():
                     tipo_responsavel=tipo_responsavel, id_reserva_laboratorio=id_reserva_laboratorio,
                     id_reserva_aula=id_reserva_aula, inicio_reserva=inicio_reserva,
                     fim_reserva=fim_reserva, tipo_reserva=TipoReservaEnum(tipo_reserva),
-                    observacoes=observacoes
+                    observacoes=observacoes,
+                    descricao=descricao
                 )
                 db.session.add(nova_reserva_temporaria)
 
@@ -169,6 +174,7 @@ def gerenciar_reservas_temporarias():
             fim_reserva = parse_date_string(request.form.get('fim_reserva'))
             tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
             observacoes = none_if_empty(request.form.get('observacoes'))
+            descricao = none_if_empty(request.form.get('descricao'))
             reserva_temporaria = db.get_or_404(Reservas_Temporarias, id_reserva_temporaria)
             try:
                 dados_anteriores = copy.copy(reserva_temporaria)
@@ -181,6 +187,7 @@ def gerenciar_reservas_temporarias():
                 reserva_temporaria.fim_reserva = fim_reserva
                 reserva_temporaria.tipo_reserva = TipoReservaEnum(tipo_reserva)
                 reserva_temporaria.observacoes = observacoes
+                reserva_temporaria.descricao = descricao
 
                 db.session.flush()
                 registrar_log_generico_usuario(userid, 'Edição', reserva_temporaria, dados_anteriores)

@@ -27,7 +27,7 @@ def gerenciar_pessoas():
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
     username, perm = get_user_info(userid)
-    disabled = ['inserir', 'editar', 'excluir']
+    disabled = ['inserir', 'excluir']
     extras = {'url':url}
     disable_action(extras, disabled)
     if request.method == 'POST':
@@ -47,6 +47,8 @@ def gerenciar_pessoas():
             id = none_if_empty(request.form.get('id_pessoa', None))
             nome = none_if_empty(request.form.get('nome', None))
             exact_name_match = 'emnome' in request.form
+            alias = none_if_empty(request.form.get('alias', None))
+            exact_alias_match = 'emalias' in request.form
             email = none_if_empty(request.form.get('email', None))
             exact_email_match = 'ememail' in request.form
             filter = []
@@ -58,6 +60,11 @@ def gerenciar_pessoas():
                     filter.append(Pessoas.nome_pessoa == nome)
                 else:
                     filter.append(Pessoas.nome_pessoa.ilike(f"%{nome}%"))
+            if alias:
+                if exact_alias_match:
+                    filter.append(Pessoas.alias == alias)
+                else:
+                    filter.append(Pessoas.alias.ilike(f"%{alias}%"))
             if email:
                 if exact_email_match:
                     filter.append(Pessoas.email_pessoa == email)
@@ -78,9 +85,10 @@ def gerenciar_pessoas():
 
         elif acao == 'inserir' and bloco == 1:
             nome = none_if_empty(request.form.get('nome', None))
+            alias = none_if_empty(request.form.get('alias', None))
             email = none_if_empty(request.form.get('email', None))
             try:
-                nova_pessoa = Pessoas(nome_pessoa=nome, email_pessoa=email)
+                nova_pessoa = Pessoas(nome_pessoa=nome, alias=alias, email_pessoa=email)
                 db.session.add(nova_pessoa)
                 db.session.flush()  # garante ID
                 registrar_log_generico_usuario(userid, "Inserção", nova_pessoa)
@@ -100,6 +108,7 @@ def gerenciar_pessoas():
         elif acao == 'editar' and bloco == 2:
             id_pessoa = none_if_empty(request.form.get('id_pessoa'), int)
             nome = none_if_empty(request.form.get('nome', None))
+            alias = none_if_empty(request.form.get('alias', None))
             email = none_if_empty(request.form.get('email', None))
 
             pessoa = db.get_or_404(Pessoas, id_pessoa)
@@ -110,6 +119,7 @@ def gerenciar_pessoas():
 
                 # Realiza as alterações
                 pessoa.nome_pessoa = nome
+                pessoa.alias = alias
                 pessoa.email_pessoa = email
 
                 db.session.flush()  # Garante que o ID esteja atribuído

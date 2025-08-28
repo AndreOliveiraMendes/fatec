@@ -135,6 +135,14 @@
                     <td>observação sobre a reserva (exemplo:sotfwares necessarios)</td>
                     <td>-</td>
                 </tr>
+                <tr>
+                    <td>
+                        <code>descricao</code>
+                    </td>
+                    <td>VARCHAR(100)</td>
+                    <td>descrição da reserva (usada pra mini curso ou coisas especificas)</td>
+                    <td>-</td>
+                </tr>
             </tbody>
         </table>
     </div>
@@ -212,6 +220,14 @@
                        name="observacoes"
                        placeholder="campo destinado a observações sobre a reserva">
             </div>
+            <div class="form-group">
+                <label for="descricao">descricao:</label>
+                <input type="text"
+                       class="form-control"
+                       id="descricao"
+                       name="descricao"
+                       placeholder="campo destinado a descricao da reserva">
+            </div>
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
@@ -276,6 +292,14 @@
                    id="observacoes"
                    name="observacoes"
                    placeholder="campo destinado a observações sobre a reserva">
+        </div>
+        <div class="form-group">
+            <label for="descricao">descricao:</label>
+            <input type="text"
+                   class="form-control"
+                   id="descricao"
+                   name="descricao"
+                   placeholder="campo destinado a descricao da reserva">
         </div>
         {{ action_buttons(acao, 1, False, 0) }}
     </form>
@@ -412,6 +436,15 @@
                        name="observacoes"
                        value="{{ reserva_temporaria.observacoes if reserva_temporaria.observacoes else '' }}"
                        placeholder="campo destinado a observações sobre a reserva">
+            </div>
+            <div class="form-group">
+                <label for="descricao">descricao:</label>
+                <input type="text"
+                       class="form-control"
+                       id="descricao"
+                       name="descricao"
+                       value="{{ reserva_temporaria.descricao if reserva_temporaria.descricao else '' }}"
+                       placeholder="campo destinado a descricao da reserva">
             </div>
             {{ action_buttons(acao, 2, True, 0) }}
         </form>
@@ -556,6 +589,16 @@
                        name="observacoes"
                        value="{{ reserva_temporaria.observacoes if reserva_temporaria.observacoes else '' }}"
                        placeholder="campo destinado a observações sobre a reserva"
+                       disabled>
+            </div>
+            <div class="form-group">
+                <label for="descricao">descricao:</label>
+                <input type="text"
+                       class="form-control"
+                       id="descricao"
+                       name="descricao"
+                       value="{{ reserva_temporaria.descricao if reserva_temporaria.descricao else '' }}"
+                       placeholder="campo destinado a descricao da reserva"
                        disabled>
             </div>
             {{ action_buttons(acao, 2, True, 0, False) }}
