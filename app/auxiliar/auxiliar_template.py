@@ -197,7 +197,6 @@ def register_filters(app:Flask):
     def adjust_head_fix():
         return Markup("""
             window.onload = function() {
-                console.log("hello world");
                 const width = window.innerWidth; // Obtém a largura da viewport
                 const head = document.querySelector('.pills-group');
                 const parent = head.offsetParent;
@@ -214,11 +213,6 @@ def register_filters(app:Flask):
                 head.width = (width - 30)+'px';
                 head.style.marginLeft = 15-(marginLefthead - marginLeftparent)+'px';
                 head.style.marginRight = 15-(marginRighhead - marginRightparent)+'px';
-                console.log("calculating");
-                console.log(marginLeftparent);
-                console.log(marginLefthead);
-                console.log(head.style.marginLeft);
-                console.log(head.width);
             };
         """)
 
