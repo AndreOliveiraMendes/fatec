@@ -1,0 +1,42 @@
+{% extends "base-fluid" %}
+{% from "macros/form.html" import action_buttons %}
+{% from "macros/navigation.html" import go_back %}
+{% block title %}
+    efetuar reserva
+{% endblock title %}
+{% block content %}
+    {{ generate_reserva_head('temporaria', turno, laboratorio, inicio=inicio, fim=fim) }}
+    <div class="btn-group">
+        {{ go_back(contador) }}
+        <a href="{{ url_for('default.home') }}" class="btn btn-default">
+            <span class="glyphicon glyphicon-home"></span> Início
+        </a>
+    </div>
+    <h3>Reserva Avulsa</h3>
+{% endblock content %}
+{% block extra_script %}
+    {% if perm and perm|has_flag(ADMIN) %}
+        <script>{{ validate_admin_selects() }};</script>
+        <script>validateAdminSelects("reserva", "responsavel", "responsavel_especial");</script>
+    {% endif %}
+    <script>{{ adjust_head_fix() }}</script>
+    <script>
+    document.getElementById('tipo_reserva').addEventListener('change', function() {
+        var value = this.value;
+        var descricao = document.getElementById('descricao');
+        var descricaoWrapper = descricao.parentElement;
+
+        if(value == 'Graduação'){
+            descricao.disabled = false;
+            descricaoWrapper.style.display = 'block';
+        } else {
+            descricao.disabled = true;
+            descricaoWrapper.style.display = 'none';
+        }
+    });
+
+    window.addEventListener('load', function() {
+        document.getElementById('tipo_reserva').dispatchEvent(new Event('change'));
+    });
+    </script>
+{% endblock extra_script %}

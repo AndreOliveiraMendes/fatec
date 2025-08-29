@@ -7,9 +7,10 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, MultipleResultsFound
 from sqlalchemy.inspection import inspect
 
-from app.models import (Base, Historicos, OrigemEnum, Permissoes, Pessoas,
-                        Reservas_Fixas, Reservas_Temporarias, Usuarios,
-                        Usuarios_Especiais, db)
+from app.auxiliar.constant import PERM_ADMIN
+from app.models import (Base, Historicos, Laboratorios, OrigemEnum, Permissoes,
+                        Pessoas, Reservas_Fixas, Reservas_Temporarias,
+                        Usuarios, Usuarios_Especiais, db)
 from config.general import AFTER_ACTION, LOCAL_TIMEZONE
 
 IGNORED_FORM_FIELDS = ['page', 'acao', 'bloco']
@@ -234,3 +235,9 @@ def get_unique_or_500(model: Type[T], *args, **kwargs):
         ).scalar_one_or_none()
     except MultipleResultsFound:
         abort(500)
+
+def check_laboratorio(laboratorio:Laboratorios, perm):
+    if perm&PERM_ADMIN > 0:
+        return
+    if laboratorio.disponibilidade.value == 'Indisponivel':
+        abort(403)

@@ -5,7 +5,7 @@
     efetuar reserva
 {% endblock title %}
 {% block content %}
-    {{ generate_reserva_head(semestre, turno, laboratorio) }}
+    {{ generate_reserva_head('fixo', turno, laboratorio, semestre=semestre) }}
     <div class="center-content">
         <div class="btn-group">
             {{ go_back(contador) }}

@@ -160,13 +160,19 @@ def register_filters(app:Flask):
 
         return Markup(html)
 
-    def lab_url(semestre:Semestres, turno:Turnos|None, laboratorio:Laboratorios|None):
-        id_semestre=semestre.id_semestre
+    def lab_url(tipo, turno:Turnos|None, laboratorio:Laboratorios|None, **kwargs):
         id_turno=turno.id_turno if turno else None
         id_laboratorio=laboratorio.id_laboratorio if laboratorio else None
-        return url_for('reservas_semanais.get_lab', id_semestre=id_semestre, id_turno=id_turno, id_lab=id_laboratorio)
+        if tipo=='fixo':
+            id_semestre=kwargs['semestre'].id_semestre
+            return url_for('reservas_semanais.get_lab', id_semestre=id_semestre, id_turno=id_turno, id_lab=id_laboratorio)
+        else:
+            inicio=kwargs['inicio']
+            fim=kwargs['fim']
+            return url_for('reservas_temporarias.get_lab', inicio=inicio, fim=fim, id_turno=id_turno, id_lab=id_laboratorio)
+
     @app.template_global()
-    def generate_reserva_head(semestre:Semestres, turno:Turnos, current:Laboratorios|None=None):
+    def generate_reserva_head(tipo, turno:Turnos, current:Laboratorios|None=None, **kwargs):
         username, perm = get_user_info(session.get('userid'))
         sel_laboratorios = select(Laboratorios)
         laboratorios = db.session.execute(sel_laboratorios).scalars().all()
@@ -175,11 +181,11 @@ def register_filters(app:Flask):
         html += '<div class="pills-group"><ul class="nav nav-pills">'
         for lab in laboratorios:
             active = ''
-            active_link = lab_url(semestre, turno, lab)
+            active_link = lab_url(tipo, turno, lab, **kwargs)
             extra = ''
             if current and current.id_laboratorio == lab.id_laboratorio:
                 active='active'
-                active_link = lab_url(semestre, turno, None)
+                active_link = lab_url(tipo, turno, None, **kwargs)
             if lab.disponibilidade.value == 'Indisponivel':
                 if perm&PERM_ADMIN == 0:
                     active='disabled'

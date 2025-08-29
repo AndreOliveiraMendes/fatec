@@ -220,6 +220,7 @@ td.fixa {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    text-align: center;
 }
 
 /*botao com icone*/

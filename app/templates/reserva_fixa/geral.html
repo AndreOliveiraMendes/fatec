@@ -5,7 +5,7 @@
     efetuar reserva
 {% endblock title %}
 {% block content %}
-    {{ generate_reserva_head(semestre, turno) }}
+    {{ generate_reserva_head('fixo', turno, semestre=semestre) }}
     <div class="btn-group">
         {{ go_back(contador) }}
         <a href="{{ url_for('default.home') }}" class="btn btn-default">

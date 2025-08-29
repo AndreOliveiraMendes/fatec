@@ -1,0 +1,75 @@
+{% extends "base-fixed" %}
+{% from "macros/form.html" import action_buttons %}
+{% from "macros/navigation.html" import go_back %}
+{% block title %}
+    efetuar reserva
+{% endblock title %}
+{% block content %}
+    {{ generate_reserva_head('temporaria', turno, inicio=inicio, fim=fim) }}
+    <div class="btn-group">
+        {{ go_back(contador) }}
+        <a href="{{ url_for('default.home') }}" class="btn btn-default">
+            <span class="glyphicon glyphicon-home"></span> Início
+        </a>
+    </div>
+    <h3>
+        <strong>Reserva Avulsa</strong>: {{ inicio|data }} - {{ fim|data }} — <strong>Turno:</strong>  {{ turno.nome_turno if turno else 'Livre' }}
+    </h3>
+    <p>
+        <strong>Período:</strong> {{ inicio|data }} a {{ fim|data }}
+        {% if turno %}
+            <br>
+            <strong>Horário:</strong> {{ turno.horario_inicio|hora }} às {{ turno.horario_fim|hora }}
+        {% else %}
+            <br>
+            <strong>Horário:</strong> 00:00 às 23:59
+        {% endif %}
+        <br>
+        <strong>Laboratorios disponiveis:</strong> {{ laboratorios|length }}
+        <br>
+        <strong>Horarios disponiveis:</strong> {{ aulas|length }}
+    </p>
+{% endblock content %}
+{% block extra_script %}
+    {% if perm and perm|has_flag(ADMIN) %}
+        <script>{{ validate_admin_selects() }};</script>
+        <script>validateAdminSelects("reserva", "responsavel", "responsavel_especial");</script>
+    {% endif %}
+    <script>{{ adjust_head_fix() }}</script>
+    <script>
+    document.getElementById('tipo_reserva').addEventListener('change', function() {
+        var value = this.value;
+        var descricao = document.getElementById('descricao');
+        var descricaoWrapper = descricao.parentElement;
+
+        if(value == 'Graduação'){
+            descricao.disabled = false;
+            descricaoWrapper.style.display = 'block';
+        } else {
+            descricao.disabled = true;
+            descricaoWrapper.style.display = 'none';
+        }
+    });
+
+    window.addEventListener('load', function() {
+        document.getElementById('tipo_reserva').dispatchEvent(new Event('change'));
+    });
+    </script>
+{% endblock extra_script %}
+{#
+    {
+        'id_aula_ativa': 21,
+        'id_aula': 3,
+        'inicio_ativacao': None,
+        'fim_ativacao': None,
+        'id_semana': 7,
+        'tipo_aula': <TipoAulaEnum.AULA: 'Aula'>,
+        'id_aula_1': 3,
+        'horario_inicio': datetime.time(10, 20),
+        'horario_fim': datetime.time(11, 10),
+        'id_semana_1': 7,
+        'nome_semana': 'sabado',
+        'dia_consulta': '2025-08-23',
+        'turno_consulta': ''
+    }
+#}
