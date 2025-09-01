@@ -1,9 +1,10 @@
 from collections import Counter
 from datetime import date
+from typing import List
 
 from flask import (Blueprint, abort, current_app, flash, redirect,
                    render_template, request, session, url_for)
-from sqlalchemy import and_, or_, between, select
+from sqlalchemy import between, or_, select
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from app.auxiliar.auxiliar_routes import (get_responsavel_reserva,
@@ -14,7 +15,7 @@ from app.auxiliar.auxiliar_routes import (get_responsavel_reserva,
 from app.auxiliar.constant import PERM_ADMIN
 from app.auxiliar.dao import (check_reserva_temporaria,
                               get_aulas_ativas_por_lista_de_dias,
-                              get_laboratorios, get_pessoas, get_turnos,
+                              get_laboratorios, get_pessoas,
                               get_usuarios_especiais)
 from app.auxiliar.decorators import reserva_temp_required
 from app.models import (Permissoes, Reservas_Temporarias, TipoAulaEnum,
@@ -22,7 +23,7 @@ from app.models import (Permissoes, Reservas_Temporarias, TipoAulaEnum,
 
 bp = Blueprint('reservas_temporarias', __name__, url_prefix="/reserva_temporaria")
 
-def agrupar_dias(dias:list[date]):
+def agrupar_dias(dias:list[date]) -> List[List[date]]:
     if not dias:
         return []
     
