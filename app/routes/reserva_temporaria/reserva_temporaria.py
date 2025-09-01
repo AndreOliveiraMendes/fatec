@@ -3,7 +3,7 @@ from datetime import date
 
 from flask import (Blueprint, abort, current_app, flash, redirect,
                    render_template, request, session, url_for)
-from sqlalchemy import and_, between, select
+from sqlalchemy import and_, or_, between, select
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from app.auxiliar.auxiliar_routes import (get_responsavel_reserva,
@@ -117,22 +117,33 @@ def get_lab_geral(inicio, fim, id_turno):
         return redirect(url_for('default.home'))
     extras['laboratorios'] = laboratorios
     extras['aulas'] = aulas
-
     contagem_dias = Counter()
     contagem_turnos = Counter()
-    label_dia = {}
-    head1 = []
-    head2 = []
-    head3 = []
-
     for info in aulas:
         dia_consulta = parse_date_string(info.dia_consulta)
-        contagem_dias[dia_consulta] += 1
+        contagem_dias[(dia_consulta, info.nome_semana)] += 1
         if id_turno is None:
             turno = get_unique_or_500(Turnos, between(info.horario_inicio, Turnos.horario_inicio, Turnos.horario_fim))
             contagem_turnos[(dia_consulta, turno)] += 1
-    print(contagem_dias)
-    print(contagem_turnos)
+    extras['contagem_dias'] = contagem_dias
+    extras['aulas'] = aulas
+    extras['contagem_turnos'] = contagem_turnos
+    sel_reservas = select(Reservas_Temporarias).where(
+        or_(
+            between(inicio, Reservas_Temporarias.inicio_reserva, Reservas_Temporarias.fim_reserva),
+            between(fim, Reservas_Temporarias.inicio_reserva, Reservas_Temporarias.fim_reserva)
+        )
+    )
+    reservas = db.session.execute(sel_reservas).scalars().all()
+    helper = {}
+    for r in reservas:
+        title = get_responsavel_reserva(r)
+        helper[(r.id_reserva_laboratorio, r.id_reserva_aula)] = title
+    extras['helper'] = helper
+    extras['tipo_reserva'] = TipoReservaEnum
+    extras['responsavel'] = get_pessoas()
+    extras['responsavel_especial'] = get_usuarios_especiais()
+    extras['contador'] = session.get('contador')
     return render_template('reserva_temporaria/geral.html', username=username, perm=perm, **extras)
 
 def get_lab_especifico(inicio, fim, id_turno, id_lab):
@@ -148,9 +159,9 @@ def get_lab_especifico(inicio, fim, id_turno, id_lab):
     return render_template('reserva_temporaria/especifico.html', username=username, perm=perm, **extras)
 
 
-@bp.route("/turno", methods=['POST'])
+@bp.route("/dias/<data:inicio>/<data:fim>", methods=['POST'])
 @reserva_temp_required
-def efetuar_reserva():
+def efetuar_reserva(inicio, fim):
     userid = session.get('userid')
     user = db.get_or_404(Usuarios, userid)
     tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
