@@ -11,7 +11,7 @@ from app.auxiliar.auxiliar_routes import (get_responsavel_reserva,
                                           get_unique_or_500, get_user_info,
                                           none_if_empty, parse_date_string,
                                           registrar_log_generico_usuario,
-                                          time_range)
+                                          time_range, check_laboratorio)
 from app.auxiliar.constant import PERM_ADMIN
 from app.auxiliar.dao import (check_reserva_temporaria,
                               get_aulas_ativas_por_lista_de_dias,
@@ -19,7 +19,7 @@ from app.auxiliar.dao import (check_reserva_temporaria,
                               get_usuarios_especiais)
 from app.auxiliar.decorators import reserva_temp_required
 from app.models import (Permissoes, Reservas_Temporarias, TipoAulaEnum,
-                        TipoReservaEnum, Turnos, Usuarios, db)
+                        TipoReservaEnum, Turnos, Usuarios, db, Laboratorios)
 
 bp = Blueprint('reservas_temporarias', __name__, url_prefix="/reserva_temporaria")
 
@@ -68,6 +68,8 @@ def dias(inicio, fim):
     extras['turnos'] = db.session.execute(
         select(Turnos).order_by(Turnos.horario_inicio)
     ).scalars().all()
+    today = date.today()
+    extras['day'] = today
     return render_template('reserva_temporaria/dias.html', username=username, perm=perm, **extras)
 
 @bp.before_request
@@ -139,7 +141,9 @@ def get_lab_geral(inicio, fim, id_turno):
     helper = {}
     for r in reservas:
         title = get_responsavel_reserva(r)
-        helper[(r.id_reserva_laboratorio, r.id_reserva_aula)] = title
+        days = [day.strftime('%Y-%m-%d') for day in time_range(r.inicio_reserva, r.fim_reserva, 7)]
+        for day in days:
+            helper[(r.id_reserva_laboratorio, r.id_reserva_aula, day)] = title
     extras['helper'] = helper
     extras['tipo_reserva'] = TipoReservaEnum
     extras['responsavel'] = get_pessoas()
@@ -150,13 +154,26 @@ def get_lab_geral(inicio, fim, id_turno):
 def get_lab_especifico(inicio, fim, id_turno, id_lab):
     userid = session.get('userid')
     username, perm = get_user_info(userid)
-    extras = {'inicio':inicio, 'fim':fim}
+    turno = db.get_or_404(Turnos, id_turno) if id_turno else None
+    extras = {'inicio':inicio, 'fim':fim, 'turno':turno}
     tipo_horario = none_if_empty(session.get('tipo'))
     try:
         tipo_horario = TipoAulaEnum(tipo_horario)
     except ValueError as ve:
         current_app.logger.error(f"error:{ve}")
         abort(400)
+    laboratorio = db.get_or_404(Laboratorios, id_lab)
+    check_laboratorio(laboratorio, perm)
+    extras['laboratorio'] = laboratorio
+    today = date.today()
+    extras['day'] = today
+    dias = [(dia, turno) for dia in time_range(inicio, fim)]
+    aulas = get_aulas_ativas_por_lista_de_dias(dias, tipo_horario)
+    if len(aulas) == 0:
+        flash("não há horarios disponiveis nesse turno", "danger")
+        return redirect(url_for('default.home'))
+    extras['aulas'] = aulas
+    extras['contador'] = session.get('contador')
     return render_template('reserva_temporaria/especifico.html', username=username, perm=perm, **extras)
 
 
@@ -236,5 +253,4 @@ def efetuar_reserva(inicio, fim):
         db.session.rollback()
         flash(f"Erro ao efetuar reserva:{str(ve)}", "danger")
         current_app.logger.error(f"falha ao realizar reserva:{e}")
-
     return redirect(url_for('default.home'))
