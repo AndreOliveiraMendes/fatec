@@ -12,10 +12,14 @@
         </a>
     </div>
     <h3>
+        <strong>Reserva Avulsa</strong> dia: {{ day|data }}
+        <br>
         <strong>Faixa de dias selecionado:</strong> {{ inicio|data }} - {{ fim|data }}
     </h3>
     <p>Escolha os turnos e objetivo da reserva avulsa (temporaria)</p>
-    <form method="get" action="{{ url_for('reservas_temporarias.get_lab', inicio=inicio, fim=fim) }}" class="d-flex align-items-center mb-2">
+    <form method="get"
+          action="{{ url_for('reservas_temporarias.get_lab', inicio=inicio, fim=fim) }}"
+          class="d-flex align-items-center mb-2">
         <div class="me-3">
             <strong>geral</strong>
             (das 0:00 às 23:59)
@@ -30,7 +34,9 @@
         </div>
     </form>
     {% for turno in turnos %}
-        <form method="get" action="{{ url_for('reservas_temporarias.get_lab', inicio=inicio, fim=fim, id_turno=turno.id_turno) }}" class="d-flex align-items-center mb-2">
+        <form method="get"
+              action="{{ url_for('reservas_temporarias.get_lab', inicio=inicio, fim=fim, id_turno=turno.id_turno) }}"
+              class="d-flex align-items-center mb-2">
             <div class="me-3">
                 <strong>{{ turno.nome_turno }}</strong>
                 (das {{ turno.horario_inicio|hora }} às {{ turno.horario_fim|hora }})

@@ -56,7 +56,7 @@
                             <td class="col-fixa {% if laboratorio.disponibilidade.value == 'Indisponivel' %}text-danger{% endif %}"
                                 title="{{ laboratorio.descrição }}">{{ laboratorio.nome_laboratorio }}</td>
                             {% for info in aulas %}
-                                {% set reservado = helper[(laboratorio.id_laboratorio, info.id_aula_ativa)] %}
+                                {% set reservado = helper[(laboratorio.id_laboratorio, info.id_aula_ativa, info.dia_consulta)] %}
                                 {% if reservado %}
                                     <td class="reservado" title="{{ reservado }}">
                                         <span class="sr-only">Reservado</span>

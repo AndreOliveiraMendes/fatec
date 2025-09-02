@@ -5,14 +5,32 @@
     efetuar reserva
 {% endblock title %}
 {% block content %}
-    {{ generate_reserva_head('temporaria', turno, laboratorio, inicio=inicio, fim=fim) }}
-    <div class="btn-group">
-        {{ go_back(contador) }}
-        <a href="{{ url_for('default.home') }}" class="btn btn-default">
-            <span class="glyphicon glyphicon-home"></span> Início
-        </a>
+    {{ generate_reserva_head('contador', turno, laboratorio, inicio=inicio, fim=fim) }}
+    <div class="center-content">
+        <div class="btn-group">
+            {{ go_back(contador) }}
+            <a href="{{ url_for('default.home') }}" class="btn btn-default">
+                <span class="glyphicon glyphicon-home"></span> Início
+            </a>
+        </div>
+        <h3>
+            <strong>Reserva Avulsa</strong>: {{ inicio|data }} - {{ fim|data }} — <strong>Turno:</strong>  {{ turno.nome_turno if turno else 'Livre' }}
+        </h3>
+        <p>
+            <strong>Período:</strong> {{ inicio|data }} a {{ fim|data }}
+            {% if turno %}
+                <br>
+                <strong>Horário:</strong> {{ turno.horario_inicio|hora }} às {{ turno.horario_fim|hora }}
+            {% else %}
+                <br>
+                <strong>Horário:</strong> 00:00 às 23:59
+            {% endif %}
+            <br>
+            <strong>Horarios disponiveis:</strong> {{ aulas|length }} <strong>Laboratorio:</strong> {{ laboratorio.nome_laboratorio }}
+            <br>
+            <strong>Especificação:</strong> {{ laboratorio.descrição }}
+        </p>
     </div>
-    <h3>Reserva Avulsa</h3>
 {% endblock content %}
 {% block extra_script %}
     {% if perm and perm|has_flag(ADMIN) %}
