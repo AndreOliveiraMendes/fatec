@@ -4,22 +4,23 @@ from typing import List
 
 from flask import (Blueprint, abort, current_app, flash, redirect,
                    render_template, request, session, url_for)
-from sqlalchemy import between, or_, select
+from sqlalchemy import and_, between, select
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from app.auxiliar.auxiliar_routes import (get_responsavel_reserva,
+from app.auxiliar.auxiliar_routes import (check_laboratorio,
+                                          get_responsavel_reserva,
                                           get_unique_or_500, get_user_info,
                                           none_if_empty, parse_date_string,
                                           registrar_log_generico_usuario,
-                                          time_range, check_laboratorio)
+                                          time_range)
 from app.auxiliar.constant import PERM_ADMIN
 from app.auxiliar.dao import (check_reserva_temporaria,
                               get_aulas_ativas_por_lista_de_dias,
                               get_laboratorios, get_pessoas,
                               get_usuarios_especiais)
 from app.auxiliar.decorators import reserva_temp_required
-from app.models import (Permissoes, Reservas_Temporarias, TipoAulaEnum,
-                        TipoReservaEnum, Turnos, Usuarios, db, Laboratorios)
+from app.models import (Laboratorios, Permissoes, Reservas_Temporarias,
+                        TipoAulaEnum, TipoReservaEnum, Turnos, Usuarios, db)
 
 bp = Blueprint('reservas_temporarias', __name__, url_prefix="/reserva_temporaria")
 
@@ -132,9 +133,9 @@ def get_lab_geral(inicio, fim, id_turno):
     extras['aulas'] = aulas
     extras['contagem_turnos'] = contagem_turnos
     sel_reservas = select(Reservas_Temporarias).where(
-        or_(
-            between(inicio, Reservas_Temporarias.inicio_reserva, Reservas_Temporarias.fim_reserva),
-            between(fim, Reservas_Temporarias.inicio_reserva, Reservas_Temporarias.fim_reserva)
+        and_(
+            Reservas_Temporarias.inicio_reserva <= fim,
+            Reservas_Temporarias.fim_reserva >= inicio
         )
     )
     reservas = db.session.execute(sel_reservas).scalars().all()
@@ -172,7 +173,49 @@ def get_lab_especifico(inicio, fim, id_turno, id_lab):
     if len(aulas) == 0:
         flash("não há horarios disponiveis nesse turno", "danger")
         return redirect(url_for('default.home'))
-    extras['aulas'] = aulas
+    table_aulas = []
+    table_dias = []
+    for info in aulas:
+        if not (info.horario_inicio, info.horario_fim) in table_aulas:
+            table_aulas.append((info.horario_inicio, info.horario_fim))
+    size = len(table_aulas)
+    for info in aulas:
+        dia = info.dia_consulta
+        semana = info.nome_semana
+        hora_inicio = info.horario_inicio
+        hora_fim = info.horario_fim
+        index_dia, index_aula = None, None;
+        for i, v in enumerate(table_dias):
+            if v['dia'] == dia:
+                index_dia = i
+                break
+        else:
+            table_dias.append({'dia':dia, 'semana':semana, 'infos':[None]*size})
+            index_dia = len(table_dias) - 1
+        for i, v in enumerate(table_aulas):
+            if hora_inicio == v[0] and hora_fim == v[1]:
+                index_aula = i
+        table_dias[index_dia]['infos'][index_aula] = info
+    extras['aulas'] = table_aulas
+    extras['dias'] = table_dias
+    sel_reservas = select(Reservas_Temporarias).where(
+        and_(
+            Reservas_Temporarias.inicio_reserva <= fim,
+            Reservas_Temporarias.fim_reserva >= inicio
+        ),
+        Reservas_Temporarias.id_reserva_laboratorio == id_lab
+    )
+    reservas = db.session.execute(sel_reservas).scalars().all()
+    helper = {}
+    for r in reservas:
+        title = get_responsavel_reserva(r)
+        days = [day.strftime('%Y-%m-%d') for day in time_range(r.inicio_reserva, r.fim_reserva, 7)]
+        for day in days:
+            helper[(r.id_reserva_laboratorio, r.id_reserva_aula, day)] = title
+    extras['helper'] = helper
+    extras['tipo_reserva'] = TipoReservaEnum
+    extras['responsavel'] = get_pessoas()
+    extras['responsavel_especial'] = get_usuarios_especiais()
     extras['contador'] = session.get('contador')
     return render_template('reserva_temporaria/especifico.html', username=username, perm=perm, **extras)
 

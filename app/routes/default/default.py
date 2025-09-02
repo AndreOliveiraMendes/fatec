@@ -1,4 +1,5 @@
-from flask import Blueprint, redirect, render_template, session, url_for, send_from_directory
+from flask import (Blueprint, redirect, render_template, send_from_directory,
+                   session, url_for)
 
 from app.auxiliar.auxiliar_routes import get_user_info
 

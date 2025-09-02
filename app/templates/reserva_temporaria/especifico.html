@@ -30,6 +30,98 @@
             <br>
             <strong>Especificação:</strong> {{ laboratorio.descrição }}
         </p>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for('reservas_temporarias.efetuar_reserva', inicio=inicio, fim=fim) }}"
+              id="reserva"
+              method="post">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover tabela-reserva">
+                    <thead>
+                        <tr class="information">
+                            <th>Dias</th>
+                            {% for aula in aulas %}<th>{{ aula[0]|hora }} - {{ aula[1]|hora }}</th>{% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dia in dias %}
+                            <tr>
+                                <td>{{ dia['dia'] }} ({{ dia['semana'] }})</td>
+                                {% for info in dia['infos'] %}
+                                    {% if info %}
+                                        {% set reservado = helper[(laboratorio.id_laboratorio, info.id_aula_ativa, dia['dia'])] %}
+                                        {% if reservado %}
+                                            <td class="reservado" title="{{ reservado }}">
+                                                <span class="sr-only">Reservado</span>
+                                                <input type="checkbox"
+                                                       class="form-check-input checkbox-danger"
+                                                       title="{{ reservado }}"
+                                                       name="reserva[{{ laboratorio.id_laboratorio }},{{ info.id_aula_ativa }},{{ dia['dia'] }}]"
+                                                       disabled>
+                                            </td>
+                                        {% else %}
+                                            <td>
+                                                <input type="checkbox"
+                                                       class="form-check-input checkbox-danger"
+                                                       name="reserva[{{ laboratorio.id_laboratorio }},{{ info.id_aula_ativa }},{{ dia['dia'] }}]">
+                                            </td>
+                                        {% endif %}
+                                    {% else %}
+                                        <td>-</td>
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="form-group">
+                <label for="tipo_reserva">Destinação da Reserva:</label>
+                <select id="tipo_reserva" class="form-control" name="tipo_reserva" required>
+                    <option value="">Selecione o tipo de reserva</option>
+                    {% for tr in tipo_reserva %}<option value="{{ tr.value }}">{{ tr.value }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="observacoes">Observações:</label>
+                <input type="text"
+                       id="observacoes"
+                       name="observacoes"
+                       class="form-control"
+                       placeholder="insira observações relevantes (softwares necessarios)">
+            </div>
+            <div class="form-group">
+                <label for="descricao">Descrição:</label>
+                <input type="text"
+                       id="descricao"
+                       name="descricao"
+                       class="form-control"
+                       placeholder="insira a descrição da reserva">
+            </div>
+            {% if perm and perm|has_flag(ADMIN) %}
+                <div class="form-group">
+                    <label for="responsavel">Responsavel:</label>
+                    <select id="responsavel" name="responsavel" class="form-control">
+                        <option value="">Selecione o responsavel pela reserva</option>
+                        {% for r in responsavel %}
+                            <option value="{{ r.id_pessoa }}">({{ r.id_pessoa }}) {{ r.nome_pessoa }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="responsavel_especial">Responsavel especial:</label>
+                    <select id="responsavel_especial"
+                            name="responsavel_especial"
+                            class="form-control">
+                        <option value="">Selecione o responsavel especial pela reserva</option>
+                        {% for r in responsavel_especial %}
+                            <option value="{{ r.id_usuario_especial }}">({{ r.id_usuario_especial }}) {{ r.nome_usuario_especial }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            {% endif %}
+            {{ action_buttons('inserir', show_voltar=False, label='') }}
+        </form>
     </div>
 {% endblock content %}
 {% block extra_script %}
@@ -44,7 +136,7 @@
         var descricao = document.getElementById('descricao');
         var descricaoWrapper = descricao.parentElement;
 
-        if(value == 'Graduação'){
+        if(value == 'Curso'){
             descricao.disabled = false;
             descricaoWrapper.style.display = 'block';
         } else {
@@ -58,3 +150,20 @@
     });
     </script>
 {% endblock extra_script %}
+{#
+    {
+        'id_aula_ativa': 21,
+        'id_aula': 3,
+        'inicio_ativacao': None,
+        'fim_ativacao': None,
+        'id_semana': 7,
+        'tipo_aula': <TipoAulaEnum.AULA : 'Aula'>,
+        'id_aula_1': 3,
+        'horario_inicio': datetime.time(10, 20),
+        'horario_fim': datetime.time(11, 10),
+        'id_semana_1': 7,
+        'nome_semana': 'sabado',
+        'dia_consulta': '2025-08-23',
+        'turno_consulta': ''
+    }
+#}
