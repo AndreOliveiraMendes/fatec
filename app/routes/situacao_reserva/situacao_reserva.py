@@ -9,7 +9,8 @@ from app.auxiliar.auxiliar_routes import (get_unique_or_500, get_user_info,
                                           parse_date_string,
                                           registrar_log_generico_usuario)
 from app.auxiliar.dao import (check_first, get_reservas_por_dia,
-                              get_situacoes_por_dia, get_turnos)
+                              get_situacoes_por_dia, get_turno_by_time,
+                              get_turnos)
 from app.auxiliar.decorators import admin_required
 from app.models import (SituacaoChaveEnum, Situacoes_Das_Reserva, TipoAulaEnum,
                         Turnos, db)
@@ -26,6 +27,10 @@ def gerenciar_status():
     reserva_dia = parse_date_string(request.args.get('reserva-dia', default=hoje.date().strftime("%Y-%m-%d")))
     reserva_turno = request.args.get('reserva_turno', type=int)
     reserva_tipo_horario = request.args.get('reserva_tipo_horario', default=TipoAulaEnum.AULA.value)
+    if not 'reserva_turno' in request.args:
+        reserva_turno = get_turno_by_time(hoje.time())
+        if reserva_turno:
+            reserva_turno = reserva_turno.id_turno
     extras['turnos'] = get_turnos()
     extras['tipo_aula'] = TipoAulaEnum
     extras['reserva_dia'] = reserva_dia
