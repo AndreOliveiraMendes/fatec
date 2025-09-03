@@ -93,6 +93,7 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │   ├── static
 │   │   ├── css
 │   │   │   ├── bootstrap.min.css
+│   │   │   ├── bootstrap.min.css.map
 │   │   │   └── custom.css
 │   │   ├── fonts
 │   │   │   ├── glyphicons-halflings-regular.eot
@@ -101,6 +102,7 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │   │   │   ├── glyphicons-halflings-regular.woff
 │   │   │   └── glyphicons-halflings-regular.woff2
 │   │   ├── images
+│   │   │   ├── favicon.ico
 │   │   │   ├── favicon.png
 │   │   │   └── favicon.svg
 │   │   └── js
@@ -168,8 +170,9 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │       │   └── semestre.html
 │       ├── reserva_temporaria
 │       │   ├── dias.html
-│       │   ├── main.html
-│       │   └── turnos.html
+│       │   ├── especifico.html
+│       │   ├── geral.html
+│       │   └── main.html
 │       ├── status_reserva
 │       │   └── status_reserva.html
 │       ├── under_dev.html
