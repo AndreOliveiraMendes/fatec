@@ -3,7 +3,8 @@
     Entrando
 {% endblock title %}
 {% block extra_script %}
-    {{ dynamic_redirect(5, "Você será redirecionado em ${segundos} segundos.", url_for("default.home") ) }}
+    {% set url = "situacao_reserva.gerenciar_status" if perm and perm|has_flag(ADMIN) else "default.home" %}
+    {{ dynamic_redirect(5, "Você será redirecionado em ${segundos} segundos.", url_for(url) ) }}
 {% endblock extra_script %}
 {% block content %}
     <div class="alert alert-success" role="alert">
