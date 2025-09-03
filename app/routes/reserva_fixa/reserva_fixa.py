@@ -197,14 +197,28 @@ def get_lab_especifico(id_semestre, id_turno, id_lab):
         flash("não há horarios disponiveis nesse turno", "danger")
         return redirect(url_for('default.home'))
     table_aulas = []
-    table_semanas = {}
+    table_semanas = []
     for info in aulas:
-        aula_ativa, aula, semana = info
+        _, aula, _ = info
         if not aula in table_aulas:
             table_aulas.append(aula)
-        if not semana in table_semanas:
-            table_semanas[semana] = []
-        table_semanas[semana].append(aula_ativa)
+    table_aulas.sort(key = lambda e:e.horario_inicio)
+    size = len(table_aulas)
+    for info in aulas:
+        _, aula, semana = info
+        index_semana, index_aula = None, None
+        for i, v in enumerate(table_semanas):
+            if v['semana'] == semana:
+                index_semana = i
+                break
+        else:
+            table_semanas.append({'semana':semana, 'infos':[None]*size})
+            index_semana = len(table_semanas) - 1
+        for i, v in enumerate(table_aulas):
+            if v == aula:
+                index_aula = i
+                break
+        table_semanas[index_semana]['infos'][index_aula] = info
     extras['aulas'] = table_aulas
     extras['semanas'] = table_semanas
     extras['tipo_reserva'] = TipoReservaEnum

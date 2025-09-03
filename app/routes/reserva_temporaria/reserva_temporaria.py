@@ -178,6 +178,7 @@ def get_lab_especifico(inicio, fim, id_turno, id_lab):
     for info in aulas:
         if not (info.horario_inicio, info.horario_fim) in table_aulas:
             table_aulas.append((info.horario_inicio, info.horario_fim))
+    table_aulas.sort(key = lambda e:e[0])
     size = len(table_aulas)
     for info in aulas:
         dia = info.dia_consulta
@@ -195,6 +196,7 @@ def get_lab_especifico(inicio, fim, id_turno, id_lab):
         for i, v in enumerate(table_aulas):
             if hora_inicio == v[0] and hora_fim == v[1]:
                 index_aula = i
+                break
         table_dias[index_dia]['infos'][index_aula] = info
     extras['aulas'] = table_aulas
     extras['dias'] = table_dias

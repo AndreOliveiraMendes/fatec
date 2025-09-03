@@ -46,26 +46,30 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for semana, aulas in semanas.items() %}
+                        {% for semana in semanas %}
                             <tr>
-                                <td>{{ semana.nome_semana }}</td>
-                                {% for aula in aulas %}
-                                    {% set reservado = helper[(laboratorio.id_laboratorio, aula.id_aula_ativa)] %}
-                                    {% if reservado %}
-                                        <td class="reservado" title="{{ reservado }}">
-                                            <span class="sr-only">Reservado</span>
-                                            <input type="checkbox"
-                                                   class="form-check-input checkbox-danger"
-                                                   title="{{ reservado }}"
-                                                   name="reserva[{{ laboratorio.id_laboratorio }},{{ aula.id_aula_ativa }}]"
-                                                   disabled>
-                                        </td>
+                                <td>{{ semana['semana'].nome_semana }}</td>
+                                {% for info in semana['infos'] %}
+                                    {% if info %}
+                                        {% set reservado = helper[(laboratorio.id_laboratorio, info[0].id_aula_ativa)] %}
+                                        {% if reservado %}
+                                            <td class="reservado" title="{{ reservado }}">
+                                                <span class="sr-only">Reservado</span>
+                                                <input type="checkbox"
+                                                       class="form-check-input checkbox-danger"
+                                                       title="{{ reservado }}"
+                                                       name="reserva[{{ laboratorio.id_laboratorio }},{{ info[0].id_aula_ativa }}]"
+                                                       disabled>
+                                            </td>
+                                        {% else %}
+                                            <td>
+                                                <input type="checkbox"
+                                                       class="form-check-input"
+                                                       name="reserva[{{ laboratorio.id_laboratorio }},{{ info[0].id_aula_ativa }}]">
+                                            </td>
+                                        {% endif %}
                                     {% else %}
-                                        <td>
-                                            <input type="checkbox"
-                                                   class="form-check-input"
-                                                   name="reserva[{{ laboratorio.id_laboratorio }},{{ aula.id_aula_ativa }}]">
-                                        </td>
+                                        <td>-</td>
                                     {% endif %}
                                 {% endfor %}
                             </tr>
