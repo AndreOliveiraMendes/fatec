@@ -9,7 +9,8 @@ from mysql.connector import DatabaseError, OperationalError
 from sqlalchemy import between, select
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from app.auxiliar.auxiliar_routes import (get_responsavel_reserva,
+from app.auxiliar.auxiliar_routes import (check_laboratorio,
+                                          get_responsavel_reserva,
                                           get_unique_or_500, get_user_info,
                                           none_if_empty,
                                           registrar_log_generico_usuario)
@@ -58,12 +59,6 @@ def check_semestre(semestre:Semestres, userid, perm:Permissoes):
         user = db.get_or_404(Usuarios, userid)
         if has_priority and not user.pessoas.id_pessoa in prioridade:
             abort(403)
-
-def check_laboratorio(laboratorio:Laboratorios, userid, perm):
-    if perm&PERM_ADMIN > 0:
-        return
-    if laboratorio.disponibilidade.value == 'Indisponivel':
-        abort(403)
 
 @bp.route('/')
 @reserva_fixa_required
@@ -137,51 +132,6 @@ def get_lab(id_semestre, id_turno=None, id_lab=None):
     else:
         return get_lab_especifico(id_semestre, id_turno, id_lab)
 
-def get_lab_especifico(id_semestre, id_turno, id_lab):
-    userid = session.get('userid')
-    username, perm = get_user_info(userid)
-    semestre = db.get_or_404(Semestres, id_semestre)
-    check_semestre(semestre, userid, perm)
-    turno = db.get_or_404(Turnos, id_turno) if id_turno is not None else id_turno
-    laboratorio = db.get_or_404(Laboratorios, id_lab)
-    check_laboratorio(laboratorio, userid, perm)
-    today = date.today()
-    extras = {'semestre':semestre, 'turno':turno, 'laboratorio':laboratorio, 'day':today}
-    aulas = get_aulas_ativas_por_semestre(semestre, turno)
-    if len(aulas) == 0:
-        flash("não há horarios disponiveis nesse turno", "danger")
-        return redirect(url_for('default.home'))
-    table_aulas = []
-    table_semanas = {}
-    for info in aulas:
-        aula_ativa, aula, semana = info
-        if not aula in table_aulas:
-            table_aulas.append(aula)
-        if not semana in table_semanas:
-            table_semanas[semana] = []
-        table_semanas[semana].append(aula_ativa)
-    extras['aulas'] = table_aulas
-    extras['semanas'] = table_semanas
-    extras['tipo_reserva'] = TipoReservaEnum
-    extras['aulas_extras'] = get_aulas_extras(semestre, turno)
-    extras['responsavel'] = get_pessoas()
-    extras['responsavel_especial'] = get_usuarios_especiais()
-    sel_reservas = select(Reservas_Fixas).where(
-        Reservas_Fixas.id_reserva_semestre == id_semestre,
-        Reservas_Fixas.id_reserva_laboratorio == id_lab)
-    reservas = db.session.execute(sel_reservas).scalars().all()
-    helper = {}
-    for r in reservas:
-        title = get_responsavel_reserva(r)
-        helper[(r.id_reserva_laboratorio, r.id_reserva_aula)] = title
-    extras['helper'] = helper
-    extras['tipo_reserva'] = TipoReservaEnum
-    extras['aulas_extras'] = get_aulas_extras(semestre, turno)
-    extras['responsavel'] = get_pessoas()
-    extras['responsavel_especial'] = get_usuarios_especiais()
-    extras['contador'] = session.get('contador')
-    return render_template('reserva_fixa/especifico.html', username=username, perm=perm, **extras)
-
 def get_lab_geral(id_semestre, id_turno=None):
     userid = session.get('userid')
     username, perm = get_user_info(userid)
@@ -231,6 +181,65 @@ def get_lab_geral(id_semestre, id_turno=None):
     extras['responsavel_especial'] = get_usuarios_especiais()
     extras['contador'] = session.get('contador')
     return render_template('reserva_fixa/geral.html', username=username, perm=perm, **extras)
+
+def get_lab_especifico(id_semestre, id_turno, id_lab):
+    userid = session.get('userid')
+    username, perm = get_user_info(userid)
+    semestre = db.get_or_404(Semestres, id_semestre)
+    check_semestre(semestre, userid, perm)
+    turno = db.get_or_404(Turnos, id_turno) if id_turno is not None else id_turno
+    laboratorio = db.get_or_404(Laboratorios, id_lab)
+    check_laboratorio(laboratorio, perm)
+    today = date.today()
+    extras = {'semestre':semestre, 'turno':turno, 'laboratorio':laboratorio, 'day':today}
+    aulas = get_aulas_ativas_por_semestre(semestre, turno)
+    if len(aulas) == 0:
+        flash("não há horarios disponiveis nesse turno", "danger")
+        return redirect(url_for('default.home'))
+    table_aulas = []
+    table_semanas = []
+    for info in aulas:
+        _, aula, _ = info
+        if not aula in table_aulas:
+            table_aulas.append(aula)
+    table_aulas.sort(key = lambda e:e.horario_inicio)
+    size = len(table_aulas)
+    for info in aulas:
+        _, aula, semana = info
+        index_semana, index_aula = None, None
+        for i, v in enumerate(table_semanas):
+            if v['semana'] == semana:
+                index_semana = i
+                break
+        else:
+            table_semanas.append({'semana':semana, 'infos':[None]*size})
+            index_semana = len(table_semanas) - 1
+        for i, v in enumerate(table_aulas):
+            if v == aula:
+                index_aula = i
+                break
+        table_semanas[index_semana]['infos'][index_aula] = info
+    extras['aulas'] = table_aulas
+    extras['semanas'] = table_semanas
+    extras['tipo_reserva'] = TipoReservaEnum
+    extras['aulas_extras'] = get_aulas_extras(semestre, turno)
+    extras['responsavel'] = get_pessoas()
+    extras['responsavel_especial'] = get_usuarios_especiais()
+    sel_reservas = select(Reservas_Fixas).where(
+        Reservas_Fixas.id_reserva_semestre == id_semestre,
+        Reservas_Fixas.id_reserva_laboratorio == id_lab)
+    reservas = db.session.execute(sel_reservas).scalars().all()
+    helper = {}
+    for r in reservas:
+        title = get_responsavel_reserva(r)
+        helper[(r.id_reserva_laboratorio, r.id_reserva_aula)] = title
+    extras['helper'] = helper
+    extras['tipo_reserva'] = TipoReservaEnum
+    extras['aulas_extras'] = get_aulas_extras(semestre, turno)
+    extras['responsavel'] = get_pessoas()
+    extras['responsavel_especial'] = get_usuarios_especiais()
+    extras['contador'] = session.get('contador')
+    return render_template('reserva_fixa/especifico.html', username=username, perm=perm, **extras)
 
 @bp.route('/semestre/<int:id_semestre>', methods=['POST'])
 @reserva_fixa_required

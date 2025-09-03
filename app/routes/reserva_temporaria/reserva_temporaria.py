@@ -1,28 +1,30 @@
 from collections import Counter
 from datetime import date
+from typing import List
 
 from flask import (Blueprint, abort, current_app, flash, redirect,
                    render_template, request, session, url_for)
-from sqlalchemy import and_, select
+from sqlalchemy import and_, between, select
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from app.auxiliar.auxiliar_routes import (get_responsavel_reserva,
-                                          get_user_info, none_if_empty,
-                                          parse_date_string,
+from app.auxiliar.auxiliar_routes import (check_laboratorio,
+                                          get_responsavel_reserva,
+                                          get_unique_or_500, get_user_info,
+                                          none_if_empty, parse_date_string,
                                           registrar_log_generico_usuario,
                                           time_range)
 from app.auxiliar.constant import PERM_ADMIN
 from app.auxiliar.dao import (check_reserva_temporaria,
                               get_aulas_ativas_por_lista_de_dias,
-                              get_laboratorios, get_pessoas, get_turnos,
+                              get_laboratorios, get_pessoas,
                               get_usuarios_especiais)
 from app.auxiliar.decorators import reserva_temp_required
-from app.models import (Permissoes, Reservas_Temporarias, TipoAulaEnum,
-                        TipoReservaEnum, Turnos, Usuarios, db)
+from app.models import (Laboratorios, Permissoes, Reservas_Temporarias,
+                        TipoAulaEnum, TipoReservaEnum, Turnos, Usuarios, db)
 
-bp = Blueprint('reservas_fixas', __name__, url_prefix="/reserva_temporaria")
+bp = Blueprint('reservas_temporarias', __name__, url_prefix="/reserva_temporaria")
 
-def agrupar_dias(dias:list[date]):
+def agrupar_dias(dias:list[date]) -> List[List[date]]:
     if not dias:
         return []
     
@@ -42,96 +44,187 @@ def agrupar_dias(dias:list[date]):
 def main_page():
     userid = session.get('userid')
     username, perm = get_user_info(userid)
-    extras = {}
-    if request.method == 'GET':
-        today = date.today()
-        extras['day'] = today
-        return render_template('reserva_temporaria/main.html', username=username, perm=perm, **extras)
-    else:
+    if request.method == 'POST':
         dia_inicial = parse_date_string(request.form.get('dia_inicio'))
         dia_final = parse_date_string(request.form.get('dia_fim'))
         if not dia_inicial or not dia_final:
             abort(400)
         if dia_inicial > dia_final:
             dia_inicial, dia_final = dia_final, dia_inicial
-        days = [day for day in time_range(dia_inicial, dia_final)]
-        extras['tipo_aula'] = TipoAulaEnum
-        extras['dias'] = days
-        extras['turnos'] = get_turnos()
-        return render_template('reserva_temporaria/dias.html', username=username, perm=perm, **extras)
+        return redirect(url_for('reservas_temporarias.dias', inicio=dia_inicial, fim=dia_final))
+    extras = {}
+    today = date.today()
+    extras['day'] = today
+    return render_template('reserva_temporaria/main.html', username=username, perm=perm, **extras)
 
-@bp.route('/dias', methods=['POST'])
+@bp.route('/dias/<data:inicio>/<data:fim>')
 @reserva_temp_required
-def process_turnos():
+def dias(inicio, fim):
     userid = session.get('userid')
     username, perm = get_user_info(userid)
-    extras = {}
-    tipo_horario = none_if_empty(request.form.get('tipo_horario'))
-    if not tipo_horario:
+    if fim < inicio:
+        inicio, fim = fim, inicio
+    extras = {'inicio':inicio, 'fim':fim}
+    extras['tipo_aula'] = TipoAulaEnum
+    extras['turnos'] = db.session.execute(
+        select(Turnos).order_by(Turnos.horario_inicio)
+    ).scalars().all()
+    today = date.today()
+    extras['day'] = today
+    return render_template('reserva_temporaria/dias.html', username=username, perm=perm, **extras)
+
+@bp.before_request
+def return_counter():
+    if request.endpoint == "reservas_temporarias.get_lab":
+        session["contador"] = session.get("contador", 0) + 1
+        session["tipo"] = request.args.get("tipo", session.get("tipo"))
+    else:
+        session.pop("contador", None)
+        session.pop("tipo", None)
+
+@bp.before_app_request
+def clear_counter():
+    if not request.endpoint:
+        session.pop("contador", None)
+        session.pop("tipo", None)
+
+@bp.route('/dias/<data:inicio>/<data:fim>/turno/lab')
+@bp.route('/dias/<data:inicio>/<data:fim>/turno/lab/<int:id_lab>')
+@bp.route('/dias/<data:inicio>/<data:fim>/turno/<int:id_turno>/lab')
+@bp.route('/dias/<data:inicio>/<data:fim>/turno/<int:id_turno>/lab/<int:id_lab>')
+@reserva_temp_required
+def get_lab(inicio, fim, id_turno=None, id_lab=None):
+    if id_lab is None:
+        return get_lab_geral(inicio, fim, id_turno)
+    else:
+        return get_lab_especifico(inicio, fim, id_turno, id_lab)
+
+def get_lab_geral(inicio, fim, id_turno):
+    userid = session.get('userid')
+    username, perm = get_user_info(userid)
+    turno = db.get_or_404(Turnos, id_turno) if id_turno else None
+    extras = {'inicio':inicio, 'fim':fim, 'turno':turno}
+    tipo_horario = none_if_empty(session.get('tipo'))
+    try:
+        tipo_horario = TipoAulaEnum(tipo_horario)
+    except ValueError as ve:
+        current_app.logger.error(f"error:{ve}")
         abort(400)
-    tipo_aula = TipoAulaEnum(tipo_horario)
-    brute_chks = [(key.replace('info[', '').replace(']', '').split(',')) for key, value in request.form.items() if 'info' in key and value == 'on']
-    chks = [(parse_date_string(chk[0]), db.get_or_404(Turnos, chk[1])) for chk in brute_chks]
-    aulas = get_aulas_ativas_por_lista_de_dias(chks, tipo_aula)
-    laboratorios = get_laboratorios(perm&PERM_ADMIN, True)
+    laboratorios = get_laboratorios(perm&PERM_ADMIN)
+    dias = [(dia, turno) for dia in time_range(inicio, fim)]
+    aulas = get_aulas_ativas_por_lista_de_dias(dias, tipo_horario)
     if len(aulas) == 0 or len(laboratorios) == 0:
         if len(aulas) == 0:
-            flash(f"não há horarios desta finalizada ({tipo_aula.value}) disponiveis nesse turno", "danger")
+            flash("não há horarios disponiveis nesse turno", "danger")
         if len(laboratorios) == 0:
             flash("não há laboratorio disponiveis para reserva", "danger")
         return redirect(url_for('default.home'))
     extras['laboratorios'] = laboratorios
     extras['aulas'] = aulas
-
     contagem_dias = Counter()
     contagem_turnos = Counter()
-    label_dia = {}
-    head1 = []
-    head2 = []
-    head3 = []
-
     for info in aulas:
         dia_consulta = parse_date_string(info.dia_consulta)
-        turno = info.turno_consulta
-        contagem_dias[dia_consulta] += 1
-        contagem_turnos[(dia_consulta, turno)] += 1
-        label_dia[dia_consulta] = info.nome_semana
-        head3.append((info.horario_inicio, info.horario_fim))
-
-    for dia, count in contagem_dias.items():
-        head1.append((dia, label_dia[dia], count))
-    for info, count in contagem_turnos.items():
-        turno = info[1]
-        head2.append((turno, count))
-
-    extras['head1'] = head1
-    extras['head2'] = head2
-    extras['head3'] = head3
-
-    extras['tipo_reserva'] = TipoReservaEnum
-    inicio, fim = min(label_dia.keys()), max(label_dia.keys())
-    sel_reserva = select(Reservas_Temporarias).where(
+        contagem_dias[(dia_consulta, info.nome_semana)] += 1
+        if id_turno is None:
+            turno = get_unique_or_500(Turnos, between(info.horario_inicio, Turnos.horario_inicio, Turnos.horario_fim))
+            contagem_turnos[(dia_consulta, turno)] += 1
+    extras['contagem_dias'] = contagem_dias
+    extras['aulas'] = aulas
+    extras['contagem_turnos'] = contagem_turnos
+    sel_reservas = select(Reservas_Temporarias).where(
         and_(
             Reservas_Temporarias.inicio_reserva <= fim,
             Reservas_Temporarias.fim_reserva >= inicio
         )
     )
-    reservas = db.session.execute(sel_reserva).scalars().all()
+    reservas = db.session.execute(sel_reservas).scalars().all()
     helper = {}
     for r in reservas:
         title = get_responsavel_reserva(r)
-
         days = [day.strftime('%Y-%m-%d') for day in time_range(r.inicio_reserva, r.fim_reserva, 7)]
         for day in days:
             helper[(r.id_reserva_laboratorio, r.id_reserva_aula, day)] = title
     extras['helper'] = helper
+    extras['tipo_reserva'] = TipoReservaEnum
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
-    return render_template('reserva_temporaria/turnos.html', username=username, perm=perm, **extras)
+    extras['contador'] = session.get('contador')
+    return render_template('reserva_temporaria/geral.html', username=username, perm=perm, **extras)
 
-@bp.route("/turno", methods=['POST'])
+def get_lab_especifico(inicio, fim, id_turno, id_lab):
+    userid = session.get('userid')
+    username, perm = get_user_info(userid)
+    turno = db.get_or_404(Turnos, id_turno) if id_turno else None
+    extras = {'inicio':inicio, 'fim':fim, 'turno':turno}
+    tipo_horario = none_if_empty(session.get('tipo'))
+    try:
+        tipo_horario = TipoAulaEnum(tipo_horario)
+    except ValueError as ve:
+        current_app.logger.error(f"error:{ve}")
+        abort(400)
+    laboratorio = db.get_or_404(Laboratorios, id_lab)
+    check_laboratorio(laboratorio, perm)
+    extras['laboratorio'] = laboratorio
+    today = date.today()
+    extras['day'] = today
+    dias = [(dia, turno) for dia in time_range(inicio, fim)]
+    aulas = get_aulas_ativas_por_lista_de_dias(dias, tipo_horario)
+    if len(aulas) == 0:
+        flash("não há horarios disponiveis nesse turno", "danger")
+        return redirect(url_for('default.home'))
+    table_aulas = []
+    table_dias = []
+    for info in aulas:
+        if not (info.horario_inicio, info.horario_fim) in table_aulas:
+            table_aulas.append((info.horario_inicio, info.horario_fim))
+    table_aulas.sort(key = lambda e:e[0])
+    size = len(table_aulas)
+    for info in aulas:
+        dia = info.dia_consulta
+        semana = info.nome_semana
+        hora_inicio = info.horario_inicio
+        hora_fim = info.horario_fim
+        index_dia, index_aula = None, None;
+        for i, v in enumerate(table_dias):
+            if v['dia'] == dia:
+                index_dia = i
+                break
+        else:
+            table_dias.append({'dia':dia, 'semana':semana, 'infos':[None]*size})
+            index_dia = len(table_dias) - 1
+        for i, v in enumerate(table_aulas):
+            if hora_inicio == v[0] and hora_fim == v[1]:
+                index_aula = i
+                break
+        table_dias[index_dia]['infos'][index_aula] = info
+    extras['aulas'] = table_aulas
+    extras['dias'] = table_dias
+    sel_reservas = select(Reservas_Temporarias).where(
+        and_(
+            Reservas_Temporarias.inicio_reserva <= fim,
+            Reservas_Temporarias.fim_reserva >= inicio
+        ),
+        Reservas_Temporarias.id_reserva_laboratorio == id_lab
+    )
+    reservas = db.session.execute(sel_reservas).scalars().all()
+    helper = {}
+    for r in reservas:
+        title = get_responsavel_reserva(r)
+        days = [day.strftime('%Y-%m-%d') for day in time_range(r.inicio_reserva, r.fim_reserva, 7)]
+        for day in days:
+            helper[(r.id_reserva_laboratorio, r.id_reserva_aula, day)] = title
+    extras['helper'] = helper
+    extras['tipo_reserva'] = TipoReservaEnum
+    extras['responsavel'] = get_pessoas()
+    extras['responsavel_especial'] = get_usuarios_especiais()
+    extras['contador'] = session.get('contador')
+    return render_template('reserva_temporaria/especifico.html', username=username, perm=perm, **extras)
+
+
+@bp.route("/dias/<data:inicio>/<data:fim>", methods=['POST'])
 @reserva_temp_required
-def efetuar_reserva():
+def efetuar_reserva(inicio, fim):
     userid = session.get('userid')
     user = db.get_or_404(Usuarios, userid)
     tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
@@ -205,5 +298,4 @@ def efetuar_reserva():
         db.session.rollback()
         flash(f"Erro ao efetuar reserva:{str(ve)}", "danger")
         current_app.logger.error(f"falha ao realizar reserva:{e}")
-
     return redirect(url_for('default.home'))

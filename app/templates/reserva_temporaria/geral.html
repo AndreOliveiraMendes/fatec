@@ -2,44 +2,59 @@
 {% from "macros/form.html" import action_buttons %}
 {% from "macros/navigation.html" import go_back %}
 {% block title %}
-    turnos
+    efetuar reserva
 {% endblock title %}
 {% block content %}
+    {{ generate_reserva_head('temporaria', turno, inicio=inicio, fim=fim) }}
     <div class="btn-group">
-        {{ go_back() }}
+        {{ go_back(contador) }}
         <a href="{{ url_for('default.home') }}" class="btn btn-default">
             <span class="glyphicon glyphicon-home"></span> Início
         </a>
     </div>
-    <h3>Reserva Avulsa</h3>
+    <h3>
+        <strong>Reserva Avulsa</strong>: {{ inicio|data }} - {{ fim|data }} — <strong>Turno:</strong>  {{ turno.nome_turno if turno else 'Livre' }}
+    </h3>
     <p>
+        <strong>Período:</strong> {{ inicio|data }} a {{ fim|data }}
+        {% if turno %}
+            <br>
+            <strong>Horário:</strong> {{ turno.horario_inicio|hora }} às {{ turno.horario_fim|hora }}
+        {% else %}
+            <br>
+            <strong>Horário:</strong> 00:00 às 23:59
+        {% endif %}
+        <br>
         <strong>Laboratorios disponiveis:</strong> {{ laboratorios|length }}
         <br>
         <strong>Horarios disponiveis:</strong> {{ aulas|length }}
     </p>
     <form class="form-group"
           role="form"
-          action="{{ url_for('reservas_fixas.efetuar_reserva') }}"
+          action="{{ url_for('reservas_temporarias.efetuar_reserva', inicio=inicio, fim=fim) }}"
           id="reserva"
           method="post">
         <div class="table-responsive">
             <table class="table table-bordered table-striped table-hover tabela-reserva">
                 <thead>
                     <tr>
-                        <th rowspan="3" class="col-fixa">Laboratorios</th>
-                        {% for dia, semana, qt in head1 %}<th colspan="{{ qt }}">{{ dia|data }} - {{ semana }}</th>{% endfor %}
+                        <th rowspan="{{ 2 if turno else 3 }}" class="col-fixa">Laboratorios</th>
+                        {% for dia, qt in contagem_dias.items() %}<th colspan="{{ qt }}">{{ dia[0]|data }} ({{ dia[1] }})</th>{% endfor %}
                     </tr>
+                    {% if not turno %}
+                        <tr>
+                            {% for turno, qt in contagem_turnos.items() %}<th colspan="{{ qt }}">{{ turno[1].nome_turno }}</th>{% endfor %}
+                        </tr>
+                    {% endif %}
                     <tr>
-                        {% for turno, qt in head2 %}<th colspan="{{ qt }}">{{ turno }}</th>{% endfor %}
-                    </tr>
-                    <tr>
-                        {% for inicio, fim in head3 %}<th>{{ inicio|hora }} - {{ fim|hora }}</th>{% endfor %}
+                        {% for aula in aulas %}<th>{{ aula.horario_inicio }} - {{ aula.horario_fim }}</th>{% endfor %}
                     </tr>
                 </thead>
                 <tbody>
                     {% for laboratorio in laboratorios %}
                         <tr>
-                            <td class="col-fixa {% if laboratorio.disponibilidade.value == 'Indisponivel' %}text-danger{% endif %}" title="{{ laboratorio.descrição }}">{{ laboratorio.nome_laboratorio }}</td>
+                            <td class="col-fixa {% if laboratorio.disponibilidade.value == 'Indisponivel' %}text-danger{% endif %}"
+                                title="{{ laboratorio.descrição }}">{{ laboratorio.nome_laboratorio }}</td>
                             {% for info in aulas %}
                                 {% set reservado = helper[(laboratorio.id_laboratorio, info.id_aula_ativa, info.dia_consulta)] %}
                                 {% if reservado %}
@@ -79,6 +94,14 @@
                    class="form-control"
                    placeholder="insira observações relevantes (softwares necessarios)">
         </div>
+        <div class="form-group">
+            <label for="descricao">Descrição:</label>
+            <input type="text"
+                   id="descricao"
+                   name="descricao"
+                   class="form-control"
+                   placeholder="insira a descrição da reserva">
+        </div>
         {% if perm and perm|has_flag(ADMIN) %}
             <div class="form-group">
                 <label for="responsavel">Responsavel:</label>
@@ -106,7 +129,27 @@
 {% endblock content %}
 {% block extra_script %}
     {% if perm and perm|has_flag(ADMIN) %}
-        <script>{{ validate_admin_selects() }}</script>
+        <script>{{ validate_admin_selects() }};</script>
         <script>validateAdminSelects("reserva", "responsavel", "responsavel_especial");</script>
     {% endif %}
+    <script>{{ adjust_head_fix() }}</script>
+    <script>
+    document.getElementById('tipo_reserva').addEventListener('change', function() {
+        var value = this.value;
+        var descricao = document.getElementById('descricao');
+        var descricaoWrapper = descricao.parentElement;
+
+        if(value == 'Curso'){
+            descricao.disabled = false;
+            descricaoWrapper.style.display = 'block';
+        } else {
+            descricao.disabled = true;
+            descricaoWrapper.style.display = 'none';
+        }
+    });
+
+    window.addEventListener('load', function() {
+        document.getElementById('tipo_reserva').dispatchEvent(new Event('change'));
+    });
+    </script>
 {% endblock extra_script %}
