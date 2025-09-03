@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, time
 
 from flask import abort
 from sqlalchemy import (and_, between, func, literal, or_, select, text,
@@ -343,3 +343,15 @@ def get_situacoes_por_dia(aula:Aulas_Ativas, laboratorio:Laboratorios, dia:date)
         return db.session.execute(sel_situacoes).scalar_one_or_none()
     except MultipleResultsFound:
         abort(500)
+
+def get_turno_by_time(hora:time):
+    try:
+        hora_truncada = hora.replace(second=0, microsecond=0)
+        return db.session.execute(
+            select(Turnos).where(
+                Turnos.horario_inicio <= hora_truncada,
+                hora_truncada <= Turnos.horario_fim
+            )
+        ).scalar_one_or_none()
+    except MultipleResultsFound as e:
+        return None

@@ -1,18 +1,15 @@
 import importlib.resources as resources
 import json
-from datetime import datetime, time
+from datetime import datetime
 from importlib.resources import as_file
-from math import ceil
 from pathlib import Path
 
 from flask import (Blueprint, redirect, render_template, request, session,
                    url_for)
-from sqlalchemy import select
-from sqlalchemy.exc import MultipleResultsFound
 
 from app.auxiliar.auxiliar_routes import get_user_info, parse_date_string
 from app.auxiliar.dao import (get_aulas_ativas_por_dia, get_laboratorios,
-                              get_turnos)
+                              get_turno_by_time, get_turnos)
 from app.models import TipoAulaEnum, Turnos, db
 from config.general import LOCAL_TIMEZONE
 
@@ -59,17 +56,6 @@ def divide(l, q):
         if start < qt:
             result.append(l[start:])
     return result
-
-def get_turno_by_time(hora:time):
-    try:
-        return db.session.execute(
-            select(Turnos).where(
-                Turnos.horario_inicio <= hora,
-                hora <= Turnos.horario_fim
-            )
-        ).scalar_one_or_none()
-    except MultipleResultsFound as e:
-        return None
 
 @bp.route('/')
 def main_page():
