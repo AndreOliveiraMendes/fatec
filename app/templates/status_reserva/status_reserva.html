@@ -64,7 +64,6 @@
                                 <th>Laboratorio</th>
                                 <th>Fixa</th>
                                 <th>Temporaria</th>
-                                <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -74,26 +73,6 @@
                                     <td>{{ reserva.laboratorio.nome_laboratorio }}</td>
                                     <td>{{ get_responsavel_reserva(reserva.fixa, None) if reserva.fixa else '' }}</td>
                                     <td>{{ get_responsavel_reserva(reserva.temporaria, None) if reserva.temporaria else '' }}</td>
-                                    <td>
-                                        <form class="form-inline"
-                                              role="form"
-                                              action="{{ url_for('situacao_reserva.atuacionar', aula=reserva.horario.id_aula_ativa, lab=reserva.laboratorio.id_laboratorio, dia=reserva_dia) }}"
-                                              method="post">
-                                            {% for sit in situacaoChave %}
-                                                {% if reserva.situacao and reserva.situacao.situacao_chave.value == sit[0].value %}
-                                                    {% set color = sit[1][1] %}
-                                                {% else %}
-                                                    {% set color = "muted" %}
-                                                {% endif %}
-                                                <button type="submit"
-                                                        name="situacao"
-                                                        value="{{ sit[0].value }}"
-                                                        class="btn-icon">
-                                                    <span class="glyphicon {{ sit[1][0] }} text-{{ color }}"></span>
-                                                </button>
-                                            {% endfor %}
-                                        </form>
-                                    </td>
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -105,3 +84,12 @@
         </div>
     </div>
 {% endblock content %}
+{% block footer %}
+    <div class="legend">
+        {% for icon, style, label in icons %}
+            <span class="label label-{{ style }}">
+                <span class="glyphicon {{ icon }}"></span> {{ label }}
+            </span>
+        {% endfor %}
+    </div>
+{% endblock footer %}

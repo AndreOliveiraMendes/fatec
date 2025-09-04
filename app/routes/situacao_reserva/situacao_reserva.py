@@ -93,47 +93,10 @@ def gerenciar_status():
         reservas.append(reserva)
     extras['reservas'] = reservas
     icons = [
-        ["glyphicon-thumbs-down", "danger"],
-        ["glyphicon-thumbs-up", "success"],
-        ["glyphicon-ok", "info"] 
+        ["glyphicon-question-sign", "default", "não definido"],
+        ["glyphicon-thumbs-down", "danger", "não pegou a chave"],
+        ["glyphicon-thumbs-up", "success", "pegou a chave"],
+        ["glyphicon-ok", "info", "devolveu a chave"]
     ]
-    extras['situacaoChave'] = list(zip(SituacaoChaveEnum, icons))
+    extras['icons'] = icons
     return render_template("status_reserva/status_reserva.html", username=username, perm=perm, **extras)
-
-@bp.route('/atuacionar/<int:aula>/<int:lab>/<data:dia>', methods=['POST'])
-@admin_required
-def atuacionar(aula, lab, dia):
-    userid = session.get('userid')
-    chave = request.form.get('situacao')
-    situacao = get_unique_or_500(
-        Situacoes_Das_Reserva,
-        Situacoes_Das_Reserva.id_situacao_aula==aula,
-        Situacoes_Das_Reserva.id_situacao_laboratorio==lab,
-        Situacoes_Das_Reserva.situacao_dia==dia
-    )
-    old_data = None
-    if situacao:
-        old_data = copy(situacao)
-    else:
-        situacao = Situacoes_Das_Reserva(
-            id_situacao_aula=aula,
-            id_situacao_laboratorio=lab,
-            situacao_dia=dia
-        )
-    try:
-        situacao.situacao_chave = SituacaoChaveEnum(chave)
-
-        db.session.add(situacao)
-
-        db.session.flush()
-        registrar_log_generico_usuario(userid, 'Inserção', situacao, old_data, "via menu situacao", True)
-
-        db.session.commit()
-        flash("atualizado com sucesso", "success")
-    except (IntegrityError, OperationalError) as e:
-        db.session.rollback()
-        flash(f"erro ao atualizar:{str(e.orig)}", "danger")
-    except ValueError as ve:
-        db.session.rollback()
-        flash(f"erro ao atualiza:{ve}", "danger")
-    return redirect(url_for('situacao_reserva.gerenciar_status'))

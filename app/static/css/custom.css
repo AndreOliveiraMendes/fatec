@@ -242,7 +242,21 @@ td.fixa {
     /* tira a borda de foco azul */
 }
 
-/*gambiarra*/
+/*pra usar pra deixar contueod full*/
 .full {
     width: 100%;
+}
+
+/*teste*/
+.legend .label {
+    font-size: 100%;
+    /* aumenta o tamanho */
+    padding: 6px 10px;
+    /* mais espaço interno */
+    border: 1px solid #ccc;
+    /* borda cinza clara */
+    margin: 2px;
+    /* separação entre eles */
+    display: inline-block;
+    /* evita que fiquem grudados */
 }
