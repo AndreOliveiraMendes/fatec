@@ -19,6 +19,10 @@ class SituacaoChaveEnum(enum.Enum):
     PEGOU_A_CHAVE = "pegou a chave"
     DEVOLVEU_A_CHAVE = "devolveu a chave"
 
+class TipoReservaEnum(enum.Enum):
+    FIXA = "fixa"
+    TEMPORARIA = "temporaria"
+
 class Situacoes_Das_Reserva(Base):
     __tablename__ = "situacoes_das_reservas"
 
@@ -32,12 +36,18 @@ class Situacoes_Das_Reserva(Base):
         server_default=SituacaoChaveEnum.NAO_PEGOU_A_CHAVE.name
     )
 
+    tipo_reserva: Mapped[TipoReservaEnum] = mapped_column(
+        Enum(TipoReservaEnum, name="tipo_reserva_enum", create_constraint=True),
+        server_default=TipoReservaEnum.FIXA.name
+    )
+
     __table_args__ = (
         UniqueConstraint(
             'id_situacao_laboratorio',
             'id_situacao_aula',
             'situacao_dia',
-            name="uq_situacao_lab_aula_dia"
+            'tipo_reserva',
+            name="uq_situacao_lab_aula_dia_tipo"
         ),
     )
 
