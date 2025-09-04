@@ -19,7 +19,7 @@ class SituacaoChaveEnum(enum.Enum):
     PEGOU_A_CHAVE = "pegou a chave"
     DEVOLVEU_A_CHAVE = "devolveu a chave"
 
-class TipoReservaEnum(enum.Enum):
+class SituacaoTipoReservaEnum(enum.Enum):
     FIXA = "fixa"
     TEMPORARIA = "temporaria"
 
@@ -36,9 +36,9 @@ class Situacoes_Das_Reserva(Base):
         server_default=SituacaoChaveEnum.NAO_PEGOU_A_CHAVE.name
     )
 
-    tipo_reserva: Mapped[TipoReservaEnum] = mapped_column(
-        Enum(TipoReservaEnum, name="tipo_reserva_enum", create_constraint=True),
-        server_default=TipoReservaEnum.FIXA.name
+    tipo_reserva: Mapped[SituacaoTipoReservaEnum] = mapped_column(
+        Enum(SituacaoTipoReservaEnum, name="tipo_reserva_enum", create_constraint=True),
+        server_default=SituacaoTipoReservaEnum.FIXA.name
     )
 
     __table_args__ = (
@@ -68,7 +68,7 @@ class Situacoes_Das_Reserva(Base):
             f"situacao_chave={self.situacao_chave.value})>"
         )
 
-class TipoReservaEnum(enum.Enum):
+class FinalidadeTipoReservaEnum(enum.Enum):
     GRADUACAO = "Graduação"
     ESPECIALIZACAO = "Especialização"
     EAD = "EAD"
@@ -83,9 +83,9 @@ class ReservaBase(Base):  # herda de Base
     tipo_responsavel: Mapped[int] = mapped_column(nullable=False)
     id_reserva_laboratorio: Mapped[int] = mapped_column(ForeignKey('laboratorios.id_laboratorio'), nullable=False)
     id_reserva_aula: Mapped[int] = mapped_column(ForeignKey('aulas_ativas.id_aula_ativa'), nullable=False)
-    tipo_reserva: Mapped[TipoReservaEnum] = mapped_column(
-        Enum(TipoReservaEnum, name="tipo_reserva_enum", create_constraint=True),
-        server_default=TipoReservaEnum.GRADUACAO.name
+    tipo_reserva: Mapped[FinalidadeTipoReservaEnum] = mapped_column(
+        Enum(FinalidadeTipoReservaEnum, name="tipo_reserva_enum", create_constraint=True),
+        server_default=FinalidadeTipoReservaEnum.GRADUACAO.name
     )
     observacoes: Mapped[str | None] = mapped_column(TEXT, nullable=True)
     descricao: Mapped[str | None] = mapped_column(String(100), nullable=True)

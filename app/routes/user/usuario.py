@@ -13,8 +13,9 @@ from app.auxiliar.auxiliar_routes import (get_user_info, none_if_empty,
 from app.auxiliar.constant import PERM_ADMIN
 from app.auxiliar.dao import get_pessoas, get_semestres, get_usuarios_especiais
 from app.auxiliar.decorators import login_required
-from app.models import (Aulas, Aulas_Ativas, Permissoes, Reservas_Fixas,
-                        Reservas_Temporarias, TipoReservaEnum, Usuarios, db)
+from app.models import (Aulas, Aulas_Ativas, FinalidadeTipoReservaEnum,
+                        Permissoes, Reservas_Fixas, Reservas_Temporarias,
+                        Usuarios, db)
 from config.general import LOCAL_TIMEZONE
 
 bp = Blueprint('usuario', __name__, url_prefix='/usuario')
@@ -92,7 +93,7 @@ def gerenciar_reserva_fixa():
     extras['pagination'] = reservas_fixas
     args_extras = {key:value for key, value in request.args.items() if key != 'page'}
     extras['args_extras'] = args_extras
-    extras['TipoReserva'] = TipoReservaEnum
+    extras['TipoReserva'] = FinalidadeTipoReservaEnum
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
     return render_template("usuario/reserva_fixa.html", username=username, perm=perm, **extras)
@@ -114,7 +115,7 @@ def gerenciar_reserva_temporaria():
     extras['pagination'] = reservas_temporarias
     args_extras = {key:value for key, value in request.args.items() if key != 'page'}
     extras['args_extras'] = args_extras
-    extras['TipoReserva'] = TipoReservaEnum
+    extras['TipoReserva'] = FinalidadeTipoReservaEnum
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
     return render_template("usuario/reserva_temporaria.html", username=username, perm=perm, **extras)
@@ -216,7 +217,7 @@ def editar_reserva_generico(model, id_reserva, redirect_url):
     try:
         old_data = copy.copy(reserva)
         reserva.observacoes = observacao
-        reserva.tipo_reserva = TipoReservaEnum(tipo_reserva)
+        reserva.tipo_reserva = FinalidadeTipoReservaEnum(tipo_reserva)
         reserva.id_responsavel = responsavel
         reserva.id_responsavel_especial = responsavel_especial
         reserva.tipo_responsavel = tipo_responsavel

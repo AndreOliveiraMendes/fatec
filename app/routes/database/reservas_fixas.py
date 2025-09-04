@@ -14,7 +14,7 @@ from app.auxiliar.dao import (get_aulas_ativas, get_laboratorios, get_pessoas,
                               get_reservas_fixas, get_semestres,
                               get_usuarios_especiais)
 from app.auxiliar.decorators import admin_required
-from app.models import Reservas_Fixas, TipoReservaEnum, db
+from app.models import FinalidadeTipoReservaEnum, Reservas_Fixas, db
 from config.general import PER_PAGE
 
 bp = Blueprint('database_reservas_fixas', __name__, url_prefix="/database")
@@ -74,7 +74,7 @@ def gerenciar_reservas_fixas():
             if id_reserva_semestre is not None:
                 filter.append(Reservas_Fixas.id_reserva_semestre == id_reserva_semestre)
             if tipo_reserva:
-                filter.append(Reservas_Fixas.tipo_reserva == TipoReservaEnum(tipo_reserva))
+                filter.append(Reservas_Fixas.tipo_reserva == FinalidadeTipoReservaEnum(tipo_reserva))
             if observacoes:
                 filter.append(Reservas_Fixas.observacoes.ilike(f"%{observacoes}%"))
             if descricao:
@@ -118,7 +118,7 @@ def gerenciar_reservas_fixas():
                     id_responsavel=id_responsavel, id_responsavel_especial=id_responsavel_especial,
                     tipo_responsavel=tipo_responsavel, id_reserva_laboratorio=id_reserva_laboratorio,
                     id_reserva_aula=id_reserva_aula, id_reserva_semestre=id_reserva_semestre,
-                    tipo_reserva=TipoReservaEnum(tipo_reserva),
+                    tipo_reserva=FinalidadeTipoReservaEnum(tipo_reserva),
                     observacoes=observacoes,
                     descricao=descricao
                 )
@@ -173,7 +173,7 @@ def gerenciar_reservas_fixas():
                 reserva_fixa.id_reserva_laboratorio = id_reserva_laboratorio
                 reserva_fixa.id_reserva_aula = id_reserva_aula
                 reserva_fixa.id_reserva_semestre = id_reserva_semestre
-                reserva_fixa.tipo_reserva = TipoReservaEnum(tipo_reserva)
+                reserva_fixa.tipo_reserva = FinalidadeTipoReservaEnum(tipo_reserva)
                 reserva_fixa.observacoes = observacoes
                 reserva_fixa.descricao = descricao
 
