@@ -23,6 +23,27 @@ class SituacaoTipoReservaEnum(enum.Enum):
     FIXA = "fixa"
     TEMPORARIA = "temporaria"
 
+class Exibicao_Reservas(Base):
+    __tablename__ = "exibicao_reservas"
+    id_exibicao:Mapped[int] = mapped_column(primary_key=True)
+    id_exibicao_laboratorio:Mapped[int] = mapped_column(ForeignKey("laboratorios.id_laboratorio"), nullable=False)
+    id_exibicao_aula:Mapped[int] = mapped_column(ForeignKey("aulas_ativas.id_aula_ativa"), nullable=False)
+    exibicao_dia:Mapped[date] = mapped_column(nullable=False)
+
+    tipo_reserva: Mapped[SituacaoTipoReservaEnum] = mapped_column(
+        Enum(SituacaoTipoReservaEnum, name="tipo_reserva_enum", create_constraint=True),
+        server_default=SituacaoTipoReservaEnum.TEMPORARIA.name
+    )
+
+    __table_args__ = (
+        UniqueConstraint(
+            'id_exibicao_laboratorio',
+            'id_exibicao_aula',
+            'exibicao_dia',
+            name="uq_exibicao_lab_aula_dia"
+        ),
+    )
+
 class Situacoes_Das_Reserva(Base):
     __tablename__ = "situacoes_das_reservas"
 
