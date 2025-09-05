@@ -18,7 +18,6 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 ├── .env.dev
 ├── .env.dev.example
 ├── .env.example
-├── .env.pod
 ├── .gitignore
 ├── .vscode
 │   └── settings.json
@@ -52,6 +51,7 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │   │   │   ├── aulas.py
 │   │   │   ├── aulas_ativas.py
 │   │   │   ├── dias_semana.py
+│   │   │   ├── exibicao_das_reservas.py
 │   │   │   ├── historicos.py
 │   │   │   ├── laboratorios.py
 │   │   │   ├── main.py
@@ -136,6 +136,7 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │       │       ├── aulas_ativas.html
 │       │       ├── base_crude
 │       │       ├── dias_da_semana.html
+│       │       ├── exibicao_reservas.html
 │       │       ├── historicos.html
 │       │       ├── laboratorios.html
 │       │       ├── permissoes.html
