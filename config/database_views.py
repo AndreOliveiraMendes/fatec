@@ -29,7 +29,8 @@ SECOES = {
     'Operacional / Configuração':{
         'icon': 'glyphicon glyphicon-cog',
         'secoes': [
-            ('Situacoes das reservas', 'database_situacoes_das_reservas.gerenciar_situacoes_das_reservas', 'warning', 'crud')
+            ('Situacoes das reservas', 'database_situacoes_das_reservas.gerenciar_situacoes_das_reservas', 'warning', 'crud'),
+            ('Exibicao das reservas', 'database_exibicao_reservas.gerenciar_exibicao_reservas', 'warning', 'crud')
         ]
     },
     'Logs / Histórico': {
