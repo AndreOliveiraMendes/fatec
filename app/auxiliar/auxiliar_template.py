@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from flask import Flask, session, url_for
 from markupsafe import Markup
 from sqlalchemy import between, select
@@ -7,8 +9,9 @@ from app.auxiliar.auxiliar_routes import (get_responsavel_reserva,
 from app.auxiliar.constant import (DATA_ABREV, DATA_COMPLETA, DATA_FLAGS,
                                    DATA_NUMERICA, HORA, PERM_ADMIN,
                                    PERMISSIONS, SEMANA_ABREV, SEMANA_COMPLETA)
-from app.models import (Laboratorios, Reservas_Fixas, Reservas_Temporarias,
-                        Semestres, Situacoes_Das_Reserva, Turnos, db)
+from app.models import (FinalidadeReservaEnum, Laboratorios, Reservas_Fixas,
+                        Reservas_Temporarias, Semestres, Situacoes_Das_Reserva,
+                        Turnos, db)
 from config.database_views import SECOES, TABLES_PER_LINE
 
 semana_inglesa = {
@@ -249,7 +252,7 @@ def register_filters(app:Flask):
 
     @app.template_global()
     def get_reserva(lab, aula, dia, mostrar_icone=False):
-        fixa, temp = None, None
+        fixa, temp, choose = None, None, None
         semestre = get_unique_or_500(
             Semestres,
             between(dia, Semestres.data_inicio, Semestres.data_fim)
@@ -261,6 +264,8 @@ def register_filters(app:Flask):
                 Reservas_Fixas.id_reserva_aula == aula,
                 Reservas_Fixas.id_reserva_semestre == semestre.id_semestre
             )
+        if isinstance(dia, datetime):
+            dia = dia.date()
         temp = get_unique_or_500(
             Reservas_Temporarias,
             Reservas_Temporarias.id_reserva_laboratorio == lab,
@@ -270,11 +275,18 @@ def register_filters(app:Flask):
         data = ""
         if temp or fixa:
             if temp:
-                data += get_responsavel_reserva(temp, prefix = None)
+                choose = temp
             else:
-                data += get_responsavel_reserva(fixa, prefix = None)
-            if mostrar_icone:
-                data += status_reserva(lab, aula, dia)
+                choose = fixa
+        if choose:
+            if choose.finalidade_reserva == FinalidadeReservaEnum.CURSO:
+                data += "Curso"
+                if choose.descricao:
+                    data += f"<br>{choose.descricao}"
+            else:
+                data += get_responsavel_reserva(choose, prefix = None)
+                if mostrar_icone:
+                    data += status_reserva(lab, aula, dia)
         else:
             data += "Livre"
         return Markup(data)
