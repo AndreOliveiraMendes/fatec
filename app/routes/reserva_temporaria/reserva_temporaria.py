@@ -230,6 +230,7 @@ def efetuar_reserva(inicio, fim):
     user = db.get_or_404(Usuarios, userid)
     finalidade_reserva = none_if_empty(request.form.get('finalidade_reserva'))
     observacoes = none_if_empty(request.form.get('observacoes'))
+    descricao = none_if_empty(request.form.get('descricao'))
     responsavel = none_if_empty(request.form.get('responsavel'))
     responsavel_especial = none_if_empty(request.form.get('responsavel_especial'))
     tipo_responsavel = None
@@ -281,6 +282,8 @@ def efetuar_reserva(inicio, fim):
                     finalidade_reserva = FinalidadeReservaEnum(finalidade_reserva),
                     observacoes = observacoes
                 )
+                if descricao:
+                    reserva.descricao = descricao
                 db.session.add(reserva)
                 reservas_efetuadas.append(reserva)
 

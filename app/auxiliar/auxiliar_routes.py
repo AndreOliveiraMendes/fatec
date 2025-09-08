@@ -4,7 +4,7 @@ from typing import Literal, Type, TypeVar
 
 from flask import abort, redirect, session, url_for
 from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError, MultipleResultsFound
+from sqlalchemy.exc import MultipleResultsFound
 from sqlalchemy.inspection import inspect
 
 from app.auxiliar.constant import PERM_ADMIN

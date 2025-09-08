@@ -78,8 +78,8 @@
             <div class="form-group">
                 <label for="tipo_reserva">Destinação da Reserva:</label>
                 <select id="tipo_reserva" class="form-control" name="tipo_reserva" required>
-                    <option value="">Selecione o tipo de reserva</option>
-                    {% for tr in tipo_reserva %}<option value="{{ tr.value }}">{{ tr.value }}</option>{% endfor %}
+                    <option value="">Selecione a finalidade da reserva</option>
+                    {% for fr in finalidade_reserva %}<option value="{{ fr.value }}">{{ fr.value }}</option>{% endfor %}
                 </select>
             </div>
             <div class="form-group">
@@ -131,7 +131,7 @@
     {% endif %}
     <script>{{ adjust_head_fix() }}</script>
     <script>
-    document.getElementById('tipo_reserva').addEventListener('change', function() {
+    document.getElementById('finalidade_reserva').addEventListener('change', function() {
         var value = this.value;
         var descricao = document.getElementById('descricao');
         var descricaoWrapper = descricao.parentElement;
@@ -146,7 +146,7 @@
     });
 
     window.addEventListener('load', function() {
-        document.getElementById('tipo_reserva').dispatchEvent(new Event('change'));
+        document.getElementById('finalidade_reserva').dispatchEvent(new Event('change'));
     });
     </script>
 {% endblock extra_script %}
