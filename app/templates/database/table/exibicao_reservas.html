@@ -105,6 +105,32 @@
 {% endblock inserir %}
 {% macro result_table(message) %}
     {% if exibicao_reservas %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover">
+                <thead>
+                    <tr class="information">
+                        <td>Codigo</td>
+                        <td>Laboratorio</td>
+                        <td>Aula</td>
+                        <td>Dia</td>
+                        <td>Tipo</td>
+                        <td>Ação</td>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for edr in exibicao_reservas %}
+                <tr>
+                <td>{{ edr.id_exibicao }}</td>
+                <td>{{ edr.laboratorios.nome_laboratorio }}</td>
+                <td>{{ edr.aulas_ativas.selector_identification }}</td>
+                <td>{{ edr.exibicao_dia }}</td>
+                <td>{{ edr.tipo_reserva.value }}</td>
+                <td></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     {% else %}
         <div class="alert alert-info" role="alert">{{ message }}</div>
     {% endif %}

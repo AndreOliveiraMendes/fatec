@@ -31,6 +31,13 @@ def gerenciar_exibicao_reservas():
     if request.method == 'POST':
         if acao == 'listar':
             sel_exibicao = select(Exibicao_Reservas)
+            exibicao_reservas_paginadas = SelectPagination(
+                select=sel_exibicao, session=db.session,
+                page=page, per_page=PER_PAGE, error_out=False
+            )
+            extras['exibicao_reservas'] = exibicao_reservas_paginadas.items
+            extras['pagination'] = exibicao_reservas_paginadas
+
         elif acao == 'procurar' and bloco == 0:
             pass
         elif acao == 'inserir' and bloco == 0:
