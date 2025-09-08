@@ -147,7 +147,7 @@ def get_lab_geral(inicio, fim, id_turno):
         for day in days:
             helper[(r.id_reserva_laboratorio, r.id_reserva_aula, day)] = title
     extras['helper'] = helper
-    extras['tipo_reserva'] = FinalidadeReservaEnum
+    extras['finalidade_reserva'] = FinalidadeReservaEnum
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
     extras['contador'] = session.get('contador')
@@ -216,7 +216,7 @@ def get_lab_especifico(inicio, fim, id_turno, id_lab):
         for day in days:
             helper[(r.id_reserva_laboratorio, r.id_reserva_aula, day)] = title
     extras['helper'] = helper
-    extras['tipo_reserva'] = FinalidadeReservaEnum
+    extras['finalidade_reserva'] = FinalidadeReservaEnum
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
     extras['contador'] = session.get('contador')
@@ -228,7 +228,7 @@ def get_lab_especifico(inicio, fim, id_turno, id_lab):
 def efetuar_reserva(inicio, fim):
     userid = session.get('userid')
     user = db.get_or_404(Usuarios, userid)
-    tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
+    finalidade_reserva = none_if_empty(request.form.get('finalidade_reserva'))
     observacoes = none_if_empty(request.form.get('observacoes'))
     responsavel = none_if_empty(request.form.get('responsavel'))
     responsavel_especial = none_if_empty(request.form.get('responsavel_especial'))
@@ -278,7 +278,7 @@ def efetuar_reserva(inicio, fim):
                     id_reserva_aula = aula,
                     inicio_reserva = inicio,
                     fim_reserva = fim,
-                    tipo_reserva = FinalidadeReservaEnum(tipo_reserva),
+                    finalidade_reserva = FinalidadeReservaEnum(finalidade_reserva),
                     observacoes = observacoes
                 )
                 db.session.add(reserva)

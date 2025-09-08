@@ -175,7 +175,7 @@ def get_lab_geral(id_semestre, id_turno=None):
         title = get_responsavel_reserva(r)
         helper[(r.id_reserva_laboratorio, r.id_reserva_aula)] = title
     extras['helper'] = helper
-    extras['tipo_reserva'] = FinalidadeReservaEnum
+    extras['finalidade_reserva'] = FinalidadeReservaEnum
     extras['aulas_extras'] = get_aulas_extras(semestre, turno)
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
@@ -221,7 +221,7 @@ def get_lab_especifico(id_semestre, id_turno, id_lab):
         table_semanas[index_semana]['infos'][index_aula] = info
     extras['aulas'] = table_aulas
     extras['semanas'] = table_semanas
-    extras['tipo_reserva'] = FinalidadeReservaEnum
+    extras['finalidade_reserva'] = FinalidadeReservaEnum
     extras['aulas_extras'] = get_aulas_extras(semestre, turno)
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
@@ -234,7 +234,7 @@ def get_lab_especifico(id_semestre, id_turno, id_lab):
         title = get_responsavel_reserva(r)
         helper[(r.id_reserva_laboratorio, r.id_reserva_aula)] = title
     extras['helper'] = helper
-    extras['tipo_reserva'] = FinalidadeReservaEnum
+    extras['finalidade_reserva'] = FinalidadeReservaEnum
     extras['aulas_extras'] = get_aulas_extras(semestre, turno)
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
@@ -247,7 +247,7 @@ def efetuar_reserva(id_semestre):
     userid = session.get('userid')
     user = db.get_or_404(Usuarios, userid)
     semestre = db.get_or_404(Semestres, id_semestre)
-    tipo_reserva = request.form.get('tipo_reserva')
+    finalidade_reserva = request.form.get('finalidade_reserva')
     observacoes = none_if_empty(request.form.get('observacoes'))
     descricao = none_if_empty(request.form.get('descricao'))
     responsavel = none_if_empty(request.form.get('responsavel'))
@@ -280,7 +280,7 @@ def efetuar_reserva(id_semestre):
                 id_reserva_laboratorio = lab,
                 id_reserva_aula = aula,
                 id_reserva_semestre = semestre.id_semestre,
-                tipo_reserva = FinalidadeReservaEnum(tipo_reserva),
+                finalidade_reserva = FinalidadeReservaEnum(finalidade_reserva),
                 observacoes = observacoes
             )
             if descricao:

@@ -135,7 +135,7 @@ def info_reserva_fixa(id_reserva):
         "semana": reserva.aulas_ativas.dia_da_semana.nome_semana,
         "horario": f"{reserva.aulas_ativas.aulas.horario_inicio:%H:%M} às {reserva.aulas_ativas.aulas.horario_fim:%H:%M}",
         "observacao": reserva.observacoes,
-        "tiporeserva": reserva.tipo_reserva.value,
+        "finalidadereserva": reserva.finalidade_reserva.value,
         "responsavel": reserva.id_responsavel,
         "responsavel_especial": reserva.id_responsavel_especial,
         "cancel_url": url_for("usuario.cancelar_reserva", tipo_reserva="fixa", id_reserva=id_reserva),
@@ -151,7 +151,7 @@ def info_reserva_temporaria(id_reserva):
         "semana": reserva.aulas_ativas.dia_da_semana.nome_semana,
         "horario": f"{reserva.aulas_ativas.aulas.horario_inicio:%H:%M} às {reserva.aulas_ativas.aulas.horario_fim:%H:%M}",
         "observacao": reserva.observacoes,
-        "tiporeserva": reserva.tipo_reserva.value,
+        "finalidadereserva": reserva.finalidade_reserva.value,
         "responsavel": reserva.id_responsavel,
         "responsavel_especial": reserva.id_responsavel_especial,
         "cancel_url": url_for("usuario.cancelar_reserva", tipo_reserva="temporaria", id_reserva=id_reserva),
@@ -198,7 +198,7 @@ def editar_reserva_generico(model, id_reserva, redirect_url):
     reserva = db.get_or_404(model, id_reserva)
     check_ownership_or_admin(reserva)
     observacao = request.form.get('observacao')
-    tipo_reserva = request.form.get('tipo_reserva')
+    finalidade_reserva = request.form.get('finalidade_reserva')
     responsavel = none_if_empty(request.form.get('responsavel'))
     responsavel_especial = none_if_empty(request.form.get('responsavel_especial'))
     tipo_responsavel = None
@@ -216,7 +216,7 @@ def editar_reserva_generico(model, id_reserva, redirect_url):
     try:
         old_data = copy.copy(reserva)
         reserva.observacoes = observacao
-        reserva.tipo_reserva = FinalidadeReservaEnum(tipo_reserva)
+        reserva.finalidade_reserva = FinalidadeReservaEnum(finalidade_reserva)
         reserva.id_responsavel = responsavel
         reserva.id_responsavel_especial = responsavel_especial
         reserva.tipo_responsavel = tipo_responsavel
