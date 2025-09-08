@@ -14,7 +14,7 @@ from app.auxiliar.dao import (get_aulas_ativas, get_laboratorios, get_pessoas,
                               get_reservas_fixas, get_semestres,
                               get_usuarios_especiais)
 from app.auxiliar.decorators import admin_required
-from app.models import FinalidadeTipoReservaEnum, Reservas_Fixas, db
+from app.models import FinalidadeReservaEnum, Reservas_Fixas, db
 from config.general import PER_PAGE
 
 bp = Blueprint('database_reservas_fixas', __name__, url_prefix="/database")
@@ -54,7 +54,7 @@ def gerenciar_reservas_fixas():
             id_reserva_laboratorio = none_if_empty(request.form.get('id_reserva_laboratorio'), int)
             id_reserva_aula = none_if_empty(request.form.get('id_reserva_aula'), int)
             id_reserva_semestre = none_if_empty(request.form.get('id_reserva_semestre'), int)
-            tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
+            finalidade_reserva = none_if_empty(request.form.get('finalidade_reserva'))
             observacoes = none_if_empty(request.form.get('observacoes'))
             descricao = none_if_empty(request.form.get('descricao'))
             filter = []
@@ -73,8 +73,8 @@ def gerenciar_reservas_fixas():
                 filter.append(Reservas_Fixas.id_reserva_aula == id_reserva_aula)
             if id_reserva_semestre is not None:
                 filter.append(Reservas_Fixas.id_reserva_semestre == id_reserva_semestre)
-            if tipo_reserva:
-                filter.append(Reservas_Fixas.tipo_reserva == FinalidadeTipoReservaEnum(tipo_reserva))
+            if finalidade_reserva:
+                filter.append(Reservas_Fixas.finalidade_reserva == FinalidadeReservaEnum(finalidade_reserva))
             if observacoes:
                 filter.append(Reservas_Fixas.observacoes.ilike(f"%{observacoes}%"))
             if descricao:
@@ -109,7 +109,7 @@ def gerenciar_reservas_fixas():
             id_reserva_laboratorio = none_if_empty(request.form.get('id_reserva_laboratorio'), int)
             id_reserva_aula = none_if_empty(request.form.get('id_reserva_aula'), int)
             id_reserva_semestre = none_if_empty(request.form.get('id_reserva_semestre'), int)
-            tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
+            finalidade_reserva = none_if_empty(request.form.get('finalidade_reserva'))
             observacoes = none_if_empty(request.form.get('observacoes'))
             descricao = none_if_empty(request.form.get('descricao'))
 
@@ -118,7 +118,7 @@ def gerenciar_reservas_fixas():
                     id_responsavel=id_responsavel, id_responsavel_especial=id_responsavel_especial,
                     tipo_responsavel=tipo_responsavel, id_reserva_laboratorio=id_reserva_laboratorio,
                     id_reserva_aula=id_reserva_aula, id_reserva_semestre=id_reserva_semestre,
-                    tipo_reserva=FinalidadeTipoReservaEnum(tipo_reserva),
+                    finalidade_reserva=FinalidadeReservaEnum(finalidade_reserva),
                     observacoes=observacoes,
                     descricao=descricao
                 )
@@ -161,7 +161,7 @@ def gerenciar_reservas_fixas():
             id_reserva_laboratorio = none_if_empty(request.form.get('id_reserva_laboratorio'), int)
             id_reserva_aula = none_if_empty(request.form.get('id_reserva_aula'), int)
             id_reserva_semestre = none_if_empty(request.form.get('id_reserva_semestre'), int)
-            tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
+            finalidade_reserva = none_if_empty(request.form.get('finalidade_reserva'))
             observacoes = none_if_empty(request.form.get('observacoes'))
             descricao = none_if_empty(request.form.get('descricao'))
             reserva_fixa = db.get_or_404(Reservas_Fixas, id_reserva_fixa)
@@ -173,7 +173,7 @@ def gerenciar_reservas_fixas():
                 reserva_fixa.id_reserva_laboratorio = id_reserva_laboratorio
                 reserva_fixa.id_reserva_aula = id_reserva_aula
                 reserva_fixa.id_reserva_semestre = id_reserva_semestre
-                reserva_fixa.tipo_reserva = FinalidadeTipoReservaEnum(tipo_reserva)
+                reserva_fixa.finalidade_reserva = FinalidadeReservaEnum(finalidade_reserva)
                 reserva_fixa.observacoes = observacoes
                 reserva_fixa.descricao = descricao
 

@@ -112,7 +112,7 @@
                 </tr>
                 <tr>
                     <td>
-                        <code>tipo_reserva</code>
+                        <code>finalidade_reserva</code>
                     </td>
                     <td>ENUM</td>
                     <td>Define a qual fim se destina a reserva</td>
@@ -201,9 +201,9 @@
                 <p class="help-block">Procura por reservas ativas que estejam dentro do período selecionado.</p>
             </div>
             <div class="form-group">
-                <label for="tipo_reserva">Tipo de Reserva</label>
-                <select class="form-control" id="tipo_reserva" name="tipo_reserva">
-                    <option value="" disabled selected>Selecione o tipo de reserva</option>
+                <label for="finalidade_reserva">Finalidade da Reserva</label>
+                <select class="form-control" id="finalidade_reserva" name="finalidade_reserva">
+                    <option value="" disabled selected>Selecione a finalidade da reserva</option>
                     <option value="Graduação">Graduação</option>
                     <option value="Especialização">Especialização</option>
                     <option value="EAD">EAD</option>
@@ -274,9 +274,9 @@
                    required>
         </div>
         <div class="form-group">
-            <label for="tipo_reserva">Tipo de Reserva</label>
-            <select class="form-control" id="tipo_reserva" name="tipo_reserva" required>
-                <option value="" disabled selected>Selecione o tipo de reserva</option>
+            <label for="finalidade_reserva">Finalidade da Reserva</label>
+            <select class="form-control" id="finalidade_reserva" name="finalidade_reserva" required>
+                <option value="" disabled selected>Selecione a finalidade da reserva</option>
                 <option value="Graduação">Graduação</option>
                 <option value="Especialização">Especialização</option>
                 <option value="EAD">EAD</option>
@@ -405,25 +405,25 @@
                        required>
             </div>
             <div class="form-group">
-                <label for="tipo_reserva">Tipo de Reserva</label>
-                <select class="form-control" id="tipo_reserva" name="tipo_reserva" required>
-                    <option value="" disabled selected>Selecione o tipo de reserva</option>
+                <label for="finalidade_reserva">Finalidade da Reserva</label>
+                <select class="form-control" id="finalidade_reserva" name="finalidade_reserva" required>
+                    <option value="" disabled selected>Selecione a finalidade da reserva</option>
                     <option value="Graduação"
-                            {% if reserva_temporaria.tipo_reserva.value == 'Graduação' %}selected{% endif %}>
+                            {% if reserva_temporaria.finalidade_reserva.value == 'Graduação' %}selected{% endif %}>
                         Graduação
                     </option>
                     <option value="Especialização"
-                            {% if reserva_temporaria.tipo_reserva.value == 'Especialização' %}selected{% endif %}>
+                            {% if reserva_temporaria.finalidade_reserva.value == 'Especialização' %}selected{% endif %}>
                         Especialização
                     </option>
                     <option value="EAD"
-                            {% if reserva_temporaria.tipo_reserva.value == 'EAD' %}selected{% endif %}>EAD</option>
+                            {% if reserva_temporaria.finalidade_reserva.value == 'EAD' %}selected{% endif %}>EAD</option>
                     <option value="NAPTI"
-                            {% if reserva_temporaria.tipo_reserva.value == 'NAPTI' %}selected{% endif %}>NAPTI</option>
+                            {% if reserva_temporaria.finalidade_reserva.value == 'NAPTI' %}selected{% endif %}>NAPTI</option>
                     <option value="Curso"
-                            {% if reserva_temporaria.tipo_reserva.value == 'Curso' %}selected{% endif %}>Curso</option>
+                            {% if reserva_temporaria.finalidade_reserva.value == 'Curso' %}selected{% endif %}>Curso</option>
                     <option value="Uso dos Alunos"
-                            {% if reserva_temporaria.tipo_reserva.value == 'Uso dos Alunos' %}selected{% endif %}>
+                            {% if reserva_temporaria.finalidade_reserva.value == 'Uso dos Alunos' %}selected{% endif %}>
                         Uso dos Alunos
                     </option>
                 </select>
@@ -554,29 +554,29 @@
                        disabled>
             </div>
             <div class="form-group">
-                <label for="tipo_reserva">Tipo de Reserva</label>
+                <label for="finalidade_reserva">Finalidade da Reserva</label>
                 <select class="form-control"
-                        id="tipo_reserva"
-                        name="tipo_reserva"
+                        id="finalidade_reserva"
+                        name="finalidade_reserva"
                         required
                         disabled>
-                    <option value="" disabled selected>Selecione o tipo de reserva</option>
+                    <option value="" disabled selected>Selecione a finalidade da reserva</option>
                     <option value="Graduação"
-                            {% if reserva_temporaria.tipo_reserva.value == 'Graduação' %}selected{% endif %}>
+                            {% if reserva_temporaria.finalidade_reserva.value == 'Graduação' %}selected{% endif %}>
                         Graduação
                     </option>
                     <option value="Especialização"
-                            {% if reserva_temporaria.tipo_reserva.value == 'Especialização' %}selected{% endif %}>
+                            {% if reserva_temporaria.finalidade_reserva.value == 'Especialização' %}selected{% endif %}>
                         Especialização
                     </option>
                     <option value="EAD"
-                            {% if reserva_temporaria.tipo_reserva.value == 'EAD' %}selected{% endif %}>EAD</option>
+                            {% if reserva_temporaria.finalidade_reserva.value == 'EAD' %}selected{% endif %}>EAD</option>
                     <option value="NAPTI"
-                            {% if reserva_temporaria.tipo_reserva.value == 'NAPTI' %}selected{% endif %}>NAPTI</option>
+                            {% if reserva_temporaria.finalidade_reserva.value == 'NAPTI' %}selected{% endif %}>NAPTI</option>
                     <option value="Curso"
-                            {% if reserva_temporaria.tipo_reserva.value == 'Curso' %}selected{% endif %}>Curso</option>
+                            {% if reserva_temporaria.finalidade_reserva.value == 'Curso' %}selected{% endif %}>Curso</option>
                     <option value="Uso dos Alunos"
-                            {% if reserva_temporaria.tipo_reserva.value == 'Uso dos Alunos' %}selected{% endif %}>
+                            {% if reserva_temporaria.finalidade_reserva.value == 'Uso dos Alunos' %}selected{% endif %}>
                         Uso dos Alunos
                     </option>
                 </select>
@@ -669,7 +669,7 @@
                             <td>{{ rt.aulas_ativas.selector_identification }}</td>
                             <td>{{ rt.inicio_reserva|data }}</td>
                             <td>{{ rt.fim_reserva|data }}</td>
-                            <td>{{ rt.tipo_reserva.value }}</td>
+                            <td>{{ rt.finalidade_reserva.value }}</td>
                             <td>{{ rt.observacoes if rt.observacoes else '-' }}</td>
                             <td>
                                 <form method="post" class="form-inline">

@@ -12,7 +12,7 @@ from app.auxiliar.auxiliar_routes import (get_query_params,
                                           registrar_log_generico_usuario)
 from app.auxiliar.dao import get_aulas_ativas, get_laboratorios, get_situacoes
 from app.auxiliar.decorators import admin_required
-from app.models import (SituacaoChaveEnum, SituacaoTipoReservaEnum,
+from app.models import (SituacaoChaveEnum, TipoReservaEnum,
                         Situacoes_Das_Reserva, db)
 from config.general import PER_PAGE
 
@@ -62,7 +62,7 @@ def gerenciar_situacoes_das_reservas():
             if situacao_chave:
                 filter.append(Situacoes_Das_Reserva.situacao_chave == SituacaoChaveEnum(situacao_chave))
             if tipo_reserva:
-                filter.append(Situacoes_Das_Reserva.tipo_reserva == SituacaoTipoReservaEnum(tipo_reserva))
+                filter.append(Situacoes_Das_Reserva.tipo_reserva == TipoReservaEnum(tipo_reserva))
             if filter:
                 sel_situacoes = select(Situacoes_Das_Reserva).where(*filter)
                 situacoes_das_reservas_paginadas = SelectPagination(
@@ -97,7 +97,7 @@ def gerenciar_situacoes_das_reservas():
                     situacao_chave = SituacaoChaveEnum(situacao_chave)
                 )
                 if tipo_reserva:
-                    nova_situacao.tipo_reserva = SituacaoTipoReservaEnum(tipo_reserva)
+                    nova_situacao.tipo_reserva = TipoReservaEnum(tipo_reserva)
                 db.session.add(nova_situacao)
 
                 db.session.flush()
@@ -141,7 +141,7 @@ def gerenciar_situacoes_das_reservas():
                 situacao_da_reserva.situacao_dia = situacao_dia
                 situacao_da_reserva.situacao_chave = SituacaoChaveEnum(situacao_chave)
                 if tipo_reserva:
-                    situacao_da_reserva.tipo_reserva = SituacaoTipoReservaEnum(tipo_reserva)
+                    situacao_da_reserva.tipo_reserva = TipoReservaEnum(tipo_reserva)
 
                 db.session.flush()
                 registrar_log_generico_usuario(userid, 'Edição', situacao_da_reserva, dados_anteriores)

@@ -19,7 +19,7 @@ from app.auxiliar.dao import (check_reserva_temporaria,
                               get_laboratorios, get_pessoas,
                               get_usuarios_especiais)
 from app.auxiliar.decorators import reserva_temp_required
-from app.models import (FinalidadeTipoReservaEnum, Laboratorios, Permissoes,
+from app.models import (FinalidadeReservaEnum, Laboratorios, Permissoes,
                         Reservas_Temporarias, TipoAulaEnum, Turnos, Usuarios,
                         db)
 
@@ -147,7 +147,7 @@ def get_lab_geral(inicio, fim, id_turno):
         for day in days:
             helper[(r.id_reserva_laboratorio, r.id_reserva_aula, day)] = title
     extras['helper'] = helper
-    extras['tipo_reserva'] = FinalidadeTipoReservaEnum
+    extras['tipo_reserva'] = FinalidadeReservaEnum
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
     extras['contador'] = session.get('contador')
@@ -216,7 +216,7 @@ def get_lab_especifico(inicio, fim, id_turno, id_lab):
         for day in days:
             helper[(r.id_reserva_laboratorio, r.id_reserva_aula, day)] = title
     extras['helper'] = helper
-    extras['tipo_reserva'] = FinalidadeTipoReservaEnum
+    extras['tipo_reserva'] = FinalidadeReservaEnum
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
     extras['contador'] = session.get('contador')
@@ -278,7 +278,7 @@ def efetuar_reserva(inicio, fim):
                     id_reserva_aula = aula,
                     inicio_reserva = inicio,
                     fim_reserva = fim,
-                    tipo_reserva = FinalidadeTipoReservaEnum(tipo_reserva),
+                    tipo_reserva = FinalidadeReservaEnum(tipo_reserva),
                     observacoes = observacoes
                 )
                 db.session.add(reserva)

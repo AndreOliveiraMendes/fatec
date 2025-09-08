@@ -139,4 +139,14 @@
 {#
 localizar todos os blue-prints: Blueprint\(('[^']+'),[^\)]+\)
 comando para pegar a arvore: tree -a -I '.git|__pycache__|.venv|logs|laboratorio'
+rodar ao fazer merge
+ALTER TABLE reservas_fixas
+    CHANGE COLUMN tipo_reserva finalidade_reserva 
+    ENUM('GRADUACAO','ESPECIALIZACAO','EAD','NAPTI','CURSO','USO_DOS_ALUNOS') 
+    NOT NULL DEFAULT 'GRADUACAO';
+
+ALTER TABLE reservas_temporarias
+    CHANGE COLUMN tipo_reserva finalidade_reserva 
+    ENUM('GRADUACAO','ESPECIALIZACAO','EAD','NAPTI','CURSO','USO_DOS_ALUNOS') 
+    NOT NULL DEFAULT 'GRADUACAO';
 #}
