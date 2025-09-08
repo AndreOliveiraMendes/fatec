@@ -44,6 +44,16 @@ class Exibicao_Reservas(Base):
         ),
     )
 
+    laboratorios: Mapped['Laboratorios'] = relationship(back_populates='exibicao_reservas')
+    aulas_ativas: Mapped['Aulas_Ativas'] = relationship(back_populates='exibicao_reservas')
+
+    def __repr__(self):
+        return (
+            f"Exibicao_Reservas(id_exibicao={self.id_exibicao}, id_exibicao_laboratorio={self.id_exibicao_laboratorio}, "
+            f"id_exibicao_aula={self.id_exibicao_aula}, exibicao_dia={self.exibicao_dia}, "
+            f"tipo_reserva={self.tipo_reserva})"
+        )
+
 class Situacoes_Das_Reserva(Base):
     __tablename__ = "situacoes_das_reservas"
 
@@ -155,6 +165,15 @@ class Reservas_Fixas(ReservaBase):
         aula = self.aulas_ativas.selector_identification
         semestre = self.semestres.nome_semestre
         return f" {aula} em {laboratorio} no {semestre}"
+    
+    def __repr__(self):
+        return (
+            f"Reservas_Fixas(id_reserva_fixa={self.id_reserva_fixa}, id_responsavel={self.id_responsavel}, "
+            f"id_responsavel_especial={self.id_responsavel_especial}, tipo_responsavel={self.tipo_responsavel}, "
+            f"id_reserva_laboratorio={self.id_reserva_laboratorio}, id_reserva_aula={self.id_reserva_aula}, "
+            f"finalidade_reserva={self.finalidade_reserva}, observacoes={self.observacoes}, "
+            f"descricao={self.descricao}, id_reserva_semestre={self.id_reserva_semestre})"
+        )
 
 class Reservas_Temporarias(ReservaBase):
     __tablename__ = 'reservas_temporarias'
@@ -198,6 +217,16 @@ class Reservas_Temporarias(ReservaBase):
         inicio = parse_date(self.inicio_reserva)
         fim = parse_date(self.fim_reserva)
         return f" {aula} em {laboratorio} de {inicio} ate {fim}"
+
+    def __repr__(self):
+        return (
+            f"Reservas_Fixas(id_reserva_temporaria={self.id_reserva_temporaria}, id_responsavel={self.id_responsavel}, "
+            f"id_responsavel_especial={self.id_responsavel_especial}, tipo_responsavel={self.tipo_responsavel}, "
+            f"id_reserva_laboratorio={self.id_reserva_laboratorio}, id_reserva_aula={self.id_reserva_aula}, "
+            f"finalidade_reserva={self.finalidade_reserva}, observacoes={self.observacoes}, "
+            f"descricao={self.descricao}, inicio_reserva={self.inicio_reserva}, "
+            f"fim_reserva={self.fim_reserva})"
+        )
 
 class Usuarios_Especiais(Base):
     __tablename__ = 'usuarios_especiais'
@@ -311,6 +340,7 @@ class Laboratorios(Base):
     reservas_fixas: Mapped[list['Reservas_Fixas']] = relationship(back_populates='laboratorios')
     reservas_temporarias: Mapped[list['Reservas_Temporarias']] = relationship(back_populates='laboratorios')
     situacoes_das_reservas: Mapped[list['Situacoes_Das_Reserva']] = relationship(back_populates='laboratorios') 
+    exibicao_reservas: Mapped[list['Exibicao_Reservas']] = relationship(back_populates='laboratorios')
 
     def __repr__(self) -> str:
         return (
@@ -441,6 +471,7 @@ class Aulas_Ativas(Base):
     reservas_fixas: Mapped[list['Reservas_Fixas']] = relationship(back_populates='aulas_ativas')
     reservas_temporarias: Mapped[list['Reservas_Temporarias']] = relationship(back_populates='aulas_ativas')
     situacoes_das_reservas: Mapped[list['Situacoes_Das_Reserva']] = relationship(back_populates='aulas_ativas')
+    exibicao_reservas: Mapped[list['Exibicao_Reservas']] = relationship(back_populates='aulas_ativas')
 
     dia_da_semana: Mapped['Dias_da_Semana'] = relationship(back_populates='aulas_ativas')
 
