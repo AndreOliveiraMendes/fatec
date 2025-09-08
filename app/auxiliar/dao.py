@@ -6,9 +6,9 @@ from sqlalchemy import (and_, between, func, literal, or_, select, text,
 from sqlalchemy.exc import IntegrityError, MultipleResultsFound
 
 from app.models import (Aulas, Aulas_Ativas, Dias_da_Semana,
-                        DisponibilidadeEnum, Laboratorios, Pessoas,
-                        Reservas_Fixas, Reservas_Temporarias, Semestres,
-                        Situacoes_Das_Reserva, TipoAulaEnum,
+                        DisponibilidadeEnum, Exibicao_Reservas, Laboratorios,
+                        Pessoas, Reservas_Fixas, Reservas_Temporarias,
+                        Semestres, Situacoes_Das_Reserva, TipoAulaEnum,
                         TipoLaboratorioEnum, Turnos, Usuarios,
                         Usuarios_Especiais, db)
 from config.general import FIRST_DAY_OF_WEEK, INDEX_START
@@ -88,6 +88,11 @@ def get_reservas_temporarias():
 def get_situacoes():
     sel_situacoes_das_reservas = select(Situacoes_Das_Reserva)
     return db.session.execute(sel_situacoes_das_reservas).scalars().all()
+
+#Exibicao das Resercas
+def get_exibicoes():
+    sel_exibicoes_das_reservas = select(Exibicao_Reservas)
+    return db.session.execute(sel_exibicoes_das_reservas).scalars().all()
 
 #funcoes especificas para reservas
 def get_aula_turno(turno:Turnos):

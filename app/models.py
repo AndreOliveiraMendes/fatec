@@ -47,6 +47,13 @@ class Exibicao_Reservas(Base):
     laboratorios: Mapped['Laboratorios'] = relationship(back_populates='exibicao_reservas')
     aulas_ativas: Mapped['Aulas_Ativas'] = relationship(back_populates='exibicao_reservas')
 
+    @property
+    def selector_identification(self):
+        aula = self.aulas_ativas.selector_identification
+        laboratorio = self.laboratorios.nome_laboratorio
+        dia = parse_date(self.exibicao_dia)
+        return f" {dia} no {laboratorio} as {aula}"
+
     def __repr__(self):
         return (
             f"Exibicao_Reservas(id_exibicao={self.id_exibicao}, id_exibicao_laboratorio={self.id_exibicao_laboratorio}, "

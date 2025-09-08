@@ -72,7 +72,42 @@
 {% endblock listar %}
 {% block procurar %}
     {% if bloco == 0 %}
+        <h3>Procurando Situações</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label for="codigo">Codigo da Exibição</label>
+                <input type="number"
+                       class="form-control"
+                       id="id_exibicao"
+                       name="id_exibicao"
+                       placeholder="Digite o codigo da exibição">
+            </div>
+            {{ gerar_select("laboratorios", "Selecione o laboratorio", laboratorios, "id_laboratorio", "nome_laboratorio", "id_exibicao_laboratorio", optional=True) }}
+            {{ gerar_select("aulas", "Selecione o horario", aulas_ativas, "id_aula_ativa", "selector_identification", "id_exibicao_aula", optional=True) }}
+            <div class="form-group">
+                <label for="exibicao_dia">Dia da Reserva:</label>
+                <input type="date"
+                       class="form-control"
+                       id="exibicao_dia"
+                       name="exibicao_dia">
+            </div>
+            <div class="form-group">
+                <label for="tipo_reserva">Tipo da Reserva:</label>
+                <select class="form-control" id="tipo_reserva" name="tipo_reserva">
+                    <option value="">Selecione um tipo de reserva</option>
+                    <option value="fixa">fixa</option>
+                    <option value="temporaria">temporaria</option>
+                </select>
+            </div>
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
     {% else %}
+        <h3>Resultado das Busca:</h3>
+        {{ result_table("Nenhum resultado encontrado") }}
     {% endif %}
 {% endblock procurar %}
 {% block inserir %}
@@ -103,6 +138,115 @@
         {{ action_buttons(acao, 1, False, 0) }}
     </form>
 {% endblock inserir %}
+{% block editar %}
+    {% if bloco == 0 %}
+        <h3>Editar Exibições</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            {{ gerar_select("exibicao", "Selecione a Exicibição", exibicao_reservas, "id_exibicao", "selector_identification") }}
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <h3>Editar Exibição</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label for="codigo">Codigo da Exibição</label>
+                <input type="number"
+                       class="form-control"
+                       id="id_exibicao"
+                       name="id_exibicao"
+                       value="{{ exibicao_da_reserva.id_exibicao }}"
+                       readonly>
+            </div>
+            {{ gerar_select("laboratorios", "Selecione o laboratorio", laboratorios, "id_laboratorio", "nome_laboratorio", "id_exibicao_laboratorio", selected=exibicao_da_reserva.id_exibicao_laboratorio) }}
+            {{ gerar_select("aulas", "Selecione o horario", aulas_ativas, "id_aula_ativa", "selector_identification", "id_exibicao_aula", selected=exibicao_da_reserva.id_exibicao_aula) }}
+            <div class="form-group">
+                <label for="exibicao_dia">Dia da Reserva:</label>
+                <input type="date"
+                       class="form-control"
+                       id="exibicao_dia"
+                       name="exibicao_dia"
+                       value="{{ exibicao_da_reserva.exibicao_dia }}"
+                       required>
+            </div>
+            <div class="form-group">
+                <label for="tipo_reserva">Tipo da Reserva:</label>
+                <select class="form-control" id="tipo_reserva" name="tipo_reserva">
+                    <option value="">Selecione um tipo de reserva</option>
+                    <option value="fixa"
+                            {% if exibicao_da_reserva.tipo_reserva.value == 'fixa' %}selected{% endif %}>fixa</option>
+                    <option value="temporaria"
+                            {% if exibicao_da_reserva.tipo_reserva.value == 'temporaria' %}selected{% endif %}>
+                        temporaria
+                    </option>
+                </select>
+            </div>
+            {{ action_buttons(acao, 2, True, 0) }}
+        </form>
+    {% endif %}
+{% endblock editar %}
+{% block excluir %}
+    {% if bloco == 0 %}
+        <h3>Editar Exibições</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            {{ gerar_select("exibicao", "Selecione a Exicibição", exibicao_reservas, "id_exibicao", "selector_identification") }}
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <h3>Editar Exibição</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label for="codigo">Codigo da Exibição</label>
+                <input type="number"
+                       class="form-control"
+                       id="id_exibicao"
+                       name="id_exibicao"
+                       value="{{ exibicao_da_reserva.id_exibicao }}"
+                       readonly>
+            </div>
+            {{ gerar_select("laboratorios", "Selecione o laboratorio", laboratorios, "id_laboratorio", "nome_laboratorio", "id_exibicao_laboratorio", selected=exibicao_da_reserva.id_exibicao_laboratorio, extra='disabled') }}
+            {{ gerar_select("aulas", "Selecione o horario", aulas_ativas, "id_aula_ativa", "selector_identification", "id_exibicao_aula", selected=exibicao_da_reserva.id_exibicao_aula, extra='disabled') }}
+            <div class="form-group">
+                <label for="exibicao_dia">Dia da Reserva:</label>
+                <input type="date"
+                       class="form-control"
+                       id="exibicao_dia"
+                       name="exibicao_dia"
+                       value="{{ exibicao_da_reserva.exibicao_dia }}"
+                       required
+                       disabled>
+            </div>
+            <div class="form-group">
+                <label for="tipo_reserva">Tipo da Reserva:</label>
+                <select class="form-control" id="tipo_reserva" name="tipo_reserva" disabled>
+                    <option value="">Selecione um tipo de reserva</option>
+                    <option value="fixa"
+                            {% if exibicao_da_reserva.tipo_reserva.value == 'fixa' %}selected{% endif %}>fixa</option>
+                    <option value="temporaria"
+                            {% if exibicao_da_reserva.tipo_reserva.value == 'temporaria' %}selected{% endif %}>
+                        temporaria
+                    </option>
+                </select>
+            </div>
+            {{ action_buttons(acao, 2, True, 0) }}
+        </form>
+    {% endif %}
+{% endblock excluir %}
 {% macro result_table(message) %}
     {% if exibicao_reservas %}
         <div class="table-responsive">
@@ -118,19 +262,45 @@
                     </tr>
                 </thead>
                 <tbody>
-                {% for edr in exibicao_reservas %}
-                <tr>
-                <td>{{ edr.id_exibicao }}</td>
-                <td>{{ edr.laboratorios.nome_laboratorio }}</td>
-                <td>{{ edr.aulas_ativas.selector_identification }}</td>
-                <td>{{ edr.exibicao_dia }}</td>
-                <td>{{ edr.tipo_reserva.value }}</td>
-                <td></td>
-                </tr>
-                {% endfor %}
+                    {% for edr in exibicao_reservas %}
+                        <tr>
+                            <td>{{ edr.id_exibicao }}</td>
+                            <td>{{ edr.laboratorios.nome_laboratorio }}</td>
+                            <td>{{ edr.aulas_ativas.selector_identification }}</td>
+                            <td>{{ edr.exibicao_dia|data }}</td>
+                            <td>{{ edr.tipo_reserva.value }}</td>
+                            <td>
+                                <form method="post" class="form-inline">
+                                    <input type="hidden" name="bloco" value="1">
+                                    <input type="hidden" name="id_exibicao" value="{{ edr.id_exibicao }}">
+                                    <div class="btn-group">
+                                        <button type="submit"
+                                                name="acao"
+                                                value="editar"
+                                                class="btn btn-warning btn-sm"
+                                                title="Editar">
+                                            <i class="glyphicon glyphicon-pencil"></i>
+                                        </button>
+                                        <button type="submit"
+                                                name="acao"
+                                                value="excluir"
+                                                class="btn btn-danger btn-sm"
+                                                title="Excluir">
+                                            <i class="glyphicon glyphicon-trash"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
+        {% if query_params %}
+            {{ paginacao(pagination, acao, bloco, query_params) }}
+        {% else %}
+            {{ paginacao(pagination, acao, bloco) }}
+        {% endif %}
     {% else %}
         <div class="alert alert-info" role="alert">{{ message }}</div>
     {% endif %}

@@ -13,9 +13,8 @@ from app.auxiliar.auxiliar_routes import (get_user_info, none_if_empty,
 from app.auxiliar.constant import PERM_ADMIN
 from app.auxiliar.dao import get_pessoas, get_semestres, get_usuarios_especiais
 from app.auxiliar.decorators import login_required
-from app.models import (Aulas, Aulas_Ativas, FinalidadeReservaEnum,
-                        Permissoes, Reservas_Fixas, Reservas_Temporarias,
-                        Usuarios, db)
+from app.models import (Aulas, Aulas_Ativas, FinalidadeReservaEnum, Permissoes,
+                        Reservas_Fixas, Reservas_Temporarias, Usuarios, db)
 from config.general import LOCAL_TIMEZONE
 
 bp = Blueprint('usuario', __name__, url_prefix='/usuario')

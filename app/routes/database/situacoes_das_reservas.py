@@ -12,8 +12,8 @@ from app.auxiliar.auxiliar_routes import (get_query_params,
                                           registrar_log_generico_usuario)
 from app.auxiliar.dao import get_aulas_ativas, get_laboratorios, get_situacoes
 from app.auxiliar.decorators import admin_required
-from app.models import (SituacaoChaveEnum, TipoReservaEnum,
-                        Situacoes_Das_Reserva, db)
+from app.models import (SituacaoChaveEnum, Situacoes_Das_Reserva,
+                        TipoReservaEnum, db)
 from config.general import PER_PAGE
 
 bp = Blueprint('database_situacoes_das_reservas', __name__, url_prefix="/database")
@@ -174,9 +174,6 @@ def gerenciar_situacoes_das_reservas():
             except (IntegrityError, OperationalError) as e:
                 db.session.rollback()
                 flash(f"Erro ao excluir situação:{str(e.orig)}", "danger")
-            except ValueError as ve:
-                db.session.rollback()
-                flash(f"Erro ao excluir situação:{ve}", "danger")
 
             redirect_action, bloco = register_return(
                 url, acao, extras,

@@ -367,6 +367,11 @@
                 {% endfor %}
             </table>
         </div>
+        {% if query_params %}
+            {{ paginacao(pagination, acao, bloco, query_params) }}
+        {% else %}
+            {{ paginacao(pagination, acao, bloco) }}
+        {% endif %}
     {% else %}
         <div class="alert alert-info" role="alert">{{ message }}</div>
     {% endif %}
