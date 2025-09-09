@@ -9,7 +9,7 @@
             <h3 class="panel-title">
                 <form method="get"
                       class="form-inline"
-                      action="{{ url_for('situacao_reserva.gerenciar_status') }}">
+                      action="{{ url_for('situacao_reserva.gerenciar_exibicao') }}">
                     <div class="form-group">
                         <label for="reserva-dia">dia:</label>
                         <input type="date"
@@ -64,6 +64,7 @@
                                 <th>Laboratorio</th>
                                 <th>Fixa</th>
                                 <th>Temporaria</th>
+                                <th>Exibida</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -73,6 +74,36 @@
                                     <td>{{ reserva.laboratorio.nome_laboratorio }}</td>
                                     <td>{{ get_responsavel_reserva(reserva.fixa) if reserva.fixa else '' }}</td>
                                     <td>{{ get_responsavel_reserva(reserva.temporaria) if reserva.temporaria else '' }}</td>
+                                    <td>
+                                        <form class="form-inline"
+                                              role="form"
+                                              action="{{ url_for('situacao_reserva.atualizar_exibicao', id_aula=reserva.horario.id_aula_ativa, id_lab=reserva.laboratorio.id_laboratorio, dia=reserva_dia) }}"
+                                              method="post">
+                                            {% for icon, style, label in icons %}
+                                                {% if reserva.exibicao %}
+                                                    {% if label != reserva.exibicao.tipo_reserva.value %}
+                                                        {% set style = "muted" %}
+                                                    {% else %}
+                                                        {% set extra = "disabled" %}
+                                                    {% endif %}
+                                                {% else %}
+                                                    {% if label != 'temporaria priorizada' %}
+                                                        {% set style = "muted" %}
+                                                    {% else %}
+                                                        {% set extra = "disabled" %}
+                                                    {% endif %}
+                                                {% endif %}
+                                                <button type="submit"
+                                                        name="exibicao"
+                                                        value="{{ label }}"
+                                                        class="btn-icon"
+                                                        title="{{ label }}"
+                                                        {{ extra }}>
+                                                    <span class="glyphicon {{ icon }} text-{{ style }}"></span>
+                                                </button>
+                                            {% endfor %}
+                                        </form>
+                                    </td>
                                 </tr>
                             {% endfor %}
                         </tbody>

@@ -8,18 +8,18 @@ from sqlalchemy.exc import IntegrityError, OperationalError
 from app.auxiliar.auxiliar_routes import (get_unique_or_500, get_user_info,
                                           parse_date_string,
                                           registrar_log_generico_usuario)
-from app.auxiliar.dao import (check_first, get_reservas_por_dia,
-                              get_situacoes_por_dia, get_turno_by_time,
-                              get_turnos)
+from app.auxiliar.dao import (check_first, get_exibicao_por_dia,
+                              get_reservas_por_dia, get_situacoes_por_dia,
+                              get_turno_by_time, get_turnos)
 from app.auxiliar.decorators import admin_required
-from app.models import (SituacaoChaveEnum, Situacoes_Das_Reserva, TipoAulaEnum,
-                        Turnos, db)
+from app.models import (Aulas_Ativas, Laboratorios, SituacaoChaveEnum,
+                        Situacoes_Das_Reserva, TipoAulaEnum, Turnos, db, Exibicao_Reservas, TipoReservaEnum)
 
 bp = Blueprint('situacao_reserva', __name__, url_prefix="/status_reserva")
 
-@bp.route('/')
+@bp.route('/exibicao', methods=['GET'])
 @admin_required
-def gerenciar_status():
+def gerenciar_exibicao():
     userid = session.get('userid')
     username, perm = get_user_info(userid)
     hoje = datetime.today()
@@ -88,15 +88,88 @@ def gerenciar_status():
             reserva['fixa'] = None
             reserva['temporaria'] = rt
             j += 1
-        situacao = get_situacoes_por_dia(reserva['horario'], reserva['laboratorio'], reserva_dia)
-        reserva['situacao'] = situacao
+        reserva['exibicao'] = get_exibicao_por_dia(reserva['horario'], reserva['laboratorio'], reserva_dia)
         reservas.append(reserva)
     extras['reservas'] = reservas
     icons = [
-        ["glyphicon-question-sign", "default", "não definido"],
-        ["glyphicon-thumbs-down", "danger", "não pegou a chave"],
-        ["glyphicon-thumbs-up", "success", "pegou a chave"],
-        ["glyphicon-ok", "info", "devolveu a chave"]
+        ["glyphicon-th-list", "warning", "temporaria priorizada"],
+        ["glyphicon-lock", "info", "fixa"],
+        ["glyphicon-time", "success", "temporaria"]
     ]
     extras['icons'] = icons
-    return render_template("status_reserva/status_reserva.html", username=username, perm=perm, **extras)
+    return render_template("status_reserva/exibicao_reserva.html", username=username, perm=perm, **extras)
+
+@bp.route('/exibicao/<int:id_aula>/<int:id_lab>/<data:dia>', methods=['POST'])
+@admin_required
+def atualizar_exibicao(id_aula, id_lab, dia):
+    userid = session.get('userid')
+    aula = db.get_or_404(Aulas_Ativas, id_aula)
+    lab = db.get_or_404(Laboratorios, id_lab)
+
+    new_exibicao_config = request.form.get('exibicao')
+    exibicao = get_exibicao_por_dia(aula, lab, dia)
+    old_exibicao = None
+    if new_exibicao_config in ['fixa', 'temporaria']:
+        try:
+            acao = 'Inserção'
+            if exibicao:
+                old_exibicao = copy(exibicao)
+                acao = 'Edição'
+            else:
+                exibicao = Exibicao_Reservas(
+                    id_exibicao_aula=id_aula,
+                    id_exibicao_laboratorio=id_lab,
+                    exibicao_dia=dia
+                )
+            exibicao.tipo_reserva = TipoReservaEnum(new_exibicao_config)
+
+            db.session.add(exibicao)
+
+            db.session.flush()
+            registrar_log_generico_usuario(userid, acao, exibicao, old_exibicao, 'pelo painel', True)
+
+            db.session.commit()
+            flash("dados atualizados com sucesso", "success")
+        except (IntegrityError, OperationalError) as e:
+            db.session.rollback()
+            flash(f"Erro ao atualizar dados:{str(e.orig)}", "danger")
+        except ValueError as ve:
+            db.session.rollback()
+            flash(f"Erro ao atualizar dados:{ve}", "danger")
+    else:
+        if exibicao:
+            try:
+                db.session.delete(exibicao)
+
+                db.session.flush()
+                registrar_log_generico_usuario(userid, 'Exclusão', exibicao, observacao='pelo painel')
+
+                db.session.commit()
+                flash("dados atualizados com sucesso", "success")
+            except (IntegrityError, OperationalError) as e:
+                db.session.rollback()
+                flash(f"Erro ao atualizar dados:{str(e.orig)}", "danger")
+            except ValueError as ve:
+                db.session.rollback()
+                flash(f"Erro ao atualizar dados:{ve}", "danger")
+
+    return redirect(url_for("situacao_reserva.gerenciar_exibicao"))
+
+@bp.route('/<tipo_reserva>')
+def gerenciar_situacoes(tipo_reserva):
+    if tipo_reserva == 'fixa':
+        return gerenciar_situacoes_reservas_fixas()
+    elif tipo_reserva == 'temporaria':
+        return gerenciar_situacoes_reservas_temporarias()
+
+def gerenciar_situacoes_reservas_fixas():
+    userid = session.get('userid')
+    username, perm = get_user_info(userid)
+    extras = {}
+    return render_template("status_reserva/status_fixas.html", username=username, perm=perm, **extras)
+
+def gerenciar_situacoes_reservas_temporarias():
+    userid = session.get('userid')
+    username, perm = get_user_info(userid)
+    extras = {}
+    return render_template("status_reserva/status_temporarias.html", username=username, perm=perm, **extras)
