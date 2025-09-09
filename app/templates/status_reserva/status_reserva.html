@@ -71,8 +71,8 @@
                                 <tr>
                                     <td>{{ reserva.horario.aulas.horario_inicio|hora }} - {{ reserva.horario.aulas.horario_fim|hora }}</td>
                                     <td>{{ reserva.laboratorio.nome_laboratorio }}</td>
-                                    <td>{{ get_responsavel_reserva(reserva.fixa, None) if reserva.fixa else '' }}</td>
-                                    <td>{{ get_responsavel_reserva(reserva.temporaria, None) if reserva.temporaria else '' }}</td>
+                                    <td>{{ get_responsavel_reserva(reserva.fixa) if reserva.fixa else '' }}</td>
+                                    <td>{{ get_responsavel_reserva(reserva.temporaria) if reserva.temporaria else '' }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>

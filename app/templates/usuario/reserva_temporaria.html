@@ -68,7 +68,7 @@
                         <tbody>
                             {% for r in reservas_temporarias %}
                                 <tr>
-                                    {% if all %}<td>{{ get_responsavel_reserva(r, None) }}</td>{% endif %}
+                                    {% if all %}<td>{{ get_responsavel_reserva(r) }}</td>{% endif %}
                                     <td>{{ r.laboratorios.nome_laboratorio }}</td>
                                     <td>{{ r.inicio_reserva|data }} - {{ r.fim_reserva|data }}</td>
                                     <td>{{ r.aulas_ativas.dia_da_semana.nome_semana }}</td>

@@ -247,8 +247,8 @@ def register_filters(app:Flask):
         """)
 
     @app.template_global('get_responsavel_reserva')
-    def get_responsavel_reserva_template(reserva:Reservas_Fixas|Reservas_Temporarias, prefix='reservado '):
-        return get_responsavel_reserva(reserva, prefix)
+    def get_responsavel_reserva_template(reserva:Reservas_Fixas|Reservas_Temporarias):
+        return get_responsavel_reserva(reserva)
 
     @app.template_global()
     def get_reserva(lab, aula, dia, mostrar_icone=False):
@@ -272,24 +272,23 @@ def register_filters(app:Flask):
             Reservas_Temporarias.id_reserva_aula == aula,
             between(dia, Reservas_Temporarias.inicio_reserva, Reservas_Temporarias.fim_reserva)
         )
-        data = ""
-        if temp or fixa:
-            if temp:
-                choose = temp
-            else:
-                choose = fixa
-        if choose:
-            if choose.finalidade_reserva == FinalidadeReservaEnum.CURSO:
-                data += "Curso"
-                if choose.descricao:
-                    data += f"<br>{choose.descricao}"
-            else:
-                data += get_responsavel_reserva(choose, prefix = None)
-                if mostrar_icone:
-                    data += status_reserva(lab, aula, dia)
+
+        choose = temp or fixa
+
+        if not choose:
+            return Markup("Livre")
+
+        partes = []
+        if choose.finalidade_reserva == FinalidadeReservaEnum.CURSO:
+            partes.append("Curso")
+            if choose.descricao:
+                partes.append(f"{choose.descricao}")
         else:
-            data += "Livre"
-        return Markup(data)
+            partes.append(get_responsavel_reserva(choose))
+            if mostrar_icone:
+                partes.append(status_reserva(lab, aula, dia))
+
+        return Markup("<br>".join(partes))
 
     @app.template_global()
     def status_reserva(lab, aula, dia):
@@ -302,7 +301,7 @@ def register_filters(app:Flask):
         chave = status.situacao_chave.name if status else None
         cor, base, overlay, tooltip = mapa_icones_status[chave]
         icon = f"""
-        <br><span class="reserva-icon { cor }" title="{ tooltip }">
+        <span class="reserva-icon { cor }" title="{ tooltip }">
             <i class="glyphicon { base } base-icon"></i>
         """
         if overlay:
