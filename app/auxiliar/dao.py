@@ -1,4 +1,5 @@
 from datetime import date, time
+from typing import Literal
 
 from flask import abort
 from sqlalchemy import (and_, between, func, literal, or_, select, text,
@@ -9,7 +10,7 @@ from app.models import (Aulas, Aulas_Ativas, Dias_da_Semana,
                         DisponibilidadeEnum, Exibicao_Reservas, Laboratorios,
                         Pessoas, Reservas_Fixas, Reservas_Temporarias,
                         Semestres, Situacoes_Das_Reserva, TipoAulaEnum,
-                        TipoLaboratorioEnum, Turnos, Usuarios,
+                        TipoLaboratorioEnum, TipoReservaEnum, Turnos, Usuarios,
                         Usuarios_Especiais, db)
 from config.general import FIRST_DAY_OF_WEEK, INDEX_START
 
@@ -268,26 +269,68 @@ def check_reserva_temporaria(inicio, fim, laboratorio, aula, id = None):
         )
 
 # get reservas_fixas por dia
-def get_reservas_por_dia(dia:date, turno:Turnos|None=None, tipo_horario:TipoAulaEnum|None=None):
-    sel_semestre = select(Semestres).where(
-        between(dia, Semestres.data_inicio, Semestres.data_fim)
-    )
-    try:
-        reservas_fixas, reservas_temporarias = None, None
-        semestre = db.session.execute(sel_semestre).scalar_one_or_none()
-        if semestre:
-            filtro_fixa = [Reservas_Fixas.id_reserva_semestre == semestre.id_semestre]
+def get_reservas_por_dia(dia:date, turno:Turnos|None=None, tipo_horario:TipoAulaEnum|None=None, tipo_reservas:Literal['fixa', 'temporaria']|None=None):
+    """
+    Obtém as reservas de aulas para um dia específico.
+
+    Parâmetros:
+    - dia (date): O dia para o qual as reservas devem ser consultadas.
+    - turno (Turnos | None): O turno das aulas (opcional).
+    - tipo_horario (TipoAulaEnum | None): O tipo de horário das aulas (opcional).
+    - tipo_reservas (Literal['fixa', 'temporaria'] | None): O tipo de reservas a serem consultadas.
+      Pode ser 'fixa', 'temporaria' ou None para obter ambos.
+
+    Retorno:
+    - Se tipo_reservas for 'fixa', retorna uma lista de reservas fixas.
+    - Se tipo_reservas for 'temporaria', retorna uma lista de reservas temporárias.
+    - Se tipo_reservas for None, retorna uma tupla contendo duas listas: (reservas_fixas, reservas_temporarias).
+    """
+    reservas_fixas, reservas_temporarias = None, None
+    if tipo_reservas is None or tipo_reservas == 'fixa':
+        sel_semestre = select(Semestres).where(
+            between(dia, Semestres.data_inicio, Semestres.data_fim)
+        )
+        try:
+            reservas_fixas, reservas_temporarias = None, None
+            semestre = db.session.execute(sel_semestre).scalar_one_or_none()
+            if semestre:
+                filtro_fixa = [Reservas_Fixas.id_reserva_semestre == semestre.id_semestre]
+                if turno is not None:
+                    filtro_fixa.append(get_aula_turno(turno))
+                #dia da semana
+                filtro_fixa.append(get_aula_semana(dia))
+                #tipo horario
+                if tipo_horario is not None:
+                    filtro_fixa.append(Aulas_Ativas.tipo_aula == tipo_horario)
+                sel_reserva_fixa = (
+                    select(Reservas_Fixas).where(
+                        *filtro_fixa
+                    ).select_from(Reservas_Fixas)
+                    .join(Aulas_Ativas)
+                    .join(Aulas)
+                    .join(Laboratorios)
+                    .order_by(
+                        Laboratorios.id_laboratorio,
+                        Aulas.horario_inicio
+                    )
+                )
+                reservas_fixas = db.session.execute(sel_reserva_fixa).scalars().all()
+        except MultipleResultsFound:
+            abort(500)
+    if tipo_reservas is None or tipo_reservas == 'temporaria':
+        try:
+            filtro_temp = [between(dia, Reservas_Temporarias.inicio_reserva, Reservas_Temporarias.fim_reserva)]
             if turno is not None:
-                filtro_fixa.append(get_aula_turno(turno))
+                filtro_temp.append(get_aula_turno(turno))
             #dia da semana
-            filtro_fixa.append(get_aula_semana(dia))
+            filtro_temp.append(get_aula_semana(dia))
             #tipo horario
             if tipo_horario is not None:
-                filtro_fixa.append(Aulas_Ativas.tipo_aula == tipo_horario)
-            sel_reserva_fixa = (
-                select(Reservas_Fixas).where(
-                    *filtro_fixa
-                ).select_from(Reservas_Fixas)
+                filtro_temp.append(Aulas_Ativas.tipo_aula == tipo_horario)
+            sel_reserva_temporaria = (
+                select(Reservas_Temporarias).where(
+                    *filtro_temp
+                ).select_from(Reservas_Temporarias)
                 .join(Aulas_Ativas)
                 .join(Aulas)
                 .join(Laboratorios)
@@ -296,31 +339,15 @@ def get_reservas_por_dia(dia:date, turno:Turnos|None=None, tipo_horario:TipoAula
                     Aulas.horario_inicio
                 )
             )
-            reservas_fixas = db.session.execute(sel_reserva_fixa).scalars().all()
-        filtro_temp = [between(dia, Reservas_Temporarias.inicio_reserva, Reservas_Temporarias.fim_reserva)]
-        if turno is not None:
-            filtro_temp.append(get_aula_turno(turno))
-        #dia da semana
-        filtro_temp.append(get_aula_semana(dia))
-        #tipo horario
-        if tipo_horario is not None:
-            filtro_temp.append(Aulas_Ativas.tipo_aula == tipo_horario)
-        sel_reserva_temporaria = (
-            select(Reservas_Temporarias).where(
-                *filtro_temp
-            ).select_from(Reservas_Temporarias)
-            .join(Aulas_Ativas)
-            .join(Aulas)
-            .join(Laboratorios)
-            .order_by(
-                Laboratorios.id_laboratorio,
-                Aulas.horario_inicio
-            )
-        )
-        reservas_temporarias = db.session.execute(sel_reserva_temporaria).scalars().all()
+            reservas_temporarias = db.session.execute(sel_reserva_temporaria).scalars().all()
+        except MultipleResultsFound:
+            abort(500)
+    if tipo_reservas == 'fixa':
+        return reservas_fixas
+    elif tipo_reservas == 'temporaria':
+        return reservas_temporarias
+    else:
         return reservas_fixas, reservas_temporarias
-    except MultipleResultsFound:
-        abort(500)
 
 # para gerenciar situacoes das reservas
 def check_first(reserva_fixa:Reservas_Fixas, reserva_temporaria:Reservas_Temporarias):
@@ -336,16 +363,30 @@ def check_first(reserva_fixa:Reservas_Fixas, reserva_temporaria:Reservas_Tempora
         else:
             return 2
 
-def get_situacoes_por_dia(aula:Aulas_Ativas, laboratorio:Laboratorios, dia:date):
+def get_situacoes_por_dia(aula:Aulas_Ativas, laboratorio:Laboratorios, dia:date, tipo_reserva):
     sel_situacoes = select(
         Situacoes_Das_Reserva
     ).where(
         Situacoes_Das_Reserva.id_situacao_aula == aula.id_aula_ativa,
         Situacoes_Das_Reserva.id_situacao_laboratorio == laboratorio.id_laboratorio,
-        Situacoes_Das_Reserva.situacao_dia == dia
+        Situacoes_Das_Reserva.situacao_dia == dia,
+        Situacoes_Das_Reserva.tipo_reserva == TipoReservaEnum(tipo_reserva)
     )
     try:
         return db.session.execute(sel_situacoes).scalar_one_or_none()
+    except MultipleResultsFound:
+        abort(500)
+
+def get_exibicao_por_dia(aula:Aulas_Ativas, laboratorio:Laboratorios, dia:date):
+    sel_exibicao = select(
+        Exibicao_Reservas
+    ).where(
+        Exibicao_Reservas.id_exibicao_aula == aula.id_aula_ativa,
+        Exibicao_Reservas.id_exibicao_laboratorio == laboratorio.id_laboratorio,
+        Exibicao_Reservas.exibicao_dia == dia
+    )
+    try:
+        return db.session.execute(sel_exibicao).scalar_one_or_none()
     except MultipleResultsFound:
         abort(500)
 
