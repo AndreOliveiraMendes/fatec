@@ -10,9 +10,9 @@ from app.auxiliar.auxiliar_routes import (get_responsavel_reserva,
 from app.auxiliar.constant import (DATA_ABREV, DATA_COMPLETA, DATA_FLAGS,
                                    DATA_NUMERICA, HORA, PERM_ADMIN,
                                    PERMISSIONS, SEMANA_ABREV, SEMANA_COMPLETA)
-from app.models import (FinalidadeReservaEnum, Laboratorios, Reservas_Fixas,
-                        Reservas_Temporarias, Semestres, Situacoes_Das_Reserva,
-                        Turnos, db)
+from app.models import (Exibicao_Reservas, FinalidadeReservaEnum, Laboratorios,
+                        Reservas_Fixas, Reservas_Temporarias, Semestres,
+                        Situacoes_Das_Reserva, Turnos, db)
 from config.database_views import SECOES, TABLES_PER_LINE
 from config.enum_related import (mapa_icones_status, meses_ingleses,
                                  semana_inglesa, situacoes_helper)
@@ -267,6 +267,16 @@ def register_filters(app:Flask):
         )
 
         choose = temp or fixa
+
+        exibicao = get_unique_or_500(
+            Exibicao_Reservas,
+            Exibicao_Reservas.id_exibicao_laboratorio == lab,
+            Exibicao_Reservas.id_exibicao_aula == aula,
+            Exibicao_Reservas.exibicao_dia == dia
+        )
+
+        if exibicao:
+            choose = {"fixa": fixa, "temporaria": temp}.get(exibicao.tipo_reserva.value, choose)
 
         if not choose:
             return Markup("Livre")
