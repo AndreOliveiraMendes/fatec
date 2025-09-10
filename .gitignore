@@ -6,4 +6,4 @@ config.ini
 .vscode
 laboratorio
 logs
-config/painel.json
+config/*.json
