@@ -33,18 +33,18 @@ mapa_icones_status = {
 situacoes_helper = [
     {
         "state":"exibicao",
-        "url_path":'situacao_reserva.gerenciar_exibicao',
+        "url_path":'gestao_reserva.gerenciar_exibicao',
         "label": "controle de exibição"
     },{
         "state":"fixa",
-        "url_path":'situacao_reserva.gerenciar_situacoes',
+        "url_path":'gestao_reserva.gerenciar_situacoes',
         "param":{
             "tipo_reserva":"fixa"
         },
         "label":"situação reserva fixa"
     },{
         "state":"temporaria",
-        "url_path":'situacao_reserva.gerenciar_situacoes',
+        "url_path":'gestao_reserva.gerenciar_situacoes',
         "param":{
             "tipo_reserva":"temporaria"
         },

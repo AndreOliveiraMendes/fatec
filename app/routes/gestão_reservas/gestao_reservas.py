@@ -16,7 +16,7 @@ from app.models import (Aulas_Ativas, Exibicao_Reservas, Laboratorios,
                         SituacaoChaveEnum, Situacoes_Das_Reserva, TipoAulaEnum,
                         TipoReservaEnum, Turnos, db)
 
-bp = Blueprint('situacao_reserva', __name__, url_prefix="/status_reserva")
+bp = Blueprint('gestao_reserva', __name__, url_prefix="/gestão_reservas")
 
 @bp.route('/exibicao', methods=['GET'])
 @admin_required
@@ -98,7 +98,7 @@ def gerenciar_exibicao():
         ["glyphicon-time", "success", "temporaria"]
     ]
     extras['icons'] = icons
-    return render_template("status_reserva/exibicao_reserva.html", username=username, perm=perm, **extras)
+    return render_template("gestão_reservas/exibicao_reserva.html", username=username, perm=perm, **extras)
 
 @bp.route('/exibicao/<int:id_aula>/<int:id_lab>/<data:dia>', methods=['POST'])
 @admin_required
@@ -154,7 +154,7 @@ def atualizar_exibicao(id_aula, id_lab, dia):
                 db.session.rollback()
                 flash(f"Erro ao atualizar dados:{ve}", "danger")
 
-    return redirect(url_for("situacao_reserva.gerenciar_exibicao"))
+    return redirect(url_for("gestao_reserva.gerenciar_exibicao"))
 
 @bp.route('/<tipo_reserva>')
 def gerenciar_situacoes(tipo_reserva):
@@ -194,9 +194,9 @@ def gerenciar_situacoes_reservas_fixas(extras):
         'fixa'
     )
     extras['reservas'] = reservas_fixas
-    return render_template("status_reserva/status_fixas.html", username=username, perm=perm, **extras)
+    return render_template("gestão_reservas/status_fixas.html", username=username, perm=perm, **extras)
 
 def gerenciar_situacoes_reservas_temporarias(extras):
     userid = session.get('userid')
     username, perm = get_user_info(userid)
-    return render_template("status_reserva/status_temporarias.html", username=username, perm=perm, **extras)
+    return render_template("gestão_reservas/status_temporarias.html", username=username, perm=perm, **extras)

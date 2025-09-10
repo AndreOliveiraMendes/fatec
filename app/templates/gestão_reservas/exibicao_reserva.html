@@ -10,7 +10,7 @@
             <h3 class="panel-title">
                 <form method="get"
                       class="form-inline"
-                      action="{{ url_for('situacao_reserva.gerenciar_exibicao') }}">
+                      action="{{ url_for('gestao_reserva.gerenciar_exibicao') }}">
                     <div class="form-group">
                         <label for="reserva-dia">dia:</label>
                         <input type="date"
@@ -78,7 +78,7 @@
                                     <td>
                                         <form class="form-inline"
                                               role="form"
-                                              action="{{ url_for('situacao_reserva.atualizar_exibicao', id_aula=reserva.horario.id_aula_ativa, id_lab=reserva.laboratorio.id_laboratorio, dia=reserva_dia) }}"
+                                              action="{{ url_for('gestao_reserva.atualizar_exibicao', id_aula=reserva.horario.id_aula_ativa, id_lab=reserva.laboratorio.id_laboratorio, dia=reserva_dia) }}"
                                               method="post">
                                             {% for icon, style, label in icons %}
                                                 {% if reserva.exibicao %}

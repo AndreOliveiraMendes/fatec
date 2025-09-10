@@ -1,16 +1,16 @@
 {% extends "base-fixed" %}
 {% block title %}
-    Status das Reservas Temporaria
+    Status das Reservas Fixas
 {% endblock title %}
 {% block content %}
-    {{ generate_situacao_head('temporaria') }}
+    {{ generate_situacao_head("fixa") }}
     <h3>Hoje: {{ hoje|data }}</h3>
-        <div class="panel panel-default">
+    <div class="panel panel-default">
         <div class="panel-heading">
             <h3 class="panel-title">
                 <form method="get"
                       class="form-inline"
-                      action="{{ url_for('situacao_reserva.gerenciar_situacoes', tipo_reserva='temporaria') }}">
+                      action="{{ url_for('gestao_reserva.gerenciar_situacoes', tipo_reserva='fixa') }}">
                     <div class="form-group">
                         <label for="reserva-dia">dia:</label>
                         <input type="date"
@@ -53,6 +53,12 @@
                     </div>
                 </form>
             </h3>
+        </div>
+        <div class="panel-body">
+            {% if reservas %}
+            {% else %}
+                <div class="alert alert-danger" role="alert">Nenhuma reserva encontrada nesse dia/turno/horario</div>
+            {% endif %}
         </div>
     </div>
 {% endblock content %}
