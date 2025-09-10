@@ -260,3 +260,8 @@ td.fixa {
     display: inline-block;
     /* evita que fiquem grudados */
 }
+
+.disabled_a_click{
+    pointer-events: none;
+    color: gray;
+}
