@@ -1,8 +1,9 @@
 {% extends "base-fixed" %}
 {% block title %}
-    Status das Reservas
+    Controle de Exibição
 {% endblock title %}
 {% block content %}
+    {{ generate_situacao_head('exibicao') }}
     <h3>Hoje: {{ hoje|data }}</h3>
     <div class="panel panel-default">
         <div class="panel-heading">

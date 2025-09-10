@@ -12,8 +12,9 @@ from app.auxiliar.dao import (check_first, get_exibicao_por_dia,
                               get_reservas_por_dia, get_situacoes_por_dia,
                               get_turno_by_time, get_turnos)
 from app.auxiliar.decorators import admin_required
-from app.models import (Aulas_Ativas, Laboratorios, SituacaoChaveEnum,
-                        Situacoes_Das_Reserva, TipoAulaEnum, Turnos, db, Exibicao_Reservas, TipoReservaEnum)
+from app.models import (Aulas_Ativas, Exibicao_Reservas, Laboratorios,
+                        SituacaoChaveEnum, Situacoes_Das_Reserva, TipoAulaEnum,
+                        TipoReservaEnum, Turnos, db)
 
 bp = Blueprint('situacao_reserva', __name__, url_prefix="/status_reserva")
 
