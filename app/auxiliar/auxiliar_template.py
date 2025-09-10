@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Literal
+from typing import List, Literal, Optional, Tuple
 
 from flask import Flask, session, url_for
 from markupsafe import Markup
@@ -112,28 +112,28 @@ def register_filters(app:Flask):
         return Markup(html)
     
     @app.template_global()
-    def generate_database_head(current_table, max_per_line=TABLES_PER_LINE):
-        tables_info = [
+    def generate_database_head(current_table: str, max_per_line: int = TABLES_PER_LINE) -> Markup:
+        tables_info: List[Tuple[str, str, str]] = [
             (t[1].split('.')[0], t[1], t[0])
             for sec in SECOES.values()
             for t in sec['secoes']
         ]
 
-        html = ''
-
-        # Quebra em blocos de até max_per_line
-        html += '<div class="pills-group">'
+        html_parts = ['<div class="pills-group">']
+        
+        # Break into blocks of up to max_per_line
         for i in range(0, len(tables_info), max_per_line):
-            html += '<ul class="nav nav-pills">'
-            for table, url, nome in tables_info[i:i+max_per_line]:
-                active = ' class="active"' if table == current_table else ''
-                html += f'<li role="presentation"{active}>'
-                html += f'<a href="{url_for(url)}">{nome}</a>'
-                html += '</li>'
-            html += '</ul>'
-        html += '</div>'
-
-        return Markup(html)
+            html_parts.append('<ul class="nav nav-pills">')
+            for table, url, nome in tables_info[i:i + max_per_line]:
+                active_class = ' class="active"' if table == current_table else ''
+                html_parts.append(f'<li role="presentation"{active_class}>')
+                html_parts.append(f'<a href="{url_for(url)}">{nome}</a>')
+                html_parts.append('</li>')
+            html_parts.append('</ul>')
+        
+        html_parts.append('</div>')
+        
+        return Markup(''.join(html_parts))
 
     def lab_url(tipo, turno:Turnos|None, laboratorio:Laboratorios|None, **kwargs):
         id_turno=turno.id_turno if turno else None
@@ -147,53 +147,60 @@ def register_filters(app:Flask):
             return url_for('reservas_temporarias.get_lab', inicio=inicio, fim=fim, id_turno=id_turno, id_lab=id_laboratorio)
 
     @app.template_global()
-    def generate_reserva_head(tipo, turno:Turnos, current:Laboratorios|None=None, **kwargs):
+    def generate_reserva_head(tipo, turno: Turnos, current: Optional[Laboratorios] = None, **kwargs) -> Markup:
         username, perm = get_user_info(session.get('userid'))
         sel_laboratorios = select(Laboratorios)
         laboratorios = db.session.execute(sel_laboratorios).scalars().all()
 
-        html = '<div class="pills-group"><ul class="nav nav-pills">'
+        html_parts = ['<div class="pills-group"><ul class="nav nav-pills">']
+        
         for lab in laboratorios:
-            active = ''
+            active_class = ''
             active_link = lab_url(tipo, turno, lab, **kwargs)
             extra = ''
+            
             if current and current.id_laboratorio == lab.id_laboratorio:
-                active = 'active'
+                active_class = 'active'
                 active_link = lab_url(tipo, turno, None, **kwargs)
+            
             if lab.disponibilidade.value == 'Indisponivel':
-                if perm&PERM_ADMIN == 0:
-                    active = 'disabled'
+                if perm & PERM_ADMIN == 0:
+                    active_class = 'disabled'
                     active_link = ""
                 else:
-                    extra = ' <span class="glyphicon glyphicon-exclamation-sign">'
-            html += f'<li role="presentation" class="{active}">'
-            html += f'<a href="{active_link}" class="{active}">{lab.nome_laboratorio}{extra}</a>'
-            html += '</li>'
-        html += '</ul></div>'
-
-        return Markup(html)
+                    extra = ' <span class="glyphicon glyphicon-exclamation-sign"></span>'
+            
+            html_parts.append(f'<li role="presentation" class="{active_class}">')
+            html_parts.append(f'<a href="{active_link}" class="{active_class}">{lab.nome_laboratorio}{extra}</a>')
+            html_parts.append('</li>')
+        
+        html_parts.append('</ul></div>')
+        
+        return Markup(''.join(html_parts))
 
     @app.template_global()
-    def generate_situacao_head(current:Literal['exibicao', 'fixa', 'temporaria']):
+    def generate_situacao_head(current: Literal['exibicao', 'fixa', 'temporaria']) -> Markup:
         username, perm = get_user_info(session.get('userid'))
-
-        html = '<div class="pills-group"><ul class="nav nav-pills">'
+        
+        html_parts: List[str] = ['<div class="pills-group"><ul class="nav nav-pills">']
+        
         for builder in situacoes_helper:
             state = builder.get('state')
             url_path = builder.get('url_path')
             args = builder.get('param', {})
             label = builder.get('label', state)
             url = url_for(url_path, **args)
-            active = ''
-            active_link = url
-            if current == state:
-                active = 'active'
-                active_link = ''
-            html += f'<li role="presentation" class="{active}">'
-            html += f'<a href="{active_link}" class="{active}">{label}</a>'
-            html += '</li>'
-        html += '</ul></div>'
-        return Markup(html)
+            
+            active_class = 'active' if current == state else ''
+            disabled_class = 'disabled_a_click' if current == state else ''
+            
+            html_parts.append(f'<li role="presentation" class="{active_class}">')
+            html_parts.append(f'<a href="{url}" class="{disabled_class}">{label}</a>')
+            html_parts.append('</li>')
+        
+        html_parts.append('</ul></div>')
+        
+        return Markup(''.join(html_parts))
 
     @app.template_global()
     def adjust_head_fix():
