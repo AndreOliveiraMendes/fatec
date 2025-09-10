@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Literal
 
 from flask import Flask, session, url_for
 from markupsafe import Markup
@@ -13,38 +14,9 @@ from app.models import (FinalidadeReservaEnum, Laboratorios, Reservas_Fixas,
                         Reservas_Temporarias, Semestres, Situacoes_Das_Reserva,
                         Turnos, db)
 from config.database_views import SECOES, TABLES_PER_LINE
+from config.enum_related import (mapa_icones_status, meses_ingleses,
+                                 semana_inglesa, situacoes_helper)
 
-semana_inglesa = {
-    '%a': {  # abreviada
-        'Mon': 'Seg', 'Tue': 'Ter', 'Wed': 'Qua', 'Thu': 'Qui',
-        'Fri': 'Sex', 'Sat': 'Sáb', 'Sun': 'Dom'
-    },
-    '%A': {  # completa
-        'Monday': 'segunda-feira', 'Tuesday': 'terça-feira', 'Wednesday': 'quarta-feira',
-        'Thursday': 'quinta-feira', 'Friday': 'sexta-feira', 'Saturday': 'sábado', 'Sunday': 'domingo'
-    }
-}
-
-meses_ingleses = {
-    '%b': {  # abreviada
-        'Jan': 'Jan', 'Feb': 'Fev', 'Mar': 'Mar', 'Apr': 'Abr',
-        'May': 'Mai', 'Jun': 'Jun', 'Jul': 'Jul', 'Aug': 'Ago',
-        'Sep': 'Set', 'Oct': 'Out', 'Nov': 'Nov', 'Dec': 'Dez'
-    },
-    '%B': {  # completa
-        'January': 'janeiro', 'February': 'fevereiro', 'March': 'março',
-        'April': 'abril', 'May': 'maio', 'June': 'junho',
-        'July': 'julho', 'August': 'agosto', 'September': 'setembro',
-        'October': 'outubro', 'November': 'novembro', 'December': 'dezembro'
-    }
-}
-
-mapa_icones_status = {
-    None: ("text-muted", "glyphicon-user", None, "indefinido"),
-    "NAO_PEGOU_A_CHAVE": ("text-danger", "glyphicon-user", "glyphicon-remove", "não pegou a chave"),
-    "PEGOU_A_CHAVE": ("text-success", "glyphicon-user", "glyphicon-ok", "esta em sala"),
-    "DEVOLVEU_A_CHAVE": ("text-primary", "glyphicon-user", "glyphicon-log-out", "reserva efetuada"),
-}
 
 def register_filters(app:Flask):
     @app.template_global()
@@ -179,19 +151,18 @@ def register_filters(app:Flask):
         username, perm = get_user_info(session.get('userid'))
         sel_laboratorios = select(Laboratorios)
         laboratorios = db.session.execute(sel_laboratorios).scalars().all()
-        html = ''
 
-        html += '<div class="pills-group"><ul class="nav nav-pills">'
+        html = '<div class="pills-group"><ul class="nav nav-pills">'
         for lab in laboratorios:
             active = ''
             active_link = lab_url(tipo, turno, lab, **kwargs)
             extra = ''
             if current and current.id_laboratorio == lab.id_laboratorio:
-                active='active'
+                active = 'active'
                 active_link = lab_url(tipo, turno, None, **kwargs)
             if lab.disponibilidade.value == 'Indisponivel':
                 if perm&PERM_ADMIN == 0:
-                    active='disabled'
+                    active = 'disabled'
                     active_link = ""
                 else:
                     extra = ' <span class="glyphicon glyphicon-exclamation-sign">'
@@ -200,6 +171,28 @@ def register_filters(app:Flask):
             html += '</li>'
         html += '</ul></div>'
 
+        return Markup(html)
+
+    @app.template_global()
+    def generate_situacao_head(current:Literal['exibicao', 'fixa', 'temporaria']):
+        username, perm = get_user_info(session.get('userid'))
+
+        html = '<div class="pills-group"><ul class="nav nav-pills">'
+        for builder in situacoes_helper:
+            state = builder.get('state')
+            url_path = builder.get('url_path')
+            args = builder.get('param', {})
+            label = builder.get('label', state)
+            url = url_for(url_path, **args)
+            active = ''
+            active_link = url
+            if current == state:
+                active = 'active'
+                active_link = ''
+            html += f'<li role="presentation" class="{active}">'
+            html += f'<a href="{active_link}" class="{active}">{label}</a>'
+            html += '</li>'
+        html += '</ul></div>'
         return Markup(html)
 
     @app.template_global()
