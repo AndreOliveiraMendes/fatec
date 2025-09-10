@@ -7,3 +7,4 @@ requests
 tzlocal
 mysql-connector-python
 gunicorn
+#paramiko
