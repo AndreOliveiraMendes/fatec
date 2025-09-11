@@ -1,20 +1,21 @@
 from copy import copy
 from datetime import datetime
 
-from flask import (Blueprint, flash, redirect, render_template, request,
-                   session, url_for, abort)
+from flask import (Blueprint, abort, flash, redirect, render_template, request,
+                   session, url_for)
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from app.auxiliar.auxiliar_routes import (get_unique_or_500, get_user_info,
+from app.auxiliar.auxiliar_routes import (get_responsavel_reserva,
+                                          get_unique_or_500, get_user_info,
                                           parse_date_string,
-                                          registrar_log_generico_usuario, get_responsavel_reserva)
+                                          registrar_log_generico_usuario)
 from app.auxiliar.dao import (check_first, get_exibicao_por_dia,
                               get_reservas_por_dia, get_situacoes_por_dia,
                               get_turno_by_time, get_turnos)
 from app.auxiliar.decorators import admin_required
 from app.models import (Aulas_Ativas, Exibicao_Reservas, Laboratorios,
                         SituacaoChaveEnum, Situacoes_Das_Reserva, TipoAulaEnum,
-                        TipoReservaEnum, Turnos, db, Reservas_Fixas, Reservas_Temporarias)
+                        TipoReservaEnum, Turnos, db)
 
 bp = Blueprint('gestao_reserva', __name__, url_prefix="/gestao_reservas")
 
