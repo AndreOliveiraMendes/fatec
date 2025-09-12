@@ -9,13 +9,14 @@
           role="form"
           method="post">
         <div class="form-group">
-            <label for="modo_visualizacao">Modo de Visualizacao:</label>
+            <label for="modo_gerenciacao">Modo de Visualizacao:</label>
             <select class="form-control"
-                    id="modo_visualizacao"
-                    name="modo_visualizacao"
+                    id="modo_gerenciacao"
+                    name="modo_gerenciacao"
                     required>
-                <option value="unico">Reservas Separadas</option>
-                <option value="multiplo">Reservas Compativeis Unidas</option>
+                <option value="">Selecione o Modo</option>
+                <option value="unico" {% if config_cfg.get('modo_gerenciacao') == 'unico' %}selected{% endif %}>Reservas Separadas</option>
+                <option value="multiplo" {% if config_cfg.get('modo_gerenciacao') == 'multiplo' %}selected{% endif %}>Reservas Compativeis Unidas</option>
             </select>
         </div>
         {{ action_buttons('montar', show_voltar=False, label='') }}
