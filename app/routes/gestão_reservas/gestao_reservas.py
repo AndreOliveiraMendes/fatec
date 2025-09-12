@@ -233,6 +233,24 @@ def gerenciar_situacoes_reservas_fixas(extras):
 def gerenciar_situacoes_reservas_temporarias(extras):
     userid = session.get('userid')
     username, perm = get_user_info(userid)
+    turno = db.session.get(Turnos, extras['reserva_turno']) if extras['reserva_turno'] else None
+    reservas_temporarias = get_reservas_por_dia(
+        extras['reserva_dia'], turno, TipoAulaEnum(extras['reserva_tipo_horario']),
+        'temporaria'
+    )
+    reservas = []
+    for r in reservas_temporarias:
+        reserva = {}
+        reserva['horarios'] = [r.aulas_ativas]
+        reserva['laboratorio'] = r.laboratorios
+        reserva['responsavel'] = get_responsavel_reserva(r)
+        reserva['id_responsavel'] = (r.id_responsavel, r.id_responsavel_especial)
+        if reservas and reservas[-1] and verificar_merge_reserva(reservas[-1], reserva):
+            reservas[-1]['horarios'] += reserva['horarios']
+        else:
+            reservas.append(reserva)
+        reserva['situacao'] = get_situacoes_por_dia(reserva['horarios'][0], reserva['laboratorio'], extras['reserva_dia'], 'temporaria')
+    extras['reservas'] = reservas
     return render_template("gestão_reservas/status_temporarias.html", username=username, perm=perm, **extras)
 
 @bp.route('/<tipo_reserva>/<int:lab>/<data:dia>', methods=['POST'])
@@ -303,5 +321,51 @@ def atualizar_situacoes_fixa(common):
     return redirect(url_for('gestao_reserva.gerenciar_situacoes', tipo_reserva="fixa"))
 
 def atualizar_situacoes_temporaria(common):
-    return "temporaria WIP"
-    return redirect(url_for('gestao_reserva.gerenciar_situacoes', tipo_reserva="fixa"))
+    userid = common.get('userid')
+    lab, dia, tipo_reserva = common.get('lab'), common.get('dia'), common.get('tipo_reserva')
+    chave = common.get('chave')
+    sucess_messages = []
+    error_messages = []
+    for i, aula in enumerate(common.get('aulas', [])):
+        try:
+            situacao = get_unique_or_500(
+                Situacoes_Das_Reserva,
+                Situacoes_Das_Reserva.id_situacao_aula == aula,
+                Situacoes_Das_Reserva.id_situacao_laboratorio == lab,
+                Situacoes_Das_Reserva.situacao_dia == dia,
+                Situacoes_Das_Reserva.tipo_reserva == TipoReservaEnum(tipo_reserva)
+            )
+
+            acao = 'Inserção'
+            old_situacao = None
+            if situacao is None:
+                situacao = Situacoes_Das_Reserva(
+                    id_situacao_aula = aula,
+                    id_situacao_laboratorio = lab,
+                    situacao_dia = dia,
+                    tipo_reserva = TipoReservaEnum(tipo_reserva)
+                )
+            else:
+                old_situacao = copy(situacao)
+                acao = 'Edição'
+
+            situacao.situacao_chave = SituacaoChaveEnum(chave)
+
+            db.session.add(situacao)
+
+            db.session.flush()
+            registrar_log_generico_usuario(userid, acao, situacao, old_situacao, 'pelo painel', True)
+
+            db.session.commit()
+            sucess_messages.append(f"situação {i + 1} atualizada com sucesso")
+        except (IntegrityError, OperationalError) as e:
+            db.session.rollback()
+            error_messages.append(f"erro ao executar ação:{str(e.orig)}")
+        except ValueError as ve:
+            db.session.rollback()
+            error_messages.append(f"erro ao executar ação:{ve}")
+    if sucess_messages:
+        flash('<br>'.join(sucess_messages), "success")
+    if error_messages:
+        flash('<br>'.join(error_messages))
+    return redirect(url_for('gestao_reserva.gerenciar_situacoes', tipo_reserva="temporaria"))

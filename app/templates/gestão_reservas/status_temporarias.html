@@ -54,6 +54,58 @@
                 </form>
             </h3>
         </div>
+        <div class="panel-body">
+            {% if reservas %}
+                <h3>{{ reserva_dia|datainfo(DATA_NUMERICA+SEMANA_COMPLETA) }}</h3>
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered tabela-reserva">
+                        <thead>
+                            <th>Horario</th>
+                            <th>Laboratorio</th>
+                            <th>Reserva</th>
+                            <th>Status</th>
+                            <th>Ação</th>
+                        </thead>
+                        <tbody>
+                            {% for reserva in reservas %}
+                                <tr>
+                                    <td>{{ reserva.horarios[0].aulas.horario_inicio|hora }} - {{ reserva.horarios[-1].aulas.horario_fim|hora }}</td>
+                                    <td>{{ reserva.laboratorio.nome_laboratorio }}</td>
+                                    <td>{{ reserva.responsavel }}</td>
+                                    <td>
+                                        <form class="form-inline"
+                                              role="form"
+                                              action="{{ url_for('gestao_reserva.atualizar_situacoes', tipo_reserva='temporaria', lab=reserva.laboratorio.id_laboratorio, dia=reserva_dia) }}"
+                                              method="post">
+                                            {%- for aula in reserva.horarios -%}
+                                                <input type="hidden" name="aulas" value="{{ aula.id_aula_ativa }}">
+                                            {%- endfor -%}
+                                            {% for sit in situacaoChave %}
+                                                {% if reserva.situacao and reserva.situacao.situacao_chave.value == sit[0].value %}
+                                                    {% set color = sit[1][1] %}
+                                                {% else %}
+                                                    {% set color = "muted" %}
+                                                {% endif %}
+                                                <button type="submit"
+                                                        name="situacao"
+                                                        value="{{ sit[0].value }}"
+                                                        class="btn-icon"
+                                                        title="{{ sit[0].value }}">
+                                                    <span class="glyphicon {{ sit[1][0] }} text-{{ color }}"></span>
+                                                </button>
+                                            {% endfor %}
+                                        </form>
+                                    </td>
+                                    <td>TBI</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-danger" role="alert">Nenhuma reserva encontrada nesse dia/turno/horario</div>
+            {% endif %}
+        </div>
     </div>
 {% endblock content %}
 {% block footer %}
