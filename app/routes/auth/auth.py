@@ -118,7 +118,10 @@ def login():
             session['userid'] = userid
             flash("login realizado com sucesso", "success")
             current_app.logger.info(f"usuario {username} efetuou login no sistema")
-            return render_template("auth/login_success.html", username=username, perm=perm)
+            url_base = url_for('default.home')
+            url_admin = url_for('gestao_reserva.gerenciar_situacoes', tipo_reserva='fixa')
+            return render_template("auth/login_success.html", username=username, perm=perm,
+                url_base=url_base, url_admin=url_admin)
         else:
             flash("falha ao realizar login", "danger")
             return render_template("auth/login_fail.html")

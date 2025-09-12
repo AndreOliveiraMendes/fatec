@@ -76,12 +76,12 @@
                         <tbody>
                             {% for r in reservas_fixas %}
                                 <tr>
-                                    {% if all %}<td>{{ get_responsavel_reserva(r, None) }}</td>{% endif %}
+                                    {% if all %}<td>{{ get_responsavel_reserva(r) }}</td>{% endif %}
                                     <td>{{ r.laboratorios.nome_laboratorio }}</td>
                                     <td>{{ r.semestres.nome_semestre }}</td>
                                     <td>{{ r.aulas_ativas.dia_da_semana.nome_semana }}</td>
                                     <td>{{ r.aulas_ativas.aulas.horario_inicio|hora }} às {{ r.aulas_ativas.aulas.horario_fim|hora }}</td>
-                                    <td>{{ r.tipo_reserva.value }}</td>
+                                    <td>{{ r.finalidade_reserva.value }}</td>
                                     <td>
                                         <div class="btn-group">
                                             <a href="#modalCancelar"
@@ -143,7 +143,7 @@
                 $('#modalESemestre').text(data.semestre);
                 $('#modalEHorario').text(data.horario);
                 $('#modalEObservacao').val(data.observacao);
-                $('#modalETipoReserva').val(data.tiporeserva);
+                $('#modalETipoReserva').val(data.finalidadereserva);
                 $('#formEditar').attr('action', data.editar_url);
                 {% if perm and perm|has_flag(ADMIN) %}
                     $('#modalEResponsavel').val(data.responsavel);

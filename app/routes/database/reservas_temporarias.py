@@ -14,7 +14,7 @@ from app.auxiliar.dao import (check_reserva_temporaria, get_aulas_ativas,
                               get_laboratorios, get_pessoas,
                               get_reservas_temporarias, get_usuarios_especiais)
 from app.auxiliar.decorators import admin_required
-from app.models import Reservas_Temporarias, TipoReservaEnum, db
+from app.models import FinalidadeReservaEnum, Reservas_Temporarias, db
 from config.general import PER_PAGE
 
 bp = Blueprint('database_reservas_temporarias', __name__, url_prefix="/database")
@@ -67,7 +67,7 @@ def gerenciar_reservas_temporarias():
             id_reserva_aula = none_if_empty(request.form.get('id_reserva_aula'), int)
             inicio_procura = parse_date_string(request.form.get('inicio_procura'))
             fim_procura = parse_date_string(request.form.get('fim_procura'))
-            tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
+            finalidade_reserva = none_if_empty(request.form.get('finalidade_reserva'))
             observacoes = none_if_empty(request.form.get('observacoes'))
             descricao = none_if_empty(request.form.get('descricao'))
             filter = []
@@ -86,8 +86,8 @@ def gerenciar_reservas_temporarias():
                 filter.append(Reservas_Temporarias.id_reserva_aula == id_reserva_aula)
             if inicio_procura or fim_procura:
                 filter.append(filtro_intervalo(inicio_procura, fim_procura))
-            if tipo_reserva:
-                filter.append(Reservas_Temporarias.tipo_reserva == TipoReservaEnum(tipo_reserva))
+            if finalidade_reserva:
+                filter.append(Reservas_Temporarias.finalidade_reserva == FinalidadeReservaEnum(finalidade_reserva))
             if observacoes:
                 filter.append(Reservas_Temporarias.observacoes.ilike(f"%{observacoes}%"))
             if descricao:
@@ -120,7 +120,7 @@ def gerenciar_reservas_temporarias():
             id_reserva_aula = none_if_empty(request.form.get('id_reserva_aula'), int)
             inicio_reserva = parse_date_string(request.form.get('inicio_reserva'))
             fim_reserva = parse_date_string(request.form.get('fim_reserva'))
-            tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
+            finalidade_reserva = none_if_empty(request.form.get('finalidade_reserva'))
             observacoes = none_if_empty(request.form.get('observacoes'))
             descricao = none_if_empty(request.form.get('descricao'))
 
@@ -131,7 +131,7 @@ def gerenciar_reservas_temporarias():
                     id_responsavel=id_responsavel, id_responsavel_especial=id_responsavel_especial,
                     tipo_responsavel=tipo_responsavel, id_reserva_laboratorio=id_reserva_laboratorio,
                     id_reserva_aula=id_reserva_aula, inicio_reserva=inicio_reserva,
-                    fim_reserva=fim_reserva, tipo_reserva=TipoReservaEnum(tipo_reserva),
+                    fim_reserva=fim_reserva, finalidade_reserva=FinalidadeReservaEnum(finalidade_reserva),
                     observacoes=observacoes,
                     descricao=descricao
                 )
@@ -172,7 +172,7 @@ def gerenciar_reservas_temporarias():
             id_reserva_aula = none_if_empty(request.form.get('id_reserva_aula'), int)
             inicio_reserva = parse_date_string(request.form.get('inicio_reserva'))
             fim_reserva = parse_date_string(request.form.get('fim_reserva'))
-            tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
+            finalidade_reserva = none_if_empty(request.form.get('finalidade_reserva'))
             observacoes = none_if_empty(request.form.get('observacoes'))
             descricao = none_if_empty(request.form.get('descricao'))
             reserva_temporaria = db.get_or_404(Reservas_Temporarias, id_reserva_temporaria)
@@ -180,12 +180,12 @@ def gerenciar_reservas_temporarias():
                 dados_anteriores = copy.copy(reserva_temporaria)
                 reserva_temporaria.id_responsavel = id_responsavel
                 reserva_temporaria.id_responsavel_especial = id_responsavel_especial
-                reserva_temporaria.tipo_reserva = tipo_reserva
+                reserva_temporaria.finalidade_reserva = finalidade_reserva
                 reserva_temporaria.id_reserva_laboratorio = id_reserva_laboratorio
                 reserva_temporaria.id_reserva_aula = id_reserva_aula
                 reserva_temporaria.inicio_reserva = inicio_reserva
                 reserva_temporaria.fim_reserva = fim_reserva
-                reserva_temporaria.tipo_reserva = TipoReservaEnum(tipo_reserva)
+                reserva_temporaria.finalidade_reserva = FinalidadeReservaEnum(finalidade_reserva)
                 reserva_temporaria.observacoes = observacoes
                 reserva_temporaria.descricao = descricao
 

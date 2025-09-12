@@ -1,3 +1,6 @@
+from datetime import datetime
+from typing import List, Literal, Optional, Tuple
+
 from flask import Flask, session, url_for
 from markupsafe import Markup
 from sqlalchemy import between, select
@@ -7,41 +10,13 @@ from app.auxiliar.auxiliar_routes import (get_responsavel_reserva,
 from app.auxiliar.constant import (DATA_ABREV, DATA_COMPLETA, DATA_FLAGS,
                                    DATA_NUMERICA, HORA, PERM_ADMIN,
                                    PERMISSIONS, SEMANA_ABREV, SEMANA_COMPLETA)
-from app.models import (Laboratorios, Reservas_Fixas, Reservas_Temporarias,
-                        Semestres, Situacoes_Das_Reserva, Turnos, db)
+from app.models import (Exibicao_Reservas, FinalidadeReservaEnum, Laboratorios,
+                        Reservas_Fixas, Reservas_Temporarias, Semestres,
+                        Situacoes_Das_Reserva, Turnos, db)
 from config.database_views import SECOES, TABLES_PER_LINE
+from config.enum_related import (mapa_icones_status, meses_ingleses,
+                                 semana_inglesa, situacoes_helper)
 
-semana_inglesa = {
-    '%a': {  # abreviada
-        'Mon': 'Seg', 'Tue': 'Ter', 'Wed': 'Qua', 'Thu': 'Qui',
-        'Fri': 'Sex', 'Sat': 'Sáb', 'Sun': 'Dom'
-    },
-    '%A': {  # completa
-        'Monday': 'segunda-feira', 'Tuesday': 'terça-feira', 'Wednesday': 'quarta-feira',
-        'Thursday': 'quinta-feira', 'Friday': 'sexta-feira', 'Saturday': 'sábado', 'Sunday': 'domingo'
-    }
-}
-
-meses_ingleses = {
-    '%b': {  # abreviada
-        'Jan': 'Jan', 'Feb': 'Fev', 'Mar': 'Mar', 'Apr': 'Abr',
-        'May': 'Mai', 'Jun': 'Jun', 'Jul': 'Jul', 'Aug': 'Ago',
-        'Sep': 'Set', 'Oct': 'Out', 'Nov': 'Nov', 'Dec': 'Dez'
-    },
-    '%B': {  # completa
-        'January': 'janeiro', 'February': 'fevereiro', 'March': 'março',
-        'April': 'abril', 'May': 'maio', 'June': 'junho',
-        'July': 'julho', 'August': 'agosto', 'September': 'setembro',
-        'October': 'outubro', 'November': 'novembro', 'December': 'dezembro'
-    }
-}
-
-mapa_icones_status = {
-    None: ("text-muted", "glyphicon-user", None, "indefinido"),
-    "NAO_PEGOU_A_CHAVE": ("text-danger", "glyphicon-user", "glyphicon-remove", "não pegou a chave"),
-    "PEGOU_A_CHAVE": ("text-success", "glyphicon-user", "glyphicon-ok", "esta em sala"),
-    "DEVOLVEU_A_CHAVE": ("text-primary", "glyphicon-user", "glyphicon-log-out", "reserva efetuada"),
-}
 
 def register_filters(app:Flask):
     @app.template_global()
@@ -137,28 +112,28 @@ def register_filters(app:Flask):
         return Markup(html)
     
     @app.template_global()
-    def generate_database_head(current_table, max_per_line=TABLES_PER_LINE):
-        tables_info = [
+    def generate_database_head(current_table: str, max_per_line: int = TABLES_PER_LINE) -> Markup:
+        tables_info: List[Tuple[str, str, str]] = [
             (t[1].split('.')[0], t[1], t[0])
             for sec in SECOES.values()
             for t in sec['secoes']
         ]
 
-        html = ''
-
-        # Quebra em blocos de até max_per_line
-        html += '<div class="pills-group">'
+        html_parts = ['<div class="pills-group">']
+        
+        # Break into blocks of up to max_per_line
         for i in range(0, len(tables_info), max_per_line):
-            html += '<ul class="nav nav-pills">'
-            for table, url, nome in tables_info[i:i+max_per_line]:
-                active = ' class="active"' if table == current_table else ''
-                html += f'<li role="presentation"{active}>'
-                html += f'<a href="{url_for(url)}">{nome}</a>'
-                html += '</li>'
-            html += '</ul>'
-        html += '</div>'
-
-        return Markup(html)
+            html_parts.append('<ul class="nav nav-pills">')
+            for table, url, nome in tables_info[i:i + max_per_line]:
+                active_class = ' class="active"' if table == current_table else ''
+                html_parts.append(f'<li role="presentation"{active_class}>')
+                html_parts.append(f'<a href="{url_for(url)}">{nome}</a>')
+                html_parts.append('</li>')
+            html_parts.append('</ul>')
+        
+        html_parts.append('</div>')
+        
+        return Markup(''.join(html_parts))
 
     def lab_url(tipo, turno:Turnos|None, laboratorio:Laboratorios|None, **kwargs):
         id_turno=turno.id_turno if turno else None
@@ -172,32 +147,60 @@ def register_filters(app:Flask):
             return url_for('reservas_temporarias.get_lab', inicio=inicio, fim=fim, id_turno=id_turno, id_lab=id_laboratorio)
 
     @app.template_global()
-    def generate_reserva_head(tipo, turno:Turnos, current:Laboratorios|None=None, **kwargs):
+    def generate_reserva_head(tipo, turno: Turnos, current: Optional[Laboratorios] = None, **kwargs) -> Markup:
         username, perm = get_user_info(session.get('userid'))
         sel_laboratorios = select(Laboratorios)
         laboratorios = db.session.execute(sel_laboratorios).scalars().all()
-        html = ''
 
-        html += '<div class="pills-group"><ul class="nav nav-pills">'
+        html_parts = ['<div class="pills-group"><ul class="nav nav-pills">']
+        
         for lab in laboratorios:
-            active = ''
+            active_class = ''
             active_link = lab_url(tipo, turno, lab, **kwargs)
             extra = ''
+            
             if current and current.id_laboratorio == lab.id_laboratorio:
-                active='active'
+                active_class = 'active'
                 active_link = lab_url(tipo, turno, None, **kwargs)
+            
             if lab.disponibilidade.value == 'Indisponivel':
-                if perm&PERM_ADMIN == 0:
-                    active='disabled'
+                if perm & PERM_ADMIN == 0:
+                    active_class = 'disabled'
                     active_link = ""
                 else:
-                    extra = ' <span class="glyphicon glyphicon-exclamation-sign">'
-            html += f'<li role="presentation" class="{active}">'
-            html += f'<a href="{active_link}" class="{active}">{lab.nome_laboratorio}{extra}</a>'
-            html += '</li>'
-        html += '</ul></div>'
+                    extra = ' <span class="glyphicon glyphicon-exclamation-sign"></span>'
+            
+            html_parts.append(f'<li role="presentation" class="{active_class}">')
+            html_parts.append(f'<a href="{active_link}" class="{active_class}">{lab.nome_laboratorio}{extra}</a>')
+            html_parts.append('</li>')
+        
+        html_parts.append('</ul></div>')
+        
+        return Markup(''.join(html_parts))
 
-        return Markup(html)
+    @app.template_global()
+    def generate_situacao_head(current: Literal['exibicao', 'fixa', 'temporaria']) -> Markup:
+        username, perm = get_user_info(session.get('userid'))
+        
+        html_parts: List[str] = ['<div class="pills-group"><ul class="nav nav-pills">']
+        
+        for builder in situacoes_helper:
+            state = builder.get('state')
+            url_path = builder.get('url_path')
+            args = builder.get('param', {})
+            label = builder.get('label', state)
+            url = url_for(url_path, **args)
+            
+            active_class = 'active' if current == state else ''
+            disabled_class = 'disabled_a_click' if current == state else ''
+            
+            html_parts.append(f'<li role="presentation" class="{active_class}">')
+            html_parts.append(f'<a href="{url}" class="{disabled_class}">{label}</a>')
+            html_parts.append('</li>')
+        
+        html_parts.append('</ul></div>')
+        
+        return Markup(''.join(html_parts))
 
     @app.template_global()
     def adjust_head_fix():
@@ -244,12 +247,12 @@ def register_filters(app:Flask):
         """)
 
     @app.template_global('get_responsavel_reserva')
-    def get_responsavel_reserva_template(reserva:Reservas_Fixas|Reservas_Temporarias, prefix='reservado '):
-        return get_responsavel_reserva(reserva, prefix)
+    def get_responsavel_reserva_template(reserva:Reservas_Fixas|Reservas_Temporarias):
+        return get_responsavel_reserva(reserva)
 
     @app.template_global()
     def get_reserva(lab, aula, dia, mostrar_icone=False):
-        fixa, temp = None, None
+        fixa, temp, choose = None, None, None
         semestre = get_unique_or_500(
             Semestres,
             between(dia, Semestres.data_inicio, Semestres.data_fim)
@@ -261,23 +264,41 @@ def register_filters(app:Flask):
                 Reservas_Fixas.id_reserva_aula == aula,
                 Reservas_Fixas.id_reserva_semestre == semestre.id_semestre
             )
+        if isinstance(dia, datetime):
+            dia = dia.date()
         temp = get_unique_or_500(
             Reservas_Temporarias,
             Reservas_Temporarias.id_reserva_laboratorio == lab,
             Reservas_Temporarias.id_reserva_aula == aula,
             between(dia, Reservas_Temporarias.inicio_reserva, Reservas_Temporarias.fim_reserva)
         )
-        data = ""
-        if temp or fixa:
-            if temp:
-                data += get_responsavel_reserva(temp, prefix = None)
-            else:
-                data += get_responsavel_reserva(fixa, prefix = None)
-            if mostrar_icone:
-                data += status_reserva(lab, aula, dia)
+
+        choose = temp or fixa
+
+        exibicao = get_unique_or_500(
+            Exibicao_Reservas,
+            Exibicao_Reservas.id_exibicao_laboratorio == lab,
+            Exibicao_Reservas.id_exibicao_aula == aula,
+            Exibicao_Reservas.exibicao_dia == dia
+        )
+
+        if exibicao:
+            choose = {"fixa": fixa, "temporaria": temp}.get(exibicao.tipo_reserva.value, choose)
+
+        if not choose:
+            return Markup("Livre")
+
+        partes = []
+        if choose.finalidade_reserva == FinalidadeReservaEnum.CURSO:
+            partes.append("Curso")
+            if choose.descricao:
+                partes.append(f"{choose.descricao}")
         else:
-            data += "Livre"
-        return Markup(data)
+            partes.append(get_responsavel_reserva(choose))
+            if mostrar_icone:
+                partes.append(status_reserva(lab, aula, dia))
+
+        return Markup("<br>".join(partes))
 
     @app.template_global()
     def status_reserva(lab, aula, dia):
@@ -290,7 +311,7 @@ def register_filters(app:Flask):
         chave = status.situacao_chave.name if status else None
         cor, base, overlay, tooltip = mapa_icones_status[chave]
         icon = f"""
-        <br><span class="reserva-icon { cor }" title="{ tooltip }">
+        <span class="reserva-icon { cor }" title="{ tooltip }">
             <i class="glyphicon { base } base-icon"></i>
         """
         if overlay:

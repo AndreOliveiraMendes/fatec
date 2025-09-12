@@ -5,9 +5,7 @@
 {% block content_head %}
     <div class="panel panel-default">
         <div class="panel-heading">{{ generate_database_head("database_situacoes_das_reservas") }}</div>
-        <div class="panel-body">
-            {{ generate_head(url_for(url) , acao, disable=disable) }}
-        </div>
+        <div class="panel-body">{{ generate_head(url_for(url) , acao, disable=disable) }}</div>
     </div>
 {% endblock content_head %}
 {% block abertura %}
@@ -66,6 +64,13 @@
                     <td>ENUM('NAO_PEGOU_A_CHAVE','PEGOU_A_CHAVE','DEVOLVEU_A_CHAVE')</td>
                     <td>situação da chave (não pegou, pegou, devolvida)</td>
                 </tr>
+                <tr>
+                    <td>
+                        <code>tipo_reserva</code>
+                    </td>
+                    <td>ENUM('FIXA','TEMPORARIA')</td>
+                    <td>tipo da reserva associada (fixa ou temporaria)</td>
+                </tr>
             </tbody>
         </table>
     </div>
@@ -108,6 +113,14 @@
                     <option value="devolveu a chave">devolveu a chave</option>
                 </select>
             </div>
+            <div class="form-group">
+                <label for="tipo_reserva">Tipo da Reserva:</label>
+                <select class="form-control" id="tipo_reserva" name="tipo_reserva">
+                    <option value="">Selecione um tipo de reserva</option>
+                    <option value="fixa">fixa</option>
+                    <option value="temporaria">temporaria</option>
+                </select>
+            </div>
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
@@ -142,6 +155,14 @@
                 <option value="não pegou a chave">não pegou a chave</option>
                 <option value="pegou a chave">pegou a chave</option>
                 <option value="devolveu a chave">devolveu a chave</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="tipo_reserva">Tipo da Reserva:</label>
+            <select class="form-control" id="tipo_reserva" name="tipo_reserva">
+                <option value="">Selecione um tipo de reserva</option>
+                <option value="fixa">fixa</option>
+                <option value="temporaria">temporaria</option>
             </select>
         </div>
         {{ action_buttons(acao, 1, False, 0) }}
@@ -202,6 +223,18 @@
                     <option value="devolveu a chave"
                             {% if situacao_da_reserva.situacao_chave.value == 'devolveu a chave' %}selected{% endif %}>
                         devolveu a chave
+                    </option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="tipo_reserva">Tipo da Reserva:</label>
+                <select class="form-control" id="tipo_reserva" name="tipo_reserva">
+                    <option value="">Selecione um tipo de reserva</option>
+                    <option value="fixa"
+                            {% if situacao_da_reserva.tipo_reserva.value == 'fixa' %}selected{% endif %}>fixa</option>
+                    <option value="temporaria"
+                            {% if situacao_da_reserva.tipo_reserva.value == 'temporaria' %}selected{% endif %}>
+                        temporaria
                     </option>
                 </select>
             </div>
@@ -269,6 +302,18 @@
                     </option>
                 </select>
             </div>
+            <div class="form-group">
+                <label for="tipo_reserva">Tipo da Reserva:</label>
+                <select class="form-control" id="tipo_reserva" name="tipo_reserva" disabled>
+                    <option value="">Selecione um tipo de reserva</option>
+                    <option value="fixa"
+                            {% if situacao_da_reserva.tipo_reserva.value == 'fixa' %}selected{% endif %}>fixa</option>
+                    <option value="temporaria"
+                            {% if situacao_da_reserva.tipo_reserva.value == 'temporaria' %}selected{% endif %}>
+                        temporaria
+                    </option>
+                </select>
+            </div>
             {{ action_buttons(acao, 2, True, 0, False) }}
         </form>
     {% endif %}
@@ -284,6 +329,7 @@
                         <td>Aula</td>
                         <td>Dia</td>
                         <td>Situacao</td>
+                        <td>Tipo</td>
                         <td>Ação</td>
                     </tr>
                 </thead>
@@ -294,6 +340,7 @@
                         <td>{{ sdr.aulas_ativas.selector_identification }}</td>
                         <td>{{ sdr.situacao_dia|data }}</td>
                         <td>{{ sdr.situacao_chave.value }}</td>
+                        <td>{{ sdr.tipo_reserva.value }}</td>
                         <td>
                             <form method="post" class="form-inline">
                                 <input type="hidden" name="bloco" value="1">
@@ -320,6 +367,11 @@
                 {% endfor %}
             </table>
         </div>
+        {% if query_params %}
+            {{ paginacao(pagination, acao, bloco, query_params) }}
+        {% else %}
+            {{ paginacao(pagination, acao, bloco) }}
+        {% endif %}
     {% else %}
         <div class="alert alert-info" role="alert">{{ message }}</div>
     {% endif %}

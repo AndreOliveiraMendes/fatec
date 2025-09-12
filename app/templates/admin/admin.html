@@ -29,7 +29,8 @@
                             aria-controls="collapseDatabase">
                         <span class="glyphicon glyphicon-cog"></span> Manipular Banco de Dados
                     </button>
-                    <a href="{{ url_for('database_main.database') }}" class="btn btn-success">
+                    <a href="{{ url_for('database_main.database') }}"
+                       class="btn btn-success">
                         <span class="glyphicon glyphicon-book"></span> Visualizar banco de dados
                     </a>
                     <a href="{{ url_for('database_main.schema') }}" class="btn btn-info">
@@ -78,13 +79,18 @@
             <div class="panel panel-body">
                 <div class="well">
                     <div class="btn-group" role="group">
-                        <a href="{{ url_for('situacao_reserva.gerenciar_status') }}"
+                        <a href="{{ url_for('gestao_reserva.gerenciar_exibicao') }}"
                            class="btn btn-success">
-                            <span class="glyphicon glyphicon-cog"></span> Status Reservas
+                            <span class="glyphicon glyphicon-cog"></span> Status e Exibição das Reservas
                         </a>
                         <a href="{{ url_for('consultar_reservas.configurar_tela_televisor') }}"
                            class="btn btn-success">
                             <span class="glyphicon glyphicon-wrench"></span> Configuração Painel
+                        </a>
+                        <a href="{{ url_for('default.under_dev_page') }}"
+                           class="btn btn-success">
+                        <span class="glyphicon glyphicon-pushpin"></span>
+                             Configuração gerais
                         </a>
                     </div>
                 </div>

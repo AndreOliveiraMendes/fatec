@@ -12,7 +12,8 @@ from app.auxiliar.auxiliar_routes import (get_query_params,
                                           registrar_log_generico_usuario)
 from app.auxiliar.dao import get_aulas_ativas, get_laboratorios, get_situacoes
 from app.auxiliar.decorators import admin_required
-from app.models import SituacaoChaveEnum, Situacoes_Das_Reserva, db
+from app.models import (SituacaoChaveEnum, Situacoes_Das_Reserva,
+                        TipoReservaEnum, db)
 from config.general import PER_PAGE
 
 bp = Blueprint('database_situacoes_das_reservas', __name__, url_prefix="/database")
@@ -47,6 +48,7 @@ def gerenciar_situacoes_das_reservas():
             id_situacao_aula = none_if_empty(request.form.get('id_situacao_aula'), int)
             situacao_dia = parse_date_string(request.form.get('situacao_dia'))
             situacao_chave = none_if_empty(request.form.get('situacao_chave'))
+            tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
             filter = []
             query_params = get_query_params(request)
             if id_situacao is not None:
@@ -59,6 +61,8 @@ def gerenciar_situacoes_das_reservas():
                 filter.append(Situacoes_Das_Reserva.situacao_dia == situacao_dia)
             if situacao_chave:
                 filter.append(Situacoes_Das_Reserva.situacao_chave == SituacaoChaveEnum(situacao_chave))
+            if tipo_reserva:
+                filter.append(Situacoes_Das_Reserva.tipo_reserva == TipoReservaEnum(tipo_reserva))
             if filter:
                 sel_situacoes = select(Situacoes_Das_Reserva).where(*filter)
                 situacoes_das_reservas_paginadas = SelectPagination(
@@ -83,6 +87,7 @@ def gerenciar_situacoes_das_reservas():
             id_situacao_aula = none_if_empty(request.form.get('id_situacao_aula'), int)
             situacao_dia = parse_date_string(request.form.get('situacao_dia'))
             situacao_chave = none_if_empty(request.form.get('situacao_chave'))
+            tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
 
             try:
                 nova_situacao = Situacoes_Das_Reserva(
@@ -91,6 +96,8 @@ def gerenciar_situacoes_das_reservas():
                     situacao_dia = situacao_dia,
                     situacao_chave = SituacaoChaveEnum(situacao_chave)
                 )
+                if tipo_reserva:
+                    nova_situacao.tipo_reserva = TipoReservaEnum(tipo_reserva)
                 db.session.add(nova_situacao)
 
                 db.session.flush()
@@ -124,6 +131,7 @@ def gerenciar_situacoes_das_reservas():
             id_situacao_aula = none_if_empty(request.form.get('id_situacao_aula'), int)
             situacao_dia = parse_date_string(request.form.get('situacao_dia'))
             situacao_chave = none_if_empty(request.form.get('situacao_chave'))
+            tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
 
             situacao_da_reserva = db.get_or_404(Situacoes_Das_Reserva, id_situacao)
             try:
@@ -132,6 +140,8 @@ def gerenciar_situacoes_das_reservas():
                 situacao_da_reserva.id_situacao_aula = id_situacao_aula
                 situacao_da_reserva.situacao_dia = situacao_dia
                 situacao_da_reserva.situacao_chave = SituacaoChaveEnum(situacao_chave)
+                if tipo_reserva:
+                    situacao_da_reserva.tipo_reserva = TipoReservaEnum(tipo_reserva)
 
                 db.session.flush()
                 registrar_log_generico_usuario(userid, 'Edição', situacao_da_reserva, dados_anteriores)
@@ -164,9 +174,6 @@ def gerenciar_situacoes_das_reservas():
             except (IntegrityError, OperationalError) as e:
                 db.session.rollback()
                 flash(f"Erro ao excluir situação:{str(e.orig)}", "danger")
-            except ValueError as ve:
-                db.session.rollback()
-                flash(f"Erro ao excluir situação:{ve}", "danger")
 
             redirect_action, bloco = register_return(
                 url, acao, extras,

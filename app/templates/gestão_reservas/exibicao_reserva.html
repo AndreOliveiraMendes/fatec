@@ -1,0 +1,127 @@
+{% extends "base-fixed" %}
+{% block title %}
+    Controle de Exibição
+{% endblock title %}
+{% block content %}
+    {{ generate_situacao_head('exibicao') }}
+    <h3>Hoje: {{ hoje|data }}</h3>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                <form method="get"
+                      class="form-inline"
+                      action="{{ url_for('gestao_reserva.gerenciar_exibicao') }}">
+                    <div class="form-group">
+                        <label for="reserva-dia">dia:</label>
+                        <input type="date"
+                               class="form-control"
+                               value="{{ reserva_dia }}"
+                               id="reserva-dia"
+                               name="reserva-dia"
+                               onchange="if (this.checkValidity()) this.form.submit();"
+                               required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reserva_turno">Turno:</label>
+                        <select class="form-control"
+                                id="reserva_turno"
+                                name="reserva_turno"
+                                onchange="if (this.checkValidity()) this.form.submit();">
+                            <option value="">Selecionar o turno</option>
+                            {% for turno in turnos %}
+                                <option value="{{ turno.id_turno }}"
+                                        {% if turno.id_turno == reserva_turno %}selected{% endif %}>
+                                    {{ turno.nome_turno }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="reserva_turno">Destino:</label>
+                        <select class="form-control"
+                                id="reserva_tipo_horario"
+                                name="reserva_tipo_horario"
+                                onchange="if (this.checkValidity()) this.form.submit();"
+                                required>
+                            {% for aula in tipo_aula %}
+                                <option value="{{ aula.value }}"
+                                        {% if aula.value == reserva_tipo_horario %}selected{% endif %}>
+                                    {{ aula.value }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>
+            </h3>
+        </div>
+        <div class="panel-body">
+            {% if reservas %}
+                <h3>{{ reserva_dia|datainfo(DATA_NUMERICA+SEMANA_COMPLETA) }}</h3>
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered tabela-reserva">
+                        <thead>
+                            <tr>
+                                <th>Horario</th>
+                                <th>Laboratorio</th>
+                                <th>Fixa</th>
+                                <th>Temporaria</th>
+                                <th>Exibida</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reserva in reservas %}
+                                <tr>
+                                    <td>{{ reserva.horario.aulas.horario_inicio|hora }} - {{ reserva.horario.aulas.horario_fim|hora }}</td>
+                                    <td>{{ reserva.laboratorio.nome_laboratorio }}</td>
+                                    <td>{{ get_responsavel_reserva(reserva.fixa) if reserva.fixa else '' }}</td>
+                                    <td>{{ get_responsavel_reserva(reserva.temporaria) if reserva.temporaria else '' }}</td>
+                                    <td>
+                                        <form class="form-inline"
+                                              role="form"
+                                              action="{{ url_for('gestao_reserva.atualizar_exibicao', id_aula=reserva.horario.id_aula_ativa, id_lab=reserva.laboratorio.id_laboratorio, dia=reserva_dia) }}"
+                                              method="post">
+                                            {% for icon, style, label in icons %}
+                                                {% if reserva.exibicao %}
+                                                    {% if label != reserva.exibicao.tipo_reserva.value %}
+                                                        {% set style = "muted" %}
+                                                    {% else %}
+                                                        {% set extra = "disabled" %}
+                                                    {% endif %}
+                                                {% else %}
+                                                    {% if label != 'temporaria priorizada' %}
+                                                        {% set style = "muted" %}
+                                                    {% else %}
+                                                        {% set extra = "disabled" %}
+                                                    {% endif %}
+                                                {% endif %}
+                                                <button type="submit"
+                                                        name="exibicao"
+                                                        value="{{ label }}"
+                                                        class="btn-icon"
+                                                        title="{{ label }}"
+                                                        {{ extra }}>
+                                                    <span class="glyphicon {{ icon }} text-{{ style }}"></span>
+                                                </button>
+                                            {% endfor %}
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-danger" role="alert">Nenhuma reserva encontrada nesse dia/turno/horario</div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock content %}
+{% block footer %}
+    <div class="legend">
+        {% for icon, style, label in icons %}
+            <span class="label label-{{ style }}">
+                <span class="glyphicon {{ icon }}"></span> {{ label }}
+            </span>
+        {% endfor %}
+    </div>
+{% endblock footer %}
