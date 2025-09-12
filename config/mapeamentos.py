@@ -51,3 +51,9 @@ situacoes_helper = [
         "label":"situação reserva temporaria"
     }
 ]
+
+DEFAULT_PAINEL_CFG = {
+    "tipo": "Aula",
+    "tempo": "15",
+    "laboratorios": "6"
+}

@@ -3,11 +3,8 @@ import json
 from importlib.resources import as_file
 from pathlib import Path
 
-DEFAULT_PAINEL_CFG = {
-    "tipo": "Aula",
-    "tempo": "15",
-    "laboratorios": "6"
-}
+from config.mapeamentos import DEFAULT_PAINEL_CFG
+
 
 def carregar_painel_config():
     resource = resources.files("config").joinpath("painel.json")

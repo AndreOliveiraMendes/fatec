@@ -14,8 +14,8 @@ from app.models import (Exibicao_Reservas, FinalidadeReservaEnum, Laboratorios,
                         Reservas_Fixas, Reservas_Temporarias, Semestres,
                         Situacoes_Das_Reserva, Turnos, db)
 from config.database_views import SECOES, TABLES_PER_LINE
-from config.enum_related import (mapa_icones_status, meses_ingleses,
-                                 semana_inglesa, situacoes_helper)
+from config.mapeamentos import (mapa_icones_status, meses_ingleses,
+                                semana_inglesa, situacoes_helper)
 
 
 def register_filters(app:Flask):

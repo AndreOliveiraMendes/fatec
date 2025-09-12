@@ -69,7 +69,7 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │   │   │   └── default.py
 │   │   ├── gestão_reservas
 │   │   │   ├── __init__.py
-│   │   │   └── gestao_reserva.py
+│   │   │   └── gestao_reservas.py
 │   │   ├── reserva
 │   │   │   ├── __init__.py
 │   │   │   └── reserva.py
@@ -87,6 +87,7 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │   │   │   ├── laboratorios.py
 │   │   │   ├── menu.py
 │   │   │   └── turnos.py
+│   │   ├── situacao_reserva
 │   │   └── user
 │   │       ├── __init__.py
 │   │       └── usuario.py
@@ -189,11 +190,12 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │           └── reserva_temporaria.html
 ├── config
 │   ├── __init__.py
+│   ├── config.json
 │   ├── database_views.py
-│   ├── enum_related.py
 │   ├── general.py
-│   ├── painel.json
-│   └── ssh.json
+│   ├── json_related.py
+│   ├── mapeamentos.py
+│   └── painel.json
 ├── configurar_vscode.bat
 ├── requirements.txt
 ├── schema.sql
