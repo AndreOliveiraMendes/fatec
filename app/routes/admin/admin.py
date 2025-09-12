@@ -11,7 +11,7 @@ from app.auxiliar.dao import get_laboratorios
 from app.auxiliar.decorators import admin_required
 from app.models import TipoAulaEnum
 from config.database_views import SECOES
-from config.json_related import carregar_painel_config
+from config.json_related import carregar_config_geral, carregar_painel_config
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -47,3 +47,13 @@ def configurar_tela_televisor():
             painel_file.write_text(json.dumps(PAINEL_CFG, indent=4, ensure_ascii=False), encoding="utf-8")
         return redirect(url_for('default.home'))
     return render_template("reserva/televisor_control.html", username=username, perm=perm, **extras)
+
+@bp.route("/configuracao_geral", methods=['GET', 'POST'])
+def configuracao_geral():
+    userid = session.get('userid')
+    username, perm = get_user_info(userid)
+    extras = {}
+    if request.method == 'GET':
+        config_cfg = carregar_config_geral()
+        extras['config_cfg'] = config_cfg
+    return render_template("admin/control.html", username=username, perm=perm, **extras)

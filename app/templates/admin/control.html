@@ -1,0 +1,23 @@
+{% extends "base-fixed" %}
+{% from "macros/form.html" import action_buttons %}
+{% block title %}
+    Configuração
+{% endblock title %}
+{% block content %}
+    <form class="form-group"
+          action="{{ url_for('admin.configuracao_geral') }}"
+          role="form"
+          method="post">
+        <div class="form-group">
+            <label for="modo_visualizacao">Modo de Visualizacao:</label>
+            <select class="form-control"
+                    id="modo_visualizacao"
+                    name="modo_visualizacao"
+                    required>
+                <option value="unico">Reservas Separadas</option>
+                <option value="multiplo">Reservas Compativeis Unidas</option>
+            </select>
+        </div>
+        {{ action_buttons('montar', show_voltar=False, label='') }}
+    </form>
+{% endblock content %}

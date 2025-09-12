@@ -57,3 +57,7 @@ DEFAULT_PAINEL_CFG = {
     "tempo": "15",
     "laboratorios": "6"
 }
+
+DEFAULT_CONFIG_CFG = {
+    "modo_gerenciacao": "multiplo"
+}
