@@ -6,6 +6,12 @@ from pathlib import Path
 from config.mapeamentos import DEFAULT_CONFIG_CFG, DEFAULT_PAINEL_CFG
 
 
+def validar_json(data, *args):
+    for field in args:
+        if not field in data:
+            return False
+    return True
+
 def carregar_painel_config():
     resource = resources.files("config").joinpath("painel.json")
 
@@ -19,8 +25,11 @@ def carregar_painel_config():
             return DEFAULT_PAINEL_CFG
 
         try:
-            return json.loads(painel_file.read_text(encoding="utf-8").strip() or "{}")
-        except json.JSONDecodeError:
+            data = json.loads(painel_file.read_text(encoding="utf-8").strip() or "{}")
+            if not validar_json(data, 'tipo', 'tempo', 'laboratorios'):
+                raise ValueError("JSON não contém os campos obrigatórios.")
+            return data
+        except (json.JSONDecodeError, ValueError):
             # reescreve com padrão se estiver corrompido
             painel_file.write_text(json.dumps(DEFAULT_PAINEL_CFG, indent=4, ensure_ascii=False), encoding="utf-8")
             return DEFAULT_PAINEL_CFG
@@ -36,8 +45,11 @@ def carregar_config_geral():
             return DEFAULT_CONFIG_CFG
 
         try:
-            return json.loads(config_file.read_text(encoding="utf-8").strip() or "{}")
-        except json.JSONDecodeError:
+            data = json.loads(config_file.read_text(encoding="utf-8").strip() or "{}")
+            if not validar_json(data, 'modo_gerenciacao'):
+                raise ValueError("JSON não contém os campos obrigatórios.")
+            return data
+        except (json.JSONDecodeError, ValueError):
             # reescreve com padrão se estiver corrompido
             config_file.write_text(json.dumps(DEFAULT_CONFIG_CFG, indent=4, ensure_ascii=False), encoding="utf-8")
             return DEFAULT_CONFIG_CFG
