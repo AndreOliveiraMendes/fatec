@@ -1,26 +1,54 @@
 import importlib.resources as resources
 import json
+import os
+from datetime import datetime
 from importlib.resources import as_file
 from pathlib import Path
 
-from flask import (Blueprint, redirect, render_template, request, session,
-                   url_for)
+from cryptography.fernet import Fernet
+from flask import (Blueprint, flash, redirect, render_template, request,
+                   session, url_for)
 
+from app.auxiliar.auxiliar_cryptograph import load_key
 from app.auxiliar.auxiliar_routes import get_user_info
 from app.auxiliar.dao import get_laboratorios
 from app.auxiliar.decorators import admin_required
 from app.models import TipoAulaEnum
 from config.database_views import SECOES
 from config.json_related import carregar_config_geral, carregar_painel_config
+from config.mapeamentos import SECRET_PATH
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
+
+def ensure_secret_file(path=SECRET_PATH):
+    if os.path.exists(path):
+        return None  # já existe
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    key = Fernet.generate_key().decode()
+    with open(path, "w") as f:
+        json.dump({"ENCRYPTION_KEY": key}, f, indent=4)
+    try:
+        os.chmod(path, 0o600)  # Unix only
+    except Exception:
+        pass
+    return key
 
 @bp.route("/")
 @admin_required
 def gerenciar_menu():
     userid = session.get('userid')
     username, perm = get_user_info(userid)
-    return render_template("admin/admin.html", username=username, perm=perm, secoes=SECOES)
+    key = load_key()
+    key_info = None
+
+    if key and os.path.exists(SECRET_PATH):
+        mtime = os.path.getmtime(SECRET_PATH)
+        key_info = {
+            "path": os.path.abspath(SECRET_PATH),
+            "last_modified": datetime.fromtimestamp(mtime).strftime("%d/%m/%Y %H:%M:%S")
+        }
+    return render_template("admin/admin.html", username=username, perm=perm,
+        secoes=SECOES, key=key, key_info=key_info)
 
 @bp.route("/configurar_painel", methods=['GET', 'POST'])
 def configurar_tela_televisor():
@@ -53,7 +81,26 @@ def configuracao_geral():
     userid = session.get('userid')
     username, perm = get_user_info(userid)
     extras = {}
+    config_cfg = carregar_config_geral()
     if request.method == 'GET':
-        config_cfg = carregar_config_geral()
         extras['config_cfg'] = config_cfg
+    else:
+        resource = resources.files("config").joinpath("config.json")
+        modo_gerenciacao = request.form.get('modo_gerenciacao')
+        toleranca = request.form.get('toleranca')
+        config_cfg['modo_gerenciacao'] = modo_gerenciacao
+        config_cfg['toleranca'] = toleranca
+        with as_file(resource) as config_path:
+            config_file = Path(config_path)
+            config_file.write_text(json.dumps(config_cfg, indent=4, ensure_ascii=False), encoding="utf-8")
+        return redirect(url_for('default.home'))
     return render_template("admin/control.html", username=username, perm=perm, **extras)
+
+@bp.route("/gerar_chave")
+def gerar_chave():
+    key = ensure_secret_file()
+    if key:
+        flash("✅ Chave de criptografia gerada com sucesso!", "success")
+    else:
+        flash("⚠️ A chave já estava configurada.", "warning")
+    return redirect(url_for("admin.gerenciar_menu"))

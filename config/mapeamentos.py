@@ -59,5 +59,9 @@ DEFAULT_PAINEL_CFG = {
 }
 
 DEFAULT_CONFIG_CFG = {
-    "modo_gerenciacao": "multiplo"
+    "modo_gerenciacao": "multiplo",
+    "toleranca": 20
 }
+
+SECRET_PATH = "config/secret.json"
+SSH_CRED_PATH = "config/ssh_credentials.json"

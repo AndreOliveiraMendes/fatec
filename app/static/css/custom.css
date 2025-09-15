@@ -261,7 +261,14 @@ td.fixa {
     /* evita que fiquem grudados */
 }
 
-.disabled_a_click{
+.disabled_a_click {
     pointer-events: none;
     color: gray;
+}
+
+.badge_fernet_key {
+    background-color: #5cb85c;
+    font-size: 14px;
+    padding: 8px 12px;
+    cursor: help
 }

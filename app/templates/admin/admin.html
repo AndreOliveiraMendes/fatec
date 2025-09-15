@@ -89,12 +89,43 @@
                         </a>
                         <a href="{{ url_for('admin.configuracao_geral') }}"
                            class="btn btn-success">
-                        <span class="glyphicon glyphicon-pushpin"></span>
-                             Configuração gerais
+                            <span class="glyphicon glyphicon-pushpin"></span>
+                            Configuração gerais
                         </a>
                     </div>
                 </div>
             </div>
         </div>
+        <div class="panel panel-warning">
+            <div class="panel-heading">
+                <h3 class="panel-title">SSH e relacionados</h3>
+            </div>
+            <div class="panel panel-body">
+                <div class="well">
+                    {% if key %}
+                        <span class="badge badge_fernet_key"
+                              data-toggle="tooltip"
+                              data-placement="top"
+                              data-html="true"
+                              title="📂 Arquivo: {{ key_info.path }}<br>🕒 Última modificação: {{ key_info.last_modified }}">
+                            🔒 Chave Configurada
+                        </span>
+                    {% else %}
+                        <a href="{{ url_for('admin.gerar_chave') }}"
+                           class="btn btn-danger"
+                           onclick="return confirm('Tem certeza que deseja gerar a chave de criptografia? Essa ação não pode ser desfeita.');">
+                            🔑 Gerar Chave
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock content %}
+{% block extra_script %}
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
+{% endblock extra_script %}

@@ -15,9 +15,23 @@
                     name="modo_gerenciacao"
                     required>
                 <option value="">Selecione o Modo</option>
-                <option value="unico" {% if config_cfg.get('modo_gerenciacao') == 'unico' %}selected{% endif %}>Reservas Separadas</option>
-                <option value="multiplo" {% if config_cfg.get('modo_gerenciacao') == 'multiplo' %}selected{% endif %}>Reservas Compativeis Unidas</option>
+                <option value="unico"
+                        {% if config_cfg.get('modo_gerenciacao') == 'unico' %}selected{% endif %}>
+                    Reservas Separadas
+                </option>
+                <option value="multiplo"
+                        {% if config_cfg.get('modo_gerenciacao') == 'multiplo' %}selected{% endif %}>
+                    Reservas Compativeis Unidas
+                </option>
             </select>
+        </div>
+        <div class="form-group">
+            <label for="toleranca">Tolerança:</label>
+            <input class="form-control"
+                   id="toleranca"
+                   name="toleranca"
+                   value="{{ config_cfg.get('toleranca') }}"
+                   required>
         </div>
         {{ action_buttons('montar', show_voltar=False, label='') }}
     </form>

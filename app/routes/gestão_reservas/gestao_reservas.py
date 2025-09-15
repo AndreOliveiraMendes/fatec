@@ -16,6 +16,7 @@ from app.auxiliar.decorators import admin_required
 from app.models import (Aulas_Ativas, Exibicao_Reservas, Laboratorios,
                         SituacaoChaveEnum, Situacoes_Das_Reserva, TipoAulaEnum,
                         TipoReservaEnum, Turnos, db)
+from config.json_related import carregar_config_geral
 
 bp = Blueprint('gestao_reserva', __name__, url_prefix="/gestao_reservas")
 
@@ -202,6 +203,7 @@ def gerenciar_situacoes(tipo_reserva):
     extras['reserva_dia'] = reserva_dia
     extras['reserva_turno'] = reserva_turno
     extras['reserva_tipo_horario'] = reserva_tipo_horario
+    extras['config'] = carregar_config_geral()
     if tipo_reserva == 'fixa':
         return gerenciar_situacoes_reservas_fixas(extras)
     elif tipo_reserva == 'temporaria':
@@ -222,10 +224,15 @@ def gerenciar_situacoes_reservas_fixas(extras):
         reserva['laboratorio'] = r.laboratorios
         reserva['responsavel'] = get_responsavel_reserva(r)
         reserva['id_responsavel'] = (r.id_responsavel, r.id_responsavel_especial)
-        if reservas and reservas[-1] and verificar_merge_reserva(reservas[-1], reserva):
-            reservas[-1]['horarios'] += reserva['horarios']
-        else:
-            reservas.append(reserva)
+        modo = extras.get("config", {}).get("modo_gerenciacao", "multiplo")
+        ultima = reservas[-1] if reservas else None
+        toleranca = int(extras.get("config", {}).get("toleranca", 20))
+
+        match (modo, bool(ultima and verificar_merge_reserva(ultima, reserva, toleranca))):
+            case ("multiplo", True):
+                ultima["horarios"] += reserva["horarios"]
+            case _:
+                reservas.append(reserva)
         reserva['situacao'] = get_situacoes_por_dia(reserva['horarios'][0], reserva['laboratorio'], extras['reserva_dia'], 'fixa')
     extras['reservas'] = reservas
     return render_template("gestão_reservas/status_fixas.html", username=username, perm=perm, **extras)
@@ -245,10 +252,15 @@ def gerenciar_situacoes_reservas_temporarias(extras):
         reserva['laboratorio'] = r.laboratorios
         reserva['responsavel'] = get_responsavel_reserva(r)
         reserva['id_responsavel'] = (r.id_responsavel, r.id_responsavel_especial)
-        if reservas and reservas[-1] and verificar_merge_reserva(reservas[-1], reserva):
-            reservas[-1]['horarios'] += reserva['horarios']
-        else:
-            reservas.append(reserva)
+        modo = extras.get("config", {}).get("modo_gerenciacao", "multiplo")
+        ultima = reservas[-1] if reservas else None
+        toleranca = int(extras.get("config", {}).get("toleranca", 20))
+
+        match (modo, bool(ultima and verificar_merge_reserva(ultima, reserva, toleranca))):
+            case ("multiplo", True):
+                ultima["horarios"] += reserva["horarios"]
+            case _:
+                reservas.append(reserva)
         reserva['situacao'] = get_situacoes_por_dia(reserva['horarios'][0], reserva['laboratorio'], extras['reserva_dia'], 'temporaria')
     extras['reservas'] = reservas
     return render_template("gestão_reservas/status_temporarias.html", username=username, perm=perm, **extras)

@@ -1,3 +1,4 @@
+from app.auxiliar.auxiliar_cryptograph import *
 from app.auxiliar.auxiliar_routes import *
 from app.auxiliar.auxiliar_template import *
 from app.auxiliar.constant import *

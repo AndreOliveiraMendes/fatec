@@ -46,7 +46,7 @@ def carregar_config_geral():
 
         try:
             data = json.loads(config_file.read_text(encoding="utf-8").strip() or "{}")
-            if not validar_json(data, 'modo_gerenciacao'):
+            if not validar_json(data, 'modo_gerenciacao', 'toleranca'):
                 raise ValueError("JSON não contém os campos obrigatórios.")
             return data
         except (json.JSONDecodeError, ValueError):
