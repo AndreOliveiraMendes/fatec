@@ -12,7 +12,7 @@ from app.auxiliar.auxiliar_routes import (get_query_params,
                                           registrar_log_generico_usuario)
 from app.auxiliar.dao import get_laboratorios
 from app.auxiliar.decorators import admin_required
-from app.models import (DisponibilidadeEnum, Laboratorios, TipoLaboratorioEnum,
+from app.models import (DisponibilidadeEnum, Locais, TipoLocalEnum,
                         db)
 from config.general import PER_PAGE
 
@@ -31,7 +31,7 @@ def gerenciar_laboratorios():
     extras = {'url':url}
     if request.method == 'POST':
         if acao == 'listar':
-            sel_laboratorios = select(Laboratorios)
+            sel_laboratorios = select(Locais)
             laboratorios_paginados = SelectPagination(
                 select=sel_laboratorios, session=db.session,
                 page=page, per_page=PER_PAGE, error_out=False
@@ -49,20 +49,20 @@ def gerenciar_laboratorios():
             filter = []
             query_params = get_query_params(request)
             if id_laboratorio is not None:
-                filter.append(Laboratorios.id_laboratorio == id_laboratorio)
+                filter.append(Locais.id_laboratorio == id_laboratorio)
             if nome_laboratorio:
                 if exact_name_match:
-                    filter.append(Laboratorios.nome_laboratorio == nome_laboratorio)
+                    filter.append(Locais.nome_laboratorio == nome_laboratorio)
                 else:
-                    filter.append(Laboratorios.nome_laboratorio.ilike(f"%{nome_laboratorio}%"))
+                    filter.append(Locais.nome_laboratorio.ilike(f"%{nome_laboratorio}%"))
             if descrição:
-                filter.append(Laboratorios.descrição.ilike(f"%{descrição}%"))
+                filter.append(Locais.descrição.ilike(f"%{descrição}%"))
             if disponibilidade:
-                filter.append(Laboratorios.disponibilidade == DisponibilidadeEnum(disponibilidade))
+                filter.append(Locais.disponibilidade == DisponibilidadeEnum(disponibilidade))
             if tipo:
-                filter.append(Laboratorios.tipo == TipoLaboratorioEnum(tipo))
+                filter.append(Locais.tipo == TipoLocalEnum(tipo))
             if filter:
-                sel_laboratorios = select(Laboratorios).where(*filter)
+                sel_laboratorios = select(Locais).where(*filter)
                 laboratorios_paginados = SelectPagination(
                     select=sel_laboratorios, session=db.session,
                     page=page, per_page=PER_PAGE, error_out=False
@@ -82,11 +82,11 @@ def gerenciar_laboratorios():
             disponibilidade = none_if_empty(request.form.get('disponibilidade'))
             tipo = none_if_empty(request.form.get('tipo'))
             try:
-                novo_laboratorio = Laboratorios(
+                novo_laboratorio = Locais(
                     nome_laboratorio=nome_laboratorio,
                     descrição=descrição,
                     disponibilidade=DisponibilidadeEnum(disponibilidade),
-                    tipo=TipoLaboratorioEnum(tipo)
+                    tipo=TipoLocalEnum(tipo)
                 )
                 db.session.add(novo_laboratorio)
                 db.session.flush()
@@ -108,7 +108,7 @@ def gerenciar_laboratorios():
             extras['laboratorios'] = get_laboratorios()
         elif acao in ['editar', 'excluir'] and bloco == 1:
             id_laboratorio = none_if_empty(request.form.get('id_laboratorio'), int)
-            laboratorio = db.get_or_404(Laboratorios, id_laboratorio)
+            laboratorio = db.get_or_404(Locais, id_laboratorio)
             extras['laboratorio'] = laboratorio
         elif acao == 'editar' and bloco == 2:
             id_laboratorio = none_if_empty(request.form.get('id_laboratorio'), int)
@@ -117,14 +117,14 @@ def gerenciar_laboratorios():
             disponibilidade = none_if_empty(request.form.get('disponibilidade'))
             tipo = none_if_empty(request.form.get('tipo'))
 
-            laboratorio = db.get_or_404(Laboratorios, id_laboratorio)
+            laboratorio = db.get_or_404(Locais, id_laboratorio)
             try:
                 dados_anteriores = copy.copy(laboratorio)
 
                 laboratorio.nome_laboratorio = nome_laboratorio
                 laboratorio.descrição = descrição
                 laboratorio.disponibilidade = DisponibilidadeEnum(disponibilidade)
-                laboratorio.tipo = TipoLaboratorioEnum(tipo)
+                laboratorio.tipo = TipoLocalEnum(tipo)
 
                 db.session.flush()
                 registrar_log_generico_usuario(userid, "Edição", laboratorio, dados_anteriores)
@@ -144,7 +144,7 @@ def gerenciar_laboratorios():
         elif acao == 'excluir' and bloco == 2:
             id_laboratorio = none_if_empty(request.form.get('id_laboratorio'), int)
 
-            laboratorio = db.get_or_404(Laboratorios, id_laboratorio)
+            laboratorio = db.get_or_404(Locais, id_laboratorio)
             try:
                 db.session.delete(laboratorio)
 

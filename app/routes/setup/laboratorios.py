@@ -5,7 +5,7 @@ from sqlalchemy.exc import IntegrityError, OperationalError
 from app.auxiliar.auxiliar_routes import (get_user_info, none_if_empty,
                                           registrar_log_generico_usuario)
 from app.auxiliar.decorators import admin_required
-from app.models import (DisponibilidadeEnum, Laboratorios, TipoLaboratorioEnum,
+from app.models import (DisponibilidadeEnum, Locais, TipoLocalEnum,
                         db)
 from config.database_views import SETUP_HEAD
 
@@ -56,13 +56,13 @@ def fast_setup_laboratorios():
                 disponibilidade = data[i].get('disponibilidade')
                 tipo = data[i].get('tipo')
                 descrição = data[i].get('descrição_laboratorio')
-                laboratorio = Laboratorios(nome_laboratorio=nome)
+                laboratorio = Locais(nome_laboratorio=nome)
                 if descrição:
                     laboratorio.descrição = descrição
                 if disponibilidade:
                     laboratorio.disponibilidade = DisponibilidadeEnum(disponibilidade)
                 if tipo:
-                    laboratorio.tipo = TipoLaboratorioEnum(tipo)
+                    laboratorio.tipo = TipoLocalEnum(tipo)
                 db.session.add(laboratorio)
                 laboratorios.append(laboratorio)
 

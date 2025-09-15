@@ -10,7 +10,7 @@ from app.auxiliar.auxiliar_routes import (get_responsavel_reserva,
 from app.auxiliar.constant import (DATA_ABREV, DATA_COMPLETA, DATA_FLAGS,
                                    DATA_NUMERICA, HORA, PERM_ADMIN,
                                    PERMISSIONS, SEMANA_ABREV, SEMANA_COMPLETA)
-from app.models import (Exibicao_Reservas, FinalidadeReservaEnum, Laboratorios,
+from app.models import (Exibicao_Reservas, FinalidadeReservaEnum, Locais,
                         Reservas_Fixas, Reservas_Temporarias, Semestres,
                         Situacoes_Das_Reserva, Turnos, db)
 from config.database_views import SECOES, TABLES_PER_LINE
@@ -135,7 +135,7 @@ def register_filters(app:Flask):
         
         return Markup(''.join(html_parts))
 
-    def lab_url(tipo, turno:Turnos|None, laboratorio:Laboratorios|None, **kwargs):
+    def lab_url(tipo, turno:Turnos|None, laboratorio:Locais|None, **kwargs):
         id_turno=turno.id_turno if turno else None
         id_laboratorio=laboratorio.id_laboratorio if laboratorio else None
         if tipo=='fixo':
@@ -147,9 +147,9 @@ def register_filters(app:Flask):
             return url_for('reservas_temporarias.get_lab', inicio=inicio, fim=fim, id_turno=id_turno, id_lab=id_laboratorio)
 
     @app.template_global()
-    def generate_reserva_head(tipo, turno: Turnos, current: Optional[Laboratorios] = None, **kwargs) -> Markup:
+    def generate_reserva_head(tipo, turno: Turnos, current: Optional[Locais] = None, **kwargs) -> Markup:
         username, perm = get_user_info(session.get('userid'))
-        sel_laboratorios = select(Laboratorios)
+        sel_laboratorios = select(Locais)
         laboratorios = db.session.execute(sel_laboratorios).scalars().all()
 
         html_parts = ['<div class="pills-group"><ul class="nav nav-pills">']

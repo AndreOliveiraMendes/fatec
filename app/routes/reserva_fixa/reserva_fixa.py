@@ -19,7 +19,7 @@ from app.auxiliar.dao import (get_aulas_ativas_por_semestre, get_aulas_extras,
                               get_laboratorios, get_pessoas,
                               get_usuarios_especiais)
 from app.auxiliar.decorators import reserva_fixa_required
-from app.models import (FinalidadeReservaEnum, Laboratorios, Permissoes,
+from app.models import (FinalidadeReservaEnum, Locais, Permissoes,
                         Reservas_Fixas, Semestres, Turnos, Usuarios, db)
 from config.general import (DISPONIBILIDADE_DATABASE, DISPONIBILIDADE_HOST,
                             DISPONIBILIDADE_PASSWORD, DISPONIBILIDADE_USER)
@@ -188,7 +188,7 @@ def get_lab_especifico(id_semestre, id_turno, id_lab):
     semestre = db.get_or_404(Semestres, id_semestre)
     check_semestre(semestre, userid, perm)
     turno = db.get_or_404(Turnos, id_turno) if id_turno is not None else id_turno
-    laboratorio = db.get_or_404(Laboratorios, id_lab)
+    laboratorio = db.get_or_404(Locais, id_lab)
     check_laboratorio(laboratorio, perm)
     today = date.today()
     extras = {'semestre':semestre, 'turno':turno, 'laboratorio':laboratorio, 'day':today}

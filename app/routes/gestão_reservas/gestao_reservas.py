@@ -13,7 +13,7 @@ from app.auxiliar.dao import (check_first, get_exibicao_por_dia,
                               get_reservas_por_dia, get_situacoes_por_dia,
                               get_turno_by_time, get_turnos)
 from app.auxiliar.decorators import admin_required
-from app.models import (Aulas_Ativas, Exibicao_Reservas, Laboratorios,
+from app.models import (Aulas_Ativas, Exibicao_Reservas, Locais,
                         SituacaoChaveEnum, Situacoes_Das_Reserva, TipoAulaEnum,
                         TipoReservaEnum, Turnos, db)
 from config.json_related import carregar_config_geral
@@ -125,7 +125,7 @@ def gerenciar_exibicao():
 def atualizar_exibicao(id_aula, id_lab, dia):
     userid = session.get('userid')
     aula = db.get_or_404(Aulas_Ativas, id_aula)
-    lab = db.get_or_404(Laboratorios, id_lab)
+    lab = db.get_or_404(Locais, id_lab)
 
     new_exibicao_config = request.form.get('exibicao')
     exibicao = get_exibicao_por_dia(aula, lab, dia)

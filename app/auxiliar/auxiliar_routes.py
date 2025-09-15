@@ -8,7 +8,7 @@ from sqlalchemy.exc import MultipleResultsFound
 from sqlalchemy.inspection import inspect
 
 from app.auxiliar.constant import PERM_ADMIN
-from app.models import (Base, Historicos, Laboratorios, OrigemEnum, Permissoes,
+from app.models import (Base, Historicos, Locais, OrigemEnum, Permissoes,
                         Pessoas, Reservas_Fixas, Reservas_Temporarias,
                         Usuarios, Usuarios_Especiais, db)
 from config.general import AFTER_ACTION, LOCAL_TIMEZONE
@@ -234,7 +234,7 @@ def get_unique_or_500(model: Type[T], *args, **kwargs):
     except MultipleResultsFound:
         abort(500)
 
-def check_laboratorio(laboratorio:Laboratorios, perm):
+def check_laboratorio(laboratorio:Locais, perm):
     if perm&PERM_ADMIN > 0:
         return
     if laboratorio.disponibilidade.value == 'Indisponivel':

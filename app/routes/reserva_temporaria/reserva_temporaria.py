@@ -19,7 +19,7 @@ from app.auxiliar.dao import (check_reserva_temporaria,
                               get_laboratorios, get_pessoas,
                               get_usuarios_especiais)
 from app.auxiliar.decorators import reserva_temp_required
-from app.models import (FinalidadeReservaEnum, Laboratorios, Permissoes,
+from app.models import (FinalidadeReservaEnum, Locais, Permissoes,
                         Reservas_Temporarias, TipoAulaEnum, Turnos, Usuarios,
                         db)
 
@@ -164,7 +164,7 @@ def get_lab_especifico(inicio, fim, id_turno, id_lab):
     except ValueError as ve:
         current_app.logger.error(f"error:{ve}")
         abort(400)
-    laboratorio = db.get_or_404(Laboratorios, id_lab)
+    laboratorio = db.get_or_404(Locais, id_lab)
     check_laboratorio(laboratorio, perm)
     extras['laboratorio'] = laboratorio
     today = date.today()

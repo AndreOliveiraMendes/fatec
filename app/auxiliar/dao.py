@@ -7,10 +7,10 @@ from sqlalchemy import (and_, between, func, literal, or_, select, text,
 from sqlalchemy.exc import IntegrityError, MultipleResultsFound
 
 from app.models import (Aulas, Aulas_Ativas, Dias_da_Semana,
-                        DisponibilidadeEnum, Exibicao_Reservas, Laboratorios,
+                        DisponibilidadeEnum, Exibicao_Reservas, Locais,
                         Pessoas, Reservas_Fixas, Reservas_Temporarias,
                         Semestres, Situacoes_Das_Reserva, TipoAulaEnum,
-                        TipoLaboratorioEnum, TipoReservaEnum, Turnos, Usuarios,
+                        TipoLocalEnum, TipoReservaEnum, Turnos, Usuarios,
                         Usuarios_Especiais, db)
 from config.general import FIRST_DAY_OF_WEEK, INDEX_START
 
@@ -46,12 +46,12 @@ def get_aulas():
 
 #laboratorios
 def get_laboratorios(todos=True, sala=False):
-    sel_laboratorios = select(Laboratorios)
+    sel_laboratorios = select(Locais)
     if not todos:
         filtro = []
-        filtro.append(Laboratorios.disponibilidade == DisponibilidadeEnum.DISPONIVEL)
+        filtro.append(Locais.disponibilidade == DisponibilidadeEnum.DISPONIVEL)
         if not sala:
-            filtro.append(Laboratorios.tipo == TipoLaboratorioEnum.LABORATORIO)
+            filtro.append(Locais.tipo == TipoLocalEnum.LABORATORIO)
         sel_laboratorios = sel_laboratorios.where(*filtro)
     return db.session.execute(sel_laboratorios).scalars().all()
 
@@ -308,9 +308,9 @@ def get_reservas_por_dia(dia:date, turno:Turnos|None=None, tipo_horario:TipoAula
                     ).select_from(Reservas_Fixas)
                     .join(Aulas_Ativas)
                     .join(Aulas)
-                    .join(Laboratorios)
+                    .join(Locais)
                     .order_by(
-                        Laboratorios.id_laboratorio,
+                        Locais.id_laboratorio,
                         Aulas.horario_inicio
                     )
                 )
@@ -333,9 +333,9 @@ def get_reservas_por_dia(dia:date, turno:Turnos|None=None, tipo_horario:TipoAula
                 ).select_from(Reservas_Temporarias)
                 .join(Aulas_Ativas)
                 .join(Aulas)
-                .join(Laboratorios)
+                .join(Locais)
                 .order_by(
-                    Laboratorios.id_laboratorio,
+                    Locais.id_laboratorio,
                     Aulas.horario_inicio
                 )
             )
@@ -363,7 +363,7 @@ def check_first(reserva_fixa:Reservas_Fixas, reserva_temporaria:Reservas_Tempora
         else:
             return 2
 
-def get_situacoes_por_dia(aula:Aulas_Ativas, laboratorio:Laboratorios, dia:date, tipo_reserva):
+def get_situacoes_por_dia(aula:Aulas_Ativas, laboratorio:Locais, dia:date, tipo_reserva):
     sel_situacoes = select(
         Situacoes_Das_Reserva
     ).where(
@@ -377,7 +377,7 @@ def get_situacoes_por_dia(aula:Aulas_Ativas, laboratorio:Laboratorios, dia:date,
     except MultipleResultsFound:
         abort(500)
 
-def get_exibicao_por_dia(aula:Aulas_Ativas, laboratorio:Laboratorios, dia:date):
+def get_exibicao_por_dia(aula:Aulas_Ativas, laboratorio:Locais, dia:date):
     sel_exibicao = select(
         Exibicao_Reservas
     ).where(
