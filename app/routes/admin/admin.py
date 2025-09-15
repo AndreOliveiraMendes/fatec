@@ -9,7 +9,7 @@ from cryptography.fernet import Fernet
 from flask import (Blueprint, flash, redirect, render_template, request,
                    session, url_for)
 
-from app.auxiliar.auxiliar_cryptograph import load_key
+from app.auxiliar.auxiliar_cryptograph import ensure_secret_file, load_key
 from app.auxiliar.auxiliar_routes import get_user_info
 from app.auxiliar.dao import get_laboratorios
 from app.auxiliar.decorators import admin_required
@@ -19,19 +19,6 @@ from config.json_related import carregar_config_geral, carregar_painel_config
 from config.mapeamentos import SECRET_PATH
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
-
-def ensure_secret_file(path=SECRET_PATH):
-    if os.path.exists(path):
-        return None  # já existe
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    key = Fernet.generate_key().decode()
-    with open(path, "w") as f:
-        json.dump({"ENCRYPTION_KEY": key}, f, indent=4)
-    try:
-        os.chmod(path, 0o600)  # Unix only
-    except Exception:
-        pass
-    return key
 
 @bp.route("/")
 @admin_required
