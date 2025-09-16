@@ -13,7 +13,7 @@ from app.auxiliar.dao import (check_first, get_exibicao_por_dia,
                               get_reservas_por_dia, get_situacoes_por_dia,
                               get_turno_by_time, get_turnos)
 from app.auxiliar.decorators import admin_required
-from app.models import (Aulas_Ativas, Exibicao_Reservas, Laboratorios,
+from app.models import (Aulas_Ativas, Exibicao_Reservas, Locais,
                         SituacaoChaveEnum, Situacoes_Das_Reserva, TipoAulaEnum,
                         TipoReservaEnum, Turnos, db)
 from config.json_related import carregar_config_geral
@@ -21,7 +21,7 @@ from config.json_related import carregar_config_geral
 bp = Blueprint('gestao_reserva', __name__, url_prefix="/gestao_reservas")
 
 def verificar_merge_reserva(reserva_1, reserva_2, tolerancia=20):
-    mesma_sala = reserva_1.get('laboratorio') == reserva_2.get('laboratorio')
+    mesma_sala = reserva_1.get('local') == reserva_2.get('local')
     mesmo_professor = reserva_1.get('id_responsavel') == reserva_2.get('id_responsavel')
 
     if not (mesma_sala and mesmo_professor):
@@ -78,19 +78,19 @@ def gerenciar_exibicao():
             who = check_first(rf, rt)
             if who == 0:
                 reserva['horario'] = rf.aulas_ativas
-                reserva['laboratorio'] = rf.laboratorios
+                reserva['local'] = rf.locais
                 reserva['fixa'] = rf
                 reserva['temporaria'] = None
                 i += 1
             elif who == 1:
                 reserva['horario'] = rt.aulas_ativas
-                reserva['laboratorio'] = rt.laboratorios
+                reserva['local'] = rt.locais
                 reserva['fixa'] = None
                 reserva['temporaria'] = rt
                 j += 1
             else:
                 reserva['horario'] = rf.aulas_ativas
-                reserva['laboratorio'] = rf.laboratorios
+                reserva['local'] = rf.locais
                 reserva['fixa'] = rf
                 reserva['temporaria'] = rt
                 i += 1
@@ -98,18 +98,18 @@ def gerenciar_exibicao():
         elif i < control_1:
             rf = reservas_fixas[i]
             reserva['horario'] = rf.aulas_ativas
-            reserva['laboratorio'] = rf.laboratorios
+            reserva['local'] = rf.locais
             reserva['fixa'] = rf
             reserva['temporaria'] = None
             i += 1
         else:
             rt = reservas_temporarias[j]
             reserva['horario'] = rt.aulas_ativas
-            reserva['laboratorio'] = rt.laboratorios
+            reserva['local'] = rt.locais
             reserva['fixa'] = None
             reserva['temporaria'] = rt
             j += 1
-        reserva['exibicao'] = get_exibicao_por_dia(reserva['horario'], reserva['laboratorio'], reserva_dia)
+        reserva['exibicao'] = get_exibicao_por_dia(reserva['horario'], reserva['local'], reserva_dia)
         reservas.append(reserva)
     extras['reservas'] = reservas
     icons = [
@@ -125,7 +125,7 @@ def gerenciar_exibicao():
 def atualizar_exibicao(id_aula, id_lab, dia):
     userid = session.get('userid')
     aula = db.get_or_404(Aulas_Ativas, id_aula)
-    lab = db.get_or_404(Laboratorios, id_lab)
+    lab = db.get_or_404(Locais, id_lab)
 
     new_exibicao_config = request.form.get('exibicao')
     exibicao = get_exibicao_por_dia(aula, lab, dia)
@@ -139,7 +139,7 @@ def atualizar_exibicao(id_aula, id_lab, dia):
             else:
                 exibicao = Exibicao_Reservas(
                     id_exibicao_aula=id_aula,
-                    id_exibicao_laboratorio=id_lab,
+                    id_exibicao_local=id_lab,
                     exibicao_dia=dia
                 )
             exibicao.tipo_reserva = TipoReservaEnum(new_exibicao_config)
@@ -221,7 +221,7 @@ def gerenciar_situacoes_reservas_fixas(extras):
     for r in reservas_fixas:
         reserva = {}
         reserva['horarios'] = [r.aulas_ativas]
-        reserva['laboratorio'] = r.laboratorios
+        reserva['local'] = r.locais
         reserva['responsavel'] = get_responsavel_reserva(r)
         reserva['id_responsavel'] = (r.id_responsavel, r.id_responsavel_especial)
         modo = extras.get("config", {}).get("modo_gerenciacao", "multiplo")
@@ -233,7 +233,7 @@ def gerenciar_situacoes_reservas_fixas(extras):
                 ultima["horarios"] += reserva["horarios"]
             case _:
                 reservas.append(reserva)
-        reserva['situacao'] = get_situacoes_por_dia(reserva['horarios'][0], reserva['laboratorio'], extras['reserva_dia'], 'fixa')
+        reserva['situacao'] = get_situacoes_por_dia(reserva['horarios'][0], reserva['local'], extras['reserva_dia'], 'fixa')
     extras['reservas'] = reservas
     return render_template("gestão_reservas/status_fixas.html", username=username, perm=perm, **extras)
 
@@ -249,7 +249,7 @@ def gerenciar_situacoes_reservas_temporarias(extras):
     for r in reservas_temporarias:
         reserva = {}
         reserva['horarios'] = [r.aulas_ativas]
-        reserva['laboratorio'] = r.laboratorios
+        reserva['local'] = r.locais
         reserva['responsavel'] = get_responsavel_reserva(r)
         reserva['id_responsavel'] = (r.id_responsavel, r.id_responsavel_especial)
         modo = extras.get("config", {}).get("modo_gerenciacao", "multiplo")
@@ -261,7 +261,7 @@ def gerenciar_situacoes_reservas_temporarias(extras):
                 ultima["horarios"] += reserva["horarios"]
             case _:
                 reservas.append(reserva)
-        reserva['situacao'] = get_situacoes_por_dia(reserva['horarios'][0], reserva['laboratorio'], extras['reserva_dia'], 'temporaria')
+        reserva['situacao'] = get_situacoes_por_dia(reserva['horarios'][0], reserva['local'], extras['reserva_dia'], 'temporaria')
     extras['reservas'] = reservas
     return render_template("gestão_reservas/status_temporarias.html", username=username, perm=perm, **extras)
 
@@ -293,7 +293,7 @@ def atualizar_situacoes_fixa(common):
             situacao = get_unique_or_500(
                 Situacoes_Das_Reserva,
                 Situacoes_Das_Reserva.id_situacao_aula == aula,
-                Situacoes_Das_Reserva.id_situacao_laboratorio == lab,
+                Situacoes_Das_Reserva.id_situacao_local == lab,
                 Situacoes_Das_Reserva.situacao_dia == dia,
                 Situacoes_Das_Reserva.tipo_reserva == TipoReservaEnum(tipo_reserva)
             )
@@ -303,7 +303,7 @@ def atualizar_situacoes_fixa(common):
             if situacao is None:
                 situacao = Situacoes_Das_Reserva(
                     id_situacao_aula = aula,
-                    id_situacao_laboratorio = lab,
+                    id_situacao_local = lab,
                     situacao_dia = dia,
                     tipo_reserva = TipoReservaEnum(tipo_reserva)
                 )
@@ -343,7 +343,7 @@ def atualizar_situacoes_temporaria(common):
             situacao = get_unique_or_500(
                 Situacoes_Das_Reserva,
                 Situacoes_Das_Reserva.id_situacao_aula == aula,
-                Situacoes_Das_Reserva.id_situacao_laboratorio == lab,
+                Situacoes_Das_Reserva.id_situacao_local == lab,
                 Situacoes_Das_Reserva.situacao_dia == dia,
                 Situacoes_Das_Reserva.tipo_reserva == TipoReservaEnum(tipo_reserva)
             )
@@ -353,7 +353,7 @@ def atualizar_situacoes_temporaria(common):
             if situacao is None:
                 situacao = Situacoes_Das_Reserva(
                     id_situacao_aula = aula,
-                    id_situacao_laboratorio = lab,
+                    id_situacao_local = lab,
                     situacao_dia = dia,
                     tipo_reserva = TipoReservaEnum(tipo_reserva)
                 )

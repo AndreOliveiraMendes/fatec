@@ -5,15 +5,15 @@ from sqlalchemy.exc import IntegrityError, OperationalError
 from app.auxiliar.auxiliar_routes import (get_user_info, none_if_empty,
                                           registrar_log_generico_usuario)
 from app.auxiliar.decorators import admin_required
-from app.models import (DisponibilidadeEnum, Laboratorios, TipoLaboratorioEnum,
+from app.models import (DisponibilidadeEnum, Locais, TipoLocalEnum,
                         db)
 from config.database_views import SETUP_HEAD
 
-bp = Blueprint('setup_laboratorios', __name__, url_prefix="/database/fast_setup/")
+bp = Blueprint('setup_locais', __name__, url_prefix="/database/fast_setup/")
 
-@bp.route("/laboratorios", methods=['GET', 'POST'])
+@bp.route("/locais", methods=['GET', 'POST'])
 @admin_required
-def fast_setup_laboratorios():
+def fast_setup_locais():
     userid = session.get('userid')
     username, perm = get_user_info(userid)
     stage = int(request.form.get('stage', request.args.get('stage', 0)))
@@ -25,8 +25,8 @@ def fast_setup_laboratorios():
         prefix = request.form.get('prefix')
         data = {}
         for key, value in request.form.items():
-            if key.startswith(('nome_laboratorio', 'disponibilidade', 'tipo', 'descrição_laboratorio')):
-                prefixos = ('nome_laboratorio_', 'disponibilidade_', 'tipo_', 'descrição_laboratorio_')
+            if key.startswith(('nome_local', 'disponibilidade', 'tipo', 'descrição_local')):
+                prefixos = ('nome_local_', 'disponibilidade_', 'tipo_', 'descrição_local_')
                 index = key
                 field = ''
                 for prefixo in prefixos:
@@ -41,37 +41,37 @@ def fast_setup_laboratorios():
                     data[index][field] = value
 
         quantidade_maxima = next(
-            i for i in range(len(data) + 1) if i not in data or not data[i].get('nome_laboratorio')
+            i for i in range(len(data) + 1) if i not in data or not data[i].get('nome_local')
         )
 
         if quantidade_maxima == 0:
             flash("não há nada definido para realizar a configuração", "warning")
             return redirect(url_for('setup.fast_setup_menu'))
         try:
-            laboratorios = []
+            locais = []
             for i in range(quantidade_maxima):
-                nome = data[i].get('nome_laboratorio')
+                nome = data[i].get('nome_local')
                 if prefix:
                     nome = prefix + " " + nome
                 disponibilidade = data[i].get('disponibilidade')
                 tipo = data[i].get('tipo')
-                descrição = data[i].get('descrição_laboratorio')
-                laboratorio = Laboratorios(nome_laboratorio=nome)
+                descrição = data[i].get('descrição_local')
+                local = Locais(nome_local=nome)
                 if descrição:
-                    laboratorio.descrição = descrição
+                    local.descrição = descrição
                 if disponibilidade:
-                    laboratorio.disponibilidade = DisponibilidadeEnum(disponibilidade)
+                    local.disponibilidade = DisponibilidadeEnum(disponibilidade)
                 if tipo:
-                    laboratorio.tipo = TipoLaboratorioEnum(tipo)
-                db.session.add(laboratorio)
-                laboratorios.append(laboratorio)
+                    local.tipo = TipoLocalEnum(tipo)
+                db.session.add(local)
+                locais.append(local)
 
             db.session.flush()
-            for laboratorio in laboratorios:
-                registrar_log_generico_usuario(userid, 'Quick-Setup', laboratorio)
+            for local in locais:
+                registrar_log_generico_usuario(userid, 'Quick-Setup', local)
 
             db.session.commit()
-            flash("Configuração rapida de laboratorios efetuada com sucesso", "success")
+            flash("Configuração rapida de locais efetuada com sucesso", "success")
         except (IntegrityError, OperationalError) as e:
             db.session.rollback()
             flash(f"Erro ao efetuar a configuração rapida:{str(e.orig)}", "danger")
@@ -80,5 +80,5 @@ def fast_setup_laboratorios():
             flash(f"Erro ao efetuar configuração rapida:{ve}", "danger")
 
         return redirect(url_for('setup.fast_setup_menu'))
-    return render_template('database/setup/laboratorios.html',
+    return render_template('database/setup/locais.html',
         username=username, perm=perm, stage=stage, **extras)

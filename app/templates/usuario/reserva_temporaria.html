@@ -69,7 +69,7 @@
                             {% for r in reservas_temporarias %}
                                 <tr>
                                     {% if all %}<td>{{ get_responsavel_reserva(r) }}</td>{% endif %}
-                                    <td>{{ r.laboratorios.nome_laboratorio }}</td>
+                                    <td>{{ r.locais.nome_local }}</td>
                                     <td>{{ r.inicio_reserva|data }} - {{ r.fim_reserva|data }}</td>
                                     <td>{{ r.aulas_ativas.dia_da_semana.nome_semana }}</td>
                                     <td>{{ r.aulas_ativas.aulas.horario_inicio|hora }} às {{ r.aulas_ativas.aulas.horario_fim|hora }}</td>
@@ -119,7 +119,7 @@
             var infoUrl = $(this).data('info-url');
 
             $.getJSON(infoUrl, function (data) {
-                $('#modalCLaboratorio').text(data.laboratorio);
+                $('#modalCLocal').text(data.local);
                 $('#modalCSemana').text(data.semana);
                 $('#modalCPeriodo').text(data.periodo);
                 $('#modalCHorario').text(data.horario);
@@ -130,7 +130,7 @@
             var infoUrl = $(this).data('info-url');
 
             $.getJSON(infoUrl, function (data) {
-                $('#modalELaboratorio').text(data.laboratorio);
+                $('#modalELocal').text(data.local);
                 $('#modalESemana').text(data.semana);
                 $('#modalEPeriodo').text(data.periodo);
                 $('#modalEHorario').text(data.horario);
@@ -147,7 +147,7 @@
             var infoUrl = $(this).data('info-url');
 
             $.getJSON(infoUrl, function (data) {
-                $('#modalDLaboratorio').text(data.laboratorio);
+                $('#modalDLocal').text(data.local);
                 $('#modalDSemana').text(data.semana);
                 $('#modalDPeriodo').text(data.periodo);
                 $('#modalDHorario').text(data.horario);

@@ -3,7 +3,7 @@ from datetime import datetime
 from flask import Blueprint, render_template, request, session
 
 from app.auxiliar.auxiliar_routes import get_user_info, parse_date_string
-from app.auxiliar.dao import (get_aulas_ativas_por_dia, get_laboratorios,
+from app.auxiliar.dao import (get_aulas_ativas_por_dia, get_locais,
                               get_turno_by_time, get_turnos)
 from app.models import TipoAulaEnum, Turnos, db
 from config.general import LOCAL_TIMEZONE
@@ -49,11 +49,11 @@ def main_page():
         reserva_dia = today.date()
     turno = db.session.get(Turnos, reserva_turno) if reserva_turno is not None else None
     aulas = get_aulas_ativas_por_dia(reserva_dia, turno, TipoAulaEnum(reserva_tipo_horario))
-    laboratorios = get_laboratorios(True, True)
-    if len(aulas) == 0 or len(laboratorios) == 0:
+    locais = get_locais(True, True)
+    if len(aulas) == 0 or len(locais) == 0:
         extras['skip'] = True
     extras['aulas'] = aulas
-    extras['laboratorios'] = laboratorios
+    extras['locais'] = locais
     return render_template("reserva/main.html", username=username, perm=perm, **extras)
 
 @bp.route("/televisor")
@@ -65,9 +65,9 @@ def tela_televisor():
     tipo_horario = painel_cfg.get('tipo')
     intervalo = int(painel_cfg.get('tempo'))
     qt_lab = int(painel_cfg.get('laboratorios'))
-    lab = divide(get_laboratorios(), qt_lab)
+    locais = divide(get_locais(), qt_lab)
     extras['intervalo'] = intervalo*1000
-    extras['laboratorios'] = lab
+    extras['locais'] = locais
     today = datetime.now(LOCAL_TIMEZONE)
     extras['hoje'] = today
     turno = get_turno_by_time(today.time())

@@ -9,17 +9,17 @@ from mysql.connector import DatabaseError, OperationalError
 from sqlalchemy import between, select
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from app.auxiliar.auxiliar_routes import (check_laboratorio,
+from app.auxiliar.auxiliar_routes import (check_local,
                                           get_responsavel_reserva,
                                           get_unique_or_500, get_user_info,
                                           none_if_empty,
                                           registrar_log_generico_usuario)
 from app.auxiliar.constant import PERM_ADMIN
 from app.auxiliar.dao import (get_aulas_ativas_por_semestre, get_aulas_extras,
-                              get_laboratorios, get_pessoas,
+                              get_locais, get_pessoas,
                               get_usuarios_especiais)
 from app.auxiliar.decorators import reserva_fixa_required
-from app.models import (FinalidadeReservaEnum, Laboratorios, Permissoes,
+from app.models import (FinalidadeReservaEnum, Locais, Permissoes,
                         Reservas_Fixas, Semestres, Turnos, Usuarios, db)
 from config.general import (DISPONIBILIDADE_DATABASE, DISPONIBILIDADE_HOST,
                             DISPONIBILIDADE_PASSWORD, DISPONIBILIDADE_USER)
@@ -141,14 +141,14 @@ def get_lab_geral(id_semestre, id_turno=None):
     today = date.today()
     extras = {'semestre':semestre, 'turno':turno, 'day':today}
     aulas = get_aulas_ativas_por_semestre(semestre, turno)
-    laboratorios = get_laboratorios(perm&PERM_ADMIN)
-    if len(aulas) == 0 or len(laboratorios) == 0:
+    locais = get_locais(perm&PERM_ADMIN)
+    if len(aulas) == 0 or len(locais) == 0:
         if len(aulas) == 0:
             flash("não há horarios disponiveis nesse turno", "danger")
-        if len(laboratorios) == 0:
-            flash("não há laboratorio disponiveis para reserva", "danger")
+        if len(locais) == 0:
+            flash("não há local disponiveis para reserva", "danger")
         return redirect(url_for('default.home'))
-    extras['laboratorios'] = laboratorios
+    extras['locais'] = locais
     extras['aulas'] = aulas
     contagem_dias = Counter()
     contagem_turnos = Counter()
@@ -173,7 +173,7 @@ def get_lab_geral(id_semestre, id_turno=None):
     helper = {}
     for r in reservas:
         title = get_responsavel_reserva(r)
-        helper[(r.id_reserva_laboratorio, r.id_reserva_aula)] = title
+        helper[(r.id_reserva_local, r.id_reserva_aula)] = title
     extras['helper'] = helper
     extras['finalidade_reserva'] = FinalidadeReservaEnum
     extras['aulas_extras'] = get_aulas_extras(semestre, turno)
@@ -188,10 +188,10 @@ def get_lab_especifico(id_semestre, id_turno, id_lab):
     semestre = db.get_or_404(Semestres, id_semestre)
     check_semestre(semestre, userid, perm)
     turno = db.get_or_404(Turnos, id_turno) if id_turno is not None else id_turno
-    laboratorio = db.get_or_404(Laboratorios, id_lab)
-    check_laboratorio(laboratorio, perm)
+    local = db.get_or_404(Locais, id_lab)
+    check_local(local, perm)
     today = date.today()
-    extras = {'semestre':semestre, 'turno':turno, 'laboratorio':laboratorio, 'day':today}
+    extras = {'semestre':semestre, 'turno':turno, 'local':local, 'day':today}
     aulas = get_aulas_ativas_por_semestre(semestre, turno)
     if len(aulas) == 0:
         flash("não há horarios disponiveis nesse turno", "danger")
@@ -227,12 +227,12 @@ def get_lab_especifico(id_semestre, id_turno, id_lab):
     extras['responsavel_especial'] = get_usuarios_especiais()
     sel_reservas = select(Reservas_Fixas).where(
         Reservas_Fixas.id_reserva_semestre == id_semestre,
-        Reservas_Fixas.id_reserva_laboratorio == id_lab)
+        Reservas_Fixas.id_reserva_local == id_lab)
     reservas = db.session.execute(sel_reservas).scalars().all()
     helper = {}
     for r in reservas:
         title = get_responsavel_reserva(r)
-        helper[(r.id_reserva_laboratorio, r.id_reserva_aula)] = title
+        helper[(r.id_reserva_local, r.id_reserva_aula)] = title
     extras['helper'] = helper
     extras['finalidade_reserva'] = FinalidadeReservaEnum
     extras['aulas_extras'] = get_aulas_extras(semestre, turno)
@@ -277,7 +277,7 @@ def efetuar_reserva(id_semestre):
                 id_responsavel = responsavel,
                 id_responsavel_especial = responsavel_especial,
                 tipo_responsavel = tipo_responsavel,
-                id_reserva_laboratorio = lab,
+                id_reserva_local = lab,
                 id_reserva_aula = aula,
                 id_reserva_semestre = semestre.id_semestre,
                 finalidade_reserva = FinalidadeReservaEnum(finalidade_reserva),

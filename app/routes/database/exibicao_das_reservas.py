@@ -10,7 +10,7 @@ from app.auxiliar.auxiliar_routes import (get_query_params,
                                           get_user_info, none_if_empty,
                                           parse_date_string, register_return,
                                           registrar_log_generico_usuario)
-from app.auxiliar.dao import get_aulas_ativas, get_exibicoes, get_laboratorios
+from app.auxiliar.dao import get_aulas_ativas, get_exibicoes, get_locais
 from app.auxiliar.decorators import admin_required
 from app.models import Exibicao_Reservas, TipoReservaEnum, db
 from config.general import PER_PAGE
@@ -39,11 +39,11 @@ def gerenciar_exibicao_reservas():
             extras['pagination'] = exibicao_reservas_paginadas
 
         elif acao == 'procurar' and bloco == 0:
-            extras['laboratorios'] = get_laboratorios()
+            extras['locais'] = get_locais()
             extras['aulas_ativas'] = get_aulas_ativas()
         elif acao == 'procurar' and bloco == 1:
             id_exibicao = none_if_empty(request.form.get('id_exibicao'), int)
-            id_exibicao_laboratorio = none_if_empty(request.form.get('id_exibicao_laboratorio'), int)
+            id_exibicao_local = none_if_empty(request.form.get('id_exibicao_local'), int)
             id_exibicao_aula = none_if_empty(request.form.get('id_exibicao_aula'), int)
             exibicao_dia = parse_date_string(request.form.get('exibicao_dia'))
             tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
@@ -51,8 +51,8 @@ def gerenciar_exibicao_reservas():
             query_params = get_query_params(request)
             if id_exibicao is not None:
                 filter.append(Exibicao_Reservas.id_exibicao == id_exibicao)
-            if id_exibicao_laboratorio is not None:
-                filter.append(Exibicao_Reservas.id_exibicao_laboratorio == id_exibicao_laboratorio)
+            if id_exibicao_local is not None:
+                filter.append(Exibicao_Reservas.id_exibicao_local == id_exibicao_local)
             if id_exibicao_aula is not None:
                 filter.append(Exibicao_Reservas.id_exibicao_aula == id_exibicao_aula)
             if exibicao_dia:
@@ -72,21 +72,21 @@ def gerenciar_exibicao_reservas():
                 flash("especifique ao menos um campo", "danger")
                 redirect_action, bloco = register_return(
                     url, acao, extras,
-                    laboratorios=get_laboratorios(), aulas_ativas=get_aulas_ativas()
+                    locais=get_locais(), aulas_ativas=get_aulas_ativas()
                 )
 
         elif acao == 'inserir' and bloco == 0:
-            extras['laboratorios'] = get_laboratorios()
+            extras['locais'] = get_locais()
             extras['aulas_ativas'] = get_aulas_ativas()
         elif acao == 'inserir' and bloco == 1:
-            id_exibicao_laboratorio = none_if_empty(request.form.get('id_exibicao_laboratorio'), int)
+            id_exibicao_local = none_if_empty(request.form.get('id_exibicao_local'), int)
             id_exibicao_aula = none_if_empty(request.form.get('id_exibicao_aula'), int)
             exibicao_dia = parse_date_string(request.form.get('exibicao_dia'))
             tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
 
             try:
                 nova_exibicao = Exibicao_Reservas(
-                    id_exibicao_laboratorio = id_exibicao_laboratorio,
+                    id_exibicao_local = id_exibicao_local,
                     id_exibicao_aula = id_exibicao_aula,
                     exibicao_dia = exibicao_dia
                 )
@@ -108,7 +108,7 @@ def gerenciar_exibicao_reservas():
 
             redirect_action, bloco = register_return(
                 url, acao, extras,
-                laboratorios=get_laboratorios(), aulas_ativas=get_aulas_ativas()
+                locais=get_locais(), aulas_ativas=get_aulas_ativas()
             )
 
         elif acao in ['editar', 'excluir'] and bloco == 0:
@@ -117,11 +117,11 @@ def gerenciar_exibicao_reservas():
             id_exibicao = none_if_empty(request.form.get('id_exibicao'), int)
             exibicao_da_reserva = db.get_or_404(Exibicao_Reservas, id_exibicao)
             extras['exibicao_da_reserva'] = exibicao_da_reserva
-            extras['laboratorios'] = get_laboratorios()
+            extras['locais'] = get_locais()
             extras['aulas_ativas'] = get_aulas_ativas()
         elif acao == 'editar' and bloco == 2:
             id_exibicao = none_if_empty(request.form.get('id_exibicao'), int)
-            id_exibicao_laboratorio = none_if_empty(request.form.get('id_exibicao_laboratorio'), int)
+            id_exibicao_local = none_if_empty(request.form.get('id_exibicao_local'), int)
             id_exibicao_aula = none_if_empty(request.form.get('id_exibicao_aula'), int)
             exibicao_dia = parse_date_string(request.form.get('exibicao_dia'))
             tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
@@ -129,7 +129,7 @@ def gerenciar_exibicao_reservas():
             exibicao_da_reserva = db.get_or_404(Exibicao_Reservas, id_exibicao)
             try:
                 dados_anteriores = copy.copy(exibicao_da_reserva)
-                exibicao_da_reserva.id_exibicao_laboratorio = id_exibicao_laboratorio
+                exibicao_da_reserva.id_exibicao_local = id_exibicao_local
                 exibicao_da_reserva.id_exibicao_aula = id_exibicao_aula
                 exibicao_dia = exibicao_dia
                 if tipo_reserva:

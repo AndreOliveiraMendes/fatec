@@ -30,9 +30,9 @@ def fast_setup_menu():
             'icon':'glyphicon-adjust',
             'label':'turnos (turnos)'
         }, {
-            'url':'setup_laboratorios.fast_setup_laboratorios',
+            'url':'setup_locais.fast_setup_locais',
             'icon':'glyphicon-blackboard',
-            'label':'laboratorios (laboratorios)'
+            'label':'locais (locais)'
         }
     ]
     extras['tables'] = tables
