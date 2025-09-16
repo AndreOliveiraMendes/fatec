@@ -7,7 +7,7 @@ from flask import (Blueprint, abort, current_app, flash, redirect,
 from sqlalchemy import and_, between, select
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from app.auxiliar.auxiliar_routes import (check_laboratorio,
+from app.auxiliar.auxiliar_routes import (check_local,
                                           get_responsavel_reserva,
                                           get_unique_or_500, get_user_info,
                                           none_if_empty, parse_date_string,
@@ -111,16 +111,16 @@ def get_lab_geral(inicio, fim, id_turno):
     except ValueError as ve:
         current_app.logger.error(f"error:{ve}")
         abort(400)
-    laboratorios = get_locais(perm&PERM_ADMIN)
+    locais = get_locais(perm&PERM_ADMIN)
     dias = [(dia, turno) for dia in time_range(inicio, fim)]
     aulas = get_aulas_ativas_por_lista_de_dias(dias, tipo_horario)
-    if len(aulas) == 0 or len(laboratorios) == 0:
+    if len(aulas) == 0 or len(locais) == 0:
         if len(aulas) == 0:
             flash("não há horarios disponiveis nesse turno", "danger")
-        if len(laboratorios) == 0:
-            flash("não há laboratorio disponiveis para reserva", "danger")
+        if len(locais) == 0:
+            flash("não há local disponivel para reserva", "danger")
         return redirect(url_for('default.home'))
-    extras['laboratorios'] = laboratorios
+    extras['locais'] = locais
     extras['aulas'] = aulas
     contagem_dias = Counter()
     contagem_turnos = Counter()
@@ -145,7 +145,7 @@ def get_lab_geral(inicio, fim, id_turno):
         title = get_responsavel_reserva(r)
         days = [day.strftime('%Y-%m-%d') for day in time_range(r.inicio_reserva, r.fim_reserva, 7)]
         for day in days:
-            helper[(r.id_reserva_laboratorio, r.id_reserva_aula, day)] = title
+            helper[(r.id_reserva_local, r.id_reserva_aula, day)] = title
     extras['helper'] = helper
     extras['finalidade_reserva'] = FinalidadeReservaEnum
     extras['responsavel'] = get_pessoas()
@@ -164,9 +164,9 @@ def get_lab_especifico(inicio, fim, id_turno, id_lab):
     except ValueError as ve:
         current_app.logger.error(f"error:{ve}")
         abort(400)
-    laboratorio = db.get_or_404(Locais, id_lab)
-    check_laboratorio(laboratorio, perm)
-    extras['laboratorio'] = laboratorio
+    local = db.get_or_404(Locais, id_lab)
+    check_local(local, perm)
+    extras['local'] = local
     today = date.today()
     extras['day'] = today
     dias = [(dia, turno) for dia in time_range(inicio, fim)]
@@ -206,7 +206,7 @@ def get_lab_especifico(inicio, fim, id_turno, id_lab):
             Reservas_Temporarias.inicio_reserva <= fim,
             Reservas_Temporarias.fim_reserva >= inicio
         ),
-        Reservas_Temporarias.id_reserva_laboratorio == id_lab
+        Reservas_Temporarias.id_reserva_local == id_lab
     )
     reservas = db.session.execute(sel_reservas).scalars().all()
     helper = {}
@@ -214,7 +214,7 @@ def get_lab_especifico(inicio, fim, id_turno, id_lab):
         title = get_responsavel_reserva(r)
         days = [day.strftime('%Y-%m-%d') for day in time_range(r.inicio_reserva, r.fim_reserva, 7)]
         for day in days:
-            helper[(r.id_reserva_laboratorio, r.id_reserva_aula, day)] = title
+            helper[(r.id_reserva_local, r.id_reserva_aula, day)] = title
     extras['helper'] = helper
     extras['finalidade_reserva'] = FinalidadeReservaEnum
     extras['responsavel'] = get_pessoas()
@@ -275,7 +275,7 @@ def efetuar_reserva(inicio, fim):
                     id_responsavel = responsavel,
                     id_responsavel_especial = responsavel_especial,
                     tipo_responsavel = tipo_responsavel,
-                    id_reserva_laboratorio = lab,
+                    id_reserva_local = lab,
                     id_reserva_aula = aula,
                     inicio_reserva = inicio,
                     fim_reserva = fim,

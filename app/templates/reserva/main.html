@@ -76,13 +76,13 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for lab in laboratorios %}
+                            {% for lab in locais %}
                                 <tr>
-                                    <td class="col-fixa">{{ lab.nome_laboratorio }}</td>
+                                    <td class="col-fixa">{{ lab.nome_local }}</td>
                                     {% for aula_info in aulas %}
                                         <td>
                                             {% set mostrar = perm and perm|has_flag(ADMIN) %}
-                                            {{ get_reserva(lab.id_laboratorio, aula_info[0].id_aula_ativa, reserva_dia, mostrar_icone=mostrar) }}
+                                            {{ get_reserva(lab.id_local, aula_info[0].id_aula_ativa, reserva_dia, mostrar_icone=mostrar) }}
                                         </td>
                                     {% endfor %}
                                 </tr>

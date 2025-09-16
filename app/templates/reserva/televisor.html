@@ -41,12 +41,12 @@
     </nav>
 {% endblock navigation %}
 {% block content %}
-    <div id="grupolaboratorio"
+    <div id="grupolocal"
          role="region"
          aria-label="Grupo de Laboratórios"
          aria-live="polite">
         <div class="carousel-inner">
-            {% for lab_group in laboratorios %}
+            {% for lab_group in locais %}
                 <div class="slide{% if loop.index0 == 0 %} active{% endif %}"
                      role="group"
                      aria-hidden="{{ 'false' if loop.index0 == 0 else 'true' }}">
@@ -54,7 +54,7 @@
                         <thead>
                             <tr>
                                 <th class="fixa">Horário:</th>
-                                {% for lab in lab_group %}<th>{{ lab.nome_laboratorio.upper().replace('LABORATORIO', 'LAB') }}</th>{% endfor %}
+                                {% for lab in lab_group %}<th>{{ lab.nome_local.upper().replace('LABORATORIO', 'LAB') }}</th>{% endfor %}
                             </tr>
                         </thead>
                         <tbody>
@@ -64,7 +64,7 @@
                                         <span class="glyphicon glyphicon-time"></span> {{ aula[1].horario_inicio|hora }} - {{ aula[1].horario_fim|hora }}
                                     </td>
                                     {% for lab in lab_group %}
-                                        <td>{{ get_reserva(lab.id_laboratorio, aula[0].id_aula_ativa, hoje, true) }}</td>
+                                        <td>{{ get_reserva(lab.id_local, aula[0].id_aula_ativa, hoje, true) }}</td>
                                     {% endfor %}
                                 </tr>
                             {% endfor %}
@@ -78,7 +78,7 @@
 {% block extra_script %}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const slides = document.querySelectorAll('#grupolaboratorio .slide');
+            const slides = document.querySelectorAll('#grupolocal .slide');
             let current = 0;
             const intervalo = {{ intervalo|default(5000) }};  // ms
 

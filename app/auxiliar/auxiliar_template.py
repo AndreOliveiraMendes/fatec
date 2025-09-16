@@ -135,31 +135,31 @@ def register_filters(app:Flask):
         
         return Markup(''.join(html_parts))
 
-    def lab_url(tipo, turno:Turnos|None, laboratorio:Locais|None, **kwargs):
+    def lab_url(tipo, turno:Turnos|None, local:Locais|None, **kwargs):
         id_turno=turno.id_turno if turno else None
-        id_laboratorio=laboratorio.id_laboratorio if laboratorio else None
+        id_local=local.id_local if local else None
         if tipo=='fixo':
             id_semestre=kwargs['semestre'].id_semestre
-            return url_for('reservas_semanais.get_lab', id_semestre=id_semestre, id_turno=id_turno, id_lab=id_laboratorio)
+            return url_for('reservas_semanais.get_lab', id_semestre=id_semestre, id_turno=id_turno, id_lab=id_local)
         else:
             inicio=kwargs['inicio']
             fim=kwargs['fim']
-            return url_for('reservas_temporarias.get_lab', inicio=inicio, fim=fim, id_turno=id_turno, id_lab=id_laboratorio)
+            return url_for('reservas_temporarias.get_lab', inicio=inicio, fim=fim, id_turno=id_turno, id_lab=id_local)
 
     @app.template_global()
     def generate_reserva_head(tipo, turno: Turnos, current: Optional[Locais] = None, **kwargs) -> Markup:
         username, perm = get_user_info(session.get('userid'))
-        sel_laboratorios = select(Locais)
-        laboratorios = db.session.execute(sel_laboratorios).scalars().all()
+        sel_locais = select(Locais)
+        locais = db.session.execute(sel_locais).scalars().all()
 
         html_parts = ['<div class="pills-group"><ul class="nav nav-pills">']
         
-        for lab in laboratorios:
+        for lab in locais:
             active_class = ''
             active_link = lab_url(tipo, turno, lab, **kwargs)
             extra = ''
             
-            if current and current.id_laboratorio == lab.id_laboratorio:
+            if current and current.id_local == lab.id_local:
                 active_class = 'active'
                 active_link = lab_url(tipo, turno, None, **kwargs)
             
@@ -171,7 +171,7 @@ def register_filters(app:Flask):
                     extra = ' <span class="glyphicon glyphicon-exclamation-sign"></span>'
             
             html_parts.append(f'<li role="presentation" class="{active_class}">')
-            html_parts.append(f'<a href="{active_link}" class="{active_class}">{lab.nome_laboratorio}{extra}</a>')
+            html_parts.append(f'<a href="{active_link}" class="{active_class}">{lab.nome_local}{extra}</a>')
             html_parts.append('</li>')
         
         html_parts.append('</ul></div>')
@@ -260,7 +260,7 @@ def register_filters(app:Flask):
         if semestre:
             fixa = get_unique_or_500(
                 Reservas_Fixas,
-                Reservas_Fixas.id_reserva_laboratorio == lab,
+                Reservas_Fixas.id_reserva_local == lab,
                 Reservas_Fixas.id_reserva_aula == aula,
                 Reservas_Fixas.id_reserva_semestre == semestre.id_semestre
             )
@@ -268,7 +268,7 @@ def register_filters(app:Flask):
             dia = dia.date()
         temp = get_unique_or_500(
             Reservas_Temporarias,
-            Reservas_Temporarias.id_reserva_laboratorio == lab,
+            Reservas_Temporarias.id_reserva_local == lab,
             Reservas_Temporarias.id_reserva_aula == aula,
             between(dia, Reservas_Temporarias.inicio_reserva, Reservas_Temporarias.fim_reserva)
         )
@@ -277,7 +277,7 @@ def register_filters(app:Flask):
 
         exibicao = get_unique_or_500(
             Exibicao_Reservas,
-            Exibicao_Reservas.id_exibicao_laboratorio == lab,
+            Exibicao_Reservas.id_exibicao_local == lab,
             Exibicao_Reservas.id_exibicao_aula == aula,
             Exibicao_Reservas.exibicao_dia == dia
         )
@@ -304,7 +304,7 @@ def register_filters(app:Flask):
     def status_reserva(lab, aula, dia):
         status = get_unique_or_500(
             Situacoes_Das_Reserva,
-            Situacoes_Das_Reserva.id_situacao_laboratorio == lab,
+            Situacoes_Das_Reserva.id_situacao_local == lab,
             Situacoes_Das_Reserva.id_situacao_aula == aula,
             Situacoes_Das_Reserva.situacao_dia == dia
         )

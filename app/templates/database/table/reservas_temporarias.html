@@ -76,11 +76,11 @@
                 </tr>
                 <tr>
                     <td>
-                        <code>id_reserva_laboratorio</code>
+                        <code>id_reserva_local</code>
                     </td>
                     <td>INT (FK)</td>
                     <td>
-                        Chave estrangeira para a tabela <code>laboratorios</code>
+                        Chave estrangeira para a tabela <code>locais</code>
                     </td>
                     <td>-</td>
                 </tr>
@@ -178,7 +178,7 @@
                     <option value="2">Ambos</option>
                 </select>
             </div>
-            {{ gerar_select("laboratorios", "Selecione o laboratorio", laboratorios, "id_laboratorio", "nome_laboratorio", "id_reserva_laboratorio", optional=true) }}
+            {{ gerar_select("locais", "Selecione o local", locais, "id_local", "nome_local", "id_reserva_local", optional=true) }}
             {{ gerar_select("aulas", "Selecione o horario", aulas_ativas, "id_aula_ativa", "selector_identification", "id_reserva_aula", optional=true) }}
             <div class="form-group">
                 <label for="inicio_procura">Início intervalo de procura / Fim intervalo de procura</label>
@@ -255,7 +255,7 @@
                 <option value="2">Ambos</option>
             </select>
         </div>
-        {{ gerar_select("laboratorios", "Selecione o laboratorio", laboratorios, "id_laboratorio", "nome_laboratorio", "id_reserva_laboratorio") }}
+        {{ gerar_select("locais", "Selecione o local", locais, "id_local", "nome_local", "id_reserva_local") }}
         {{ gerar_select("aulas", "Selecione o horario", aulas_ativas, "id_aula_ativa", "selector_identification", "id_reserva_aula") }}
         <div class="form-group">
             <label for="inicio_reserva">Data de Inicio:</label>
@@ -384,7 +384,7 @@
                             {% if reserva_temporaria.tipo_responsavel == 2 %}selected{% endif %}>Ambos</option>
                 </select>
             </div>
-            {{ gerar_select("laboratorios", "Selecione o laboratorio", laboratorios, "id_laboratorio", "nome_laboratorio", "id_reserva_laboratorio", selected=reserva_temporaria.id_reserva_laboratorio) }}
+            {{ gerar_select("locais", "Selecione o local", locais, "id_local", "nome_local", "id_reserva_local", selected=reserva_temporaria.id_reserva_local) }}
             {{ gerar_select("aulas", "Selecione o horario", aulas_ativas, "id_aula_ativa", "selector_identification", "id_reserva_aula", selected=reserva_temporaria.id_reserva_aula) }}
             <div class="form-group">
                 <label for="inicio_reserva">Data de Inicio:</label>
@@ -531,7 +531,7 @@
                             {% if reserva_temporaria.tipo_responsavel == 2 %}selected{% endif %}>Ambos</option>
                 </select>
             </div>
-            {{ gerar_select("laboratorios", "Selecione o laboratorio", laboratorios, "id_laboratorio", "nome_laboratorio", "id_reserva_laboratorio", selected=reserva_temporaria.id_reserva_laboratorio, extra='disabled') }}
+            {{ gerar_select("locais", "Selecione o local", locais, "id_local", "nome_local", "id_reserva_local", selected=reserva_temporaria.id_reserva_local, extra='disabled') }}
             {{ gerar_select("aulas", "Selecione o horario", aulas_ativas, "id_aula_ativa", "selector_identification", "id_reserva_aula", selected=reserva_temporaria.id_reserva_aula, extra='disabled') }}
             <div class="form-group">
                 <label for="inicio_reserva">Data de Inicio:</label>
@@ -649,7 +649,7 @@
                         <td>Responsável</td>
                         <td>Responsável Especial</td>
                         <td>Tipo de Responsável</td>
-                        <td>Laboratorio</td>
+                        <td>Local</td>
                         <td>Horario</td>
                         <td>Inicio da Reserva</td>
                         <td>Termino da Reserva</td>
@@ -665,7 +665,7 @@
                             <td>{{ rt.pessoas.nome_pessoa if rt.id_responsavel else '-' }}</td>
                             <td>{{ rt.usuarios_especiais.nome_usuario_especial if rt.id_responsavel_especial else '-' }}</td>
                             <td>{{ rt.tipo_responsavel|tipo_responsavel_label }}</td>
-                            <td>{{ rt.laboratorios.nome_laboratorio }}</td>
+                            <td>{{ rt.locais.nome_local }}</td>
                             <td>{{ rt.aulas_ativas.selector_identification }}</td>
                             <td>{{ rt.inicio_reserva|data }}</td>
                             <td>{{ rt.fim_reserva|data }}</td>

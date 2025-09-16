@@ -44,16 +44,16 @@ def get_aulas():
     sel_aulas = select(Aulas)
     return db.session.execute(sel_aulas).scalars().all()
 
-#laboratorios
+#locais
 def get_locais(todos=True, sala=False):
-    sel_laboratorios = select(Locais)
+    sel_locais = select(Locais)
     if not todos:
         filtro = []
         filtro.append(Locais.disponibilidade == DisponibilidadeEnum.DISPONIVEL)
         if not sala:
             filtro.append(Locais.tipo == TipoLocalEnum.LABORATORIO)
-        sel_laboratorios = sel_laboratorios.where(*filtro)
-    return db.session.execute(sel_laboratorios).scalars().all()
+        sel_locais = sel_locais.where(*filtro)
+    return db.session.execute(sel_locais).scalars().all()
 
 #semestre
 def get_semestres():
@@ -252,8 +252,8 @@ def get_aulas_extras(semestre:Semestres, turno:Turnos|None):
     return db.session.execute(sel_aulas_ativas).all()
 
 #condição unica da tabela reserva_temporaria
-def check_reserva_temporaria(inicio, fim, laboratorio, aula, id = None):
-    base_filter = [Reservas_Temporarias.id_reserva_laboratorio == laboratorio,
+def check_reserva_temporaria(inicio, fim, local, aula, id = None):
+    base_filter = [Reservas_Temporarias.id_reserva_local == local,
         Reservas_Temporarias.id_reserva_aula == aula]
     if id is not None:
         base_filter.append(Reservas_Temporarias.id_reserva_temporaria != id)
@@ -265,7 +265,7 @@ def check_reserva_temporaria(inicio, fim, laboratorio, aula, id = None):
         raise IntegrityError(
             statement=None,
             params=None,
-            orig=Exception("Já existe uma reserva para esse laboratorio e horario.")
+            orig=Exception("Já existe uma reserva para esse local e horario.")
         )
 
 # get reservas_fixas por dia
@@ -310,7 +310,7 @@ def get_reservas_por_dia(dia:date, turno:Turnos|None=None, tipo_horario:TipoAula
                     .join(Aulas)
                     .join(Locais)
                     .order_by(
-                        Locais.id_laboratorio,
+                        Locais.id_local,
                         Aulas.horario_inicio
                     )
                 )
@@ -335,7 +335,7 @@ def get_reservas_por_dia(dia:date, turno:Turnos|None=None, tipo_horario:TipoAula
                 .join(Aulas)
                 .join(Locais)
                 .order_by(
-                    Locais.id_laboratorio,
+                    Locais.id_local,
                     Aulas.horario_inicio
                 )
             )
@@ -351,9 +351,9 @@ def get_reservas_por_dia(dia:date, turno:Turnos|None=None, tipo_horario:TipoAula
 
 # para gerenciar situacoes das reservas
 def check_first(reserva_fixa:Reservas_Fixas, reserva_temporaria:Reservas_Temporarias):
-    if reserva_fixa.id_reserva_laboratorio < reserva_temporaria.id_reserva_laboratorio:
+    if reserva_fixa.id_reserva_local < reserva_temporaria.id_reserva_local:
         return 0
-    elif reserva_fixa.id_reserva_laboratorio > reserva_temporaria.id_reserva_laboratorio:
+    elif reserva_fixa.id_reserva_local > reserva_temporaria.id_reserva_local:
         return 1
     else:
         if reserva_fixa.aulas_ativas.aulas.horario_inicio < reserva_temporaria.aulas_ativas.aulas.horario_inicio:
@@ -363,12 +363,12 @@ def check_first(reserva_fixa:Reservas_Fixas, reserva_temporaria:Reservas_Tempora
         else:
             return 2
 
-def get_situacoes_por_dia(aula:Aulas_Ativas, laboratorio:Locais, dia:date, tipo_reserva):
+def get_situacoes_por_dia(aula:Aulas_Ativas, local:Locais, dia:date, tipo_reserva):
     sel_situacoes = select(
         Situacoes_Das_Reserva
     ).where(
         Situacoes_Das_Reserva.id_situacao_aula == aula.id_aula_ativa,
-        Situacoes_Das_Reserva.id_situacao_laboratorio == laboratorio.id_laboratorio,
+        Situacoes_Das_Reserva.id_situacao_local == local.id_local,
         Situacoes_Das_Reserva.situacao_dia == dia,
         Situacoes_Das_Reserva.tipo_reserva == TipoReservaEnum(tipo_reserva)
     )
@@ -377,12 +377,12 @@ def get_situacoes_por_dia(aula:Aulas_Ativas, laboratorio:Locais, dia:date, tipo_
     except MultipleResultsFound:
         abort(500)
 
-def get_exibicao_por_dia(aula:Aulas_Ativas, laboratorio:Locais, dia:date):
+def get_exibicao_por_dia(aula:Aulas_Ativas, local:Locais, dia:date):
     sel_exibicao = select(
         Exibicao_Reservas
     ).where(
         Exibicao_Reservas.id_exibicao_aula == aula.id_aula_ativa,
-        Exibicao_Reservas.id_exibicao_laboratorio == laboratorio.id_laboratorio,
+        Exibicao_Reservas.id_exibicao_local == local.id_local,
         Exibicao_Reservas.exibicao_dia == dia
     )
     try:

@@ -234,8 +234,8 @@ def get_unique_or_500(model: Type[T], *args, **kwargs):
     except MultipleResultsFound:
         abort(500)
 
-def check_laboratorio(laboratorio:Locais, perm):
+def check_local(local:Locais, perm):
     if perm&PERM_ADMIN > 0:
         return
-    if laboratorio.disponibilidade.value == 'Indisponivel':
+    if local.disponibilidade.value == 'Indisponivel':
         abort(403)

@@ -43,7 +43,7 @@ def gerenciar_reservas_fixas():
         elif acao == 'procurar' and bloco == 0:
             extras['pessoas'] = get_pessoas()
             extras['usuarios_especiais'] = get_usuarios_especiais()
-            extras['laboratorios'] = get_locais()
+            extras['locais'] = get_locais()
             extras['aulas_ativas'] = get_aulas_ativas()
             extras['semestres'] = get_semestres()
         elif acao == 'procurar' and bloco == 1:
@@ -51,7 +51,7 @@ def gerenciar_reservas_fixas():
             id_responsavel = none_if_empty(request.form.get('id_responsavel'), int)
             id_responsavel_especial = none_if_empty(request.form.get('id_responsavel_especial'), int)
             tipo_responsavel = none_if_empty(request.form.get('tipo_responsavel'), int)
-            id_reserva_laboratorio = none_if_empty(request.form.get('id_reserva_laboratorio'), int)
+            id_reserva_local = none_if_empty(request.form.get('id_reserva_local'), int)
             id_reserva_aula = none_if_empty(request.form.get('id_reserva_aula'), int)
             id_reserva_semestre = none_if_empty(request.form.get('id_reserva_semestre'), int)
             finalidade_reserva = none_if_empty(request.form.get('finalidade_reserva'))
@@ -67,8 +67,8 @@ def gerenciar_reservas_fixas():
                 filter.append(Reservas_Fixas.id_responsavel_especial == id_responsavel_especial)
             if tipo_responsavel is not None:
                 filter.append(Reservas_Fixas.tipo_responsavel == tipo_responsavel)
-            if id_reserva_laboratorio is not None:
-                filter.append(Reservas_Fixas.id_reserva_laboratorio == id_reserva_laboratorio)
+            if id_reserva_local is not None:
+                filter.append(Reservas_Fixas.id_reserva_local == id_reserva_local)
             if id_reserva_aula is not None:
                 filter.append(Reservas_Fixas.id_reserva_aula == id_reserva_aula)
             if id_reserva_semestre is not None:
@@ -92,21 +92,21 @@ def gerenciar_reservas_fixas():
                 flash("especifique ao menos um campo", "danger")
                 redirect_action, bloco = register_return(url,
                     acao, extras, pessoas=get_pessoas(), usuarios_especiais=get_usuarios_especiais(),
-                    laboratorios=get_locais(), aulas_ativas=get_aulas_ativas(),
+                    locais=get_locais(), aulas_ativas=get_aulas_ativas(),
                     semestres=get_semestres()
             )
 
         elif acao == 'inserir' and bloco == 0:
             extras['pessoas'] = get_pessoas()
             extras['usuarios_especiais'] = get_usuarios_especiais()
-            extras['laboratorios'] = get_locais()
+            extras['locais'] = get_locais()
             extras['aulas_ativas'] = get_aulas_ativas()
             extras['semestres'] = get_semestres()
         elif acao == 'inserir' and bloco == 1:
             id_responsavel = none_if_empty(request.form.get('id_responsavel'), int)
             id_responsavel_especial = none_if_empty(request.form.get('id_responsavel_especial'), int)
             tipo_responsavel = none_if_empty(request.form.get('tipo_responsavel'), int)
-            id_reserva_laboratorio = none_if_empty(request.form.get('id_reserva_laboratorio'), int)
+            id_reserva_local = none_if_empty(request.form.get('id_reserva_local'), int)
             id_reserva_aula = none_if_empty(request.form.get('id_reserva_aula'), int)
             id_reserva_semestre = none_if_empty(request.form.get('id_reserva_semestre'), int)
             finalidade_reserva = none_if_empty(request.form.get('finalidade_reserva'))
@@ -116,7 +116,7 @@ def gerenciar_reservas_fixas():
             try:
                 nova_reserva_fixa = Reservas_Fixas(
                     id_responsavel=id_responsavel, id_responsavel_especial=id_responsavel_especial,
-                    tipo_responsavel=tipo_responsavel, id_reserva_laboratorio=id_reserva_laboratorio,
+                    tipo_responsavel=tipo_responsavel, id_reserva_local=id_reserva_local,
                     id_reserva_aula=id_reserva_aula, id_reserva_semestre=id_reserva_semestre,
                     finalidade_reserva=FinalidadeReservaEnum(finalidade_reserva),
                     observacoes=observacoes,
@@ -138,7 +138,7 @@ def gerenciar_reservas_fixas():
 
             redirect_action, bloco = register_return(url,
                 acao, extras, pessoas=get_pessoas(), usuarios_especiais=get_usuarios_especiais(),
-                laboratorios=get_locais(), aulas_ativas=get_aulas_ativas(),
+                locais=get_locais(), aulas_ativas=get_aulas_ativas(),
                 semestres=get_semestres()
             )
 
@@ -150,7 +150,7 @@ def gerenciar_reservas_fixas():
             extras['reserva_fixa'] = reserva_fixa
             extras['pessoas'] = get_pessoas()
             extras['usuarios_especiais'] = get_usuarios_especiais()
-            extras['laboratorios'] = get_locais()
+            extras['locais'] = get_locais()
             extras['aulas_ativas'] = get_aulas_ativas()
             extras['semestres'] = get_semestres()
         elif acao == 'editar' and bloco == 2:
@@ -158,7 +158,7 @@ def gerenciar_reservas_fixas():
             id_responsavel = none_if_empty(request.form.get('id_responsavel'), int)
             id_responsavel_especial = none_if_empty(request.form.get('id_responsavel_especial'), int)
             tipo_responsavel = none_if_empty(request.form.get('tipo_responsavel'), int)
-            id_reserva_laboratorio = none_if_empty(request.form.get('id_reserva_laboratorio'), int)
+            id_reserva_local = none_if_empty(request.form.get('id_reserva_local'), int)
             id_reserva_aula = none_if_empty(request.form.get('id_reserva_aula'), int)
             id_reserva_semestre = none_if_empty(request.form.get('id_reserva_semestre'), int)
             finalidade_reserva = none_if_empty(request.form.get('finalidade_reserva'))
@@ -170,7 +170,7 @@ def gerenciar_reservas_fixas():
                 reserva_fixa.id_responsavel = id_responsavel
                 reserva_fixa.id_responsavel_especial = id_responsavel_especial
                 reserva_fixa.tipo_responsavel = tipo_responsavel
-                reserva_fixa.id_reserva_laboratorio = id_reserva_laboratorio
+                reserva_fixa.id_reserva_local = id_reserva_local
                 reserva_fixa.id_reserva_aula = id_reserva_aula
                 reserva_fixa.id_reserva_semestre = id_reserva_semestre
                 reserva_fixa.finalidade_reserva = FinalidadeReservaEnum(finalidade_reserva)

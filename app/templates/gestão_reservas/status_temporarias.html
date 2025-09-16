@@ -61,7 +61,7 @@
                     <table class="table table-striped table-bordered tabela-reserva">
                         <thead>
                             <th>Horario</th>
-                            <th>Laboratorio</th>
+                            <th>Local</th>
                             <th>Reserva</th>
                             <th>Status</th>
                             <th>Ação</th>
@@ -70,12 +70,12 @@
                             {% for reserva in reservas %}
                                 <tr>
                                     <td>{{ reserva.horarios[0].aulas.horario_inicio|hora }} - {{ reserva.horarios[-1].aulas.horario_fim|hora }}</td>
-                                    <td>{{ reserva.laboratorio.nome_laboratorio }}</td>
+                                    <td>{{ reserva.local.nome_local }}</td>
                                     <td>{{ reserva.responsavel }}</td>
                                     <td>
                                         <form class="form-inline"
                                               role="form"
-                                              action="{{ url_for('gestao_reserva.atualizar_situacoes', tipo_reserva='temporaria', lab=reserva.laboratorio.id_laboratorio, dia=reserva_dia) }}"
+                                              action="{{ url_for('gestao_reserva.atualizar_situacoes', tipo_reserva='temporaria', lab=reserva.local.id_local, dia=reserva_dia) }}"
                                               method="post">
                                             {%- for aula in reserva.horarios -%}
                                                 <input type="hidden" name="aulas" value="{{ aula.id_aula_ativa }}">

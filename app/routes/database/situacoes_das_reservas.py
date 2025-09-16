@@ -40,11 +40,11 @@ def gerenciar_situacoes_das_reservas():
             extras['pagination'] = situacoes_das_reservas_paginadas
 
         elif acao == 'procurar' and bloco == 0:
-            extras['laboratorios'] = get_locais()
+            extras['locais'] = get_locais()
             extras['aulas_ativas'] = get_aulas_ativas()
         elif acao == 'procurar' and bloco == 1:
             id_situacao = none_if_empty(request.form.get('id_situacao'), int)
-            id_situacao_laboratorio = none_if_empty(request.form.get('id_situacao_laboratorio'), int)
+            id_situacao_local = none_if_empty(request.form.get('id_situacao_local'), int)
             id_situacao_aula = none_if_empty(request.form.get('id_situacao_aula'), int)
             situacao_dia = parse_date_string(request.form.get('situacao_dia'))
             situacao_chave = none_if_empty(request.form.get('situacao_chave'))
@@ -53,8 +53,8 @@ def gerenciar_situacoes_das_reservas():
             query_params = get_query_params(request)
             if id_situacao is not None:
                 filter.append(Situacoes_Das_Reserva.id_situacao == id_situacao)
-            if id_situacao_laboratorio is not None:
-                filter.append(Situacoes_Das_Reserva.id_situacao_laboratorio == id_situacao_laboratorio)
+            if id_situacao_local is not None:
+                filter.append(Situacoes_Das_Reserva.id_situacao_local == id_situacao_local)
             if id_situacao_aula is not None:
                 filter.append(Situacoes_Das_Reserva.id_situacao_aula == id_situacao_aula)
             if situacao_dia:
@@ -76,14 +76,14 @@ def gerenciar_situacoes_das_reservas():
                 flash("especifique ao menos um campo", "danger")
                 redirect_action, bloco = register_return(
                     url, acao, extras,
-                    laboratorios=get_locais(), aulas_ativas=get_aulas_ativas()
+                    locais=get_locais(), aulas_ativas=get_aulas_ativas()
                 )
 
         elif acao == 'inserir' and bloco == 0:
-            extras['laboratorios'] = get_locais()
+            extras['locais'] = get_locais()
             extras['aulas_ativas'] = get_aulas_ativas()
         elif acao == 'inserir' and bloco == 1:
-            id_situacao_laboratorio = none_if_empty(request.form.get('id_situacao_laboratorio'), int)
+            id_situacao_local = none_if_empty(request.form.get('id_situacao_local'), int)
             id_situacao_aula = none_if_empty(request.form.get('id_situacao_aula'), int)
             situacao_dia = parse_date_string(request.form.get('situacao_dia'))
             situacao_chave = none_if_empty(request.form.get('situacao_chave'))
@@ -91,7 +91,7 @@ def gerenciar_situacoes_das_reservas():
 
             try:
                 nova_situacao = Situacoes_Das_Reserva(
-                    id_situacao_laboratorio = id_situacao_laboratorio,
+                    id_situacao_local = id_situacao_local,
                     id_situacao_aula = id_situacao_aula,
                     situacao_dia = situacao_dia,
                     situacao_chave = SituacaoChaveEnum(situacao_chave)
@@ -114,7 +114,7 @@ def gerenciar_situacoes_das_reservas():
 
             redirect_action, bloco = register_return(
                 url, acao, extras,
-                laboratorios=get_locais(), aulas_ativas=get_aulas_ativas()
+                locais=get_locais(), aulas_ativas=get_aulas_ativas()
             )
 
         elif acao in ['editar', 'excluir'] and bloco == 0:
@@ -123,11 +123,11 @@ def gerenciar_situacoes_das_reservas():
             id_situacao = none_if_empty(request.form.get('id_situacao'), int)
             situacao_da_reserva = db.get_or_404(Situacoes_Das_Reserva, id_situacao)
             extras['situacao_da_reserva'] = situacao_da_reserva
-            extras['laboratorios'] = get_locais()
+            extras['locais'] = get_locais()
             extras['aulas_ativas'] = get_aulas_ativas()
         elif acao == 'editar' and bloco == 2:
             id_situacao = none_if_empty(request.form.get('id_situacao'), int)
-            id_situacao_laboratorio = none_if_empty(request.form.get('id_situacao_laboratorio'), int)
+            id_situacao_local = none_if_empty(request.form.get('id_situacao_local'), int)
             id_situacao_aula = none_if_empty(request.form.get('id_situacao_aula'), int)
             situacao_dia = parse_date_string(request.form.get('situacao_dia'))
             situacao_chave = none_if_empty(request.form.get('situacao_chave'))
@@ -136,7 +136,7 @@ def gerenciar_situacoes_das_reservas():
             situacao_da_reserva = db.get_or_404(Situacoes_Das_Reserva, id_situacao)
             try:
                 dados_anteriores = copy.copy(situacao_da_reserva)
-                situacao_da_reserva.id_situacao_laboratorio = id_situacao_laboratorio
+                situacao_da_reserva.id_situacao_local = id_situacao_local
                 situacao_da_reserva.id_situacao_aula = id_situacao_aula
                 situacao_da_reserva.situacao_dia = situacao_dia
                 situacao_da_reserva.situacao_chave = SituacaoChaveEnum(situacao_chave)

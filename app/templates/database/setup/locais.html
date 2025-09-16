@@ -1,16 +1,16 @@
 {% extends "base-fixed" %}
 {% from "macros/form.html" import generate_navigation_database, action_buttons %}
 {% block title %}
-    Inicialização Rapida - Laboratorios
+    Inicialização Rapida - Locais
 {% endblock title %}
 {% block content %}
     {{ generate_navigation_database(extras = extras) }}
     {% if stage == 0 %}
-        <h3>Configuração Rapida de Laboratorios</h3>
-        <p>Selecione quantos laboratorios serão adicionados</p>
+        <h3>Configuração Rapida de Locais</h3>
+        <p>Selecione quantos locais serão adicionados</p>
         <form class="form-group"
               role="form"
-              action="{{ url_for('setup_laboratorios.fast_setup_laboratorios') }}"
+              action="{{ url_for('setup_locais.fast_setup_locais') }}"
               method="get">
             <div class="form-group">
                 <label for="quantidade">Quantidade de horarios</label>
@@ -24,23 +24,23 @@
             {{ action_buttons('inserir', 1, False, 0, label='stage') }}
         </form>
     {% elif stage == 1 %}
-        <h3>Configuração Rapida de Laboratorios</h3>
+        <h3>Configuração Rapida de Locais</h3>
         <form class="form-group"
               role="form"
-              action="{{ url_for('setup_laboratorios.fast_setup_laboratorios') }}"
+              action="{{ url_for('setup_locais.fast_setup_locais') }}"
               method="post">
             <div class="form-group">
                 <label for="prefix">Prefixo comum</label>
-                <input type="text" id="prefix" name="prefix" placeholder="Ex: laboratorio">
+                <input type="text" id="prefix" name="prefix" placeholder="Ex: local">
             </div>
             {% for i in range(quantidade) %}
                 <div class="form-group row">
                     <div class="col-sm-4">
-                        <label for="nome_laboratorio_{{ i }}">Nome do Laboratório {{ i+1 }}</label>
+                        <label for="nome_local_{{ i }}">Nome do Laboratório {{ i+1 }}</label>
                         <input type="text"
                                class="form-control"
-                               id="nome_laboratorio_{{ i }}"
-                               name="nome_laboratorio_{{ i }}"
+                               id="nome_local_{{ i }}"
+                               name="nome_local_{{ i }}"
                                required>
                     </div>
                     <div class="col-sm-4">
@@ -65,11 +65,11 @@
                 </div>
                 <div class="form-group row">
                     <div class="col-sm-12">
-                        <label for="descrição_laboratorio_{{ i }}">Descrição do Laboratório {{ i+1 }}</label>
+                        <label for="descrição_local_{{ i }}">Descrição do Laboratório {{ i+1 }}</label>
                         <input type="text"
                                class="form-control"
-                               id="descrição_laboratorio_{{ i }}"
-                               name="descrição_laboratorio_{{ i }}">
+                               id="descrição_local_{{ i }}"
+                               name="descrição_local_{{ i }}">
                     </div>
                 </div>
             {% endfor %}

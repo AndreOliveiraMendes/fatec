@@ -130,7 +130,7 @@ def info_reserva_fixa(id_reserva):
     reserva = db.get_or_404(Reservas_Fixas, id_reserva)
     check_ownership_or_admin(reserva)
     return {
-        "laboratorio": reserva.laboratorios.nome_laboratorio,
+        "local": reserva.locais.nome_local,
         "semestre": reserva.semestres.nome_semestre,
         "semana": reserva.aulas_ativas.dia_da_semana.nome_semana,
         "horario": f"{reserva.aulas_ativas.aulas.horario_inicio:%H:%M} às {reserva.aulas_ativas.aulas.horario_fim:%H:%M}",
@@ -146,7 +146,7 @@ def info_reserva_temporaria(id_reserva):
     reserva = db.get_or_404(Reservas_Temporarias, id_reserva)
     check_ownership_or_admin(reserva)
     return {
-        "laboratorio": reserva.laboratorios.nome_laboratorio,
+        "local": reserva.locais.nome_local,
         "periodo": f"{reserva.inicio_reserva} - {reserva.fim_reserva}",
         "semana": reserva.aulas_ativas.dia_da_semana.nome_semana,
         "horario": f"{reserva.aulas_ativas.aulas.horario_inicio:%H:%M} às {reserva.aulas_ativas.aulas.horario_fim:%H:%M}",

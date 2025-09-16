@@ -34,10 +34,10 @@
                 </tr>
                 <tr>
                     <td>
-                        <code>id_exibicao_laboratorio</code>
+                        <code>id_exibicao_local</code>
                     </td>
                     <td>INT</td>
-                    <td>Indentificador do laboratorio</td>
+                    <td>Indentificador do local</td>
                 </tr>
                 <tr>
                     <td>
@@ -86,7 +86,7 @@
                        name="id_exibicao"
                        placeholder="Digite o codigo da exibição">
             </div>
-            {{ gerar_select("laboratorios", "Selecione o laboratorio", laboratorios, "id_laboratorio", "nome_laboratorio", "id_exibicao_laboratorio", optional=True) }}
+            {{ gerar_select("locais", "Selecione o local", locais, "id_local", "nome_local", "id_exibicao_local", optional=True) }}
             {{ gerar_select("aulas", "Selecione o horario", aulas_ativas, "id_aula_ativa", "selector_identification", "id_exibicao_aula", optional=True) }}
             <div class="form-group">
                 <label for="exibicao_dia">Dia da Reserva:</label>
@@ -117,7 +117,7 @@
           action="{{ url_for(url) }}"
           method="post">
         <input type="hidden" name="acao" value="{{ acao }}">
-        {{ gerar_select("laboratorios", "Selecione o laboratorio", laboratorios, "id_laboratorio", "nome_laboratorio", "id_exibicao_laboratorio") }}
+        {{ gerar_select("locais", "Selecione o local", locais, "id_local", "nome_local", "id_exibicao_local") }}
         {{ gerar_select("aulas", "Selecione o horario", aulas_ativas, "id_aula_ativa", "selector_identification", "id_exibicao_aula") }}
         <div class="form-group">
             <label for="exibicao_dia">Dia da Reserva:</label>
@@ -165,7 +165,7 @@
                        value="{{ exibicao_da_reserva.id_exibicao }}"
                        readonly>
             </div>
-            {{ gerar_select("laboratorios", "Selecione o laboratorio", laboratorios, "id_laboratorio", "nome_laboratorio", "id_exibicao_laboratorio", selected=exibicao_da_reserva.id_exibicao_laboratorio) }}
+            {{ gerar_select("locais", "Selecione o local", locais, "id_local", "nome_local", "id_exibicao_local", selected=exibicao_da_reserva.id_exibicao_local) }}
             {{ gerar_select("aulas", "Selecione o horario", aulas_ativas, "id_aula_ativa", "selector_identification", "id_exibicao_aula", selected=exibicao_da_reserva.id_exibicao_aula) }}
             <div class="form-group">
                 <label for="exibicao_dia">Dia da Reserva:</label>
@@ -219,7 +219,7 @@
                        value="{{ exibicao_da_reserva.id_exibicao }}"
                        readonly>
             </div>
-            {{ gerar_select("laboratorios", "Selecione o laboratorio", laboratorios, "id_laboratorio", "nome_laboratorio", "id_exibicao_laboratorio", selected=exibicao_da_reserva.id_exibicao_laboratorio, extra='disabled') }}
+            {{ gerar_select("locais", "Selecione o local", locais, "id_local", "nome_local", "id_exibicao_local", selected=exibicao_da_reserva.id_exibicao_local, extra='disabled') }}
             {{ gerar_select("aulas", "Selecione o horario", aulas_ativas, "id_aula_ativa", "selector_identification", "id_exibicao_aula", selected=exibicao_da_reserva.id_exibicao_aula, extra='disabled') }}
             <div class="form-group">
                 <label for="exibicao_dia">Dia da Reserva:</label>
@@ -254,7 +254,7 @@
                 <thead>
                     <tr class="information">
                         <td>Codigo</td>
-                        <td>Laboratorio</td>
+                        <td>Local</td>
                         <td>Aula</td>
                         <td>Dia</td>
                         <td>Tipo</td>
@@ -265,7 +265,7 @@
                     {% for edr in exibicao_reservas %}
                         <tr>
                             <td>{{ edr.id_exibicao }}</td>
-                            <td>{{ edr.laboratorios.nome_laboratorio }}</td>
+                            <td>{{ edr.locais.nome_local }}</td>
                             <td>{{ edr.aulas_ativas.selector_identification }}</td>
                             <td>{{ edr.exibicao_dia|data }}</td>
                             <td>{{ edr.tipo_reserva.value }}</td>
