@@ -12,8 +12,7 @@ from app.auxiliar.auxiliar_routes import (get_query_params,
                                           registrar_log_generico_usuario)
 from app.auxiliar.dao import get_locais
 from app.auxiliar.decorators import admin_required
-from app.models import (DisponibilidadeEnum, Locais, TipoLocalEnum,
-                        db)
+from app.models import DisponibilidadeEnum, Locais, TipoLocalEnum, db
 from config.general import PER_PAGE
 
 bp = Blueprint('database_locais', __name__, url_prefix="/database")

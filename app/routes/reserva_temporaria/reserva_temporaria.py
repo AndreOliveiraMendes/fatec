@@ -7,8 +7,7 @@ from flask import (Blueprint, abort, current_app, flash, redirect,
 from sqlalchemy import and_, between, select
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from app.auxiliar.auxiliar_routes import (check_local,
-                                          get_responsavel_reserva,
+from app.auxiliar.auxiliar_routes import (check_local, get_responsavel_reserva,
                                           get_unique_or_500, get_user_info,
                                           none_if_empty, parse_date_string,
                                           registrar_log_generico_usuario,

@@ -5,8 +5,7 @@ from sqlalchemy.exc import IntegrityError, OperationalError
 from app.auxiliar.auxiliar_routes import (get_user_info, none_if_empty,
                                           registrar_log_generico_usuario)
 from app.auxiliar.decorators import admin_required
-from app.models import (DisponibilidadeEnum, Locais, TipoLocalEnum,
-                        db)
+from app.models import DisponibilidadeEnum, Locais, TipoLocalEnum, db
 from config.database_views import SETUP_HEAD
 
 bp = Blueprint('setup_locais', __name__, url_prefix="/database/fast_setup/")

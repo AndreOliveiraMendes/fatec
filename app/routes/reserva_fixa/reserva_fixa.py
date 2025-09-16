@@ -9,8 +9,7 @@ from mysql.connector import DatabaseError, OperationalError
 from sqlalchemy import between, select
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from app.auxiliar.auxiliar_routes import (check_local,
-                                          get_responsavel_reserva,
+from app.auxiliar.auxiliar_routes import (check_local, get_responsavel_reserva,
                                           get_unique_or_500, get_user_info,
                                           none_if_empty,
                                           registrar_log_generico_usuario)
