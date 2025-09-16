@@ -20,9 +20,12 @@ def ensure_secret_file(path=SECRET_PATH):
     return key
 
 def load_key():
-    with open(SECRET_PATH) as f:
-        data = json.load(f)
-    return data["ENCRYPTION_KEY"].encode()
+    try:
+        with open(SECRET_PATH) as f:
+            data = json.load(f)
+        return data["ENCRYPTION_KEY"].encode()
+    except FileNotFoundError:
+        return None
 
 def encrypt_password(password: str) -> str:
     f = Fernet(load_key())
