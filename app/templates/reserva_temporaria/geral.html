@@ -5,7 +5,7 @@
     efetuar reserva
 {% endblock title %}
 {% block content %}
-    {{ generate_reserva_head('temporaria', turno, inicio=inicio, fim=fim) }}
+    {{ generate_reserva_head(locais, 'temporaria', turno, inicio=inicio, fim=fim) }}
     <div class="btn-group">
         {{ go_back(contador) }}
         <a href="{{ url_for('default.home') }}" class="btn btn-default">

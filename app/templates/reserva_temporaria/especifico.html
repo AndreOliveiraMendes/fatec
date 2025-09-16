@@ -5,7 +5,7 @@
     efetuar reserva
 {% endblock title %}
 {% block content %}
-    {{ generate_reserva_head('contador', turno, local, inicio=inicio, fim=fim) }}
+    {{ generate_reserva_head(locais, 'contador', turno, local, inicio=inicio, fim=fim) }}
     <div class="center-content">
         <div class="btn-group">
             {{ go_back(contador) }}

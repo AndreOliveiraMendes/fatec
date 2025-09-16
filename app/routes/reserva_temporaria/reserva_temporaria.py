@@ -16,7 +16,7 @@ from app.auxiliar.auxiliar_routes import (check_local,
 from app.auxiliar.constant import PERM_ADMIN
 from app.auxiliar.dao import (check_reserva_temporaria,
                               get_aulas_ativas_por_lista_de_dias,
-                              get_locais, get_pessoas,
+                              get_laboratorios, get_pessoas,
                               get_usuarios_especiais)
 from app.auxiliar.decorators import reserva_temp_required
 from app.models import (FinalidadeReservaEnum, Locais, Permissoes,
@@ -111,7 +111,7 @@ def get_lab_geral(inicio, fim, id_turno):
     except ValueError as ve:
         current_app.logger.error(f"error:{ve}")
         abort(400)
-    locais = get_locais(perm&PERM_ADMIN)
+    locais = get_laboratorios(perm&PERM_ADMIN)
     dias = [(dia, turno) for dia in time_range(inicio, fim)]
     aulas = get_aulas_ativas_por_lista_de_dias(dias, tipo_horario)
     if len(aulas) == 0 or len(locais) == 0:
@@ -220,6 +220,7 @@ def get_lab_especifico(inicio, fim, id_turno, id_lab):
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
     extras['contador'] = session.get('contador')
+    extras['locais'] = get_laboratorios(perm&PERM_ADMIN)
     return render_template('reserva_temporaria/especifico.html', username=username, perm=perm, **extras)
 
 

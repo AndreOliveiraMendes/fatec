@@ -45,15 +45,18 @@ def get_aulas():
     return db.session.execute(sel_aulas).scalars().all()
 
 #locais
-def get_locais(todos=True, sala=False):
+def get_locais():
     sel_locais = select(Locais)
-    if not todos:
-        filtro = []
-        filtro.append(Locais.disponibilidade == DisponibilidadeEnum.DISPONIVEL)
-        if not sala:
-            filtro.append(Locais.tipo == TipoLocalEnum.LABORATORIO)
-        sel_locais = sel_locais.where(*filtro)
     return db.session.execute(sel_locais).scalars().all()
+
+#laboratorios
+def get_laboratorios(ignorar_inativo=False):
+    sel_laboratorios = select(Locais)
+    filtro = [Locais.tipo == TipoLocalEnum.LABORATORIO]
+    if not ignorar_inativo:
+        filtro.append(Locais.disponibilidade == DisponibilidadeEnum.DISPONIVEL)
+    sel_laboratorios = sel_laboratorios.where(*filtro)
+    return db.session.execute(sel_laboratorios).scalars().all()
 
 #semestre
 def get_semestres():

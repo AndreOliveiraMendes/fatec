@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Literal, Optional, Tuple
+from typing import List, Literal, Optional, Sequence, Tuple
 
 from flask import Flask, session, url_for
 from markupsafe import Markup
@@ -147,10 +147,8 @@ def register_filters(app:Flask):
             return url_for('reservas_temporarias.get_lab', inicio=inicio, fim=fim, id_turno=id_turno, id_lab=id_local)
 
     @app.template_global()
-    def generate_reserva_head(tipo, turno: Turnos, current: Optional[Locais] = None, **kwargs) -> Markup:
+    def generate_reserva_head(locais:Sequence[Locais], tipo, turno: Turnos, current: Optional[Locais] = None, **kwargs) -> Markup:
         username, perm = get_user_info(session.get('userid'))
-        sel_locais = select(Locais)
-        locais = db.session.execute(sel_locais).scalars().all()
 
         html_parts = ['<div class="pills-group"><ul class="nav nav-pills">']
         
