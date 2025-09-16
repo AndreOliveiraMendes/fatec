@@ -29,6 +29,7 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │   ├── __main__.py
 │   ├── auxiliar
 │   │   ├── __init__.py
+│   │   ├── auxiliar_cryptograph.py
 │   │   ├── auxiliar_routes.py
 │   │   ├── auxiliar_template.py
 │   │   ├── constant.py
@@ -53,7 +54,7 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │   │   │   ├── dias_semana.py
 │   │   │   ├── exibicao_das_reservas.py
 │   │   │   ├── historicos.py
-│   │   │   ├── laboratorios.py
+│   │   │   ├── locais.py
 │   │   │   ├── main.py
 │   │   │   ├── permissoes.py
 │   │   │   ├── pessoas.py
@@ -84,10 +85,9 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │   │   │   ├── aulas.py
 │   │   │   ├── aulas_ativas.py
 │   │   │   ├── dias_da_semana.py
-│   │   │   ├── laboratorios.py
+│   │   │   ├── locais.py
 │   │   │   ├── menu.py
 │   │   │   └── turnos.py
-│   │   ├── situacao_reserva
 │   │   └── user
 │   │       ├── __init__.py
 │   │       └── usuario.py
@@ -111,7 +111,8 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │   │       └── jquery.min.js
 │   └── templates
 │       ├── admin
-│       │   └── admin.html
+│       │   ├── admin.html
+│       │   └── control.html
 │       ├── auth
 │       │   ├── login.html
 │       │   ├── login_fail.html
@@ -129,7 +130,7 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │       │   │   ├── aulas.html
 │       │   │   ├── aulas_ativas.html
 │       │   │   ├── dias_da_semana.html
-│       │   │   ├── laboratorios.html
+│       │   │   ├── locais.html
 │       │   │   ├── menu.html
 │       │   │   └── turnos.html
 │       │   └── table
@@ -139,7 +140,7 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │       │       ├── dias_da_semana.html
 │       │       ├── exibicao_reservas.html
 │       │       ├── historicos.html
-│       │       ├── laboratorios.html
+│       │       ├── locais.html
 │       │       ├── permissoes.html
 │       │       ├── pessoas.html
 │       │       ├── reservas_fixas.html
@@ -195,7 +196,8 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │   ├── general.py
 │   ├── json_related.py
 │   ├── mapeamentos.py
-│   └── painel.json
+│   ├── painel.json
+│   └── secret.json
 ├── configurar_vscode.bat
 ├── requirements.txt
 ├── schema.sql
