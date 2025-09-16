@@ -45,7 +45,7 @@ def get_aulas():
     return db.session.execute(sel_aulas).scalars().all()
 
 #laboratorios
-def get_laboratorios(todos=True, sala=False):
+def get_locais(todos=True, sala=False):
     sel_laboratorios = select(Locais)
     if not todos:
         filtro = []

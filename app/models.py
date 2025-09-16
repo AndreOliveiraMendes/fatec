@@ -318,6 +318,7 @@ class TipoLocalEnum(enum.Enum):
     LABORATORIO = "Laboratório"
     SALA = "Sala"
     EXTERNO = "Externo"
+    AUDITORIO = "Auditorio"
 
 class Locais(Base):
     __tablename__ = 'locais'

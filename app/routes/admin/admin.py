@@ -11,7 +11,7 @@ from flask import (Blueprint, flash, redirect, render_template, request,
 
 from app.auxiliar.auxiliar_cryptograph import ensure_secret_file, load_key
 from app.auxiliar.auxiliar_routes import get_user_info
-from app.auxiliar.dao import get_laboratorios
+from app.auxiliar.dao import get_locais
 from app.auxiliar.decorators import admin_required
 from app.models import TipoAulaEnum
 from config.database_views import SECOES
@@ -44,7 +44,7 @@ def configurar_tela_televisor():
     extras = {}
     if request.method == 'GET':
         extras['tipo_aula'] = TipoAulaEnum
-        extras['lab'] = get_laboratorios()
+        extras['lab'] = get_locais()
         painel_cfg = carregar_painel_config()
         extras['painel_cfg'] = painel_cfg
     else:

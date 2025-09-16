@@ -10,7 +10,7 @@ from app.auxiliar.auxiliar_routes import (get_query_params,
                                           get_user_info, none_if_empty,
                                           register_return,
                                           registrar_log_generico_usuario)
-from app.auxiliar.dao import (get_aulas_ativas, get_laboratorios, get_pessoas,
+from app.auxiliar.dao import (get_aulas_ativas, get_locais, get_pessoas,
                               get_reservas_fixas, get_semestres,
                               get_usuarios_especiais)
 from app.auxiliar.decorators import admin_required
@@ -43,7 +43,7 @@ def gerenciar_reservas_fixas():
         elif acao == 'procurar' and bloco == 0:
             extras['pessoas'] = get_pessoas()
             extras['usuarios_especiais'] = get_usuarios_especiais()
-            extras['laboratorios'] = get_laboratorios()
+            extras['laboratorios'] = get_locais()
             extras['aulas_ativas'] = get_aulas_ativas()
             extras['semestres'] = get_semestres()
         elif acao == 'procurar' and bloco == 1:
@@ -92,14 +92,14 @@ def gerenciar_reservas_fixas():
                 flash("especifique ao menos um campo", "danger")
                 redirect_action, bloco = register_return(url,
                     acao, extras, pessoas=get_pessoas(), usuarios_especiais=get_usuarios_especiais(),
-                    laboratorios=get_laboratorios(), aulas_ativas=get_aulas_ativas(),
+                    laboratorios=get_locais(), aulas_ativas=get_aulas_ativas(),
                     semestres=get_semestres()
             )
 
         elif acao == 'inserir' and bloco == 0:
             extras['pessoas'] = get_pessoas()
             extras['usuarios_especiais'] = get_usuarios_especiais()
-            extras['laboratorios'] = get_laboratorios()
+            extras['laboratorios'] = get_locais()
             extras['aulas_ativas'] = get_aulas_ativas()
             extras['semestres'] = get_semestres()
         elif acao == 'inserir' and bloco == 1:
@@ -138,7 +138,7 @@ def gerenciar_reservas_fixas():
 
             redirect_action, bloco = register_return(url,
                 acao, extras, pessoas=get_pessoas(), usuarios_especiais=get_usuarios_especiais(),
-                laboratorios=get_laboratorios(), aulas_ativas=get_aulas_ativas(),
+                laboratorios=get_locais(), aulas_ativas=get_aulas_ativas(),
                 semestres=get_semestres()
             )
 
@@ -150,7 +150,7 @@ def gerenciar_reservas_fixas():
             extras['reserva_fixa'] = reserva_fixa
             extras['pessoas'] = get_pessoas()
             extras['usuarios_especiais'] = get_usuarios_especiais()
-            extras['laboratorios'] = get_laboratorios()
+            extras['laboratorios'] = get_locais()
             extras['aulas_ativas'] = get_aulas_ativas()
             extras['semestres'] = get_semestres()
         elif acao == 'editar' and bloco == 2:

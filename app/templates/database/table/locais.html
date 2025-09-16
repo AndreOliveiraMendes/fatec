@@ -1,19 +1,19 @@
 {% extends "database/table/base_crude" %}
 {% block title %}
-    Laboratorios
+    Locais
 {% endblock title %}
 {% block content_head %}
     <div class="panel panel-default">
-        <div class="panel-heading">{{ generate_database_head("database_laboratorios") }}</div>
+        <div class="panel-heading">{{ generate_database_head("database_locais") }}</div>
         <div class="panel-body">{{ generate_head(url_for(url) , acao, disable=disable) }}</div>
     </div>
 {% endblock content_head %}
 {% block abertura %}
     <h3>
-        Gerenciamento da Tabela <strong>Laboratórios</strong>
+        Gerenciamento da Tabela <strong>Locais</strong>
     </h3>
     <p class="text-muted text-center">
-        A tabela <code>laboratorios</code> possui os seguintes campos. Os campos <code>disponibilidade</code> e <code>tipo</code> são implementados como <strong>ENUMs nativos do MySQL</strong>, garantindo restrição de valores válidos no banco de dados:
+        A tabela <code>locais</code> possui os seguintes campos. Os campos <code>disponibilidade</code> e <code>tipo</code> são implementados como <strong>ENUMs nativos do MySQL</strong>, garantindo restrição de valores válidos no banco de dados:
     </p>
     <div class="table-responsive">
         <table class="table table-striped table-bordered table-hover">
@@ -28,18 +28,18 @@
             <tbody>
                 <tr>
                     <td>
-                        <code>id_laboratorio</code>
+                        <code>id_local</code>
                     </td>
                     <td>INT (auto_increment, PK)</td>
-                    <td>Identificador único do laboratório no sistema.</td>
+                    <td>Identificador único do local no sistema.</td>
                     <td>-</td>
                 </tr>
                 <tr>
                     <td>
-                        <code>nome_laboratorio</code>
+                        <code>nome_local</code>
                     </td>
                     <td>VARCHAR(100)</td>
-                    <td>Nome do laboratório no sistema.</td>
+                    <td>Nome do local no sistema.</td>
                     <td>-</td>
                 </tr>
                 <tr>
@@ -47,14 +47,14 @@
                         <code>descrição</code>
                     </td>
                     <td>TEXT</td>
-                    <td>descrição tecnicas dos laboratorios</td>
+                    <td>descrição tecnicas dos locais</td>
                 </tr>
                 <tr>
                     <td>
                         <code>disponibilidade</code>
                     </td>
                     <td>ENUM('DISPONIVEL','INDISPONIVEL')</td>
-                    <td>Indica se o laboratório está disponível para uso.</td>
+                    <td>Indica se o local está disponível para uso.</td>
                     <td>
                         <ul class="valores_possiveis_format">
                             <li>
@@ -70,8 +70,8 @@
                     <td>
                         <code>tipo</code>
                     </td>
-                    <td>ENUM('LABORATORIO','SALA','EXTERNO')</td>
-                    <td>Categoria do laboratório ou espaço associado.</td>
+                    <td>ENUM('LABORATORIO','SALA','EXTERNO','AUDITORIO')</td>
+                    <td>Categoria do local ou espaço associado.</td>
                     <td>
                         <ul class="valores_possiveis_format">
                             <li>
@@ -83,6 +83,9 @@
                             <li>
                                 <code>Externo</code>
                             </li>
+                            <li>
+                                <code>Auditorio</code>
+                            </li>
                         </ul>
                     </td>
                 </tr>
@@ -91,23 +94,23 @@
     </div>
 {% endblock abertura %}
 {% block listar %}
-    <h3>Lista de Laboratórios</h3>
-    {{ result_table("Nenhum laboratório cadastrado.") }}
+    <h3>Lista de Locais</h3>
+    {{ result_table("Nenhum local cadastrado.") }}
 {% endblock listar %}
 {% block procurar %}
     {% if bloco == 0 %}
-        <h3>Procurar laboratório</h3>
+        <h3>Procurar locais</h3>
         <form class="form-group"
               role="form"
               action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
-                <label for="codigo">Codigo do laboratório:</label>
+                <label for="codigo">Codigo do local:</label>
                 <input type="number"
                        class="form-control"
                        id="codigo"
-                       name="id_laboratorio"
+                       name="id_local"
                        placeholder="Digite o ID">
             </div>
             <div class="form-group">
@@ -116,7 +119,7 @@
                     <input type="text"
                            maxlength="100"
                            class="form-control"
-                           name="nome_laboratorio"
+                           name="nome_local"
                            id="nome"
                            placeholder="Digite o nome">
                     <span class="input-group-addon">
@@ -153,8 +156,9 @@
                     <option value="Laboratório">Laboratório</option>
                     <option value="Sala">Sala</option>
                     <option value="Externo">Externo</option>
+                    <option value="Auditorio">Auditorio</option>
                 </select>
-                <span id="tipo_labHelpBlock" class="help-block">se o horario é destinado a aula, evento ou outra finalidade</span>
+                <span id="tipo_labHelpBlock" class="help-block">indica o tipo do local (laboratorio, sala de aula, externo ou auditorio)</span>
             </div>
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
@@ -164,7 +168,7 @@
     {% endif %}
 {% endblock procurar %}
 {% block inserir %}
-    <h3>Inserir laboratório</h3>
+    <h3>Inserir local</h3>
     <form class="form-group"
           role="form"
           action="{{ url_for(url) }}"
@@ -175,7 +179,7 @@
             <input type="text"
                    maxlength="100"
                    class="form-control"
-                   name="nome_laboratorio"
+                   name="nome_local"
                    id="nome"
                    placeholder="Digite o nome"
                    required>
@@ -206,6 +210,7 @@
                 <option value="Laboratório">Laboratório</option>
                 <option value="Sala">Sala</option>
                 <option value="Externo">Externo</option>
+                <option value="Auditorio">Auditorio</option>
             </select>
         </div>
         {{ action_buttons(acao, 1, False, 0) }}
@@ -213,30 +218,30 @@
 {% endblock inserir %}
 {% block editar %}
     {% if bloco == 0 %}
-        <h3>Editar laboratórios</h3>
+        <h3>Editar locais</h3>
         <form class="form-group"
               role="form"
               action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
-            {{ gerar_select("id_laboratorio", "Selecione o laboratorio", laboratorios, "id_laboratorio", "nome_laboratorio") }}
+            {{ gerar_select("id_local", "Selecione o local", locais, "id_local", "nome_local") }}
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
-        <h3>Editar laboratório</h3>
+        <h3>Editar local</h3>
         <form class="form-group"
               role="form"
               action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
-                <label for="codigo">Codigo do laboratório:</label>
+                <label for="codigo">Codigo do local:</label>
                 <input type="number"
                        class="form-control"
                        id="codigo"
-                       name="id_laboratorio"
+                       name="id_local"
                        placeholder="Digite o ID"
-                       value="{{ laboratorio.id_laboratorio }}"
+                       value="{{ local.id_local }}"
                        readonly>
             </div>
             <div class="form-group">
@@ -244,10 +249,10 @@
                 <input type="text"
                        maxlength="100"
                        class="form-control"
-                       name="nome_laboratorio"
+                       name="nome_local"
                        id="nome"
                        placeholder="Digite o nome"
-                       value="{{ laboratorio.nome_laboratorio }}"
+                       value="{{ local.nome_local }}"
                        required>
             </div>
             <div class="form-group">
@@ -256,7 +261,7 @@
                        class="form-control"
                        id="descrição"
                        name="descrição"
-                       value="{{ laboratorio.descrição if laboratorio.descrição }}"
+                       value="{{ local.descrição if local.descrição }}"
                        placeholder="Digite a descrição">
             </div>
             <div class="form-group">
@@ -267,11 +272,9 @@
                         required>
                     <option value="">Selecione...</option>
                     <option value="Disponivel"
-                            {% if laboratorio.disponibilidade.value == 'Disponivel' %}selected{% endif %}>
-                        Disponível
-                    </option>
+                            {% if local.disponibilidade.value == 'Disponivel' %}selected{% endif %}>Disponível</option>
                     <option value="Indisponivel"
-                            {% if laboratorio.disponibilidade.value == 'Indisponivel' %}selected{% endif %}>
+                            {% if local.disponibilidade.value == 'Indisponivel' %}selected{% endif %}>
                         Indisponível
                     </option>
                 </select>
@@ -281,11 +284,12 @@
                 <select class="form-control" id="tipo" name="tipo" required>
                     <option value="">Selecione...</option>
                     <option value="Laboratório"
-                            {% if laboratorio.tipo.value == 'Laboratório' %}selected{% endif %}>Laboratório</option>
-                    <option value="Sala"
-                            {% if laboratorio.tipo.value == 'Sala' %}selected{% endif %}>Sala</option>
+                            {% if local.tipo.value == 'Laboratório' %}selected{% endif %}>Laboratório</option>
+                    <option value="Sala" {% if local.tipo.value == 'Sala' %}selected{% endif %}>Sala</option>
                     <option value="Externo"
-                            {% if laboratorio.tipo.value == 'Externo' %}selected{% endif %}>Externo</option>
+                            {% if local.tipo.value == 'Externo' %}selected{% endif %}>Externo</option>
+                    <option value="Auditorio"
+                            {% if local.tipo.value == 'Auditorio' %}selected{% endif %}>Auditorio</option>
                 </select>
             </div>
             {{ action_buttons(acao, 2, True, 0) }}
@@ -294,30 +298,30 @@
 {% endblock editar %}
 {% block excluir %}
     {% if bloco == 0 %}
-        <h3>Excluir laboratório</h3>
+        <h3>Excluir local</h3>
         <form class="form-group"
               role="form"
               action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
-            {{ gerar_select("id_laboratorio", "Selecione o laboratorio", laboratorios, "id_laboratorio", "nome_laboratorio") }}
+            {{ gerar_select("id_local", "Selecione o local", locais, "id_local", "nome_local") }}
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
-        <h3>Excluir laboratorio</h3>
+        <h3>Excluir local</h3>
         <form class="form-group"
               role="form"
               action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
-                <label for="codigo">Codigo do laboratório:</label>
+                <label for="codigo">Codigo do local:</label>
                 <input type="number"
                        class="form-control"
                        id="codigo"
-                       name="id_laboratorio"
+                       name="id_local"
                        placeholder="Digite o ID"
-                       value="{{ laboratorio.id_laboratorio }}"
+                       value="{{ local.id_local }}"
                        readonly>
             </div>
             <div class="form-group">
@@ -325,10 +329,10 @@
                 <input type="text"
                        maxlength="100"
                        class="form-control"
-                       name="nome_laboratorio"
+                       name="nome_local"
                        id="nome"
                        placeholder="Digite o nome"
-                       value="{{ laboratorio.nome_laboratorio }}"
+                       value="{{ local.nome_local }}"
                        disabled
                        required>
             </div>
@@ -338,7 +342,7 @@
                        class="form-control"
                        id="descrição"
                        name="descrição"
-                       value="{{ laboratorio.descrição if laboratorio.descrição }}"
+                       value="{{ local.descrição if local.descrição }}"
                        placeholder="Digite a descrição"
                        disabled>
             </div>
@@ -351,11 +355,9 @@
                         required>
                     <option value="">Selecione...</option>
                     <option value="Disponivel"
-                            {% if laboratorio.disponibilidade.value == 'Disponivel' %}selected{% endif %}>
-                        Disponível
-                    </option>
+                            {% if local.disponibilidade.value == 'Disponivel' %}selected{% endif %}>Disponível</option>
                     <option value="Indisponivel"
-                            {% if laboratorio.disponibilidade.value == 'Indisponivel' %}selected{% endif %}>
+                            {% if local.disponibilidade.value == 'Indisponivel' %}selected{% endif %}>
                         Indisponível
                     </option>
                 </select>
@@ -365,11 +367,12 @@
                 <select class="form-control" id="tipo" name="tipo" disabled required>
                     <option value="">Selecione...</option>
                     <option value="Laboratório"
-                            {% if laboratorio.tipo.value == 'Laboratório' %}selected{% endif %}>Laboratório</option>
-                    <option value="Sala"
-                            {% if laboratorio.tipo.value == 'Sala' %}selected{% endif %}>Sala</option>
+                            {% if local.tipo.value == 'Laboratório' %}selected{% endif %}>Laboratório</option>
+                    <option value="Sala" {% if local.tipo.value == 'Sala' %}selected{% endif %}>Sala</option>
                     <option value="Externo"
-                            {% if laboratorio.tipo.value == 'Externo' %}selected{% endif %}>Externo</option>
+                            {% if local.tipo.value == 'Externo' %}selected{% endif %}>Externo</option>
+                    <option value="Auditorio"
+                            {% if local.tipo.value == 'Auditorio' %}selected{% endif %}>Auditorio</option>
                 </select>
             </div>
             {{ action_buttons(acao, 2, True, 0, False) }}
@@ -377,29 +380,29 @@
     {% endif %}
 {% endblock excluir %}
 {% macro result_table(message) %}
-    {% if laboratorios %}
+    {% if locais %}
         <div class="table-responsive">
             <table class="table table-striped table-bordered table-hover tabela-crude">
                 <thead class="information">
-                    <th>ID do laboratório</th>
-                    <th>Nome do laboratório</th>
+                    <th>ID do local</th>
+                    <th>Nome do local</th>
                     <th>Descrição</th>
                     <th>Disponibilidade</th>
-                    <th>Tipo de Laboratório</th>
+                    <th>Tipo de local</th>
                     <th>ação</th>
                 </thead>
                 <tbody>
-                    {% for l in laboratorios %}
+                    {% for l in locais %}
                         <tr>
-                            <td>{{ l.id_laboratorio }}</td>
-                            <td>{{ l.nome_laboratorio }}</td>
+                            <td>{{ l.id_local }}</td>
+                            <td>{{ l.nome_local }}</td>
                             <td>{{ l.descrição|format }}</td>
                             <td>{{ l.disponibilidade.value }}</td>
                             <td>{{ l.tipo.value }}</td>
                             <td>
                                 <form method="post" class="form-inline">
                                     <input type="hidden" name="bloco" value="1">
-                                    <input type="hidden" name="id_laboratorio" value="{{ l.id_laboratorio }}">
+                                    <input type="hidden" name="id_local" value="{{ l.id_local }}">
                                     <div class="btn-group-vertical">
                                         <button type="submit"
                                                 name="acao"

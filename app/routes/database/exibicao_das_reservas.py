@@ -10,7 +10,7 @@ from app.auxiliar.auxiliar_routes import (get_query_params,
                                           get_user_info, none_if_empty,
                                           parse_date_string, register_return,
                                           registrar_log_generico_usuario)
-from app.auxiliar.dao import get_aulas_ativas, get_exibicoes, get_laboratorios
+from app.auxiliar.dao import get_aulas_ativas, get_exibicoes, get_locais
 from app.auxiliar.decorators import admin_required
 from app.models import Exibicao_Reservas, TipoReservaEnum, db
 from config.general import PER_PAGE
@@ -39,7 +39,7 @@ def gerenciar_exibicao_reservas():
             extras['pagination'] = exibicao_reservas_paginadas
 
         elif acao == 'procurar' and bloco == 0:
-            extras['laboratorios'] = get_laboratorios()
+            extras['laboratorios'] = get_locais()
             extras['aulas_ativas'] = get_aulas_ativas()
         elif acao == 'procurar' and bloco == 1:
             id_exibicao = none_if_empty(request.form.get('id_exibicao'), int)
@@ -72,11 +72,11 @@ def gerenciar_exibicao_reservas():
                 flash("especifique ao menos um campo", "danger")
                 redirect_action, bloco = register_return(
                     url, acao, extras,
-                    laboratorios=get_laboratorios(), aulas_ativas=get_aulas_ativas()
+                    laboratorios=get_locais(), aulas_ativas=get_aulas_ativas()
                 )
 
         elif acao == 'inserir' and bloco == 0:
-            extras['laboratorios'] = get_laboratorios()
+            extras['laboratorios'] = get_locais()
             extras['aulas_ativas'] = get_aulas_ativas()
         elif acao == 'inserir' and bloco == 1:
             id_exibicao_laboratorio = none_if_empty(request.form.get('id_exibicao_laboratorio'), int)
@@ -108,7 +108,7 @@ def gerenciar_exibicao_reservas():
 
             redirect_action, bloco = register_return(
                 url, acao, extras,
-                laboratorios=get_laboratorios(), aulas_ativas=get_aulas_ativas()
+                laboratorios=get_locais(), aulas_ativas=get_aulas_ativas()
             )
 
         elif acao in ['editar', 'excluir'] and bloco == 0:
@@ -117,7 +117,7 @@ def gerenciar_exibicao_reservas():
             id_exibicao = none_if_empty(request.form.get('id_exibicao'), int)
             exibicao_da_reserva = db.get_or_404(Exibicao_Reservas, id_exibicao)
             extras['exibicao_da_reserva'] = exibicao_da_reserva
-            extras['laboratorios'] = get_laboratorios()
+            extras['laboratorios'] = get_locais()
             extras['aulas_ativas'] = get_aulas_ativas()
         elif acao == 'editar' and bloco == 2:
             id_exibicao = none_if_empty(request.form.get('id_exibicao'), int)

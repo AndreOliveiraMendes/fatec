@@ -10,7 +10,7 @@ from app.auxiliar.auxiliar_routes import (get_query_params,
                                           get_user_info, none_if_empty,
                                           parse_date_string, register_return,
                                           registrar_log_generico_usuario)
-from app.auxiliar.dao import get_aulas_ativas, get_laboratorios, get_situacoes
+from app.auxiliar.dao import get_aulas_ativas, get_locais, get_situacoes
 from app.auxiliar.decorators import admin_required
 from app.models import (SituacaoChaveEnum, Situacoes_Das_Reserva,
                         TipoReservaEnum, db)
@@ -40,7 +40,7 @@ def gerenciar_situacoes_das_reservas():
             extras['pagination'] = situacoes_das_reservas_paginadas
 
         elif acao == 'procurar' and bloco == 0:
-            extras['laboratorios'] = get_laboratorios()
+            extras['laboratorios'] = get_locais()
             extras['aulas_ativas'] = get_aulas_ativas()
         elif acao == 'procurar' and bloco == 1:
             id_situacao = none_if_empty(request.form.get('id_situacao'), int)
@@ -76,11 +76,11 @@ def gerenciar_situacoes_das_reservas():
                 flash("especifique ao menos um campo", "danger")
                 redirect_action, bloco = register_return(
                     url, acao, extras,
-                    laboratorios=get_laboratorios(), aulas_ativas=get_aulas_ativas()
+                    laboratorios=get_locais(), aulas_ativas=get_aulas_ativas()
                 )
 
         elif acao == 'inserir' and bloco == 0:
-            extras['laboratorios'] = get_laboratorios()
+            extras['laboratorios'] = get_locais()
             extras['aulas_ativas'] = get_aulas_ativas()
         elif acao == 'inserir' and bloco == 1:
             id_situacao_laboratorio = none_if_empty(request.form.get('id_situacao_laboratorio'), int)
@@ -114,7 +114,7 @@ def gerenciar_situacoes_das_reservas():
 
             redirect_action, bloco = register_return(
                 url, acao, extras,
-                laboratorios=get_laboratorios(), aulas_ativas=get_aulas_ativas()
+                laboratorios=get_locais(), aulas_ativas=get_aulas_ativas()
             )
 
         elif acao in ['editar', 'excluir'] and bloco == 0:
@@ -123,7 +123,7 @@ def gerenciar_situacoes_das_reservas():
             id_situacao = none_if_empty(request.form.get('id_situacao'), int)
             situacao_da_reserva = db.get_or_404(Situacoes_Das_Reserva, id_situacao)
             extras['situacao_da_reserva'] = situacao_da_reserva
-            extras['laboratorios'] = get_laboratorios()
+            extras['laboratorios'] = get_locais()
             extras['aulas_ativas'] = get_aulas_ativas()
         elif acao == 'editar' and bloco == 2:
             id_situacao = none_if_empty(request.form.get('id_situacao'), int)

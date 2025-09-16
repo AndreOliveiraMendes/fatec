@@ -16,7 +16,7 @@ from app.auxiliar.auxiliar_routes import (check_laboratorio,
                                           registrar_log_generico_usuario)
 from app.auxiliar.constant import PERM_ADMIN
 from app.auxiliar.dao import (get_aulas_ativas_por_semestre, get_aulas_extras,
-                              get_laboratorios, get_pessoas,
+                              get_locais, get_pessoas,
                               get_usuarios_especiais)
 from app.auxiliar.decorators import reserva_fixa_required
 from app.models import (FinalidadeReservaEnum, Locais, Permissoes,
@@ -141,7 +141,7 @@ def get_lab_geral(id_semestre, id_turno=None):
     today = date.today()
     extras = {'semestre':semestre, 'turno':turno, 'day':today}
     aulas = get_aulas_ativas_por_semestre(semestre, turno)
-    laboratorios = get_laboratorios(perm&PERM_ADMIN)
+    laboratorios = get_locais(perm&PERM_ADMIN)
     if len(aulas) == 0 or len(laboratorios) == 0:
         if len(aulas) == 0:
             flash("não há horarios disponiveis nesse turno", "danger")

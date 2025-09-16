@@ -16,7 +16,7 @@ from app.auxiliar.auxiliar_routes import (check_laboratorio,
 from app.auxiliar.constant import PERM_ADMIN
 from app.auxiliar.dao import (check_reserva_temporaria,
                               get_aulas_ativas_por_lista_de_dias,
-                              get_laboratorios, get_pessoas,
+                              get_locais, get_pessoas,
                               get_usuarios_especiais)
 from app.auxiliar.decorators import reserva_temp_required
 from app.models import (FinalidadeReservaEnum, Locais, Permissoes,
@@ -111,7 +111,7 @@ def get_lab_geral(inicio, fim, id_turno):
     except ValueError as ve:
         current_app.logger.error(f"error:{ve}")
         abort(400)
-    laboratorios = get_laboratorios(perm&PERM_ADMIN)
+    laboratorios = get_locais(perm&PERM_ADMIN)
     dias = [(dia, turno) for dia in time_range(inicio, fim)]
     aulas = get_aulas_ativas_por_lista_de_dias(dias, tipo_horario)
     if len(aulas) == 0 or len(laboratorios) == 0:
