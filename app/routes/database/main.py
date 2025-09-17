@@ -60,6 +60,14 @@ def has_cycle(fks):
 
 @bp.route("/")
 @admin_required
+def menu():
+    userid = session.get('userid')
+    username, perm = get_user_info(userid)
+    extras = {}
+    return render_template("database/menu.html", username=username, perm=perm, **extras)
+
+@bp.route("/view")
+@admin_required
 def database():
     userid = session.get('userid')
     username, perm = get_user_info(userid)

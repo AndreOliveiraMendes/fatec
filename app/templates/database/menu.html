@@ -1,0 +1,21 @@
+{% extends "base-fixed" %}
+{% block title %}
+    Painel de Controle
+{% endblock title %}
+{% block content %}
+    <div class="btn-group-vertical" role="group">
+        <a href="{{ url_for('default.home') }}" class="btn btn-primary">
+            <span class="glyphicon glyphicon-home"></span> Página Inicial
+        </a>
+        <a href="{{ url_for('admin.gerenciar_menu') }}" class="btn btn-danger">
+            <span class="glyphicon glyphicon-cog"></span> Menu Admin
+        </a>
+        <a href="{{ url_for('database_main.database') }}"
+           class="btn btn-success">
+            <span class="glyphicon glyphicon-book"></span> Visualizar Banco de Dados
+        </a>
+        <a href="{{ url_for('database_main.schema') }}" class="btn btn-info">
+            <span class="glyphicon glyphicon-level-up"></span> Schema (Experimental)
+        </a>
+    </div>
+{% endblock content %}

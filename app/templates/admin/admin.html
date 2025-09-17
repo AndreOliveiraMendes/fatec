@@ -29,12 +29,8 @@
                             aria-controls="collapseDatabase">
                         <span class="glyphicon glyphicon-cog"></span> Manipular Banco de Dados
                     </button>
-                    <a href="{{ url_for('database_main.database') }}"
-                       class="btn btn-success">
-                        <span class="glyphicon glyphicon-book"></span> Visualizar banco de dados
-                    </a>
-                    <a href="{{ url_for('database_main.schema') }}" class="btn btn-info">
-                        <span class="glyphicon glyphicon-level-up"></span> Schema (experimental)
+                    <a href="{{ url_for('database_main.menu') }}" class="btn btn-success">
+                        <span class="glyphicon glyphicon-book"></span> Visualizar Banco de Dados
                     </a>
                     <a href="{{ url_for('setup.fast_setup_menu') }}" class="btn btn-danger">
                         <span class="glyphicon glyphicon-flash"></span> Setup Rapido
