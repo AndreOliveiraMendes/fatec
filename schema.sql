@@ -53,7 +53,7 @@ CREATE TABLE
 CREATE TABLE
     IF NOT EXISTS turnos (
         id_turno INTEGER NOT NULL AUTO_INCREMENT,
-        nome_turno VARCHAR(15) NOT NULL,
+        nome_turno VARCHAR(50),
         horario_inicio TIME NOT NULL,
         horario_fim TIME NOT NULL,
         PRIMARY KEY (id_turno),
@@ -109,8 +109,8 @@ CREATE TABLE
         exibicao_dia DATE NOT NULL,
         tipo_reserva ENUM ('FIXA', 'TEMPORARIA') NOT NULL DEFAULT 'TEMPORARIA',
         PRIMARY KEY (id_exibicao),
+        CONSTRAINT exibicao_reservas_ibfk_1 FOREIGN KEY (id_exibicao_local) REFERENCES locais (id_local),
         CONSTRAINT exibicao_reservas_ibfk_2 FOREIGN KEY (id_exibicao_aula) REFERENCES aulas_ativas (id_aula_ativa),
-        CONSTRAINT fk_exibicao_reservas_locais FOREIGN KEY (id_exibicao_local) REFERENCES locais (id_local),
         CONSTRAINT uq_exibicao_lab_aula_dia UNIQUE (id_exibicao_local, id_exibicao_aula, exibicao_dia)
     ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_0900_ai_ci;
 
