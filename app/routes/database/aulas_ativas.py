@@ -3,7 +3,7 @@ import copy
 from flask import Blueprint, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import and_, func, or_, select
-from sqlalchemy.exc import IntegrityError, OperationalError
+from sqlalchemy.exc import DataError, IntegrityError, OperationalError
 
 from app.auxiliar.auxiliar_routes import (get_query_params,
                                           get_session_or_request,
@@ -157,7 +157,7 @@ def gerenciar_aulas_ativas():
 
                 db.session.commit()
                 flash("Aula ativa cadastrada com sucesso", "success")
-            except (IntegrityError, OperationalError) as e:
+            except (IntegrityError, OperationalError, DataError) as e:
                 db.session.rollback()
                 flash(f"Erro ao cadastrar aula ativa:{str(e.orig)}", "danger")
             except ValueError as ve:
@@ -197,7 +197,7 @@ def gerenciar_aulas_ativas():
 
                 db.session.commit()
                 flash("Aula ativa editada com sucesso", "success")
-            except (IntegrityError, OperationalError) as e:
+            except (IntegrityError, OperationalError, DataError) as e:
                 db.session.rollback()
                 flash(f"Erro ao editar aula ativa:{str(e.orig)}", "danger")
             except ValueError as ve:
@@ -217,7 +217,7 @@ def gerenciar_aulas_ativas():
 
                 db.session.commit()
                 flash("Aula ativa excluida com sucesso", "success")
-            except (IntegrityError, OperationalError) as e:
+            except (IntegrityError, OperationalError, DataError) as e:
                 db.session.rollback()
                 flash(f"Erro ao excluir aula ativa:{str(e.orig)}", "danger")
 

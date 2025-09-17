@@ -3,7 +3,7 @@ import copy
 from flask import Blueprint, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError, OperationalError
+from sqlalchemy.exc import DataError, IntegrityError, OperationalError
 
 from app.auxiliar.auxiliar_routes import (get_query_params,
                                           get_session_or_request,
@@ -92,7 +92,7 @@ def gerenciar_locais():
                 registrar_log_generico_usuario(userid, "Inserção", novo_local)
                 db.session.commit()
                 flash("Local cadastrado com succeso", "success")
-            except (IntegrityError, OperationalError) as e:
+            except (IntegrityError, OperationalError, DataError) as e:
                 db.session.rollback()
                 flash(f"Erro ao cadastrar local: {str(e.orig)}", "danger")
             except ValueError as ve:
@@ -130,7 +130,7 @@ def gerenciar_locais():
 
                 db.session.commit()
                 flash("local editado com sucesso", "success")
-            except (IntegrityError, OperationalError) as e:
+            except (IntegrityError, OperationalError, DataError) as e:
                 db.session.rollback()
                 flash(f"Erro ao editar local: {str(e.orig)}", "danger")
             except ValueError as ve:
@@ -152,7 +152,7 @@ def gerenciar_locais():
 
                 db.session.commit()
                 flash("local excluido com sucesso", "success")
-            except (IntegrityError, OperationalError) as e:
+            except (IntegrityError, OperationalError, DataError) as e:
                 db.session.rollback()
                 flash(f"Erro ao excluir local: {str(e.orig)}", "danger")
 

@@ -5,7 +5,7 @@ from flask import (Blueprint, abort, flash, redirect, render_template, request,
                    session, url_for)
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import between, select
-from sqlalchemy.exc import IntegrityError, OperationalError
+from sqlalchemy.exc import DataError, IntegrityError, OperationalError
 
 from app.auxiliar.auxiliar_routes import (get_user_info, none_if_empty,
                                           parse_date_string,
@@ -178,7 +178,7 @@ def cancelar_reserva_generico(modelo, id_reserva, redirect_url):
         registrar_log_generico_usuario(userid, 'Exclusão', reserva, observacao="atraves da listagem")
         db.session.commit()
         flash("Reserva cancelada com sucesso", "success")
-    except (IntegrityError, OperationalError) as e:
+    except (IntegrityError, OperationalError, DataError) as e:
         db.session.rollback()
         flash(f"erro ao excluir reserva:{str(e.orig)}", "danger")
     return redirect(redirect_url)
@@ -226,7 +226,7 @@ def editar_reserva_generico(model, id_reserva, redirect_url):
 
         db.session.commit()
         flash("sucesso ao editar reserva", "success")
-    except (IntegrityError, OperationalError) as e:
+    except (IntegrityError, OperationalError, DataError) as e:
         db.session.rollback()
         flash(f"erro ao editar reserva:{str(e.orig)}", "danger")
     except ValueError as ve:

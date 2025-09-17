@@ -1,6 +1,6 @@
 from flask import (Blueprint, flash, redirect, render_template, request,
                    session, url_for)
-from sqlalchemy.exc import IntegrityError, OperationalError
+from sqlalchemy.exc import DataError, IntegrityError, OperationalError
 
 from app.auxiliar.auxiliar_routes import (get_user_info, parse_time_string,
                                           registrar_log_generico_usuario)
@@ -50,7 +50,7 @@ def fast_setup_aulas():
 
             db.session.commit()
             flash("Configuração das aulas concluida com sucesso", "success")
-        except (IntegrityError, OperationalError) as e:
+        except (IntegrityError, OperationalError, DataError) as e:
             db.session.rollback()
             flash(f"Falha ao executar a configuração rapida:{str(e.orig)}", "danger")
 

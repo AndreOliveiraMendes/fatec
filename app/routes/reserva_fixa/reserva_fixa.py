@@ -7,7 +7,7 @@ from flask import (Blueprint, abort, current_app, flash, redirect,
 from markupsafe import Markup
 from mysql.connector import DatabaseError, OperationalError
 from sqlalchemy import between, select
-from sqlalchemy.exc import IntegrityError, OperationalError
+from sqlalchemy.exc import DataError, IntegrityError, OperationalError
 
 from app.auxiliar.auxiliar_routes import (check_local, get_responsavel_reserva,
                                           get_unique_or_500, get_user_info,
@@ -295,7 +295,7 @@ def efetuar_reserva(id_semestre):
         db.session.commit()
         flash("reserva efetuada com sucesso", "success")
         current_app.logger.info(f"reserva efetuada com sucesso para {reserva}")
-    except (IntegrityError, OperationalError) as e:
+    except (IntegrityError, OperationalError, DataError) as e:
         db.session.rollback()
         flash(f"Erro ao efetuar reserva:{str(e.orig)}", "danger")
         current_app.logger.error(f"falha ao realizar reserva:{e}")

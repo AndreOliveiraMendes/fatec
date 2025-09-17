@@ -1,6 +1,6 @@
 from flask import (Blueprint, flash, redirect, render_template, request,
                    session, url_for)
-from sqlalchemy.exc import IntegrityError, OperationalError
+from sqlalchemy.exc import DataError, IntegrityError, OperationalError
 
 from app.auxiliar.auxiliar_routes import (get_user_info, none_if_empty,
                                           parse_time_string,
@@ -61,7 +61,7 @@ def fast_setup_turnos():
 
             db.session.commit()
             flash("Configuração rapida dos turnos efetuada com sucesso", "success")
-        except (IntegrityError, OperationalError) as e:
+        except (IntegrityError, OperationalError, DataError) as e:
             db.session.rollback()
             flash(f"Erro ao executar configuração rapida:{str(e.orig)}", "danger")
 

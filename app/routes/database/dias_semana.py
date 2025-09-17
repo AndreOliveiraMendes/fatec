@@ -3,7 +3,7 @@ import copy
 from flask import Blueprint, abort, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError, OperationalError
+from sqlalchemy.exc import DataError, IntegrityError, OperationalError
 
 from app.auxiliar.auxiliar_routes import (disable_action,
                                           get_session_or_request,
@@ -55,7 +55,7 @@ def gerenciar_dias_da_semana():
 
                 db.session.commit()
                 flash("Semana cadastrada com sucesso", "success")
-            except (IntegrityError, OperationalError) as e:
+            except (IntegrityError, OperationalError, DataError) as e:
                 db.session.rollback()
                 flash(f"Falah ao cadastrar semana:{str(e.orig)}", "danger")
 
@@ -80,7 +80,7 @@ def gerenciar_dias_da_semana():
 
                 db.session.commit()
                 flash("Dia da semana editado com sucesso", "success")
-            except (IntegrityError, OperationalError) as e:
+            except (IntegrityError, OperationalError, DataError) as e:
                 db.session.rollback()
                 flash(f"Erro ao editar dia da semana:{str(e.orig)}", "danger")
 
@@ -96,7 +96,7 @@ def gerenciar_dias_da_semana():
 
                 db.session.commit()
                 flash("Dia da semana excluido com sucesso", "success")
-            except (IntegrityError, OperationalError) as e:
+            except (IntegrityError, OperationalError, DataError) as e:
                 db.session.rollback()
                 flash(f"erro ao excluir dia da semana:{str(e.orig)}", "danger")
 
