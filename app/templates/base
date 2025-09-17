@@ -48,6 +48,9 @@
                                                 <i class="glyphicon glyphicon-time"
                                                    title="Permissão de Reserva Temporária"></i>
                                           {% endif %}
+                                          {% if perm and perm|has_flag(AUDITORIO) %}
+                                          <i class="glyphicon glyphicon-bullhorn" title="Permissão de Reserva de Auditório"></i>
+                                          {% endif %}
                                           {% if perm and perm|has_flag(ADMIN) %}
                                                 <i class="glyphicon glyphicon-fire" title="Permissão de Administrador"></i>
                                           {% endif %}
