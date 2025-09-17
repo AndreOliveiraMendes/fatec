@@ -54,7 +54,10 @@
                                 <code>2</code> = Reserva Temporária
                             </li>
                             <li>
-                                <code>4</code> = Administrador
+                                <code>4</code> = Reserva Auditorio
+                            </li>
+                            <li>
+                                <code>8</code> = Administrador
                             </li>
                         </ul>
                     </td>
@@ -93,7 +96,11 @@
                                 <input id="btn-check-2" type="checkbox" name="flag_temp">
                                 TEMP
                             </label>
-                            <label title="Permissão de administrador" for="btn-check-3">
+                            <label title="Permissão de reserva de auditorio" for="btn-check-3">
+                                <input id="btn-check-3" type="checkbox" name="flag_auditorio">
+                                AUDITORIO
+                            </label>
+                            <label title="Permissão de administrador" for="btn-check-4">
                                 <input id="btn-check-3" type="checkbox" name="flag_admin">
                                 ADMIN
                             </label>
@@ -145,8 +152,12 @@
                                 <input id="btn-check-2" type="checkbox" name="flag_temp">
                                 TEMP
                             </label>
-                            <label title="Permissão de administrador" for="btn-check-3">
-                                <input id="btn-check-3" type="checkbox" name="flag_admin">
+                            <label title="Permissão de reserva de auditorio" for="btn-check-3">
+                                <input id="btn-check-3" type="checkbox" name="flag_auditorio">
+                                AUDITORIO
+                            </label>
+                            <label title="Permissão de administrador" for="btn-check-4">
+                                <input id="btn-check-4" type="checkbox" name="flag_admin">
                                 ADMIN
                             </label>
                         </div>
@@ -208,12 +219,19 @@
                                        {% if permissao.permissao|has_flag(TEMP) %}checked{% endif %}>
                                 TEMP
                             </label>
-                            <label title="Permissão de administrador" for="btn-check-3">
+                            <label title="Permissão de reserva de auditorio" for="btn-check-3">
+                                <input id="btn-check-3"
+                                       type="checkbox"
+                                       name="flag_auditorio"
+                                       {% if permissao.permissao|has_flag(AUDITORIO) %}checked{% endif %}>
+                                AUDITORIO
+                            </label>
+                            <label title="Permissão de administrador" for="btn-check-4">
                                 {% if permissao.id_permissao_usuario == userid %}
-                                    <input id="btn-check-3" type="checkbox" checked disabled>
+                                    <input id="btn-check-4" type="checkbox" checked disabled>
                                     <input type="hidden" name="flag_admin" value="on">
                                 {% else %}
-                                    <input id="btn-check-3"
+                                    <input id="btn-check-4"
                                            type="checkbox"
                                            name="flag_admin"
                                            {% if permissao.permissao|has_flag(ADMIN) %}checked{% endif %}>
@@ -277,8 +295,16 @@
                                        disabled>
                                 TEMP
                             </label>
-                            <label title="Permissão de administrador" for="btn-check-3">
+                            <label title="Permissão de reserva de auditorio" for="btn-check-3">
                                 <input id="btn-check-3"
+                                       type="checkbox"
+                                       name="flag_auditorio"
+                                       {% if permissao.permissao|has_flag(AUDITORIO) %}checked{% endif %}
+                                       disabled>
+                                AUDITORIO
+                            </label>
+                            <label title="Permissão de administrador" for="btn-check-4">
+                                <input id="btn-check-4"
                                        type="checkbox"
                                        name="flag_admin"
                                        {% if permissao.permissao|has_flag(ADMIN) %}checked{% endif %}
@@ -303,6 +329,7 @@
                         <th>permissao</th>
                         <th>FIXA</th>
                         <th>TEMP</th>
+                        <th>AUDITORIO</th>
                         <th>ADMIN</th>
                         <th>Ação</th>
                     </tr>
@@ -319,6 +346,10 @@
                             <td>
                                 <i title="Permissão de reserva temporária"
                                    class="{% if p.permissao|has_flag(TEMP) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}"></i>
+                            </td>
+                            <td>
+                                <i title="Permissão de reserva de auditorio"
+                                   class="{% if p.permissao|has_flag(AUDITORIO) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}"></i>
                             </td>
                             <td>
                                 <i title="Permissão de administrador"

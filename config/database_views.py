@@ -2,7 +2,7 @@ SECOES = {
     'Cadastro Básico': {
         'icon': 'glyphicon glyphicon-user',
         'secoes': [
-            ('Pessoas', 'database_pessoas.gerenciar_pessoas', 'info', 'r'),
+            ('Pessoas', 'database_pessoas.gerenciar_pessoas', 'info', 'ru'),
             ('Usuários', 'database_usuarios.gerenciar_usuarios', 'info', 'r'),
             ('Permissões', 'database_permissoes.gerenciar_permissoes', 'info', 'crud')
         ]

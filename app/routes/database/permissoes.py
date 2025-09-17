@@ -1,6 +1,6 @@
 import copy
 
-from flask import Blueprint, flash, render_template, request, session
+from flask import Blueprint, Request, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, OperationalError
@@ -10,8 +10,8 @@ from app.auxiliar.auxiliar_routes import (get_query_params,
                                           get_user_info, none_if_empty,
                                           register_return,
                                           registrar_log_generico_usuario)
-from app.auxiliar.constant import (PERM_ADMIN, PERM_RESERVAS_FIXA,
-                                   PERM_RESERVAS_TEMPORARIA)
+from app.auxiliar.constant import (PERM_ADMIN, PERM_RESERVA_AUDITORIO,
+                                   PERM_RESERVA_FIXA, PERM_RESERVA_TEMPORARIA)
 from app.auxiliar.dao import get_usuarios
 from app.auxiliar.decorators import admin_required
 from app.models import Permissoes, Pessoas, Usuarios, db
@@ -34,11 +34,12 @@ def get_perm(acao, userid):
         sel_permissoes = sel_permissoes.where(Permissoes.id_permissao_usuario!=userid)
     return db.session.execute(sel_permissoes).all()
 
-def get_flag(request):
-    flag_fixa = PERM_RESERVAS_FIXA if 'flag_fixa' in request.form else 0
-    flag_temp = PERM_RESERVAS_TEMPORARIA if 'flag_temp' in request.form else 0
-    flag_admin = PERM_ADMIN if 'flag_admin' in request.form else 0
-    return flag_fixa|flag_temp|flag_admin
+def get_flag(req:Request) -> int:
+    flag_fixa = PERM_RESERVA_FIXA if 'flag_fixa' in req.form else 0
+    flag_temp = PERM_RESERVA_TEMPORARIA if 'flag_temp' in req.form else 0
+    flag_auditorio = PERM_RESERVA_AUDITORIO if 'flag_auditorio' in req.form else 0
+    flag_admin = PERM_ADMIN if 'flag_admin' in req.form else 0
+    return flag_fixa|flag_temp|flag_auditorio|flag_admin
 
 @bp.route("/permissoes", methods=["GET", "POST"])
 @admin_required
