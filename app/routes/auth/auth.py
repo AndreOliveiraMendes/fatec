@@ -6,6 +6,8 @@ from flask import (Blueprint, abort, current_app, flash, redirect,
 
 from app.auxiliar.auxiliar_routes import (get_user_info, none_if_empty,
                                           registrar_log_generico_sistema)
+from app.auxiliar.constant import (PERM_ADMIN, PERM_RESERVA_AUDITORIO,
+                                   PERM_RESERVA_FIXA, PERM_RESERVA_TEMPORARIA)
 from app.auxiliar.decorators import login_required
 from app.models import Permissoes, Pessoas, Usuarios, db
 from config.general import API_BASIC_PASS, API_BASIC_USER, TOMCAT_API_URL
@@ -72,9 +74,9 @@ def check_login(id, password):
             old_perm = None
             if not perm:
                 if user.grupo_pessoa in ['ADMINISTRADOR', 'REDE']:
-                    permission = 7
+                    permission = PERM_RESERVA_FIXA | PERM_RESERVA_TEMPORARIA | PERM_RESERVA_AUDITORIO | PERM_ADMIN
                 elif user.grupo_pessoa in ['DOCENTE']:
-                    permission = 1
+                    permission = PERM_RESERVA_FIXA | PERM_RESERVA_AUDITORIO
                 else:
                     permission = 0
                 perm = Permissoes(id_permissao_usuario = id_usuario, permissao = permission)
