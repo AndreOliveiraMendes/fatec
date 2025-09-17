@@ -5,7 +5,7 @@
 {% block content_head %}
     <div class="panel panel-default">
         <div class="panel-heading">{{ generate_database_head("database_locais") }}</div>
-        <div class="panel-body">{{ generate_head(url_for(url) , acao, disable=disable) }}</div>
+        <div class="panel-body">{{ generate_head(url_for(url), acao, disable=disable) }}</div>
     </div>
 {% endblock content_head %}
 {% block abertura %}
@@ -117,7 +117,7 @@
                 <label for="nome">Nome:</label>
                 <div class="input-group">
                     <input type="text"
-                           maxlength="100"
+                           maxlength="15"
                            class="form-control"
                            name="nome_local"
                            id="nome"
@@ -177,7 +177,7 @@
         <div class="form-group">
             <label for="nome">Nome:</label>
             <input type="text"
-                   maxlength="100"
+                   maxlength="15"
                    class="form-control"
                    name="nome_local"
                    id="nome"
@@ -247,7 +247,7 @@
             <div class="form-group">
                 <label for="nome">Nome:</label>
                 <input type="text"
-                       maxlength="100"
+                       maxlength="15"
                        class="form-control"
                        name="nome_local"
                        id="nome"
@@ -327,7 +327,7 @@
             <div class="form-group">
                 <label for="nome">Nome:</label>
                 <input type="text"
-                       maxlength="100"
+                       maxlength="15"
                        class="form-control"
                        name="nome_local"
                        id="nome"

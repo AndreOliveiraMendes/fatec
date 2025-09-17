@@ -401,7 +401,7 @@ class Turnos(Base):
     __tablename__ = 'turnos'
 
     id_turno: Mapped[int] = mapped_column(primary_key=True)
-    nome_turno: Mapped[str] = mapped_column(String(15), nullable=False, unique=True)
+    nome_turno: Mapped[str] = mapped_column(String(50), nullable=False, unique=True)
     horario_inicio: Mapped[time] = mapped_column(nullable=False)
     horario_fim: Mapped[time] = mapped_column(nullable=False)
 

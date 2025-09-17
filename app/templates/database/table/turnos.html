@@ -5,7 +5,7 @@
 {% block content_head %}
     <div class="panel panel-default">
         <div class="panel-heading">{{ generate_database_head("database_turnos") }}</div>
-        <div class="panel-body">{{ generate_head(url_for(url) , acao, disable=disable) }}</div>
+        <div class="panel-body">{{ generate_head(url_for(url), acao, disable=disable) }}</div>
     </div>
 {% endblock content_head %}
 {% block abertura %}
@@ -125,6 +125,7 @@
         <div class="form-group">
             <label for="nome">nome:</label>
             <input type="text"
+                   maxlength="50"
                    class="form-control"
                    name="nome_turno"
                    id="nome"
@@ -170,7 +171,7 @@
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
                 <label for="codigo">codigo:</label>
-                <input type="text"
+                <input type="number"
                        class="form-control"
                        name="id_turno"
                        id="codigo"
@@ -181,6 +182,7 @@
             <div class="form-group">
                 <label for="nome">nome:</label>
                 <input type="text"
+                       maxlength="15"
                        class="form-control"
                        name="nome_turno"
                        id="nome"
@@ -230,7 +232,7 @@
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
                 <label for="codigo">codigo:</label>
-                <input type="text"
+                <input type="number"
                        class="form-control"
                        name="id_turno"
                        id="codigo"
@@ -241,6 +243,7 @@
             <div class="form-group">
                 <label for="nome">nome:</label>
                 <input type="text"
+                       maxlength="50"
                        class="form-control"
                        name="nome_turno"
                        id="nome"

@@ -5,7 +5,7 @@
 {% block content_head %}
     <div class="panel panel-default">
         <div class="panel-heading">{{ generate_database_head("database_reservas_fixas") }}</div>
-        <div class="panel-body">{{ generate_head(url_for(url) , acao, disable=disable) }}</div>
+        <div class="panel-body">{{ generate_head(url_for(url), acao, disable=disable) }}</div>
     </div>
 {% endblock content_head %}
 {% block abertura %}
@@ -177,7 +177,9 @@
             {{ gerar_select("semestre", "Selecione o semestre", semestres, "id_semestre", "nome_semestre", "id_reserva_semestre", optional=true) }}
             <div class="form-group">
                 <label for="finalidade_reserva">Finalidade da Reserva</label>
-                <select class="form-control" id="finalidade_reserva" name="finalidade_reserva">
+                <select class="form-control"
+                        id="finalidade_reserva"
+                        name="finalidade_reserva">
                     <option value="" disabled selected>Selecione a finalidade da reserva</option>
                     <option value="Graduação">Graduação</option>
                     <option value="Especialização">Especialização</option>
@@ -198,6 +200,7 @@
             <div class="form-group">
                 <label for="descricao">descricao:</label>
                 <input type="text"
+                       maxlength="100"
                        class="form-control"
                        id="descricao"
                        name="descricao"
@@ -235,7 +238,10 @@
         {{ gerar_select("semestre", "Selecione o semestre", semestres, "id_semestre", "nome_semestre", "id_reserva_semestre") }}
         <div class="form-group">
             <label for="finalidade_reserva">Finalidade da Reserva</label>
-            <select class="form-control" id="finalidade_reserva" name="finalidade_reserva" required>
+            <select class="form-control"
+                    id="finalidade_reserva"
+                    name="finalidade_reserva"
+                    required>
                 <option value="" disabled selected>Selecione a finalidade da reserva</option>
                 <option value="Graduação">Graduação</option>
                 <option value="Especialização">Especialização</option>
@@ -256,6 +262,7 @@
         <div class="form-group">
             <label for="descricao">descricao:</label>
             <input type="text"
+                   maxlength="100"
                    class="form-control"
                    id="descricao"
                    name="descricao"
@@ -347,7 +354,10 @@
             {{ gerar_select("semestre", "Selecione o semestre", semestres, "id_semestre", "nome_semestre", "id_reserva_semestre", selected=reserva_fixa.id_reserva_semestre) }}
             <div class="form-group">
                 <label for="finalidade_reserva">Finalidade da Reserva</label>
-                <select class="form-control" id="finalidade_reserva" name="finalidade_reserva" required>
+                <select class="form-control"
+                        id="finalidade_reserva"
+                        name="finalidade_reserva"
+                        required>
                     <option value="" disabled selected>Selecione a finalidade da reserva</option>
                     <option value="Graduação"
                             {% if reserva_fixa.finalidade_reserva.value == 'Graduação' %}selected{% endif %}>
@@ -381,6 +391,7 @@
             <div class="form-group">
                 <label for="descricao">descricao:</label>
                 <input type="text"
+                       maxlength="100"
                        class="form-control"
                        id="descricao"
                        name="descricao"
@@ -514,6 +525,7 @@
             <div class="form-group">
                 <label for="descricao">descricao:</label>
                 <input type="text"
+                       maxlength="100"
                        class="form-control"
                        id="descricao"
                        name="descricao"

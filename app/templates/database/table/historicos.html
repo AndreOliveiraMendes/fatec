@@ -5,7 +5,7 @@
 {% block content_head %}
     <div class="panel panel-default">
         <div class="panel-heading">{{ generate_database_head("database_historicos") }}</div>
-        <div class="panel-body">{{ generate_head(url_for(url) , acao, disable=disable, include=include) }}</div>
+        <div class="panel-body">{{ generate_head(url_for(url), acao, disable=disable, include=include) }}</div>
     </div>
 {% endblock content_head %}
 {% block abertura %}
@@ -116,6 +116,7 @@
         <div class="form-group">
             <label for="tabela">Tabela:</label>
             <input type="text"
+                   maxlength="15"
                    id="tabela"
                    name="tabela"
                    list="lista_tabelas"
@@ -128,6 +129,7 @@
         <div class="form-group">
             <label for="categoria">categoria:</label>
             <input type="text"
+                   maxlength="15"
                    id="categoria"
                    name="categoria"
                    list="lista_categorias"
