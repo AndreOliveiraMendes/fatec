@@ -5,7 +5,7 @@
 {% block content_head %}
     <div class="panel panel-default">
         <div class="panel-heading">{{ generate_database_head("database_semestres") }}</div>
-        <div class="panel-body">{{ generate_head(url_for(url) , acao, disable=disable) }}</div>
+        <div class="panel-body">{{ generate_head(url_for(url), acao, disable=disable) }}</div>
     </div>
 {% endblock content_head %}
 {% block abertura %}
@@ -102,7 +102,7 @@
                 <label for="nome">Nome:</label>
                 <div class="input-group">
                     <input type="text"
-                           maxlength="100"
+                           maxlenght="100"
                            class="form-control"
                            name="nome_semestre"
                            id="nome"
@@ -156,10 +156,10 @@
         <div class="form-group">
             <label for="nome_semestre">Nome do semestre:</label>
             <input type="text"
+                   maxlenght="100"
                    class="form-control"
                    name="nome_semestre"
                    id="nome_semestre"
-                   maxlength="100"
                    placeholder="Ex: Primeiro semestre de 2025"
                    required>
         </div>
@@ -220,10 +220,10 @@
             <div class="form-group">
                 <label for="nome_semestre">Nome do semestre:</label>
                 <input type="text"
+                       maxlenght="100"
                        class="form-control"
                        name="nome_semestre"
                        id="nome_semestre"
-                       maxlength="100"
                        placeholder="Ex: Primeiro semestre de 2025"
                        value="{{ semestre.nome_semestre }}"
                        required>
@@ -303,10 +303,10 @@
             <div class="form-group">
                 <label for="nome_semestre">Nome do semestre:</label>
                 <input type="text"
+                       maxlenght="100"
                        class="form-control"
                        name="nome_semestre"
                        id="nome_semestre"
-                       maxlength="100"
                        placeholder="Ex: Primeiro semestre de 2025"
                        value="{{ semestre.nome_semestre }}"
                        disabled
