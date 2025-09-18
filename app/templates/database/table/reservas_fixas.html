@@ -58,8 +58,11 @@
                     <td>
                         <code>tipo_responsavel</code>
                     </td>
-                    <td>INT</td>
-                    <td>Indica qual responsável se aplica à reserva</td>
+                    <td>INT (campo calculado - não existe fisicamente no banco)</td>
+                    <td>
+                        Indica qual responsável se aplica à reserva, derivado dos campos
+                        <code>id_responsavel</code> e <code>id_responsavel_especial</code>.
+                    </td>
                     <td>
                         <ul class="valores_possiveis_format">
                             <li>
@@ -70,6 +73,9 @@
                             </li>
                             <li>
                                 <code>2</code> = Ambos
+                            </li>
+                            <li>
+                                <code>3</code> = Nenhum
                             </li>
                         </ul>
                     </td>
@@ -126,7 +132,7 @@
                         <code>observacoes</code>
                     </td>
                     <td>TEXT</td>
-                    <td>observação sobre a reserva (exemplo:sotfwares necessarios)</td>
+                    <td>Observação sobre a reserva (exemplo: softwares necessários)</td>
                     <td>-</td>
                 </tr>
                 <tr>
@@ -134,11 +140,20 @@
                         <code>descricao</code>
                     </td>
                     <td>VARCHAR(100)</td>
-                    <td>descrição da reserva (usada pra mini curso ou coisas especificas)</td>
+                    <td>Descrição da reserva (usada para minicurso ou casos específicos)</td>
                     <td>-</td>
                 </tr>
             </tbody>
         </table>
+    </div>
+    <div class="alert alert-info mt-3" role="alert">
+        <strong>Nota:</strong> O campo <code>tipo_responsavel</code> não existe fisicamente no banco de dados.
+        Ele é calculado pela aplicação a partir dos campos <code>id_responsavel</code> e
+        <code>id_responsavel_especial</code>, servindo apenas para indicar de forma simplificada
+        qual responsável está associado à reserva.
+        <br>
+        Esse campo pode ser removido do modelo físico sem impacto, desde que a lógica de cálculo
+        seja mantida no nível da aplicação.
     </div>
 {% endblock abertura %}
 {% block listar %}
@@ -170,6 +185,7 @@
                     <option value="0">Usuário</option>
                     <option value="1">Especial</option>
                     <option value="2">Ambos</option>
+                    <option value="3">Nenhum</option>
                 </select>
             </div>
             {{ gerar_select("locais", "Selecione o local", locais, "id_local", "nome_local", "id_reserva_local", optional=true) }}
@@ -220,19 +236,8 @@
           action="{{ url_for(url) }}"
           method="post">
         <input type="hidden" name="acao" value="{{ acao }}">
-        {{ gerar_select("responsavel", "Selecione a Pessoa", pessoas, "id_pessoa", "nome_pessoa", "id_responsavel") }}
-        {{ gerar_select("responsavel_especial", "Selecione o usuario especial", usuarios_especiais, "id_usuario_especial", "nome_usuario_especial", "id_responsavel_especial") }}
-        <div class="form-group">
-            <label for="tipo_responsavel">Tipo de Responsável</label>
-            <select class="form-control"
-                    id="tipo_responsavel"
-                    name="tipo_responsavel"
-                    required>
-                <option value="0">Usuário</option>
-                <option value="1">Especial</option>
-                <option value="2">Ambos</option>
-            </select>
-        </div>
+        {{ gerar_select("responsavel", "Selecione a Pessoa", pessoas, "id_pessoa", "nome_pessoa", "id_responsavel", optional=true) }}
+        {{ gerar_select("responsavel_especial", "Selecione o usuario especial", usuarios_especiais, "id_usuario_especial", "nome_usuario_especial", "id_responsavel_especial", optional=true) }}
         {{ gerar_select("locais", "Selecione o local", locais, "id_local", "nome_local", "id_reserva_local") }}
         {{ gerar_select("aulas", "Selecione o horario", aulas_ativas, "id_aula_ativa", "selector_identification", "id_reserva_aula") }}
         {{ gerar_select("semestre", "Selecione o semestre", semestres, "id_semestre", "nome_semestre", "id_reserva_semestre") }}
@@ -270,42 +275,6 @@
         </div>
         {{ action_buttons(acao, 1, False, 0) }}
     </form>
-    <script>
-        document.getElementById('tipo_responsavel').addEventListener('change', function() {
-            var tipo = parseInt(this.value);
-            var responsavel = document.getElementById('responsavel');
-            var responsavelWrapper = responsavel.parentElement;
-
-            var responsavelEspecial = document.getElementById('responsavel_especial');
-            var responsavelEspecialWrapper = responsavelEspecial.parentElement;
-
-            function showEnable(elem, wrapper) {
-                elem.disabled = false;
-                wrapper.style.display = 'block';
-            }
-
-            function hideDisable(elem, wrapper) {
-                elem.disabled = true;
-                wrapper.style.display = 'none';
-            }
-
-            if (tipo === 0) {
-                showEnable(responsavel, responsavelWrapper);
-                hideDisable(responsavelEspecial, responsavelEspecialWrapper);
-            } else if (tipo === 1) {
-                hideDisable(responsavel, responsavelWrapper);
-                showEnable(responsavelEspecial, responsavelEspecialWrapper);
-            } else {
-                showEnable(responsavel, responsavelWrapper);
-                showEnable(responsavelEspecial, responsavelEspecialWrapper);
-            }
-        });
-
-        // ao carregar a página, aplica o estado inicial
-        window.addEventListener('load', function() {
-            document.getElementById('tipo_responsavel').dispatchEvent(new Event('change'));
-        });
-    </script>
 {% endblock inserir %}
 {% block editar %}
     {% if bloco == 0 %}
@@ -333,22 +302,8 @@
                        value="{{ reserva_fixa.id_reserva_fixa }}"
                        readonly>
             </div>
-            {{ gerar_select("responsavel", "Selecione a Pessoa", pessoas, "id_pessoa", "nome_pessoa", "id_responsavel", selected=reserva_fixa.id_responsavel) }}
-            {{ gerar_select("responsavel_especial", "Selecione o usuario especial", usuarios_especiais, "id_usuario_especial", "nome_usuario_especial", "id_responsavel_especial", selected=reserva_fixa.id_responsavel_especial) }}
-            <div class="form-group">
-                <label for="tipo_responsavel">Tipo de Responsável</label>
-                <select class="form-control"
-                        id="tipo_responsavel"
-                        name="tipo_responsavel"
-                        required>
-                    <option value="0"
-                            {% if reserva_fixa.tipo_responsavel == 0 %}selected{% endif %}>Usuário</option>
-                    <option value="1"
-                            {% if reserva_fixa.tipo_responsavel == 1 %}selected{% endif %}>Especial</option>
-                    <option value="2"
-                            {% if reserva_fixa.tipo_responsavel == 2 %}selected{% endif %}>Ambos</option>
-                </select>
-            </div>
+            {{ gerar_select("responsavel", "Selecione a Pessoa", pessoas, "id_pessoa", "nome_pessoa", "id_responsavel", optional=true, selected=reserva_fixa.id_responsavel) }}
+            {{ gerar_select("responsavel_especial", "Selecione o usuario especial", usuarios_especiais, "id_usuario_especial", "nome_usuario_especial", "id_responsavel_especial", optional=true, selected=reserva_fixa.id_responsavel_especial) }}
             {{ gerar_select("locais", "Selecione o local", locais, "id_local", "nome_local", "id_reserva_local", selected=reserva_fixa.id_reserva_local) }}
             {{ gerar_select("aulas", "Selecione o horario", aulas_ativas, "id_aula_ativa", "selector_identification", "id_reserva_aula", selected=reserva_fixa.id_reserva_aula) }}
             {{ gerar_select("semestre", "Selecione o semestre", semestres, "id_semestre", "nome_semestre", "id_reserva_semestre", selected=reserva_fixa.id_reserva_semestre) }}
@@ -400,42 +355,6 @@
             </div>
             {{ action_buttons(acao, 2, True, 0) }}
         </form>
-        <script>
-        document.getElementById('tipo_responsavel').addEventListener('change', function() {
-            var tipo = parseInt(this.value);
-            var responsavel = document.getElementById('responsavel');
-            var responsavelWrapper = responsavel.parentElement;
-
-            var responsavelEspecial = document.getElementById('responsavel_especial');
-            var responsavelEspecialWrapper = responsavelEspecial.parentElement;
-
-            function showEnable(elem, wrapper) {
-                elem.disabled = false;
-                wrapper.style.display = 'block';
-            }
-
-            function hideDisable(elem, wrapper) {
-                elem.disabled = true;
-                wrapper.style.display = 'none';
-            }
-
-            if (tipo === 0) {
-                showEnable(responsavel, responsavelWrapper);
-                hideDisable(responsavelEspecial, responsavelEspecialWrapper);
-            } else if (tipo === 1) {
-                hideDisable(responsavel, responsavelWrapper);
-                showEnable(responsavelEspecial, responsavelEspecialWrapper);
-            } else {
-                showEnable(responsavel, responsavelWrapper);
-                showEnable(responsavelEspecial, responsavelEspecialWrapper);
-            }
-        });
-
-        // ao carregar a página, aplica o estado inicial
-        window.addEventListener('load', function() {
-            document.getElementById('tipo_responsavel').dispatchEvent(new Event('change'));
-        });
-        </script>
     {% endif %}
 {% endblock editar %}
 {% block excluir %}
@@ -464,23 +383,8 @@
                        value="{{ reserva_fixa.id_reserva_fixa }}"
                        readonly>
             </div>
-            {{ gerar_select("responsavel", "Selecione a Pessoa", pessoas, "id_pessoa", "nome_pessoa", "id_responsavel", selected=reserva_fixa.id_responsavel, extra='disabled') }}
-            {{ gerar_select("responsavel_especial", "Selecione o usuario especial", usuarios_especiais, "id_usuario_especial", "nome_usuario_especial", "id_responsavel_especial", selected=reserva_fixa.id_responsavel_especial, extra='disabled') }}
-            <div class="form-group">
-                <label for="tipo_responsavel">Tipo de Responsável</label>
-                <select class="form-control"
-                        id="tipo_responsavel"
-                        name="tipo_responsavel"
-                        required
-                        disabled>
-                    <option value="0"
-                            {% if reserva_fixa.tipo_responsavel == 0 %}selected{% endif %}>Usuário</option>
-                    <option value="1"
-                            {% if reserva_fixa.tipo_responsavel == 1 %}selected{% endif %}>Especial</option>
-                    <option value="2"
-                            {% if reserva_fixa.tipo_responsavel == 2 %}selected{% endif %}>Ambos</option>
-                </select>
-            </div>
+            {{ gerar_select("responsavel", "Selecione a Pessoa", pessoas, "id_pessoa", "nome_pessoa", "id_responsavel", optional=true, selected=reserva_fixa.id_responsavel, extra='disabled') }}
+            {{ gerar_select("responsavel_especial", "Selecione o usuario especial", usuarios_especiais, "id_usuario_especial", "nome_usuario_especial", "id_responsavel_especial", optional=true, selected=reserva_fixa.id_responsavel_especial, extra='disabled') }}
             {{ gerar_select("locais", "Selecione o local", locais, "id_local", "nome_local", "id_reserva_local", selected=reserva_fixa.id_reserva_local, extra='disabled') }}
             {{ gerar_select("aulas", "Selecione o horario", aulas_ativas, "id_aula_ativa", "selector_identification", "id_reserva_aula", selected=reserva_fixa.id_reserva_aula, extra='disabled') }}
             {{ gerar_select("semestre", "Selecione o semestre", semestres, "id_semestre", "nome_semestre", "id_reserva_semestre", selected=reserva_fixa.id_reserva_semestre, extra='disabled') }}
@@ -535,40 +439,6 @@
             </div>
             {{ action_buttons(acao, 2, True, 0, False) }}
         </form>
-        <script>
-        document.getElementById('tipo_responsavel').addEventListener('change', function() {
-            var tipo = parseInt(this.value);
-            var responsavel = document.getElementById('responsavel');
-            var responsavelWrapper = responsavel.parentElement;
-
-            var responsavelEspecial = document.getElementById('responsavel_especial');
-            var responsavelEspecialWrapper = responsavelEspecial.parentElement;
-
-            function showEnable(elem, wrapper) {
-                wrapper.style.display = 'block';
-            }
-
-            function hideDisable(elem, wrapper) {
-                wrapper.style.display = 'none';
-            }
-
-            if (tipo === 0) {
-                showEnable(responsavel, responsavelWrapper);
-                hideDisable(responsavelEspecial, responsavelEspecialWrapper);
-            } else if (tipo === 1) {
-                hideDisable(responsavel, responsavelWrapper);
-                showEnable(responsavelEspecial, responsavelEspecialWrapper);
-            } else {
-                showEnable(responsavel, responsavelWrapper);
-                showEnable(responsavelEspecial, responsavelEspecialWrapper);
-            }
-        });
-
-        // ao carregar a página, aplica o estado inicial
-        window.addEventListener('load', function() {
-            document.getElementById('tipo_responsavel').dispatchEvent(new Event('change'));
-        });
-        </script>
     {% endif %}
 {% endblock excluir %}
 {% macro result_table(message) %}
