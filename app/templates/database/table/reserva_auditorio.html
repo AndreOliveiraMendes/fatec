@@ -8,3 +8,112 @@
         <div class="panel-body">{{ generate_head(url_for(url) , acao, disable=disable) }}</div>
     </div>
 {% endblock content_head %}
+{% block abertura %}
+    <h3 class="text-center">
+        Gerenciamento da Tabela <strong>Reserva Auditorio</strong>
+    </h3>
+    <p class="text-muted text-center">
+        A tabela <code>reservas_auditorio</code> possui os seguintes campos:
+    </p>
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover">
+            <thead>
+                <tr class="information">
+                    <th>Campo</th>
+                    <th>Tipo</th>
+                    <th>Descrição</th>
+                    <th>Valores Possíveis</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <code>id_reserva_auditorio</code>
+                    </td>
+                    <td>INT (auto_increment, PK)</td>
+                    <td>Identificador único da reserva de auditório no sistema</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>id_responsavel</code>
+                    </td>
+                    <td>INT (FK)</td>
+                    <td>
+                        Chave estrangeira para a tabela <code>pessoas</code>
+                    </td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>id_reserva_local</code>
+                    </td>
+                    <td>INT (FK)</td>
+                    <td>
+                        Chave estrangeira para a tabela <code>locais</code>
+                    </td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>id_reserva_aula</code>
+                    </td>
+                    <td>INT (FK)</td>
+                    <td>
+                        Chave estrangeira para a tabela <code>aulas_ativas</code>
+                    </td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>dia_reserva</code>
+                    </td>
+                    <td>DATE</td>
+                    <td>Data da reserva do auditório</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>status_reserva</code>
+                    </td>
+                    <td>ENUM</td>
+                    <td>Status atual da reserva</td>
+                    <td>
+                        <ul class="valores_possiveis_format">
+                            <li>'AGUARDANDO'</li>
+                            <li>'CANCELADA'</li>
+                            <li>'APROVADA'</li>
+                            <li>'REPROVADA'</li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>id_autorizador</code>
+                    </td>
+                    <td>INT (FK)</td>
+                    <td>
+                        Chave estrangeira para a tabela <code>pessoas</code> (opcional)
+                    </td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>observação_responsavel</code>
+                    </td>
+                    <td>TEXT</td>
+                    <td>Observação feita pelo responsável sobre a reserva</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>observação_autorizador</code>
+                    </td>
+                    <td>TEXT</td>
+                    <td>Observação feita pelo autorizador sobre a reserva</td>
+                    <td>-</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+{% endblock abertura %}
