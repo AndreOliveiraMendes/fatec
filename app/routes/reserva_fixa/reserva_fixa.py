@@ -252,18 +252,10 @@ def efetuar_reserva(id_semestre):
     descricao = none_if_empty(request.form.get('descricao'))
     responsavel = none_if_empty(request.form.get('responsavel'))
     responsavel_especial = none_if_empty(request.form.get('responsavel_especial'))
-    tipo_responsavel = None
-    if responsavel_especial is None:
-        tipo_responsavel = 0
-    elif responsavel is None:
-        tipo_responsavel = 1
-    else:
-        tipo_responsavel = 2
     perm = db.session.get(Permissoes, userid)
     if not perm or perm.permissao & PERM_ADMIN == 0:
         responsavel = user.id_pessoa
         responsavel_especial = None
-        tipo_responsavel = 0
     checks = [key for key, value in request.form.items() if key.startswith('reserva') and value == 'on']
     if not checks:
         flash("voce não selecionou reserva alguma", "warning")
@@ -276,7 +268,6 @@ def efetuar_reserva(id_semestre):
             reserva = Reservas_Fixas(
                 id_responsavel = responsavel,
                 id_responsavel_especial = responsavel_especial,
-                tipo_responsavel = tipo_responsavel,
                 id_reserva_local = lab,
                 id_reserva_aula = aula,
                 id_reserva_semestre = semestre.id_semestre,

@@ -174,10 +174,6 @@
     </div>
 {% endblock content %}
 {% block extra_script %}
-    {% if perm and perm|has_flag(ADMIN) %}
-        <script>{{ validate_admin_selects() }}</script>
-        <script>validateAdminSelects("reserva", "responsavel", "responsavel_especial");</script>
-    {% endif %}
     <script>{{ adjust_head_fix() }}</script>
     <script>
     document.getElementById('finalidade_reserva').addEventListener('change', function() {

@@ -223,27 +223,6 @@ def register_filters(app:Flask):
             };
         """)
 
-    @app.template_global()
-    def validate_admin_selects():
-        return Markup("""
-        function validateAdminSelects(formId, select1Id, select2Id) {
-            const form = document.getElementById(formId);
-            if (!form) return;
-
-            form.addEventListener("submit", function (e) {
-                const s1 = document.getElementById(select1Id);
-                const s2 = document.getElementById(select2Id);
-                const v1 = s1?.value;
-                const v2 = s2?.value;
-
-                if (!v1 && !v2) {
-                    e.preventDefault();
-                    alert("Você deve selecionar pelo menos um dos campos: responsável especial ou responsável.");
-                }
-            });
-        }
-        """)
-
     @app.template_global('get_responsavel_reserva')
     def get_responsavel_reserva_template(reserva:Reservas_Fixas|Reservas_Temporarias):
         return get_responsavel_reserva(reserva)

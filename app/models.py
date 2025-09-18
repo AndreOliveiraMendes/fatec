@@ -2,7 +2,8 @@ import enum
 from datetime import date, datetime, time
 
 from sqlalchemy import (TEXT, CheckConstraint, Enum, ForeignKey, String,
-                        UniqueConstraint)
+                        UniqueConstraint, case)
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app import Base, db
@@ -118,7 +119,6 @@ class ReservaBase(Base):  # herda de Base
     __abstract__ = True   # não vira tabela
     id_responsavel: Mapped[int | None] = mapped_column(ForeignKey('pessoas.id_pessoa'), nullable=True)
     id_responsavel_especial: Mapped[int | None] = mapped_column(ForeignKey('usuarios_especiais.id_usuario_especial'), nullable=True)
-    tipo_responsavel: Mapped[int] = mapped_column(nullable=False)
     id_reserva_local: Mapped[int] = mapped_column(ForeignKey('locais.id_local'), nullable=False)
     id_reserva_aula: Mapped[int] = mapped_column(ForeignKey('aulas_ativas.id_aula_ativa'), nullable=False)
     finalidade_reserva: Mapped[FinalidadeReservaEnum] = mapped_column(
@@ -127,6 +127,27 @@ class ReservaBase(Base):  # herda de Base
     )
     observacoes: Mapped[str | None] = mapped_column(TEXT, nullable=True)
     descricao: Mapped[str | None] = mapped_column(String(100), nullable=True)
+
+    @hybrid_property
+    def tipo_responsavel(self):
+        if self.id_responsavel is not None and self.id_responsavel_especial is None:
+            return 0
+        elif self.id_responsavel_especial is None and self.id_responsavel is not None:
+            return 1
+        elif self.id_responsavel is not None and self.id_responsavel_especial is not None:
+            return 2
+        else:
+            return 3
+
+    @tipo_responsavel.expression
+    def tipo_responsavel(cls):
+        return case(
+            (cls.id_responsavel.isnot(None) & cls.id_responsavel_especial.is_(None), 0),
+            (cls.id_responsavel.is_(None) & cls.id_responsavel_especial.isnot(None), 1),
+            (cls.id_responsavel.isnot(None) & cls.id_responsavel_especial.isnot(None), 2),
+            else_=3  # Valor padrão se nenhuma condição for atendida
+        )
+
 
 class Reservas_Fixas(ReservaBase):
     __tablename__ = 'reservas_fixas'
@@ -137,28 +158,12 @@ class Reservas_Fixas(ReservaBase):
     semestres: Mapped['Semestres'] = relationship(back_populates='reservas_fixas')
 
     __table_args__ = (
-        CheckConstraint(
-            """
-            (
-                (tipo_responsavel = 0 AND id_responsavel IS NOT NULL AND id_responsavel_especial IS NULL)
-                OR
-                (tipo_responsavel = 1 AND id_responsavel IS NULL AND id_responsavel_especial IS NOT NULL)
-                OR
-                (tipo_responsavel = 2 AND id_responsavel IS NOT NULL AND id_responsavel_especial IS NOT NULL)
-            )
-            """,
-            name='check_tipo_responsavel_fixa'
-        ), CheckConstraint(
-            """
-            tipo_responsavel IN (0,1,2)
-            """,
-            name='check_tipo_responsavel_value_fixa'
-        ), UniqueConstraint(
+        UniqueConstraint(
             'id_reserva_local',
             'id_reserva_aula',
             'id_reserva_semestre',
             name='uq_reserva_lab_aula_semestre'
-        )
+        ),
     )
 
     pessoas = relationship("Pessoas", back_populates="reservas_fixas")
@@ -191,25 +196,9 @@ class Reservas_Temporarias(ReservaBase):
 
     __table_args__ = (
         CheckConstraint(
-            """
-            (
-                (tipo_responsavel = 0 AND id_responsavel IS NOT NULL AND id_responsavel_especial IS NULL)
-                OR
-                (tipo_responsavel = 1 AND id_responsavel IS NULL AND id_responsavel_especial IS NOT NULL)
-                OR
-                (tipo_responsavel = 2 AND id_responsavel IS NOT NULL AND id_responsavel_especial IS NOT NULL)
-            )
-            """,
-            name='check_tipo_responsavel_temporaria'
-        ), CheckConstraint(
-            """
-            tipo_responsavel IN (0,1,2)
-            """,
-            name='check_tipo_responsavel_value_temporaria'
-        ), CheckConstraint(
             "inicio_reserva <= fim_reserva",
             name='chk_reserva_inicio_menor_fim'
-        )
+        ),
     )
 
     pessoas = relationship("Pessoas", back_populates="reservas_temporarias")
