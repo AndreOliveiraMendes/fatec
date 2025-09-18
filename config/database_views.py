@@ -23,7 +23,8 @@ SECOES = {
         'secoes': [
             ('Aulas Ativas', 'database_aulas_ativas.gerenciar_aulas_ativas', 'warning', 'crud'),
             ('Reservas Fixas', 'database_reservas_fixas.gerenciar_reservas_fixas', 'warning', 'crud'),
-            ('Reservas Temporarias', 'database_reservas_temporarias.gerenciar_reservas_temporarias', 'warning', 'crud')
+            ('Reservas Temporarias', 'database_reservas_temporarias.gerenciar_reservas_temporarias', 'warning', 'crud'),
+            ('Reserva Auditorio', 'database_reserva_auditorio.gerenciar_reserva_auditorio', 'warning', 'crud')
         ]
     },
     'Operacional / Configuração':{
@@ -40,7 +41,6 @@ SECOES = {
         ]
     }
 }
-TABLES_PER_LINE = 10
 SETUP_HEAD = [
     {
         "url": "setup.fast_setup_menu",

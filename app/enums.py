@@ -1,5 +1,6 @@
 import enum
 
+
 class SituacaoChaveEnum(enum.Enum):
     NAO_PEGOU_A_CHAVE = "não pegou a chave"
     PEGOU_A_CHAVE = "pegou a chave"

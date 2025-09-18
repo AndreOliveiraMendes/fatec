@@ -7,8 +7,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app import Base, db
 from app.enums import (DisponibilidadeEnum, FinalidadeReservaEnum, OrigemEnum,
-                       SituacaoChaveEnum, TipoAulaEnum, TipoLocalEnum,
-                       TipoReservaEnum, StatusReservaAuditorioEnum)
+                       SituacaoChaveEnum, StatusReservaAuditorioEnum,
+                       TipoAulaEnum, TipoLocalEnum, TipoReservaEnum)
 
 
 def parse_time(time):
