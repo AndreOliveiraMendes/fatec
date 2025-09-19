@@ -24,7 +24,7 @@ SECOES = {
             ('Aulas Ativas', 'database_aulas_ativas.gerenciar_aulas_ativas', 'warning', 'crud'),
             ('Reservas Fixas', 'database_reservas_fixas.gerenciar_reservas_fixas', 'warning', 'crud'),
             ('Reservas Temporarias', 'database_reservas_temporarias.gerenciar_reservas_temporarias', 'warning', 'crud'),
-            ('Reserva Auditorio', 'database_reserva_auditorio.gerenciar_reserva_auditorio', 'warning', 'crud')
+            ('Reserva Auditorio', 'database_reservas_auditorios.gerenciar_reservas_auditorios', 'warning', 'crud')
         ]
     },
     'Operacional / Configuração':{

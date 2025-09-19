@@ -100,8 +100,8 @@ class Situacoes_Das_Reserva(Base):
             f"situacao_chave={self.situacao_chave.value})>"
         )
 
-class Reserva_Auditorio(Base):
-    __tablename__ = "reserva_auditorio"
+class Reservas_Auditorios(Base):
+    __tablename__ = "reservas_auditorios"
     
     id_reserva_auditorio: Mapped[int] = mapped_column(primary_key=True)
     id_responsavel: Mapped[int] = mapped_column(ForeignKey('pessoas.id_pessoa'), nullable=False)
@@ -310,13 +310,13 @@ class Pessoas(Base):
     reservas_fixas: Mapped[list['Reservas_Fixas']] = relationship(back_populates='pessoa')
     reservas_temporarias: Mapped[list['Reservas_Temporarias']] = relationship(back_populates='pessoa')
     usuarios: Mapped[list['Usuarios']] = relationship(back_populates='pessoa')
-    reservas_responsavel: Mapped[list['Reserva_Auditorio']] = relationship(
+    reservas_responsavel: Mapped[list['Reservas_Auditorios']] = relationship(
         back_populates="responsavel",
-        foreign_keys="Reserva_Auditorio.id_responsavel"
+        foreign_keys="Reservas_Auditorios.id_responsavel"
     )
-    reservas_autorizador: Mapped[list['Reserva_Auditorio']] = relationship(
+    reservas_autorizador: Mapped[list['Reservas_Auditorios']] = relationship(
         back_populates="autorizador",
-        foreign_keys="Reserva_Auditorio.id_autorizador"
+        foreign_keys="Reservas_Auditorios.id_autorizador"
     )
 
     def __repr__(self) -> str:
@@ -363,7 +363,7 @@ class Locais(Base):
 
     reservas_fixas: Mapped[list['Reservas_Fixas']] = relationship(back_populates='local')
     reservas_temporarias: Mapped[list['Reservas_Temporarias']] = relationship(back_populates='local')
-    reservas_auditorios: Mapped[list['Reserva_Auditorio']] = relationship(back_populates='local')
+    reservas_auditorios: Mapped[list['Reservas_Auditorios']] = relationship(back_populates='local')
     situacoes_das_reservas: Mapped[list['Situacoes_Das_Reserva']] = relationship(back_populates='local') 
     exibicao_reservas: Mapped[list['Exibicao_Reservas']] = relationship(back_populates='local')
 
@@ -489,7 +489,7 @@ class Aulas_Ativas(Base):
     aula: Mapped['Aulas'] = relationship(back_populates='aulas_ativas')
     reservas_fixas: Mapped[list['Reservas_Fixas']] = relationship(back_populates='aula_ativa')
     reservas_temporarias: Mapped[list['Reservas_Temporarias']] = relationship(back_populates='aula_ativa')
-    reservas_auditorios: Mapped[list['Reserva_Auditorio']] = relationship(back_populates='aula_ativa')
+    reservas_auditorios: Mapped[list['Reservas_Auditorios']] = relationship(back_populates='aula_ativa')
     situacoes_das_reservas: Mapped[list['Situacoes_Das_Reserva']] = relationship(back_populates='aula_ativa')
     exibicao_reservas: Mapped[list['Exibicao_Reservas']] = relationship(back_populates='aula_ativa')
     dia_da_semana: Mapped['Dias_da_Semana'] = relationship(back_populates='aulas_ativas')

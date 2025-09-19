@@ -9,15 +9,15 @@ from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
 from app.auxiliar.auxiliar_routes import register_return, registrar_log_generico_usuario, get_session_or_request, get_user_info, none_if_empty, parse_date_string
 from app.auxiliar.dao import get_aulas_ativas, get_locais, get_pessoas
 from app.auxiliar.decorators import admin_required
-from app.models import Reserva_Auditorio, StatusReservaAuditorioEnum, db
+from app.models import Reservas_Auditorios, StatusReservaAuditorioEnum, db
 from config.general import PER_PAGE
 
-bp = Blueprint('database_reserva_auditorio', __name__, url_prefix="/database")
+bp = Blueprint('database_reservas_auditorios', __name__, url_prefix="/database")
 
-@bp.route('/reserva_auditorio', methods=['GET', 'POST'])
+@bp.route('/reservas_auditorios', methods=['GET', 'POST'])
 @admin_required
-def gerenciar_reserva_auditorio():
-    url = 'database_reserva_auditorio.gerenciar_reserva_auditorio'
+def gerenciar_reservas_auditorios():
+    url = 'database_reservas_auditorios.gerenciar_reservas_auditorios'
     redirect_action = None
     acao = get_session_or_request(request, session, 'acao', 'abertura')
     bloco = int(request.form.get('bloco', 0))
@@ -28,7 +28,7 @@ def gerenciar_reserva_auditorio():
     extras['SRAE'] = StatusReservaAuditorioEnum
     if request.method == 'POST':
         if acao == 'listar':
-            sel_reservas = select(Reserva_Auditorio)
+            sel_reservas = select(Reservas_Auditorios)
             reservas_auditorios_paginadas = SelectPagination(
                 select=sel_reservas, session=db.session,
                 page=page, per_page=PER_PAGE, error_out=False
@@ -54,7 +54,7 @@ def gerenciar_reserva_auditorio():
             observação_autorizador = none_if_empty(request.form.get('observação_autorizador'))
 
             try:
-                nova_reserva = Reserva_Auditorio(
+                nova_reserva = Reservas_Auditorios(
                     id_responsavel=id_responsavel,
                     id_reserva_local=id_reserva_local,
                     id_reserva_aula=id_reserva_aula,
@@ -82,5 +82,5 @@ def gerenciar_reserva_auditorio():
                 pessoas=get_pessoas(), locais=get_locais(), aulas_ativas=get_aulas_ativas())
     if redirect_action:
         return redirect_action
-    return render_template("database/table/reserva_auditorio.html",
+    return render_template("database/table/reservas_auditorios.html",
         username=username, perm=perm, acao=acao, bloco=bloco, **extras)
