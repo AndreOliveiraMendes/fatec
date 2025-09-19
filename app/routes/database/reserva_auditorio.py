@@ -3,10 +3,12 @@ import copy
 from flask import Blueprint, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
-from sqlalchemy.exc import DataError, IntegrityError, OperationalError
+from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
+                            InternalError, OperationalError, ProgrammingError)
 
 from app.auxiliar.auxiliar_routes import get_session_or_request, get_user_info
 from app.auxiliar.decorators import admin_required
+from app.models import Reserva_Auditorio, StatusReservaAuditorioEnum
 
 bp = Blueprint('database_reserva_auditorio', __name__, url_prefix="/database")
 

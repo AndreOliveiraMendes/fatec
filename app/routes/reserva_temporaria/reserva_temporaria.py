@@ -5,7 +5,8 @@ from typing import List
 from flask import (Blueprint, abort, current_app, flash, redirect,
                    render_template, request, session, url_for)
 from sqlalchemy import and_, between, select
-from sqlalchemy.exc import DataError, IntegrityError, OperationalError
+from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
+                            InternalError, OperationalError, ProgrammingError)
 
 from app.auxiliar.auxiliar_routes import (check_local, get_responsavel_reserva,
                                           get_unique_or_500, get_user_info,
@@ -285,7 +286,7 @@ def efetuar_reserva(inicio, fim):
         db.session.commit()
         flash("reserva efetuada com sucesso", "success")
         current_app.logger.info(f"reserva efetuada com sucesso para {reserva}")
-    except (IntegrityError, OperationalError, DataError) as e:
+    except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
         db.session.rollback()
         flash(f"Erro ao efetuar reserva:{str(e.orig)}", "danger")
         current_app.logger.error(f"falha ao realizar reserva:{e}")

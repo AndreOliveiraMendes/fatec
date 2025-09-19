@@ -3,7 +3,8 @@ import copy
 from flask import Blueprint, abort, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
-from sqlalchemy.exc import DataError, IntegrityError, OperationalError
+from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
+                            InternalError, OperationalError, ProgrammingError)
 
 from app.auxiliar.auxiliar_routes import (disable_action, get_query_params,
                                           get_session_or_request,
@@ -94,7 +95,7 @@ def gerenciar_pessoas():
                 registrar_log_generico_usuario(userid, "Inserção", nova_pessoa)
                 db.session.commit()
                 flash("Pessoa cadastrada com sucesso", "success")
-            except (IntegrityError, OperationalError, DataError) as e:
+            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
                 db.session.rollback()
                 flash(f"Erro ao inserir pessoa: {str(e.orig)}", "danger")
 
@@ -130,7 +131,7 @@ def gerenciar_pessoas():
                 db.session.commit()
                 flash("Pessoa atualizada com sucesso", "success")
 
-            except (IntegrityError, OperationalError, DataError) as e:
+            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
                 db.session.rollback()
                 flash(f"Erro ao atualizar pessoa: {str(e.orig)}", "danger")
 
@@ -154,7 +155,7 @@ def gerenciar_pessoas():
                     db.session.commit()
                     flash("Pessoa excluída com sucesso", "success")
 
-                except (IntegrityError, OperationalError, DataError) as e:
+                except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
                     db.session.rollback()
                     flash(f"Erro ao excluir pessoa: {str(e.orig)}", "danger")
 

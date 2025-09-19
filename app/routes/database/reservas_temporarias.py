@@ -3,7 +3,8 @@ import copy
 from flask import Blueprint, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import and_, select
-from sqlalchemy.exc import DataError, IntegrityError, OperationalError
+from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
+                            InternalError, OperationalError, ProgrammingError)
 
 from app.auxiliar.auxiliar_routes import (get_query_params,
                                           get_session_or_request,
@@ -142,7 +143,7 @@ def gerenciar_reservas_temporarias():
 
                 db.session.commit()
                 flash("reserva temporaria cadastrada com sucesso", "success")
-            except (IntegrityError, OperationalError, DataError) as e:
+            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
                 db.session.rollback()
                 flash(f"erro ao cadastrar reserva temporaria:{str(e.orig)}", "danger")
             except ValueError as ve:
@@ -194,7 +195,7 @@ def gerenciar_reservas_temporarias():
 
                 db.session.commit()
                 flash("Reserva editada com sucesso", "success")
-            except (IntegrityError, OperationalError, DataError) as e:
+            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
                 db.session.rollback()
                 flash(f"Erro ao editar reserva:{str(e.orig)}", "danger")
             except ValueError as ve:
@@ -215,7 +216,7 @@ def gerenciar_reservas_temporarias():
 
                 db.session.commit()
                 flash("Reserva excluida com sucesso", "success")
-            except (IntegrityError, OperationalError, DataError) as e:
+            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
                 db.session.rollback()
                 flash(f"Erro ao excluir reserva:{str(e.orig)}")
 

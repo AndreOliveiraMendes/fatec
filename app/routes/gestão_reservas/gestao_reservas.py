@@ -3,7 +3,8 @@ from datetime import datetime
 
 from flask import (Blueprint, abort, flash, redirect, render_template, request,
                    session, url_for)
-from sqlalchemy.exc import DataError, IntegrityError, OperationalError
+from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
+                            InternalError, OperationalError, ProgrammingError)
 
 from app.auxiliar.auxiliar_routes import (get_responsavel_reserva,
                                           get_unique_or_500, get_user_info,
@@ -151,7 +152,7 @@ def atualizar_exibicao(id_aula, id_lab, dia):
 
             db.session.commit()
             flash("dados atualizados com sucesso", "success")
-        except (IntegrityError, OperationalError, DataError) as e:
+        except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
             db.session.rollback()
             flash(f"Erro ao atualizar dados:{str(e.orig)}", "danger")
         except ValueError as ve:
@@ -167,7 +168,7 @@ def atualizar_exibicao(id_aula, id_lab, dia):
 
                 db.session.commit()
                 flash("dados atualizados com sucesso", "success")
-            except (IntegrityError, OperationalError, DataError) as e:
+            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
                 db.session.rollback()
                 flash(f"Erro ao atualizar dados:{str(e.orig)}", "danger")
             except ValueError as ve:
@@ -320,7 +321,7 @@ def atualizar_situacoes_fixa(common):
 
             db.session.commit()
             sucess_messages.append(f"situação {i + 1} atualizada com sucesso")
-        except (IntegrityError, OperationalError, DataError) as e:
+        except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
             db.session.rollback()
             error_messages.append(f"erro ao executar ação:{str(e.orig)}")
         except ValueError as ve:
@@ -370,7 +371,7 @@ def atualizar_situacoes_temporaria(common):
 
             db.session.commit()
             sucess_messages.append(f"situação {i + 1} atualizada com sucesso")
-        except (IntegrityError, OperationalError, DataError) as e:
+        except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
             db.session.rollback()
             error_messages.append(f"erro ao executar ação:{str(e.orig)}")
         except ValueError as ve:
