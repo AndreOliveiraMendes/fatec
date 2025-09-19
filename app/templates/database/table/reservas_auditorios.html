@@ -122,7 +122,59 @@
     {{ result_table("Nenhuma reserva de auditorio cadastrada.") }}
 {% endblock listar %}
 {% block procurar %}
-    WIP
+    {% if bloco == 0 %}
+        <h3>Procurar Reservas de Auditorios</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label for="codigo">Codigo da Reserva:</label>
+                <input class="form-control"
+                       type="number"
+                       id="codigo"
+                       name="id_reserva_auditorio">
+            </div>
+            {{ gerar_select("responsavel", "Selecione a Pessoa responsavel pela reserva", pessoas, "id_pessoa", "nome_pessoa", "id_responsavel", optional=True) }}
+            {{ gerar_select("locais", "Selecione o local", locais, "id_local", "nome_local", "id_reserva_local", optional=True) }}
+            {{ gerar_select("aulas", "Selecione o horario", aulas_ativas, "id_aula_ativa", "selector_identification", "id_reserva_aula", optional=True) }}
+            <div class="form-group">
+                <label for="dia_reserva">Data da Reserva:</label>
+                <input class="form-control" type="date" id="dia_reserva" name="dia_reserva">
+            </div>
+            <div class="form-group">
+                <label for="status_reserva">Status da Reserva</label>
+                <select class="form-control" id="status_reserva" name="status_reserva">
+                    <option value="" disabled selected>Selecione o Status da Reserva</option>
+                    {% for status in SRAE %}<option value="{{ status.value }}">{{ status.value }}</option>{% endfor %}
+                </select>
+            </div>
+            {{ gerar_select("responsavel", "Selecione a Pessoa responsavel pela autorização", pessoas, "id_pessoa", "nome_pessoa", "id_autorizador", optional=True) }}
+            <div class="form-group">
+                <label for="observação_responsavel">Observações do responsavel:</label>
+                <textarea id="observação_responsavel"
+                          name="observação_responsavel"
+                          class="form-control"
+                          placeholder="Insira observações relevantes"
+                          rows="6"
+                          cols="60"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="observação_autorizador">Observações do autorizador:</label>
+                <textarea id="observação_autorizador"
+                          name="observação_autorizador"
+                          class="form-control"
+                          placeholder="Insira observações relevantes"
+                          rows="6"
+                          cols="60"></textarea>
+            </div>
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <h3>Resultados da Busca</h3>
+        {{ result_table("Nenhum resultado encontrado.") }}
+    {% endif %}
 {% endblock procurar %}
 {% block inserir %}
     <h3>Inserir Reserva de Auditorio</h3>
@@ -233,6 +285,11 @@
                 </tbody>
             </table>
         </div>
+        {% if query_params %}
+            {{ paginacao(pagination, acao, bloco, query_params) }}
+        {% else %}
+            {{ paginacao(pagination, acao, bloco) }}
+        {% endif %}
     {% else %}
         <div class="alert alert-info" role="alert">{{ message }}</div>
     {% endif %}
