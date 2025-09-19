@@ -265,8 +265,8 @@
                     {% for edr in exibicao_reservas %}
                         <tr>
                             <td>{{ edr.id_exibicao }}</td>
-                            <td>{{ edr.locais.nome_local }}</td>
-                            <td>{{ edr.aulas_ativas.selector_identification }}</td>
+                            <td>{{ edr.local.nome_local }}</td>
+                            <td>{{ edr.aula_ativa.selector_identification }}</td>
                             <td>{{ edr.exibicao_dia|data }}</td>
                             <td>{{ edr.tipo_reserva.value }}</td>
                             <td>

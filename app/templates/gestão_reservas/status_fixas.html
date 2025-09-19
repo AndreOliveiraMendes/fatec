@@ -69,7 +69,7 @@
                         <tbody>
                             {% for reserva in reservas %}
                                 <tr>
-                                    <td>{{ reserva.horarios[0].aulas.horario_inicio|hora }} - {{ reserva.horarios[-1].aulas.horario_fim|hora }}</td>
+                                    <td>{{ reserva.horarios[0].aula.horario_inicio|hora }} - {{ reserva.horarios[-1].aula.horario_fim|hora }}</td>
                                     <td>{{ reserva.local.nome_local }}</td>
                                     <td>{{ reserva.responsavel }}</td>
                                     <td>

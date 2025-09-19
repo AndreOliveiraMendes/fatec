@@ -57,7 +57,7 @@ def check_semestre(semestre:Semestres, userid, perm:Permissoes):
     if (today - semestre.data_inicio_reserva).days < semestre.dias_de_prioridade:
         has_priority, prioridade = get_prioridade()
         user = db.get_or_404(Usuarios, userid)
-        if has_priority and not user.pessoas.id_pessoa in prioridade:
+        if has_priority and not user.pessoa.id_pessoa in prioridade:
             abort(403)
 
 @bp.route('/')

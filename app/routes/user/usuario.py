@@ -24,7 +24,7 @@ def get_reservas_fixas(userid, semestre, page, all=False):
     user = db.session.get(Usuarios, userid)
     filtro = []
     if not all:
-        filtro.append(Reservas_Fixas.id_responsavel == user.pessoas.id_pessoa)
+        filtro.append(Reservas_Fixas.id_responsavel == user.pessoa.id_pessoa)
     if semestre is not None:
         filtro.append(Reservas_Fixas.id_reserva_semestre == semestre)
     sel_reservas = select(Reservas_Fixas).join(Aulas_Ativas).join(Aulas).where(*filtro).order_by(
@@ -41,7 +41,7 @@ def get_reservas_temporarias(userid, dia, page, all=False):
     user = db.session.get(Usuarios, userid)
     filtro = []
     if not all:
-        filtro.append(Reservas_Temporarias.id_responsavel == user.pessoas.id_pessoa)
+        filtro.append(Reservas_Temporarias.id_responsavel == user.pessoa.id_pessoa)
     if dia is not None:
         filtro.append(between(dia, Reservas_Temporarias.inicio_reserva, Reservas_Temporarias.fim_reserva))
     sel_reservas = select(Reservas_Temporarias).join(Aulas_Ativas).join(Aulas).where(*filtro).order_by(
@@ -124,17 +124,17 @@ def check_ownership_or_admin(reserva:Reservas_Fixas|Reservas_Temporarias):
     userid = session.get('userid')
     user = db.get_or_404(Usuarios, userid)
     perm = db.session.get(Permissoes, userid)
-    if reserva.id_responsavel != user.pessoas.id_pessoa and (not perm or perm.permissao&PERM_ADMIN == 0):
+    if reserva.id_responsavel != user.pessoa.id_pessoa and (not perm or perm.permissao&PERM_ADMIN == 0):
         abort(403)
 
 def info_reserva_fixa(id_reserva):
     reserva = db.get_or_404(Reservas_Fixas, id_reserva)
     check_ownership_or_admin(reserva)
     return {
-        "local": reserva.locais.nome_local,
-        "semestre": reserva.semestres.nome_semestre,
-        "semana": reserva.aulas_ativas.dia_da_semana.nome_semana,
-        "horario": f"{reserva.aulas_ativas.aulas.horario_inicio:%H:%M} às {reserva.aulas_ativas.aulas.horario_fim:%H:%M}",
+        "local": reserva.local.nome_local,
+        "semestre": reserva.semestre.nome_semestre,
+        "semana": reserva.aula_ativa.dia_da_semana.nome_semana,
+        "horario": f"{reserva.aula_ativa.aula.horario_inicio:%H:%M} às {reserva.aula_ativa.aula.horario_fim:%H:%M}",
         "observacao": reserva.observacoes,
         "finalidadereserva": reserva.finalidade_reserva.value,
         "responsavel": reserva.id_responsavel,
@@ -147,10 +147,10 @@ def info_reserva_temporaria(id_reserva):
     reserva = db.get_or_404(Reservas_Temporarias, id_reserva)
     check_ownership_or_admin(reserva)
     return {
-        "local": reserva.locais.nome_local,
+        "local": reserva.local.nome_local,
         "periodo": f"{reserva.inicio_reserva} - {reserva.fim_reserva}",
-        "semana": reserva.aulas_ativas.dia_da_semana.nome_semana,
-        "horario": f"{reserva.aulas_ativas.aulas.horario_inicio:%H:%M} às {reserva.aulas_ativas.aulas.horario_fim:%H:%M}",
+        "semana": reserva.aula_ativa.dia_da_semana.nome_semana,
+        "horario": f"{reserva.aula_ativa.aula.horario_inicio:%H:%M} às {reserva.aula_ativa.aula.horario_fim:%H:%M}",
         "observacao": reserva.observacoes,
         "finalidadereserva": reserva.finalidade_reserva.value,
         "responsavel": reserva.id_responsavel,

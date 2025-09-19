@@ -378,7 +378,7 @@
                     {% for u in usuarios %}
                         <tr>
                             <td class="text-center">{{ u.id_usuario }}</td>
-                            <td class="text-center">({{ u.id_pessoa }}) {{ u.pessoas.nome_pessoa }}</td>
+                            <td class="text-center">({{ u.id_pessoa }}) {{ u.pessoa.nome_pessoa }}</td>
                             <td>{{ u.tipo_pessoa }}</td>
                             <td>{{ u.situacao_pessoa }}</td>
                             <td>{{ u.grupo_pessoa if u.grupo_pessoa }}</td>

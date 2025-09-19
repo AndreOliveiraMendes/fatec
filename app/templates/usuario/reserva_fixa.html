@@ -77,10 +77,10 @@
                             {% for r in reservas_fixas %}
                                 <tr>
                                     {% if all %}<td>{{ get_responsavel_reserva(r) }}</td>{% endif %}
-                                    <td>{{ r.locais.nome_local }}</td>
-                                    <td>{{ r.semestres.nome_semestre }}</td>
-                                    <td>{{ r.aulas_ativas.dia_da_semana.nome_semana }}</td>
-                                    <td>{{ r.aulas_ativas.aulas.horario_inicio|hora }} às {{ r.aulas_ativas.aulas.horario_fim|hora }}</td>
+                                    <td>{{ r.local.nome_local }}</td>
+                                    <td>{{ r.semestre.nome_semestre }}</td>
+                                    <td>{{ r.aula_ativa.dia_da_semana.nome_semana }}</td>
+                                    <td>{{ r.aula_ativa.aula.horario_inicio|hora }} às {{ r.aula_ativa.aula.horario_fim|hora }}</td>
                                     <td>{{ r.finalidade_reserva.value }}</td>
                                     <td>
                                         <div class="btn-group">

@@ -34,17 +34,17 @@ class Exibicao_Reservas(Base):
             'id_exibicao_local',
             'id_exibicao_aula',
             'exibicao_dia',
-            name="uq_exibicao_lab_aula_dia"
+            name="uq_exibicao_local_aula_dia"
         ),
     )
 
-    locais: Mapped['Locais'] = relationship(back_populates='exibicao_reservas')
-    aulas_ativas: Mapped['Aulas_Ativas'] = relationship(back_populates='exibicao_reservas')
+    local: Mapped['Locais'] = relationship(back_populates='exibicao_reservas')
+    aula_ativa: Mapped['Aulas_Ativas'] = relationship(back_populates='exibicao_reservas')
 
     @property
     def selector_identification(self):
-        aula = self.aulas_ativas.selector_identification
-        local = self.locais.nome_local
+        aula = self.aula_ativa.selector_identification
+        local = self.local.nome_local
         dia = parse_date(self.exibicao_dia)
         return f" {dia} no {local} as {aula}"
 
@@ -79,17 +79,17 @@ class Situacoes_Das_Reserva(Base):
             'id_situacao_aula',
             'situacao_dia',
             'tipo_reserva',
-            name="uq_situacao_lab_aula_dia_tipo"
+            name="uq_situacao_local_aula_dia_tipo"
         ),
     )
 
-    locais: Mapped['Locais'] = relationship(back_populates='situacoes_das_reservas')
-    aulas_ativas: Mapped['Aulas_Ativas'] = relationship(back_populates='situacoes_das_reservas')
+    local: Mapped['Locais'] = relationship(back_populates='situacoes_das_reservas')
+    aula_ativa: Mapped['Aulas_Ativas'] = relationship(back_populates='situacoes_das_reservas')
 
     @property
     def selector_identification(self):
-        aula = self.aulas_ativas.selector_identification
-        local = self.locais.nome_local
+        aula = self.aula_ativa.selector_identification
+        local = self.local.nome_local
         dia = parse_date(self.situacao_dia)
         return f" {dia} no {local} as {aula}"
 
@@ -118,10 +118,20 @@ class Reserva_Auditorio(Base):
     observação_responsavel: Mapped[str | None] = mapped_column(TEXT, nullable=True)
     observação_autorizador: Mapped[str | None] = mapped_column(TEXT, nullable=True)
 
-    locais = relationship("Locais", back_populates="reservas_auditorios")
-    aulas_ativas = relationship("Aulas_Ativas", back_populates="reservas_auditorios")
-    responsavel = relationship("Pessoas", back_populates="reservas_responsavel", foreign_keys=[id_responsavel])
-    autorizador = relationship("Pessoas", back_populates="reservas_autorizador", foreign_keys=[id_autorizador])
+    __table_args__ = (
+        UniqueConstraint(
+            'id_responsavel',
+            'id_reserva_local',
+            'id_reserva_aula',
+            'dia_reserva',
+            name='uq_reserva_responsavel_local_aula_dia'
+        ),
+    )
+
+    local: Mapped['Locais'] = relationship("Locais", back_populates="reservas_auditorios")
+    aula_ativa: Mapped['Aulas_Ativas'] = relationship("Aulas_Ativas", back_populates="reservas_auditorios")
+    responsavel: Mapped['Pessoas'] = relationship("Pessoas", back_populates="reservas_responsavel", foreign_keys=[id_responsavel])
+    autorizador: Mapped['Pessoas'] = relationship("Pessoas", back_populates="reservas_autorizador", foreign_keys=[id_autorizador])
 
     def __repr__(self):
         return (
@@ -175,27 +185,27 @@ class Reservas_Fixas(ReservaBase):
     id_reserva_fixa: Mapped[int] = mapped_column(primary_key=True)
     id_reserva_semestre: Mapped[int] = mapped_column(ForeignKey('semestres.id_semestre'), nullable=False)
 
-    semestres: Mapped['Semestres'] = relationship(back_populates='reservas_fixas')
+    semestre: Mapped['Semestres'] = relationship(back_populates='reservas_fixas')
 
     __table_args__ = (
         UniqueConstraint(
             'id_reserva_local',
             'id_reserva_aula',
             'id_reserva_semestre',
-            name='uq_reserva_lab_aula_semestre'
+            name='uq_reserva_local_aula_semestre'
         ),
     )
 
-    pessoas = relationship("Pessoas", back_populates="reservas_fixas")
-    usuarios_especiais = relationship("Usuarios_Especiais", back_populates="reservas_fixas")
-    locais = relationship("Locais", back_populates="reservas_fixas")
-    aulas_ativas = relationship("Aulas_Ativas", back_populates="reservas_fixas")
+    pessoa: Mapped['Pessoas'] = relationship("Pessoas", back_populates="reservas_fixas")
+    usuario_especial: Mapped['Usuarios_Especiais'] = relationship("Usuarios_Especiais", back_populates="reservas_fixas")
+    local: Mapped['Locais'] = relationship("Locais", back_populates="reservas_fixas")
+    aula_ativa: Mapped['Aulas_Ativas'] = relationship("Aulas_Ativas", back_populates="reservas_fixas")
 
     @property
     def selector_identification(self):
-        local = self.locais.nome_local
-        aula = self.aulas_ativas.selector_identification
-        semestre = self.semestres.nome_semestre
+        local = self.local.nome_local
+        aula = self.aula_ativa.selector_identification
+        semestre = self.semestre.nome_semestre
         return f" {aula} em {local} no {semestre}"
     
     def __repr__(self):
@@ -221,15 +231,15 @@ class Reservas_Temporarias(ReservaBase):
         ),
     )
 
-    pessoas = relationship("Pessoas", back_populates="reservas_temporarias")
-    usuarios_especiais = relationship("Usuarios_Especiais", back_populates="reservas_temporarias")
-    locais = relationship("Locais", back_populates="reservas_temporarias")
-    aulas_ativas = relationship("Aulas_Ativas", back_populates="reservas_temporarias")
+    pessoa: Mapped['Pessoas'] = relationship("Pessoas", back_populates="reservas_temporarias")
+    usuario_especial: Mapped['Usuarios_Especiais'] = relationship("Usuarios_Especiais", back_populates="reservas_temporarias")
+    local: Mapped['Locais'] = relationship("Locais", back_populates="reservas_temporarias")
+    aula_ativa: Mapped['Aulas_Ativas'] = relationship("Aulas_Ativas", back_populates="reservas_temporarias")
 
     @property
     def selector_identification(self):
-        local = self.locais.nome_local
-        aula = self.aulas_ativas.selector_identification
+        local = self.local.nome_local
+        aula = self.aula_ativa.selector_identification
         inicio = parse_date(self.inicio_reserva)
         fim = parse_date(self.fim_reserva)
         return f" {aula} em {local} de {inicio} ate {fim}"
@@ -250,8 +260,8 @@ class Usuarios_Especiais(Base):
     id_usuario_especial: Mapped[int] = mapped_column(primary_key=True)
     nome_usuario_especial: Mapped[str] = mapped_column(String(100), nullable=False)
 
-    reservas_fixas: Mapped[list['Reservas_Fixas']] = relationship(back_populates='usuarios_especiais')
-    reservas_temporarias: Mapped[list['Reservas_Temporarias']] = relationship(back_populates='usuarios_especiais')
+    reservas_fixas: Mapped[list['Reservas_Fixas']] = relationship(back_populates='usuario_especial')
+    reservas_temporarias: Mapped[list['Reservas_Temporarias']] = relationship(back_populates='usuario_especial')
 
     __table_args__ = (
         UniqueConstraint(
@@ -272,9 +282,9 @@ class Usuarios(Base):
     situacao_pessoa: Mapped[str] = mapped_column(String(50), nullable=False)
     grupo_pessoa: Mapped[str | None] = mapped_column(String(50))
 
-    pessoas: Mapped['Pessoas'] = relationship(back_populates='usuarios')
-    permissoes: Mapped[list['Permissoes']] = relationship(back_populates='usuarios')
-    historicos: Mapped[list['Historicos']] = relationship(back_populates='usuarios')
+    pessoa: Mapped['Pessoas'] = relationship(back_populates='usuarios')
+    permissoes: Mapped[list['Permissoes']] = relationship(back_populates='usuario')
+    historicos: Mapped[list['Historicos']] = relationship(back_populates='usuario')
 
     def __repr__(self) -> str:
         return (
@@ -286,7 +296,7 @@ class Usuarios(Base):
     def __str__(self):
         uid = self.id_usuario
         pid = self.id_pessoa
-        nome = self.pessoas.nome_pessoa
+        nome = self.pessoa.nome_pessoa
         return f"({uid}, {pid}) {nome}"
 
 class Pessoas(Base):
@@ -297,10 +307,9 @@ class Pessoas(Base):
     email_pessoa: Mapped[str | None] = mapped_column(String(100))
     alias: Mapped[str | None] = mapped_column(String(100))
 
-    reservas_fixas: Mapped[list['Reservas_Fixas']] = relationship(back_populates='pessoas')
-    reservas_temporarias: Mapped[list['Reservas_Temporarias']] = relationship(back_populates='pessoas')
-    usuarios: Mapped[list['Usuarios']] = relationship(back_populates='pessoas')
-
+    reservas_fixas: Mapped[list['Reservas_Fixas']] = relationship(back_populates='pessoa')
+    reservas_temporarias: Mapped[list['Reservas_Temporarias']] = relationship(back_populates='pessoa')
+    usuarios: Mapped[list['Usuarios']] = relationship(back_populates='pessoa')
     reservas_responsavel: Mapped[list['Reserva_Auditorio']] = relationship(
         back_populates="responsavel",
         foreign_keys="Reserva_Auditorio.id_responsavel"
@@ -322,7 +331,7 @@ class Permissoes(Base):
     id_permissao_usuario: Mapped[int] = mapped_column(ForeignKey('usuarios.id_usuario'), primary_key=True)
     permissao: Mapped[int] = mapped_column(nullable=False)
 
-    usuarios: Mapped['Usuarios'] = relationship(back_populates='permissoes')
+    usuario: Mapped['Usuarios'] = relationship(back_populates='permissoes')
 
     def __repr__(self) -> str:
         return f"<Permissoes(id_permissao_usuario={self.id_permissao_usuario}, permissao={self.permissao})>"
@@ -352,11 +361,11 @@ class Locais(Base):
         ),
     )
 
-    reservas_fixas: Mapped[list['Reservas_Fixas']] = relationship(back_populates='locais')
-    reservas_temporarias: Mapped[list['Reservas_Temporarias']] = relationship(back_populates='locais')
-    reservas_auditorios: Mapped[list['Reserva_Auditorio']] = relationship(back_populates='locais')
-    situacoes_das_reservas: Mapped[list['Situacoes_Das_Reserva']] = relationship(back_populates='locais') 
-    exibicao_reservas: Mapped[list['Exibicao_Reservas']] = relationship(back_populates='locais')
+    reservas_fixas: Mapped[list['Reservas_Fixas']] = relationship(back_populates='local')
+    reservas_temporarias: Mapped[list['Reservas_Temporarias']] = relationship(back_populates='local')
+    reservas_auditorios: Mapped[list['Reserva_Auditorio']] = relationship(back_populates='local')
+    situacoes_das_reservas: Mapped[list['Situacoes_Das_Reserva']] = relationship(back_populates='local') 
+    exibicao_reservas: Mapped[list['Exibicao_Reservas']] = relationship(back_populates='local')
 
     def __repr__(self) -> str:
         return (
@@ -371,7 +380,7 @@ class Aulas(Base):
     horario_inicio: Mapped[time] = mapped_column(nullable=False)
     horario_fim: Mapped[time] = mapped_column(nullable=False)
 
-    aulas_ativas: Mapped[list['Aulas_Ativas']] = relationship(back_populates='aulas')
+    aulas_ativas: Mapped[list['Aulas_Ativas']] = relationship(back_populates='aula')
 
     __table_args__ = (
         UniqueConstraint(
@@ -446,7 +455,7 @@ class Aulas_Ativas(Base):
         fim = parse_date(self.fim_ativacao)
 
         tipo = self.tipo_aula.value.capitalize()
-        intervalo_aula = self.aulas.selector_identification
+        intervalo_aula = self.aula.selector_identification
         semana = self.dia_da_semana.nome_semana.capitalize()
 
         if inicio and fim:
@@ -477,13 +486,12 @@ class Aulas_Ativas(Base):
         )
     )
 
-    aulas: Mapped['Aulas'] = relationship(back_populates='aulas_ativas')
-    reservas_fixas: Mapped[list['Reservas_Fixas']] = relationship(back_populates='aulas_ativas')
-    reservas_temporarias: Mapped[list['Reservas_Temporarias']] = relationship(back_populates='aulas_ativas')
-    reservas_auditorios: Mapped[list['Reserva_Auditorio']] = relationship(back_populates='aulas_ativas')
-    situacoes_das_reservas: Mapped[list['Situacoes_Das_Reserva']] = relationship(back_populates='aulas_ativas')
-    exibicao_reservas: Mapped[list['Exibicao_Reservas']] = relationship(back_populates='aulas_ativas')
-
+    aula: Mapped['Aulas'] = relationship(back_populates='aulas_ativas')
+    reservas_fixas: Mapped[list['Reservas_Fixas']] = relationship(back_populates='aula_ativa')
+    reservas_temporarias: Mapped[list['Reservas_Temporarias']] = relationship(back_populates='aula_ativa')
+    reservas_auditorios: Mapped[list['Reserva_Auditorio']] = relationship(back_populates='aula_ativa')
+    situacoes_das_reservas: Mapped[list['Situacoes_Das_Reserva']] = relationship(back_populates='aula_ativa')
+    exibicao_reservas: Mapped[list['Exibicao_Reservas']] = relationship(back_populates='aula_ativa')
     dia_da_semana: Mapped['Dias_da_Semana'] = relationship(back_populates='aulas_ativas')
 
     def __repr__(self) -> str:
@@ -510,7 +518,7 @@ class Historicos(Base):
         server_default=OrigemEnum.SISTEMA.name
     )
 
-    usuarios: Mapped['Usuarios'] = relationship(back_populates='historicos')
+    usuario: Mapped['Usuarios'] = relationship(back_populates='historicos')
 
     def __repr__(self) -> str:
         return (
@@ -531,7 +539,7 @@ class Semestres(Base):
     data_fim_reserva: Mapped[date] = mapped_column(nullable=False)
     dias_de_prioridade: Mapped[int] = mapped_column(nullable=False)
 
-    reservas_fixas: Mapped[list['Reservas_Fixas']] = relationship(back_populates='semestres')
+    reservas_fixas: Mapped[list['Reservas_Fixas']] = relationship(back_populates='semestre')
 
     __table_args__ = (
         UniqueConstraint(

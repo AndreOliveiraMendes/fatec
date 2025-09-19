@@ -29,8 +29,8 @@ def verificar_merge_reserva(reserva_1, reserva_2, tolerancia=20):
         return False
 
     # pega fim da primeira e início da segunda
-    h1 = reserva_1.get('horarios')[-1].aulas.horario_fim
-    h2 = reserva_2.get('horarios')[0].aulas.horario_inicio
+    h1 = reserva_1.get('horarios')[-1].aula.horario_fim
+    h2 = reserva_2.get('horarios')[0].aula.horario_inicio
 
     dt1 = datetime.combine(datetime.today(), h1)
     dt2 = datetime.combine(datetime.today(), h2)
@@ -78,35 +78,35 @@ def gerenciar_exibicao():
             rt = reservas_temporarias[j]
             who = check_first(rf, rt)
             if who == 0:
-                reserva['horario'] = rf.aulas_ativas
-                reserva['local'] = rf.locais
+                reserva['horario'] = rf.aula_ativa
+                reserva['local'] = rf.local
                 reserva['fixa'] = rf
                 reserva['temporaria'] = None
                 i += 1
             elif who == 1:
-                reserva['horario'] = rt.aulas_ativas
-                reserva['local'] = rt.locais
+                reserva['horario'] = rt.aula_ativa
+                reserva['local'] = rt.local
                 reserva['fixa'] = None
                 reserva['temporaria'] = rt
                 j += 1
             else:
-                reserva['horario'] = rf.aulas_ativas
-                reserva['local'] = rf.locais
+                reserva['horario'] = rf.aula_ativa
+                reserva['local'] = rf.local
                 reserva['fixa'] = rf
                 reserva['temporaria'] = rt
                 i += 1
                 j += 1
         elif i < control_1:
             rf = reservas_fixas[i]
-            reserva['horario'] = rf.aulas_ativas
-            reserva['local'] = rf.locais
+            reserva['horario'] = rf.aula_ativa
+            reserva['local'] = rf.local
             reserva['fixa'] = rf
             reserva['temporaria'] = None
             i += 1
         else:
             rt = reservas_temporarias[j]
-            reserva['horario'] = rt.aulas_ativas
-            reserva['local'] = rt.locais
+            reserva['horario'] = rt.aula_ativa
+            reserva['local'] = rt.local
             reserva['fixa'] = None
             reserva['temporaria'] = rt
             j += 1
@@ -221,8 +221,8 @@ def gerenciar_situacoes_reservas_fixas(extras):
     reservas = []
     for r in reservas_fixas:
         reserva = {}
-        reserva['horarios'] = [r.aulas_ativas]
-        reserva['local'] = r.locais
+        reserva['horarios'] = [r.aula_ativa]
+        reserva['local'] = r.local
         reserva['responsavel'] = get_responsavel_reserva(r)
         reserva['id_responsavel'] = (r.id_responsavel, r.id_responsavel_especial)
         modo = extras.get("config", {}).get("modo_gerenciacao", "multiplo")
@@ -249,8 +249,8 @@ def gerenciar_situacoes_reservas_temporarias(extras):
     reservas = []
     for r in reservas_temporarias:
         reserva = {}
-        reserva['horarios'] = [r.aulas_ativas]
-        reserva['local'] = r.locais
+        reserva['horarios'] = [r.aula_ativa]
+        reserva['local'] = r.local
         reserva['responsavel'] = get_responsavel_reserva(r)
         reserva['id_responsavel'] = (r.id_responsavel, r.id_responsavel_especial)
         modo = extras.get("config", {}).get("modo_gerenciacao", "multiplo")

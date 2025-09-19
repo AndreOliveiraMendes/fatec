@@ -359,9 +359,9 @@ def check_first(reserva_fixa:Reservas_Fixas, reserva_temporaria:Reservas_Tempora
     elif reserva_fixa.id_reserva_local > reserva_temporaria.id_reserva_local:
         return 1
     else:
-        if reserva_fixa.aulas_ativas.aulas.horario_inicio < reserva_temporaria.aulas_ativas.aulas.horario_inicio:
+        if reserva_fixa.aula_ativa.aula.horario_inicio < reserva_temporaria.aula_ativa.aula.horario_inicio:
             return 0
-        elif reserva_fixa.aulas_ativas.aulas.horario_inicio > reserva_temporaria.aulas_ativas.aulas.horario_inicio:
+        elif reserva_fixa.aula_ativa.aula.horario_inicio > reserva_temporaria.aula_ativa.aula.horario_inicio:
             return 1
         else:
             return 2

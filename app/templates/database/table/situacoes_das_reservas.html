@@ -336,8 +336,8 @@
                 {% for sdr in situacoes_das_reservas %}
                     <tr>
                         <td>{{ sdr.id_situacao }}</td>
-                        <td>{{ sdr.locais.nome_local }}</td>
-                        <td>{{ sdr.aulas_ativas.selector_identification }}</td>
+                        <td>{{ sdr.local.nome_local }}</td>
+                        <td>{{ sdr.aula_ativa.selector_identification }}</td>
                         <td>{{ sdr.situacao_dia|data }}</td>
                         <td>{{ sdr.situacao_chave.value }}</td>
                         <td>{{ sdr.tipo_reserva.value }}</td>
