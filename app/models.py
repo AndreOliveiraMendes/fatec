@@ -133,6 +133,13 @@ class Reservas_Auditorios(Base):
     responsavel: Mapped['Pessoas'] = relationship("Pessoas", back_populates="reservas_responsavel", foreign_keys=[id_responsavel])
     autorizador: Mapped['Pessoas'] = relationship("Pessoas", back_populates="reservas_autorizador", foreign_keys=[id_autorizador])
 
+    @property
+    def selector_identification(self):
+        local = self.local.nome_local
+        aula = self.aula_ativa.selector_identification
+        dia = self.dia_reserva
+        return f" {aula} em {local} no dia {dia}"
+
     def __repr__(self):
         return (
             f"ReservaAuditorio(id_reserva_auditorio={self.id_reserva_auditorio}, "

@@ -6,11 +6,13 @@ from sqlalchemy import select
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
                             InternalError, OperationalError, ProgrammingError)
 
-from app.auxiliar.auxiliar_routes import (get_query_params, get_session_or_request,
+from app.auxiliar.auxiliar_routes import (get_query_params,
+                                          get_session_or_request,
                                           get_user_info, none_if_empty,
                                           parse_date_string, register_return,
                                           registrar_log_generico_usuario)
-from app.auxiliar.dao import get_aulas_ativas, get_locais, get_pessoas
+from app.auxiliar.dao import (get_aulas_ativas, get_locais, get_pessoas,
+                              get_reservas_auditorios)
 from app.auxiliar.decorators import admin_required
 from app.models import Reservas_Auditorios, StatusReservaAuditorioEnum, db
 from config.general import PER_PAGE
@@ -129,6 +131,69 @@ def gerenciar_reservas_auditorios():
 
             redirect_action, bloco = register_return(url, acao, extras,
                 pessoas=get_pessoas(), locais=get_locais(), aulas_ativas=get_aulas_ativas())
+
+        elif acao in ['editar', 'excluir'] and bloco == 0:
+            extras['reservas_auditorios'] = get_reservas_auditorios()
+        elif acao in ['editar', 'excluir'] and bloco == 1:
+            id_reserva_auditorio = none_if_empty(request.form.get('id_reserva_auditorio'), int)
+            reserva_auditorio = db.get_or_404(Reservas_Auditorios, id_reserva_auditorio)
+            extras['reserva_auditorio'] = reserva_auditorio
+            extras['pessoas'] = get_pessoas()
+            extras['locais'] = get_locais()
+            extras['aulas_ativas'] = get_aulas_ativas()
+        elif acao == 'editar' and bloco == 2:
+            id_reserva_auditorio = none_if_empty(request.form.get('id_reserva_auditorio'), int)
+            id_responsavel = none_if_empty(request.form.get('id_responsavel'), int)
+            id_reserva_local = none_if_empty(request.form.get('id_reserva_local'), int)
+            id_reserva_aula = none_if_empty(request.form.get('id_reserva_aula'), int)
+            dia_reserva = parse_date_string(request.form.get('dia_reserva'))
+            status_reserva = none_if_empty(request.form.get('status_reserva'),)
+            id_autorizador = none_if_empty(request.form.get('id_autorizador'), int)
+            observação_responsavel = none_if_empty(request.form.get('observação_responsavel'))
+            observação_autorizador = none_if_empty(request.form.get('observação_autorizador'))
+            reserva_auditorio = db.get_or_404(Reservas_Auditorios, id_reserva_auditorio)
+            try:
+                dados_anteriores = copy.copy(reserva_auditorio)
+                reserva_auditorio.id_responsavel = id_responsavel
+                reserva_auditorio.id_reserva_local = id_reserva_local
+                reserva_auditorio.id_reserva_aula = id_reserva_aula
+                reserva_auditorio.dia_reserva = dia_reserva
+                reserva_auditorio.status_reserva = StatusReservaAuditorioEnum(status_reserva)
+                reserva_auditorio.id_autorizador = id_autorizador
+                reserva_auditorio.observação_responsavel = observação_responsavel
+                reserva_auditorio.observação_autorizador = observação_autorizador
+
+                db.session.flush()
+                registrar_log_generico_usuario(userid, 'Edição', reserva_auditorio, dados_anteriores)
+
+                db.session.commit()
+                flash("Reserva editada com sucesso", "success")
+            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
+                db.session.rollback()
+                flash(f"Erro ao editar reserva:{str(e.orig)}", "danger")
+            except ValueError as ve:
+                db.session.rollback()
+                flash(f"Erro ao editar reserva:{ve}")
+
+            redirect_action, bloco = register_return(url, acao, extras,
+                reservas_auditorios=get_reservas_auditorios())
+        elif acao == 'excluir' and bloco == 2:
+            id_reserva_auditorio = none_if_empty(request.form.get('id_reserva_auditorio'), int)
+            reserva_auditorio = db.get_or_404(Reservas_Auditorios, id_reserva_auditorio)
+            try:
+                db.session.delete(reserva_auditorio)
+
+                db.session.flush()
+                registrar_log_generico_usuario(userid, 'Exclusão', reserva_auditorio)
+
+                db.session.commit()
+                flash("Reserva excluida com sucesso", "success")
+            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
+                db.session.rollback()
+                flash(f"Erro ao excluir reserva:{str(e.orig)}", "danger")
+
+            redirect_action, bloco = register_return(url, acao, extras,
+                reservas_auditorios=get_reservas_auditorios())
     if redirect_action:
         return redirect_action
     return render_template("database/table/reservas_auditorios.html",
