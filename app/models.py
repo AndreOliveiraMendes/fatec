@@ -293,6 +293,14 @@ class Usuarios(Base):
     permissoes: Mapped[list['Permissoes']] = relationship(back_populates='usuario')
     historicos: Mapped[list['Historicos']] = relationship(back_populates='usuario')
 
+    @property
+    def username(self):
+        return self.pessoa.nome_pessoa if self.pessoa else None
+    
+    @property
+    def perm(self):
+        return self.permissoes[0].permissao if self.permissoes else 0
+
     def __repr__(self) -> str:
         return (
             f"<Usuarios(id_usuario={self.id_usuario}, id_pessoa={self.id_pessoa}, "

@@ -68,19 +68,13 @@ def get_query_params(request):
     return {key: value for key, value in request.form.items() if key not in IGNORED_FORM_FIELDS}
 
 def get_user_info(userid):
-    username, perm = None, 0
     if not userid:
-        return username, perm
+        return None
     user = db.session.get(Usuarios, userid)
     if user:
-        pessoa = user.pessoa
-        username = pessoa.nome_pessoa
-        permissao = db.session.get(Permissoes, userid)
-        if permissao:
-            perm = permissao.permissao
+        return user
     else:
         session.pop('userid')
-    return username, perm
 
 def formatar_valor(valor):
     if isinstance(valor, enum.Enum):
