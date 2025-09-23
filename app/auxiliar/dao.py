@@ -58,6 +58,13 @@ def get_laboratorios(ignorar_inativo=False):
     sel_laboratorios = sel_laboratorios.where(*filtro)
     return db.session.execute(sel_laboratorios).scalars().all()
 
+#auditorios
+def get_auditorios():
+    sel_auditorios = select(Locais)
+    filtro = [Locais.tipo == TipoLocalEnum.AUDITORIO]
+    sel_auditorios = sel_auditorios.where(*filtro)
+    return db.session.execute(sel_auditorios).scalars().all()
+
 #semestre
 def get_semestres():
     sel_semestres = select(Semestres.id_semestre, Semestres.nome_semestre).order_by(Semestres.data_inicio)
@@ -409,3 +416,12 @@ def get_turno_by_time(hora:time):
         ).scalar_one_or_none()
     except MultipleResultsFound as e:
         return None
+
+#reservas de auditorio
+def get_reservas_auditorios(id:int, all:bool = False):
+    sel_reservas_auditorios = select(Reservas_Auditorios)
+    filtro = []
+    if not all:
+        filtro.append(Reservas_Auditorios.id_responsavel == id)
+    sel_reservas_auditorios = sel_reservas_auditorios.where(*filtro)
+    return db.session.execute(sel_reservas_auditorios).scalars().all()
