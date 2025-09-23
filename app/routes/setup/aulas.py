@@ -15,7 +15,7 @@ bp = Blueprint('setup_aulas', __name__, url_prefix="/database/fast_setup/")
 @admin_required
 def fast_setup_aulas():
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     stage = int(request.form.get('stage', request.args.get('stage', 0)))
     extras = {'extras':SETUP_HEAD}
     if stage == 1:
@@ -57,4 +57,4 @@ def fast_setup_aulas():
 
         return redirect(url_for('setup.fast_setup_menu'))
     return render_template('database/setup/aulas.html',
-        username=username, perm=perm, stage=stage, **extras)
+        username=user.username, perm=user.perm, stage=stage, **extras)

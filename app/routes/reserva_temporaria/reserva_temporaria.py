@@ -44,7 +44,7 @@ def agrupar_dias(dias:list[date]) -> List[List[date]]:
 @reserva_temp_required
 def main_page():
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     if request.method == 'POST':
         dia_inicial = parse_date_string(request.form.get('dia_inicio'))
         dia_final = parse_date_string(request.form.get('dia_fim'))
@@ -56,13 +56,13 @@ def main_page():
     extras = {}
     today = date.today()
     extras['day'] = today
-    return render_template('reserva_temporaria/main.html', username=username, perm=perm, **extras)
+    return render_template('reserva_temporaria/main.html', username=user.username, perm=user.perm, **extras)
 
 @bp.route('/dias/<data:inicio>/<data:fim>')
 @reserva_temp_required
 def dias(inicio, fim):
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     if fim < inicio:
         inicio, fim = fim, inicio
     extras = {'inicio':inicio, 'fim':fim}
@@ -72,7 +72,7 @@ def dias(inicio, fim):
     ).scalars().all()
     today = date.today()
     extras['day'] = today
-    return render_template('reserva_temporaria/dias.html', username=username, perm=perm, **extras)
+    return render_template('reserva_temporaria/dias.html', username=user.username, perm=user.perm, **extras)
 
 @bp.before_request
 def return_counter():
@@ -102,7 +102,7 @@ def get_lab(inicio, fim, id_turno=None, id_lab=None):
 
 def get_lab_geral(inicio, fim, id_turno):
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     turno = db.get_or_404(Turnos, id_turno) if id_turno else None
     extras = {'inicio':inicio, 'fim':fim, 'turno':turno}
     tipo_horario = none_if_empty(session.get('tipo'))
@@ -151,11 +151,11 @@ def get_lab_geral(inicio, fim, id_turno):
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
     extras['contador'] = session.get('contador')
-    return render_template('reserva_temporaria/geral.html', username=username, perm=perm, **extras)
+    return render_template('reserva_temporaria/geral.html', username=user.username, perm=user.perm, **extras)
 
 def get_lab_especifico(inicio, fim, id_turno, id_lab):
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     turno = db.get_or_404(Turnos, id_turno) if id_turno else None
     extras = {'inicio':inicio, 'fim':fim, 'turno':turno}
     tipo_horario = none_if_empty(session.get('tipo'))
@@ -221,7 +221,7 @@ def get_lab_especifico(inicio, fim, id_turno, id_lab):
     extras['responsavel_especial'] = get_usuarios_especiais()
     extras['contador'] = session.get('contador')
     extras['locais'] = get_laboratorios(perm&PERM_ADMIN)
-    return render_template('reserva_temporaria/especifico.html', username=username, perm=perm, **extras)
+    return render_template('reserva_temporaria/especifico.html', username=user.username, perm=user.perm, **extras)
 
 
 @bp.route("/dias/<data:inicio>/<data:fim>", methods=['POST'])

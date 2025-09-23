@@ -79,7 +79,7 @@ def check_login(id, password):
                     permission = PERM_RESERVA_FIXA | PERM_RESERVA_AUDITORIO
                 else:
                     permission = 0
-                perm = Permissoes(id_permissao_usuario = id_usuario, permissao = permission)
+                perm=user.permissoes(id_permissao_usuario = id_usuario, permissao = permission)
             else:
                 old_perm = copy.copy(perm)
                 
@@ -122,7 +122,7 @@ def login():
             current_app.logger.info(f"usuario {username} efetuou login no sistema")
             url_base = url_for('default.home')
             url_admin = url_for('gestao_reserva.gerenciar_situacoes', tipo_reserva='fixa')
-            return render_template("auth/login_success.html", username=username, perm=perm,
+            return render_template("auth/login_success.html", username=username, perm=user.perm,
                 url_base=url_base, url_admin=url_admin)
         else:
             flash("falha ao realizar login", "danger")
@@ -135,7 +135,7 @@ def login():
 @login_required
 def logout():
     userid = session.pop('userid')
-    username, perm = get_user_info(userid)
-    current_app.logger.info(f"usuario {username} efetuou logout no sistema")
+    user = get_user_info(userid)
+    current_app.logger.info(f"usuario {user.username} efetuou logout no sistema")
     flash("logout realizado com sucesso", "success")
     return render_template("auth/logout.html")

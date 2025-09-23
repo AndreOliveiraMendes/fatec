@@ -27,7 +27,7 @@ def gerenciar_dias_da_semana():
     bloco = int(request.form.get('bloco', 0))
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     disabled = ['procurar']
     extras = {'url':url}
     disable_action(extras, disabled)
@@ -104,4 +104,4 @@ def gerenciar_dias_da_semana():
             redirect_action, bloco = register_return(url, acao, extras, dias_da_semana=get_dias_da_semana())
     if redirect_action:
         return redirect_action
-    return render_template("database/table/dias_da_semana.html", username=username, perm=perm, acao=acao, bloco=bloco, **extras)
+    return render_template("database/table/dias_da_semana.html", username=user.username, perm=user.perm, acao=acao, bloco=bloco, **extras)

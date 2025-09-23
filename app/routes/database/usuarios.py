@@ -27,7 +27,7 @@ def gerenciar_usuarios():
     bloco = int(request.form.get('bloco', 0))
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     disabled = ['inserir', 'editar', 'excluir']
     extras = {'url':url}
     disable_action(extras, disabled)
@@ -165,4 +165,4 @@ def gerenciar_usuarios():
     if redirect_action:
         return redirect_action
     return render_template("database/table/usuarios.html",
-        username=username, perm=perm, acao=acao, bloco=bloco, **extras)
+        username=user.username, perm=user.perm, acao=acao, bloco=bloco, **extras)

@@ -30,8 +30,14 @@
                 </a>
             {% endif %}
             {% if perm|has_flag(TEMP) %}
-                <a href="{{ url_for('reservas_temporarias.main_page') }}" class="btn btn-info">
+                <a href="{{ url_for('reservas_temporarias.main_page') }}"
+                   class="btn btn-info">
                     <span class="glyphicon glyphicon-time"></span> Reserva Temporária
+                </a>
+            {% endif %}
+            {% if perm|has_flag(AUDITORIO) %}
+                <a href="{{ url_for('reservas_auditorios.main_page') }}" class="btn btn-info">
+                    <span class="glyphicon glyphicon-bullhorn"></span> Reserva Auditorio
                 </a>
             {% endif %}
             <a href="{{ url_for('consultar_reservas.main_page') }}"

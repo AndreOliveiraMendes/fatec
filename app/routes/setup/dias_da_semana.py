@@ -16,7 +16,7 @@ bp = Blueprint('setup_dias_da_semana', __name__, url_prefix="/database/fast_setu
 @admin_required
 def fast_setup_dias_da_semana():
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     stage = int(request.form.get('stage', request.args.get('stage', 0)))
     extras = {'extras':SETUP_HEAD}
 
@@ -74,4 +74,4 @@ def fast_setup_dias_da_semana():
 
         return redirect(url_for('setup.fast_setup_menu'))
     return render_template('database/setup/dias_da_semana.html',
-        username=username, perm=perm, stage=stage, **extras)
+        username=user.username, perm=user.perm, stage=stage, **extras)

@@ -43,7 +43,7 @@ def verificar_merge_reserva(reserva_1, reserva_2, tolerancia=20):
 @admin_required
 def gerenciar_exibicao():
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     hoje = datetime.today()
     extras = {'hoje':hoje}
     reserva_dia = parse_date_string(request.args.get('reserva-dia', default=hoje.date().strftime("%Y-%m-%d")))
@@ -119,7 +119,7 @@ def gerenciar_exibicao():
         ["glyphicon-time", "success", "temporaria"]
     ]
     extras['icons'] = icons
-    return render_template("gestão_reservas/exibicao_reserva.html", username=username, perm=perm, **extras)
+    return render_template("gestão_reservas/exibicao_reserva.html", username=user.username, perm=user.perm, **extras)
 
 @bp.route('/exibicao/<int:id_aula>/<int:id_lab>/<data:dia>', methods=['POST'])
 @admin_required
@@ -212,7 +212,7 @@ def gerenciar_situacoes(tipo_reserva):
 
 def gerenciar_situacoes_reservas_fixas(extras):
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     turno = db.session.get(Turnos, extras['reserva_turno']) if extras['reserva_turno'] else None
     reservas_fixas = get_reservas_por_dia(
         extras['reserva_dia'], turno, TipoAulaEnum(extras['reserva_tipo_horario']),
@@ -236,11 +236,11 @@ def gerenciar_situacoes_reservas_fixas(extras):
                 reservas.append(reserva)
         reserva['situacao'] = get_situacoes_por_dia(reserva['horarios'][0], reserva['local'], extras['reserva_dia'], 'fixa')
     extras['reservas'] = reservas
-    return render_template("gestão_reservas/status_fixas.html", username=username, perm=perm, **extras)
+    return render_template("gestão_reservas/status_fixas.html", username=user.username, perm=user.perm, **extras)
 
 def gerenciar_situacoes_reservas_temporarias(extras):
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     turno = db.session.get(Turnos, extras['reserva_turno']) if extras['reserva_turno'] else None
     reservas_temporarias = get_reservas_por_dia(
         extras['reserva_dia'], turno, TipoAulaEnum(extras['reserva_tipo_horario']),
@@ -264,7 +264,7 @@ def gerenciar_situacoes_reservas_temporarias(extras):
                 reservas.append(reserva)
         reserva['situacao'] = get_situacoes_por_dia(reserva['horarios'][0], reserva['local'], extras['reserva_dia'], 'temporaria')
     extras['reservas'] = reservas
-    return render_template("gestão_reservas/status_temporarias.html", username=username, perm=perm, **extras)
+    return render_template("gestão_reservas/status_temporarias.html", username=user.username, perm=user.perm, **extras)
 
 @bp.route('/<tipo_reserva>/<int:lab>/<data:dia>', methods=['POST'])
 def atualizar_situacoes(tipo_reserva, lab, dia):

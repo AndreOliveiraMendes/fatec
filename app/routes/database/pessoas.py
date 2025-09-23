@@ -27,7 +27,7 @@ def gerenciar_pessoas():
     bloco = int(request.form.get('bloco', 0))
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     disabled = ['inserir', 'excluir']
     extras = {'url':url}
     disable_action(extras, disabled)
@@ -138,7 +138,6 @@ def gerenciar_pessoas():
             redirect_action, bloco = register_return(url,
                 acao, extras, pessoas=get_pessoas(acao, userid))
         elif acao == 'excluir' and bloco == 2:
-            user = db.session.get(Usuarios, userid)
             id_pessoa = none_if_empty(request.form.get('id_pessoa'), int)
 
             pessoa = db.get_or_404(Pessoas, id_pessoa)
@@ -164,4 +163,4 @@ def gerenciar_pessoas():
     if redirect_action:
         return redirect_action
     return render_template("database/table/pessoas.html",
-        username=username, perm=perm, acao=acao, bloco=bloco, **extras)
+        username=user.username, perm=user.perm, acao=acao, bloco=bloco, **extras)

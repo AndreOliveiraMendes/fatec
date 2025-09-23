@@ -142,7 +142,7 @@ def register_filters(app:Flask):
 
     @app.template_global()
     def generate_reserva_head(locais:Sequence[Locais], tipo, turno: Turnos, current: Optional[Locais] = None, **kwargs) -> Markup:
-        username, perm = get_user_info(session.get('userid'))
+        user = get_user_info(session.get('userid'))
 
         html_parts = ['<div class="pills-group"><ul class="nav nav-pills">']
         
@@ -156,7 +156,7 @@ def register_filters(app:Flask):
                 active_link = lab_url(tipo, turno, None, **kwargs)
             
             if lab.disponibilidade.value == 'Indisponivel':
-                if perm & PERM_ADMIN == 0:
+                if user.perm & PERM_ADMIN == 0:
                     active_class = 'disabled'
                     active_link = ""
                 else:
@@ -172,8 +172,6 @@ def register_filters(app:Flask):
 
     @app.template_global()
     def generate_situacao_head(current: Literal['exibicao', 'fixa', 'temporaria']) -> Markup:
-        username, perm = get_user_info(session.get('userid'))
-        
         html_parts: List[str] = ['<div class="pills-group"><ul class="nav nav-pills">']
         
         for builder in situacoes_helper:

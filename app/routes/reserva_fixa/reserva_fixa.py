@@ -64,7 +64,7 @@ def check_semestre(semestre:Semestres, userid, perm:Permissoes):
 @reserva_fixa_required
 def main_page():
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     extras = {}
     sel_semestre = select(Semestres).order_by(Semestres.data_inicio)
     semestres = db.session.execute(sel_semestre).scalars().all()
@@ -90,13 +90,13 @@ def main_page():
         semestre.state = state
         semestre.icon = icon
     extras['day'] = today
-    return render_template('reserva_fixa/main.html', username=username, perm=perm, **extras)
+    return render_template('reserva_fixa/main.html', username=user.username, perm=user.perm, **extras)
 
 @bp.route('/semestre/<int:id_semestre>')
 @reserva_fixa_required
 def get_semestre(id_semestre):
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     semestre = db.get_or_404(Semestres, id_semestre)
     check_semestre(semestre, userid, perm)
     today = date.today()
@@ -107,7 +107,7 @@ def get_semestre(id_semestre):
         flash("cadastre ao menos 1 turno", "danger")
         return redirect(url_for('default.home'))
     extras['turnos'] = turnos
-    return render_template('reserva_fixa/semestre.html', username=username, perm=perm, **extras)
+    return render_template('reserva_fixa/semestre.html', username=user.username, perm=user.perm, **extras)
 
 @bp.before_request
 def return_counter():
@@ -134,7 +134,7 @@ def get_lab(id_semestre, id_turno=None, id_lab=None):
 
 def get_lab_geral(id_semestre, id_turno=None):
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     semestre = db.get_or_404(Semestres, id_semestre)
     check_semestre(semestre, userid, perm)
     turno = db.get_or_404(Turnos, id_turno) if id_turno is not None else id_turno
@@ -180,11 +180,11 @@ def get_lab_geral(id_semestre, id_turno=None):
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
     extras['contador'] = session.get('contador')
-    return render_template('reserva_fixa/geral.html', username=username, perm=perm, **extras)
+    return render_template('reserva_fixa/geral.html', username=user.username, perm=user.perm, **extras)
 
 def get_lab_especifico(id_semestre, id_turno, id_lab):
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     semestre = db.get_or_404(Semestres, id_semestre)
     check_semestre(semestre, userid, perm)
     turno = db.get_or_404(Turnos, id_turno) if id_turno is not None else id_turno
@@ -240,7 +240,7 @@ def get_lab_especifico(id_semestre, id_turno, id_lab):
     extras['responsavel_especial'] = get_usuarios_especiais()
     extras['contador'] = session.get('contador')
     extras['locais'] = get_laboratorios(perm&PERM_ADMIN)
-    return render_template('reserva_fixa/especifico.html', username=username, perm=perm, **extras)
+    return render_template('reserva_fixa/especifico.html', username=user.username, perm=user.perm, **extras)
 
 @bp.route('/semestre/<int:id_semestre>', methods=['POST'])
 @reserva_fixa_required

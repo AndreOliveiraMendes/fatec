@@ -24,7 +24,7 @@ bp = Blueprint('admin', __name__, url_prefix='/admin')
 @admin_required
 def gerenciar_menu():
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     key = load_key()
     key_info = None
 
@@ -34,13 +34,13 @@ def gerenciar_menu():
             "path": os.path.abspath(SECRET_PATH),
             "last_modified": datetime.fromtimestamp(mtime).strftime("%d/%m/%Y %H:%M:%S")
         }
-    return render_template("admin/admin.html", username=username, perm=perm,
+    return render_template("admin/admin.html", username=user.username, perm=user.perm,
         secoes=SECOES, key=key, key_info=key_info)
 
 @bp.route("/configurar_painel", methods=['GET', 'POST'])
 def configurar_tela_televisor():
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     extras = {}
     if request.method == 'GET':
         extras['tipo_aula'] = TipoAulaEnum
@@ -61,12 +61,12 @@ def configurar_tela_televisor():
             painel_file = Path(painel_path)
             painel_file.write_text(json.dumps(PAINEL_CFG, indent=4, ensure_ascii=False), encoding="utf-8")
         return redirect(url_for('default.home'))
-    return render_template("reserva/televisor_control.html", username=username, perm=perm, **extras)
+    return render_template("reserva/televisor_control.html", username=user.username, perm=user.perm, **extras)
 
 @bp.route("/configuracao_geral", methods=['GET', 'POST'])
 def configuracao_geral():
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     extras = {}
     config_cfg = carregar_config_geral()
     if request.method == 'GET':
@@ -81,7 +81,7 @@ def configuracao_geral():
             config_file = Path(config_path)
             config_file.write_text(json.dumps(config_cfg, indent=4, ensure_ascii=False), encoding="utf-8")
         return redirect(url_for('default.home'))
-    return render_template("admin/control.html", username=username, perm=perm, **extras)
+    return render_template("admin/control.html", username=user.username, perm=user.perm, **extras)
 
 @bp.route("/gerar_chave")
 def gerar_chave():

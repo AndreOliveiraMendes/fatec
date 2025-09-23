@@ -15,7 +15,7 @@ bp = Blueprint('setup_locais', __name__, url_prefix="/database/fast_setup/")
 @admin_required
 def fast_setup_locais():
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     stage = int(request.form.get('stage', request.args.get('stage', 0)))
     extras = {'extras':SETUP_HEAD}
 
@@ -81,4 +81,4 @@ def fast_setup_locais():
 
         return redirect(url_for('setup.fast_setup_menu'))
     return render_template('database/setup/locais.html',
-        username=username, perm=perm, stage=stage, **extras)
+        username=user.username, perm=user.perm, stage=stage, **extras)

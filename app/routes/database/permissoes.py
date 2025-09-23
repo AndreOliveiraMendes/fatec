@@ -51,7 +51,7 @@ def gerenciar_permissoes():
     bloco = int(request.form.get('bloco', 0))
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     extras = {'url':url}
     if request.method == 'POST':
         if acao == 'listar':
@@ -172,4 +172,4 @@ def gerenciar_permissoes():
     if redirect_action:
         return redirect_action
     return render_template("database/table/permissoes.html",
-        username=username, perm=perm, acao=acao, bloco=bloco, **extras)
+        username=user.username, perm=user.perm, acao=acao, bloco=bloco, **extras)
