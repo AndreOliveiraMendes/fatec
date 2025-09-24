@@ -36,4 +36,4 @@ def fast_setup_menu():
         }
     ]
     extras['tables'] = tables
-    return render_template('database/setup/menu.html', username=user.username, perm=user.perm, **extras)
+    return render_template('database/setup/menu.html', user=user, **extras)

@@ -68,4 +68,4 @@ def fast_setup_turnos():
 
         return redirect(url_for('setup.fast_setup_menu'))
     return render_template('database/setup/turnos.html',
-        username=user.username, perm=user.perm, stage=stage, **extras)
+        user=user, stage=stage, **extras)

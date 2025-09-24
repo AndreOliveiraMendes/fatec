@@ -54,7 +54,7 @@ def main_page():
         extras['skip'] = True
     extras['aulas'] = aulas
     extras['locais'] = locais
-    return render_template("reserva/main.html", username=user.username, perm=user.perm, **extras)
+    return render_template("reserva/main.html", user=user, **extras)
 
 @bp.route("/televisor")
 def tela_televisor():
@@ -73,4 +73,4 @@ def tela_televisor():
     turno = get_turno_by_time(today.time())
     aulas = get_aulas_ativas_por_dia(today.date(), turno, TipoAulaEnum(tipo_horario))
     extras['aulas'] = aulas
-    return render_template("reserva/televisor.html", username=user.username, perm=user.perm, **extras)
+    return render_template("reserva/televisor.html", user=user, **extras)

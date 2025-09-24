@@ -138,7 +138,7 @@ def gerenciar_historicos():
     if redirect_action:
         return redirect_action
     return render_template("database/table/historicos.html",
-        username=user.username, perm=user.perm, acao=acao, bloco=bloco, **extras)
+        user=user, acao=acao, bloco=bloco, **extras)
 
 @bp.route("/historicos/exportar", methods=['POST'])
 def exportar_historicos():

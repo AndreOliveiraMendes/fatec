@@ -59,7 +59,7 @@ def get_reservas_temporarias(userid, dia, page, all=False):
 def perfil():
     userid = session.get('userid')
     user = get_user_info(userid)
-    return render_template("usuario/perfil.html", username=user.username, perm=user.perm, usuario=user)
+    return render_template("usuario/perfil.html", user=user)
 
 @bp.route("/reservas")
 @login_required
@@ -68,7 +68,7 @@ def menu_reservas_usuario():
     user = get_user_info(userid)
     today = datetime.now(LOCAL_TIMEZONE)
     extras = {'datetime':today}
-    return render_template("usuario/menu_reserva.html", username=user.username, perm=user.perm, **extras)
+    return render_template("usuario/menu_reserva.html", user=user, **extras)
 
 @bp.route("/reservas/reservas_fixas")
 @login_required
@@ -85,7 +85,7 @@ def gerenciar_reserva_fixa():
     semestre_id = request.args.get("semestre", type=int)
     page = int(request.args.get("page", 1))
     extras['semestre_selecionado'] = semestre_id
-    all = "all" in request.args and perm&PERM_ADMIN > 0
+    all = "all" in request.args and user.perm&PERM_ADMIN > 0
     extras['all'] = all
     reservas_fixas = get_reservas_fixas(userid, semestre_id, page, all)
     extras['reservas_fixas'] = reservas_fixas.items
@@ -95,7 +95,7 @@ def gerenciar_reserva_fixa():
     extras['TipoReserva'] = FinalidadeReservaEnum
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
-    return render_template("usuario/reserva_fixa.html", username=user.username, perm=user.perm, **extras)
+    return render_template("usuario/reserva_fixa.html", user=user, **extras)
 
 @bp.route("/reserva/reservas_temporarias")
 @login_required
@@ -107,7 +107,7 @@ def gerenciar_reserva_temporaria():
     dia = parse_date_string(request.args.get('dia'))
     page = int(request.args.get("page", 1))
     extras['dia_selecionado'] = dia
-    all = "all" in request.args and perm&PERM_ADMIN > 0
+    all = "all" in request.args and user.perm&PERM_ADMIN > 0
     extras['all'] = all
     reservas_temporarias = get_reservas_temporarias(userid, dia, page, all)
     extras['reservas_temporarias'] = reservas_temporarias.items
@@ -117,7 +117,7 @@ def gerenciar_reserva_temporaria():
     extras['TipoReserva'] = FinalidadeReservaEnum
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
-    return render_template("usuario/reserva_temporaria.html", username=user.username, perm=user.perm, **extras)
+    return render_template("usuario/reserva_temporaria.html", user=user, **extras)
 
 def check_ownership_or_admin(reserva:Reservas_Fixas|Reservas_Temporarias):
     userid = session.get('userid')

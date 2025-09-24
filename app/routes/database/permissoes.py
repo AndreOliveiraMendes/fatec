@@ -172,4 +172,4 @@ def gerenciar_permissoes():
     if redirect_action:
         return redirect_action
     return render_template("database/table/permissoes.html",
-        username=user.username, perm=user.perm, acao=acao, bloco=bloco, **extras)
+        user=user, acao=acao, bloco=bloco, **extras)

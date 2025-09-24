@@ -6,36 +6,36 @@
     <div class="container text-center">
         <h1>
             Bem-vindo ao Sistema!
-            {% if username %}{{ username }}{% endif %}
+            {% if user %}{{ user.username }}{% endif %}
         </h1>
         <div class="btn-group-vertical" role="group" aria-label="Menu Principal">
-            {% if username %}
+            {% if user %}
                 <a href="{{ url_for('auth.logout') }}" class="btn btn-primary">
-                    <span class="glyphicon glyphicon-log-out"></span> Sair de {{ username }}
+                    <span class="glyphicon glyphicon-log-out"></span> Sair de {{ user.username }}
                 </a>
             {% else %}
                 <a href="{{ url_for('auth.login') }}" class="btn btn-primary">
                     <span class="glyphicon glyphicon-log-in"></span> Ir para Login
                 </a>
             {% endif %}
-            {% if perm|has_flag(ADMIN) %}
+            {% if user and user.perm|has_flag(ADMIN) %}
                 <a href="{{ url_for('admin.gerenciar_menu') }}" class="btn btn-danger">
                     <span class="glyphicon glyphicon-cog"></span> Gerenciar o sistema
                 </a>
             {% endif %}
-            {% if perm|has_flag(FIXA) %}
+            {% if user and user.perm|has_flag(FIXA) %}
                 <a href="{{ url_for('reservas_semanais.main_page') }}"
                    class="btn btn-success">
                     <span class="glyphicon glyphicon-calendar"></span> Reserva Semestral
                 </a>
             {% endif %}
-            {% if perm|has_flag(TEMP) %}
+            {% if user and user.perm|has_flag(TEMP) %}
                 <a href="{{ url_for('reservas_temporarias.main_page') }}"
                    class="btn btn-info">
                     <span class="glyphicon glyphicon-time"></span> Reserva Temporária
                 </a>
             {% endif %}
-            {% if perm|has_flag(AUDITORIO) %}
+            {% if user and user.perm|has_flag(AUDITORIO) %}
                 <a href="{{ url_for('reservas_auditorios.main_page') }}" class="btn btn-info">
                     <span class="glyphicon glyphicon-bullhorn"></span> Reserva Auditorio
                 </a>

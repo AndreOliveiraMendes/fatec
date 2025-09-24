@@ -40,18 +40,18 @@
                                        title="ir a pagina inicial"
                                        href="{{ url_for('default.home') }}">
                                           Sistema RLF
-                                          {% if perm and perm|has_flag(FIXA) %}
+                                          {% if user and user.perm|has_flag(FIXA) %}
                                                 <i class="glyphicon glyphicon-calendar"
                                                    title="Permissão de Reserva Fixa"></i>
                                           {% endif %}
-                                          {% if perm and perm|has_flag(TEMP) %}
+                                          {% if user and user.perm|has_flag(TEMP) %}
                                                 <i class="glyphicon glyphicon-time"
                                                    title="Permissão de Reserva Temporária"></i>
                                           {% endif %}
-                                          {% if perm and perm|has_flag(AUDITORIO) %}
+                                          {% if user and user.perm|has_flag(AUDITORIO) %}
                                           <i class="glyphicon glyphicon-bullhorn" title="Permissão de Reserva de Auditório"></i>
                                           {% endif %}
-                                          {% if perm and perm|has_flag(ADMIN) %}
+                                          {% if user and user.perm|has_flag(ADMIN) %}
                                                 <i class="glyphicon glyphicon-fire" title="Permissão de Administrador"></i>
                                           {% endif %}
                                     </a>
@@ -64,14 +64,14 @@
                                              role="button"
                                              aria-haspopup="true"
                                              aria-expanded="false">
-                                                {% if username %}
-                                                      <i class="glyphicon glyphicon-user"></i> {{ username }} <span class="caret"></span>
+                                                {% if user %}
+                                                      <i class="glyphicon glyphicon-user"></i> {{ user.username }} <span class="caret"></span>
                                                 {% else %}
                                                       <i class="glyphicon glyphicon-user"></i> visitante <span class="caret"></span>
                                                 {% endif %}
                                           </a>
                                           <ul class="dropdown-menu">
-                                                {% if username %}
+                                                {% if user %}
                                                       <li>
                                                             <a href="{{ url_for('auth.logout') }}"><i class="glyphicon glyphicon-log-out"></i> Sair</a>
                                                       </li>

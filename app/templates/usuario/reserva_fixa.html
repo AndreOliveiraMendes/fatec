@@ -43,7 +43,7 @@
                             {% endfor %}
                         </select>
                     </div>
-                    {% if perm|has_flag(ADMIN) %}
+                    {% if user.perm|has_flag(ADMIN) %}
                         <div class="form-group">
                             <label for="all">Todos usuarios</label>
                             <input type="checkbox"
@@ -145,7 +145,7 @@
                 $('#modalEObservacao').val(data.observacao);
                 $('#modalETipoReserva').val(data.finalidadereserva);
                 $('#formEditar').attr('action', data.editar_url);
-                {% if perm and perm|has_flag(ADMIN) %}
+                {% if user.perm|has_flag(ADMIN) %}
                     $('#modalEResponsavel').val(data.responsavel);
                     $('#modalEResponsavelEspecial').val(data.responsavel_especial);
                 {% endif %}

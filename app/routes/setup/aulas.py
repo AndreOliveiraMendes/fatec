@@ -57,4 +57,4 @@ def fast_setup_aulas():
 
         return redirect(url_for('setup.fast_setup_menu'))
     return render_template('database/setup/aulas.html',
-        username=user.username, perm=user.perm, stage=stage, **extras)
+        user=user, stage=stage, **extras)

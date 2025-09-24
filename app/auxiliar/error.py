@@ -30,7 +30,7 @@ def register_error_handler(app:Flask):
         if wants_json_response():
             return jsonify({"error": "Bad Request"}), 400
         debug_message(e, 400)
-        return render_template("http/400.html", username=user.username, perm=user.perm, message=mensagem), 400
+        return render_template("http/400.html", user=user, message=mensagem), 400
 
     @app.errorhandler(401)
     def unauthorized_error(e):
@@ -47,7 +47,7 @@ def register_error_handler(app:Flask):
         if wants_json_response():
             return jsonify({"error": "Access Denied", "message": mensagem, "user": user.username, "perm": user.perm}), 403
         debug_message(e, 403)
-        return render_template("http/403.html", username=user.username, perm=user.perm, message=mensagem), 403
+        return render_template("http/403.html", user=user, message=mensagem), 403
 
     @app.errorhandler(404)
     def page_not_found(e):
@@ -56,7 +56,7 @@ def register_error_handler(app:Flask):
         if wants_json_response():
             return jsonify({"error": "Not Found"}), 404
         debug_message(e, 404)
-        return render_template('http/404.html', username=user.username, perm=user.perm), 404
+        return render_template('http/404.html', user=user), 404
     
     @app.errorhandler(422)
     def unprocessable_entity(e):
@@ -66,7 +66,7 @@ def register_error_handler(app:Flask):
         if wants_json_response():
             return jsonify({"error": "Unprocessable Entity"}), 422
         debug_message(e, 422)
-        return render_template('http/422.html', username=user.username, perm=user.perm, mensagem=mensagem), 422
+        return render_template('http/422.html', user=user, mensagem=mensagem), 422
     
     @app.errorhandler(500)
     def internal_server_error(e):
@@ -75,4 +75,4 @@ def register_error_handler(app:Flask):
         if wants_json_response():
             return jsonify({"error": "Internal Server Error"}), 500
         debug_message(e, 500)
-        return render_template('http/500.html', username=user.username, perm=user.perm), 500
+        return render_template('http/500.html', user=user), 500

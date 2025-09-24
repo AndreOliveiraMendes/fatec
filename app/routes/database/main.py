@@ -64,7 +64,7 @@ def menu():
     userid = session.get('userid')
     user = get_user_info(userid)
     extras = {}
-    return render_template("database/menu.html", username=user.username, perm=user.perm, **extras)
+    return render_template("database/menu.html", user=user, **extras)
 
 @bp.route("/view")
 @admin_required
@@ -81,7 +81,7 @@ def database():
     extras['uks'] = {table:inspector.get_unique_constraints(table) for table in tables}
     extras['chks'] = {table:inspector.get_check_constraints(table) for table in tables}
     extras['inds'] = {table:inspector.get_indexes(table) for table in tables}
-    return render_template("database/schema/database.html", username=user.username, perm=user.perm, **extras)
+    return render_template("database/schema/database.html", user=user, **extras)
 
 @bp.route("/wiki")
 @admin_required
@@ -119,7 +119,7 @@ def wiki():
     extras['uks'] = {table:inspector.get_unique_constraints(table) for table in tables}
     extras['chks'] = {table:inspector.get_check_constraints(table) for table in tables}
     extras['inds'] = {table:inspector.get_indexes(table) for table in tables}
-    return render_template("database/schema/wiki.html", username=user.username, perm=user.perm, **extras)
+    return render_template("database/schema/wiki.html", user=user, **extras)
 
 @bp.route("/schema")
 @admin_required
@@ -136,7 +136,7 @@ def schema():
     else:
         extras['tables_sql'] = [(table, get_create_table(table)) for table in tables]
 
-    return render_template("database/schema/schema.html", username=user.username, perm=user.perm, **extras)
+    return render_template("database/schema/schema.html", user=user, **extras)
 
 @bp.route("/schema/sql")
 @admin_required

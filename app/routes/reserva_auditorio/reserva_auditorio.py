@@ -14,4 +14,4 @@ def main_page():
     extras = {}
     extras['auditorios'] = get_auditorios()
     extras['reservas_auditorios'] = get_reservas_auditorios(user.pessoa.id_pessoa)
-    return render_template('reserva_auditorio/main.html', username=user.username, perm=user.perm, **extras)
+    return render_template('reserva_auditorio/main.html', user=user, **extras)

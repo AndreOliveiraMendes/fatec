@@ -56,7 +56,7 @@ def main_page():
     extras = {}
     today = date.today()
     extras['day'] = today
-    return render_template('reserva_temporaria/main.html', username=user.username, perm=user.perm, **extras)
+    return render_template('reserva_temporaria/main.html', user=user, **extras)
 
 @bp.route('/dias/<data:inicio>/<data:fim>')
 @reserva_temp_required
@@ -72,7 +72,7 @@ def dias(inicio, fim):
     ).scalars().all()
     today = date.today()
     extras['day'] = today
-    return render_template('reserva_temporaria/dias.html', username=user.username, perm=user.perm, **extras)
+    return render_template('reserva_temporaria/dias.html', user=user, **extras)
 
 @bp.before_request
 def return_counter():
@@ -151,7 +151,7 @@ def get_lab_geral(inicio, fim, id_turno):
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
     extras['contador'] = session.get('contador')
-    return render_template('reserva_temporaria/geral.html', username=user.username, perm=user.perm, **extras)
+    return render_template('reserva_temporaria/geral.html', user=user, **extras)
 
 def get_lab_especifico(inicio, fim, id_turno, id_lab):
     userid = session.get('userid')
@@ -221,7 +221,7 @@ def get_lab_especifico(inicio, fim, id_turno, id_lab):
     extras['responsavel_especial'] = get_usuarios_especiais()
     extras['contador'] = session.get('contador')
     extras['locais'] = get_laboratorios(perm&PERM_ADMIN)
-    return render_template('reserva_temporaria/especifico.html', username=user.username, perm=user.perm, **extras)
+    return render_template('reserva_temporaria/especifico.html', user=user, **extras)
 
 
 @bp.route("/dias/<data:inicio>/<data:fim>", methods=['POST'])

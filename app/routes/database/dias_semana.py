@@ -104,4 +104,4 @@ def gerenciar_dias_da_semana():
             redirect_action, bloco = register_return(url, acao, extras, dias_da_semana=get_dias_da_semana())
     if redirect_action:
         return redirect_action
-    return render_template("database/table/dias_da_semana.html", username=user.username, perm=user.perm, acao=acao, bloco=bloco, **extras)
+    return render_template("database/table/dias_da_semana.html", user=user, acao=acao, bloco=bloco, **extras)

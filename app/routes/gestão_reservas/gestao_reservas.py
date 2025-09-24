@@ -119,7 +119,7 @@ def gerenciar_exibicao():
         ["glyphicon-time", "success", "temporaria"]
     ]
     extras['icons'] = icons
-    return render_template("gestão_reservas/exibicao_reserva.html", username=user.username, perm=user.perm, **extras)
+    return render_template("gestão_reservas/exibicao_reserva.html", user=user, **extras)
 
 @bp.route('/exibicao/<int:id_aula>/<int:id_lab>/<data:dia>', methods=['POST'])
 @admin_required
@@ -236,7 +236,7 @@ def gerenciar_situacoes_reservas_fixas(extras):
                 reservas.append(reserva)
         reserva['situacao'] = get_situacoes_por_dia(reserva['horarios'][0], reserva['local'], extras['reserva_dia'], 'fixa')
     extras['reservas'] = reservas
-    return render_template("gestão_reservas/status_fixas.html", username=user.username, perm=user.perm, **extras)
+    return render_template("gestão_reservas/status_fixas.html", user=user, **extras)
 
 def gerenciar_situacoes_reservas_temporarias(extras):
     userid = session.get('userid')
@@ -264,7 +264,7 @@ def gerenciar_situacoes_reservas_temporarias(extras):
                 reservas.append(reserva)
         reserva['situacao'] = get_situacoes_por_dia(reserva['horarios'][0], reserva['local'], extras['reserva_dia'], 'temporaria')
     extras['reservas'] = reservas
-    return render_template("gestão_reservas/status_temporarias.html", username=user.username, perm=user.perm, **extras)
+    return render_template("gestão_reservas/status_temporarias.html", user=user, **extras)
 
 @bp.route('/<tipo_reserva>/<int:lab>/<data:dia>', methods=['POST'])
 def atualizar_situacoes(tipo_reserva, lab, dia):

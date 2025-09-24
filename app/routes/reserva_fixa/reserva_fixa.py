@@ -90,7 +90,7 @@ def main_page():
         semestre.state = state
         semestre.icon = icon
     extras['day'] = today
-    return render_template('reserva_fixa/main.html', username=user.username, perm=user.perm, **extras)
+    return render_template('reserva_fixa/main.html', user=user, **extras)
 
 @bp.route('/semestre/<int:id_semestre>')
 @reserva_fixa_required
@@ -107,7 +107,7 @@ def get_semestre(id_semestre):
         flash("cadastre ao menos 1 turno", "danger")
         return redirect(url_for('default.home'))
     extras['turnos'] = turnos
-    return render_template('reserva_fixa/semestre.html', username=user.username, perm=user.perm, **extras)
+    return render_template('reserva_fixa/semestre.html', user=user, **extras)
 
 @bp.before_request
 def return_counter():
@@ -180,7 +180,7 @@ def get_lab_geral(id_semestre, id_turno=None):
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
     extras['contador'] = session.get('contador')
-    return render_template('reserva_fixa/geral.html', username=user.username, perm=user.perm, **extras)
+    return render_template('reserva_fixa/geral.html', user=user, **extras)
 
 def get_lab_especifico(id_semestre, id_turno, id_lab):
     userid = session.get('userid')
@@ -240,7 +240,7 @@ def get_lab_especifico(id_semestre, id_turno, id_lab):
     extras['responsavel_especial'] = get_usuarios_especiais()
     extras['contador'] = session.get('contador')
     extras['locais'] = get_laboratorios(perm&PERM_ADMIN)
-    return render_template('reserva_fixa/especifico.html', username=user.username, perm=user.perm, **extras)
+    return render_template('reserva_fixa/especifico.html', user=user, **extras)
 
 @bp.route('/semestre/<int:id_semestre>', methods=['POST'])
 @reserva_fixa_required
