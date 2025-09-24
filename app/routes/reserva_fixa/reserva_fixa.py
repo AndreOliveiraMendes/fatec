@@ -82,7 +82,7 @@ def main_page():
         else:
             state = 'default'
         if today < semestre.data_inicio_reserva or today > semestre.data_fim_reserva:
-            if not perm&PERM_ADMIN > 0:
+            if not user.perm&PERM_ADMIN > 0:
                 state += ' disabled'
             icon = Markup("<span class='glyphicon glyphicon-lock'></span>")
         elif (today - semestre.data_inicio_reserva).days < semestre.dias_de_prioridade:
@@ -98,7 +98,7 @@ def get_semestre(id_semestre):
     userid = session.get('userid')
     user = get_user_info(userid)
     semestre = db.get_or_404(Semestres, id_semestre)
-    check_semestre(semestre, userid, perm)
+    check_semestre(semestre, userid, user.perm)
     today = date.today()
     extras = {'semestre':semestre, 'day':today}
     sel_turnos = select(Turnos).order_by(Turnos.horario_inicio)
@@ -136,12 +136,12 @@ def get_lab_geral(id_semestre, id_turno=None):
     userid = session.get('userid')
     user = get_user_info(userid)
     semestre = db.get_or_404(Semestres, id_semestre)
-    check_semestre(semestre, userid, perm)
+    check_semestre(semestre, userid, user.perm)
     turno = db.get_or_404(Turnos, id_turno) if id_turno is not None else id_turno
     today = date.today()
     extras = {'semestre':semestre, 'turno':turno, 'day':today}
     aulas = get_aulas_ativas_por_semestre(semestre, turno)
-    locais = get_laboratorios(perm&PERM_ADMIN)
+    locais = get_laboratorios(user.perm&PERM_ADMIN)
     if len(aulas) == 0 or len(locais) == 0:
         if len(aulas) == 0:
             flash("não há horarios disponiveis nesse turno", "danger")
@@ -186,10 +186,10 @@ def get_lab_especifico(id_semestre, id_turno, id_lab):
     userid = session.get('userid')
     user = get_user_info(userid)
     semestre = db.get_or_404(Semestres, id_semestre)
-    check_semestre(semestre, userid, perm)
+    check_semestre(semestre, userid, user.perm)
     turno = db.get_or_404(Turnos, id_turno) if id_turno is not None else id_turno
     local = db.get_or_404(Locais, id_lab)
-    check_local(local, perm)
+    check_local(local, user.perm)
     today = date.today()
     extras = {'semestre':semestre, 'turno':turno, 'local':local, 'day':today}
     aulas = get_aulas_ativas_por_semestre(semestre, turno)
@@ -239,7 +239,7 @@ def get_lab_especifico(id_semestre, id_turno, id_lab):
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
     extras['contador'] = session.get('contador')
-    extras['locais'] = get_laboratorios(perm&PERM_ADMIN)
+    extras['locais'] = get_laboratorios(user.perm&PERM_ADMIN)
     return render_template('reserva_fixa/especifico.html', user=user, **extras)
 
 @bp.route('/semestre/<int:id_semestre>', methods=['POST'])

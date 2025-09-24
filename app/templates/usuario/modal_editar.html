@@ -20,7 +20,7 @@
                         <br>
                         <strong id="modalEHorario"></strong>
                     </p>
-                    {% if perm and perm|has_flag(ADMIN) %}
+                    {% if user and user.perm|has_flag(ADMIN) %}
                         <div class="form-group">
                             <label for="modalEResponsavel">Responsavel:</label>
                             <select id="modalEResponsavel" name="responsavel" class="form-control">

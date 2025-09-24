@@ -111,7 +111,7 @@ def get_lab_geral(inicio, fim, id_turno):
     except ValueError as ve:
         current_app.logger.error(f"error:{ve}")
         abort(400)
-    locais = get_laboratorios(perm&PERM_ADMIN)
+    locais = get_laboratorios(user.perm&PERM_ADMIN)
     dias = [(dia, turno) for dia in time_range(inicio, fim)]
     aulas = get_aulas_ativas_por_lista_de_dias(dias, tipo_horario)
     if len(aulas) == 0 or len(locais) == 0:
@@ -165,7 +165,7 @@ def get_lab_especifico(inicio, fim, id_turno, id_lab):
         current_app.logger.error(f"error:{ve}")
         abort(400)
     local = db.get_or_404(Locais, id_lab)
-    check_local(local, perm)
+    check_local(local, user.perm)
     extras['local'] = local
     today = date.today()
     extras['day'] = today
@@ -220,7 +220,7 @@ def get_lab_especifico(inicio, fim, id_turno, id_lab):
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
     extras['contador'] = session.get('contador')
-    extras['locais'] = get_laboratorios(perm&PERM_ADMIN)
+    extras['locais'] = get_laboratorios(user.perm&PERM_ADMIN)
     return render_template('reserva_temporaria/especifico.html', user=user, **extras)
 
 
