@@ -1,4 +1,5 @@
 import copy
+from typing import Literal, Tuple, Union
 
 import requests
 from flask import (Blueprint, abort, current_app, flash, redirect,
@@ -11,7 +12,6 @@ from app.auxiliar.constant import (PERM_ADMIN, PERM_RESERVA_AUDITORIO,
 from app.auxiliar.decorators import login_required
 from app.models import Permissoes, Pessoas, Usuarios, db
 from config.general import API_BASIC_PASS, API_BASIC_USER, TOMCAT_API_URL
-from typing import Tuple, Union, Literal
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 

@@ -25,6 +25,21 @@
                         <th>Ações</th>
                     </tr>
                 </thead>
+                <tbody>
+                    {% for reserva in reservas_auditorios %}
+                        <tr>
+                        {% if auditorios|length > 1 %}
+                        
+                        <td>{{ reserva.local.nome_local }}</td>
+                        {% endif %}
+                            <td>{{ reserva.dia_reserva|data }}</td>
+                            <td>{{ reserva.aula_ativa.aula.horario_inicio|hora }} - {{ reserva.aula_ativa.aula.horario_fim|hora }}</td>
+                            <td>{{ reserva.responsavel.nome_pessoa }}</td>
+                            <td><span class="badge_status {{ reserva.status_reserva.value }}">{{ reserva.status_reserva.value }}</span></td>
+                            <td>WIP</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
             </table>
         </div>
     </div>

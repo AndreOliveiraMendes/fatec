@@ -272,3 +272,36 @@ td.fixa {
     padding: 8px 12px;
     cursor: help
 }
+
+.badge_status {
+    display: inline-block;
+    padding: 0.5em 1.2em;
+    /* aumenta altura e largura */
+    font-size: 1em;
+    /* aumenta fonte */
+    font-weight: 600;
+    border-radius: 999px;
+    /* deixa formato "pill" */
+    color: #fff;
+}
+
+.badge_status.Aguardando {
+    background-color: #f0ad4e;
+}
+
+/* âmbar */
+.badge_status.Cancelada {
+    background-color: #6c757d;
+}
+
+/* cinza */
+.badge_status.Aprovada {
+    background-color: #28a745;
+}
+
+/* verde */
+.badge_status.Reprovada {
+    background-color: #dc3545;
+}
+
+/* vermelho */
