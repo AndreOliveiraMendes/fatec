@@ -13,7 +13,6 @@ def painel():
 def home():
     userid = session.get('userid')
     user = get_user_info(userid)
-    print(userid)
     return render_template("homepage.html", user=user)
 
 @bp.route('/under_dev')
