@@ -8,10 +8,25 @@
             <span class="glyphicon glyphicon-home"></span> Início
         </a>
     </div>
-    <hr>
+    <p>
+        <strong>Dia:</strong> {{ dia|datainfo(DATA_NUMERICA+HORA+SEMANA_COMPLETA) }}
+    </p>
     <div class="panel panel-default">
         <div class="panel-heading">
             <h3 class="panel-title">Reservas de Auditorio</h3>
+            <form method="get"
+                  class="form-inline"
+                  action="{{ url_for('reservas_auditorios.main_page') }}">
+                <div class="form-group">
+                    <label for="reserva-dia">dia:</label>
+                    <input type="date"
+                           class="form-control"
+                           value="{{ reserva_dia }}"
+                           id="reserva-dia"
+                           name="reserva-dia"
+                           onchange="if (this.checkValidity()) this.form.submit();">
+                </div>
+            </form>
         </div>
         <div class="panel-body">
             <table class="table table-striped table-bordered">
@@ -22,21 +37,39 @@
                         <th>Horario</th>
                         <th>Responsavel</th>
                         <th>Status</th>
+                        <th>Autorizador</th>
                         <th>Ações</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for reserva in reservas_auditorios %}
                         <tr>
-                        {% if auditorios|length > 1 %}
-                        
-                        <td>{{ reserva.local.nome_local }}</td>
-                        {% endif %}
+                            {% if auditorios|length > 1 %}<td>{{ reserva.local.nome_local }}</td>{% endif %}
                             <td>{{ reserva.dia_reserva|data }}</td>
                             <td>{{ reserva.aula_ativa.aula.horario_inicio|hora }} - {{ reserva.aula_ativa.aula.horario_fim|hora }}</td>
                             <td>{{ reserva.responsavel.nome_pessoa }}</td>
-                            <td><span class="badge_status {{ reserva.status_reserva.value }}">{{ reserva.status_reserva.value }}</span></td>
-                            <td>WIP</td>
+                            <td>
+                                <span class="badge_status {{ reserva.status_reserva.value }}">{{ reserva.status_reserva.value }}</span>
+                            </td>
+                            <td>{{ reserva.autorizador.nome_pessoa if reserva.autorizador else '-' }}</td>
+                            <td>
+                                {% if reserva.status_reserva.value == 'Aguardando' %}
+                                <button type="submit" class="btn-icon">
+                                    <span class="glyphicon glyphicon-remove icon" aria-hidden="true"></span>
+                                </button>
+                                {% elif reserva.status_reserva.value == 'Cancelada' %}
+                                <button type="submit" class="btn-icon">
+                                    <span class="glyphicon glyphicon-ok icon" aria-hidden="true"></span>
+                                </button>
+                                {% endif %}
+                                
+                                <button type="submit" class="btn-icon">
+                                    <span class="glyphicon glyphicon-thumbs-down icon" aria-hidden="true"></span>
+                                </button>
+                                <button type="submit" class="btn-icon">
+                                    <span class="glyphicon glyphicon-thumbs-up icon" aria-hidden="true"></span>
+                                </button>
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>

@@ -465,7 +465,7 @@
                         <tr>
                             <td>{{ rf.id_reserva_fixa }}</td>
                             <td>{{ rf.pessoa.nome_pessoa if rf.id_responsavel else '-' }}</td>
-                            <td>{{ rf.usuario_especiais.nome_usuario_especial if rf.id_responsavel_especial else '-' }}</td>
+                            <td>{{ rf.usuario_especial.nome_usuario_especial if rf.id_responsavel_especial else '-' }}</td>
                             <td>{{ rf.tipo_responsavel|tipo_responsavel_label }}</td>
                             <td>{{ rf.local.nome_local }}</td>
                             <td>{{ rf.aula_ativa.selector_identification }}</td>

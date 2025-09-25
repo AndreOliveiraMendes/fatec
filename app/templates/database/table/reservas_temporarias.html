@@ -557,7 +557,7 @@
                         <tr>
                             <td>{{ rt.id_reserva_temporaria }}</td>
                             <td>{{ rt.pessoa.nome_pessoa if rt.id_responsavel else '-' }}</td>
-                            <td>{{ rt.usuario_especiais.nome_usuario_especial if rt.id_responsavel_especial else '-' }}</td>
+                            <td>{{ rt.usuario_especial.nome_usuario_especial if rt.id_responsavel_especial else '-' }}</td>
                             <td>{{ rt.tipo_responsavel|tipo_responsavel_label }}</td>
                             <td>{{ rt.local.nome_local }}</td>
                             <td>{{ rt.aula_ativa.selector_identification }}</td>

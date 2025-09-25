@@ -418,10 +418,18 @@ def get_turno_by_time(hora:time):
         return None
 
 #reservas de auditorio
-def get_reservas_auditorios(id:int, all:bool = False):
+def get_reservas_auditorios(id:int, all:bool = False, *args):
     sel_reservas_auditorios = select(Reservas_Auditorios)
     filtro = []
     if not all:
         filtro.append(Reservas_Auditorios.id_responsavel == id)
-    sel_reservas_auditorios = sel_reservas_auditorios.where(*filtro)
+    for condition in args:
+        filtro.append(condition)
+    sel_reservas_auditorios = sel_reservas_auditorios.where(*filtro).select_from(
+        Reservas_Auditorios
+    ).join(Locais).join(Aulas_Ativas).join(Aulas).order_by(
+        Locais.nome_local,
+        Reservas_Auditorios.dia_reserva,
+        Aulas.horario_inicio
+    )
     return db.session.execute(sel_reservas_auditorios).scalars().all()
