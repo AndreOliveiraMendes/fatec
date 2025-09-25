@@ -170,7 +170,7 @@ class ReservaBase(Base):  # herda de Base
     def tipo_responsavel(self):
         if self.id_responsavel is not None and self.id_responsavel_especial is None:
             return 0
-        elif self.id_responsavel_especial is None and self.id_responsavel is not None:
+        elif self.id_responsavel is None and self.id_responsavel_especial is not None:
             return 1
         elif self.id_responsavel is not None and self.id_responsavel_especial is not None:
             return 2
