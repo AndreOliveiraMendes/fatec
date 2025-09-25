@@ -237,6 +237,37 @@ td.fixa {
     /* tamanho do ícone */
 }
 
+/* efeito de transição do botoes da reserva de auditorio */
+.btn-icon>.glyphicon-remove.icon-auditorio:hover,
+.btn-icon>.glyphicon-thumbs-down.icon-auditorio:hover{
+    color: red;
+}
+
+.btn-icon>.glyphicon-ok.icon-auditorio:hover,
+.btn-icon>.glyphicon-thumbs-up.icon-auditorio:hover {
+    color: green;
+}
+
+/* gerenciamento de situações */
+.btn-icon>.glyphicon-thumbs-down.text-muted:hover{
+    color:red;
+}
+
+.btn-icon>.glyphicon-thumbs-up.text-muted:hover{
+    color:green;
+}
+
+.btn-icon>.glyphicon-ok.text-muted:hover{
+    color:blue;
+}
+
+/* comum entre os dois */
+
+.icon-auditorio,
+.icon {
+    transition: color 0.3s ease; /* Smooth transition for color change */
+}
+
 .btn-icon:focus {
     outline: none;
     /* tira a borda de foco azul */

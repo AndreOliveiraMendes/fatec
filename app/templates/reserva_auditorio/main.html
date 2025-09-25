@@ -1,6 +1,6 @@
 {% extends "base-fixed" %}
 {% block title %}
-    Página Inicial
+    Auditorios
 {% endblock title %}
 {% block content %}
     <div class="btn-group">
@@ -54,21 +54,22 @@
                             <td>{{ reserva.autorizador.nome_pessoa if reserva.autorizador else '-' }}</td>
                             <td>
                                 {% if reserva.status_reserva.value == 'Aguardando' %}
-                                <button type="submit" class="btn-icon">
-                                    <span class="glyphicon glyphicon-remove icon" aria-hidden="true"></span>
-                                </button>
+                                    <button type="submit" class="btn-icon">
+                                        <span class="glyphicon glyphicon-remove icon-auditorio" aria-hidden="true"></span>
+                                    </button>
                                 {% elif reserva.status_reserva.value == 'Cancelada' %}
-                                <button type="submit" class="btn-icon">
-                                    <span class="glyphicon glyphicon-ok icon" aria-hidden="true"></span>
-                                </button>
+                                    <button type="submit" class="btn-icon">
+                                        <span class="glyphicon glyphicon-ok icon-auditorio" aria-hidden="true"></span>
+                                    </button>
                                 {% endif %}
-                                
-                                <button type="submit" class="btn-icon">
-                                    <span class="glyphicon glyphicon-thumbs-down icon" aria-hidden="true"></span>
-                                </button>
-                                <button type="submit" class="btn-icon">
-                                    <span class="glyphicon glyphicon-thumbs-up icon" aria-hidden="true"></span>
-                                </button>
+                                {% if user.perm|has_flag(ADMIN) %}
+                                    <button type="submit" class="btn-icon">
+                                        <span class="glyphicon glyphicon-thumbs-down icon-auditorio" aria-hidden="true"></span>
+                                    </button>
+                                    <button type="submit" class="btn-icon">
+                                        <span class="glyphicon glyphicon-thumbs-up icon-auditorio" aria-hidden="true"></span>
+                                    </button>
+                                {% endif %}
                             </td>
                         </tr>
                     {% endfor %}
