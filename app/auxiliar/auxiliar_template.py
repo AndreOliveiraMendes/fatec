@@ -294,7 +294,7 @@ def register_filters(app:Flask):
     
     @app.template_filter('tipo_responsavel_label')
     def tipo_responsavel_label(value):
-        labels = ['Usuário', 'Especial', 'Ambos']
+        labels = ['Usuário', 'Especial', 'Ambos', 'Nenhum']
         try:
             return labels[value]
         except (IndexError, TypeError):
