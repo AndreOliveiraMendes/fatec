@@ -204,17 +204,15 @@ def time_range(start:date, end:date, step:int = 1):
 
 def get_responsavel_reserva(reserva:Reservas_Fixas|Reservas_Temporarias):
     title = ""
-    empty = True
     if reserva.tipo_responsavel == 0 or reserva.tipo_responsavel == 2:
         responsavel = db.get_or_404(Pessoas, reserva.id_responsavel)
         if responsavel.alias:
             title += responsavel.alias
         else:
             title += responsavel.nome_pessoa
-        empty = False
     if reserva.tipo_responsavel== 1 or reserva.tipo_responsavel == 2:
         responsavel = db.get_or_404(Usuarios_Especiais, reserva.id_responsavel_especial)
-        if empty:
+        if reserva.tipo_responsavel == 1:
             title += responsavel.nome_usuario_especial
         else:
             title += f" ({responsavel.nome_usuario_especial})"
