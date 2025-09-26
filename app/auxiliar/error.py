@@ -2,15 +2,8 @@ from flask import Flask, flash, jsonify, render_template, request, session
 
 from app.auxiliar.auxiliar_routes import get_user_info
 from config.general import SHOW_DEBUG_ERRORS
+from config.mapeamentos import ERROR_MESSAGES
 
-ERROR_MESSAGES = {
-    400: "Requisição inválida",
-    401: "Você precisa fazer login para acessar esta página.",
-    403: "Você não possui as permissões necessárias para acessar esta página.",
-    404: "A página requisitada não existe.",
-    422: "Entidade não processável.",
-    500: "Erro Interno do Servidor"
-}
 
 def wants_json_response():
     return request.accept_mimetypes.accept_json and not request.accept_mimetypes.accept_html
@@ -57,7 +50,17 @@ def register_error_handler(app:Flask):
             return jsonify({"error": "Not Found"}), 404
         debug_message(e, 404)
         return render_template('http/404.html', user=user), 404
-    
+
+    @app.errorhandler(409)
+    def conflict(e):
+        userid = session.get('userid')
+        user = get_user_info(userid)
+        mensagem = getattr(e, 'description', 'Conflict ')
+        if wants_json_response():
+            return jsonify({"error": "Conflict"}), 409
+        debug_message(e, 409)
+        return render_template('http/409.html', user=user), 409
+
     @app.errorhandler(422)
     def unprocessable_entity(e):
         userid = session.get('userid')
@@ -67,7 +70,7 @@ def register_error_handler(app:Flask):
             return jsonify({"error": "Unprocessable Entity"}), 422
         debug_message(e, 422)
         return render_template('http/422.html', user=user, mensagem=mensagem), 422
-    
+
     @app.errorhandler(500)
     def internal_server_error(e):
         userid = session.get('userid')

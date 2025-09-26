@@ -65,3 +65,13 @@ DEFAULT_CONFIG_CFG = {
 
 SECRET_PATH = "config/secret.json"
 SSH_CRED_PATH = "config/ssh_credentials.json"
+
+ERROR_MESSAGES = {
+    400: "Requisição inválida",
+    401: "Você precisa fazer login para acessar esta página.",
+    403: "Você não possui as permissões necessárias para acessar esta página.",
+    404: "A página requisitada não existe.",
+    409: "Conflito",
+    422: "Entidade não processável.",
+    500: "Erro Interno do Servidor"
+}

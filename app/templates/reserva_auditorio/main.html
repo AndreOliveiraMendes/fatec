@@ -39,6 +39,7 @@
                         <th>Status</th>
                         <th>Autorizador</th>
                         <th>Ações</th>
+                        <th>Notas & Detalhes</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -53,23 +54,62 @@
                             </td>
                             <td>{{ reserva.autorizador.nome_pessoa if reserva.autorizador else '-' }}</td>
                             <td>
-                                {% if reserva.status_reserva.value == 'Aguardando' %}
-                                    <button type="submit" class="btn-icon">
-                                        <span class="glyphicon glyphicon-remove icon-auditorio" aria-hidden="true"></span>
-                                    </button>
-                                {% elif reserva.status_reserva.value == 'Cancelada' %}
-                                    <button type="submit" class="btn-icon">
-                                        <span class="glyphicon glyphicon-ok icon-auditorio" aria-hidden="true"></span>
-                                    </button>
-                                {% endif %}
-                                {% if user.perm|has_flag(ADMIN) %}
-                                    <button type="submit" class="btn-icon">
-                                        <span class="glyphicon glyphicon-thumbs-down icon-auditorio" aria-hidden="true"></span>
-                                    </button>
-                                    <button type="submit" class="btn-icon">
-                                        <span class="glyphicon glyphicon-thumbs-up icon-auditorio" aria-hidden="true"></span>
-                                    </button>
-                                {% endif %}
+                                <form class="form-inline"
+                                      role="form"
+                                      action="{{ url_for('reservas_auditorios.atualizar_status', id_reserva=reserva.id_reserva_auditorio) }}"
+                                      method="post">
+                                    {% if reserva.status_reserva.value == 'Aguardando' and (reserva.id_responsavel == user.id_pessoa or user.perm|has_flag(ADMIN)) %}
+                                        <button type="submit" class="btn-icon" name="status" value="Cancelada">
+                                            <span class="glyphicon glyphicon-remove icon-auditorio"
+                                                  aria-hidden="true"
+                                                  data-toggle="tooltip"
+                                                  title="Cancelar"></span>
+                                        </button>
+                                    {% elif reserva.status_reserva.value == 'Cancelada' and (reserva.id_responsavel == user.id_pessoa or user.perm|has_flag(ADMIN)) %}
+                                        <button type="submit" class="btn-icon" name="status" value="Aguardando">
+                                            <span class="glyphicon glyphicon-ok icon-auditorio"
+                                                  aria-hidden="true"
+                                                  data-toggle="tooltip"
+                                                  title="Reabrir"></span>
+                                        </button>
+                                    {% endif %}
+                                    {% if user.perm|has_flag(ADMIN) and reserva.status_reserva.value in ['Aguardando', 'Aprovada', 'Reprovada'] %}
+                                        {% if reserva.status_reserva.value != 'Reprovada' %}
+                                            <button type="submit" class="btn-icon" name="status" value="Reprovada">
+                                                <span class="glyphicon glyphicon-thumbs-down icon-auditorio"
+                                                      aria-hidden="true"
+                                                      data-toggle="tooltip"
+                                                      title="Reprovar"></span>
+                                            </button>
+                                        {% endif %}
+                                        {% if reserva.status_reserva.value != 'Aprovada' %}
+                                            <button type="submit" class="btn-icon" name="status" value="Aprovada">
+                                                <span class="glyphicon glyphicon-thumbs-up icon-auditorio"
+                                                      aria-hidden="true"
+                                                      data-toggle="tooltip"
+                                                      title="Aprovar"></span>
+                                            </button>
+                                        {% endif %}
+                                    {% endif %}
+                                </form>
+                            </td>
+                            <td>
+                                <span class="icon-stack"
+                                      data-toggle="tooltip"
+                                      title="Observação do responsável">
+                                    <span class="glyphicon glyphicon-comment base-icon"></span>
+                                    <span class="glyphicon glyphicon-user icon-contrast icon-user text-success"></span>
+                                </span>
+                                <span class="icon-stack"
+                                      data-toggle="tooltip"
+                                      title="Observação do autorizador">
+                                    <span class="glyphicon glyphicon-comment base-icon"></span>
+                                    <span class="glyphicon glyphicon-user icon-contrast icon-user text-danger"></span>
+                                    <span class="glyphicon glyphicon-fire icon-contrast icon-fire text-danger"></span>
+                                </span>
+                                <span class="glyphicon glyphicon-eye-open text-info"
+                                      data-toggle="tooltip"
+                                      title="Ver detalhes"></span>
                             </td>
                         </tr>
                     {% endfor %}
@@ -78,3 +118,10 @@
         </div>
     </div>
 {% endblock content %}
+{% block extra_script %}
+    <script>
+        $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
+{% endblock extra_script %}
