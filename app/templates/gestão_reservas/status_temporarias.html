@@ -3,9 +3,9 @@
     Status das Reservas Temporaria
 {% endblock title %}
 {% block content %}
-    {{ generate_situacao_head('temporaria') }}
+    {{ generate_situacao_head("temporaria") }}
     <h3>Hoje: {{ hoje|data }}</h3>
-        <div class="panel panel-default">
+    <div class="panel panel-default">
         <div class="panel-heading">
             <h3 class="panel-title">
                 <form method="get"
@@ -65,6 +65,7 @@
                             <th>Reserva</th>
                             <th>Status</th>
                             <th>Ação</th>
+                            <th>Diversos</th>
                         </thead>
                         <tbody>
                             {% for reserva in reservas %}
@@ -72,6 +73,20 @@
                                     <td>{{ reserva.horarios[0].aula.horario_inicio|hora }} - {{ reserva.horarios[-1].aula.horario_fim|hora }}</td>
                                     <td>{{ reserva.local.nome_local }}</td>
                                     <td>{{ reserva.responsavel }}</td>
+                                    <td>
+                                        {% if reserva.situacao %}
+                                            {% if reserva.situacao.situacao_chave.value == 'não pegou a chave' %}
+                                                {% set color = "danger" %}
+                                            {% elif reserva.situacao.situacao_chave.value == 'pegou a chave' %}
+                                                {% set color = "success" %}
+                                            {% else %}
+                                                {% set color = "info" %}
+                                            {% endif %}
+                                            <span class="badge badge_status {{ color }}">{{ reserva.situacao.situacao_chave.value }}</span>
+                                        {% else %}
+                                            <span class="badge badge_status">???</span>
+                                        {% endif %}
+                                    </td>
                                     <td>
                                         <form class="form-inline"
                                               role="form"
