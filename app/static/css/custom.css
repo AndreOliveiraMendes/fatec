@@ -342,12 +342,25 @@ td.fixa {
     background-color: #dc3545;
 }
 
+.badge_status.danger {
+    background-color: #d9534f;
+}
+
+.badge_status.success {
+    background-color: #5cb85c;
+}
+
+.badge_status.info {
+    background-color: #5bc0de;
+}
+
 /* vermelho */
 
 .icon-stack {
     position: relative;
     display: inline-block;
-    width: 1.5em;  /* garante largura fixa */
+    width: 1.5em;
+    /* garante largura fixa */
     height: 3em;
     vertical-align: middle;
 }
@@ -356,7 +369,8 @@ td.fixa {
     position: absolute;
     top: 0;
     left: 0;
-    font-size: 1.2em; /* tamanho base */
+    font-size: 1.2em;
+    /* tamanho base */
     line-height: 1.5em;
 }
 
