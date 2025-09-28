@@ -107,3 +107,21 @@ def atualizar_status(id_reserva):
             db.session.rollback()
             flash(f"Erro ao Atualizar:{ve}", "danger")
     return redirect(url_for('reservas_auditorios.main_page'))
+
+@bp.route('/get_info/<int:id_reserva>')
+@reserva_auditorio_required
+def get_info_reserva(id_reserva):
+    userid = session.get('userid')
+    user = get_user_info(userid)
+    reserva = db.get_or_404(Reservas_Auditorios, id_reserva)
+    check_own_reserva(reserva, user)
+    return {
+        "local":reserva.local.nome_local,
+        "dia":reserva.dia_reserva,
+        "horario": f"{reserva.aula_ativa.aula.horario_inicio:%H:%M} às {reserva.aula_ativa.aula.horario_fim:%H:%M}",
+        "observacao_responsavel": reserva.observação_responsavel,
+        "observacao_autorizador": reserva.observação_autorizador,
+        "status": reserva.status_reserva.value,
+        "responsavel": reserva.responsavel.nome_pessoa,
+        "autorizador": reserva.autorizador.nome_pessoa if reserva.autorizador else None
+    }

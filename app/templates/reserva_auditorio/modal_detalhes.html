@@ -1,6 +1,35 @@
-{#
-check:
-- user/usuario.py
-- usuario/reserva_fixa.html
-- usuario/modal_*.html
-#}
+<div id="modalDetalhes" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-info">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                    <span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title">Detalhes</h4>
+            </div>
+            <div class="modal-body">
+                <p>Detalhes da reserva:</p>
+                <p>
+                    <strong id="modalLocal"></strong>
+                    <br>
+                    <strong id="modalDia"></strong>
+                    <br>
+                    <strong id="modalDHorario"></strong>
+                    <br>
+                    <span class="badge_status" id="modalStatus"></span>
+                </p>
+                <p>
+                    Responsavel:<strong id="modalResponsavel"></strong>
+                    <br>
+                    Autorizadador:<strong id="modalAutorizador"></strong>
+                </p>
+                <p>Observações referentes a reserva:</p>
+                <p>
+                    <strong id="modalObservacaoResponsavel"></strong>
+                    <hr>
+                    <strong id="modalObservacaoAutorizador"></strong>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

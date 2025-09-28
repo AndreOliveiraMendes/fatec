@@ -29,92 +29,110 @@
             </form>
         </div>
         <div class="panel-body">
-            <table class="table table-striped table-bordered">
-                <thead>
-                    <tr>
-                        {% if auditorios|length > 1 %}<th>Auditorio</th>{% endif %}
-                        <th>Dia</th>
-                        <th>Horario</th>
-                        <th>Responsavel</th>
-                        <th>Status</th>
-                        <th>Autorizador</th>
-                        <th>Ações</th>
-                        <th>Notas & Detalhes</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for reserva in reservas_auditorios %}
-                        <tr>
-                            {% if auditorios|length > 1 %}<td>{{ reserva.local.nome_local }}</td>{% endif %}
-                            <td>{{ reserva.dia_reserva|data }}</td>
-                            <td>{{ reserva.aula_ativa.aula.horario_inicio|hora }} - {{ reserva.aula_ativa.aula.horario_fim|hora }}</td>
-                            <td>{{ reserva.responsavel.nome_pessoa }}</td>
-                            <td>
-                                <span class="badge_status {{ reserva.status_reserva.value }}">{{ reserva.status_reserva.value }}</span>
-                            </td>
-                            <td>{{ reserva.autorizador.nome_pessoa if reserva.autorizador else '-' }}</td>
-                            <td>
-                                <form class="form-inline"
-                                      role="form"
-                                      action="{{ url_for('reservas_auditorios.atualizar_status', id_reserva=reserva.id_reserva_auditorio) }}"
-                                      method="post">
-                                    {% if reserva.status_reserva.value == 'Aguardando' and (reserva.id_responsavel == user.id_pessoa or user.perm|has_flag(ADMIN)) %}
-                                        <button type="submit" class="btn-icon" name="status" value="Cancelada">
-                                            <span class="glyphicon glyphicon-remove icon-auditorio"
-                                                  aria-hidden="true"
+            {% if reservas_auditorios %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                {% if auditorios|length > 1 %}<th>Auditorio</th>{% endif %}
+                                <th>Dia</th>
+                                <th>Horario</th>
+                                <th>Responsavel</th>
+                                <th>Status</th>
+                                <th>Autorizador</th>
+                                <th>Ações</th>
+                                <th>Notas & Detalhes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reserva in reservas_auditorios %}
+                                <tr>
+                                    {% if auditorios|length > 1 %}<td>{{ reserva.local.nome_local }}</td>{% endif %}
+                                    <td>{{ reserva.dia_reserva|data }}</td>
+                                    <td>{{ reserva.aula_ativa.aula.horario_inicio|hora }} - {{ reserva.aula_ativa.aula.horario_fim|hora }}</td>
+                                    <td>{{ reserva.responsavel.nome_pessoa }}</td>
+                                    <td>
+                                        <span class="badge_status {{ reserva.status_reserva.value }}">{{ reserva.status_reserva.value }}</span>
+                                    </td>
+                                    <td>{{ reserva.autorizador.nome_pessoa if reserva.autorizador else '-' }}</td>
+                                    <td>
+                                        <form class="form-inline"
+                                              role="form"
+                                              action="{{ url_for('reservas_auditorios.atualizar_status', id_reserva=reserva.id_reserva_auditorio) }}"
+                                              method="post">
+                                            {% if reserva.status_reserva.value == 'Aguardando' and (reserva.id_responsavel == user.id_pessoa or user.perm|has_flag(ADMIN)) %}
+                                                <button type="submit" class="btn-icon" name="status" value="Cancelada">
+                                                    <span class="glyphicon glyphicon-remove icon-auditorio"
+                                                          aria-hidden="true"
+                                                          data-toggle="tooltip"
+                                                          title="Cancelar"></span>
+                                                </button>
+                                            {% elif reserva.status_reserva.value == 'Cancelada' and (reserva.id_responsavel == user.id_pessoa or user.perm|has_flag(ADMIN)) %}
+                                                <button type="submit" class="btn-icon" name="status" value="Aguardando">
+                                                    <span class="glyphicon glyphicon-ok icon-auditorio"
+                                                          aria-hidden="true"
+                                                          data-toggle="tooltip"
+                                                          title="Reabrir"></span>
+                                                </button>
+                                            {% endif %}
+                                            {% if user.perm|has_flag(ADMIN) and reserva.status_reserva.value in ['Aguardando', 'Aprovada', 'Reprovada'] %}
+                                                {% if reserva.status_reserva.value != 'Reprovada' %}
+                                                    <button type="submit" class="btn-icon" name="status" value="Reprovada">
+                                                        <span class="glyphicon glyphicon-thumbs-down icon-auditorio"
+                                                              aria-hidden="true"
+                                                              data-toggle="tooltip"
+                                                              title="Reprovar"></span>
+                                                    </button>
+                                                {% endif %}
+                                                {% if reserva.status_reserva.value != 'Aprovada' %}
+                                                    <button type="submit" class="btn-icon" name="status" value="Aprovada">
+                                                        <span class="glyphicon glyphicon-thumbs-up icon-auditorio"
+                                                              aria-hidden="true"
+                                                              data-toggle="tooltip"
+                                                              title="Aprovar"></span>
+                                                    </button>
+                                                {% endif %}
+                                            {% endif %}
+                                        </form>
+                                    </td>
+                                    <td>
+                                        {% if reserva.id_responsavel == user.id_pessoa %}
+                                            <span class="icon-stack"
                                                   data-toggle="tooltip"
-                                                  title="Cancelar"></span>
-                                        </button>
-                                    {% elif reserva.status_reserva.value == 'Cancelada' and (reserva.id_responsavel == user.id_pessoa or user.perm|has_flag(ADMIN)) %}
-                                        <button type="submit" class="btn-icon" name="status" value="Aguardando">
-                                            <span class="glyphicon glyphicon-ok icon-auditorio"
-                                                  aria-hidden="true"
+                                                  title="Observação do responsável">
+                                                <span class="glyphicon glyphicon-comment base-icon"></span>
+                                                <span class="glyphicon glyphicon-user icon-contrast icon-user text-success"></span>
+                                            </span>
+                                        {% endif %}
+                                        {% if user.perm|has_flag(ADMIN) %}
+                                            <span class="icon-stack"
                                                   data-toggle="tooltip"
-                                                  title="Reabrir"></span>
-                                        </button>
-                                    {% endif %}
-                                    {% if user.perm|has_flag(ADMIN) and reserva.status_reserva.value in ['Aguardando', 'Aprovada', 'Reprovada'] %}
-                                        {% if reserva.status_reserva.value != 'Reprovada' %}
-                                            <button type="submit" class="btn-icon" name="status" value="Reprovada">
-                                                <span class="glyphicon glyphicon-thumbs-down icon-auditorio"
-                                                      aria-hidden="true"
-                                                      data-toggle="tooltip"
-                                                      title="Reprovar"></span>
-                                            </button>
+                                                  title="Observação do autorizador">
+                                                <span class="glyphicon glyphicon-comment base-icon"></span>
+                                                <span class="glyphicon glyphicon-user icon-contrast icon-user text-danger"></span>
+                                                <span class="glyphicon glyphicon-fire icon-contrast icon-fire text-danger"></span>
+                                            </span>
                                         {% endif %}
-                                        {% if reserva.status_reserva.value != 'Aprovada' %}
-                                            <button type="submit" class="btn-icon" name="status" value="Aprovada">
-                                                <span class="glyphicon glyphicon-thumbs-up icon-auditorio"
-                                                      aria-hidden="true"
+                                        {% if reserva.id_responsavel == user.id_pessoa or user.perm|has_flag(ADMIN) %}
+                                            <a href="#modalDetalhes"
+                                               data-toggle="modal"
+                                               data-info-url="{{ url_for('reservas_auditorios.get_info_reserva', id_reserva=reserva.id_reserva_auditorio) }}"
+                                               class="btn btn-icon btn-xs btn-detalhes">
+                                                <span class="glyphicon glyphicon-eye-open text-info"
                                                       data-toggle="tooltip"
-                                                      title="Aprovar"></span>
-                                            </button>
+                                                      title="Ver detalhes"></span>
+                                            </a>
                                         {% endif %}
-                                    {% endif %}
-                                </form>
-                            </td>
-                            <td>
-                                <span class="icon-stack"
-                                      data-toggle="tooltip"
-                                      title="Observação do responsável">
-                                    <span class="glyphicon glyphicon-comment base-icon"></span>
-                                    <span class="glyphicon glyphicon-user icon-contrast icon-user text-success"></span>
-                                </span>
-                                <span class="icon-stack"
-                                      data-toggle="tooltip"
-                                      title="Observação do autorizador">
-                                    <span class="glyphicon glyphicon-comment base-icon"></span>
-                                    <span class="glyphicon glyphicon-user icon-contrast icon-user text-danger"></span>
-                                    <span class="glyphicon glyphicon-fire icon-contrast icon-fire text-danger"></span>
-                                </span>
-                                <span class="glyphicon glyphicon-eye-open text-info"
-                                      data-toggle="tooltip"
-                                      title="Ver detalhes"></span>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% include "reserva_auditorio/modal_detalhes.html" %}
+            {% else %}
+                <div class="alert alert-warning" role="alert">Nenhuma reserva ainda</div>
+            {% endif %}
         </div>
     </div>
 {% endblock content %}
@@ -123,5 +141,30 @@
         $(function () {
         $('[data-toggle="tooltip"]').tooltip()
         })
+    </script>
+    <script>
+        $(document).on('click', '.btn-detalhes', function () {
+            var infoUrl = $(this).data('info-url');
+
+            $.getJSON(infoUrl, function (data) {
+                let dataObj = new Date(data.dia);
+                let dia = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'full' }).format(dataObj);
+                let capitalizada = dia.charAt(0).toUpperCase() + dia.slice(1)
+                $('#modalLocal').text(data.local);
+                $('#modalDia').text(capitalizada);
+                $('#modalDHorario').text(data.horario);
+                $('#modalStatus').attr('class', 'badge_status ' + data.status).text(data.status);
+                $('#modalResponsavel').text(data.responsavel);
+                $('#modalAutorizador').text(data.autorizador ? data.autorizador : '-');
+                if(data.observacao)
+                    $('#modalObservacaoResponsavel').text(data.observacao);
+                else
+                    $('#modalObservacaoResponsavel').text("sem observações por parte do responsavel");
+                if(data.observacao_autorizador)
+                    $('#modalObservacaoAutorizador').text(data.observacao_autorizador);
+                else
+                    $('#modalObservacaoAutorizador').text("sem observações por parte do autorizador");
+            });
+        });
     </script>
 {% endblock extra_script %}
