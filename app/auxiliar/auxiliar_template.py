@@ -289,8 +289,11 @@ def register_filters(app:Flask):
         return Markup(icon);
 
     @app.template_filter('has_flag')
-    def has_flag(value, flag):
-        return (value & flag) == flag
+    def has_flag(value, flag, strict_mode=False):
+        if strict_mode:
+            return value & flag == flag
+        else:
+            return value & flag > 0
     
     @app.template_filter('tipo_responsavel_label')
     def tipo_responsavel_label(value):

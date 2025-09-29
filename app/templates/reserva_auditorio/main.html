@@ -75,7 +75,7 @@
                                                           title="Reabrir"></span>
                                                 </button>
                                             {% endif %}
-                                            {% if user.perm|has_flag(ADMIN) and reserva.status_reserva.value in ['Aguardando', 'Aprovada', 'Reprovada'] %}
+                                            {% if user.perm|has_flag(ADMIN+AUTORIZAR) and reserva.status_reserva.value in ['Aguardando', 'Aprovada', 'Reprovada'] %}
                                                 {% if reserva.status_reserva.value != 'Reprovada' %}
                                                     <button type="submit" class="btn-icon" name="status" value="Reprovada">
                                                         <span class="glyphicon glyphicon-thumbs-down icon-auditorio"
@@ -97,23 +97,35 @@
                                     </td>
                                     <td>
                                         {% if reserva.id_responsavel == user.id_pessoa %}
-                                            <span class="icon-stack"
-                                                  data-toggle="tooltip"
-                                                  title="Observação do responsável">
-                                                <span class="glyphicon glyphicon-comment base-icon"></span>
-                                                <span class="glyphicon glyphicon-user icon-contrast icon-user text-success"></span>
-                                            </span>
+                                            <a href="#modalEditar"
+                                               data-toggle="modal"
+                                               data-info-url="{{ url_for('reservas_auditorios.get_info_reserva', id_reserva=reserva.id_reserva_auditorio) }}"
+                                               data-origem="responsavel"
+                                               class="btn btn-icon btn-xs btn-editar">
+                                                <span class="icon-stack"
+                                                      data-toggle="tooltip"
+                                                      title="Observação do responsável">
+                                                    <span class="glyphicon glyphicon-comment base-icon"></span>
+                                                    <span class="glyphicon glyphicon-user icon-contrast icon-user text-success"></span>
+                                                </span>
+                                            </a>
                                         {% endif %}
-                                        {% if user.perm|has_flag(ADMIN) %}
-                                            <span class="icon-stack"
-                                                  data-toggle="tooltip"
-                                                  title="Observação do autorizador">
-                                                <span class="glyphicon glyphicon-comment base-icon"></span>
-                                                <span class="glyphicon glyphicon-user icon-contrast icon-user text-danger"></span>
-                                                <span class="glyphicon glyphicon-fire icon-contrast icon-fire text-danger"></span>
-                                            </span>
+                                        {% if user.perm|has_flag(ADMIN+AUTORIZAR) %}
+                                            <a href="#modalEditar"
+                                               data-toggle="modal"
+                                               data-info-url="{{ url_for('reservas_auditorios.get_info_reserva', id_reserva=reserva.id_reserva_auditorio) }}"
+                                               data-origem="autorizador"
+                                               class="btn btn-icon btn-xs btn-editar">
+                                                <span class="icon-stack"
+                                                      data-toggle="tooltip"
+                                                      title="Observação do autorizador">
+                                                    <span class="glyphicon glyphicon-comment base-icon"></span>
+                                                    <span class="glyphicon glyphicon-user icon-contrast icon-user text-danger"></span>
+                                                    <span class="glyphicon glyphicon-fire icon-contrast icon-fire text-danger"></span>
+                                                </span>
+                                            </a>
                                         {% endif %}
-                                        {% if reserva.id_responsavel == user.id_pessoa or user.perm|has_flag(ADMIN) %}
+                                        {% if reserva.id_responsavel == user.id_pessoa or user.perm|has_flag(ADMIN+AUTORIZAR) %}
                                             <a href="#modalDetalhes"
                                                data-toggle="modal"
                                                data-info-url="{{ url_for('reservas_auditorios.get_info_reserva', id_reserva=reserva.id_reserva_auditorio) }}"
@@ -130,6 +142,7 @@
                     </table>
                 </div>
                 {% include "reserva_auditorio/modal_detalhes.html" %}
+                {% include "reserva_auditorio/modal_editar.html" %}
             {% else %}
                 <div class="alert alert-warning" role="alert">Nenhuma reserva ainda</div>
             {% endif %}
@@ -144,26 +157,50 @@
     </script>
     <script>
         $(document).on('click', '.btn-detalhes', function () {
-            var infoUrl = $(this).data('info-url');
+            let infoUrl = $(this).data('info-url');
 
             $.getJSON(infoUrl, function (data) {
                 let dataObj = new Date(data.dia);
                 let dia = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'full' }).format(dataObj);
                 let capitalizada = dia.charAt(0).toUpperCase() + dia.slice(1)
-                $('#modalLocal').text(data.local);
-                $('#modalDia').text(capitalizada);
+                $('#modalDLocal').text(data.local);
+                $('#modalDDia').text(capitalizada);
                 $('#modalDHorario').text(data.horario);
-                $('#modalStatus').attr('class', 'badge_status ' + data.status).text(data.status);
-                $('#modalResponsavel').text(data.responsavel);
-                $('#modalAutorizador').text(data.autorizador ? data.autorizador : '-');
-                if(data.observacao)
-                    $('#modalObservacaoResponsavel').text(data.observacao);
+                $('#modalDStatus').attr('class', 'badge_status ' + data.status).text(data.status);
+                $('#modalDResponsavel').text(data.responsavel);
+                $('#modalDAutorizador').text(data.autorizador ? data.autorizador : '-');
+                if(data.observacao_responsavel)
+                    $('#modalDObservacaoResponsavel').text(data.observacao_responsavel);
                 else
-                    $('#modalObservacaoResponsavel').text("sem observações por parte do responsavel");
+                    $('#modalDObservacaoResponsavel').text("sem observações por parte do responsavel");
                 if(data.observacao_autorizador)
-                    $('#modalObservacaoAutorizador').text(data.observacao_autorizador);
+                    $('#modalDObservacaoAutorizador').text(data.observacao_autorizador);
                 else
-                    $('#modalObservacaoAutorizador').text("sem observações por parte do autorizador");
+                    $('#modalDObservacaoAutorizador').text("sem observações por parte do autorizador");
+            });
+        });
+        $(document).on('click', '.btn-editar', function () {
+            let infoUrl = $(this).data('info-url');
+            let origem = $(this).data('origem');
+
+            $.getJSON(infoUrl, function (data) {
+                let dataObj = new Date(data.dia);
+                let dia = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'full' }).format(dataObj);
+                let capitalizada = dia.charAt(0).toUpperCase() + dia.slice(1)
+                let url;
+                if (origem == 'autorizador'){
+                    url = data.comentario_autorizador;
+                    $('#modalEObservacao').val(data.observacao_autorizador);
+                } else if (origem == 'responsavel'){
+                    url = data.comentario_responsavel;
+                    $('#modalEObservacao').val(data.observacao_responsavel);
+                }
+                $('#modalELocal').text(data.local);
+                $('#modalEDia').text(capitalizada);
+                $('#modalEHorario').text(data.horario);
+                $('#modalEResponsavel').text(data.responsavel);
+                $('#modalEAutorizador').text(data.autorizador ? data.autorizador : '-');
+                $('#formEditar').attr('action', url);
             });
         });
     </script>

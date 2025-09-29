@@ -11,8 +11,9 @@ from app.auxiliar.auxiliar_routes import (get_query_params,
                                           get_user_info, none_if_empty,
                                           register_return,
                                           registrar_log_generico_usuario)
-from app.auxiliar.constant import (PERM_ADMIN, PERM_RESERVA_AUDITORIO,
-                                   PERM_RESERVA_FIXA, PERM_RESERVA_TEMPORARIA)
+from app.auxiliar.constant import (PERM_ADMIN, PERM_AUTORIZAR,
+                                   PERM_RESERVA_AUDITORIO, PERM_RESERVA_FIXA,
+                                   PERM_RESERVA_TEMPORARIA)
 from app.auxiliar.dao import get_usuarios
 from app.auxiliar.decorators import admin_required
 from app.models import Permissoes, Pessoas, Usuarios, db
@@ -40,7 +41,8 @@ def get_flag(req:Request) -> int:
     flag_temp = PERM_RESERVA_TEMPORARIA if 'flag_temp' in req.form else 0
     flag_auditorio = PERM_RESERVA_AUDITORIO if 'flag_auditorio' in req.form else 0
     flag_admin = PERM_ADMIN if 'flag_admin' in req.form else 0
-    return flag_fixa|flag_temp|flag_auditorio|flag_admin
+    flag_autorizar = PERM_AUTORIZAR if 'flag_autorizar' in req.form else 0
+    return flag_fixa|flag_temp|flag_auditorio|flag_admin|flag_autorizar
 
 @bp.route("/permissoes", methods=["GET", "POST"])
 @admin_required

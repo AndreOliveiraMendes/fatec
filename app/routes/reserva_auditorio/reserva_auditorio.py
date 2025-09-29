@@ -1,5 +1,6 @@
 from copy import copy
 from datetime import datetime
+from typing import Literal
 
 from flask import (Blueprint, abort, current_app, flash, redirect,
                    render_template, request, session, url_for)
@@ -9,7 +10,7 @@ from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
 
 from app.auxiliar.auxiliar_routes import (get_user_info, parse_date_string,
                                           registrar_log_generico_usuario)
-from app.auxiliar.constant import PERM_ADMIN
+from app.auxiliar.constant import PERM_ADMIN, PERM_AUTORIZAR
 from app.auxiliar.dao import get_auditorios, get_reservas_auditorios
 from app.auxiliar.decorators import reserva_auditorio_required
 from app.models import (Reservas_Auditorios, StatusReservaAuditorioEnum,
@@ -35,15 +36,17 @@ def main_page():
     conditions = []
     if reserva_dia:
         conditions.append(Reservas_Auditorios.dia_reserva == reserva_dia)
-    extras['reservas_auditorios'] = get_reservas_auditorios(user.pessoa.id_pessoa, user.perm&PERM_ADMIN, *conditions)
+    extras['reservas_auditorios'] = get_reservas_auditorios(user.pessoa.id_pessoa, user.perm&(PERM_ADMIN+PERM_AUTORIZAR), *conditions)
     return render_template('reserva_auditorio/main.html', user=user, **extras)
 
 def check_own_reserva(reserva:Reservas_Auditorios, user:Usuarios):
-    if user.id_pessoa != reserva.id_responsavel and user.perm & PERM_ADMIN == 0:
+    if user.id_pessoa != reserva.id_responsavel and user.perm & (PERM_ADMIN+PERM_AUTORIZAR) == 0:
         abort(403)
 
-def check_role(user:Usuarios):
-    if user.perm & PERM_ADMIN == 0:
+def check_role(user:Usuarios, action:Literal['CR', 'AR']):
+    if action == 'CR' and user.perm & PERM_ADMIN == 0:
+        abort(403)
+    elif action == 'AR' and user.perm & (PERM_ADMIN+PERM_AUTORIZAR) == 0:
         abort(403)
 
 def check_unique_aprovada(reserva:Reservas_Auditorios):
@@ -68,11 +71,12 @@ def atualizar_status(id_reserva):
     userid = session.get('userid')
     user = get_user_info(userid)
     reserva = db.get_or_404(Reservas_Auditorios, id_reserva)
+    check_own_reserva(reserva, user)
     old_reserva = copy(reserva)
     old_status = reserva.status_reserva.value
     new_status = request.form.get('status')
     if old_status in ['Cancelada', 'Aguardando'] and new_status in ['Cancelada', 'Aguardando']:
-        check_own_reserva(reserva, user)
+        check_role(user, "CR")
         try:
             reserva.status_reserva = StatusReservaAuditorioEnum(new_status)
 
@@ -88,7 +92,7 @@ def atualizar_status(id_reserva):
             db.session.rollback()
             flash(f"Erro ao Atualizar:{ve}", "danger")
     if old_status in ['Aguardando', 'Aprovada', 'Reprovada'] and new_status in ['Aprovada', 'Reprovada']:
-        check_role(user)
+        check_role(user, "AR")
         if new_status == 'Aprovada':
             check_unique_aprovada(reserva)
         try:
@@ -123,5 +127,33 @@ def get_info_reserva(id_reserva):
         "observacao_autorizador": reserva.observação_autorizador,
         "status": reserva.status_reserva.value,
         "responsavel": reserva.responsavel.nome_pessoa,
-        "autorizador": reserva.autorizador.nome_pessoa if reserva.autorizador else None
+        "autorizador": reserva.autorizador.nome_pessoa if reserva.autorizador else None,
+        "comentario_responsavel": url_for('reservas_auditorios.editar_observacao', field='responsavel', id_reserva=id_reserva),
+        "comentario_autorizador": url_for('reservas_auditorios.editar_observacao', field='autorizador', id_reserva=id_reserva),
     }
+
+@bp.route('/editar/<field>/<int:id_reserva>', methods=['POST'])
+@reserva_auditorio_required
+def editar_observacao(field, id_reserva):
+    userid = session.get('userid')
+    user = get_user_info(userid)
+    reserva = db.get_or_404(Reservas_Auditorios, id_reserva)
+    check_own_reserva(reserva, user)
+    observacao = request.form.get('observacao')
+    old_reserva = copy(reserva)
+    try:
+        if field == 'responsavel':
+            reserva.observação_responsavel = observacao
+        elif field == 'autorizador':
+            reserva.observação_autorizador = observacao
+
+        db.session.flush()
+        registrar_log_generico_usuario(userid, 'Edição', reserva, old_reserva, 'comentario', True)
+
+        db.session.commit()
+        flash(f"Comentario {field} realizado com sucesso", "success")
+    except (DataError, IntegrityError, InterfaceError,
+        InternalError, OperationalError, ProgrammingError) as e:
+        db.session.rollback()
+        flash(f"Erro ao comentar:{str(e.orig)}", "danger")
+    return redirect(url_for('reservas_auditorios.main_page'))
