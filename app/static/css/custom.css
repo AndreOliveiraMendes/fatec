@@ -393,3 +393,7 @@ td.fixa {
     bottom: -0.3em;
     left: 1.7em;
 }
+
+.table-auditorio>tbody>tr>td {
+    vertical-align: middle;
+}
