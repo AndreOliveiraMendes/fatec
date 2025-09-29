@@ -164,3 +164,7 @@
         <small>Esta página se atualiza automaticamente.</small>
     </p>
 {% endblock footer %}
+{% block extra_css %}
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/modal_overwrite.css') }}">
+{% endblock extra_css %}

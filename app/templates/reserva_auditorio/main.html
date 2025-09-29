@@ -143,9 +143,13 @@
                 </div>
                 {% include "reserva_auditorio/modal_detalhes.html" %}
                 {% include "reserva_auditorio/modal_editar.html" %}
+                {% include "reserva_auditorio/modal_nova_reserva.html" %}
             {% else %}
                 <div class="alert alert-warning" role="alert">Nenhuma reserva ainda</div>
             {% endif %}
+        </div>
+        <div class="footer">
+            <a href="#modalNovaReserva" data-toggle="modal" class="btn btn-success">Abrir Nova Reserva</a>
         </div>
     </div>
 {% endblock content %}
@@ -205,3 +209,7 @@
         });
     </script>
 {% endblock extra_script %}
+{% block extra_css %}
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/modal_overwrite.css') }}">
+{% endblock extra_css %}
