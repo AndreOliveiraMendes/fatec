@@ -61,7 +61,7 @@ def check_unique_aprovada(reserva:Reservas_Auditorios):
         abort(409, description="Já existe uma reserva aprovada para este auditório no mesmo horário.")
 
 
-@bp.route('/atualizar_reserva/<int:id_reserva>', methods=['POST'])
+@bp.route('/atualizar_status_reserva/<int:id_reserva>', methods=['POST'])
 @reserva_auditorio_required
 def atualizar_status(id_reserva):
     """
