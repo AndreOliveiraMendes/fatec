@@ -198,6 +198,8 @@ def adicionar():
             nova_reserva.observação_responsavel = observacao
 
         db.session.add(nova_reserva)
+
+        db.session.flush()
         registrar_log_generico_usuario(userid, 'Inserção', nova_reserva, observacao='atraves da tela de reserva')
 
         db.session.commit()
