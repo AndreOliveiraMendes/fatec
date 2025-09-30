@@ -208,8 +208,92 @@
             });
         });
     </script>
+    <script>
+        document.getElementById('dia').addEventListener('change', function () {
+            const selectedDate = this.value;
+            const horaSelect = document.getElementById('hora');
+            const submitBtn = document.querySelector('#formNovaReserva button[type="submit"]');
+
+            // Reset select
+            horaSelect.innerHTML = '<option value="">Selecione um horário</option>';
+
+            if (!selectedDate) {
+                submitBtn.disabled = true;
+                return;
+            }
+
+            // Bloqueia envio enquanto carrega
+            submitBtn.disabled = true;
+
+            // Mostra "carregando..."
+            const loadingOption = document.createElement('option');
+            loadingOption.textContent = "⏳ Carregando horários...";
+            loadingOption.disabled = true;
+            loadingOption.selected = true;
+            horaSelect.appendChild(loadingOption);
+
+            fetch(`{{ url_for('reservas_auditorios.get_times') }}?dia=${selectedDate}`)
+                .then(response => response.json())
+                .then(data => {
+                    horaSelect.innerHTML = '<option value="">Selecione um horário</option>';
+                    if (data.length === 0) {
+                        const opt = document.createElement('option');
+                        opt.textContent = "Nenhum horário disponível";
+                        opt.disabled = true;
+                        horaSelect.appendChild(opt);
+                        return;
+                    }
+                    data.forEach(time => {
+                        const option = document.createElement('option');
+                        option.value = time.id_aula_ativa;
+                        option.textContent = `(${time.id_aula_ativa}) ${time.horario_inicio} às ${time.horario_fim}, ${time.nome_semana}`;
+                        horaSelect.appendChild(option);
+                    });
+                    submitBtn.disabled = false;
+                })
+                .catch(error => {
+                    console.error('Erro ao buscar horários:', error);
+                    horaSelect.innerHTML = '<option value="">Erro ao carregar horários</option>';
+                });
+        });
+        document.addEventListener("DOMContentLoaded", function () {
+            const diaInput = document.getElementById('dia');
+            if (diaInput.value) {
+                // dispara manualmente o evento change
+                diaInput.dispatchEvent(new Event('change'));
+            }
+        });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById('formNovaReserva');
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalHtml = submitBtn.innerHTML;
+
+            form.addEventListener('submit', function () {
+                // desabilita botão e mostra spinner
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Processando...';
+            });
+        });
+    </script>
 {% endblock extra_script %}
 {% block extra_css %}
     <link rel="stylesheet"
           href="{{ url_for('static', filename='css/modal_overwrite.css') }}">
+    <style>
+        /* Faz o ícone girar */
+        .glyphicon-refresh-animate {
+            -animation: spin .7s infinite linear;
+            -webkit-animation: spin .7s infinite linear;
+        }
+        @-webkit-keyframes spin {
+            from { -webkit-transform: rotate(0deg);}
+            to { -webkit-transform: rotate(360deg);}
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg);}
+            to { transform: rotate(360deg);}
+        }
+    </style>
 {% endblock extra_css %}

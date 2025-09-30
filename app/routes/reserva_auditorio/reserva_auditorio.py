@@ -2,7 +2,7 @@ from copy import copy
 from datetime import datetime
 from typing import Literal
 
-from flask import (Blueprint, abort, current_app, flash, redirect,
+from flask import (Blueprint, abort, current_app, flash, jsonify, redirect,
                    render_template, request, session, url_for)
 from sqlalchemy import func, select
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
@@ -11,9 +11,11 @@ from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
 from app.auxiliar.auxiliar_routes import (get_user_info, parse_date_string,
                                           registrar_log_generico_usuario)
 from app.auxiliar.constant import PERM_ADMIN, PERM_AUTORIZAR
-from app.auxiliar.dao import get_auditorios, get_reservas_auditorios
+from app.auxiliar.dao import (get_auditorios, get_aulas_ativas_por_dia,
+                              get_reservas_auditorios)
 from app.auxiliar.decorators import reserva_auditorio_required
-from app.models import (Reservas_Auditorios, StatusReservaAuditorioEnum,
+from app.models import (Aulas, Aulas_Ativas, Dias_da_Semana,
+                        Reservas_Auditorios, StatusReservaAuditorioEnum,
                         Usuarios, db)
 from config.general import LOCAL_TIMEZONE
 
@@ -26,7 +28,10 @@ def main_page():
     user = get_user_info(userid)
     today = datetime.now(LOCAL_TIMEZONE)
     extras = {'dia':today}
-    extras['auditorios'] = get_auditorios()
+    auditorios = get_auditorios()
+    if len(auditorios) == 0:
+        abort(500)
+    extras['auditorios'] = auditorios
 
     reserva_dia = parse_date_string(request.args.get('reserva-dia'))
     if not 'reserva-dia' in request.args:
@@ -156,4 +161,49 @@ def editar_observacao(field, id_reserva):
         InternalError, OperationalError, ProgrammingError) as e:
         db.session.rollback()
         flash(f"Erro ao comentar:{str(e.orig)}", "danger")
+    return redirect(url_for('reservas_auditorios.main_page'))
+
+@bp.route('/api/times', methods=['GET'])
+def get_times():
+    dia = parse_date_string(request.args.get('dia'))
+    if not dia:
+        abort(500)
+    aulas_ativas = get_aulas_ativas_por_dia(dia)
+    result = []
+    for aula_ativa, aula, dia_semana in aulas_ativas:
+        result.append({
+            'id_aula_ativa': aula_ativa.id_aula_ativa,
+            'horario_inicio': aula.horario_inicio.strftime('%H:%M'),
+            'horario_fim': aula.horario_fim.strftime('%H:%M'),
+            'nome_semana': dia_semana.nome_semana
+        })
+    return result
+
+@bp.route('/adicionando_reserva_auditorio', methods=['POST'])
+@reserva_auditorio_required
+def adicionar():
+    userid = session.get('userid')
+    user = get_user_info(userid)
+    auditorio = request.form.get('auditorio')
+    dia = parse_date_string(request.form.get('dia'))
+    hora = request.form.get('hora')
+    observacao = request.form.get('observacao')
+    try:
+        nova_reserva = Reservas_Auditorios()
+        nova_reserva.id_reserva_local = auditorio
+        nova_reserva.id_reserva_aula = hora
+        nova_reserva.dia_reserva = dia
+        nova_reserva.id_responsavel = user.id_pessoa
+        if observacao:
+            nova_reserva.observação_responsavel = observacao
+
+        db.session.add(nova_reserva)
+        registrar_log_generico_usuario(userid, 'Inserção', nova_reserva, observacao='atraves da tela de reserva')
+
+        db.session.commit()
+        flash("reserva adicionada com sucesso", "success")
+    except (DataError, IntegrityError, InterfaceError,
+        InternalError, OperationalError, ProgrammingError) as e:
+        db.session.rollback()
+        flash(f"Erro ao adicionar:{str(e.orig)}", "danger")
     return redirect(url_for('reservas_auditorios.main_page'))

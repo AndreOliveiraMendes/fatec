@@ -61,7 +61,10 @@ def get_laboratorios(ignorar_inativo=False):
 #auditorios
 def get_auditorios():
     sel_auditorios = select(Locais)
-    filtro = [Locais.tipo == TipoLocalEnum.AUDITORIO]
+    filtro = [
+        Locais.tipo == TipoLocalEnum.AUDITORIO,
+        Locais.disponibilidade == DisponibilidadeEnum.DISPONIVEL
+    ]
     sel_auditorios = sel_auditorios.where(*filtro)
     return db.session.execute(sel_auditorios).scalars().all()
 
