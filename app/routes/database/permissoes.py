@@ -3,15 +3,17 @@ import copy
 from flask import Blueprint, Request, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
-from sqlalchemy.exc import DataError, IntegrityError, OperationalError
+from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
+                            InternalError, OperationalError, ProgrammingError)
 
 from app.auxiliar.auxiliar_routes import (get_query_params,
                                           get_session_or_request,
                                           get_user_info, none_if_empty,
                                           register_return,
                                           registrar_log_generico_usuario)
-from app.auxiliar.constant import (PERM_ADMIN, PERM_RESERVA_AUDITORIO,
-                                   PERM_RESERVA_FIXA, PERM_RESERVA_TEMPORARIA)
+from app.auxiliar.constant import (PERM_ADMIN, PERM_AUTORIZAR,
+                                   PERM_RESERVA_AUDITORIO, PERM_RESERVA_FIXA,
+                                   PERM_RESERVA_TEMPORARIA)
 from app.auxiliar.dao import get_usuarios
 from app.auxiliar.decorators import admin_required
 from app.models import Permissoes, Pessoas, Usuarios, db
@@ -39,7 +41,8 @@ def get_flag(req:Request) -> int:
     flag_temp = PERM_RESERVA_TEMPORARIA if 'flag_temp' in req.form else 0
     flag_auditorio = PERM_RESERVA_AUDITORIO if 'flag_auditorio' in req.form else 0
     flag_admin = PERM_ADMIN if 'flag_admin' in req.form else 0
-    return flag_fixa|flag_temp|flag_auditorio|flag_admin
+    flag_autorizar = PERM_AUTORIZAR if 'flag_autorizar' in req.form else 0
+    return flag_fixa|flag_temp|flag_auditorio|flag_admin|flag_autorizar
 
 @bp.route("/permissoes", methods=["GET", "POST"])
 @admin_required
@@ -50,7 +53,7 @@ def gerenciar_permissoes():
     bloco = int(request.form.get('bloco', 0))
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     extras = {'url':url}
     if request.method == 'POST':
         if acao == 'listar':
@@ -107,7 +110,7 @@ def gerenciar_permissoes():
                     observacao=f"0b{flag:03b}")
                 db.session.commit()
                 flash("Permissao cadastrada com sucesso", "success")
-            except (IntegrityError, OperationalError, DataError) as e:
+            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
                 db.session.rollback()
                 flash(f"Erro ao inserir pessoa: {str(e.orig)}", "danger")
 
@@ -139,7 +142,7 @@ def gerenciar_permissoes():
                         observacao=observacao) # Loga com os dados antigos + novos
                     db.session.commit()
                     flash("Permissao atualizada com sucesso", "success")
-                except (IntegrityError, OperationalError, DataError) as e:
+                except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
                     db.session.rollback()
                     flash(f"Erro ao atualizar pessoa: {str(e.orig)}", "danger")
 
@@ -162,7 +165,7 @@ def gerenciar_permissoes():
                     db.session.commit()
                     flash("Permissao excluída com sucesso", "success")
 
-                except (IntegrityError, OperationalError, DataError) as e:
+                except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
                     db.session.rollback()
                     flash(f"Erro ao excluir usuario: {str(e.orig)}", "danger")
 
@@ -171,4 +174,4 @@ def gerenciar_permissoes():
     if redirect_action:
         return redirect_action
     return render_template("database/table/permissoes.html",
-        username=username, perm=perm, acao=acao, bloco=bloco, **extras)
+        user=user, acao=acao, bloco=bloco, **extras)

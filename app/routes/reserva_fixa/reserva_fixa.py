@@ -7,7 +7,8 @@ from flask import (Blueprint, abort, current_app, flash, redirect,
 from markupsafe import Markup
 from mysql.connector import DatabaseError, OperationalError
 from sqlalchemy import between, select
-from sqlalchemy.exc import DataError, IntegrityError, OperationalError
+from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
+                            InternalError, OperationalError, ProgrammingError)
 
 from app.auxiliar.auxiliar_routes import (check_local, get_responsavel_reserva,
                                           get_unique_or_500, get_user_info,
@@ -56,14 +57,14 @@ def check_semestre(semestre:Semestres, userid, perm:Permissoes):
     if (today - semestre.data_inicio_reserva).days < semestre.dias_de_prioridade:
         has_priority, prioridade = get_prioridade()
         user = db.get_or_404(Usuarios, userid)
-        if has_priority and not user.pessoas.id_pessoa in prioridade:
+        if has_priority and not user.pessoa.id_pessoa in prioridade:
             abort(403)
 
 @bp.route('/')
 @reserva_fixa_required
 def main_page():
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     extras = {}
     sel_semestre = select(Semestres).order_by(Semestres.data_inicio)
     semestres = db.session.execute(sel_semestre).scalars().all()
@@ -81,7 +82,7 @@ def main_page():
         else:
             state = 'default'
         if today < semestre.data_inicio_reserva or today > semestre.data_fim_reserva:
-            if not perm&PERM_ADMIN > 0:
+            if not user.perm&PERM_ADMIN > 0:
                 state += ' disabled'
             icon = Markup("<span class='glyphicon glyphicon-lock'></span>")
         elif (today - semestre.data_inicio_reserva).days < semestre.dias_de_prioridade:
@@ -89,15 +90,15 @@ def main_page():
         semestre.state = state
         semestre.icon = icon
     extras['day'] = today
-    return render_template('reserva_fixa/main.html', username=username, perm=perm, **extras)
+    return render_template('reserva_fixa/main.html', user=user, **extras)
 
 @bp.route('/semestre/<int:id_semestre>')
 @reserva_fixa_required
 def get_semestre(id_semestre):
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     semestre = db.get_or_404(Semestres, id_semestre)
-    check_semestre(semestre, userid, perm)
+    check_semestre(semestre, userid, user.perm)
     today = date.today()
     extras = {'semestre':semestre, 'day':today}
     sel_turnos = select(Turnos).order_by(Turnos.horario_inicio)
@@ -106,7 +107,7 @@ def get_semestre(id_semestre):
         flash("cadastre ao menos 1 turno", "danger")
         return redirect(url_for('default.home'))
     extras['turnos'] = turnos
-    return render_template('reserva_fixa/semestre.html', username=username, perm=perm, **extras)
+    return render_template('reserva_fixa/semestre.html', user=user, **extras)
 
 @bp.before_request
 def return_counter():
@@ -133,14 +134,14 @@ def get_lab(id_semestre, id_turno=None, id_lab=None):
 
 def get_lab_geral(id_semestre, id_turno=None):
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     semestre = db.get_or_404(Semestres, id_semestre)
-    check_semestre(semestre, userid, perm)
+    check_semestre(semestre, userid, user.perm)
     turno = db.get_or_404(Turnos, id_turno) if id_turno is not None else id_turno
     today = date.today()
     extras = {'semestre':semestre, 'turno':turno, 'day':today}
     aulas = get_aulas_ativas_por_semestre(semestre, turno)
-    locais = get_laboratorios(perm&PERM_ADMIN)
+    locais = get_laboratorios(user.perm&PERM_ADMIN)
     if len(aulas) == 0 or len(locais) == 0:
         if len(aulas) == 0:
             flash("não há horarios disponiveis nesse turno", "danger")
@@ -179,16 +180,16 @@ def get_lab_geral(id_semestre, id_turno=None):
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
     extras['contador'] = session.get('contador')
-    return render_template('reserva_fixa/geral.html', username=username, perm=perm, **extras)
+    return render_template('reserva_fixa/geral.html', user=user, **extras)
 
 def get_lab_especifico(id_semestre, id_turno, id_lab):
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     semestre = db.get_or_404(Semestres, id_semestre)
-    check_semestre(semestre, userid, perm)
+    check_semestre(semestre, userid, user.perm)
     turno = db.get_or_404(Turnos, id_turno) if id_turno is not None else id_turno
     local = db.get_or_404(Locais, id_lab)
-    check_local(local, perm)
+    check_local(local, user.perm)
     today = date.today()
     extras = {'semestre':semestre, 'turno':turno, 'local':local, 'day':today}
     aulas = get_aulas_ativas_por_semestre(semestre, turno)
@@ -238,8 +239,8 @@ def get_lab_especifico(id_semestre, id_turno, id_lab):
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
     extras['contador'] = session.get('contador')
-    extras['locais'] = get_laboratorios(perm&PERM_ADMIN)
-    return render_template('reserva_fixa/especifico.html', username=username, perm=perm, **extras)
+    extras['locais'] = get_laboratorios(user.perm&PERM_ADMIN)
+    return render_template('reserva_fixa/especifico.html', user=user, **extras)
 
 @bp.route('/semestre/<int:id_semestre>', methods=['POST'])
 @reserva_fixa_required
@@ -286,7 +287,7 @@ def efetuar_reserva(id_semestre):
         db.session.commit()
         flash("reserva efetuada com sucesso", "success")
         current_app.logger.info(f"reserva efetuada com sucesso para {reserva}")
-    except (IntegrityError, OperationalError, DataError) as e:
+    except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
         db.session.rollback()
         flash(f"Erro ao efetuar reserva:{str(e.orig)}", "danger")
         current_app.logger.error(f"falha ao realizar reserva:{e}")

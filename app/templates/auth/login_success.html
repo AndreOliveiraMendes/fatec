@@ -3,7 +3,7 @@
     Entrando
 {% endblock title %}
 {% block extra_script %}
-    {% set url = url_admin if perm and perm|has_flag(ADMIN) else url_base %}
+    {% set url = url_admin if user.perm|has_flag(ADMIN) else url_base %}
     {{ dynamic_redirect(5, "Você será redirecionado em ${segundos} segundos.", url ) }}
 {% endblock extra_script %}
 {% block content %}

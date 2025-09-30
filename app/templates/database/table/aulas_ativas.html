@@ -334,7 +334,7 @@
                     {% for at in aulas_ativas %}
                         <tr>
                             <td>{{ at.id_aula_ativa }}</td>
-                            <td>{{ at.aulas.selector_identification }}</td>
+                            <td>{{ at.aula.selector_identification }}</td>
                             <td>{{ at.inicio_ativacao|data if at.inicio_ativacao else '-' }}</td>
                             <td>{{ at.fim_ativacao|data if at.fim_ativacao else '-' }}</td>
                             <td>{{ at.dia_da_semana.nome_semana.capitalize() }}</td>

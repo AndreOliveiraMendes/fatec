@@ -100,7 +100,7 @@
                        class="form-control"
                        placeholder="insira a descrição da reserva">
             </div>
-            {% if perm and perm|has_flag(ADMIN) %}
+            {% if user and user.perm|has_flag(ADMIN) %}
                 <div class="form-group">
                     <label for="responsavel">Responsavel:</label>
                     <select id="responsavel" name="responsavel" class="form-control">

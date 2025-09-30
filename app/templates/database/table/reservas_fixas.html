@@ -464,12 +464,12 @@
                     {% for rf in reservas_fixas %}
                         <tr>
                             <td>{{ rf.id_reserva_fixa }}</td>
-                            <td>{{ rf.pessoas.nome_pessoa if rf.id_responsavel else '-' }}</td>
-                            <td>{{ rf.usuarios_especiais.nome_usuario_especial if rf.id_responsavel_especial else '-' }}</td>
+                            <td>{{ rf.pessoa.nome_pessoa if rf.id_responsavel else '-' }}</td>
+                            <td>{{ rf.usuario_especial.nome_usuario_especial if rf.id_responsavel_especial else '-' }}</td>
                             <td>{{ rf.tipo_responsavel|tipo_responsavel_label }}</td>
-                            <td>{{ rf.locais.nome_local }}</td>
-                            <td>{{ rf.aulas_ativas.selector_identification }}</td>
-                            <td>{{ rf.semestres.nome_semestre }}</td>
+                            <td>{{ rf.local.nome_local }}</td>
+                            <td>{{ rf.aula_ativa.selector_identification }}</td>
+                            <td>{{ rf.semestre.nome_semestre }}</td>
                             <td>{{ rf.finalidade_reserva.value }}</td>
                             <td>{{ rf.observacoes if rf.observacoes else '-' }}</td>
                             <td>{{ rf.descricao if rf.descricao else '-' }}</td>

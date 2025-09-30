@@ -5,7 +5,7 @@
 {% block content_head %}
     <div class="panel panel-default">
         <div class="panel-heading">{{ generate_database_head("database_permissoes") }}</div>
-        <div class="panel-body">{{ generate_head(url_for(url), acao, disable=disable) }}</div>
+        <div class="panel-body">{{ generate_head(url_for(url) , acao, disable=disable) }}</div>
     </div>
 {% endblock content_head %}
 {% block abertura %}
@@ -59,6 +59,9 @@
                             <li>
                                 <code>8</code> = Administrador
                             </li>
+                            <li>
+                                <code>16</code> = Autorizar Reservas Auditorio
+                            </li>
                         </ul>
                     </td>
                 </tr>
@@ -101,8 +104,13 @@
                                 AUDITORIO
                             </label>
                             <label title="Permissão de administrador" for="btn-check-4">
-                                <input id="btn-check-3" type="checkbox" name="flag_admin">
+                                <input id="btn-check-4" type="checkbox" name="flag_admin">
                                 ADMIN
+                            </label>
+                            <label title="Permissão de autorizar reservas de auditorio"
+                                   for="btn-check-5">
+                                <input id="btn-check-5" type="checkbox" name="flag_autorizar">
+                                AUTORIZAR
                             </label>
                         </div>
                         <hr>
@@ -159,6 +167,11 @@
                             <label title="Permissão de administrador" for="btn-check-4">
                                 <input id="btn-check-4" type="checkbox" name="flag_admin">
                                 ADMIN
+                            </label>
+                            <label title="Permissão de autorizar reservas de auditorio"
+                                   for="btn-check-5">
+                                <input id="btn-check-5" type="checkbox" name="flag_autorizar">
+                                AUTORIZAR
                             </label>
                         </div>
                     </div>
@@ -235,8 +248,15 @@
                                            type="checkbox"
                                            name="flag_admin"
                                            {% if permissao.permissao|has_flag(ADMIN) %}checked{% endif %}>
-                                    ADMIN
                                 {% endif %}
+                                ADMIN
+                            </label>
+                            <label title="Permissão de reserva de auditorio" for="btn-check-5">
+                                <input id="btn-check-5"
+                                       type="checkbox"
+                                       name="flag_auditorio"
+                                       {% if permissao.permissao|has_flag(AUTORIZAR) %}checked{% endif %}>
+                                AUTORIZAR
                             </label>
                         </div>
                     </div>
@@ -311,6 +331,14 @@
                                        disabled>
                                 ADMIN
                             </label>
+                            <label title="Permissão de reserva de auditorio" for="btn-check-5">
+                                <input id="btn-check-5"
+                                       type="checkbox"
+                                       name="flag_auditorio"
+                                       {% if permissao.permissao|has_flag(AUTORIZAR) %}checked{% endif %}
+                                       disabled>
+                                AUTORIZAR
+                            </label>
                         </div>
                     </div>
                 </div>
@@ -331,13 +359,14 @@
                         <th>TEMP</th>
                         <th>AUDITORIO</th>
                         <th>ADMIN</th>
+                        <th>AUTORIZAR</th>
                         <th>Ação</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for p in permissoes %}
                         <tr>
-                            <td>({{ p.id_permissao_usuario }}) {{ p.usuarios.pessoas.nome_pessoa }}</td>
+                            <td>({{ p.id_permissao_usuario }}) {{ p.usuario.pessoa.nome_pessoa }}</td>
                             <td>{{ p.permissao }}</td>
                             <td>
                                 <i title="Permissão de reserva fixa"
@@ -354,6 +383,10 @@
                             <td>
                                 <i title="Permissão de administrador"
                                    class="{% if p.permissao|has_flag(ADMIN) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}"></i>
+                            </td>
+                            <td>
+                                <i title="Permissão de autorizar reservas"
+                                   class="{% if p.permissao|has_flag(AUTORIZAR) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}"></i>
                             </td>
                             <td>
                                 <form method="post" class="form-inline">

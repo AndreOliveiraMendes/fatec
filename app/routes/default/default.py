@@ -12,14 +12,14 @@ def painel():
 @bp.route("/home")
 def home():
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
-    return render_template("homepage.html", username=username, perm=perm)
+    user = get_user_info(userid)
+    return render_template("homepage.html", user=user)
 
 @bp.route('/under_dev')
 def under_dev_page():
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
-    return render_template('under_dev.html', username=username, perm=perm)
+    user = get_user_info(userid)
+    return render_template('under_dev.html', user=user)
 
 @bp.route('/favicon.svg')
 def favicon_svg():

@@ -3,7 +3,8 @@ import copy
 from flask import Blueprint, abort, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
-from sqlalchemy.exc import DataError, IntegrityError, OperationalError
+from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
+                            InternalError, OperationalError, ProgrammingError)
 
 from app.auxiliar.auxiliar_routes import (disable_action, get_query_params,
                                           get_session_or_request,
@@ -26,7 +27,7 @@ def gerenciar_usuarios():
     bloco = int(request.form.get('bloco', 0))
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     disabled = ['inserir', 'editar', 'excluir']
     extras = {'url':url}
     disable_action(extras, disabled)
@@ -96,7 +97,7 @@ def gerenciar_usuarios():
                 registrar_log_generico_usuario(userid, "Inserção", novo_usuario)
                 db.session.commit()
                 flash("Usuario cadastrado com sucesso", "success")
-            except (IntegrityError, OperationalError, DataError) as e:
+            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
                 db.session.rollback()
                 flash(f"Erro ao inserir usuario: {str(e.orig)}", "danger")
 
@@ -133,7 +134,7 @@ def gerenciar_usuarios():
 
                 db.session.commit()
                 flash("Usuario atualizado com sucesso", "success")
-            except (IntegrityError, OperationalError, DataError) as e:
+            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
                 db.session.rollback()
                 flash(f"Erro ao atualizar usuario: {str(e.orig)}", "danger")
 
@@ -155,7 +156,7 @@ def gerenciar_usuarios():
                     db.session.commit()
                     flash("Usuario excluído com sucesso", "success")
 
-                except (IntegrityError, OperationalError, DataError) as e:
+                except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
                     db.session.rollback()
                     flash(f"Erro ao excluir usuario: {str(e.orig)}", "danger")
 
@@ -164,4 +165,4 @@ def gerenciar_usuarios():
     if redirect_action:
         return redirect_action
     return render_template("database/table/usuarios.html",
-        username=username, perm=perm, acao=acao, bloco=bloco, **extras)
+        user=user, acao=acao, bloco=bloco, **extras)

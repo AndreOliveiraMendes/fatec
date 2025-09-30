@@ -3,7 +3,8 @@ import copy
 from flask import Blueprint, abort, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
-from sqlalchemy.exc import DataError, IntegrityError, OperationalError
+from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
+                            InternalError, OperationalError, ProgrammingError)
 
 from app.auxiliar.auxiliar_routes import (disable_action, get_query_params,
                                           get_session_or_request,
@@ -26,7 +27,7 @@ def gerenciar_pessoas():
     bloco = int(request.form.get('bloco', 0))
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     disabled = ['inserir', 'excluir']
     extras = {'url':url}
     disable_action(extras, disabled)
@@ -94,7 +95,7 @@ def gerenciar_pessoas():
                 registrar_log_generico_usuario(userid, "Inserção", nova_pessoa)
                 db.session.commit()
                 flash("Pessoa cadastrada com sucesso", "success")
-            except (IntegrityError, OperationalError, DataError) as e:
+            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
                 db.session.rollback()
                 flash(f"Erro ao inserir pessoa: {str(e.orig)}", "danger")
 
@@ -130,14 +131,13 @@ def gerenciar_pessoas():
                 db.session.commit()
                 flash("Pessoa atualizada com sucesso", "success")
 
-            except (IntegrityError, OperationalError, DataError) as e:
+            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
                 db.session.rollback()
                 flash(f"Erro ao atualizar pessoa: {str(e.orig)}", "danger")
 
             redirect_action, bloco = register_return(url,
                 acao, extras, pessoas=get_pessoas(acao, userid))
         elif acao == 'excluir' and bloco == 2:
-            user = db.session.get(Usuarios, userid)
             id_pessoa = none_if_empty(request.form.get('id_pessoa'), int)
 
             pessoa = db.get_or_404(Pessoas, id_pessoa)
@@ -154,7 +154,7 @@ def gerenciar_pessoas():
                     db.session.commit()
                     flash("Pessoa excluída com sucesso", "success")
 
-                except (IntegrityError, OperationalError, DataError) as e:
+                except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
                     db.session.rollback()
                     flash(f"Erro ao excluir pessoa: {str(e.orig)}", "danger")
 
@@ -163,4 +163,4 @@ def gerenciar_pessoas():
     if redirect_action:
         return redirect_action
     return render_template("database/table/pessoas.html",
-        username=username, perm=perm, acao=acao, bloco=bloco, **extras)
+        user=user, acao=acao, bloco=bloco, **extras)

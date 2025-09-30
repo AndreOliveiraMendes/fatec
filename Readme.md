@@ -37,6 +37,7 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │   │   ├── decorators.py
 │   │   ├── error.py
 │   │   └── url_custom_types.py
+│   ├── enums.py
 │   ├── extensions.py
 │   ├── models.py
 │   ├── routes
@@ -58,6 +59,7 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │   │   │   ├── main.py
 │   │   │   ├── permissoes.py
 │   │   │   ├── pessoas.py
+│   │   │   ├── reservas_auditorios.py
 │   │   │   ├── reservas_fixas.py
 │   │   │   ├── reservas_temporarias.py
 │   │   │   ├── semestres.py
@@ -74,6 +76,9 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │   │   ├── reserva
 │   │   │   ├── __init__.py
 │   │   │   └── reserva.py
+│   │   ├── reserva_auditorio
+│   │   │   ├── __init__.py
+│   │   │   └── reserva_auditorio.py
 │   │   ├── reserva_fixa
 │   │   │   ├── __init__.py
 │   │   │   └── reserva_fixa.py
@@ -95,7 +100,8 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │   │   ├── css
 │   │   │   ├── bootstrap.min.css
 │   │   │   ├── bootstrap.min.css.map
-│   │   │   └── custom.css
+│   │   │   ├── custom.css
+│   │   │   └── modal_overwrite.css
 │   │   ├── fonts
 │   │   │   ├── glyphicons-halflings-regular.eot
 │   │   │   ├── glyphicons-halflings-regular.svg
@@ -122,6 +128,7 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │       ├── base-fixed
 │       ├── base-fluid
 │       ├── database
+│       │   ├── menu.html
 │       │   ├── schema
 │       │   │   ├── database.html
 │       │   │   ├── schema.html
@@ -143,6 +150,7 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │       │       ├── locais.html
 │       │       ├── permissoes.html
 │       │       ├── pessoas.html
+│       │       ├── reservas_auditorios.html
 │       │       ├── reservas_fixas.html
 │       │       ├── reservas_temporarias.html
 │       │       ├── semestres.html
@@ -160,6 +168,7 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │       │   ├── 401.html
 │       │   ├── 403.html
 │       │   ├── 404.html
+│       │   ├── 409.html
 │       │   ├── 422.html
 │       │   └── 500.html
 │       ├── macros
@@ -170,6 +179,11 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │       │   ├── main.html
 │       │   ├── televisor.html
 │       │   └── televisor_control.html
+│       ├── reserva_auditorio
+│       │   ├── main.html
+│       │   ├── modal_detalhes.html
+│       │   ├── modal_editar.html
+│       │   └── modal_nova_reserva.html
 │       ├── reserva_fixa
 │       │   ├── especifico.html
 │       │   ├── geral.html
@@ -198,10 +212,8 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │   ├── mapeamentos.py
 │   ├── painel.json
 │   └── secret.json
-├── configurar_vscode.bat
 ├── requirements.txt
 ├── schema.sql
-├── start-dev.bat
 └── wsgi.py
 ```
 
@@ -270,3 +282,17 @@ gunicorn -w 4 -b 0.0.0.0:5000 wsgi:app
 ✅ Implementar: Usuario -> 1 dispositivo por vez
 
 ---
+
+## VSCode Configuration
+
+You can configure Visual Studio Code for your project by creating a `.vscode/settings.json` file with the following properties:
+
+- **File Associations**: 
+  - Files matching `base*`, `*.jinja`, and `*.html` will be treated as Jinja HTML files, enabling syntax highlighting and IntelliSense for Jinja templates.
+
+- **Editor Settings**:
+  - **Tab Size**: Set to **4 spaces** for consistent indentation.
+  - **Insert Spaces**: Enables spaces instead of tabs for indentation.
+  - **End of Line**: Configured to use **LF** (`\n`) for line endings, ensuring compatibility across different operating systems.
+
+This setup enhances your development experience by providing appropriate syntax highlighting and consistent formatting for Jinja templates.

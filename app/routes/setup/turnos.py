@@ -1,6 +1,7 @@
 from flask import (Blueprint, flash, redirect, render_template, request,
                    session, url_for)
-from sqlalchemy.exc import DataError, IntegrityError, OperationalError
+from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
+                            InternalError, OperationalError, ProgrammingError)
 
 from app.auxiliar.auxiliar_routes import (get_user_info, none_if_empty,
                                           parse_time_string,
@@ -15,7 +16,7 @@ bp = Blueprint('setup_turnos', __name__, url_prefix="/database/fast_setup/")
 @admin_required
 def fast_setup_turnos():
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     stage = int(request.form.get('stage', request.args.get('stage', 0)))
     extras = {'extras':SETUP_HEAD}
     if stage == 1:
@@ -61,10 +62,10 @@ def fast_setup_turnos():
 
             db.session.commit()
             flash("Configuração rapida dos turnos efetuada com sucesso", "success")
-        except (IntegrityError, OperationalError, DataError) as e:
+        except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
             db.session.rollback()
             flash(f"Erro ao executar configuração rapida:{str(e.orig)}", "danger")
 
         return redirect(url_for('setup.fast_setup_menu'))
     return render_template('database/setup/turnos.html',
-        username=username, perm=perm, stage=stage, **extras)
+        user=user, stage=stage, **extras)

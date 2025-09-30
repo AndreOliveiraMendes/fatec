@@ -9,7 +9,7 @@ bp = Blueprint('setup', __name__, url_prefix="/database/fast_setup/")
 @admin_required
 def fast_setup_menu():
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
 
     extras = {}
     tables = [
@@ -36,4 +36,4 @@ def fast_setup_menu():
         }
     ]
     extras['tables'] = tables
-    return render_template('database/setup/menu.html', username=username, perm=perm, **extras)
+    return render_template('database/setup/menu.html', user=user, **extras)

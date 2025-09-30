@@ -3,7 +3,7 @@
     Controle de Exibição
 {% endblock title %}
 {% block content %}
-    {{ generate_situacao_head('exibicao') }}
+    {{ generate_situacao_head("exibicao") }}
     <h3>Hoje: {{ hoje|data }}</h3>
     <div class="panel panel-default">
         <div class="panel-heading">
@@ -71,7 +71,7 @@
                         <tbody>
                             {% for reserva in reservas %}
                                 <tr>
-                                    <td>{{ reserva.horario.aulas.horario_inicio|hora }} - {{ reserva.horario.aulas.horario_fim|hora }}</td>
+                                    <td>{{ reserva.horario.aula.horario_inicio|hora }} - {{ reserva.horario.aula.horario_fim|hora }}</td>
                                     <td>{{ reserva.local.nome_local }}</td>
                                     <td>{{ get_responsavel_reserva(reserva.fixa) if reserva.fixa else '' }}</td>
                                     <td>{{ get_responsavel_reserva(reserva.temporaria) if reserva.temporaria else '' }}</td>
@@ -98,6 +98,7 @@
                                                         name="exibicao"
                                                         value="{{ label }}"
                                                         class="btn-icon"
+                                                        data-toggle="tooltip"
                                                         title="{{ label }}"
                                                         {{ extra }}>
                                                     <span class="glyphicon {{ icon }} text-{{ style }}"></span>
@@ -125,3 +126,10 @@
         {% endfor %}
     </div>
 {% endblock footer %}
+{% block extra_script %}
+    <script>
+        $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
+{% endblock extra_script %}

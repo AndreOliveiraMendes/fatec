@@ -1,0 +1,299 @@
+{% extends "base-fixed" %}
+{% block title %}
+    Auditorios
+{% endblock title %}
+{% block content %}
+    <div class="btn-group">
+        <a href="{{ url_for('default.home') }}" class="btn btn-default">
+            <span class="glyphicon glyphicon-home"></span> Início
+        </a>
+    </div>
+    <p>
+        <strong>Dia:</strong> {{ dia|datainfo(DATA_NUMERICA+HORA+SEMANA_COMPLETA) }}
+    </p>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Reservas de Auditorio</h3>
+            <form method="get"
+                  class="form-inline"
+                  action="{{ url_for('reservas_auditorios.main_page') }}">
+                <div class="form-group">
+                    <label for="reserva-dia">dia:</label>
+                    <input type="date"
+                           class="form-control"
+                           value="{{ reserva_dia }}"
+                           id="reserva-dia"
+                           name="reserva-dia"
+                           onchange="if (this.checkValidity()) this.form.submit();">
+                </div>
+            </form>
+        </div>
+        <div class="panel-body">
+            {% if reservas_auditorios %}
+                <div class="table-responsive">
+                    <table class="table table-auditorio table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                {% if auditorios|length > 1 %}<th>Auditorio</th>{% endif %}
+                                <th>Dia</th>
+                                <th>Horario</th>
+                                <th>Responsavel</th>
+                                <th>Status</th>
+                                <th>Autorizador</th>
+                                <th>Ações</th>
+                                <th>Notas & Detalhes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reserva in reservas_auditorios %}
+                                <tr>
+                                    {% if auditorios|length > 1 %}<td>{{ reserva.local.nome_local }}</td>{% endif %}
+                                    <td>{{ reserva.dia_reserva|data }}</td>
+                                    <td>{{ reserva.aula_ativa.aula.horario_inicio|hora }} - {{ reserva.aula_ativa.aula.horario_fim|hora }}</td>
+                                    <td>{{ reserva.responsavel.nome_pessoa }}</td>
+                                    <td>
+                                        <span class="badge_status {{ reserva.status_reserva.value }}">{{ reserva.status_reserva.value }}</span>
+                                    </td>
+                                    <td>{{ reserva.autorizador.nome_pessoa if reserva.autorizador else '-' }}</td>
+                                    <td>
+                                        <form class="form-inline"
+                                              role="form"
+                                              action="{{ url_for('reservas_auditorios.atualizar_status', id_reserva=reserva.id_reserva_auditorio) }}"
+                                              method="post">
+                                            {% if reserva.status_reserva.value == 'Aguardando' and (reserva.id_responsavel == user.id_pessoa or user.perm|has_flag(ADMIN)) %}
+                                                <button type="submit" class="btn-icon" name="status" value="Cancelada">
+                                                    <span class="glyphicon glyphicon-remove icon-auditorio"
+                                                          aria-hidden="true"
+                                                          data-toggle="tooltip"
+                                                          title="Cancelar"></span>
+                                                </button>
+                                            {% elif reserva.status_reserva.value == 'Cancelada' and (reserva.id_responsavel == user.id_pessoa or user.perm|has_flag(ADMIN)) %}
+                                                <button type="submit" class="btn-icon" name="status" value="Aguardando">
+                                                    <span class="glyphicon glyphicon-ok icon-auditorio"
+                                                          aria-hidden="true"
+                                                          data-toggle="tooltip"
+                                                          title="Reabrir"></span>
+                                                </button>
+                                            {% endif %}
+                                            {% if user.perm|has_flag(ADMIN+AUTORIZAR) and reserva.status_reserva.value in ['Aguardando', 'Aprovada', 'Reprovada'] %}
+                                                {% if reserva.status_reserva.value != 'Reprovada' %}
+                                                    <button type="submit" class="btn-icon" name="status" value="Reprovada">
+                                                        <span class="glyphicon glyphicon-thumbs-down icon-auditorio"
+                                                              aria-hidden="true"
+                                                              data-toggle="tooltip"
+                                                              title="Reprovar"></span>
+                                                    </button>
+                                                {% endif %}
+                                                {% if reserva.status_reserva.value != 'Aprovada' %}
+                                                    <button type="submit" class="btn-icon" name="status" value="Aprovada">
+                                                        <span class="glyphicon glyphicon-thumbs-up icon-auditorio"
+                                                              aria-hidden="true"
+                                                              data-toggle="tooltip"
+                                                              title="Aprovar"></span>
+                                                    </button>
+                                                {% endif %}
+                                            {% endif %}
+                                        </form>
+                                    </td>
+                                    <td>
+                                        {% if reserva.id_responsavel == user.id_pessoa %}
+                                            <a href="#modalEditar"
+                                               data-toggle="modal"
+                                               data-info-url="{{ url_for('reservas_auditorios.get_info_reserva', id_reserva=reserva.id_reserva_auditorio) }}"
+                                               data-origem="responsavel"
+                                               class="btn btn-icon btn-xs btn-editar">
+                                                <span class="icon-stack"
+                                                      data-toggle="tooltip"
+                                                      title="Observação do responsável">
+                                                    <span class="glyphicon glyphicon-comment base-icon"></span>
+                                                    <span class="glyphicon glyphicon-user icon-contrast icon-user text-success"></span>
+                                                </span>
+                                            </a>
+                                        {% endif %}
+                                        {% if user.perm|has_flag(ADMIN+AUTORIZAR) %}
+                                            <a href="#modalEditar"
+                                               data-toggle="modal"
+                                               data-info-url="{{ url_for('reservas_auditorios.get_info_reserva', id_reserva=reserva.id_reserva_auditorio) }}"
+                                               data-origem="autorizador"
+                                               class="btn btn-icon btn-xs btn-editar">
+                                                <span class="icon-stack"
+                                                      data-toggle="tooltip"
+                                                      title="Observação do autorizador">
+                                                    <span class="glyphicon glyphicon-comment base-icon"></span>
+                                                    <span class="glyphicon glyphicon-user icon-contrast icon-user text-danger"></span>
+                                                    <span class="glyphicon glyphicon-fire icon-contrast icon-fire text-danger"></span>
+                                                </span>
+                                            </a>
+                                        {% endif %}
+                                        {% if reserva.id_responsavel == user.id_pessoa or user.perm|has_flag(ADMIN+AUTORIZAR) %}
+                                            <a href="#modalDetalhes"
+                                               data-toggle="modal"
+                                               data-info-url="{{ url_for('reservas_auditorios.get_info_reserva', id_reserva=reserva.id_reserva_auditorio) }}"
+                                               class="btn btn-icon btn-xs btn-detalhes">
+                                                <span class="glyphicon glyphicon-eye-open text-info"
+                                                      data-toggle="tooltip"
+                                                      title="Ver detalhes"></span>
+                                            </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% include "reserva_auditorio/modal_detalhes.html" %}
+                {% include "reserva_auditorio/modal_editar.html" %}
+                {% include "reserva_auditorio/modal_nova_reserva.html" %}
+            {% else %}
+                <div class="alert alert-warning" role="alert">Nenhuma reserva ainda</div>
+            {% endif %}
+        </div>
+        <div class="footer">
+            <a href="#modalNovaReserva" data-toggle="modal" class="btn btn-success">Abrir Nova Reserva</a>
+        </div>
+    </div>
+{% endblock content %}
+{% block extra_script %}
+    <script>
+        $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
+    <script>
+        $(document).on('click', '.btn-detalhes', function () {
+            let infoUrl = $(this).data('info-url');
+
+            $.getJSON(infoUrl, function (data) {
+                let dataObj = new Date(data.dia);
+                let dia = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'full' }).format(dataObj);
+                let capitalizada = dia.charAt(0).toUpperCase() + dia.slice(1)
+                $('#modalDLocal').text(data.local);
+                $('#modalDDia').text(capitalizada);
+                $('#modalDHorario').text(data.horario);
+                $('#modalDStatus').attr('class', 'badge_status ' + data.status).text(data.status);
+                $('#modalDResponsavel').text(data.responsavel);
+                $('#modalDAutorizador').text(data.autorizador ? data.autorizador : '-');
+                if(data.observacao_responsavel)
+                    $('#modalDObservacaoResponsavel').text(data.observacao_responsavel);
+                else
+                    $('#modalDObservacaoResponsavel').text("sem observações por parte do responsavel");
+                if(data.observacao_autorizador)
+                    $('#modalDObservacaoAutorizador').text(data.observacao_autorizador);
+                else
+                    $('#modalDObservacaoAutorizador').text("sem observações por parte do autorizador");
+            });
+        });
+        $(document).on('click', '.btn-editar', function () {
+            let infoUrl = $(this).data('info-url');
+            let origem = $(this).data('origem');
+
+            $.getJSON(infoUrl, function (data) {
+                let dataObj = new Date(data.dia);
+                let dia = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'full' }).format(dataObj);
+                let capitalizada = dia.charAt(0).toUpperCase() + dia.slice(1)
+                let url;
+                if (origem == 'autorizador'){
+                    url = data.comentario_autorizador;
+                    $('#modalEObservacao').val(data.observacao_autorizador);
+                } else if (origem == 'responsavel'){
+                    url = data.comentario_responsavel;
+                    $('#modalEObservacao').val(data.observacao_responsavel);
+                }
+                $('#modalELocal').text(data.local);
+                $('#modalEDia').text(capitalizada);
+                $('#modalEHorario').text(data.horario);
+                $('#modalEResponsavel').text(data.responsavel);
+                $('#modalEAutorizador').text(data.autorizador ? data.autorizador : '-');
+                $('#formEditar').attr('action', url);
+            });
+        });
+    </script>
+    <script>
+        document.getElementById('dia').addEventListener('change', function () {
+            const selectedDate = this.value;
+            const horaSelect = document.getElementById('hora');
+            const submitBtn = document.querySelector('#formNovaReserva button[type="submit"]');
+
+            // Reset select
+            horaSelect.innerHTML = '<option value="">Selecione um horário</option>';
+
+            if (!selectedDate) {
+                submitBtn.disabled = true;
+                return;
+            }
+
+            // Bloqueia envio enquanto carrega
+            submitBtn.disabled = true;
+
+            // Mostra "carregando..."
+            const loadingOption = document.createElement('option');
+            loadingOption.textContent = "⏳ Carregando horários...";
+            loadingOption.disabled = true;
+            loadingOption.selected = true;
+            horaSelect.appendChild(loadingOption);
+
+            fetch(`{{ url_for('reservas_auditorios.get_times') }}?dia=${selectedDate}`)
+                .then(response => response.json())
+                .then(data => {
+                    horaSelect.innerHTML = '<option value="">Selecione um horário</option>';
+                    if (data.length === 0) {
+                        const opt = document.createElement('option');
+                        opt.textContent = "Nenhum horário disponível";
+                        opt.disabled = true;
+                        horaSelect.appendChild(opt);
+                        return;
+                    }
+                    data.forEach(time => {
+                        const option = document.createElement('option');
+                        option.value = time.id_aula_ativa;
+                        option.textContent = `(${time.id_aula_ativa}) ${time.horario_inicio} às ${time.horario_fim}, ${time.nome_semana}`;
+                        horaSelect.appendChild(option);
+                    });
+                    submitBtn.disabled = false;
+                })
+                .catch(error => {
+                    console.error('Erro ao buscar horários:', error);
+                    horaSelect.innerHTML = '<option value="">Erro ao carregar horários</option>';
+                });
+        });
+        document.addEventListener("DOMContentLoaded", function () {
+            const diaInput = document.getElementById('dia');
+            if (diaInput.value) {
+                // dispara manualmente o evento change
+                diaInput.dispatchEvent(new Event('change'));
+            }
+        });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById('formNovaReserva');
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalHtml = submitBtn.innerHTML;
+
+            form.addEventListener('submit', function () {
+                // desabilita botão e mostra spinner
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Processando...';
+            });
+        });
+    </script>
+{% endblock extra_script %}
+{% block extra_css %}
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/modal_overwrite.css') }}">
+    <style>
+        /* Faz o ícone girar */
+        .glyphicon-refresh-animate {
+            -animation: spin .7s infinite linear;
+            -webkit-animation: spin .7s infinite linear;
+        }
+        @-webkit-keyframes spin {
+            from { -webkit-transform: rotate(0deg);}
+            to { -webkit-transform: rotate(360deg);}
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg);}
+            to { transform: rotate(360deg);}
+        }
+    </style>
+{% endblock extra_css %}

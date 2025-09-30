@@ -8,10 +8,10 @@ from sqlalchemy.exc import IntegrityError, MultipleResultsFound
 
 from app.models import (Aulas, Aulas_Ativas, Dias_da_Semana,
                         DisponibilidadeEnum, Exibicao_Reservas, Locais,
-                        Pessoas, Reservas_Fixas, Reservas_Temporarias,
-                        Semestres, Situacoes_Das_Reserva, TipoAulaEnum,
-                        TipoLocalEnum, TipoReservaEnum, Turnos, Usuarios,
-                        Usuarios_Especiais, db)
+                        Pessoas, Reservas_Auditorios, Reservas_Fixas,
+                        Reservas_Temporarias, Semestres, Situacoes_Das_Reserva,
+                        TipoAulaEnum, TipoLocalEnum, TipoReservaEnum, Turnos,
+                        Usuarios, Usuarios_Especiais, db)
 from config.general import FIRST_DAY_OF_WEEK, INDEX_START
 
 #constantes auxiliares
@@ -58,6 +58,16 @@ def get_laboratorios(ignorar_inativo=False):
     sel_laboratorios = sel_laboratorios.where(*filtro)
     return db.session.execute(sel_laboratorios).scalars().all()
 
+#auditorios
+def get_auditorios():
+    sel_auditorios = select(Locais)
+    filtro = [
+        Locais.tipo == TipoLocalEnum.AUDITORIO,
+        Locais.disponibilidade == DisponibilidadeEnum.DISPONIVEL
+    ]
+    sel_auditorios = sel_auditorios.where(*filtro)
+    return db.session.execute(sel_auditorios).scalars().all()
+
 #semestre
 def get_semestres():
     sel_semestres = select(Semestres.id_semestre, Semestres.nome_semestre).order_by(Semestres.data_inicio)
@@ -87,6 +97,11 @@ def get_reservas_fixas():
 def get_reservas_temporarias():
     sel_reservas_temporarias = select(Reservas_Temporarias)
     return db.session.execute(sel_reservas_temporarias).scalars().all()
+
+#Reservas Auditorios
+def get_reservas_auditorios():
+    sel_reservas_auditorios = select(Reservas_Auditorios)
+    return db.session.execute(sel_reservas_auditorios).scalars().all()
 
 #Situacoes das Reservas
 def get_situacoes():
@@ -359,9 +374,9 @@ def check_first(reserva_fixa:Reservas_Fixas, reserva_temporaria:Reservas_Tempora
     elif reserva_fixa.id_reserva_local > reserva_temporaria.id_reserva_local:
         return 1
     else:
-        if reserva_fixa.aulas_ativas.aulas.horario_inicio < reserva_temporaria.aulas_ativas.aulas.horario_inicio:
+        if reserva_fixa.aula_ativa.aula.horario_inicio < reserva_temporaria.aula_ativa.aula.horario_inicio:
             return 0
-        elif reserva_fixa.aulas_ativas.aulas.horario_inicio > reserva_temporaria.aulas_ativas.aulas.horario_inicio:
+        elif reserva_fixa.aula_ativa.aula.horario_inicio > reserva_temporaria.aula_ativa.aula.horario_inicio:
             return 1
         else:
             return 2
@@ -404,3 +419,20 @@ def get_turno_by_time(hora:time):
         ).scalar_one_or_none()
     except MultipleResultsFound as e:
         return None
+
+#reservas de auditorio
+def get_reservas_auditorios(id:int, all:bool = False, *args):
+    sel_reservas_auditorios = select(Reservas_Auditorios)
+    filtro = []
+    if not all:
+        filtro.append(Reservas_Auditorios.id_responsavel == id)
+    for condition in args:
+        filtro.append(condition)
+    sel_reservas_auditorios = sel_reservas_auditorios.where(*filtro).select_from(
+        Reservas_Auditorios
+    ).join(Locais).join(Aulas_Ativas).join(Aulas).order_by(
+        Locais.nome_local,
+        Reservas_Auditorios.dia_reserva,
+        Aulas.horario_inicio
+    )
+    return db.session.execute(sel_reservas_auditorios).scalars().all()

@@ -65,13 +65,28 @@
                             <th>Reserva</th>
                             <th>Status</th>
                             <th>Ação</th>
+                            <th>Diversos</th>
                         </thead>
                         <tbody>
                             {% for reserva in reservas %}
                                 <tr>
-                                    <td>{{ reserva.horarios[0].aulas.horario_inicio|hora }} - {{ reserva.horarios[-1].aulas.horario_fim|hora }}</td>
+                                    <td>{{ reserva.horarios[0].aula.horario_inicio|hora }} - {{ reserva.horarios[-1].aula.horario_fim|hora }}</td>
                                     <td>{{ reserva.local.nome_local }}</td>
                                     <td>{{ reserva.responsavel }}</td>
+                                    <td>
+                                        {% if reserva.situacao %}
+                                            {% if reserva.situacao.situacao_chave.value == 'não pegou a chave' %}
+                                                {% set color = "danger" %}
+                                            {% elif reserva.situacao.situacao_chave.value == 'pegou a chave' %}
+                                                {% set color = "success" %}
+                                            {% else %}
+                                                {% set color = "info" %}
+                                            {% endif %}
+                                            <span class="badge badge_status {{ color }}">{{ reserva.situacao.situacao_chave.value }}</span>
+                                        {% else %}
+                                            <span class="badge badge_status">???</span>
+                                        {% endif %}
+                                    </td>
                                     <td>
                                         <form class="form-inline"
                                               role="form"
@@ -90,6 +105,7 @@
                                                         name="situacao"
                                                         value="{{ sit[0].value }}"
                                                         class="btn-icon"
+                                                        data-toggle="tooltip"
                                                         title="{{ sit[0].value }}">
                                                     <span class="glyphicon {{ sit[1][0] }} text-{{ color }}"></span>
                                                 </button>
@@ -117,3 +133,10 @@
         {% endfor %}
     </div>
 {% endblock footer %}
+{% block extra_script %}
+    <script>
+        $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
+{% endblock extra_script %}

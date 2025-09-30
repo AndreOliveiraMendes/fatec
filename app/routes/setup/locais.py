@@ -1,6 +1,7 @@
 from flask import (Blueprint, flash, redirect, render_template, request,
                    session, url_for)
-from sqlalchemy.exc import DataError, IntegrityError, OperationalError
+from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
+                            InternalError, OperationalError, ProgrammingError)
 
 from app.auxiliar.auxiliar_routes import (get_user_info, none_if_empty,
                                           registrar_log_generico_usuario)
@@ -14,7 +15,7 @@ bp = Blueprint('setup_locais', __name__, url_prefix="/database/fast_setup/")
 @admin_required
 def fast_setup_locais():
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     stage = int(request.form.get('stage', request.args.get('stage', 0)))
     extras = {'extras':SETUP_HEAD}
 
@@ -71,7 +72,7 @@ def fast_setup_locais():
 
             db.session.commit()
             flash("Configuração rapida de locais efetuada com sucesso", "success")
-        except (IntegrityError, OperationalError, DataError) as e:
+        except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
             db.session.rollback()
             flash(f"Erro ao efetuar a configuração rapida:{str(e.orig)}", "danger")
         except ValueError as ve:
@@ -80,4 +81,4 @@ def fast_setup_locais():
 
         return redirect(url_for('setup.fast_setup_menu'))
     return render_template('database/setup/locais.html',
-        username=username, perm=perm, stage=stage, **extras)
+        user=user, stage=stage, **extras)

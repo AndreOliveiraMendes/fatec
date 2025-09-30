@@ -556,11 +556,11 @@
                     {% for rt in reservas_temporarias %}
                         <tr>
                             <td>{{ rt.id_reserva_temporaria }}</td>
-                            <td>{{ rt.pessoas.nome_pessoa if rt.id_responsavel else '-' }}</td>
-                            <td>{{ rt.usuarios_especiais.nome_usuario_especial if rt.id_responsavel_especial else '-' }}</td>
+                            <td>{{ rt.pessoa.nome_pessoa if rt.id_responsavel else '-' }}</td>
+                            <td>{{ rt.usuario_especial.nome_usuario_especial if rt.id_responsavel_especial else '-' }}</td>
                             <td>{{ rt.tipo_responsavel|tipo_responsavel_label }}</td>
-                            <td>{{ rt.locais.nome_local }}</td>
-                            <td>{{ rt.aulas_ativas.selector_identification }}</td>
+                            <td>{{ rt.local.nome_local }}</td>
+                            <td>{{ rt.aula_ativa.selector_identification }}</td>
                             <td>{{ rt.inicio_reserva|data }}</td>
                             <td>{{ rt.fim_reserva|data }}</td>
                             <td>{{ rt.finalidade_reserva.value }}</td>

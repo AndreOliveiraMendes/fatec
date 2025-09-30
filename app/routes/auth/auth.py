@@ -1,4 +1,5 @@
 import copy
+from typing import Literal, Tuple, Union
 
 import requests
 from flask import (Blueprint, abort, current_app, flash, redirect,
@@ -14,8 +15,8 @@ from config.general import API_BASIC_PASS, API_BASIC_USER, TOMCAT_API_URL
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
-def check_login(id, password):
-    loged, userid, username, permission = False, None, None, None
+def check_login(id, password) -> Union[Tuple[Literal[False], None, None], Tuple[Literal[True], int, Usuarios]]:
+    loged, userid, user = False, None, None
     authentication = {
         "login": id,
         "senha": password
@@ -79,7 +80,7 @@ def check_login(id, password):
                     permission = PERM_RESERVA_FIXA | PERM_RESERVA_AUDITORIO
                 else:
                     permission = 0
-                perm = Permissoes(id_permissao_usuario = id_usuario, permissao = permission)
+                perm=user.permissoes(id_permissao_usuario = id_usuario, permissao = permission)
             else:
                 old_perm = copy.copy(perm)
                 
@@ -90,8 +91,7 @@ def check_login(id, password):
             registrar_log_generico_sistema("Login", perm, old_perm, skip_unchanged=True)
 
             userid = id_usuario
-            username = nome_pessoa
-            permission = perm.permissao
+            user = user
 
         elif response.status_code == 404:
             flash("Verifique suas credenciais de acesso", "danger")
@@ -105,7 +105,7 @@ def check_login(id, password):
         current_app.logger.error(f"erro ao conectar: {e}")
         flash("Falha ao conectar à API externa.", "danger")
 
-    return loged, userid, username, permission
+    return loged, userid, user
 
 @bp.route("/login", methods=['GET', 'POST'])
 def login():
@@ -114,16 +114,15 @@ def login():
     if request.method == 'POST':
         userlogin = none_if_empty(request.form.get("userlogin"))
         userpassword = none_if_empty(request.form.get("userpassword"))
-        logged, userid, username, perm = check_login(userlogin, userpassword)
+        logged, userid, user = check_login(userlogin, userpassword)
         if logged:
             db.session.commit()
             session['userid'] = userid
             flash("login realizado com sucesso", "success")
-            current_app.logger.info(f"usuario {username} efetuou login no sistema")
+            current_app.logger.info(f"usuario {user.username} efetuou login no sistema")
             url_base = url_for('default.home')
             url_admin = url_for('gestao_reserva.gerenciar_situacoes', tipo_reserva='fixa')
-            return render_template("auth/login_success.html", username=username, perm=perm,
-                url_base=url_base, url_admin=url_admin)
+            return render_template("auth/login_success.html", user=user, url_base=url_base, url_admin=url_admin)
         else:
             flash("falha ao realizar login", "danger")
             return render_template("auth/login_fail.html")
@@ -134,8 +133,8 @@ def login():
 @bp.route("/logout")
 @login_required
 def logout():
-    userid = session.pop('userid')
-    username, perm = get_user_info(userid)
-    current_app.logger.info(f"usuario {username} efetuou logout no sistema")
+    userid = session.pop('userid') 
+    user = get_user_info(userid)
+    current_app.logger.info(f"usuario {user.username} efetuou logout no sistema")
     flash("logout realizado com sucesso", "success")
-    return render_template("auth/logout.html")
+    return render_template("auth/logout.html", user=user)

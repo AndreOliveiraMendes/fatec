@@ -85,7 +85,7 @@ def gerenciar_historicos():
     bloco = int(request.form.get('bloco', 0))
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     disabled = ['inserir', 'editar', 'excluir']
     include = [{'label':"Exportar", 'value':"exportar", 'icon':"glyphicon-download"}]
     extras = {'url':url}
@@ -138,7 +138,7 @@ def gerenciar_historicos():
     if redirect_action:
         return redirect_action
     return render_template("database/table/historicos.html",
-        username=username, perm=perm, acao=acao, bloco=bloco, **extras)
+        user=user, acao=acao, bloco=bloco, **extras)
 
 @bp.route("/historicos/exportar", methods=['POST'])
 def exportar_historicos():

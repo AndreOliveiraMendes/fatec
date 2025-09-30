@@ -5,7 +5,8 @@ from typing import List
 from flask import (Blueprint, abort, current_app, flash, redirect,
                    render_template, request, session, url_for)
 from sqlalchemy import and_, between, select
-from sqlalchemy.exc import DataError, IntegrityError, OperationalError
+from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
+                            InternalError, OperationalError, ProgrammingError)
 
 from app.auxiliar.auxiliar_routes import (check_local, get_responsavel_reserva,
                                           get_unique_or_500, get_user_info,
@@ -43,7 +44,7 @@ def agrupar_dias(dias:list[date]) -> List[List[date]]:
 @reserva_temp_required
 def main_page():
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     if request.method == 'POST':
         dia_inicial = parse_date_string(request.form.get('dia_inicio'))
         dia_final = parse_date_string(request.form.get('dia_fim'))
@@ -55,13 +56,13 @@ def main_page():
     extras = {}
     today = date.today()
     extras['day'] = today
-    return render_template('reserva_temporaria/main.html', username=username, perm=perm, **extras)
+    return render_template('reserva_temporaria/main.html', user=user, **extras)
 
 @bp.route('/dias/<data:inicio>/<data:fim>')
 @reserva_temp_required
 def dias(inicio, fim):
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     if fim < inicio:
         inicio, fim = fim, inicio
     extras = {'inicio':inicio, 'fim':fim}
@@ -71,7 +72,7 @@ def dias(inicio, fim):
     ).scalars().all()
     today = date.today()
     extras['day'] = today
-    return render_template('reserva_temporaria/dias.html', username=username, perm=perm, **extras)
+    return render_template('reserva_temporaria/dias.html', user=user, **extras)
 
 @bp.before_request
 def return_counter():
@@ -101,7 +102,7 @@ def get_lab(inicio, fim, id_turno=None, id_lab=None):
 
 def get_lab_geral(inicio, fim, id_turno):
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     turno = db.get_or_404(Turnos, id_turno) if id_turno else None
     extras = {'inicio':inicio, 'fim':fim, 'turno':turno}
     tipo_horario = none_if_empty(session.get('tipo'))
@@ -110,7 +111,7 @@ def get_lab_geral(inicio, fim, id_turno):
     except ValueError as ve:
         current_app.logger.error(f"error:{ve}")
         abort(400)
-    locais = get_laboratorios(perm&PERM_ADMIN)
+    locais = get_laboratorios(user.perm&PERM_ADMIN)
     dias = [(dia, turno) for dia in time_range(inicio, fim)]
     aulas = get_aulas_ativas_por_lista_de_dias(dias, tipo_horario)
     if len(aulas) == 0 or len(locais) == 0:
@@ -150,11 +151,11 @@ def get_lab_geral(inicio, fim, id_turno):
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
     extras['contador'] = session.get('contador')
-    return render_template('reserva_temporaria/geral.html', username=username, perm=perm, **extras)
+    return render_template('reserva_temporaria/geral.html', user=user, **extras)
 
 def get_lab_especifico(inicio, fim, id_turno, id_lab):
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     turno = db.get_or_404(Turnos, id_turno) if id_turno else None
     extras = {'inicio':inicio, 'fim':fim, 'turno':turno}
     tipo_horario = none_if_empty(session.get('tipo'))
@@ -164,7 +165,7 @@ def get_lab_especifico(inicio, fim, id_turno, id_lab):
         current_app.logger.error(f"error:{ve}")
         abort(400)
     local = db.get_or_404(Locais, id_lab)
-    check_local(local, perm)
+    check_local(local, user.perm)
     extras['local'] = local
     today = date.today()
     extras['day'] = today
@@ -219,8 +220,8 @@ def get_lab_especifico(inicio, fim, id_turno, id_lab):
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
     extras['contador'] = session.get('contador')
-    extras['locais'] = get_laboratorios(perm&PERM_ADMIN)
-    return render_template('reserva_temporaria/especifico.html', username=username, perm=perm, **extras)
+    extras['locais'] = get_laboratorios(user.perm&PERM_ADMIN)
+    return render_template('reserva_temporaria/especifico.html', user=user, **extras)
 
 
 @bp.route("/dias/<data:inicio>/<data:fim>", methods=['POST'])
@@ -285,7 +286,7 @@ def efetuar_reserva(inicio, fim):
         db.session.commit()
         flash("reserva efetuada com sucesso", "success")
         current_app.logger.info(f"reserva efetuada com sucesso para {reserva}")
-    except (IntegrityError, OperationalError, DataError) as e:
+    except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
         db.session.rollback()
         flash(f"Erro ao efetuar reserva:{str(e.orig)}", "danger")
         current_app.logger.error(f"falha ao realizar reserva:{e}")

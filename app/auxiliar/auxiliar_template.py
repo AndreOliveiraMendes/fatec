@@ -13,7 +13,7 @@ from app.auxiliar.constant import (DATA_ABREV, DATA_COMPLETA, DATA_FLAGS,
 from app.models import (Exibicao_Reservas, FinalidadeReservaEnum, Locais,
                         Reservas_Fixas, Reservas_Temporarias, Semestres,
                         Situacoes_Das_Reserva, Turnos, db)
-from config.database_views import SECOES, TABLES_PER_LINE
+from config.database_views import SECOES
 from config.mapeamentos import (mapa_icones_status, meses_ingleses,
                                 semana_inglesa, situacoes_helper)
 
@@ -112,28 +112,22 @@ def register_filters(app:Flask):
         return Markup(html)
     
     @app.template_global()
-    def generate_database_head(current_table: str, max_per_line: int = TABLES_PER_LINE) -> Markup:
+    def generate_database_head(current_table: str) -> Markup:
         tables_info: List[Tuple[str, str, str]] = [
             (t[1].split('.')[0], t[1], t[0])
             for sec in SECOES.values()
             for t in sec['secoes']
         ]
 
-        html_parts = ['<div class="pills-group">']
-        
-        # Break into blocks of up to max_per_line
-        for i in range(0, len(tables_info), max_per_line):
-            html_parts.append('<ul class="nav nav-pills">')
-            for table, url, nome in tables_info[i:i + max_per_line]:
-                active_class = ' class="active"' if table == current_table else ''
-                html_parts.append(f'<li role="presentation"{active_class}>')
-                html_parts.append(f'<a href="{url_for(url)}">{nome}</a>')
-                html_parts.append('</li>')
-            html_parts.append('</ul>')
-        
-        html_parts.append('</div>')
-        
-        return Markup(''.join(html_parts))
+        html_parts = ['<div class="pills-group">','<ul class="nav nav-pills">']
+        for table, url, nome in tables_info:
+            active_class = ' class="active"' if table == current_table else ''
+            html_parts.append(f'<li role="presentation"{active_class}>')
+            html_parts.append(f'<a href="{url_for(url)}">{nome}</a>')
+            html_parts.append('</li>')
+
+        html_parts.extend(['</ul>','</div>'])
+        return Markup('\n'.join(html_parts))
 
     def lab_url(tipo, turno:Turnos|None, local:Locais|None, **kwargs):
         id_turno=turno.id_turno if turno else None
@@ -148,7 +142,7 @@ def register_filters(app:Flask):
 
     @app.template_global()
     def generate_reserva_head(locais:Sequence[Locais], tipo, turno: Turnos, current: Optional[Locais] = None, **kwargs) -> Markup:
-        username, perm = get_user_info(session.get('userid'))
+        user = get_user_info(session.get('userid'))
 
         html_parts = ['<div class="pills-group"><ul class="nav nav-pills">']
         
@@ -162,7 +156,7 @@ def register_filters(app:Flask):
                 active_link = lab_url(tipo, turno, None, **kwargs)
             
             if lab.disponibilidade.value == 'Indisponivel':
-                if perm & PERM_ADMIN == 0:
+                if user.perm & PERM_ADMIN == 0:
                     active_class = 'disabled'
                     active_link = ""
                 else:
@@ -178,8 +172,6 @@ def register_filters(app:Flask):
 
     @app.template_global()
     def generate_situacao_head(current: Literal['exibicao', 'fixa', 'temporaria']) -> Markup:
-        username, perm = get_user_info(session.get('userid'))
-        
         html_parts: List[str] = ['<div class="pills-group"><ul class="nav nav-pills">']
         
         for builder in situacoes_helper:
@@ -297,12 +289,15 @@ def register_filters(app:Flask):
         return Markup(icon);
 
     @app.template_filter('has_flag')
-    def has_flag(value, flag):
-        return (value & flag) == flag
+    def has_flag(value, flag, strict_mode=False):
+        if strict_mode:
+            return value & flag == flag
+        else:
+            return value & flag > 0
     
     @app.template_filter('tipo_responsavel_label')
     def tipo_responsavel_label(value):
-        labels = ['Usuário', 'Especial', 'Ambos']
+        labels = ['Usuário', 'Especial', 'Ambos', 'Nenhum']
         try:
             return labels[value]
         except (IndexError, TypeError):

@@ -3,7 +3,8 @@ import copy
 from flask import Blueprint, abort, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
-from sqlalchemy.exc import DataError, IntegrityError, OperationalError
+from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
+                            InternalError, OperationalError, ProgrammingError)
 
 from app.auxiliar.auxiliar_routes import (disable_action,
                                           get_session_or_request,
@@ -26,7 +27,7 @@ def gerenciar_turnos():
     bloco = int(request.form.get('bloco', 0))
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     disabled = ['procurar']
     extras = {'url':url}
     disable_action(extras, disabled)
@@ -57,7 +58,7 @@ def gerenciar_turnos():
 
                 db.session.commit()
                 flash("Turno cadastrado com sucesso", "success")
-            except (IntegrityError, OperationalError, DataError) as e:
+            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
                 db.session.rollback()
                 flash(f"Erro ao cadastrar turno:{str(e.orig)}", "danger")
 
@@ -85,7 +86,7 @@ def gerenciar_turnos():
 
                 db.session.commit()
                 flash("Turno editado com sucesso", "success")
-            except (IntegrityError, OperationalError, DataError) as e:
+            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
                 db.session.rollback()
                 flash(f"Erro ao editar turno:{str(e.orig)}", "danger")
 
@@ -101,7 +102,7 @@ def gerenciar_turnos():
 
                 db.session.commit()
                 flash("Turno excluido com sucesso", "success")
-            except (IntegrityError, OperationalError, DataError) as e:
+            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
                 db.session.rollback()
                 flash(f"Erro as excluir turno", "danger")
 
@@ -111,4 +112,4 @@ def gerenciar_turnos():
     if redirect_action:
         return redirect_action
     return render_template("database/table/turnos.html",
-        username=username, perm=perm, acao=acao, bloco=bloco, **extras)
+        user=user, acao=acao, bloco=bloco, **extras)

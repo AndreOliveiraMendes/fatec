@@ -204,7 +204,7 @@
                             <td class="visible-md visible-lg">{{ h.id_historico }}</td>
                             {% if h.id_usuario %}
                                 <td class="visible-md visible-lg">
-                                    ({{ h.id_usuario }}, {{ h.usuarios.pessoas.id_pessoa }}) {{ h.usuarios.pessoas.nome_pessoa }}
+                                    ({{ h.id_usuario }}, {{ h.usuario.pessoa.id_pessoa }}) {{ h.usuario.pessoa.nome_pessoa }}
                                 </td>
                             {% else %}
                                 <td class="visible-md visible-lg">-</td>
@@ -233,7 +233,7 @@
                     <p>origem: {{ h.origem.value }}</p>
                     <p>dia: {{ h.data_hora|datahora if h.data_hora else '-' }}</p>
                     {% if h.id_usuario %}
-                        <p>usuario: ({{ h.id_usuario }}, {{ h.usuarios.pessoas.id_pessoa }}) {{ h.usuarios.pessoas.nome_pessoa }}</p>
+                        <p>usuario: ({{ h.id_usuario }}, {{ h.usuario.pessoa.id_pessoa }}) {{ h.usuario.pessoa.nome_pessoa }}</p>
                     {% else %}
                         <p>usuario: (-) SISTEMA</p>
                     {% endif %}

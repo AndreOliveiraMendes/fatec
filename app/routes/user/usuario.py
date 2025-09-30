@@ -5,7 +5,8 @@ from flask import (Blueprint, abort, flash, redirect, render_template, request,
                    session, url_for)
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import between, select
-from sqlalchemy.exc import DataError, IntegrityError, OperationalError
+from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
+                            InternalError, OperationalError, ProgrammingError)
 
 from app.auxiliar.auxiliar_routes import (get_user_info, none_if_empty,
                                           parse_date_string,
@@ -23,7 +24,7 @@ def get_reservas_fixas(userid, semestre, page, all=False):
     user = db.session.get(Usuarios, userid)
     filtro = []
     if not all:
-        filtro.append(Reservas_Fixas.id_responsavel == user.pessoas.id_pessoa)
+        filtro.append(Reservas_Fixas.id_responsavel == user.pessoa.id_pessoa)
     if semestre is not None:
         filtro.append(Reservas_Fixas.id_reserva_semestre == semestre)
     sel_reservas = select(Reservas_Fixas).join(Aulas_Ativas).join(Aulas).where(*filtro).order_by(
@@ -40,7 +41,7 @@ def get_reservas_temporarias(userid, dia, page, all=False):
     user = db.session.get(Usuarios, userid)
     filtro = []
     if not all:
-        filtro.append(Reservas_Temporarias.id_responsavel == user.pessoas.id_pessoa)
+        filtro.append(Reservas_Temporarias.id_responsavel == user.pessoa.id_pessoa)
     if dia is not None:
         filtro.append(between(dia, Reservas_Temporarias.inicio_reserva, Reservas_Temporarias.fim_reserva))
     sel_reservas = select(Reservas_Temporarias).join(Aulas_Ativas).join(Aulas).where(*filtro).order_by(
@@ -57,24 +58,23 @@ def get_reservas_temporarias(userid, dia, page, all=False):
 @login_required
 def perfil():
     userid = session.get('userid')
-    user = db.session.get(Usuarios, userid)
-    username, perm = get_user_info(userid)
-    return render_template("usuario/perfil.html", username=username, perm=perm, usuario=user)
+    user = get_user_info(userid)
+    return render_template("usuario/perfil.html", user=user)
 
 @bp.route("/reservas")
 @login_required
 def menu_reservas_usuario():
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     today = datetime.now(LOCAL_TIMEZONE)
     extras = {'datetime':today}
-    return render_template("usuario/menu_reserva.html", username=username, perm=perm, **extras)
+    return render_template("usuario/menu_reserva.html", user=user, **extras)
 
 @bp.route("/reservas/reservas_fixas")
 @login_required
 def gerenciar_reserva_fixa():
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     semestres = get_semestres()
     if not semestres:
         flash("nenhum semestre definido", "danger")
@@ -85,7 +85,7 @@ def gerenciar_reserva_fixa():
     semestre_id = request.args.get("semestre", type=int)
     page = int(request.args.get("page", 1))
     extras['semestre_selecionado'] = semestre_id
-    all = "all" in request.args and perm&PERM_ADMIN > 0
+    all = "all" in request.args and user.perm&PERM_ADMIN > 0
     extras['all'] = all
     reservas_fixas = get_reservas_fixas(userid, semestre_id, page, all)
     extras['reservas_fixas'] = reservas_fixas.items
@@ -95,19 +95,19 @@ def gerenciar_reserva_fixa():
     extras['TipoReserva'] = FinalidadeReservaEnum
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
-    return render_template("usuario/reserva_fixa.html", username=username, perm=perm, **extras)
+    return render_template("usuario/reserva_fixa.html", user=user, **extras)
 
 @bp.route("/reserva/reservas_temporarias")
 @login_required
 def gerenciar_reserva_temporaria():
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     today = datetime.now(LOCAL_TIMEZONE)
     extras = {'datetime':today}
     dia = parse_date_string(request.args.get('dia'))
     page = int(request.args.get("page", 1))
     extras['dia_selecionado'] = dia
-    all = "all" in request.args and perm&PERM_ADMIN > 0
+    all = "all" in request.args and user.perm&PERM_ADMIN > 0
     extras['all'] = all
     reservas_temporarias = get_reservas_temporarias(userid, dia, page, all)
     extras['reservas_temporarias'] = reservas_temporarias.items
@@ -117,23 +117,23 @@ def gerenciar_reserva_temporaria():
     extras['TipoReserva'] = FinalidadeReservaEnum
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
-    return render_template("usuario/reserva_temporaria.html", username=username, perm=perm, **extras)
+    return render_template("usuario/reserva_temporaria.html", user=user, **extras)
 
 def check_ownership_or_admin(reserva:Reservas_Fixas|Reservas_Temporarias):
     userid = session.get('userid')
     user = db.get_or_404(Usuarios, userid)
     perm = db.session.get(Permissoes, userid)
-    if reserva.id_responsavel != user.pessoas.id_pessoa and (not perm or perm.permissao&PERM_ADMIN == 0):
+    if reserva.id_responsavel != user.pessoa.id_pessoa and (not perm or perm.permissao&PERM_ADMIN == 0):
         abort(403)
 
 def info_reserva_fixa(id_reserva):
     reserva = db.get_or_404(Reservas_Fixas, id_reserva)
     check_ownership_or_admin(reserva)
     return {
-        "local": reserva.locais.nome_local,
-        "semestre": reserva.semestres.nome_semestre,
-        "semana": reserva.aulas_ativas.dia_da_semana.nome_semana,
-        "horario": f"{reserva.aulas_ativas.aulas.horario_inicio:%H:%M} às {reserva.aulas_ativas.aulas.horario_fim:%H:%M}",
+        "local": reserva.local.nome_local,
+        "semestre": reserva.semestre.nome_semestre,
+        "semana": reserva.aula_ativa.dia_da_semana.nome_semana,
+        "horario": f"{reserva.aula_ativa.aula.horario_inicio:%H:%M} às {reserva.aula_ativa.aula.horario_fim:%H:%M}",
         "observacao": reserva.observacoes,
         "finalidadereserva": reserva.finalidade_reserva.value,
         "responsavel": reserva.id_responsavel,
@@ -146,10 +146,10 @@ def info_reserva_temporaria(id_reserva):
     reserva = db.get_or_404(Reservas_Temporarias, id_reserva)
     check_ownership_or_admin(reserva)
     return {
-        "local": reserva.locais.nome_local,
+        "local": reserva.local.nome_local,
         "periodo": f"{reserva.inicio_reserva} - {reserva.fim_reserva}",
-        "semana": reserva.aulas_ativas.dia_da_semana.nome_semana,
-        "horario": f"{reserva.aulas_ativas.aulas.horario_inicio:%H:%M} às {reserva.aulas_ativas.aulas.horario_fim:%H:%M}",
+        "semana": reserva.aula_ativa.dia_da_semana.nome_semana,
+        "horario": f"{reserva.aula_ativa.aula.horario_inicio:%H:%M} às {reserva.aula_ativa.aula.horario_fim:%H:%M}",
         "observacao": reserva.observacoes,
         "finalidadereserva": reserva.finalidade_reserva.value,
         "responsavel": reserva.id_responsavel,
@@ -178,7 +178,7 @@ def cancelar_reserva_generico(modelo, id_reserva, redirect_url):
         registrar_log_generico_usuario(userid, 'Exclusão', reserva, observacao="atraves da listagem")
         db.session.commit()
         flash("Reserva cancelada com sucesso", "success")
-    except (IntegrityError, OperationalError, DataError) as e:
+    except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
         db.session.rollback()
         flash(f"erro ao excluir reserva:{str(e.orig)}", "danger")
     return redirect(redirect_url)
@@ -226,7 +226,7 @@ def editar_reserva_generico(model, id_reserva, redirect_url):
 
         db.session.commit()
         flash("sucesso ao editar reserva", "success")
-    except (IntegrityError, OperationalError, DataError) as e:
+    except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
         db.session.rollback()
         flash(f"erro ao editar reserva:{str(e.orig)}", "danger")
     except ValueError as ve:

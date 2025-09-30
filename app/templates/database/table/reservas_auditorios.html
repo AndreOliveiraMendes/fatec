@@ -1,0 +1,454 @@
+{% extends "database/table/base_crude" %}
+{% block title %}
+    Reserva de Auditorio
+{% endblock title %}
+{% block content_head %}
+    <div class="panel panel-default">
+        <div class="panel-heading">{{ generate_database_head("database_reserva_auditorio") }}</div>
+        <div class="panel-body">{{ generate_head(url_for(url) , acao, disable=disable) }}</div>
+    </div>
+{% endblock content_head %}
+{% block abertura %}
+    <h3 class="text-center">
+        Gerenciamento da Tabela <strong>Reservas Auditorios</strong>
+    </h3>
+    <p class="text-muted text-center">
+        A tabela <code>reservas_auditorios</code> possui os seguintes campos:
+    </p>
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover">
+            <thead>
+                <tr class="information">
+                    <th>Campo</th>
+                    <th>Tipo</th>
+                    <th>Descrição</th>
+                    <th>Valores Possíveis</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <code>id_reserva_auditorio</code>
+                    </td>
+                    <td>INT (auto_increment, PK)</td>
+                    <td>Identificador único da reserva de auditório no sistema</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>id_responsavel</code>
+                    </td>
+                    <td>INT (FK)</td>
+                    <td>
+                        Chave estrangeira para a tabela <code>pessoas</code>
+                    </td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>id_reserva_local</code>
+                    </td>
+                    <td>INT (FK)</td>
+                    <td>
+                        Chave estrangeira para a tabela <code>locais</code>
+                    </td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>id_reserva_aula</code>
+                    </td>
+                    <td>INT (FK)</td>
+                    <td>
+                        Chave estrangeira para a tabela <code>aulas_ativas</code>
+                    </td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>dia_reserva</code>
+                    </td>
+                    <td>DATE</td>
+                    <td>Data da reserva do auditório</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>status_reserva</code>
+                    </td>
+                    <td>ENUM</td>
+                    <td>Status atual da reserva</td>
+                    <td>
+                        <ul class="valores_possiveis_format">
+                            <li>'AGUARDANDO'</li>
+                            <li>'CANCELADA'</li>
+                            <li>'APROVADA'</li>
+                            <li>'REPROVADA'</li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>id_autorizador</code>
+                    </td>
+                    <td>INT (FK)</td>
+                    <td>
+                        Chave estrangeira para a tabela <code>pessoas</code> (opcional)
+                    </td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>observação_responsavel</code>
+                    </td>
+                    <td>TEXT</td>
+                    <td>Observação feita pelo responsável sobre a reserva</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>observação_autorizador</code>
+                    </td>
+                    <td>TEXT</td>
+                    <td>Observação feita pelo autorizador sobre a reserva</td>
+                    <td>-</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+{% endblock abertura %}
+{% block listar %}
+    <h3>Lista de Reservas de Auditorios</h3>
+    {{ result_table("Nenhuma reserva de auditorio cadastrada.") }}
+{% endblock listar %}
+{% block procurar %}
+    {% if bloco == 0 %}
+        <h3>Procurar Reservas de Auditorios</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label for="codigo">Codigo da Reserva:</label>
+                <input class="form-control"
+                       type="number"
+                       id="codigo"
+                       name="id_reserva_auditorio">
+            </div>
+            {{ gerar_select("responsavel", "Selecione a Pessoa responsavel pela reserva", pessoas, "id_pessoa", "nome_pessoa", "id_responsavel", optional=True) }}
+            {{ gerar_select("locais", "Selecione o local", locais, "id_local", "nome_local", "id_reserva_local", optional=True) }}
+            {{ gerar_select("aulas", "Selecione o horario", aulas_ativas, "id_aula_ativa", "selector_identification", "id_reserva_aula", optional=True) }}
+            <div class="form-group">
+                <label for="dia_reserva">Data da Reserva:</label>
+                <input class="form-control" type="date" id="dia_reserva" name="dia_reserva">
+            </div>
+            <div class="form-group">
+                <label for="status_reserva">Status da Reserva</label>
+                <select class="form-control" id="status_reserva" name="status_reserva">
+                    <option value="" disabled selected>Selecione o Status da Reserva</option>
+                    {% for status in SRAE %}<option value="{{ status.value }}">{{ status.value }}</option>{% endfor %}
+                </select>
+            </div>
+            {{ gerar_select("responsavel", "Selecione a Pessoa responsavel pela autorização", pessoas, "id_pessoa", "nome_pessoa", "id_autorizador", optional=True) }}
+            <div class="form-group">
+                <label for="observação_responsavel">Observações do responsavel:</label>
+                <textarea id="observação_responsavel"
+                          name="observação_responsavel"
+                          class="form-control"
+                          placeholder="Insira observações relevantes"
+                          rows="6"
+                          cols="60"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="observação_autorizador">Observações do autorizador:</label>
+                <textarea id="observação_autorizador"
+                          name="observação_autorizador"
+                          class="form-control"
+                          placeholder="Insira observações relevantes"
+                          rows="6"
+                          cols="60"></textarea>
+            </div>
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <h3>Resultados da Busca</h3>
+        {{ result_table("Nenhum resultado encontrado.") }}
+    {% endif %}
+{% endblock procurar %}
+{% block inserir %}
+    <h3>Inserir Reserva de Auditorio</h3>
+    <form class="form-group"
+          role="form"
+          action="{{ url_for(url) }}"
+          method="post">
+        <input type="hidden" name="acao" value="{{ acao }}">
+        {{ gerar_select("responsavel", "Selecione a Pessoa responsavel pela reserva", pessoas, "id_pessoa", "nome_pessoa", "id_responsavel") }}
+        {{ gerar_select("locais", "Selecione o local", locais, "id_local", "nome_local", "id_reserva_local") }}
+        {{ gerar_select("aulas", "Selecione o horario", aulas_ativas, "id_aula_ativa", "selector_identification", "id_reserva_aula") }}
+        <div class="form-group">
+            <label for="dia_reserva">Data da Reserva:</label>
+            <input class="form-control"
+                   type="date"
+                   id="dia_reserva"
+                   name="dia_reserva"
+                   required>
+        </div>
+        <div class="form-group">
+            <label for="status_reserva">Status da Reserva</label>
+            <select class="form-control"
+                    id="status_reserva"
+                    name="status_reserva"
+                    required>
+                <option value="" disabled selected>Selecione o Status da Reserva</option>
+                {% for status in SRAE %}<option value="{{ status.value }}">{{ status.value }}</option>{% endfor %}
+            </select>
+        </div>
+        {{ gerar_select("responsavel", "Selecione a Pessoa responsavel pela autorização", pessoas, "id_pessoa", "nome_pessoa", "id_autorizador", optional=True) }}
+        <div class="form-group">
+            <label for="observação_responsavel">Observações do responsavel:</label>
+            <textarea id="observação_responsavel"
+                      name="observação_responsavel"
+                      class="form-control"
+                      placeholder="Insira observações relevantes"
+                      rows="6"
+                      cols="60"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="observação_autorizador">Observações do autorizador:</label>
+            <textarea id="observação_autorizador"
+                      name="observação_autorizador"
+                      class="form-control"
+                      placeholder="Insira observações relevantes"
+                      rows="6"
+                      cols="60"></textarea>
+        </div>
+        {{ action_buttons(acao, 1, False, 0) }}
+    </form>
+{% endblock inserir %}
+{% block editar %}
+    {% if bloco == 0 %}
+        <h3>Editar Reservas de Auditorios</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            {{ gerar_select("reservas_auditorio", "Selecione a reserva", reservas_auditorios, "id_reserva_auditorio", "selector_identification") }}
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <h3>Editar Reserva de Auditorio</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label>ID Reserva auditorio</label>
+                <input type="number"
+                       class="form-control"
+                       name="id_reserva_auditorio"
+                       value="{{ reserva_auditorio.id_reserva_auditorio }}"
+                       readonly>
+            </div>
+            {{ gerar_select("responsavel", "Selecione a Pessoa responsavel pela reserva", pessoas, "id_pessoa", "nome_pessoa", "id_responsavel", selected=reserva_auditorio.id_responsavel) }}
+            {{ gerar_select("locais", "Selecione o local", locais, "id_local", "nome_local", "id_reserva_local", selected=reserva_auditorio.id_reserva_local) }}
+            {{ gerar_select("aulas", "Selecione o horario", aulas_ativas, "id_aula_ativa", "selector_identification", "id_reserva_aula", selected=reserva_auditorio.id_reserva_aula) }}
+            <div class="form-group">
+                <label for="dia_reserva">Data da Reserva:</label>
+                <input class="form-control"
+                       type="date"
+                       id="dia_reserva"
+                       name="dia_reserva"
+                       value="{{ reserva_auditorio.dia_reserva }}"
+                       required>
+            </div>
+            <div class="form-group">
+                <label for="status_reserva">Status da Reserva</label>
+                <select class="form-control"
+                        id="status_reserva"
+                        name="status_reserva"
+                        required>
+                    <option value="" disabled selected>Selecione o Status da Reserva</option>
+                    {% for status in SRAE %}
+                        <option value="{{ status.value }}"
+                                {% if reserva_auditorio.status_reserva.value == status.value %}selected{% endif %}>
+                            {{ status.value }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            {{ gerar_select("responsavel", "Selecione a Pessoa responsavel pela autorização", pessoas, "id_pessoa", "nome_pessoa", "id_autorizador", optional=True, selected=reserva_auditorio.id_autorizador) }}
+            <div class="form-group">
+                <label for="observação_responsavel">Observações do responsavel:</label>
+                <textarea id="observação_responsavel"
+                          name="observação_responsavel"
+                          class="form-control"
+                          placeholder="Insira observações relevantes"
+                          rows="6"
+                          cols="60"
+                          value="{{ reserva_auditorio.observação_responsavel }}"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="observação_autorizador">Observações do autorizador:</label>
+                <textarea id="observação_autorizador"
+                          name="observação_autorizador"
+                          class="form-control"
+                          placeholder="Insira observações relevantes"
+                          rows="6"
+                          cols="60"
+                          value="{{ reserva_auditorio.observação_autorizador }}"></textarea>
+            </div>
+            {{ action_buttons(acao, 2, True, 0) }}
+        </form>
+    {% endif %}
+{% endblock editar %}
+{% block excluir %}
+{% if bloco == 0 %}
+<h3>Excluir Reservas de Auditorios</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            {{ gerar_select("reservas_auditorio", "Selecione a reserva", reservas_auditorios, "id_reserva_auditorio", "selector_identification") }}
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+{% else %}
+        <h3>Editar Reserva de Auditorio</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label>ID Reserva auditorio</label>
+                <input type="number"
+                       class="form-control"
+                       name="id_reserva_auditorio"
+                       value="{{ reserva_auditorio.id_reserva_auditorio }}"
+                       readonly>
+            </div>
+            {{ gerar_select("responsavel", "Selecione a Pessoa responsavel pela reserva", pessoas, "id_pessoa", "nome_pessoa", "id_responsavel", selected=reserva_auditorio.id_responsavel, extra='disabled') }}
+            {{ gerar_select("locais", "Selecione o local", locais, "id_local", "nome_local", "id_reserva_local", selected=reserva_auditorio.id_reserva_local, extra='disabled') }}
+            {{ gerar_select("aulas", "Selecione o horario", aulas_ativas, "id_aula_ativa", "selector_identification", "id_reserva_aula", selected=reserva_auditorio.id_reserva_aula, extra='disabled') }}
+            <div class="form-group">
+                <label for="dia_reserva">Data da Reserva:</label>
+                <input class="form-control"
+                       type="date"
+                       id="dia_reserva"
+                       name="dia_reserva"
+                       value="{{ reserva_auditorio.dia_reserva }}"
+                       required
+                       disabled>
+            </div>
+            <div class="form-group">
+                <label for="status_reserva">Status da Reserva</label>
+                <select class="form-control"
+                        id="status_reserva"
+                        name="status_reserva"
+                        required
+                        disabled>
+                    <option value="" disabled selected>Selecione o Status da Reserva</option>
+                    {% for status in SRAE %}
+                        <option value="{{ status.value }}"
+                                {% if reserva_auditorio.status_reserva.value == status.value %}selected{% endif %}>
+                            {{ status.value }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            {{ gerar_select("responsavel", "Selecione a Pessoa responsavel pela autorização", pessoas, "id_pessoa", "nome_pessoa", "id_autorizador", optional=True, selected=reserva_auditorio.id_autorizador, extra='disabled') }}
+            <div class="form-group">
+                <label for="observação_responsavel">Observações do responsavel:</label>
+                <textarea id="observação_responsavel"
+                          name="observação_responsavel"
+                          class="form-control"
+                          placeholder="Insira observações relevantes"
+                          rows="6"
+                          cols="60"
+                          value="{{ reserva_auditorio.observação_responsavel }}"disabled></textarea>
+            </div>
+            <div class="form-group">
+                <label for="observação_autorizador">Observações do autorizador:</label>
+                <textarea id="observação_autorizador"
+                          name="observação_autorizador"
+                          class="form-control"
+                          placeholder="Insira observações relevantes"
+                          rows="6"
+                          cols="60"
+                          value="{{ reserva_auditorio.observação_autorizador }}"disabled></textarea>
+            </div>
+            {{ action_buttons(acao, 2, True, 0, False) }}
+        </form>
+{% endif %}
+{% endblock excluir %}
+{% macro result_table(message) %}
+    {% if reservas_auditorios %}
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered table-hover">
+                <thead>
+                    <tr class="information">
+                        <td>Codigo</td>
+                        <td>Responsavel</td>
+                        <td>Local</td>
+                        <td>Horario</td>
+                        <td>Dia</td>
+                        <td>Status</td>
+                        <td>Autorizador</td>
+                        <td>Observações do responsavel</td>
+                        <td>Observações do autorizador</td>
+                        <td>Ação</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ra in reservas_auditorios %}
+                        <tr>
+                            <td>{{ ra.id_reserva_auditorio }}</td>
+                            <td>{{ ra.responsavel.nome_pessoa }}</td>
+                            <td>{{ ra.local.nome_local }}</td>
+                            <td>{{ ra.aula_ativa.selector_identification }}</td>
+                            <td>{{ ra.dia_reserva|data }}</td>
+                            <td>{{ ra.status_reserva.value }}</td>
+                            <td>{{ ra.autorizador.nome_pessoa if ra.autorizador else '-' }}</td>
+                            <td>{{ ra.observação_responsavel if ra.observação_responsavel else '-' }}</td>
+                            <td>{{ ra.observação_autorizador if ra.observação_autorizador else '-' }}</td>
+                            <td>
+                                <form method="post" class="form-inline">
+                                    <input type="hidden" name="bloco" value="1">
+                                    <input type="hidden"
+                                           name="id_reserva_auditorio"
+                                           value="{{ ra.id_reserva_auditorio }}">
+                                    <div class="btn-group-vertical">
+                                        <button type="submit"
+                                                name="acao"
+                                                value="editar"
+                                                class="btn btn-warning"
+                                                title="Editar">
+                                            <i class="glyphicon glyphicon-pencil"></i>
+                                        </button>
+                                        <button type="submit"
+                                                name="acao"
+                                                value="excluir"
+                                                class="btn btn-danger"
+                                                title="Excluir">
+                                            <i class="glyphicon glyphicon-trash"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if query_params %}
+            {{ paginacao(pagination, acao, bloco, query_params) }}
+        {% else %}
+            {{ paginacao(pagination, acao, bloco) }}
+        {% endif %}
+    {% else %}
+        <div class="alert alert-info" role="alert">{{ message }}</div>
+    {% endif %}
+{% endmacro %}

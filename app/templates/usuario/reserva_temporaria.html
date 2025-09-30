@@ -35,7 +35,7 @@
                                {% if dia_selecionado %}value="{{ dia_selecionado }}"{% endif %}
                                onchange="if (this.checkValidity()) this.form.submit();">
                     </div>
-                    {% if perm|has_flag(ADMIN) %}
+                    {% if user.perm|has_flag(ADMIN) %}
                         <div class="form-group">
                             <label for="all">Todos usuarios</label>
                             <input type="checkbox"
@@ -69,10 +69,10 @@
                             {% for r in reservas_temporarias %}
                                 <tr>
                                     {% if all %}<td>{{ get_responsavel_reserva(r) }}</td>{% endif %}
-                                    <td>{{ r.locais.nome_local }}</td>
+                                    <td>{{ r.local.nome_local }}</td>
                                     <td>{{ r.inicio_reserva|data }} - {{ r.fim_reserva|data }}</td>
-                                    <td>{{ r.aulas_ativas.dia_da_semana.nome_semana }}</td>
-                                    <td>{{ r.aulas_ativas.aulas.horario_inicio|hora }} às {{ r.aulas_ativas.aulas.horario_fim|hora }}</td>
+                                    <td>{{ r.aula_ativa.dia_da_semana.nome_semana }}</td>
+                                    <td>{{ r.aula_ativa.aula.horario_inicio|hora }} às {{ r.aula_ativa.aula.horario_fim|hora }}</td>
                                     <td>{{ r.finalidade_reserva.value }}</td>
                                     <td>
                                         <div class="btn-group">
@@ -137,7 +137,7 @@
                 $('#modalEObservacao').val(data.observacao);
                 $('#modalETipoReserva').val(data.finalidadereserva);
                 $('#formEditar').attr('action', data.editar_url);
-                {% if perm and perm|has_flag(ADMIN) %}
+                {% if user.perm|has_flag(ADMIN) %}
                     $('#modalEResponsavel').val(data.responsavel);
                     $('#modalEResponsavelEspecial').val(data.responsavel_especial);
                 {% endif %}
@@ -164,3 +164,7 @@
         <small>Esta página se atualiza automaticamente.</small>
     </p>
 {% endblock footer %}
+{% block extra_css %}
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/modal_overwrite.css') }}">
+{% endblock extra_css %}

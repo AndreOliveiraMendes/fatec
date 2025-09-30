@@ -68,19 +68,13 @@ def get_query_params(request):
     return {key: value for key, value in request.form.items() if key not in IGNORED_FORM_FIELDS}
 
 def get_user_info(userid):
-    username, perm = None, 0
     if not userid:
-        return username, perm
+        return None
     user = db.session.get(Usuarios, userid)
     if user:
-        pessoa = user.pessoas
-        username = pessoa.nome_pessoa
-        permissao = db.session.get(Permissoes, userid)
-        if permissao:
-            perm = permissao.permissao
+        return user
     else:
         session.pop('userid')
-    return username, perm
 
 def formatar_valor(valor):
     if isinstance(valor, enum.Enum):
@@ -210,17 +204,15 @@ def time_range(start:date, end:date, step:int = 1):
 
 def get_responsavel_reserva(reserva:Reservas_Fixas|Reservas_Temporarias):
     title = ""
-    empty = True
     if reserva.tipo_responsavel == 0 or reserva.tipo_responsavel == 2:
         responsavel = db.get_or_404(Pessoas, reserva.id_responsavel)
         if responsavel.alias:
             title += responsavel.alias
         else:
             title += responsavel.nome_pessoa
-        empty = False
     if reserva.tipo_responsavel== 1 or reserva.tipo_responsavel == 2:
         responsavel = db.get_or_404(Usuarios_Especiais, reserva.id_responsavel_especial)
-        if empty:
+        if reserva.tipo_responsavel == 1:
             title += responsavel.nome_usuario_especial
         else:
             title += f" ({responsavel.nome_usuario_especial})"

@@ -155,6 +155,14 @@ body {
     right: 0;
 }
 
+.icon-contrast {
+    text-shadow:
+        -1px -1px 0 white,
+        1px -1px 0 white,
+        -1px 1px 0 white,
+        1px 1px 0 white;
+}
+
 .slide {
     display: none;
 }
@@ -188,14 +196,6 @@ td.fixa {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-}
-
-.icon-contrast {
-    text-shadow:
-        -1px -1px 0 white,
-        1px -1px 0 white,
-        -1px 1px 0 white,
-        1px 1px 0 white;
 }
 
 .tabela-reserva-tv {
@@ -237,6 +237,44 @@ td.fixa {
     /* tamanho do ícone */
 }
 
+/* efeito de transição do botoes da reserva de auditorio */
+.btn-icon>.glyphicon-remove.icon-auditorio:hover,
+.btn-icon>.glyphicon-thumbs-down.icon-auditorio:hover {
+    color: red;
+}
+
+.btn-icon>.glyphicon-ok.icon-auditorio:hover,
+.btn-icon>.glyphicon-thumbs-up.icon-auditorio:hover {
+    color: green;
+}
+
+/* gerenciamento de situações */
+.btn-icon>.glyphicon-thumbs-down.text-muted:hover {
+    color: red;
+}
+
+.btn-icon>.glyphicon-thumbs-up.text-muted:hover,
+.btn-icon>.glyphicon-time.text-muted:hover {
+    color: green;
+}
+
+.btn-icon>.glyphicon-ok.text-muted:hover,
+.btn-icon>.glyphicon-lock.text-muted:hover {
+    color: blue;
+}
+
+.btn-icon>.glyphicon-th-list.text-muted:hover {
+    color: yellow;
+}
+
+/* comum entre os dois */
+
+.icon-auditorio,
+.icon {
+    transition: color 0.3s ease;
+    /* Smooth transition for color change */
+}
+
 .btn-icon:focus {
     outline: none;
     /* tira a borda de foco azul */
@@ -271,4 +309,91 @@ td.fixa {
     font-size: 14px;
     padding: 8px 12px;
     cursor: help
+}
+
+.badge_status {
+    display: inline-block;
+    padding: 0.5em 1.2em;
+    /* aumenta altura e largura */
+    font-size: 1em;
+    /* aumenta fonte */
+    font-weight: 600;
+    border-radius: 999px;
+    /* deixa formato "pill" */
+    color: #fff;
+}
+
+.badge_status.Aguardando {
+    background-color: #f0ad4e;
+}
+
+/* âmbar */
+.badge_status.Cancelada {
+    background-color: #6c757d;
+}
+
+/* cinza */
+.badge_status.Aprovada {
+    background-color: #28a745;
+}
+
+/* verde */
+.badge_status.Reprovada {
+    background-color: #dc3545;
+}
+
+.badge_status.danger {
+    background-color: #d9534f;
+}
+
+.badge_status.success {
+    background-color: #5cb85c;
+}
+
+.badge_status.info {
+    background-color: #5bc0de;
+}
+
+/* vermelho */
+
+.icon-stack {
+    position: relative;
+    display: inline-block;
+    width: 1.5em;
+    /* garante largura fixa */
+    height: 3em;
+    vertical-align: middle;
+}
+
+.icon-stack .glyphicon {
+    position: absolute;
+    top: 0;
+    left: 0;
+    font-size: 1.2em;
+    /* tamanho base */
+    line-height: 1.5em;
+}
+
+/* Ícone base (balão) */
+.icon-stack .glyphicon-comment {
+    color: #333;
+}
+
+.icon-stack .icon-user {
+    color: green;
+    font-size: 0.6em;
+    bottom: -0.3em;
+    left: -0.3em;
+    top: 2.3em;
+}
+
+.icon-stack .icon-fire {
+    color: red;
+    font-size: 0.6em;
+    bottom: -0.3em;
+    left: 1.7em;
+}
+
+.table-auditorio>tbody>tr>td {
+    vertical-align: middle;
 }

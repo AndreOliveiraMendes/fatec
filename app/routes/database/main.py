@@ -62,15 +62,15 @@ def has_cycle(fks):
 @admin_required
 def menu():
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     extras = {}
-    return render_template("database/menu.html", username=username, perm=perm, **extras)
+    return render_template("database/menu.html", user=user, **extras)
 
 @bp.route("/view")
 @admin_required
 def database():
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     extras = {}
     inspector = inspect(db.engine)
     tables = inspector.get_table_names()
@@ -81,13 +81,13 @@ def database():
     extras['uks'] = {table:inspector.get_unique_constraints(table) for table in tables}
     extras['chks'] = {table:inspector.get_check_constraints(table) for table in tables}
     extras['inds'] = {table:inspector.get_indexes(table) for table in tables}
-    return render_template("database/schema/database.html", username=username, perm=perm, **extras)
+    return render_template("database/schema/database.html", user=user, **extras)
 
 @bp.route("/wiki")
 @admin_required
 def wiki():
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     extras = {}
     inspector = inspect(db.engine)
     tables = inspector.get_table_names()
@@ -119,13 +119,13 @@ def wiki():
     extras['uks'] = {table:inspector.get_unique_constraints(table) for table in tables}
     extras['chks'] = {table:inspector.get_check_constraints(table) for table in tables}
     extras['inds'] = {table:inspector.get_indexes(table) for table in tables}
-    return render_template("database/schema/wiki.html", username=username, perm=perm, **extras)
+    return render_template("database/schema/wiki.html", user=user, **extras)
 
 @bp.route("/schema")
 @admin_required
 def schema():
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     extras = {}
     inspector = inspect(db.engine)
     tables = inspector.get_table_names()
@@ -136,7 +136,7 @@ def schema():
     else:
         extras['tables_sql'] = [(table, get_create_table(table)) for table in tables]
 
-    return render_template("database/schema/schema.html", username=username, perm=perm, **extras)
+    return render_template("database/schema/schema.html", user=user, **extras)
 
 @bp.route("/schema/sql")
 @admin_required

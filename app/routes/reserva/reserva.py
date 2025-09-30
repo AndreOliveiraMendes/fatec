@@ -31,7 +31,7 @@ def divide(l, q):
 @bp.route('/')
 def main_page():
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     today = datetime.now(LOCAL_TIMEZONE)
     extras = {'dia':today}
     reserva_dia = parse_date_string(request.args.get('reserva-dia', default=today.date().strftime("%Y-%m-%d")))
@@ -54,12 +54,12 @@ def main_page():
         extras['skip'] = True
     extras['aulas'] = aulas
     extras['locais'] = locais
-    return render_template("reserva/main.html", username=username, perm=perm, **extras)
+    return render_template("reserva/main.html", user=user, **extras)
 
 @bp.route("/televisor")
 def tela_televisor():
     userid = session.get('userid')
-    username, perm = get_user_info(userid)
+    user = get_user_info(userid)
     extras = {}
     painel_cfg = carregar_painel_config()
     tipo_horario = painel_cfg.get('tipo')
@@ -73,4 +73,4 @@ def tela_televisor():
     turno = get_turno_by_time(today.time())
     aulas = get_aulas_ativas_por_dia(today.date(), turno, TipoAulaEnum(tipo_horario))
     extras['aulas'] = aulas
-    return render_template("reserva/televisor.html", username=username, perm=perm, **extras)
+    return render_template("reserva/televisor.html", user=user, **extras)
