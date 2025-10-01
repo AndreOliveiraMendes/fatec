@@ -35,13 +35,18 @@ def main_page():
     extras['auditorios'] = auditorios
 
     reserva_dia = parse_date_string(request.args.get('reserva-dia'))
-    if not 'reserva-dia' in request.args:
-        reserva_dia = today.date()
-    extras['reserva_dia'] = reserva_dia
+    reserva_dia_inicio = parse_date_string(request.args.get('reserva-dia-inicio'))
+    reserva_dia_fim = parse_date_string(request.args.get('reserva-dia-fim'))
+    modo_filtro = request.args.get('tipo-filtro', 'dia')
 
     conditions = []
-    if reserva_dia:
+    if modo_filtro == 'dia' and reserva_dia:
         conditions.append(Reservas_Auditorios.dia_reserva == reserva_dia)
+    elif modo_filtro == 'intervalo':
+        if reserva_dia_inicio:
+            conditions.append(Reservas_Auditorios.dia_reserva >= reserva_dia_inicio)
+        if reserva_dia_fim:
+            conditions.append(Reservas_Auditorios.dia_reserva <= reserva_dia_fim)
     extras['reservas_auditorios'] = get_reservas_auditorios(user.pessoa.id_pessoa, user.perm&(PERM_ADMIN+PERM_AUTORIZAR), *conditions)
     return render_template('reserva_auditorio/main.html', user=user, **extras)
 

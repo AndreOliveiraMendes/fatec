@@ -16,16 +16,63 @@
             <h3 class="panel-title">Reservas de Auditorio</h3>
             <form method="get"
                   class="form-inline"
-                  action="{{ url_for('reservas_auditorios.main_page') }}">
-                <div class="form-group">
-                    <label for="reserva-dia">dia:</label>
+                  action="{{ url_for('reservas_auditorios.main_page') }}"
+                  id="formFiltro">
+                <!-- Botões toggle -->
+                <div class="btn-group" data-toggle="buttons">
+                    <label class="btn btn-primary active" id="btn-dia">
+                        <input type="radio"
+                               name="tipo-filtro"
+                               value="dia"
+                               {% if not request.args.get('tipo-filtro') == 'intervalo' %}
+                               checked
+                               {% endif %}>
+                        <span class="glyphicon glyphicon-calendar"></span> Dia
+                    </label>
+                    <label class="btn btn-primary" id="btn-intervalo">
+                        <input type="radio" name="tipo-filtro" value="intervalo"
+                        {% if request.args.get('tipo-filtro') == 'intervalo' %}
+                        checked
+                        {% endif %}>
+                        <span class="glyphicon glyphicon-resize-horizontal"></span> Intervalo
+                    </label>
+                </div>
+                <hr>
+                <!-- Campo único: dia -->
+                <div id="campo-dia" class="form-group">
+                    <label for="reserva-dia">Dia:</label>
                     <input type="date"
-                           class="form-control"
-                           value="{{ reserva_dia }}"
                            id="reserva-dia"
                            name="reserva-dia"
-                           onchange="if (this.checkValidity()) this.form.submit();">
+                           class="form-control"
+                           value="{{ request.args.get('reserva-dia', '') }}">
                 </div>
+                <!-- Campos de intervalo -->
+                <div id="campo-intervalo" class="form-inline">
+                    <div class="form-group">
+                        <label for="dia-inicio">Início:</label>
+                        <input type="date"
+                               id="dia-inicio"
+                               name="reserva-dia-inicio"
+                               class="form-control"
+                               value="{{ request.args.get('reserva-dia-inicio', '') }}"
+                               disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="dia-fim">Fim:</label>
+                        <input type="date"
+                               id="dia-fim"
+                               name="reserva-dia-fim"
+                               class="form-control"
+                               value="{{ request.args.get('reserva-dia-fim', '') }}"
+                               disabled>
+                    </div>
+                </div>
+                <hr>
+                <!-- Botão de submit -->
+                <button type="submit" class="btn btn-success">
+                    <span class="glyphicon glyphicon-filter"></span> Filtrar
+                </button>
             </form>
         </div>
         <div class="panel-body">
@@ -158,6 +205,48 @@
         $(function () {
         $('[data-toggle="tooltip"]').tooltip()
         })
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const campoDia = document.getElementById('campo-dia');
+            const campoIntervalo = document.getElementById('campo-intervalo');
+            const inputDia = document.getElementById('reserva-dia');
+            const inputInicio = document.getElementById('dia-inicio');
+            const inputFim = document.getElementById('dia-fim');
+
+            const btnDia = document.getElementById('btn-dia');
+            const btnIntervalo = document.getElementById('btn-intervalo');
+
+            function ativarDia() {
+                campoDia.style.display = 'block';
+                campoIntervalo.style.display = 'none';
+                btnDia.classList.add('active');
+                btnIntervalo.classList.remove('active');
+                inputDia.disabled = false;
+                inputInicio.disabled = true;
+                inputFim.disabled = true;
+            }
+
+            function ativarIntervalo() {
+                campoDia.style.display = 'none';
+                campoIntervalo.style.display = 'block';
+                btnDia.classList.remove('active');
+                btnIntervalo.classList.add('active');
+                inputDia.disabled = true;
+                inputInicio.disabled = false;
+                inputFim.disabled = false;
+            }
+
+            // Inicializa no modo "dia"
+            if (document.querySelector('input[name="tipo-filtro"]:checked').value === 'intervalo') {
+                ativarIntervalo();
+            } else {
+                ativarDia();
+            }
+
+            btnDia.addEventListener('click', ativarDia);
+            btnIntervalo.addEventListener('click', ativarIntervalo);
+        });
     </script>
     <script>
         $(document).on('click', '.btn-detalhes', function () {
