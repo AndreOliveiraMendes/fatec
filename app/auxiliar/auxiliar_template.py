@@ -313,6 +313,11 @@ def register_filters(app:Flask):
 
     @app.template_filter('data')
     def format_data(value):
+        if type(value) is str:
+            try:
+                value = datetime.strptime(value, '%Y-%m-%d')
+            except ValueError:
+                return ''
         return value.strftime('%d/%m/%Y') if value else ''
 
     @app.template_filter('datahora')

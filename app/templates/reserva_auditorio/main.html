@@ -24,16 +24,14 @@
                         <input type="radio"
                                name="tipo-filtro"
                                value="dia"
-                               {% if not request.args.get('tipo-filtro') == 'intervalo' %}
-                               checked
-                               {% endif %}>
+                               {% if not request.args.get('tipo-filtro') == 'intervalo' %}checked{% endif %}>
                         <span class="glyphicon glyphicon-calendar"></span> Dia
                     </label>
                     <label class="btn btn-primary" id="btn-intervalo">
-                        <input type="radio" name="tipo-filtro" value="intervalo"
-                        {% if request.args.get('tipo-filtro') == 'intervalo' %}
-                        checked
-                        {% endif %}>
+                        <input type="radio"
+                               name="tipo-filtro"
+                               value="intervalo"
+                               {% if request.args.get('tipo-filtro') == 'intervalo' %}checked{% endif %}>
                         <span class="glyphicon glyphicon-resize-horizontal"></span> Intervalo
                     </label>
                 </div>
@@ -74,6 +72,19 @@
                     <span class="glyphicon glyphicon-filter"></span> Filtrar
                 </button>
             </form>
+            {% if request.args.get('tipo-filtro') == 'intervalo' %}
+                {% if request.args.get('reserva-dia-inicio') and request.args.get('reserva-dia-fim') %}
+                <span class="label label-info">Reservas de {{ request.args.get('reserva-dia-inicio')|data }} ate {{ request.args.get('reserva-dia-fim')|data }}</span>
+                {% elif request.args.get('reserva-dia-inicio') %}
+                <span class="label label-info">Reservas a partir do dia {{ request.args.get('reserva-dia-inicio')|data }}</span>
+                {% elif request.args.get('reserva-dia-fim') %}
+                <span class="label label-info">Reservas ate o dia {{ request.args.get('reserva-dia-fim')|data }}</span>
+                {% endif %}
+            {% else %}
+                {% if request.args.get('reserva-dia') %}
+                    <span class="label label-info">Reservas do dia {{ request.args.get("reserva-dia")|data }}</span>
+                {% endif %}
+            {% endif %}
         </div>
         <div class="panel-body">
             {% if reservas_auditorios %}
