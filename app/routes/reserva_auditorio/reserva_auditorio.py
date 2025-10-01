@@ -30,7 +30,8 @@ def main_page():
     extras = {'dia':today}
     auditorios = get_auditorios()
     if len(auditorios) == 0:
-        abort(500)
+        flash("sem auditorio cadastrado ou ativo", "danger")
+        return redirect(url_for('default.home'))
     extras['auditorios'] = auditorios
 
     reserva_dia = parse_date_string(request.args.get('reserva-dia'))
