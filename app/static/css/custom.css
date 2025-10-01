@@ -1,3 +1,6 @@
+/* ==========================
+   INPUTS / CAMPOS DE TEXTO
+   ========================== */
 input[readonly],
 input[disabled] {
     background-color: #f0f0f0;
@@ -13,6 +16,101 @@ input[disabled] {
     border-radius: 4px;
 }
 
+/* ==========================
+   TABELAS
+   ========================== */
+.table-auditorio>tbody>tr>td {
+    vertical-align: middle;
+}
+
+.tabela-reserva {
+    border-collapse: collapse;
+    overflow-x: auto;
+    width: 100%;
+}
+
+.tabela-reserva th,
+.tabela-reserva td {
+    padding: 8px;
+    text-align: center;
+    border: 1px solid #5bc0de;
+    white-space: nowrap;
+}
+
+.tabela-reserva thead th {
+    background-color: #5bc0de;
+}
+
+.tabela-reserva .col-fixa {
+    position: sticky;
+    left: 0;
+    background-color: #5bc0de;
+    z-index: 3;
+    vertical-align: middle;
+}
+
+.tabela-reserva-tv {
+    border-collapse: collapse;
+    width: 100%;
+    overflow-x: auto;
+    font-size: large;
+}
+
+.tabela-reserva-tv th,
+.tabela-reserva-tv td {
+    text-align: center;
+}
+
+.tabela-reserva-tv thead th {
+    background-color: #c00;
+    color: #ffffff;
+}
+
+td.fixa {
+    width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ==========================
+   LAYOUT GERAL
+   ========================== */
+html,
+body {
+    height: 100%;
+    margin: 0;
+}
+
+#wrap {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+#main {
+    flex: 1;
+}
+
+.footer {
+    height: auto;
+    background-color: #f5f5f5;
+    text-align: center;
+    padding: 20px 0;
+    border-top: 1px solid #e5e5e5;
+}
+
+.center-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+/* ==========================
+   FORMATAÇÃO E SEÇÕES
+   ========================== */
 .information {
     background-color: #5bc0de;
     color: white;
@@ -40,30 +138,13 @@ input[disabled] {
     font-weight: normal;
 }
 
-html,
-body {
-    height: 100%;
-    margin: 0;
+.full {
+    width: 100%;
 }
 
-#wrap {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
-
-#main {
-    flex: 1;
-}
-
-.footer {
-    height: auto;
-    background-color: #f5f5f5;
-    text-align: center;
-    padding: 20px 0;
-    border-top: 1px solid #e5e5e5;
-}
-
+/* ==========================
+   PÍLULAS / NAVEGAÇÃO
+   ========================== */
 .pills-group li {
     transition: opacity 0.3s ease, transform 0.3s ease;
 }
@@ -96,40 +177,15 @@ body {
     font-weight: bold;
 }
 
-.tabela-reserva {
-    border-collapse: collapse;
-    overflow-x: auto;
-    width: 100%;
+.nav>li.nav-centered {
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
-.tabela-reserva th,
-.tabela-reserva td {
-    padding: 8px;
-    text-align: center;
-    border: 1px solid #5bc0de;
-    white-space: nowrap;
-}
-
-.tabela-reserva thead th {
-    background-color: #5bc0de;
-}
-
-/* Apenas os cabeçalhos e células da coluna fixa */
-.tabela-reserva .col-fixa {
-    position: sticky;
-    left: 0;
-    background-color: #5bc0de;
-    z-index: 3;
-    vertical-align: middle;
-    /* acima do conteúdo normal */
-}
-
-/* horarios reservados */
-.reservado {
-    background-color: #f50b0b;
-    cursor: not-allowed;
-}
-
+/* ==========================
+   ÍCONES E BADGES
+   ========================== */
 .ellipsis {
     display: inline-block;
     width: 1em;
@@ -163,82 +219,69 @@ body {
         1px 1px 0 white;
 }
 
-.slide,
-.hide {
-    display: none;
-}
-
-.slide.active {
-    display: block;
-}
-
-.nav>li.nav-centered {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
 .circle-icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 40px;
-    /* ajuste o tamanho como quiser */
     height: 40px;
     border-radius: 50%;
     border: 2px solid #c00;
-    /* vermelho escuro */
     color: #c00;
     font-size: 20px;
 }
 
-td.fixa {
-    width: 120px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+/* Ícones empilhados (comentário + user/admin) */
+.icon-stack {
+    position: relative;
+    display: inline-block;
+    width: 1.5em;
+    height: 3em;
+    vertical-align: middle;
 }
 
-.tabela-reserva-tv {
-    border-collapse: collapse;
-    width: 100%;
-    overflow-x: auto;
-    font-size: large;
+.icon-stack .glyphicon {
+    position: absolute;
+    top: 0;
+    left: 0;
+    font-size: 1.2em;
+    line-height: 1.5em;
 }
 
-.tabela-reserva-tv th,
-.tabela-reserva-tv td {
-    text-align: center;
+.icon-stack .glyphicon-comment {
+    color: #333;
 }
 
-.tabela-reserva-tv thead th {
-    background-color: #c00;
-    color: #ffffff;
+.icon-stack .icon-user {
+    color: green;
+    font-size: 0.6em;
+    bottom: -0.3em;
+    left: -0.3em;
+    top: 2.3em;
 }
 
-.center-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
+.icon-stack .icon-fire {
+    color: red;
+    font-size: 0.6em;
+    bottom: -0.3em;
+    left: 1.7em;
 }
 
-/*botao com icone*/
+/* ==========================
+   BOTÕES DE AÇÃO
+   ========================== */
 .btn-icon {
     background: none;
-    /* tira fundo */
     border: none;
-    /* tira borda */
     padding: 0;
-    /* tira espaço interno extra */
     margin: 0 5px;
-    /* espaço lateral entre ícones */
     font-size: 20px;
-    /* tamanho do ícone */
 }
 
-/* efeito de transição do botoes da reserva de auditorio */
+.btn-icon:focus {
+    outline: none;
+}
+
 .btn-icon>.glyphicon-remove.icon-auditorio:hover,
 .btn-icon>.glyphicon-thumbs-down.icon-auditorio:hover {
     color: red;
@@ -249,7 +292,6 @@ td.fixa {
     color: green;
 }
 
-/* gerenciamento de situações */
 .btn-icon>.glyphicon-thumbs-down.text-muted:hover {
     color: red;
 }
@@ -268,59 +310,30 @@ td.fixa {
     color: yellow;
 }
 
-/* comum entre os dois */
-
-.icon-auditorio,
-.icon {
-    transition: color 0.3s ease;
-    /* Smooth transition for color change */
-}
-
-.btn-icon:focus {
-    outline: none;
-    /* tira a borda de foco azul */
-}
-
-/*pra usar pra deixar contueod full*/
-.full {
-    width: 100%;
-}
-
-/*teste*/
+/* ==========================
+   LEGENDAS / BADGES
+   ========================== */
 .legend .label {
     font-size: 100%;
-    /* aumenta o tamanho */
     padding: 6px 10px;
-    /* mais espaço interno */
     border: 1px solid #ccc;
-    /* borda cinza clara */
     margin: 2px;
-    /* separação entre eles */
     display: inline-block;
-    /* evita que fiquem grudados */
-}
-
-.disabled_a_click {
-    pointer-events: none;
-    color: gray;
 }
 
 .badge_fernet_key {
     background-color: #5cb85c;
     font-size: 14px;
     padding: 8px 12px;
-    cursor: help
+    cursor: help;
 }
 
 .badge_status {
     display: inline-block;
     padding: 0.5em 1.2em;
-    /* aumenta altura e largura */
     font-size: 1em;
-    /* aumenta fonte */
     font-weight: 600;
     border-radius: 999px;
-    /* deixa formato "pill" */
     color: #fff;
 }
 
@@ -343,6 +356,8 @@ td.fixa {
     background-color: #dc3545;
 }
 
+/* vermelho */
+
 .badge_status.danger {
     background-color: #d9534f;
 }
@@ -355,46 +370,24 @@ td.fixa {
     background-color: #5bc0de;
 }
 
-/* vermelho */
-
-.icon-stack {
-    position: relative;
-    display: inline-block;
-    width: 1.5em;
-    /* garante largura fixa */
-    height: 3em;
-    vertical-align: middle;
+/* ==========================
+   OUTROS
+   ========================== */
+.reservado {
+    background-color: #f50b0b;
+    cursor: not-allowed;
 }
 
-.icon-stack .glyphicon {
-    position: absolute;
-    top: 0;
-    left: 0;
-    font-size: 1.2em;
-    /* tamanho base */
-    line-height: 1.5em;
+.slide,
+.hide {
+    display: none;
 }
 
-/* Ícone base (balão) */
-.icon-stack .glyphicon-comment {
-    color: #333;
+.slide.active {
+    display: block;
 }
 
-.icon-stack .icon-user {
-    color: green;
-    font-size: 0.6em;
-    bottom: -0.3em;
-    left: -0.3em;
-    top: 2.3em;
-}
-
-.icon-stack .icon-fire {
-    color: red;
-    font-size: 0.6em;
-    bottom: -0.3em;
-    left: 1.7em;
-}
-
-.table-auditorio>tbody>tr>td {
-    vertical-align: middle;
+.disabled_a_click {
+    pointer-events: none;
+    color: gray;
 }
