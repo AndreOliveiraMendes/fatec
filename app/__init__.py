@@ -9,8 +9,9 @@ from app.routes import register_blueprints
 from config.general import AUTO_CREATE_MYSQL, get_config
 
 
-def create_app():
-    app = Flask(__name__)
+def create_app(name=None):
+    name = name if name else __name__
+    app = Flask(name)
     app.config.from_object(get_config())
     db.init_app(app)
 
