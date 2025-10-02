@@ -328,15 +328,21 @@ body {
     cursor: help;
 }
 
+/* Base */
 .badge_status {
     display: inline-block;
     padding: 0.5em 1.2em;
     font-size: 1em;
     font-weight: 600;
     border-radius: 999px;
+    /* pill */
     color: #fff;
+    vertical-align: middle;
+    text-align: center;
+    white-space: nowrap;
 }
 
+/* Específicos */
 .badge_status.Aguardando {
     background-color: #f0ad4e;
 }
@@ -358,16 +364,30 @@ body {
 
 /* vermelho */
 
-.badge_status.danger {
-    background-color: #d9534f;
-}
-
-.badge_status.success {
+/* Genéricos reaproveitando Bootstrap semantics */
+.badge_status.success,
+.badge.success {
     background-color: #5cb85c;
 }
 
-.badge_status.info {
+.badge_status.warning,
+.badge.warning {
+    background-color: #f0ad4e;
+}
+
+.badge_status.danger,
+.badge.danger {
+    background-color: #d9534f;
+}
+
+.badge_status.info,
+.badge.info {
     background-color: #5bc0de;
+}
+
+.badge_status.secondary,
+.badge.secondary {
+    background-color: #6c757d;
 }
 
 /* ==========================
