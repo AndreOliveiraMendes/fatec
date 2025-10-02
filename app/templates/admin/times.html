@@ -8,7 +8,23 @@
             <h3 class="panel-title">Horarios</h3>
         </div>
         <div class="panel-body">
-        
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Horários</th>
+                            {% for semana in dias_da_semana %}<th>{{ semana.nome_semana }}</th>{% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for horario in horarios_base %}
+                            <tr>
+                                <td><span class="glyphicon glyphicon-time"></span> {{ horario.horario_inicio }} ás {{ horario.horario_fim }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 {% endblock content %}

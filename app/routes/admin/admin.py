@@ -119,7 +119,7 @@ def control_times():
     extras['dias_da_semana'] = db.session.execute(
         select(Dias_da_Semana).order_by(Dias_da_Semana.id_semana)
     ).scalars().all()
-    extras['horario_base'] = db.session.execute(
+    extras['horarios_base'] = db.session.execute(
         select(Aulas).order_by(Aulas.horario_inicio, Aulas.horario_fim)
     ).scalars().all()
     return render_template("admin/times.html", user=user, **extras)
