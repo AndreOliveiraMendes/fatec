@@ -5,15 +5,15 @@ from datetime import datetime
 from importlib.resources import as_file
 from pathlib import Path
 
-from cryptography.fernet import Fernet
 from flask import (Blueprint, current_app, flash, redirect, render_template,
                    request, session, url_for)
+from sqlalchemy import select
 
 from app.auxiliar.auxiliar_cryptograph import ensure_secret_file, load_key
 from app.auxiliar.auxiliar_routes import get_user_info
 from app.auxiliar.dao import get_locais
 from app.auxiliar.decorators import admin_required
-from app.models import TipoAulaEnum
+from app.models import TipoAulaEnum, Aulas, Aulas_Ativas, Dias_da_Semana, db
 from config.database_views import SECOES
 from config.general import LIST_ROUTES
 from config.json_related import carregar_config_geral, carregar_painel_config
@@ -109,3 +109,17 @@ def listar_rotas():
         bps.add(rule.endpoint.split('.')[0])
 
     return render_template("admin/routes.html", rotas=routes, blueprints=sorted(bps))
+
+@bp.route("/times")
+@admin_required
+def control_times():
+    userid = session.get('userid')
+    user = get_user_info(userid)
+    extras = {}
+    extras['dias_da_semana'] = db.session.execute(
+        select(Dias_da_Semana).order_by(Dias_da_Semana.id_semana)
+    ).scalars().all()
+    extras['horario_base'] = db.session.execute(
+        select(Aulas).order_by(Aulas.horario_inicio, Aulas.horario_fim)
+    ).scalars().all()
+    return render_template("admin/times.html", user=user, **extras)
