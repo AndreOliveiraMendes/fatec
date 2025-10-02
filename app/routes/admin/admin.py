@@ -7,13 +7,14 @@ from pathlib import Path
 
 from cryptography.fernet import Fernet
 from flask import (Blueprint, flash, redirect, render_template, request,
-                   session, url_for)
+                   session, url_for, current_app)
 
 from app.auxiliar.auxiliar_cryptograph import ensure_secret_file, load_key
 from app.auxiliar.auxiliar_routes import get_user_info
 from app.auxiliar.dao import get_locais
 from app.auxiliar.decorators import admin_required
 from app.models import TipoAulaEnum
+from config.general import LIST_ROUTES
 from config.database_views import SECOES
 from config.json_related import carregar_config_geral, carregar_painel_config
 from config.mapeamentos import SECRET_PATH
@@ -38,6 +39,7 @@ def gerenciar_menu():
         secoes=SECOES, key=key, key_info=key_info)
 
 @bp.route("/configurar_painel", methods=['GET', 'POST'])
+@admin_required
 def configurar_tela_televisor():
     userid = session.get('userid')
     user = get_user_info(userid)
@@ -64,6 +66,7 @@ def configurar_tela_televisor():
     return render_template("reserva/televisor_control.html", user=user, **extras)
 
 @bp.route("/configuracao_geral", methods=['GET', 'POST'])
+@admin_required
 def configuracao_geral():
     userid = session.get('userid')
     user = get_user_info(userid)
@@ -84,6 +87,7 @@ def configuracao_geral():
     return render_template("admin/control.html", user=user, **extras)
 
 @bp.route("/gerar_chave")
+@admin_required
 def gerar_chave():
     key = ensure_secret_file()
     if key:
@@ -91,3 +95,17 @@ def gerar_chave():
     else:
         flash("⚠️ A chave já estava configurada.", "warning")
     return redirect(url_for("admin.gerenciar_menu"))
+
+@bp.route("/listar_rotas")
+@admin_required
+def listar_rotas():
+    if not LIST_ROUTES:
+        flash("⚠️ A listagem de rotas não está habilitada.", "warning")
+        return redirect(url_for("admin.gerenciar_menu"))
+    routes, bps = [], set()
+    for rule in current_app.url_map.iter_rules():
+        methods = ",".join(sorted(rule.methods - {"HEAD", "OPTIONS"}))
+        routes.append((rule.rule, methods, rule.endpoint, list(rule.arguments)))
+        bps.add(rule.endpoint.split('.')[0])
+
+    return render_template("admin/routes.html", rotas=routes, blueprints=sorted(bps))
