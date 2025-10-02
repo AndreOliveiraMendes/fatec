@@ -37,7 +37,7 @@
                             <option value="">selecione o semestre</option>
                             {% for s in semestres %}
                                 <option value="{{ s.id_semestre }}"
-                                        {% if s.id_semestre == semestre_selecionado %}selected{% endif %}>
+                                        {% if s.id_semestre == request.args.get('semestre') | int %}selected{% endif %}>
                                     {{ s.nome_semestre }}
                                 </option>
                             {% endfor %}
@@ -51,7 +51,7 @@
                                    name="all"
                                    class="form-control"
                                    title="Mostrar reservas de todos os usuários"
-                                   {% if all %}checked{% endif %}
+                                   {% if 'all' in request.args %}checked{% endif %}
                                    onchange="if (this.checkValidity()) this.form.submit();">
                         </div>
                     {% endif %}

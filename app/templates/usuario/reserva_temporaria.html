@@ -32,7 +32,7 @@
                                id="dia"
                                name="dia"
                                class="form-control"
-                               {% if dia_selecionado %}value="{{ dia_selecionado }}"{% endif %}
+                               value="{{ request.args.get('dia', '') }}"
                                onchange="if (this.checkValidity()) this.form.submit();">
                     </div>
                     {% if user.perm|has_flag(ADMIN) %}
@@ -43,7 +43,7 @@
                                    name="all"
                                    class="form-control"
                                    title="Mostrar reservas de todos os usuários"
-                                   {% if all %}checked{% endif %}
+                                   {% if 'all' in request.args %}checked{% endif %}
                                    onchange="if (this.checkValidity()) this.form.submit();">
                         </div>
                     {% endif %}

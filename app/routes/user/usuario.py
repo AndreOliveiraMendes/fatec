@@ -84,9 +84,7 @@ def gerenciar_reserva_fixa():
     extras['semestres'] = semestres
     semestre_id = request.args.get("semestre", type=int)
     page = int(request.args.get("page", 1))
-    extras['semestre_selecionado'] = semestre_id
     all = "all" in request.args and user.perm&PERM_ADMIN > 0
-    extras['all'] = all
     reservas_fixas = get_reservas_fixas(userid, semestre_id, page, all)
     extras['reservas_fixas'] = reservas_fixas.items
     extras['pagination'] = reservas_fixas
@@ -106,9 +104,7 @@ def gerenciar_reserva_temporaria():
     extras = {'datetime':today}
     dia = parse_date_string(request.args.get('dia'))
     page = int(request.args.get("page", 1))
-    extras['dia_selecionado'] = dia
     all = "all" in request.args and user.perm&PERM_ADMIN > 0
-    extras['all'] = all
     reservas_temporarias = get_reservas_temporarias(userid, dia, page, all)
     extras['reservas_temporarias'] = reservas_temporarias.items
     extras['pagination'] = reservas_temporarias
