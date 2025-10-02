@@ -6,16 +6,16 @@ from importlib.resources import as_file
 from pathlib import Path
 
 from cryptography.fernet import Fernet
-from flask import (Blueprint, flash, redirect, render_template, request,
-                   session, url_for, current_app)
+from flask import (Blueprint, current_app, flash, redirect, render_template,
+                   request, session, url_for)
 
 from app.auxiliar.auxiliar_cryptograph import ensure_secret_file, load_key
 from app.auxiliar.auxiliar_routes import get_user_info
 from app.auxiliar.dao import get_locais
 from app.auxiliar.decorators import admin_required
 from app.models import TipoAulaEnum
-from config.general import LIST_ROUTES
 from config.database_views import SECOES
+from config.general import LIST_ROUTES
 from config.json_related import carregar_config_geral, carregar_painel_config
 from config.mapeamentos import SECRET_PATH
 
