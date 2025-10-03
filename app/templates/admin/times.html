@@ -5,26 +5,44 @@
 {% block content %}
     <div class="panel panel-info">
         <div class="panel-heading">
-            <h3 class="panel-title">Horarios</h3>
+            <h3 class="panel-title">Horários (referentes ao dia {{ hoje|data }})</h3>
         </div>
         <div class="panel-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Horários</th>
-                            {% for semana in dias_da_semana %}<th>{{ semana.nome_semana }}</th>{% endfor %}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for horario in horarios_base %}
-                            <tr>
-                                <td><span class="glyphicon glyphicon-time"></span> {{ horario.horario_inicio }} ás {{ horario.horario_fim }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <!-- Header row -->
+            <div class="row schedule-header">
+                <div class="col-xs-3">Turno</div>
+                <div class="col-xs-2">Horários</div>
+                {% for semana in dias_da_semana %}<div class="col-xs-1 text-center">{{ semana.nome_semana }}</div>{% endfor %}
             </div>
+            <!-- Body rows -->
+            {% for horario in horarios_base %}
+                <div class="row schedule-row">
+                    <!-- Turno column -->
+                    <div class="col-xs-3 turno-cell" data-time="{{ horario.id_aula }}">
+                        <span class="badge turno-badge">???</span>
+                    </div>
+                    <!-- Horário column -->
+                    <div class="col-xs-2 horario-cell">
+                        <span class="glyphicon glyphicon-time"></span>
+                        {{ horario.horario_inicio|hora }} às {{ horario.horario_fim|hora }}
+                    </div>
+                    <!-- Days columns -->
+                    {% for semana in dias_da_semana %}
+                        <div class="col-xs-1 day-cell text-center"
+                             data-day="{{ hoje }}"
+                             data-time="{{ horario.id_aula }}"
+                             data-day-of-week="{{ semana.id_semana }}">
+                            <span class="badge state-badge">???</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
         </div>
     </div>
 {% endblock content %}
+{% block extra_script %}
+{% endblock extra_script %}
+{% block extra_css %}
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/times.css') }}">
+{% endblock extra_css %}

@@ -13,9 +13,9 @@ from app.auxiliar.auxiliar_cryptograph import ensure_secret_file, load_key
 from app.auxiliar.auxiliar_routes import get_user_info
 from app.auxiliar.dao import get_locais
 from app.auxiliar.decorators import admin_required
-from app.models import TipoAulaEnum, Aulas, Aulas_Ativas, Dias_da_Semana, db
+from app.models import Aulas, Aulas_Ativas, Dias_da_Semana, TipoAulaEnum, db
 from config.database_views import SECOES
-from config.general import LIST_ROUTES
+from config.general import LIST_ROUTES, LOCAL_TIMEZONE
 from config.json_related import carregar_config_geral, carregar_painel_config
 from config.mapeamentos import SECRET_PATH
 
@@ -119,7 +119,8 @@ def listar_rotas():
 def control_times():
     userid = session.get('userid')
     user = get_user_info(userid)
-    extras = {}
+    hoje = datetime.now(LOCAL_TIMEZONE).date()
+    extras = {'hoje': hoje}
     extras['dias_da_semana'] = db.session.execute(
         select(Dias_da_Semana).order_by(Dias_da_Semana.id_semana)
     ).scalars().all()

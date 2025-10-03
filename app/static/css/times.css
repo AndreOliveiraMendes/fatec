@@ -1,0 +1,47 @@
+/* ====== Header Row ====== */
+.schedule-header {
+    font-weight: bold;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+}
+
+/* ====== Body Rows ====== */
+.schedule-row {
+    border-bottom: 1px solid #eee;
+    padding: 6px 0;
+}
+
+/* Optional: zebra effect */
+.schedule-row:nth-child(even) {
+    background-color: #fafafa;
+}
+
+/* ====== Turno Column ====== */
+.turno-cell {
+    font-weight: bold;
+    vertical-align: middle;
+}
+
+.turno-badge {
+    background-color: #777;
+    color: white;
+}
+
+/* ====== Horário Column ====== */
+.horario-cell {
+    vertical-align: middle;
+}
+
+/* ====== Day Cells ====== */
+.day-cell {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.state-badge {
+    background-color: #aaa;
+    font-size: 11px;
+    min-width: 20px;
+    display: inline-block;
+}

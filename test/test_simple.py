@@ -5,6 +5,7 @@ from sqlalchemy import select
 from app import create_app, db
 from app.models import Usuarios
 
+
 # see https://docs.python.org/3/library/unittest.html for reference
 # simple tests to check that the app is created correctly
 # and that the database connection is working
