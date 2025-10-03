@@ -28,6 +28,26 @@
     color: white;
 }
 
+.badge.badge-dia {
+    background-color: #FFD54F;
+    /* amarelo suave */
+    color: #333;
+    /* texto escuro para bom contraste */
+}
+
+.badge.badge-tarde {
+    background-color: #FFB74D;
+    /* laranja claro */
+    color: #333;
+}
+
+.badge.badge-noite {
+    background-color: #5C6BC0;
+    /* azul arroxeado */
+    color: #fff;
+    /* texto branco pra destacar no fundo escuro */
+}
+
 /* ====== Horário Column ====== */
 .horario-cell {
     vertical-align: middle;

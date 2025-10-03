@@ -5,15 +5,15 @@ from datetime import datetime
 from importlib.resources import as_file
 from pathlib import Path
 
-from flask import (Blueprint, current_app, flash, redirect, render_template,
+from flask import (Blueprint, current_app, flash, jsonify, redirect, render_template,
                    request, session, url_for)
-from sqlalchemy import select
+from sqlalchemy import select,between,or_
 
 from app.auxiliar.auxiliar_cryptograph import ensure_secret_file, load_key
-from app.auxiliar.auxiliar_routes import get_user_info
+from app.auxiliar.auxiliar_routes import get_user_info, get_unique_or_500
 from app.auxiliar.dao import get_locais
 from app.auxiliar.decorators import admin_required
-from app.models import Aulas, Aulas_Ativas, Dias_da_Semana, TipoAulaEnum, db
+from app.models import Aulas, Aulas_Ativas, Dias_da_Semana, TipoAulaEnum, db, Turnos
 from config.database_views import SECOES
 from config.general import LIST_ROUTES, LOCAL_TIMEZONE
 from config.json_related import carregar_config_geral, carregar_painel_config
@@ -128,3 +128,21 @@ def control_times():
         select(Aulas).order_by(Aulas.horario_inicio, Aulas.horario_fim)
     ).scalars().all()
     return render_template("admin/times.html", user=user, **extras)
+
+@bp.route("/times/api/get_turno")
+@admin_required
+def api_get_turno():
+    horario_id = request.args.get('horario_id', type=int)
+    aula = db.session.get(Aulas, horario_id)
+    if not aula:
+        return {"error": "Horário não encontrado."}, 404
+    turno = get_unique_or_500(
+        Turnos,
+        or_(
+            between(aula.horario_inicio, Turnos.horario_inicio, Turnos.horario_fim),
+            between(aula.horario_fim, Turnos.horario_inicio, Turnos.horario_fim)
+        )
+    )
+    return jsonify(
+        {"turno": turno.nome_turno if turno else "indefinido", "id": turno.id_turno if turno else None}
+    )

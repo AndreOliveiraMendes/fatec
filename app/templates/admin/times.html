@@ -41,6 +41,26 @@
     </div>
 {% endblock content %}
 {% block extra_script %}
+<script>
+$(document).ready(function() {
+    $(".turno-cell").each(function() {
+        const cell = $(this);
+        const horarioId = cell.data("time"); // pega o data-time individual
+
+        $.getJSON(`{{ url_for('admin.api_get_turno') }}?horario_id=${horarioId}`, function(response) {
+            cell.find(".turno-badge").text(response.turno);
+            if (response.id == 1)
+                cell.find(".turno-badge").addClass("badge-dia");
+            else if (response.id == 2)
+                cell.find(".turno-badge").addClass("badge-tarde");
+            else if (response.id == 3)
+                cell.find(".turno-badge").addClass("badge-noite");
+        }).fail(function() {
+            cell.find(".turno-badge").text("erro");
+        });
+    });
+});
+</script>
 {% endblock extra_script %}
 {% block extra_css %}
     <link rel="stylesheet"
