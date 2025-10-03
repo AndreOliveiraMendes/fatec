@@ -102,13 +102,17 @@ def listar_rotas():
     if not LIST_ROUTES:
         flash("⚠️ A listagem de rotas não está habilitada.", "warning")
         return redirect(url_for("admin.gerenciar_menu"))
+    userid = session.get('userid')
+    user = get_user_info(userid)
     routes, bps = [], set()
     for rule in current_app.url_map.iter_rules():
         methods = ",".join(sorted(rule.methods - {"HEAD", "OPTIONS"}))
-        routes.append((rule.rule, methods, rule.endpoint, list(rule.arguments)))
+        routes.append((rule.rule, methods, rule.endpoint))
         bps.add(rule.endpoint.split('.')[0])
 
-    return render_template("admin/routes.html", rotas=routes, blueprints=sorted(bps))
+    # Sort by Blueprint name and then URL
+    routes.sort(key=lambda x: (x[2].split('.')[0], x[0]))
+    return render_template("admin/routes.html", user=user,rotas=routes, blueprints=sorted(bps))
 
 @bp.route("/times")
 @admin_required

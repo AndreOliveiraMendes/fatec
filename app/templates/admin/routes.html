@@ -1,18 +1,31 @@
 {% extends "base-fixed" %}
+{% block title %}
+    Controle de Rotas e Blueprints
+{% endblock title %}
 {% block content %}
     <div class="panel panel-default">
         <div class="panel-heading">
-            <h3 class="panel-title">
-                <span id="titulo-painel">Rotas registradas</span>
-                <div class="btn-group pull-right">
-                    <button id="btn-rotas" class="btn btn-primary btn-xs active">Rotas</button>
-                    <button id="btn-blueprints" class="btn btn-primary btn-xs">Blueprints</button>
-                </div>
-            </h3>
+            <ul class="nav nav-tabs">
+                <li class="active">
+                    <a href="#tab-rotas" data-toggle="tab">
+                        <span class="glyphicon glyphicon-random"></span>
+                        Rotas
+                        <span class="badge">{{ rotas|length }}</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#tab-blueprints" data-toggle="tab">
+                        <span class="glyphicon glyphicon-folder-open"></span>
+                        Blueprints
+                        <span class="badge">{{ blueprints|length }}</span>
+                    </a>
+                </li>
+            </ul>
         </div>
-        <div class="panel-body">
-            <!-- Tabela de rotas -->
-            <div id="painel-rotas">
+        <div class="panel-body tab-content">
+            <!-- Aba de Rotas -->
+            <div class="tab-pane fade in active" id="tab-rotas">
+                <h4>Rotas registradas ({{ rotas|length }})</h4>
                 <table class="table table-striped table-bordered">
                     <thead>
                         <tr>
@@ -20,11 +33,10 @@
                             <th>Métodos</th>
                             <th>Endpoint</th>
                             <th>Blueprint</th>
-                            <th>Arguments</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for url, methods, endpoint, args in rotas %}
+                        {% for url, methods, endpoint in rotas %}
                             <tr>
                                 <td>
                                     <code>{{ url }}</code>
@@ -46,46 +58,22 @@
                                 </td>
                                 <td>{{ endpoint }}</td>
                                 <td>{{ endpoint.split(".")[0] }}</td>
-                                <td>{{ '<br>'.join(args) | safe }}</td>
                             </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
-            <!-- Lista de blueprints -->
-            <div id="painel-blueprints">
+            <!-- Aba de Blueprints -->
+            <div class="tab-pane fade" id="tab-blueprints">
+                <h4>Blueprints registradas ({{ blueprints|length }})</h4>
                 <ul class="list-group">
-                    {% for bp in blueprints %}<li class="list-group-item">{{ bp }}</li>{% endfor %}
+                    {% for bp in blueprints %}
+                        <li class="list-group-item">
+                            <span class="glyphicon glyphicon-link text-info"></span> {{ bp }}
+                        </li>
+                    {% endfor %}
                 </ul>
             </div>
         </div>
     </div>
 {% endblock content %}
-{% block extra_script %}
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const btnRotas = document.getElementById("btn-rotas");
-            const btnBlueprints = document.getElementById("btn-blueprints");
-            const painelRotas = document.getElementById("painel-rotas");
-            const painelBlueprints = document.getElementById("painel-blueprints");
-            const titulo = document.getElementById("titulo-painel");
-            painelBlueprints.style.display = "none";
-
-            btnRotas.addEventListener("click", function() {
-                painelRotas.style.display = "block";
-                painelBlueprints.style.display = "none";
-                btnRotas.classList.add("active");
-                btnBlueprints.classList.remove("active");
-                titulo.textContent = "Rotas registradas";
-            });
-
-            btnBlueprints.addEventListener("click", function() {
-                painelRotas.style.display = "none";
-                painelBlueprints.style.display = "block";
-                btnBlueprints.classList.add("active");
-                btnRotas.classList.remove("active");
-                titulo.textContent = "Blueprints registradas";
-            });
-        });
-    </script>
-{% endblock extra_script %}
