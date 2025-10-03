@@ -5,15 +5,16 @@ from datetime import datetime
 from importlib.resources import as_file
 from pathlib import Path
 
-from flask import (Blueprint, current_app, flash, jsonify, redirect, render_template,
-                   request, session, url_for)
-from sqlalchemy import select,between,or_
+from flask import (Blueprint, current_app, flash, jsonify, redirect,
+                   render_template, request, session, url_for)
+from sqlalchemy import between, or_, select
 
 from app.auxiliar.auxiliar_cryptograph import ensure_secret_file, load_key
-from app.auxiliar.auxiliar_routes import get_user_info, get_unique_or_500
+from app.auxiliar.auxiliar_routes import get_unique_or_500, get_user_info
 from app.auxiliar.dao import get_locais
 from app.auxiliar.decorators import admin_required
-from app.models import Aulas, Aulas_Ativas, Dias_da_Semana, TipoAulaEnum, db, Turnos
+from app.models import (Aulas, Aulas_Ativas, Dias_da_Semana, TipoAulaEnum,
+                        Turnos, db)
 from config.database_views import SECOES
 from config.general import LIST_ROUTES, LOCAL_TIMEZONE
 from config.json_related import carregar_config_geral, carregar_painel_config
@@ -144,5 +145,9 @@ def api_get_turno():
         )
     )
     return jsonify(
-        {"turno": turno.nome_turno if turno else "indefinido", "id": turno.id_turno if turno else None}
+        {
+            "turno": turno.nome_turno if turno else "indefinido",
+            "id": turno.id_turno if turno else None,
+            "periodo": f"{turno.horario_inicio.strftime('%H:%M')} - {turno.horario_fim.strftime('%H:%M')}" if turno else "N/A"
+        }
     )

@@ -19,7 +19,7 @@
                 <div class="row schedule-row">
                     <!-- Turno column -->
                     <div class="col-xs-3 turno-cell" data-time="{{ horario.id_aula }}">
-                        <span class="badge turno-badge">???</span>
+                        <span class="badge turno-badge" data-toggle="tooltip" title="placehold">???</span>
                     </div>
                     <!-- Horário column -->
                     <div class="col-xs-2 horario-cell">
@@ -41,26 +41,29 @@
     </div>
 {% endblock content %}
 {% block extra_script %}
-<script>
-$(document).ready(function() {
-    $(".turno-cell").each(function() {
-        const cell = $(this);
-        const horarioId = cell.data("time"); // pega o data-time individual
+    <script>
+        $(document).ready(function() {
+            $(".turno-cell").each(function() {
+                const cell = $(this);
+                const horarioId = cell.data("time"); // pega o data-time individual
 
-        $.getJSON(`{{ url_for('admin.api_get_turno') }}?horario_id=${horarioId}`, function(response) {
-            cell.find(".turno-badge").text(response.turno);
-            if (response.id == 1)
-                cell.find(".turno-badge").addClass("badge-dia");
-            else if (response.id == 2)
-                cell.find(".turno-badge").addClass("badge-tarde");
-            else if (response.id == 3)
-                cell.find(".turno-badge").addClass("badge-noite");
-        }).fail(function() {
-            cell.find(".turno-badge").text("erro");
+                $.getJSON(`{{ url_for('admin.api_get_turno') }}?horario_id=${horarioId}`, function(response) {
+                    const badge = cell.find(".turno-badge");
+                    badge.text(response.turno);
+                    if (response.id == 1)
+                        badge.addClass("badge-dia");
+                    else if (response.id == 2)
+                        badge.addClass("badge-tarde");
+                    else if (response.id == 3)
+                        badge.addClass("badge-noite");
+                    badge.attr("title", response.periodo)
+                        .tooltip('fixTitle');
+                }).fail(function() {
+                    cell.find(".turno-badge").text("erro");
+                });
+            });
         });
-    });
-});
-</script>
+    </script>
 {% endblock extra_script %}
 {% block extra_css %}
     <link rel="stylesheet"
