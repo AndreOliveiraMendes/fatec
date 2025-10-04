@@ -64,7 +64,8 @@
                     $el.tooltip({
                         container: 'body',
                         placement: 'bottom',
-                        delay: { show: 150, hide: 100 }
+                        delay: { show: 150, hide: 100 },
+                        html: true
                     });
                     $el.addClass('tooltip-initialized');
                 }
@@ -112,10 +113,10 @@
                         if (response.ativa) {
                             badge.text("Ativa").addClass("badge-success");
 
-                            let periodo = '';
-                            if (response.data_inicio) periodo += `a partir de ${response.data_inicio}`;
-                            if (response.data_fim) periodo += ` até ${response.data_fim}`;
-                            if (!periodo) periodo = 'Ativa permanentemente';
+                        let periodo = '';
+                        if (response.data_inicio) periodo += `<b>Início:</b> ${response.data_inicio}<br>`;
+                        if (response.data_fim) periodo += `<b>Fim:</b> ${response.data_fim}<br>`;
+                        if (!periodo) periodo = '<i>Ativa permanentemente</i>';
 
                             setTooltip(badge, periodo);
                         } else {
@@ -135,7 +136,8 @@
                 $('[data-toggle="tooltip"]').not('.tooltip-initialized').tooltip({
                     container: 'body',
                     placement: 'bottom',
-                    delay: { show: 150, hide: 100 }
+                    delay: { show: 150, hide: 100 },
+                    html: true
                 }).addClass('tooltip-initialized');
             });
         });
