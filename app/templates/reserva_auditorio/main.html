@@ -110,7 +110,7 @@
                                     <td>{{ reserva.aula_ativa.aula.horario_inicio|hora }} - {{ reserva.aula_ativa.aula.horario_fim|hora }}</td>
                                     <td>{{ reserva.responsavel.nome_pessoa }}</td>
                                     <td>
-                                        <span class="badge_status {{ reserva.status_reserva.value }}">{{ reserva.status_reserva.value }}</span>
+                                        <span class="badge_status badge-{{ reserva.status_reserva.value }}">{{ reserva.status_reserva.value }}</span>
                                     </td>
                                     <td>{{ reserva.autorizador.nome_pessoa if reserva.autorizador else '-' }}</td>
                                     <td>
@@ -270,7 +270,7 @@
                 $('#modalDLocal').text(data.local);
                 $('#modalDDia').text(capitalizada);
                 $('#modalDHorario').text(data.horario);
-                $('#modalDStatus').attr('class', 'badge_status ' + data.status).text(data.status);
+                $('#modalDStatus').attr('class', 'badge_status badge-' + data.status).text(data.status);
                 $('#modalDResponsavel').text(data.responsavel);
                 $('#modalDAutorizador').text(data.autorizador ? data.autorizador : '-');
                 if(data.observacao_responsavel)

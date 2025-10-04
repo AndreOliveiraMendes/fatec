@@ -82,7 +82,7 @@
                                             {% else %}
                                                 {% set color = "info" %}
                                             {% endif %}
-                                            <span class="badge badge_status {{ color }}">{{ reserva.situacao.situacao_chave.value }}</span>
+                                            <span class="badge badge_status badge-{{ color }}">{{ reserva.situacao.situacao_chave.value }}</span>
                                         {% else %}
                                             <span class="badge badge_status">???</span>
                                         {% endif %}

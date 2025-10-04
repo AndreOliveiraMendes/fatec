@@ -32,16 +32,16 @@
                              data-day="{{ hoje }}"
                              data-time="{{ horario.id_aula }}"
                              data-day-of-week="{{ semana.id_semana }}">
-                            <span class="badge state-badge">???</span>
+                            <span class="badge state-badge" data-toggle="tooltip" title="placehold">???</span>
                         </div>
                     {% endfor %}
                 </div>
             {% endfor %}
         </div>
         <div class="panel-footer">
-            <div class="btn-group" role="group" aria-label="">
-                <a href="" data-toggle="modal" class="btn btn-warning">Editar Periodo de Ativação</a>
-                <a href="" data-toggle="modal" class="btn btn-info">Ver todos os periodos de Ativação</a>
+            <div class="btn-group btn-group-justified" role="group">
+                <a href="#" class="btn btn-warning">Editar Período de Ativação</a>
+                <a href="#" class="btn btn-info">Ver todos os Períodos</a>
             </div>
         </div>
     </div>
@@ -49,7 +49,7 @@
 {% block extra_script %}
     <script>
         $(document).ready(function() {
-            //turnos
+            // TURNOS
             $(".turno-cell").each(function() {
                 const cell = $(this);
                 const horarioId = cell.data("time");
@@ -57,20 +57,22 @@
                 $.getJSON(`{{ url_for('admin.api_get_turno') }}?horario_id=${horarioId}`, function(response) {
                     const badge = cell.find(".turno-badge");
                     badge.text(response.turno);
+
                     if (response.id == 1)
                         badge.addClass("badge-dia");
                     else if (response.id == 2)
                         badge.addClass("badge-tarde");
                     else if (response.id == 3)
                         badge.addClass("badge-noite");
+
                     badge.attr("title", response.periodo)
-                        .tooltip('fixTitle');
+                        .tooltip();
                 }).fail(function() {
                     cell.find(".turno-badge").text("erro");
                 });
             });
 
-            //aulas_ativas
+            // AULAS ATIVAS
             $(".day-cell").each(function() {
                 const cell = $(this);
                 const day = cell.data("day");
@@ -79,29 +81,34 @@
 
                 $.getJSON(`{{ url_for('admin.api_get_aulas_ativas') }}?day=${day}&aula=${horarioId}&semana=${dayOfWeek}`, function(response) {
                     const badge = cell.find(".state-badge");
-                    if (response.ativa){
-                        badge.text("Ativa").addClass("success");
-                        periodo_ativacao = '';
+                    if (response.ativa) {
+                        badge.text("Ativa")
+                            .removeClass("badge-inactive")
+                            .addClass("badge-success");
+
+                        let periodo_ativacao = '';
                         if (response.data_inicio)
                             periodo_ativacao += `a partir de ${response.data_inicio}`;
-                        else
-                            periodo_ativacao += '';
-                        periodo_ativacao += '';
                         if (response.data_fim)
-                            periodo_ativacao += ` ate ${response.data_fim}`;
-                        else
-                            periodo_ativacao += '';
-                        if (periodo_ativacao == '')
+                            periodo_ativacao += ` até ${response.data_fim}`;
+                        if (!periodo_ativacao)
                             periodo_ativacao = 'Ativa permanentemente';
+
                         badge.attr("title", periodo_ativacao)
-                            .tooltip('fixTitle');
+                        .tooltip();
                     } else {
-                        badge.text("Inativa");
+                        badge.text("Inativa")
+                            .removeClass("badge-success")
+                            .addClass("badge-inactive")
+                            .attr("title", "Inativa")
+                            .tooltip();
                     }
                 }).fail(function() {
                     cell.find(".state-badge").text("erro");
                 });
             });
+
+            //$('[data-toggle="tooltip"]').tooltip('fixTitle');
         });
     </script>
 {% endblock extra_script %}

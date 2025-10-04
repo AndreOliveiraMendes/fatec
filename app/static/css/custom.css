@@ -343,50 +343,50 @@ body {
 }
 
 /* Específicos */
-.badge_status.Aguardando {
+.badge_status.badge-Aguardando {
     background-color: #f0ad4e;
 }
 
 /* âmbar */
-.badge_status.Cancelada {
+.badge_status.badge-Cancelada {
     background-color: #6c757d;
 }
 
 /* cinza */
-.badge_status.Aprovada {
+.badge_status.badge-Aprovada {
     background-color: #28a745;
 }
 
 /* verde */
-.badge_status.Reprovada {
+.badge_status.badge-Reprovada {
     background-color: #dc3545;
 }
 
 /* vermelho */
 
 /* Genéricos reaproveitando Bootstrap semantics */
-.badge_status.success,
-.badge.success {
+.badge_status.badge-success,
+.badge.badge-success {
     background-color: #5cb85c;
 }
 
-.badge_status.warning,
-.badge.warning {
+.badge_status.badge-warning,
+.badge.badge-warning {
     background-color: #f0ad4e;
 }
 
-.badge_status.danger,
-.badge.danger {
+.badge_status.badge-danger,
+.badge.badge-danger {
     background-color: #d9534f;
 }
 
-.badge_status.info,
-.badge.info {
+.badge_status.badge-info,
+.badge.badge-info {
     background-color: #5bc0de;
 }
 
-.badge_status.secondary,
-.badge.secondary {
+.badge_status.badge-secondary,
+.badge.badge-secondary {
     background-color: #6c757d;
 }
 
