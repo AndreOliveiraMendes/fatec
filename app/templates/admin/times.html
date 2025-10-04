@@ -48,67 +48,96 @@
 {% endblock content %}
 {% block extra_script %}
     <script>
-        $(document).ready(function() {
-            // TURNOS
-            $(".turno-cell").each(function() {
+        $(document).ready(function () {
+            /**
+            * Atualiza ou inicializa tooltip de forma otimizada.
+            */
+            function setTooltip($el, text) {
+                $el.attr('title', text).attr('data-original-title', text);
+                const tooltipInstance = $el.data('bs.tooltip');
+
+                if (tooltipInstance) {
+                    // Se já está inicializado → só atualiza
+                    $el.tooltip('fixTitle');
+                } else {
+                    // Se não está → inicializa uma vez
+                    $el.tooltip({
+                        container: 'body',
+                        placement: 'bottom',
+                        delay: { show: 150, hide: 100 }
+                    });
+                    $el.addClass('tooltip-initialized');
+                }
+            }
+
+            // Lista de promessas (turnos + aulas ativas)
+            const requests = [];
+
+            // --- Turnos ---
+            $(".turno-cell").each(function () {
                 const cell = $(this);
                 const horarioId = cell.data("time");
 
-                $.getJSON(`{{ url_for('admin.api_get_turno') }}?horario_id=${horarioId}`, function(response) {
-                    const badge = cell.find(".turno-badge");
-                    badge.text(response.turno);
+                const req = $.getJSON(`{{ url_for('admin.api_get_turno') }}?horario_id=${horarioId}`)
+                    .done(function (response) {
+                        const badge = cell.find(".turno-badge");
+                        badge.text(response.turno || "???");
+                        badge.removeClass("badge-dia badge-tarde badge-noite");
 
-                    if (response.id == 1)
-                        badge.addClass("badge-dia");
-                    else if (response.id == 2)
-                        badge.addClass("badge-tarde");
-                    else if (response.id == 3)
-                        badge.addClass("badge-noite");
+                        if (response.id == 1) badge.addClass("badge-dia");
+                        else if (response.id == 2) badge.addClass("badge-tarde");
+                        else if (response.id == 3) badge.addClass("badge-noite");
 
-                    badge.attr("title", response.periodo)
-                        .tooltip();
-                }).fail(function() {
-                    cell.find(".turno-badge").text("erro");
-                });
+                        setTooltip(badge, response.periodo || "");
+                    })
+                    .fail(function () {
+                        cell.find(".turno-badge").text("erro");
+                    });
+
+                requests.push(req);
             });
 
-            // AULAS ATIVAS
-            $(".day-cell").each(function() {
+            // --- Aulas ativas ---
+            $(".day-cell").each(function () {
                 const cell = $(this);
                 const day = cell.data("day");
                 const horarioId = cell.data("time");
                 const dayOfWeek = cell.data("day-of-week");
 
-                $.getJSON(`{{ url_for('admin.api_get_aulas_ativas') }}?day=${day}&aula=${horarioId}&semana=${dayOfWeek}`, function(response) {
-                    const badge = cell.find(".state-badge");
-                    if (response.ativa) {
-                        badge.text("Ativa")
-                            .removeClass("badge-inactive")
-                            .addClass("badge-success");
+                const req = $.getJSON(`{{ url_for('admin.api_get_aulas_ativas') }}?day=${day}&aula=${horarioId}&semana=${dayOfWeek}`)
+                    .done(function (response) {
+                        const badge = cell.find(".state-badge");
+                        badge.removeClass("badge-success badge-inactive");
 
-                        let periodo_ativacao = '';
-                        if (response.data_inicio)
-                            periodo_ativacao += `a partir de ${response.data_inicio}`;
-                        if (response.data_fim)
-                            periodo_ativacao += ` até ${response.data_fim}`;
-                        if (!periodo_ativacao)
-                            periodo_ativacao = 'Ativa permanentemente';
+                        if (response.ativa) {
+                            badge.text("Ativa").addClass("badge-success");
 
-                        badge.attr("title", periodo_ativacao)
-                        .tooltip();
-                    } else {
-                        badge.text("Inativa")
-                            .removeClass("badge-success")
-                            .addClass("badge-inactive")
-                            .attr("title", "Inativa")
-                            .tooltip();
-                    }
-                }).fail(function() {
-                    cell.find(".state-badge").text("erro");
-                });
+                            let periodo = '';
+                            if (response.data_inicio) periodo += `a partir de ${response.data_inicio}`;
+                            if (response.data_fim) periodo += ` até ${response.data_fim}`;
+                            if (!periodo) periodo = 'Ativa permanentemente';
+
+                            setTooltip(badge, periodo);
+                        } else {
+                            badge.text("Inativa").addClass("badge-inactive");
+                            setTooltip(badge, "Inativa");
+                        }
+                    })
+                    .fail(function () {
+                        cell.find(".state-badge").text("erro");
+                    });
+
+                requests.push(req);
             });
 
-            //$('[data-toggle="tooltip"]').tooltip('fixTitle');
+            // --- Inicializa tooltips pendentes ao fim ---
+            Promise.all(requests).then(() => {
+                $('[data-toggle="tooltip"]').not('.tooltip-initialized').tooltip({
+                    container: 'body',
+                    placement: 'bottom',
+                    delay: { show: 150, hide: 100 }
+                }).addClass('tooltip-initialized');
+            });
         });
     </script>
 {% endblock extra_script %}
