@@ -43,9 +43,10 @@
 {% block extra_script %}
     <script>
         $(document).ready(function() {
+            //turnos
             $(".turno-cell").each(function() {
                 const cell = $(this);
-                const horarioId = cell.data("time"); // pega o data-time individual
+                const horarioId = cell.data("time");
 
                 $.getJSON(`{{ url_for('admin.api_get_turno') }}?horario_id=${horarioId}`, function(response) {
                     const badge = cell.find(".turno-badge");
@@ -60,6 +61,37 @@
                         .tooltip('fixTitle');
                 }).fail(function() {
                     cell.find(".turno-badge").text("erro");
+                });
+            });
+
+            //aulas_ativas
+            $(".day-cell").each(function() {
+                const cell = $(this);
+                const day = cell.data("day");
+                const horarioId = cell.data("time");
+                const dayOfWeek = cell.data("day-of-week");
+
+                $.getJSON(`{{ url_for('admin.api_get_aulas_ativas') }}?day=${day}&aula=${horarioId}&semana=${dayOfWeek}`, function(response) {
+                    const badge = cell.find(".state-badge");
+                    if (response.ativa){
+                        badge.text("Ativa").addClass("success");
+                        periodo_ativacao = '';
+                        if (response.data_inicio)
+                            periodo_ativacao += `[${response.data_inicio}`;
+                        else
+                            periodo_ativacao += `[ -`;
+                        periodo_ativacao += ' | ';
+                        if (response.data_fim)
+                            periodo_ativacao += `${response.data_fim}]`;
+                        else
+                            periodo_ativacao += `- ]`;
+                        badge.attr("title", periodo_ativacao)
+                            .tooltip('fixTitle');
+                    } else {
+                        badge.text("Inativa");
+                    }
+                }).fail(function() {
+                    cell.find(".state-badge").text("erro");
                 });
             });
         });

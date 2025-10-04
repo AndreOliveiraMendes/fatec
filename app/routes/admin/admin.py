@@ -10,8 +10,8 @@ from flask import (Blueprint, current_app, flash, jsonify, redirect,
 from sqlalchemy import between, or_, select
 
 from app.auxiliar.auxiliar_cryptograph import ensure_secret_file, load_key
-from app.auxiliar.auxiliar_routes import get_unique_or_500, get_user_info
-from app.auxiliar.dao import get_locais
+from app.auxiliar.auxiliar_routes import get_unique_or_500, get_user_info, parse_date_string
+from app.auxiliar.dao import get_locais, get_aula_intervalo
 from app.auxiliar.decorators import admin_required
 from app.models import (Aulas, Aulas_Ativas, Dias_da_Semana, TipoAulaEnum,
                         Turnos, db)
@@ -134,6 +134,8 @@ def control_times():
 @admin_required
 def api_get_turno():
     horario_id = request.args.get('horario_id', type=int)
+    if horario_id is None:
+        return {"error": "ID do horário não fornecido."}, 400
     aula = db.session.get(Aulas, horario_id)
     if not aula:
         return {"error": "Horário não encontrado."}, 404
@@ -151,3 +153,23 @@ def api_get_turno():
             "periodo": f"{turno.horario_inicio.strftime('%H:%M')} - {turno.horario_fim.strftime('%H:%M')}" if turno else "N/A"
         }
     )
+
+@bp.route("/times/api/get_aulas_ativas")
+@admin_required
+def api_get_aulas_ativas():
+    day = parse_date_string(request.args.get('day'))
+    aula_id = request.args.get('aula', type=int)
+    semana_id = request.args.get('semana', type=int)
+    if not day or aula_id is None or semana_id is None:
+        return {"error": "Parametros insulficientes ou invalidos."}, 400
+    aulas_ativas = get_unique_or_500(
+        Aulas_Ativas,
+        get_aula_intervalo(day, day),
+        Aulas_Ativas.id_aula == aula_id,
+        Aulas_Ativas.id_semana == semana_id
+    )
+    return jsonify({
+        "ativa": True if aulas_ativas else False,
+        "inicio": aulas_ativas.inicio_ativacao.strftime("%d/%m/%Y") if aulas_ativas and aulas_ativas.inicio_ativacao else None,
+        "fim": aulas_ativas.fim_ativacao.strftime("%d/%m/%Y") if aulas_ativas and aulas_ativas.fim_ativacao else None
+    })
