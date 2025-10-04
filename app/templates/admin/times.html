@@ -38,6 +38,12 @@
                 </div>
             {% endfor %}
         </div>
+        <div class="panel-footer">
+            <div class="btn-group" role="group" aria-label="">
+                <a href="" data-toggle="modal" class="btn btn-warning">Editar Periodo de Ativação</a>
+                <a href="" data-toggle="modal" class="btn btn-info">Ver todos os periodos de Ativação</a>
+            </div>
+        </div>
     </div>
 {% endblock content %}
 {% block extra_script %}
@@ -77,14 +83,16 @@
                         badge.text("Ativa").addClass("success");
                         periodo_ativacao = '';
                         if (response.data_inicio)
-                            periodo_ativacao += `[${response.data_inicio}`;
+                            periodo_ativacao += `a partir de ${response.data_inicio}`;
                         else
-                            periodo_ativacao += `[ -`;
-                        periodo_ativacao += ' | ';
+                            periodo_ativacao += '';
+                        periodo_ativacao += '';
                         if (response.data_fim)
-                            periodo_ativacao += `${response.data_fim}]`;
+                            periodo_ativacao += ` ate ${response.data_fim}`;
                         else
-                            periodo_ativacao += `- ]`;
+                            periodo_ativacao += '';
+                        if (periodo_ativacao == '')
+                            periodo_ativacao = 'Ativa permanentemente';
                         badge.attr("title", periodo_ativacao)
                             .tooltip('fixTitle');
                     } else {
