@@ -161,16 +161,21 @@ def api_get_aulas_ativas():
     day = parse_date_string(request.args.get('day'))
     aula_id = request.args.get('aula', type=int)
     semana_id = request.args.get('semana', type=int)
+    tipo_aula = request.args.get('tipoaula', default=TipoAulaEnum.AULA.value)
     if not day or aula_id is None or semana_id is None:
         return {"error": "Parametros insulficientes ou invalidos."}, 400
-    aulas_ativas = get_unique_or_500(
-        Aulas_Ativas,
-        get_aula_intervalo(day, day),
-        Aulas_Ativas.id_aula == aula_id,
-        Aulas_Ativas.id_semana == semana_id
-    )
-    return jsonify({
-        "ativa": True if aulas_ativas else False,
-        "inicio": aulas_ativas.inicio_ativacao.strftime("%d/%m/%Y") if aulas_ativas and aulas_ativas.inicio_ativacao else None,
-        "fim": aulas_ativas.fim_ativacao.strftime("%d/%m/%Y") if aulas_ativas and aulas_ativas.fim_ativacao else None
-    })
+    try:
+        aulas_ativas = get_unique_or_500(
+            Aulas_Ativas,
+            get_aula_intervalo(day, day),
+            Aulas_Ativas.id_aula == aula_id,
+            Aulas_Ativas.id_semana == semana_id,
+            Aulas_Ativas.tipo_aula == TipoAulaEnum(tipo_aula)
+        )
+        return jsonify({
+            "ativa": True if aulas_ativas else False,
+            "inicio": aulas_ativas.inicio_ativacao.strftime("%d/%m/%Y") if aulas_ativas and aulas_ativas.inicio_ativacao else None,
+            "fim": aulas_ativas.fim_ativacao.strftime("%d/%m/%Y") if aulas_ativas and aulas_ativas.fim_ativacao else None
+        })
+    except ValueError:
+        return {"error": "Tipo de aula inválido."}, 400
