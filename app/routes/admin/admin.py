@@ -10,8 +10,9 @@ from flask import (Blueprint, current_app, flash, jsonify, redirect,
 from sqlalchemy import between, or_, select
 
 from app.auxiliar.auxiliar_cryptograph import ensure_secret_file, load_key
-from app.auxiliar.auxiliar_routes import get_unique_or_500, get_user_info, parse_date_string
-from app.auxiliar.dao import get_locais, get_aula_intervalo
+from app.auxiliar.auxiliar_routes import (get_unique_or_500, get_user_info,
+                                          parse_date_string)
+from app.auxiliar.dao import get_aula_intervalo, get_locais
 from app.auxiliar.decorators import admin_required
 from app.models import (Aulas, Aulas_Ativas, Dias_da_Semana, TipoAulaEnum,
                         Turnos, db)
