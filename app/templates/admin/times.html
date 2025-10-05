@@ -1,151 +1,228 @@
 {% extends "base-fixed" %}
 {% block title %}
-Controle de Horários
+    Controle de Horários
 {% endblock title %}
 {% block content %}
-<div class="panel panel-info">
-    <div class="panel-heading clearfix">
-        <h3 class="panel-title pull-left">
-            Horários (referentes ao dia {{ hoje|data }})
-        </h3>
-        <div class="pull-right">
-            <select id="tipoHorarioSelect" class="form-control input-sm">
-                <option value="Aula" selected>Aula</option>
-                <option value="Evento">Evento</option>
-                <option value="Outros">Outros</option>
-            </select>
+    <div class="panel panel-info">
+        <div class="panel-heading clearfix">
+            <h3 class="panel-title pull-left">Horários (referentes ao dia {{ hoje|data }})</h3>
+            <div class="pull-right">
+                <select id="tipoHorarioSelect" class="form-control input-sm">
+                    <option value="Aula" selected>Aula</option>
+                    <option value="Evento">Evento</option>
+                    <option value="Outros">Outros</option>
+                </select>
+            </div>
         </div>
-    </div>
-    <div class="panel-body">
-        <!-- Header row -->
-        <div class="row schedule-header">
-            <div class="col-xs-3">Turno</div>
-            <div class="col-xs-2">Horários</div>
-            {% for semana in dias_da_semana %}<div class="col-xs-1 text-center">{{ semana.nome_semana }}</div>{% endfor
-            %}
-        </div>
-        <!-- Body rows -->
-        {% for horario in horarios_base %}
-        <div class="row schedule-row">
-            <!-- Turno column -->
-            <div class="col-xs-3 turno-cell" data-time="{{ horario.id_aula }}">
-                <span class="badge turno-badge" data-toggle="tooltip" title="placehold">???</span>
+        <div class="panel-body">
+            <!-- Header row -->
+            <div class="row schedule-header">
+                <div class="col-xs-3">Turno</div>
+                <div class="col-xs-2">Horários</div>
+                {% for semana in dias_da_semana %}
+                    <div class="col-xs-1 text-center">{{ semana.nome_semana }}</div>
+                {% endfor
+                %}
             </div>
-            <!-- Horário column -->
-            <div class="col-xs-2 horario-cell">
-                <span class="glyphicon glyphicon-time"></span>
-                {{ horario.horario_inicio|hora }} às {{ horario.horario_fim|hora }}
-            </div>
-            <!-- Days columns -->
-            {% for semana in dias_da_semana %}
-            <div class="col-xs-1 day-cell text-center" data-day="{{ hoje }}" data-time="{{ horario.id_aula }}"
-                data-day-of-week="{{ semana.id_semana }}">
-                <span class="badge state-badge" data-toggle="tooltip" title="placehold">???</span>
-            </div>
+            <!-- Body rows -->
+            {% for horario in horarios_base %}
+                <div class="row schedule-row">
+                    <!-- Turno column -->
+                    <div class="col-xs-3 turno-cell" data-time="{{ horario.id_aula }}">
+                        <span class="badge turno-badge" data-toggle="tooltip" title="placehold">???</span>
+                    </div>
+                    <!-- Horário column -->
+                    <div class="col-xs-2 horario-cell">
+                        <span class="glyphicon glyphicon-time"></span>
+                        {{ horario.horario_inicio|hora }} às {{ horario.horario_fim|hora }}
+                    </div>
+                    <!-- Days columns -->
+                    {% for semana in dias_da_semana %}
+                        <div class="col-xs-1 day-cell text-center"
+                             data-day="{{ hoje }}"
+                             data-time="{{ horario.id_aula }}"
+                             data-day-of-week="{{ semana.id_semana }}">
+                            <span class="badge state-badge" data-toggle="tooltip" title="placehold">???</span>
+                        </div>
+                    {% endfor %}
+                </div>
             {% endfor %}
         </div>
-        {% endfor %}
-    </div>
-    <div class="panel-footer">
-        <div class="btn-group btn-group-justified" role="group">
-            <a href="#" class="btn btn-warning">Editar Período de Ativação</a>
-            <a href="#" class="btn btn-info">Ver todos os Períodos</a>
+        <div class="panel-footer">
+            <div class="btn-group btn-group-justified" role="group">
+                <a href="#" class="btn btn-warning">Editar Período de Ativação</a>
+                <a href="#modalPeriodos" data-toggle="modal" class="btn btn-info">Ver todos os Períodos</a>
+            </div>
         </div>
     </div>
-</div>
+    {% include "admin/_modal_periodos.html" %}
 {% endblock content %}
 {% block extra_script %}
-<script>
-    $(document).ready(function () {
+    <script>
+        $(document).ready(function () {
 
-        function setTooltip($el, text) {
-            $el.attr('title', text).attr('data-original-title', text);
-            const tooltipInstance = $el.data('bs.tooltip');
-            if (tooltipInstance) {
-                $el.tooltip('fixTitle');
-            } else {
-                $el.tooltip({
-                    container: 'body',
-                    placement: 'bottom',
-                    delay: { show: 150, hide: 100 },
-                    html: true
-                });
-                $el.addClass('tooltip-initialized');
+            function setTooltip($el, text) {
+                $el.attr('title', text).attr('data-original-title', text);
+                const tooltipInstance = $el.data('bs.tooltip');
+                if (tooltipInstance) {
+                    $el.tooltip('fixTitle');
+                } else {
+                    $el.tooltip({
+                        container: 'body',
+                        placement: 'bottom',
+                        delay: { show: 150, hide: 100 },
+                        html: true
+                    });
+                    $el.addClass('tooltip-initialized');
+                }
             }
-        }
 
-        function carregarTurnos() {
-            $(".turno-cell").each(function () {
-                const cell = $(this);
-                const horarioId = cell.data("time");
+            function carregarTurnos() {
+                $(".turno-cell").each(function () {
+                    const cell = $(this);
+                    const horarioId = cell.data("time");
 
-                $.getJSON(`{{ url_for('admin.api_get_turno') }}?horario_id=${horarioId}`)
-                    .done(function (response) {
-                        const badge = cell.find(".turno-badge");
-                        badge.text(response.turno || "???");
-                        badge.removeClass("badge-dia badge-tarde badge-noite");
+                    $.getJSON(`{{ url_for('admin.api_get_turno') }}?horario_id=${horarioId}`)
+                        .done(function (response) {
+                            const badge = cell.find(".turno-badge");
+                            badge.text(response.turno || "???");
+                            badge.removeClass("badge-dia badge-tarde badge-noite");
 
-                        if (response.id == 1) badge.addClass("badge-dia");
-                        else if (response.id == 2) badge.addClass("badge-tarde");
-                        else if (response.id == 3) badge.addClass("badge-noite");
+                            if (response.id == 1) badge.addClass("badge-dia");
+                            else if (response.id == 2) badge.addClass("badge-tarde");
+                            else if (response.id == 3) badge.addClass("badge-noite");
 
-                        setTooltip(badge, response.periodo || "");
-                    })
-                    .fail(function () {
-                        cell.find(".turno-badge").text("erro");
-                    });
+                            setTooltip(badge, response.periodo || "");
+                        })
+                        .fail(function () {
+                            cell.find(".turno-badge").text("erro");
+                        });
+                });
+            }
+
+            function carregarAulasAtivas(tipo) {
+                $(".day-cell").each(function () {
+                    const cell = $(this);
+                    const day = cell.data("day");
+                    const horarioId = cell.data("time");
+                    const dayOfWeek = cell.data("day-of-week");
+
+                    const badge = cell.find(".state-badge");
+                    badge.text("...").removeClass("badge-success badge-inactive");
+
+                    $.getJSON(`{{ url_for('admin.api_get_aulas_ativas') }}?day=${day}&aula=${horarioId}&semana=${dayOfWeek}&tipoaula=${tipo}`)
+                        .done(function (response) {
+                            badge.removeClass("badge-success badge-inactive");
+
+                            if (response.ativa) {
+                                badge.text("Ativa").addClass("badge-success");
+
+                                let periodo = '';
+                                if (response.data_inicio) periodo += `<b>Início:</b> ${response.data_inicio}<br>`;
+                                if (response.data_fim) periodo += `<b>Fim:</b> ${response.data_fim}<br>`;
+                                if (!periodo) periodo = '<i>Ativa permanentemente</i>';
+
+                                setTooltip(badge, periodo);
+                            } else {
+                                badge.text("Inativa").addClass("badge-inactive");
+                                setTooltip(badge, "Inativa");
+                            }
+                        })
+                        .fail(function () {
+                            badge.text("erro");
+                        });
+                });
+            }
+
+            // Inicialização
+            const $tipoSelect = $('#tipoHorarioSelect');
+            const tipoInicial = $tipoSelect.val();
+            carregarTurnos();
+            carregarAulasAtivas(tipoInicial);
+
+            // Quando trocar o tipo
+            $tipoSelect.change(function () {
+                const novoTipo = $(this).val();
+                carregarAulasAtivas(novoTipo);
             });
+
+        });
+    </script>
+    <script>
+        let paginaAtual = 1;
+
+        function carregarPeriodos(pagina = 1) {
+            const params = new URLSearchParams(new FormData(document.getElementById('filtroPeriodosForm')));
+            params.append('page', pagina);
+
+            fetch(`{{ url_for('admin.api_listar_periodos') }}?${params.toString()}`)
+                .then(r => r.json())
+                .then(data => {
+                    const lista = document.getElementById('listaPeriodos');
+                    lista.innerHTML = '';
+
+                    if (data.items.length === 0) {
+                        lista.innerHTML = '<div class="alert alert-warning">Nenhum período encontrado.</div>';
+                        return;
+                    }
+
+                    const table = document.createElement('table');
+                    table.className = 'table table-striped table-bordered';
+                    table.innerHTML = `
+                        <thead>
+                            <tr>
+                                <th>Semana</th>
+                                <th>Tipo</th>
+                                <th>Horário</th>
+                                <th>inicio Ativação</th>
+                                <th>Fim Ativação</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.items.map(item => `
+                                <tr>
+                                    <td>${item.semana}</td>
+                                    <td>${item.tipo}</td>
+                                    <td>${item.horario}</td>
+                                    <td>${item.inicio_ativacao}</td>
+                                    <td>${item.fim_ativacao}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    `;
+                    lista.appendChild(table);
+
+                    // Paginação
+                    const paginacao = document.getElementById('paginacaoPeriodos');
+                    paginacao.innerHTML = '';
+                    for (let i = 1; i <= data.total_pages; i++) {
+                        const li = document.createElement('li');
+                        if (i === data.page) li.classList.add('active');
+                        const a = document.createElement('a');
+                        a.href = '#';
+                        a.textContent = i;
+                        a.onclick = (e) => {
+                            e.preventDefault();
+                            paginaAtual = i;
+                            carregarPeriodos(i);
+                        };
+                        li.appendChild(a);
+                        paginacao.appendChild(li);
+                    }
+                });
         }
 
-        function carregarAulasAtivas(tipo) {
-            $(".day-cell").each(function () {
-                const cell = $(this);
-                const day = cell.data("day");
-                const horarioId = cell.data("time");
-                const dayOfWeek = cell.data("day-of-week");
-
-                const badge = cell.find(".state-badge");
-                badge.text("...").removeClass("badge-success badge-inactive");
-
-                $.getJSON(`{{ url_for('admin.api_get_aulas_ativas') }}?day=${day}&aula=${horarioId}&semana=${dayOfWeek}&tipoaula=${tipo}`)
-                    .done(function (response) {
-                        badge.removeClass("badge-success badge-inactive");
-
-                        if (response.ativa) {
-                            badge.text("Ativa").addClass("badge-success");
-
-                            let periodo = '';
-                            if (response.data_inicio) periodo += `<b>Início:</b> ${response.data_inicio}<br>`;
-                            if (response.data_fim) periodo += `<b>Fim:</b> ${response.data_fim}<br>`;
-                            if (!periodo) periodo = '<i>Ativa permanentemente</i>';
-
-                            setTooltip(badge, periodo);
-                        } else {
-                            badge.text("Inativa").addClass("badge-inactive");
-                            setTooltip(badge, "Inativa");
-                        }
-                    })
-                    .fail(function () {
-                        badge.text("erro");
-                    });
-            });
-        }
-
-        // Inicialização
-        const $tipoSelect = $('#tipoHorarioSelect');
-        const tipoInicial = $tipoSelect.val();
-        carregarTurnos();
-        carregarAulasAtivas(tipoInicial);
-
-        // Quando trocar o tipo
-        $tipoSelect.change(function () {
-            const novoTipo = $(this).val();
-            carregarAulasAtivas(novoTipo);
+        document.getElementById('filtroPeriodosForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            carregarPeriodos(1);
         });
 
-    });
-</script>
+        $('#modalPeriodos').on('shown.bs.modal', function () {
+            carregarPeriodos(1);
+        });
+    </script>
 {% endblock extra_script %}
 {% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/times.css') }}">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/times.css') }}">
 {% endblock extra_css %}

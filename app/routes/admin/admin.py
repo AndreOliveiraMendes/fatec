@@ -7,6 +7,7 @@ from pathlib import Path
 
 from flask import (Blueprint, current_app, flash, jsonify, redirect,
                    render_template, request, session, url_for)
+from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import between, or_, select
 
 from app.auxiliar.auxiliar_cryptograph import ensure_secret_file, load_key
@@ -179,3 +180,42 @@ def api_get_aulas_ativas():
         })
     except ValueError:
         return {"error": "Tipo de aula inválido."}, 400
+
+@bp.route('/api/periodos')
+def api_listar_periodos():
+    page = int(request.args.get('page', 1))
+    aula = request.args.get('horario', type=int)
+    semana = request.args.get('semana', type=int)
+    tipo = request.args.get('tipo')
+
+    # Query real no banco
+    filtro = []
+    if aula is not None:
+        filtro.append(Aulas_Ativas.id_aula == aula)
+    if semana is not None:
+        filtro.append(Aulas_Ativas.id_semana == semana)
+    if tipo:
+        try:
+            tipo_enum = TipoAulaEnum(tipo)
+            filtro.append(Aulas_Ativas.tipo_aula == tipo_enum)
+        except ValueError:
+            return jsonify({"error": "Tipo de aula inválido."}), 400
+    select_aula_ativa = select(Aulas_Ativas).where(*filtro)
+
+    aulas_ativas_paginadas = SelectPagination(select=select_aula_ativa, session=db.session,
+        page=page, per_page=7, error_out=False)
+
+    return jsonify({
+        "page": page,
+        "total_pages": aulas_ativas_paginadas.pages,
+        "items": [
+            {
+                "semana": p.dia_da_semana.nome_semana,
+                "tipo": p.tipo_aula.value,
+                "horario": f"{p.aula.horario_inicio} - {p.aula.horario_fim}",
+                "inicio_ativacao": p.inicio_ativacao.strftime("%d/%m/%Y") if p.inicio_ativacao else "N/A",
+                "fim_ativacao": p.fim_ativacao.strftime("%d/%m/%Y") if p.fim_ativacao else "N/A"
+            }
+            for p in aulas_ativas_paginadas.items
+        ]
+    })
