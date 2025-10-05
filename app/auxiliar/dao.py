@@ -286,7 +286,7 @@ def check_reserva_temporaria(inicio, fim, local, aula, id = None):
             orig=Exception("Já existe uma reserva para esse local e horario.")
         )
 
-# get reservas_fixas por dia
+# get reservas por dia
 def get_reservas_por_dia(dia:date, turno:Turnos|None=None, tipo_horario:TipoAulaEnum|None=None, tipo_reservas:Literal['fixa', 'temporaria']|None=None):
     """
     Obtém as reservas de aulas para um dia específico.
