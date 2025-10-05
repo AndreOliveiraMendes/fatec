@@ -219,22 +219,23 @@ def gerenciar_situacoes_reservas_fixas(extras):
         'fixa'
     )
     reservas = []
-    for r in reservas_fixas:
-        reserva = {}
-        reserva['horarios'] = [r.aula_ativa]
-        reserva['local'] = r.local
-        reserva['responsavel'] = get_responsavel_reserva(r)
-        reserva['id_responsavel'] = (r.id_responsavel, r.id_responsavel_especial)
-        modo = extras.get("config", {}).get("modo_gerenciacao", "multiplo")
-        ultima = reservas[-1] if reservas else None
-        toleranca = int(extras.get("config", {}).get("toleranca", 20))
+    if reservas_fixas:
+        for r in reservas_fixas:
+            reserva = {}
+            reserva['horarios'] = [r.aula_ativa]
+            reserva['local'] = r.local
+            reserva['responsavel'] = get_responsavel_reserva(r)
+            reserva['id_responsavel'] = (r.id_responsavel, r.id_responsavel_especial)
+            modo = extras.get("config", {}).get("modo_gerenciacao", "multiplo")
+            ultima = reservas[-1] if reservas else None
+            toleranca = int(extras.get("config", {}).get("toleranca", 20))
 
-        match (modo, bool(ultima and verificar_merge_reserva(ultima, reserva, toleranca))):
-            case ("multiplo", True):
-                ultima["horarios"] += reserva["horarios"]
-            case _:
-                reservas.append(reserva)
-        reserva['situacao'] = get_situacoes_por_dia(reserva['horarios'][0], reserva['local'], extras['reserva_dia'], 'fixa')
+            match (modo, bool(ultima and verificar_merge_reserva(ultima, reserva, toleranca))):
+                case ("multiplo", True):
+                    ultima["horarios"] += reserva["horarios"]
+                case _:
+                    reservas.append(reserva)
+            reserva['situacao'] = get_situacoes_por_dia(reserva['horarios'][0], reserva['local'], extras['reserva_dia'], 'fixa')
     extras['reservas'] = reservas
     return render_template("gestão_reservas/status_fixas.html", user=user, **extras)
 
