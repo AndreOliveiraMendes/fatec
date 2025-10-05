@@ -80,7 +80,7 @@ def check_login(id, password) -> Union[Tuple[Literal[False], None, None], Tuple[
                     permission = PERM_RESERVA_FIXA | PERM_RESERVA_AUDITORIO
                 else:
                     permission = 0
-                perm=user.permissoes(id_permissao_usuario = id_usuario, permissao = permission)
+                perm=Permissoes(id_permissao_usuario = id_usuario, permissao = permission)
             else:
                 old_perm = copy.copy(perm)
                 
