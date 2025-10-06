@@ -164,6 +164,8 @@
 
                     if (data.items.length === 0) {
                         lista.innerHTML = '<div class="alert alert-warning">Nenhum período encontrado.</div>';
+                        const paginacao = document.getElementById('paginacaoPeriodos');
+                        paginacao.innerHTML = '';
                         return;
                     }
 
