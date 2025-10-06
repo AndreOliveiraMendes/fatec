@@ -1,0 +1,90 @@
+<div id="modalGerenciar"
+     class="modal fade"
+     tabindex="-1"
+     role="dialog"
+     aria-labelledby="modalGerenciarLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-info">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                    <span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" id="modalGerenciarLabel">
+                    <span class="glyphicon glyphicon-cog"></span> Gerenciar Período
+                </h4>
+                <button id="btnTrocarContexto" class="btn btn-xs btn-warning pull-right">
+                    <span class="glyphicon glyphicon-edit"></span> Selecionar manualmente
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Header de contexto -->
+                <div class="well well-sm text-center" id="contextoGerenciar">
+                    <strong>Aula:</strong> <span id="ctxAula">-</span> |
+                    <strong>Semana:</strong> <span id="ctxSemana">-</span> |
+                    <strong>Tipo:</strong> <span id="ctxTipo">-</span> |
+                    <strong>Status:</strong> <span id="ctxStatus" class="label label-default">-</span>
+                </div>
+                <!-- Abas -->
+                <ul class="nav nav-tabs" role="tablist" id="abasGerenciar">
+                    <li role="presentation" class="aba-ativar active">
+                        <a href="#tabAtivar" role="tab" data-toggle="tab">Ativar Permanente</a>
+                    </li>
+                    <li role="presentation" class="aba-ativar-temp">
+                        <a href="#tabAtivarTemp" role="tab" data-toggle="tab">Ativar Temporário</a>
+                    </li>
+                    <li role="presentation" class="aba-desativar">
+                        <a href="#tabDesativar" role="tab" data-toggle="tab">Desativar</a>
+                    </li>
+                    <li role="presentation" class="aba-extender">
+                        <a href="#tabExtender" role="tab" data-toggle="tab">Estender</a>
+                    </li>
+                </ul>
+                <!-- Conteúdo das abas -->
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane fade in active" id="tabAtivar">
+                        <p>Formulário de ativação permanente…</p>
+                    </div>
+                    <div role="tabpanel" class="tab-pane fade" id="tabAtivarTemp">
+                        <p>Formulário de ativação temporária…</p>
+                    </div>
+                    <div role="tabpanel" class="tab-pane fade" id="tabDesativar">
+                        <p>Confirmação para desativar…</p>
+                    </div>
+                    <div role="tabpanel" class="tab-pane fade" id="tabExtender">
+                        <p>Formulário para estender período…</p>
+                    </div>
+                </div>
+                <form id="formSelecionarContexto"
+                      class="form-inline text-center">
+                      {#style="display:none">#}
+                    <div class="form-group">
+                        <label for="selectAula">Horário:</label>
+                        <select id="selectAula" class="form-control">
+                            {% for h in horarios_base %}
+                                <option value="{{ h.id_aula }}">{{ h.horario_inicio|hora }} - {{ h.horario_fim|hora }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="selectSemana">Semana:</label>
+                        <select id="selectSemana" class="form-control">
+                            {% for s in dias_da_semana %}<option value="{{ s.id_semana }}">{{ s.nome_semana }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="selectTipo">Tipo:</label>
+                        <select id="selectTipo" class="form-control">
+                            <option value="Aula">Aula</option>
+                            <option value="Evento">Evento</option>
+                            <option value="Outros">Outros</option>
+                        </select>
+                    </div>
+                    <button type="button" class="btn btn-success btn-sm" id="btnAplicarContexto">Aplicar</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>

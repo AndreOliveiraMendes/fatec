@@ -41,6 +41,8 @@
                         <div class="col-xs-1 day-cell text-center"
                              data-day="{{ hoje }}"
                              data-time="{{ horario.id_aula }}"
+                             data-time-text="{{ horario.horario_inicio|hora }} - {{ horario.horario_fim|hora }}"
+                             data-day-name="{{ semana.nome_semana }}"
                              data-day-of-week="{{ semana.id_semana }}">
                             <span class="badge state-badge" data-toggle="tooltip" title="placehold">???</span>
                         </div>
@@ -50,16 +52,18 @@
         </div>
         <div class="panel-footer">
             <div class="btn-group btn-group-justified" role="group">
-                <a href="#" class="btn btn-warning">Editar Período de Ativação</a>
+                <a href="#modalGerenciar" data-toggle="modal" class="btn btn-warning">Editar Período de Ativação</a>
                 <a href="#modalPeriodos" data-toggle="modal" class="btn btn-info">Ver todos os Períodos</a>
             </div>
         </div>
     </div>
+    {% include "admin/_modal_gerenciar.html" %}
     {% include "admin/_modal_periodos.html" %}
 {% endblock content %}
 {% block extra_script %}
+    <!-- Inicialização do painel de horários -->
     <script>
-        $(document).ready(function () {
+        $(function () {
 
             function setTooltip($el, text) {
                 $el.attr('title', text).attr('data-original-title', text);
@@ -85,8 +89,8 @@
                     $.getJSON(`{{ url_for('admin.api_get_turno') }}?horario_id=${horarioId}`)
                         .done(function (response) {
                             const badge = cell.find(".turno-badge");
-                            badge.text(response.turno || "???");
-                            badge.removeClass("badge-dia badge-tarde badge-noite");
+                            badge.text(response.turno || "???")
+                                 .removeClass("badge-dia badge-tarde badge-noite");
 
                             if (response.id == 1) badge.addClass("badge-dia");
                             else if (response.id == 2) badge.addClass("badge-tarde");
@@ -106,9 +110,10 @@
                     const day = cell.data("day");
                     const horarioId = cell.data("time");
                     const dayOfWeek = cell.data("day-of-week");
-
                     const badge = cell.find(".state-badge");
-                    badge.text("...").removeClass("badge-success badge-inactive");
+
+                    badge.text("...")
+                         .removeClass("badge-success badge-inactive");
 
                     $.getJSON(`{{ url_for('admin.api_get_aulas_ativas') }}?day=${day}&aula=${horarioId}&semana=${dayOfWeek}&tipoaula=${tipo}`)
                         .done(function (response) {
@@ -116,12 +121,10 @@
 
                             if (response.ativa) {
                                 badge.text("Ativa").addClass("badge-success");
-
                                 let periodo = '';
                                 if (response.data_inicio) periodo += `<b>Início:</b> ${response.data_inicio}<br>`;
                                 if (response.data_fim) periodo += `<b>Fim:</b> ${response.data_fim}<br>`;
                                 if (!periodo) periodo = '<i>Ativa permanentemente</i>';
-
                                 setTooltip(badge, periodo);
                             } else {
                                 badge.text("Inativa").addClass("badge-inactive");
@@ -134,20 +137,18 @@
                 });
             }
 
-            // Inicialização
             const $tipoSelect = $('#tipoHorarioSelect');
-            const tipoInicial = $tipoSelect.val();
             carregarTurnos();
-            carregarAulasAtivas(tipoInicial);
+            carregarAulasAtivas($tipoSelect.val());
 
-            // Quando trocar o tipo
-            $tipoSelect.change(function () {
-                const novoTipo = $(this).val();
-                carregarAulasAtivas(novoTipo);
+            $tipoSelect.on("change", function () {
+                carregarAulasAtivas($(this).val());
             });
 
+            $("#formSelecionarContexto").hide();
         });
     </script>
+    <!-- Modal: Listagem de períodos -->
     <script>
         let paginaAtual = 1;
 
@@ -174,7 +175,7 @@
                                 <th>Semana</th>
                                 <th>Tipo</th>
                                 <th>Horário</th>
-                                <th>inicio Ativação</th>
+                                <th>Início Ativação</th>
                                 <th>Fim Ativação</th>
                             </tr>
                         </thead>
@@ -192,7 +193,6 @@
                     `;
                     lista.appendChild(table);
 
-                    // Paginação
                     const paginacao = document.getElementById('paginacaoPeriodos');
                     paginacao.innerHTML = '';
                     for (let i = 1; i <= data.total_pages; i++) {
@@ -219,6 +219,82 @@
 
         $('#modalPeriodos').on('shown.bs.modal', function () {
             carregarPeriodos(1);
+        });
+    </script>
+    <!-- Modal: Gerenciar períodos -->
+    <script>
+        function atualizarAbasGerenciar(ativa) {
+            const $abasAtivar = $(".aba-ativar, .aba-ativar-temp");
+            const $abasDesativar = $(".aba-desativar, .aba-extender");
+
+            if (ativa) {
+                $abasAtivar.addClass("disabled").find("a")
+                           .removeAttr("data-toggle")
+                           .css("pointer-events","none");
+                $abasDesativar.removeClass("disabled").find("a")
+                              .attr("data-toggle","tab")
+                              .css("pointer-events","auto");
+                $(".aba-desativar a").tab("show");
+            } else {
+                $abasAtivar.removeClass("disabled").find("a")
+                           .attr("data-toggle","tab")
+                           .css("pointer-events","auto");
+                $abasDesativar.addClass("disabled").find("a")
+                              .removeAttr("data-toggle")
+                              .css("pointer-events","none");
+                $(".aba-ativar a").tab("show");
+            }
+        }
+
+        $(document).on("click", ".day-cell", function () {
+            const horarioId = $(this).data("time");
+            const horarioTexto = $(this).data("time-text");
+            const semanaId = $(this).data("day-of-week");
+            const semanaNome = $(this).data("day-name");
+            const tipoSelecionado = $("#tipoHorarioSelect").val();
+
+            $.getJSON(`{{ url_for('admin.api_get_aulas_ativas') }}?day={{ hoje }}&aula=${horarioId}&semana=${semanaId}&tipoaula=${tipoSelecionado}`)
+                .done(function (response) {
+                    const ativa = response.ativa;
+                    $("#ctxAula").text(horarioTexto);
+                    $("#ctxSemana").text(semanaNome);
+                    $("#ctxTipo").text(tipoSelecionado);
+                    $("#ctxStatus")
+                        .text(ativa ? "Ativa" : "Inativa")
+                        .removeClass("label-default label-success")
+                        .addClass(ativa ? "label-success" : "label-default");
+
+                    atualizarAbasGerenciar(ativa);
+                    $("#modalGerenciar").modal("show");
+                })
+                .fail(function () {
+                    alert("Erro ao carregar status da reserva.");
+                });
+        });
+
+        $("#btnTrocarContexto").on("click", function () {
+            $("#formSelecionarContexto").slideToggle();
+        });
+
+        $("#btnAplicarContexto").on("click", function () {
+            const horarioId = $("#selectAula").val();
+            const horarioTexto = $("#selectAula option:selected").text();
+            const semanaId = $("#selectSemana").val();
+            const semanaNome = $("#selectSemana option:selected").text();
+            const tipo = $("#selectTipo").val();
+
+            $.getJSON(`{{ url_for('admin.api_get_aulas_ativas') }}?day={{ hoje }}&aula=${horarioId}&semana=${semanaId}&tipoaula=${tipo}`)
+                .done(function (response) {
+                    const ativa = response.ativa;
+                    $("#ctxAula").text(horarioTexto);
+                    $("#ctxSemana").text(semanaNome);
+                    $("#ctxTipo").text(tipo);
+                    $("#ctxStatus")
+                        .text(ativa ? "Ativa" : "Inativa")
+                        .removeClass("label-default label-success")
+                        .addClass(ativa ? "label-success" : "label-default");
+                    atualizarAbasGerenciar(ativa);
+                });
         });
     </script>
 {% endblock extra_script %}
