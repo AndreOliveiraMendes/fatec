@@ -122,8 +122,8 @@
                             if (response.ativa) {
                                 badge.text("Ativa").addClass("badge-success");
                                 let periodo = '';
-                                if (response.data_inicio) periodo += `<b>Início:</b> ${response.data_inicio}<br>`;
-                                if (response.data_fim) periodo += `<b>Fim:</b> ${response.data_fim}<br>`;
+                                if (response.inicio) periodo += `<b>Início:</b> ${response.inicio}<br>`;
+                                if (response.fim) periodo += `<b>Fim:</b> ${response.fim}<br>`;
                                 if (!periodo) periodo = '<i>Ativa permanentemente</i>';
                                 setTooltip(badge, periodo);
                             } else {
@@ -248,31 +248,36 @@
             }
         }
 
-        $(document).on("click", ".day-cell", function () {
-            const horarioId = $(this).data("time");
-            const horarioTexto = $(this).data("time-text");
-            const semanaId = $(this).data("day-of-week");
-            const semanaNome = $(this).data("day-name");
-            const tipoSelecionado = $("#tipoHorarioSelect").val();
+$(document).on("click", ".day-cell", function () {
+    const horarioId = $(this).data("time");
+    const horarioTexto = $(this).data("time-text");
+    const semanaId = $(this).data("day-of-week");
+    const semanaNome = $(this).data("day-name");
+    const tipoSelecionado = $("#tipoHorarioSelect").val();
 
-            $.getJSON(`{{ url_for('admin.api_get_aulas_ativas') }}?day={{ hoje }}&aula=${horarioId}&semana=${semanaId}&tipoaula=${tipoSelecionado}`)
-                .done(function (response) {
-                    const ativa = response.ativa;
-                    $("#ctxAula").text(horarioTexto);
-                    $("#ctxSemana").text(semanaNome);
-                    $("#ctxTipo").text(tipoSelecionado);
-                    $("#ctxStatus")
-                        .text(ativa ? "Ativa" : "Inativa")
-                        .removeClass("label-default label-success")
-                        .addClass(ativa ? "label-success" : "label-default");
+    // Guarda no modal pra usar no submit
+    $("#modalGerenciar")
+        .data("horario-id", horarioId)
+        .data("semana-id", semanaId);
 
-                    atualizarAbasGerenciar(ativa);
-                    $("#modalGerenciar").modal("show");
-                })
-                .fail(function () {
-                    alert("Erro ao carregar status da reserva.");
-                });
+    $.getJSON(`{{ url_for('admin.api_get_aulas_ativas') }}?day={{ hoje }}&aula=${horarioId}&semana=${semanaId}&tipoaula=${tipoSelecionado}`)
+        .done(function (response) {
+            const ativa = response.ativa;
+            $("#ctxAula").text(horarioTexto);
+            $("#ctxSemana").text(semanaNome);
+            $("#ctxTipo").text(tipoSelecionado);
+            $("#ctxStatus")
+                .text(ativa ? "Ativa" : "Inativa")
+                .removeClass("label-default label-success")
+                .addClass(ativa ? "label-success" : "label-default");
+
+            atualizarAbasGerenciar(ativa);
+            $("#modalGerenciar").modal("show");
+        })
+        .fail(function () {
+            alert("Erro ao carregar status da reserva.");
         });
+});
 
         $("#btnTrocarContexto").on("click", function () {
             $("#formSelecionarContexto").slideToggle();
@@ -299,6 +304,74 @@
                 });
         });
     </script>
+<script>
+// Form: Ativar Temporariamente
+$("#formAtivarTemp").on("submit", function (e) {
+    e.preventDefault();
+
+    const inicio = $("#dataInicio").val();
+    const fim = $("#dataFim").val();
+
+    if (!inicio || !fim) return;
+
+    // Pega contexto atual do modal
+    const horarioTexto = $("#ctxAula").text();
+    const semanaNome = $("#ctxSemana").text();
+    const tipo = $("#ctxTipo").text();
+
+    // Mas pra enviar, precisamos dos IDs, então guardamos no modal (vindo do click)
+    const horarioId = $("#modalGerenciar").data("horario-id");
+    const semanaId = $("#modalGerenciar").data("semana-id");
+
+    const payload = {
+        horario_id: horarioId,
+        semana_id: semanaId,
+        tipo: tipo,
+        inicio: inicio,
+        fim: fim
+    };
+
+    fetch(`{{ url_for('admin.api_ativar_temp') }}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    })
+    .then(r => r.json())
+    .then(data => {
+        const alertBox = $("#alertAtivarTemp");
+        if (data.success) {
+            alertBox.removeClass().addClass("alert alert-success")
+                .text("Período ativado temporariamente com sucesso!")
+                .slideDown();
+
+            // Atualiza header do modal
+            $("#ctxStatus").text("Ativa")
+                           .removeClass("label-default")
+                           .addClass("label-success");
+
+            // Atualiza abas
+            atualizarAbasGerenciar(true);
+
+            // Atualiza badge da célula
+            const selector = `.day-cell[data-time='${horarioId}'][data-day-of-week='${semanaId}']`;
+            const cell = $(selector).find(".state-badge");
+            cell.text("Ativa").removeClass("badge-inactive").addClass("badge-success");
+            cell.attr("title", `<b>Início:</b> ${inicio}<br><b>Fim:</b> ${fim}`);
+
+        } else {
+            alertBox.removeClass().addClass("alert alert-danger")
+                .text(data.error || "Erro ao ativar período.")
+                .slideDown();
+        }
+    })
+    .catch(() => {
+        $("#alertAtivarTemp")
+            .removeClass().addClass("alert alert-danger")
+            .text("Erro de conexão.")
+            .slideDown();
+    });
+});
+</script>
 {% endblock extra_script %}
 {% block extra_css %}
     <link rel="stylesheet"

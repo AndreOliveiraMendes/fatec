@@ -12,8 +12,8 @@ from sqlalchemy import between, or_, select
 
 from app.auxiliar.auxiliar_cryptograph import ensure_secret_file, load_key
 from app.auxiliar.auxiliar_routes import (get_unique_or_500, get_user_info,
-                                          parse_date_string)
-from app.auxiliar.dao import get_aula_intervalo, get_locais
+                                          parse_date_string, registrar_log_generico_usuario)
+from app.auxiliar.dao import get_aula_intervalo, get_locais, check_aula_ativa
 from app.auxiliar.decorators import admin_required
 from app.models import (Aulas, Aulas_Ativas, Dias_da_Semana, TipoAulaEnum,
                         Turnos, db)
@@ -21,6 +21,8 @@ from config.database_views import SECOES
 from config.general import LIST_ROUTES, LOCAL_TIMEZONE
 from config.json_related import carregar_config_geral, carregar_painel_config
 from config.mapeamentos import SECRET_PATH
+from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
+                            InternalError, OperationalError, ProgrammingError)
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -220,3 +222,42 @@ def api_listar_periodos():
             for p in aulas_ativas_paginadas.items
         ]
     })
+
+@bp.route("/times/api/ativar_temp", methods=["POST"])
+@admin_required
+def api_ativar_temp():
+    userid = session.get('userid')
+    data = request.get_json()
+    horario_id = data.get("horario_id")
+    semana_id = data.get("semana_id")
+    tipo = data.get("tipo")
+    inicio = parse_date_string(data.get("inicio"))
+    fim = parse_date_string(data.get("fim"))
+
+    # Validações...
+    if not (horario_id and semana_id and tipo and inicio and fim):
+        return jsonify({"error": "Dados insuficientes"}), 400
+    try:
+        check_aula_ativa(inicio, fim, horario_id, semana_id, TipoAulaEnum(tipo))
+        # Lógica de criação da ativação do horario
+        nova = Aulas_Ativas(
+            id_aula=horario_id,
+            id_semana=semana_id,
+            tipo_aula=TipoAulaEnum(tipo),
+            inicio_ativacao=inicio,
+            fim_ativacao=fim
+        )
+        db.session.add(nova)
+
+        db.session.flush()
+        registrar_log_generico_usuario(userid, 'Inserção', nova, observacao="atraves do painel de horarios")
+        db.session.commit()
+    except ValueError as ve:
+        db.session.rollback()
+        return jsonify({"error": str(ve)}), 400
+    except (DataError, IntegrityError, InterfaceError,
+        InternalError, OperationalError, ProgrammingError) as e:
+        db.session.rollback()
+        return jsonify({"error": "Erro ao processar, verifique os dados"}), 500
+
+    return jsonify({"success": True})
