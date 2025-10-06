@@ -101,7 +101,8 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │   │   │   ├── bootstrap.min.css
 │   │   │   ├── bootstrap.min.css.map
 │   │   │   ├── custom.css
-│   │   │   └── modal_overwrite.css
+│   │   │   ├── modal_overwrite.css
+│   │   │   └── times.css
 │   │   ├── fonts
 │   │   │   ├── glyphicons-halflings-regular.eot
 │   │   │   ├── glyphicons-halflings-regular.svg
@@ -117,8 +118,12 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │   │       └── jquery.min.js
 │   └── templates
 │       ├── admin
+│       │   ├── _modal_gerenciar.html
+│       │   ├── _modal_periodos.html
 │       │   ├── admin.html
-│       │   └── control.html
+│       │   ├── control.html
+│       │   ├── routes.html
+│       │   └── times.html
 │       ├── auth
 │       │   ├── login.html
 │       │   ├── login_fail.html
@@ -210,10 +215,11 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │   ├── general.py
 │   ├── json_related.py
 │   ├── mapeamentos.py
-│   ├── painel.json
-│   └── secret.json
+│   └── painel.json
 ├── requirements.txt
 ├── schema.sql
+├── test
+│   └── test_simple.py
 └── wsgi.py
 ```
 
