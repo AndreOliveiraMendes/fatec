@@ -436,3 +436,32 @@ def get_reservas_auditorios(id:int, all:bool = False, *args):
         Aulas.horario_inicio
     )
     return db.session.execute(sel_reservas_auditorios).scalars().all()
+
+# verifica conflitos em aulas ativas
+def check_aula_ativa(inicio, fim, aula, semana, tipo, id = None):
+    base_filter = [Aulas_Ativas.id_aula == aula, Aulas_Ativas.id_semana == semana,
+                   Aulas_Ativas.tipo_aula == tipo]
+    if id is not None:
+        base_filter.append(Aulas_Ativas.id_aula_ativa != id)
+    if inicio and fim:
+        base_filter.append(
+            and_(
+                or_(Aulas_Ativas.fim_ativacao.is_(None), Aulas_Ativas.fim_ativacao >= inicio),
+                or_(Aulas_Ativas.inicio_ativacao.is_(None), Aulas_Ativas.inicio_ativacao <= fim)
+                )
+            )
+    elif inicio and not fim:
+        base_filter.append(
+            or_(Aulas_Ativas.fim_ativacao.is_(None), Aulas_Ativas.fim_ativacao >= inicio)
+            )
+    elif not inicio and fim:
+        base_filter.append(
+            or_(Aulas_Ativas.inicio_ativacao.is_(None), Aulas_Ativas.inicio_ativacao <= fim)
+            )
+    countl_sel_aulas_ativas = select(func.count()).select_from(Aulas_Ativas).where(*base_filter)
+    if db.session.scalar(countl_sel_aulas_ativas) > 0:
+        raise IntegrityError(
+            statement=None,
+            params=None,
+            orig=Exception("Já existe uma aula ativa com os mesmos dados (aula, semana e tipo).")
+        )

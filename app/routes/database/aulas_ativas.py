@@ -11,40 +11,13 @@ from app.auxiliar.auxiliar_routes import (get_query_params,
                                           get_user_info, none_if_empty,
                                           parse_date_string, register_return,
                                           registrar_log_generico_usuario)
-from app.auxiliar.dao import get_aulas, get_aulas_ativas, get_dias_da_semana
+from app.auxiliar.dao import (check_aula_ativa, get_aulas, get_aulas_ativas,
+                              get_dias_da_semana)
 from app.auxiliar.decorators import admin_required
 from app.models import Aulas_Ativas, TipoAulaEnum, db
 from config.general import PER_PAGE
 
 bp = Blueprint('database_aulas_ativas', __name__, url_prefix="/database")
-
-def check_aula_ativa(inicio, fim, aula, semana, tipo, id = None):
-    base_filter = [Aulas_Ativas.id_aula == aula, Aulas_Ativas.id_semana == semana,
-                   Aulas_Ativas.tipo_aula == tipo]
-    if id is not None:
-        base_filter.append(Aulas_Ativas.id_aula_ativa != id)
-    if inicio and fim:
-        base_filter.append(
-            and_(
-                or_(Aulas_Ativas.fim_ativacao.is_(None), Aulas_Ativas.fim_ativacao >= inicio),
-                or_(Aulas_Ativas.inicio_ativacao.is_(None), Aulas_Ativas.inicio_ativacao <= fim)
-                )
-            )
-    elif inicio and not fim:
-        base_filter.append(
-            or_(Aulas_Ativas.fim_ativacao.is_(None), Aulas_Ativas.fim_ativacao >= inicio)
-            )
-    elif not inicio and fim:
-        base_filter.append(
-            or_(Aulas_Ativas.inicio_ativacao.is_(None), Aulas_Ativas.inicio_ativacao <= fim)
-            )
-    countl_sel_aulas_ativas = select(func.count()).select_from(Aulas_Ativas).where(*base_filter)
-    if db.session.scalar(countl_sel_aulas_ativas) > 0:
-        raise IntegrityError(
-            statement=None,
-            params=None,
-            orig=Exception("Já existe uma aula ativa com os mesmos dados (aula, semana e tipo).")
-        )
 
 def filtro_intervalo(inicio_procura, fim_procura):
     if inicio_procura and fim_procura:
