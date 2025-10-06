@@ -493,12 +493,7 @@ class Aulas_Ativas(Base):
         CheckConstraint(
             'inicio_ativacao IS NULL OR fim_ativacao IS NULL OR inicio_ativacao <= fim_ativacao',
             name='chk_aula_ativa_inicio_menor_fim'
-        ), UniqueConstraint(
-            'id_aula',
-            'id_semana',
-            'tipo_aula',
-            name='unique_aula_semana_tipo'
-        )
+        ),
     )
 
     aula: Mapped['Aulas'] = relationship(back_populates='aulas_ativas')
