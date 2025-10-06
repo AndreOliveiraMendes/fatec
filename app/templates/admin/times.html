@@ -58,6 +58,8 @@
     {% include "admin/_modal_periodos.html" %}
 {% endblock content %}
 {% block extra_script %}
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap.min.js"></script>
     <script>
         $(document).ready(function () {
 
@@ -149,80 +151,85 @@
         });
     </script>
     <script>
-        let paginaAtual = 1;
+    let tabelaPeriodos = null;
 
-        function carregarPeriodos(pagina = 1) {
-            const params = new URLSearchParams(new FormData(document.getElementById('filtroPeriodosForm')));
-            params.append('page', pagina);
+    function carregarPeriodos() {
+        const params = new URLSearchParams(new FormData(document.getElementById('filtroPeriodosForm')));
 
-            fetch(`{{ url_for('admin.api_listar_periodos') }}?${params.toString()}`)
-                .then(r => r.json())
-                .then(data => {
-                    const lista = document.getElementById('listaPeriodos');
-                    lista.innerHTML = '';
+        fetch(`{{ url_for('admin.api_listar_periodos') }}?${params.toString()}`)
+            .then(r => r.json())
+            .then(data => {
+                const lista = document.getElementById('listaPeriodos');
+                lista.innerHTML = '';
 
-                    if (data.items.length === 0) {
-                        lista.innerHTML = '<div class="alert alert-warning">Nenhum período encontrado.</div>';
-                        return;
-                    }
+                if (data.items.length === 0) {
+                    lista.innerHTML = '<div class="alert alert-warning">Nenhum período encontrado.</div>';
+                    return;
+                }
 
-                    const table = document.createElement('table');
-                    table.className = 'table table-striped table-bordered';
-                    table.innerHTML = `
-                        <thead>
+                const table = document.createElement('table');
+                table.id = 'tabelaPeriodos';
+                table.className = 'table table-striped table-bordered';
+                table.innerHTML = `
+                    <thead>
+                        <tr>
+                            <th>Semana</th>
+                            <th>Tipo</th>
+                            <th>Horário</th>
+                            <th>Início Ativação</th>
+                            <th>Fim Ativação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.items.map(item => `
                             <tr>
-                                <th>Semana</th>
-                                <th>Tipo</th>
-                                <th>Horário</th>
-                                <th>inicio Ativação</th>
-                                <th>Fim Ativação</th>
+                                <td>${item.semana}</td>
+                                <td>${item.tipo}</td>
+                                <td>${item.horario}</td>
+                                <td>${item.inicio_ativacao}</td>
+                                <td>${item.fim_ativacao}</td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            ${data.items.map(item => `
-                                <tr>
-                                    <td>${item.semana}</td>
-                                    <td>${item.tipo}</td>
-                                    <td>${item.horario}</td>
-                                    <td>${item.inicio_ativacao}</td>
-                                    <td>${item.fim_ativacao}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    `;
-                    lista.appendChild(table);
+                        `).join('')}
+                    </tbody>
+                `;
+                lista.appendChild(table);
 
-                    // Paginação
-                    const paginacao = document.getElementById('paginacaoPeriodos');
-                    paginacao.innerHTML = '';
-                    for (let i = 1; i <= data.total_pages; i++) {
-                        const li = document.createElement('li');
-                        if (i === data.page) li.classList.add('active');
-                        const a = document.createElement('a');
-                        a.href = '#';
-                        a.textContent = i;
-                        a.onclick = (e) => {
-                            e.preventDefault();
-                            paginaAtual = i;
-                            carregarPeriodos(i);
-                        };
-                        li.appendChild(a);
-                        paginacao.appendChild(li);
+                // Inicializa DataTable (ou reinicializa se já existir)
+                if (tabelaPeriodos) {
+                    tabelaPeriodos.destroy();
+                }
+                tabelaPeriodos = $('#tabelaPeriodos').DataTable({
+                    paging: true,
+                    pageLength: 10,
+                    lengthChange: false,
+                    ordering: true,
+                    info: false,
+                    language: {
+                        search: "Buscar:",
+                        zeroRecords: "Nenhum resultado encontrado",
+                        paginate: {
+                            first: "Primeiro",
+                            last: "Último",
+                            next: "Próximo",
+                            previous: "Anterior"
+                        }
                     }
                 });
-        }
+            });
+    }
 
-        document.getElementById('filtroPeriodosForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-            carregarPeriodos(1);
-        });
+    document.getElementById('filtroPeriodosForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        carregarPeriodos();
+    });
 
-        $('#modalPeriodos').on('shown.bs.modal', function () {
-            carregarPeriodos(1);
-        });
-    </script>
+    $('#modalPeriodos').on('shown.bs.modal', function () {
+        carregarPeriodos();
+    });
+</script>
 {% endblock extra_script %}
 {% block extra_css %}
     <link rel="stylesheet"
           href="{{ url_for('static', filename='css/times.css') }}">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap.min.css">
 {% endblock extra_css %}

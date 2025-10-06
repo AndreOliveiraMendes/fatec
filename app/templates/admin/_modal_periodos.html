@@ -14,10 +14,9 @@
                 </h4>
             </div>
             <div class="modal-body">
-                <!-- Filtros -->
                 <form id="filtroPeriodosForm" class="form-inline text-center">
                     <div class="form-group">
-                        <label for="filtro-horario">Horario:</label>
+                        <label for="filtro-horario">Horário:</label>
                         <select id="filtro-horario" name="horario" class="form-control">
                             <option value="">Todas</option>
                             {% for horario in horarios_base %}
@@ -29,7 +28,9 @@
                         <label for="filtro-semana">Semana:</label>
                         <select id="filtro-semana" name="semana" class="form-control">
                             <option value="">Todas</option>
-                            {% for semana in dias_da_semana %}<option value="{{ semana.id_semana }}">{{ semana.nome_semana }}</option>{% endfor %}
+                            {% for semana in dias_da_semana %}
+                                <option value="{{ semana.id_semana }}">{{ semana.nome_semana }}</option>
+                            {% endfor %}
                         </select>
                     </div>
                     <div class="form-group">
@@ -46,13 +47,7 @@
                     </button>
                 </form>
                 <hr>
-                <!-- Lista -->
-                <div id="listaPeriodos"></div>
-                <!-- Paginação -->
-                <nav class="text-center">
-                    <ul class="pagination" id="paginacaoPeriodos">
-                    </ul>
-                </nav>
+                <div id="listaPeriodos" class="table-responsive"></div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>

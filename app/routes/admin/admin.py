@@ -200,14 +200,11 @@ def api_listar_periodos():
             filtro.append(Aulas_Ativas.tipo_aula == tipo_enum)
         except ValueError:
             return jsonify({"error": "Tipo de aula inválido."}), 400
-    select_aula_ativa = select(Aulas_Ativas).where(*filtro)
-
-    aulas_ativas_paginadas = SelectPagination(select=select_aula_ativa, session=db.session,
-        page=page, per_page=7, error_out=False)
+    aulas_ativas = db.session.execute(
+        select(Aulas_Ativas).where(*filtro)
+    ).scalars().all()
 
     return jsonify({
-        "page": page,
-        "total_pages": aulas_ativas_paginadas.pages,
         "items": [
             {
                 "semana": p.dia_da_semana.nome_semana,
@@ -216,6 +213,6 @@ def api_listar_periodos():
                 "inicio_ativacao": p.inicio_ativacao.strftime("%d/%m/%Y") if p.inicio_ativacao else "N/A",
                 "fim_ativacao": p.fim_ativacao.strftime("%d/%m/%Y") if p.fim_ativacao else "N/A"
             }
-            for p in aulas_ativas_paginadas.items
+            for p in aulas_ativas
         ]
     })
