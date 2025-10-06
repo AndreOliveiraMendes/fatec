@@ -80,37 +80,41 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer clearfix">
-                <div class="pull-left">
-                    <form id="formSelecionarContexto" class="form-inline">
-                        <div class="form-group">
-                            <label for="selectAula">Horário:</label>
-                            <select id="selectAula" class="form-control">
-                                {% for h in horarios_base %}
-                                    <option value="{{ h.id_aula }}">{{ h.horario_inicio|hora }} - {{ h.horario_fim|hora }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="selectSemana">Semana:</label>
-                            <select id="selectSemana" class="form-control">
-                                {% for s in dias_da_semana %}<option value="{{ s.id_semana }}">{{ s.nome_semana }}</option>{% endfor %}
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="selectTipo">Tipo:</label>
-                            <select id="selectTipo" class="form-control">
-                                <option value="Aula">Aula</option>
-                                <option value="Evento">Evento</option>
-                                <option value="Outros">Outros</option>
-                            </select>
-                        </div>
-                        <button type="button" class="btn btn-success btn-sm" id="btnAplicarContexto">Aplicar</button>
-                    </form>
+            <div class="modal-footer">
+                <div class="clearfix">
+                    <div class="pull-left">
+                        <form id="formSelecionarContexto" class="form-inline">
+                            <div class="form-group">
+                                <label for="selectAula">Horário:</label>
+                                <select id="selectAula" class="form-control">
+                                    {% for h in horarios_base %}
+                                        <option value="{{ h.id_aula }}">{{ h.horario_inicio|hora }} - {{ h.horario_fim|hora }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="selectSemana">Semana:</label>
+                                <select id="selectSemana" class="form-control">
+                                    {% for s in dias_da_semana %}<option value="{{ s.id_semana }}">{{ s.nome_semana }}</option>{% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="selectTipo">Tipo:</label>
+                                <select id="selectTipo" class="form-control">
+                                    <option value="Aula">Aula</option>
+                                    <option value="Evento">Evento</option>
+                                    <option value="Outros">Outros</option>
+                                </select>
+                            </div>
+                            <button type="button" class="btn btn-success btn-sm" id="btnAplicarContexto">Aplicar</button>
+                        </form>
+                    </div>
+                    <div class="pull-right">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+                    </div>
                 </div>
-                <div class="pull-right">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
-                </div>
+                <!-- Alerta global do modal -->
+                <div id="alertGlobalModal" class="alert text-center"></div>
             </div>
         </div>
     </div>

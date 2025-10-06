@@ -305,6 +305,17 @@
         });
     </script>
     <script>
+        //funções de gerenciamento de alertas globais do modal
+        function showModalAlert(type, message) {
+            const $alert = $("#alertGlobalModal");
+            $alert.removeClass("alert-success alert-danger alert-warning")
+                .addClass(`alert alert-${type}`)
+                .text(message)
+                .slideDown();
+        }
+        function clearModalAlert() {
+            $("#alertGlobalModal").slideUp().removeClass("alert-success alert-danger alert-warning").text('');
+        }
         // Form: Ativar Temporariamente
         $("#formAtivarTemp").on("submit", function (e) {
             e.preventDefault();
@@ -342,9 +353,7 @@
             .then(data => {
                 const alertBox = $("#alertAtivarTemp");
                 if (data.success) {
-                    alertBox.removeClass().addClass("alert alert-success")
-                        .text("Período ativado temporariamente com sucesso!")
-                        .slideDown();
+                    showModalAlert("success", "Período ativado temporariamente com sucesso!");
 
                     // Recarrega o status REAL a partir da API
                     $.getJSON(`{{ url_for('admin.api_get_aulas_ativas') }}?day={{ hoje }}&aula=${horarioId}&semana=${semanaId}&tipoaula=${tipo}`)
@@ -383,19 +392,24 @@
                         });
 
                 } else {
-                    alertBox.removeClass().addClass("alert alert-danger")
-                        .text(data.error || "Erro ao ativar período.")
-                        .slideDown();
+                    showModalAlert("danger", data.error || "Erro ao ativar período.");
                 }
             })
             .catch((error) => {
-                console.error("Caught error:", error);
-                $("#alertAtivarTemp")
-                    .removeClass().addClass("alert alert-danger")
-                    .text("Erro de conexão.")
-                    .slideDown();
+                showModalAlert("danger", "Erro de conexão." || error.message);
             });
 
+        });
+
+        //limpar mensagems anteriores
+        $('#modalGerenciar').on('show.bs.modal', function () {
+            // Esconde/limpa todos os alerts internos
+            clearModalAlert();
+            
+            // Se quiser também limpar formulários internos:
+            $(this).find('form').each(function () {
+                this.reset();
+            });
         });
     </script>
 {% endblock extra_script %}
