@@ -52,7 +52,7 @@
         </div>
         <div class="panel-footer">
             <div class="btn-group btn-group-justified" role="group">
-                <a href="#modalGerenciar" data-toggle="modal" class="btn btn-warning">Editar Período de Ativação</a>
+                <a href="#modalGerenciar" data-toggle="modal" class="btn btn-warning btn-editar-periodo">Editar Período de Ativação</a>
                 <a href="#modalPeriodos" data-toggle="modal" class="btn btn-info">Ver todos os Períodos</a>
             </div>
         </div>
@@ -290,6 +290,7 @@
                 const tipoSelecionado = $("#tipoHorarioSelect").val();
 
                 $("#modalGerenciar")
+                    .data("origem", "badge")
                     .data("horario-id", horarioId)
                     .data("semana-id", semanaId);
 
@@ -338,6 +339,27 @@
                         atualizarAbasGerenciar(ativa);
                         $("#modalGerenciar").data("id_aula", response.id_aula || null);
                     });
+            });
+
+            // Quando clicar no botão “Editar Período de Ativação”
+            $(".btn-editar-periodo").on("click", function () {
+                $("#modalGerenciar")
+                    .data("origem", "botao")
+                    .removeData("horario-id")
+                    .removeData("semana-id")
+                    .removeData("id_aula");
+
+                // Reseta o cabeçalho de contexto
+                $("#ctxAula").text("???");
+                $("#ctxSemana").text("???");
+                $("#ctxTipo").text("???");
+                $("#ctxStatus")
+                    .text("-")
+                    .removeClass("label-success label-default")
+                    .addClass("label-default");
+
+                // Abre o modal
+                $("#modalGerenciar").show();
             });
 
             /* =======================
@@ -415,6 +437,19 @@
                     }
                 })
                 .catch(() => showModalAlert("danger", "Erro de conexão."));
+            });
+
+            // Ao exibir o modal, verifica a origem
+            $('#modalGerenciar').on('shown.bs.modal', function () {
+                const origem = $(this).data("origem");
+
+                if (origem === "botao") {
+                    // Abre automaticamente o seletor de contexto manual
+                    $("#formSelecionarContexto").slideDown();
+                } else {
+                    // Garante que ele fique fechado ao abrir por badge
+                    $("#formSelecionarContexto").hide();
+                }
             });
 
             $('#modalGerenciar').on('hidden.bs.modal', function () {
