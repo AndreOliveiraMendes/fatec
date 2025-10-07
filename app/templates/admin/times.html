@@ -285,11 +285,16 @@
         });
 
         $("#btnAplicarContexto").on("click", function () {
-            const horarioId = $("#selectAula").val();
+            const horarioId = parseInt($("#selectAula").val());
             const horarioTexto = $("#selectAula option:selected").text();
-            const semanaId = $("#selectSemana").val();
+            const semanaId = parseInt($("#selectSemana").val());
             const semanaNome = $("#selectSemana option:selected").text();
             const tipo = $("#selectTipo").val();
+
+            // Guarda no modal pra usar no submit
+            $("#modalGerenciar")
+                .data("horario-id", horarioId)
+                .data("semana-id", semanaId);
 
             $.getJSON(`{{ url_for('admin.api_get_aulas_ativas') }}?day={{ hoje }}&aula=${horarioId}&semana=${semanaId}&tipoaula=${tipo}`)
                 .done(function (response) {
@@ -317,6 +322,30 @@
         }
         function clearModalAlert() {
             $("#alertGlobalModal").slideUp().removeClass("alert-success alert-danger alert-warning").text('');
+        }
+        //função para atualizar badge da célula
+        function atualizarBadgeCelula(horarioId, semanaId, status) {
+            const selector = `.day-cell[data-time='${horarioId}'][data-day-of-week='${semanaId}'] .state-badge`;
+            const $badge = $(selector);
+
+            if (status.ativa) {
+                let tooltipText = '';
+                if (status.inicio) tooltipText += `<b>Início:</b> ${status.inicio}<br>`;
+                if (status.fim) tooltipText += `<b>Fim:</b> ${status.fim}<br>`;
+                if (!tooltipText) tooltipText = '<i>Ativa permanentemente</i>';
+
+                $badge.text("Ativa")
+                    .removeClass("badge-inactive")
+                    .addClass("badge-success")
+                    .attr("title", tooltipText)
+                    .tooltip('fixTitle');
+            } else {
+                $badge.text("Inativa")
+                    .removeClass("badge-success")
+                    .addClass("badge-inactive")
+                    .attr("title", "Inativa")
+                    .tooltip('fixTitle');
+            }
         }
         // Form: Ativar Permanentemente
         $("#formAtivarPerm").on("submit", function (e) {
@@ -368,25 +397,7 @@
                         atualizarAbasGerenciar(ativa);
 
                         // Atualiza badge da célula correspondente
-                        const selector = `.day-cell[data-time='${horarioId}'][data-day-of-week='${semanaId}'] .state-badge`;
-                        const $badge = $(selector);
-                        if (ativa) {
-                            let tooltipText = '';
-                            if (status.inicio) tooltipText += `<b>Início:</b> ${status.inicio}<br>`;
-                            if (status.fim) tooltipText += `<b>Fim:</b> ${status.fim}<br>`;
-                            if (!tooltipText) tooltipText = '<i>Ativa permanentemente</i>';
-                            $badge.text("Ativa")
-                                .removeClass("badge-inactive")
-                                .addClass("badge-success")
-                                .attr("title", tooltipText)
-                                .tooltip('fixTitle');
-                        } else {
-                            $badge.text("Inativa")
-                                .removeClass("badge-success")
-                                .addClass("badge-inactive")
-                                .attr("title", "Inativa")
-                                .tooltip('fixTitle');
-                        }
+                        atualizarBadgeCelula(horarioId, semanaId, status);
                     });
                 } else {
                     showModalAlert("danger", data.error || "Erro ao ativar período.");
@@ -448,26 +459,7 @@
                             atualizarAbasGerenciar(ativa);
 
                             // Atualiza badge da célula correspondente
-                            const selector = `.day-cell[data-time='${horarioId}'][data-day-of-week='${semanaId}'] .state-badge`;
-                            const $badge = $(selector);
-                            if (ativa) {
-                                let tooltipText = '';
-                                if (status.inicio) tooltipText += `<b>Início:</b> ${status.inicio}<br>`;
-                                if (status.fim) tooltipText += `<b>Fim:</b> ${status.fim}<br>`;
-                                if (!tooltipText) tooltipText = '<i>Ativa permanentemente</i>';
-
-                                $badge.text("Ativa")
-                                    .removeClass("badge-inactive")
-                                    .addClass("badge-success")
-                                    .attr("title", tooltipText)
-                                    .tooltip('fixTitle');
-                            } else {
-                                $badge.text("Inativa")
-                                    .removeClass("badge-success")
-                                    .addClass("badge-inactive")
-                                    .attr("title", "Inativa")
-                                    .tooltip('fixTitle');
-                            }
+                            atualizarBadgeCelula(horarioId, semanaId, status);
                         });
 
                 } else {

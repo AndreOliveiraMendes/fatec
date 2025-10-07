@@ -74,3 +74,10 @@
 .margin-top-10 {
     margin-top: 10px;
 }
+
+/* ======= alerts ======= */
+#alertGlobalModal {
+    min-height: 32px;
+    margin-top: 10px;
+    display: none;
+}

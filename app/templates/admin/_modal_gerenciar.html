@@ -27,23 +27,25 @@
                 <!-- Abas -->
                 <ul class="nav nav-tabs" role="tablist" id="abasGerenciar">
                     <li role="presentation" class="aba-ativar active disabled">
-                        <a href="#tabAtivar" role="tab">Ativar Permanente</a>
+                        <a href="#tabAtivar" role="tab">Ativar permanentemente</a>
                     </li>
                     <li role="presentation" class="aba-ativar-temp disabled">
-                        <a href="#tabAtivarTemp" role="tab">Ativar Temporário</a>
+                        <a href="#tabAtivarTemp" role="tab">Ativar temporariamente</a>
                     </li>
                     <li role="presentation" class="aba-desativar disabled">
                         <a href="#tabDesativar" role="tab">Desativar</a>
                     </li>
                     <li role="presentation" class="aba-extender disabled">
-                        <a href="#tabExtender" role="tab">Estender</a>
+                        <a href="#tabExtender" role="tab">Gerenciar Período</a>
                     </li>
                 </ul>
                 <!-- Conteúdo das abas -->
                 <div class="tab-content">
                     <!-- Aba: Ativar Permanentemente -->
                     <div role="tabpanel" class="tab-pane fade" id="tabAtivar">
-                        <form id="formAtivarPerm" class="form-horizontal margin-top-10" autocomplete="off">
+                        <form id="formAtivarPerm"
+                              class="form-horizontal margin-top-10"
+                              autocomplete="off">
                             <div class="form-group">
                                 <label for="dataInicioPerm" class="col-sm-3 control-label">Data de Início</label>
                                 <div class="col-sm-9">
@@ -53,18 +55,20 @@
                                            name="inicio"
                                            required>
                                 </div>
-                                <hr>
-                                <div class="text-right">
-                                    <button type="submit" class="btn btn-success">
-                                        <span class="glyphicon glyphicon-ok"></span> Ativar Período
-                                    </button>
-                                </div>
+                            </div>
+                            <hr>
+                            <div class="text-right">
+                                <button type="submit" class="btn btn-success">
+                                    <span class="glyphicon glyphicon-ok"></span> Ativar Período
+                                </button>
                             </div>
                         </form>
                     </div>
                     <!-- Aba: Ativar Temporariamente -->
                     <div class="tab-pane fade" id="tabAtivarTemp">
-                        <form id="formAtivarTemp" class="form-horizontal margin-top-10" autocomplete="off">
+                        <form id="formAtivarTemp"
+                              class="form-horizontal margin-top-10"
+                              autocomplete="off">
                             <div class="form-group">
                                 <label for="dataInicio" class="col-sm-3 control-label">Data de Início</label>
                                 <div class="col-sm-9">
