@@ -107,17 +107,31 @@ def listar_rotas():
     if not LIST_ROUTES:
         flash("⚠️ A listagem de rotas não está habilitada.", "warning")
         return redirect(url_for("admin.gerenciar_menu"))
+
     userid = session.get('userid')
     user = get_user_info(userid)
-    routes, bps = [], set()
+
+    routes = []
+    blueprint_counts = {}
+
+    # Itera uma única vez sobre as rotas
     for rule in current_app.url_map.iter_rules():
         methods = ",".join(sorted(rule.methods - {"HEAD", "OPTIONS"}))
-        routes.append((rule.rule, methods, rule.endpoint))
-        bps.add(rule.endpoint.split('.')[0])
+        endpoint = rule.endpoint
+        blueprint_name = endpoint.split('.')[0] if '.' in endpoint else '(sem_blueprint)'
 
-    # Sort by Blueprint name and then URL
+        routes.append((rule.rule, methods, endpoint))
+
+        # Conta quantas rotas por blueprint
+        blueprint_counts[blueprint_name] = blueprint_counts.get(blueprint_name, 0) + 1
+
+    # Ordena rotas por blueprint e depois URL
     routes.sort(key=lambda x: (x[2].split('.')[0], x[0]))
-    return render_template("admin/routes.html", user=user,rotas=routes, blueprints=sorted(bps))
+
+    # Ordena blueprints alfabeticamente
+    bps = sorted(blueprint_counts.items(), key=lambda x: x[0])
+
+    return render_template("admin/routes.html", user=user, rotas=routes, blueprints=bps)
 
 @bp.route("/times")
 @admin_required
@@ -223,6 +237,44 @@ def api_listar_periodos():
         ]
     })
 
+@bp.route("/times/api/ativar_perm", methods=["POST"])
+@admin_required
+def api_ativar_perm():
+    userid = session.get('userid')
+    data = request.get_json()
+    horario_id = data.get("horario_id")
+    semana_id = data.get("semana_id")
+    tipo = data.get("tipo")
+    inicio = parse_date_string(data.get("inicio"))
+
+    # Validações...
+    if not (horario_id and semana_id and tipo and inicio):
+        return jsonify({"error": "Dados insuficientes"}), 400
+    try:
+        check_aula_ativa(inicio, None, horario_id, semana_id, TipoAulaEnum(tipo))
+        # Lógica de criação da ativação do horario
+        nova = Aulas_Ativas(
+            id_aula=horario_id,
+            id_semana=semana_id,
+            tipo_aula=TipoAulaEnum(tipo),
+            inicio_ativacao=inicio,
+            fim_ativacao=None
+        )
+        db.session.add(nova)
+
+        db.session.flush()
+        registrar_log_generico_usuario(userid, 'Inserção', nova, observacao="atraves do painel de horarios")
+        db.session.commit()
+    except ValueError as ve:
+        db.session.rollback()
+        return jsonify({"error": str(ve)}), 400
+    except (DataError, IntegrityError, InterfaceError,
+        InternalError, OperationalError, ProgrammingError) as e:
+        db.session.rollback()
+        return jsonify({"error": f"Erro ao processar, verifique os dados: {e.orig}"}), 500
+
+    return jsonify({"success": True})
+
 @bp.route("/times/api/ativar_temp", methods=["POST"])
 @admin_required
 def api_ativar_temp():
@@ -258,6 +310,6 @@ def api_ativar_temp():
     except (DataError, IntegrityError, InterfaceError,
         InternalError, OperationalError, ProgrammingError) as e:
         db.session.rollback()
-        return jsonify({"error": "Erro ao processar, verifique os dados"}), 500
+        return jsonify({"error": f"Erro ao processar, verifique os dados: {e.orig}"}), 500
 
     return jsonify({"success": True})

@@ -41,8 +41,26 @@
                 </ul>
                 <!-- Conteúdo das abas -->
                 <div class="tab-content">
+                    <!-- Aba: Ativar Permanentemente -->
                     <div role="tabpanel" class="tab-pane fade" id="tabAtivar">
-                        <p>Formulário de ativação permanente…</p>
+                        <form id="formAtivarPerm" class="form-horizontal" autocomplete="off">
+                            <div class="form-group">
+                                <label for="dataInicioPerm" class="col-sm-3 control-label">Data de Início</label>
+                                <div class="col-sm-9">
+                                    <input type="date"
+                                           class="form-control"
+                                           id="dataInicioPerm"
+                                           name="inicio"
+                                           required>
+                                </div>
+                                <hr>
+                                <div class="text-right">
+                                    <button type="submit" class="btn btn-success">
+                                        <span class="glyphicon glyphicon-ok"></span> Ativar Período
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                     <!-- Aba: Ativar Temporariamente -->
                     <div class="tab-pane fade" id="tabAtivarTemp">
@@ -70,7 +88,6 @@
                                 </button>
                             </div>
                         </form>
-                        <div id="alertAtivarTemp" class="alert"></div>
                     </div>
                     <div role="tabpanel" class="tab-pane fade" id="tabDesativar">
                         <p>Confirmação para desativar…</p>
@@ -113,8 +130,6 @@
                         <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
                     </div>
                 </div>
-                <!-- Alerta global do modal -->
-                <div id="alertGlobalModal" class="alert text-center"></div>
             </div>
         </div>
     </div>

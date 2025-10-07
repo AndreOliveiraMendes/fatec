@@ -304,6 +304,7 @@
                 });
         });
     </script>
+    <!-- Modal: Formulário de Aticação Temporária -->
     <script>
         //funções de gerenciamento de alertas globais do modal
         function showModalAlert(type, message) {
@@ -351,7 +352,6 @@
                 return r.json();
             })
             .then(data => {
-                const alertBox = $("#alertAtivarTemp");
                 if (data.success) {
                     showModalAlert("success", "Período ativado temporariamente com sucesso!");
 
