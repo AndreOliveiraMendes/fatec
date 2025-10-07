@@ -2,7 +2,6 @@
 {% block title %}
     Controle de Rotas e Blueprints
 {% endblock title %}
-
 {% block content %}
     <div class="panel panel-default">
         <div class="panel-heading">
@@ -23,48 +22,58 @@
                 </li>
             </ul>
         </div>
-
         <div class="panel-body tab-content">
             <!-- Aba de Rotas -->
             <div class="tab-pane fade in active" id="tab-rotas">
-                <h4>
-                    <span class="glyphicon glyphicon-random text-primary"></span>
-                    Rotas registradas ({{ rotas|length }})
-                </h4>
-                <table class="table table-striped table-bordered table-condensed">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h4>
+                            <span class="glyphicon glyphicon-random text-primary"></span>
+                            Rotas registradas
+                            (<span id="contadorVisiveis">{{ rotas|length }}</span> de {{ rotas|length }})
+                        </h4>
+                    </div>
+                    <div class="col-sm-6 text-right">
+                        <input type="text"
+                               id="filtroRotas"
+                               class="form-control input-sm"
+                               placeholder="Filtrar por URL, método, endpoint ou blueprint...">
+                    </div>
+                </div>
+                <br>
+                <table class="table table-striped table-bordered table-condensed"
+                       id="tabelaRotas">
                     <thead>
                         <tr>
-                            <th style="width: 35%;">URL</th>
-                            <th style="width: 20%;">Métodos</th>
-                            <th style="width: 25%;">Endpoint</th>
-                            <th style="width: 20%;">Blueprint</th>
+                            <th class="w35p">URL</th>
+                            <th class="w20p">Métodos</th>
+                            <th class="w25p">Endpoint</th>
+                            <th class="w20p">Blueprint</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for url, methods, endpoint in rotas %}
                             <tr>
-                                <td><code>{{ url }}</code></td>
+                                <td>
+                                    <code>{{ url }}</code>
+                                </td>
                                 <td>
                                     {% for method in methods.split(',') %}
-                                        {% set badge_class =
-                                            'badge-success' if method == 'GET' else
-                                            'badge-warning' if method == 'POST' else
-                                            'badge-info' if method in ['PUT','PATCH'] else
-                                            'badge-danger' if method == 'DELETE' else
-                                            'badge-secondary' %}
+                                        {% set badge_class = 'badge-success' if method == 'GET' else
+                                                                                    'badge-warning' if method == 'POST' else
+                                                                                    'badge-info' if method in ['PUT','PATCH'] else
+                                                                                    'badge-danger' if method == 'DELETE' else
+                                                                                'badge-secondary' %}
                                         <span class="badge {{ badge_class }}">{{ method }}</span>
                                     {% endfor %}
                                 </td>
                                 <td>{{ endpoint }}</td>
-                                <td>
-                                    {{ endpoint.split(".")[0] if "." in endpoint else "(sem_blueprint)" }}
-                                </td>
+                                <td>{{ endpoint.split(".")[0] if "." in endpoint else "(sem_blueprint)" }}</td>
                             </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
-
             <!-- Aba de Blueprints -->
             <div class="tab-pane fade" id="tab-blueprints">
                 <h4>
@@ -84,3 +93,40 @@
         </div>
     </div>
 {% endblock content %}
+{% block extra_script %}
+    <script>
+        (function () {
+            const filtro = document.getElementById('filtroRotas');
+            const linhas = document.querySelectorAll('#tabelaRotas tbody tr');
+            const contador = document.getElementById('contadorVisiveis');
+            const total = linhas.length;
+
+            filtro.addEventListener('input', function () {
+                const termo = this.value.toLowerCase();
+                let visiveis = 0;
+
+                linhas.forEach(tr => {
+                    const texto = tr.innerText.toLowerCase();
+                    const match = texto.includes(termo);
+                    tr.style.display = match ? '' : 'none';
+                    if (match) visiveis++;
+                });
+
+                contador.textContent = visiveis;
+            });
+        })();
+    </script>
+{% endblock extra_script %}
+{% block extra_css %}
+    <style>
+        .w20p{
+            width: 20%;
+        }
+        .w25p{
+            width: 25%;
+        }
+        .w35p{
+            width: 35%;
+        }
+    </style>
+{% endblock extra_css %}
