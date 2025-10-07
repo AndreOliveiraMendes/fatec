@@ -191,7 +191,7 @@ def api_get_aulas_ativas():
         )
         return jsonify({
             "ativa": True if aulas_ativas else False,
-            "id": aulas_ativas.id_aula_ativa if aulas_ativas else None,
+            "id_aula": aulas_ativas.id_aula_ativa if aulas_ativas else None,
             "inicio": aulas_ativas.inicio_ativacao.strftime("%d/%m/%Y") if aulas_ativas and aulas_ativas.inicio_ativacao else None,
             "fim": aulas_ativas.fim_ativacao.strftime("%d/%m/%Y") if aulas_ativas and aulas_ativas.fim_ativacao else None
         })

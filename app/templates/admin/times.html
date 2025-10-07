@@ -274,6 +274,7 @@
 
                     atualizarAbasGerenciar(ativa);
                     $("#modalGerenciar").modal("show");
+                    $("#modalGerenciar").data("id_aula", response.id_aula || null);
                 })
                 .fail(function () {
                     alert("Erro ao carregar status da reserva.");
@@ -307,6 +308,7 @@
                         .removeClass("label-default label-success")
                         .addClass(ativa ? "label-success" : "label-default");
                     atualizarAbasGerenciar(ativa);
+                    $("#modalGerenciar").data("id_aula", response.id_aula || null);
                 });
         });
     </script>
@@ -472,16 +474,35 @@
 
         });
 
-        //limpar mensagems anteriores
-        $('#modalGerenciar').on('show.bs.modal', function () {
-            // Esconde/limpa todos os alerts internos
-            clearModalAlert();
-            
-            // Se quiser também limpar formulários internos:
-            $(this).find('form').each(function () {
+        $('#modalGerenciar').on('hidden.bs.modal', function () {
+            const $modal = $(this);
+
+            // Remove as chaves que você setou manualmente
+            $modal.removeData('horario-id')
+                .removeData('semana-id')
+                .removeData('id_aula');
+
+            // Também pode resetar formulários, se fizer sentido
+            $modal.find('form').each(function () {
                 this.reset();
             });
+
+            // Esconde o formulário de contexto, se estiver visível
+            $("#formSelecionarContexto").hide();
+
+            // Reseta o contexto exibido
+            $("#ctxAula").text("???");
+            $("#ctxSemana").text("???");
+            $("#ctxTipo").text("???");
+            $("#ctxStatus")
+                .text("-")
+                .removeClass("label-success label-default")
+                .addClass("label-default")
+
+            // E limpar mensagens/alertas, se houver
+            clearModalAlert();
         });
+
     </script>
 {% endblock extra_script %}
 {% block extra_css %}
