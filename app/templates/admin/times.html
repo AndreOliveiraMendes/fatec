@@ -245,6 +245,7 @@
                               .removeAttr("data-toggle")
                               .css("pointer-events","none");
                 $(".aba-ativar a").tab("show");
+                $("#tabAtivar").addClass("in active");
             }
         }
 
@@ -317,6 +318,84 @@
         function clearModalAlert() {
             $("#alertGlobalModal").slideUp().removeClass("alert-success alert-danger alert-warning").text('');
         }
+        // Form: Ativar Permanentemente
+        $("#formAtivarPerm").on("submit", function (e) {
+            e.preventDefault();
+
+            const inicio = $("#dataInicioPerm").val();
+
+            if (!inicio) return;
+
+            // Pega contexto atual do modal
+            const horarioTexto = $("#ctxAula").text();
+            const semanaNome = $("#ctxSemana").text();
+            const tipo = $("#ctxTipo").text();
+
+            // Mas pra enviar, precisamos dos IDs, então guardamos no modal (vindo do click)
+            const horarioId = $("#modalGerenciar").data("horario-id");
+            const semanaId = $("#modalGerenciar").data("semana-id");
+
+            const payload = {
+                horario_id: horarioId,
+                semana_id: semanaId,
+                tipo: tipo,
+                inicio: inicio
+            };
+
+            fetch(`{{ url_for('admin.api_ativar_perm') }}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            })
+            .then(r => {
+                return r.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    showModalAlert("success", "Período ativado permanentemente com sucesso!");
+                
+                // Recarrega o status REAL a partir da API
+                $.getJSON(`{{ url_for('admin.api_get_aulas_ativas') }}?day={{ hoje }}&aula=${horarioId}&semana=${semanaId}&tipoaula=${tipo}`)
+                    .done(function (status) {
+                        const ativa = status.ativa; 
+
+                        // Atualiza cabeçalho do modal
+                        $("#ctxStatus")
+                            .text(ativa ? "Ativa" : "Inativa")
+                            .removeClass("label-default label-success")
+                            .addClass(ativa ? "label-success" : "label-default");
+                        
+                        atualizarAbasGerenciar(ativa);
+
+                        // Atualiza badge da célula correspondente
+                        const selector = `.day-cell[data-time='${horarioId}'][data-day-of-week='${semanaId}'] .state-badge`;
+                        const $badge = $(selector);
+                        if (ativa) {
+                            let tooltipText = '';
+                            if (status.inicio) tooltipText += `<b>Início:</b> ${status.inicio}<br>`;
+                            if (status.fim) tooltipText += `<b>Fim:</b> ${status.fim}<br>`;
+                            if (!tooltipText) tooltipText = '<i>Ativa permanentemente</i>';
+                            $badge.text("Ativa")
+                                .removeClass("badge-inactive")
+                                .addClass("badge-success")
+                                .attr("title", tooltipText)
+                                .tooltip('fixTitle');
+                        } else {
+                            $badge.text("Inativa")
+                                .removeClass("badge-success")
+                                .addClass("badge-inactive")
+                                .attr("title", "Inativa")
+                                .tooltip('fixTitle');
+                        }
+                    });
+                } else {
+                    showModalAlert("danger", data.error || "Erro ao ativar período.");
+                }
+            })
+            .catch((error) => {
+                showModalAlert("danger", "Erro de conexão." || error.message);
+            });
+        });
         // Form: Ativar Temporariamente
         $("#formAtivarTemp").on("submit", function (e) {
             e.preventDefault();
