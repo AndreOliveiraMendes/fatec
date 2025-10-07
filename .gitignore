@@ -3,7 +3,7 @@ config.ini
 .env*
 !.env*.example
 .venv
-.vscode
+.vscode/settings.json
 laboratorio
 logs
 config/*.json
