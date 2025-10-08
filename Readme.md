@@ -20,6 +20,7 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 ├── .env.example
 ├── .gitignore
 ├── .vscode
+│   ├── extensions.json
 │   └── settings.json
 ├── Dockerfile
 ├── LICENSE
@@ -114,6 +115,7 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │   │   │   ├── favicon.png
 │   │   │   └── favicon.svg
 │   │   └── js
+│   │       ├── admin_horarios.js
 │   │       ├── bootstrap.min.js
 │   │       └── jquery.min.js
 │   └── templates
