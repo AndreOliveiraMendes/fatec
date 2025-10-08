@@ -10,7 +10,8 @@
     "ms-python.vscode-pylance",
     "ms-python.vscode-python-envs",
     "pdconsec.vscode-print",
-    "samuelcolvin.jinjahtml"
+    "samuelcolvin.jinjahtml",
+    "dbaeumer.vscode-eslint"
   ],
   "unwantedRecommendations": []
 }
