@@ -122,6 +122,29 @@
                 }
             }
 
+            //📜 Histórico contextual
+            function abrirHistoricoContextual(horarioId, semanaId, tipo) {
+                // Exemplo: aplicar automaticamente filtros do modal de períodos
+                const $form = $("#filtroPeriodosForm");
+
+                // Supondo que existam selects ou inputs com esses nomes:
+                $form.find("[name='horario']").val(horarioId);
+                $form.find("[name='semana']").val(semanaId);
+                $form.find("[name='tipo']").val(tipo);
+
+                // Recarrega a listagem já filtrada
+                carregarPeriodos(1);
+
+                // Abre o modal de histórico
+                $("#modalPeriodos")
+                    .data({
+                        horarioId,
+                        semanaId,
+                        tipo
+                    })
+                    .modal("show");
+            }
+
             /* =======================
             📅 Painel de horários
             ======================= */
@@ -282,13 +305,20 @@
                 }
             }
 
-            $(document).on("click", ".day-cell", function () {
+            $(document).on("click", ".day-cell", function (e) {
                 const horarioId = $(this).data("time");
                 const horarioTexto = $(this).data("time-text");
                 const semanaId = $(this).data("day-of-week");
                 const semanaNome = $(this).data("day-name");
                 const tipoSelecionado = $("#tipoHorarioSelect").val();
 
+                if (e.shiftKey) {
+                    // 🟡 Shift + Clique → abre histórico filtrado
+                    abrirHistoricoContextual(horarioId, semanaId, tipoSelecionado);
+                    return;
+                }
+
+                // 🟢 Clique normal → abre modal de gerenciamento
                 $("#modalGerenciar")
                     .data("origem", "badge")
                     .data("horario-id", horarioId)
