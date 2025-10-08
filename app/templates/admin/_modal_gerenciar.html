@@ -94,10 +94,45 @@
                         </form>
                     </div>
                     <div role="tabpanel" class="tab-pane fade" id="tabDesativar">
-                        <p>Confirmação para desativar…</p>
+                        <form id="formAtivarTemp"
+                              class="form-horizontal margin-top-10"
+                              autocomplete="off">
+                            <div class="text-right">
+                                <button type="submit" class="btn btn-danger">
+                                    <span class="glyphicon glyphicon-ok"></span> Desativar Período
+                                </button>
+                            </div>
+                        </form>
                     </div>
                     <div role="tabpanel" class="tab-pane fade" id="tabExtender">
-                        <p>Formulário para estender período…</p>
+                        <form id="formExtender"
+                              class="form-horizontal margin-top-10"
+                              autocomplete="off">
+                            <!-- inicio ativacao (se especificado, caso contrario assume se indefinido) -->
+                            <div class="form-group">
+                                <label for="dataInicioExt" class="col-sm-3 control-label">Data de Início</label>
+                                <div class="col-sm-9">
+                                    <input type="date" class="form-control" id="dataInicioExt" name="inicio">
+                                </div>
+                            </div>
+                            <!-- fim ativacao (se especificado, caso contrario assume se indefinido) -->
+                            <div class="form-group">
+                                <label for="dataFimExt" class="col-sm-3 control-label">Data de Fim</label>
+                                <div class="col-sm-9">
+                                    <input type="date" class="form-control" id="dataFimExt" name="fim">
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="text-right">
+                                <button type="submit" class="btn btn-warning">
+                                    <span class="glyphicon glyphicon-ok"></span> Atualizar Período
+                                </button>
+                            </div>
+                            <hr>
+                            <div class="alert alert-info">
+                                <strong>Atenção</strong> - deixar os campos em branco fara com que o período seja indefinido (sem data de início ou fim), prossiga com cautela.
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>

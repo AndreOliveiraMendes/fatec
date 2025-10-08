@@ -58,6 +58,38 @@ $(function () {
         }
     }
 
+    function getBadgeTooltip(horarioId, semanaId) {
+        const selector = `.day-cell[data-time='${horarioId}'][data-day-of-week='${semanaId}'] .state-badge`;
+        const $badge = $(selector);
+        return $badge.attr("title") || $badge.attr("data-original-title") || "";
+    }
+
+    function getBadgeDates(horarioId, semanaId) {
+        const html = getBadgeTooltip(horarioId, semanaId);
+        if (!html) return { inicio: null, fim: null };
+
+        let inicio = null;
+        let fim = null;
+
+        // Regex que pega datas no formato DD/MM/YYYY
+        const inicioMatch = html.match(/Início:<\/b>\s*([\d\-/: ]+)/);
+        const fimMatch = html.match(/Fim:<\/b>\s*([\d\-/: ]+)/);
+
+        inicio = inicioMatch ? convertToISODate(inicioMatch[1].trim()) : null;
+        fim = fimMatch ? convertToISODate(fimMatch[1].trim()) : null;
+
+        return {
+            inicio: inicio,
+            fim: fim
+        };
+    }
+
+    function convertToISODate(brDateStr) {
+        // Ex: "06/10/2025" → "2025-10-06"
+        const [dia, mes, ano] = brDateStr.split('/');
+        return `${ano}-${mes}-${dia}`;
+    }
+
     /* =======================
     📜 Histórico contextual
     ======================= */
@@ -214,17 +246,21 @@ $(function () {
     ======================= */
     function atualizarAbasGerenciar(ativa) {
         const $abasAtivar = $(".aba-ativar, .aba-ativar-temp");
-        const $abasDesativar = $(".aba-desativar, .aba-extender");
+        const $abasDesativar = $(".aba-desativar");
+        const $tabDefault = $("#tabAtivar");
 
         if (ativa) {
             $abasAtivar.addClass("disabled").find("a").removeAttr("data-toggle").css("pointer-events", "none");
             $abasDesativar.removeClass("disabled").find("a").attr("data-toggle", "tab").css("pointer-events", "auto");
+            const isPerm = getBadgeTooltip($("#modalGerenciar").data("horario-id"), $("#modalGerenciar").data("semana-id")).includes("Ativa permanentemente");
+            if (!isPerm)
+                $(".aba-extender").removeClass("disabled").find("a").attr("data-toggle", "tab").css("pointer-events", "auto");
             $(".aba-desativar a").tab("show");
         } else {
             $abasAtivar.removeClass("disabled").find("a").attr("data-toggle", "tab").css("pointer-events", "auto");
             $abasDesativar.addClass("disabled").find("a").removeAttr("data-toggle").css("pointer-events", "none");
             $(".aba-ativar a").tab("show");
-            $("#tabAtivar").addClass("in active");
+            $tabDefault.addClass("in active");
         }
     }
 
@@ -255,6 +291,12 @@ $(function () {
                     .text(ativa ? "Ativa" : "Inativa")
                     .removeClass("label-default label-success")
                     .addClass(ativa ? "label-success" : "label-default");
+
+                const { inicio, fim } = getBadgeDates(horarioId, semanaId);
+                if (inicio)
+                    $("#formExtender input[name='inicio']").val(inicio);
+                if (fim)
+                    $("#formExtender input[name='fim']").val(fim);
 
                 atualizarAbasGerenciar(ativa);
                 $("#modalGerenciar").modal("show");
@@ -287,6 +329,11 @@ $(function () {
                     .text(ativa ? "Ativa" : "Inativa")
                     .removeClass("label-default label-success")
                     .addClass(ativa ? "label-success" : "label-default");
+                const { inicio, fim } = getBadgeDates(horarioId, semanaId);
+                if (inicio )
+                    $("#formExtender input[name='inicio']").val(inicio);
+                if (fim)
+                    $("#formExtender input[name='fim']").val(fim);
                 atualizarAbasGerenciar(ativa);
                 $("#modalGerenciar").data("id_aula", response.id_aula || null);
             });
