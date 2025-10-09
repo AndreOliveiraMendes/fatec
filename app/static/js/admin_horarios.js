@@ -450,6 +450,11 @@ $(function () {
         $("#ctxAula, #ctxSemana, #ctxTipo").text("???");
         $("#ctxStatus").text("-").removeClass("label-success").addClass("label-default");
         clearModalAlert();
+        // Reset abas
+        $(".nav-tabs li").removeClass("active");
+        $(".tab-pane").removeClass("in active");
+        // Desabilitar abas
+        $(".nav-tabs li").addClass("disabled").find("a").removeAttr("data-toggle").css("pointer-events", "none");
     });
 
 });
