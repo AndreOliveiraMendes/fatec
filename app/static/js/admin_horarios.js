@@ -468,6 +468,45 @@ $(function () {
             .catch((erro) => showModalAlert("danger", "Erro de conexão." + erro));
     });
 
+    $("#formExtender").on("submit", function (e) {
+        e.preventDefault();
+        const idAula = $("#modalGerenciar").data("id_aula");
+        if (!idAula) return;
+
+        const inicio = $("#dataInicioExt").val();
+        const fim = $("#dataFimExt").val();
+
+        const payload = {id_aula_ativa: idAula, novo_inicio: inicio, novo_fim: fim};
+
+        fetch(window.appConfig.api.extender, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showModalAlert("success", "Período estendido com sucesso!");
+                    const horarioId = $("#modalGerenciar").data("horario-id");
+                    const semanaId = $("#modalGerenciar").data("semana-id");
+                    const tipo = $("#ctxTipo").text();
+                    $.getJSON(`${window.appConfig.api.getAulasAtivas}?day=${window.appConfig.hoje}&aula=${horarioId}&semana=${semanaId}&tipoaula=${tipo}`)
+                        .done(status => {
+                            $("#ctxStatus")
+                                .text(status.ativa ? "Ativa" : "Inativa")
+                                .removeClass("label-default label-success")
+                                .addClass(status.ativa ? "label-success" : "label-default");
+                            atualizarAbasGerenciar(status.ativa);
+                            atualizarBadgeCelula(horarioId, semanaId, status);
+                        });
+                } else {
+                    showModalAlert("danger", data.error || "Erro ao estender período.");
+                }
+            })
+            .catch((erro) => showModalAlert("danger", "Erro de conexão." + erro));
+    });
+
+
     $('#modalGerenciar').on('shown.bs.modal', function () {
         const origem = $(this).data("origem");
         if (origem === "botao") {

@@ -322,7 +322,7 @@ def api_desativar():
     userid = session.get('userid')
     data = request.get_json()
     id_aula_ativa = data.get("id_aula_ativa")
-    if not id_aula_ativa:
+    if id_aula_ativa is None:
         return jsonify({"error": "ID da ativação não fornecido."}), 400
     aula_ativa = db.get_or_404(Aulas_Ativas, id_aula_ativa)
 
@@ -343,6 +343,34 @@ def api_desativar():
 
         db.session.flush()
         registrar_log_generico_usuario(userid, acao, aula_ativa, dados_anteriores, observacao="atraves do painel de horarios", skip_unchanged=True)
+
+        db.session.commit()
+    except (DataError, IntegrityError, InterfaceError,
+        InternalError, OperationalError, ProgrammingError) as e:
+        db.session.rollback()
+        return jsonify({"error": f"Erro ao processar, verifique os dados: {e.orig}"}), 500
+    return jsonify({"success": True})
+
+@bp.route("/times/api/extender", methods = ["POST"])
+@admin_required
+def api_extender():
+    userid = session.get('userid')
+    data = request.get_json()
+    id_aula_ativa = data.get("id_aula_ativa")
+    novo_inicio = parse_date_string(data.get("novo_inicio"))
+    novo_fim = parse_date_string(data.get("novo_fim"))
+    if id_aula_ativa is None:
+        return jsonify({"error": "ID da ativação não fornecido."}), 400
+    aula_ativa = db.get_or_404(Aulas_Ativas, id_aula_ativa)
+    try:
+        check_aula_ativa(novo_inicio, novo_fim, aula_ativa.id_aula, aula_ativa.id_semana, aula_ativa.tipo_aula, aula_ativa.id_aula_ativa)
+        dados_anteriores = copy(aula_ativa)
+        aula_ativa.inicio_ativacao = novo_inicio
+        aula_ativa.fim_ativacao = novo_fim
+        db.session.add(aula_ativa)
+
+        db.session.flush()
+        registrar_log_generico_usuario(userid, 'Edição', aula_ativa, dados_anteriores, observacao="atraves do painel de horarios", skip_unchanged=True)
 
         db.session.commit()
     except (DataError, IntegrityError, InterfaceError,
