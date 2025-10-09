@@ -72,7 +72,7 @@
                 getAulasAtivas: "{{ url_for('admin.api_get_aulas_ativas') }}",
                 ativarTemp: "{{ url_for('admin.api_ativar_temp') }}",
                 ativarPerm: "{{ url_for('admin.api_ativar_perm') }}",
-                desativar: null,  // TODO: criar endpoint
+                desativar: "{{ url_for('admin.api_desativar') }}",
                 extender: null,   // TODO: criar endpoint
                 listarPeriodos: "{{ url_for('admin.api_listar_periodos') }}"
             }

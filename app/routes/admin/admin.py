@@ -1,7 +1,8 @@
 import importlib.resources as resources
 import json
 import os
-from datetime import datetime
+from copy import copy
+from datetime import datetime, timedelta
 from importlib.resources import as_file
 from pathlib import Path
 
@@ -9,11 +10,14 @@ from flask import (Blueprint, current_app, flash, jsonify, redirect,
                    render_template, request, session, url_for)
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import between, or_, select
+from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
+                            InternalError, OperationalError, ProgrammingError)
 
 from app.auxiliar.auxiliar_cryptograph import ensure_secret_file, load_key
 from app.auxiliar.auxiliar_routes import (get_unique_or_500, get_user_info,
-                                          parse_date_string, registrar_log_generico_usuario)
-from app.auxiliar.dao import get_aula_intervalo, get_locais, check_aula_ativa
+                                          parse_date_string,
+                                          registrar_log_generico_usuario)
+from app.auxiliar.dao import check_aula_ativa, get_aula_intervalo, get_locais
 from app.auxiliar.decorators import admin_required
 from app.models import (Aulas, Aulas_Ativas, Dias_da_Semana, TipoAulaEnum,
                         Turnos, db)
@@ -21,8 +25,6 @@ from config.database_views import SECOES
 from config.general import LIST_ROUTES, LOCAL_TIMEZONE
 from config.json_related import carregar_config_geral, carregar_painel_config
 from config.mapeamentos import SECRET_PATH
-from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
-                            InternalError, OperationalError, ProgrammingError)
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -312,4 +314,39 @@ def api_ativar_temp():
         db.session.rollback()
         return jsonify({"error": f"Erro ao processar, verifique os dados: {e.orig}"}), 500
 
+    return jsonify({"success": True})
+
+@bp.route("/times/api/desativar", methods=["POST"])
+@admin_required
+def api_desativar():
+    userid = session.get('userid')
+    data = request.get_json()
+    id_aula_ativa = data.get("id_aula_ativa")
+    if not id_aula_ativa:
+        return jsonify({"error": "ID da ativação não fornecido."}), 400
+    aula_ativa = db.get_or_404(Aulas_Ativas, id_aula_ativa)
+
+    today = datetime.now(LOCAL_TIMEZONE).date()
+    if aula_ativa.fim_ativacao and aula_ativa.fim_ativacao < today:
+        return jsonify({"error": "horario ja desativado"}), 400
+    
+    acao = "Edição" if aula_ativa.inicio_ativacao < today else "Exclusão"
+    dados_anteriores = None
+    try:
+        if acao == "Edição":
+            dados_anteriores = copy(aula_ativa)
+            aula_ativa.fim_ativacao = today - timedelta(days=1)
+            db.session.add(aula_ativa)
+
+        else:
+            db.session.delete(aula_ativa)
+
+        db.session.flush()
+        registrar_log_generico_usuario(userid, acao, aula_ativa, dados_anteriores, observacao="atraves do painel de horarios", skip_unchanged=True)
+
+        db.session.commit()
+    except (DataError, IntegrityError, InterfaceError,
+        InternalError, OperationalError, ProgrammingError) as e:
+        db.session.rollback()
+        return jsonify({"error": f"Erro ao processar, verifique os dados: {e.orig}"}), 500
     return jsonify({"success": True})
