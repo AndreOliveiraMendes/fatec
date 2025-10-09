@@ -3,6 +3,32 @@
     Controle de Horários
 {% endblock title %}
 {% block content %}
+    <!-- Espaço para informação relevates -->
+    <div class="alert alert-info alert-dismissible fade in text-center alert-shortcuts"
+         role="alert"
+         id="infoGerenciar">
+        <button type="button"
+                class="close"
+                data-toggle="collapse"
+                data-target="#infoGerenciarConteudo"
+                aria-expanded="true"
+                aria-controls="infoGerenciarConteudo">
+            <span aria-hidden="true">−</span>
+        </button>
+        <strong>ℹ️ Dica:</strong> Selecione um horário na tabela para gerenciar o período de ativação.
+        <div id="infoGerenciarConteudo" class="collapse in mt-2">
+            <hr>
+            <ul class="list-unstyled shortcut-list">
+                <li>
+                    <kbd>🖱️ Clique</kbd>: Abrir o modal de <strong>gerenciamento</strong> da reserva
+                </li>
+                <li>
+                    <kbd>Shift</kbd> + <kbd>🖱️ Clique</kbd>: Abrir o <strong>histórico</strong> contextualizado da reserva
+                </li>
+            </ul>
+        </div>
+    </div>
+    <!-- Tabela de horários -->
     <div class="panel panel-info">
         <div class="panel-heading clearfix">
             <h3 class="panel-title pull-left">Horários (referentes ao dia {{ hoje|data }})</h3>
@@ -79,6 +105,13 @@
         };
     </script>
     <script src="{{ url_for('static', filename='js/admin_horarios.js') }}"></script>
+    <script>
+        // Troca o ícone de +/− dinamicamente
+        document.querySelector('#infoGerenciar button.close').addEventListener('click', function () {
+            const span = this.querySelector('span');
+            span.textContent = (span.textContent === '−') ? '+' : '−';
+        });
+    </script>
 {% endblock extra_script %}
 {% block extra_css %}
     <link rel="stylesheet"

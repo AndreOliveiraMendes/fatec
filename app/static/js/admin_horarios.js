@@ -506,6 +506,9 @@ $(function () {
             .catch((erro) => showModalAlert("danger", "Erro de conexão." + erro));
     });
 
+    /* =========================
+    🎬 Eventos do modal
+    ======================= */
 
     $('#modalGerenciar').on('shown.bs.modal', function () {
         const origem = $(this).data("origem");

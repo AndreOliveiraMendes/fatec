@@ -81,3 +81,15 @@
     margin-top: 10px;
     display: none;
 }
+
+/* 📌 Estilo para a seção de atalhos dentro do alerta */
+.alert-shortcuts hr {
+    margin: 8px 0;
+}
+
+.alert-shortcuts .shortcut-list {
+    text-align: left;
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+}
