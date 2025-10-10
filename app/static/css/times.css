@@ -98,3 +98,38 @@
     margin: 0;
     padding: 0;
 }
+
+/* ======= Informações adicionais ======= */
+
+.info-gerenciar {
+    text-align: center;
+    margin-top: 8px;
+    padding: 10px;
+}
+
+.info-gerenciar .periodos-wrapper {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.info-gerenciar .periodo {
+    flex: 1 1 30%;
+    min-width: 150px;
+    background: rgba(255, 255, 255, 0.5);
+    padding: 6px;
+    border-radius: 4px;
+    text-align: center;
+    border: 1px solid #bce8f1;
+}
+
+.info-gerenciar .periodo strong {
+    display: block;
+    margin-bottom: 3px;
+}
+
+.info-gerenciar .periodo-detalhe {
+    font-size: 0.9em;
+    color: #31708f;
+}

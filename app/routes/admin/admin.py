@@ -239,6 +239,39 @@ def api_listar_periodos():
         ]
     })
 
+@bp.route("/times/api/periodos_relacionados")
+@admin_required
+def api_get_periodos_relacionados():
+    horario_id = request.args.get('horario', type=int)
+    semana_id = request.args.get('semana', type=int)
+    tipo = request.args.get('tipo')
+    id_aula_ativa = request.args.get('id_aula_ativa', type=int)
+    dia = parse_date_string(request.args.get('dia'))
+
+    if horario_id is None or semana_id is None or tipo is None or dia is None:
+        return jsonify({"error": "Parâmetros insuficientes."}), 400
+
+    try:
+        tipo_enum = TipoAulaEnum(tipo)
+    except ValueError:
+        return jsonify({"error": "Tipo de aula inválido."}), 400
+
+    filtro_base = [
+        Aulas_Ativas.id_aula == horario_id,
+        Aulas_Ativas.id_semana == semana_id,
+        Aulas_Ativas.tipo_aula == tipo_enum
+    ]
+
+    aula_ativa = None
+    if id_aula_ativa is not None:
+        filtro_base.append(Aulas_Ativas.id_aula_ativa != id_aula_ativa)
+        aula_ativa = db.session.get(Aulas_Ativas, id_aula_ativa)
+        if not aula_ativa:
+            return jsonify({"error": "Ativação não encontrada."}), 404
+
+    filtro_anterior = filtro_base + [Aulas_Ativas.fim_ativacao < dia]
+    filtro_posterior = filtro_base + [Aulas_Ativas.inicio_ativacao > dia]
+
 @bp.route("/times/api/ativar_perm", methods=["POST"])
 @admin_required
 def api_ativar_perm():

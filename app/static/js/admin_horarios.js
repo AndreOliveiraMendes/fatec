@@ -264,6 +264,32 @@ $(function () {
         }
     }
 
+    function carregarPeriodosRelacionados(horarioId, semanaId, tipo, id_aula_ativa, dia) {
+        fetch(`${window.appConfig.api.getPeriodosRelacionados}?horario=${horarioId}&semana=${semanaId}&tipo=${tipo}&id_aula_ativa=${id_aula_ativa}&dia=${dia}`)
+            .then(r => r.json())
+            .then(data => {
+                const $info = $("#infoGerenciar");
+                const setCampo = (seletor, periodo) => {
+                    const $el = $info.find(seletor + " .periodo-detalhe");
+                    if (!periodo) {
+                        $el.text("—");
+                        return;
+                    }
+                    const fimTxt = periodo.fim ? `até ${periodo.fim}` : "(sem fim)";
+                    $el.html(`${periodo.inicio} <br><small>${fimTxt}</small>`);
+                };
+
+                setCampo(".anterior", data.anterior);
+                setCampo(".atual", data.atual);
+                setCampo(".proximo", data.proximo);
+
+                $info.removeClass("hide");
+            })
+            .catch(() => {
+                $("#infoGerenciar").addClass("hide");
+            });
+    }
+
     $(document).on("click", ".day-cell", function (e) {
         const horarioId = $(this).data("time");
         const horarioTexto = $(this).data("time-text");
