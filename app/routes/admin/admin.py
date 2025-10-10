@@ -326,18 +326,32 @@ def api_desativar():
         return jsonify({"error": "ID da ativação não fornecido."}), 400
     aula_ativa = db.get_or_404(Aulas_Ativas, id_aula_ativa)
 
+    data_desativacao = parse_date_string(data.get("data_desativacao"))
+    msg = "Período desativado imediatamente!"
+
+    #seta a data de desativação para hoje se não for fornecida
     today = datetime.now(LOCAL_TIMEZONE).date()
+    if not data_desativacao:
+        data_desativacao = today
+    elif data_desativacao:
+        if data_desativacao < aula_ativa.inicio_ativacao:
+            return jsonify({"error": "Data de desativação não pode ser anterior ao início da ativação."}), 400
+        msg = f"Período desativado a partir de {data_desativacao.strftime('%d/%m/%Y')}!"
+
     if aula_ativa.fim_ativacao and aula_ativa.fim_ativacao < today:
-        return jsonify({"error": "horario ja desativado"}), 400
+        return jsonify({"error": "Horario já está desativado."}), 400
     
-    acao = "Edição" if aula_ativa.inicio_ativacao < today else "Exclusão"
+    fim_ativacao = data_desativacao - timedelta(days=1)
+
+    acao = "Edição" if aula_ativa.inicio_ativacao and aula_ativa.inicio_ativacao <= fim_ativacao else "Exclusão"
+    if acao == "Exclusão":
+        msg = "Período excluído devido a desativação imediata!"
     dados_anteriores = None
     try:
         if acao == "Edição":
             dados_anteriores = copy(aula_ativa)
-            aula_ativa.fim_ativacao = today - timedelta(days=1)
+            aula_ativa.fim_ativacao = fim_ativacao
             db.session.add(aula_ativa)
-
         else:
             db.session.delete(aula_ativa)
 
@@ -349,7 +363,7 @@ def api_desativar():
         InternalError, OperationalError, ProgrammingError) as e:
         db.session.rollback()
         return jsonify({"error": f"Erro ao processar, verifique os dados: {e.orig}"}), 500
-    return jsonify({"success": True})
+    return jsonify({"success": True, "msg": msg})
 
 @bp.route("/times/api/extender", methods = ["POST"])
 @admin_required

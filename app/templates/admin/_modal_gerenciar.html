@@ -25,9 +25,7 @@
                     <strong>Status:</strong> <span id="ctxStatus" class="label label-default">-</span>
                 </div>
                 <!-- informativo (caso necessário) -->
-                <div id="infoGerenciar" class="alert alert-info text-center hide">
-
-                </div>
+                <div id="infoGerenciar" class="alert alert-info text-center hide"></div>
                 <!-- Abas -->
                 <ul class="nav nav-tabs" role="tablist" id="abasGerenciar">
                     <li role="presentation" class="aba-ativar active disabled">
@@ -97,10 +95,25 @@
                             </div>
                         </form>
                     </div>
+                    <!-- Aba: Desativar -->
                     <div role="tabpanel" class="tab-pane fade" id="tabDesativar">
                         <form id="formDesativar"
                               class="form-horizontal margin-top-10"
                               autocomplete="off">
+                            <div class="alert alert-warning">
+                                <strong>Atenção:</strong>
+                                Se o <strong>período de desativação</strong> não for especificado, a desativação ocorrerá <u>imediatamente</u>.
+                                <br>
+                                Além disso, se o <strong>período total de ativação</strong> for inferior a <strong>1 dia</strong>, ele será
+                                <u>automaticamente removido do sistema</u>.
+                            </div>
+                            <div class="form-group">
+                                <label for="dataDesativar" class="col-sm-3 control-label">Data de Desativação</label>
+                                <div class="col-sm-9">
+                                    <input type="date" class="form-control" id="dataDesativar" name="desativar">
+                                </div>
+                            </div>
+                            <hr>
                             <div class="text-right">
                                 <button type="submit" class="btn btn-danger">
                                     <span class="glyphicon glyphicon-ok"></span> Desativar Período

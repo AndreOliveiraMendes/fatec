@@ -438,7 +438,14 @@ $(function () {
         const idAula = $("#modalGerenciar").data("id_aula");
         if (!idAula) return;
 
-        const payload = { id_aula_ativa: idAula };
+        const dataDesativar = $("#dataDesativar").val();
+        if (!dataDesativar) {
+            // se não for especificada uma data, desativa imediatamente
+            const confirmacao = confirm("Tem certeza que deseja desativar este período imediatamente?");
+            if (!confirmacao) return;
+        }
+
+        const payload = { id_aula_ativa: idAula, data_desativacao: dataDesativar || null };
 
         fetch(window.appConfig.api.desativar, {
             method: "POST",
@@ -448,10 +455,11 @@ $(function () {
             .then(r => r.json())
             .then(data => {
                 if (data.success) {
-                    showModalAlert("success", "Período desativado com sucesso!");
+                    showModalAlert("success", data.msg || "Período desativado com sucesso!");
                     const horarioId = $("#modalGerenciar").data("horario-id");
                     const semanaId = $("#modalGerenciar").data("semana-id");
                     const tipo = $("#ctxTipo").text();
+                    let dataDesativar = null;
                     $.getJSON(`${window.appConfig.api.getAulasAtivas}?day=${window.appConfig.hoje}&aula=${horarioId}&semana=${semanaId}&tipoaula=${tipo}`)
                         .done(status => {
                             $("#ctxStatus")

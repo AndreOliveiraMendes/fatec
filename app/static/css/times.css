@@ -71,6 +71,10 @@
     margin-top: 5px;
 }
 
+.margin-top-8 {
+    margin-top: 8px;
+}
+
 .margin-top-10 {
     margin-top: 10px;
 }
@@ -83,11 +87,12 @@
 }
 
 /* 📌 Estilo para a seção de atalhos dentro do alerta */
-.alert-shortcuts hr {
+.alert-shortcuts {
+    display: none;
     margin: 8px 0;
 }
 
-.alert-shortcuts .shortcut-list {
+.alert-list {
     text-align: left;
     display: inline-block;
     margin: 0;

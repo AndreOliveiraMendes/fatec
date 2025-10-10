@@ -4,26 +4,24 @@
 {% endblock title %}
 {% block content %}
     <!-- Espaço para informação relevates -->
-    <div class="alert alert-info alert-dismissible fade in text-center alert-shortcuts"
-         role="alert"
-         id="infoGerenciar">
+    <div id="infoGerenciar" class="alert alert-info text-center">
         <button type="button"
-                class="close"
-                data-toggle="collapse"
-                data-target="#infoGerenciarConteudo"
-                aria-expanded="true"
-                aria-controls="infoGerenciarConteudo">
-            <span aria-hidden="true">−</span>
+                class="btn btn-xs btn-default pull-right"
+                id="toggleInfoGerenciar">
+            <span class="glyphicon glyphicon-info-sign"></span> Mostrar atalhos
         </button>
-        <strong>ℹ️ Dica:</strong> Selecione um horário na tabela para gerenciar o período de ativação.
-        <div id="infoGerenciarConteudo" class="collapse in mt-2">
-            <hr>
-            <ul class="list-unstyled shortcut-list">
+        <strong>Gerenciamento:</strong> Selecione um horário na tabela para gerenciar o período de ativação.
+        <div id="infoGerenciarConteudo" class="info-extra alert-shortcuts">
+            <hr class="alert-divider">
+            <ul class="list-unstyled info-list">
                 <li>
-                    <kbd>🖱️ Clique</kbd>: Abrir o modal de <strong>gerenciamento</strong> da reserva
+                    <kbd>Clique</kbd>: Editar período
                 </li>
                 <li>
-                    <kbd>Shift</kbd> + <kbd>🖱️ Clique</kbd>: Abrir o <strong>histórico</strong> contextualizado da reserva
+                    <kbd>Shift + Clique</kbd>: Abrir histórico filtrado
+                </li>
+                <li>
+                    <kbd>Esc</kbd>: Fechar modal
                 </li>
             </ul>
         </div>
@@ -106,10 +104,16 @@
     </script>
     <script src="{{ url_for('static', filename='js/admin_horarios.js') }}"></script>
     <script>
-        // Troca o ícone de +/− dinamicamente
-        document.querySelector('#infoGerenciar button.close').addEventListener('click', function () {
-            const span = this.querySelector('span');
-            span.textContent = (span.textContent === '−') ? '+' : '−';
+        $(document).on("click", "#toggleInfoGerenciar", function () {
+            const $content = $("#infoGerenciarConteudo");
+            const isVisible = $content.is(":visible");
+
+            $content.slideToggle(150);
+            $(this).html(
+                isVisible
+                    ? '<span class="glyphicon glyphicon-info-sign"></span> Mostrar atalhos'
+                    : '<span class="glyphicon glyphicon-chevron-up"></span> Ocultar atalhos'
+            );
         });
     </script>
 {% endblock extra_script %}
