@@ -320,49 +320,69 @@ def api_ativar_temp():
 @admin_required
 def api_desativar():
     userid = session.get('userid')
-    data = request.get_json()
+    data = request.get_json() or {}
+
+    # 📝 1. Validação de entrada
     id_aula_ativa = data.get("id_aula_ativa")
-    if id_aula_ativa is None:
+    if not id_aula_ativa:
         return jsonify({"error": "ID da ativação não fornecido."}), 400
+
     aula_ativa = db.get_or_404(Aulas_Ativas, id_aula_ativa)
 
-    data_desativacao = parse_date_string(data.get("data_desativacao"))
-    msg = "Período desativado imediatamente!"
-
-    #seta a data de desativação para hoje se não for fornecida
+    # 📅 2. Determinação da data de desativação
     today = datetime.now(LOCAL_TIMEZONE).date()
-    if not data_desativacao:
-        data_desativacao = today
-    elif data_desativacao:
-        if data_desativacao < aula_ativa.inicio_ativacao:
-            return jsonify({"error": "Data de desativação não pode ser anterior ao início da ativação."}), 400
-        msg = f"Período desativado a partir de {data_desativacao.strftime('%d/%m/%Y')}!"
+    data_desativacao = parse_date_string(data.get("data_desativacao")) or today
+
+    if data_desativacao < aula_ativa.inicio_ativacao:
+        return jsonify({"error": "Data de desativação não pode ser anterior ao início da ativação."}), 400
 
     if aula_ativa.fim_ativacao and aula_ativa.fim_ativacao < today:
-        return jsonify({"error": "Horario já está desativado."}), 400
-    
+        return jsonify({"error": "Horário já está desativado."}), 400
+
+    # 📌 O ultimo dia ativo é o dia anterior à data informada
     fim_ativacao = data_desativacao - timedelta(days=1)
 
-    acao = "Edição" if aula_ativa.inicio_ativacao and aula_ativa.inicio_ativacao <= fim_ativacao else "Exclusão"
-    if acao == "Exclusão":
-        msg = "Período excluído devido a desativação imediata!"
-    dados_anteriores = None
+    # 📊 3. Definir tipo de ação (edição ou exclusão)
+    is_edicao = aula_ativa.inicio_ativacao and aula_ativa.inicio_ativacao <= fim_ativacao
+    acao = "Edição" if is_edicao else "Exclusão"
+
+    # 📝 Mensagem de retorno
+    if data.get("data_desativacao"):
+        msg = f"Período desativado a partir de {data_desativacao.strftime('%d/%m/%Y')}!"
+    elif not is_edicao:
+        msg = "Período excluído devido à desativação imediata!"
+    else:
+        msg = "Período desativado imediatamente!"
+
+    # 💾 4. Persistência no banco
     try:
-        if acao == "Edição":
-            dados_anteriores = copy(aula_ativa)
+        dados_anteriores = copy(aula_ativa) if is_edicao else None
+
+        if is_edicao:
             aula_ativa.fim_ativacao = fim_ativacao
             db.session.add(aula_ativa)
         else:
             db.session.delete(aula_ativa)
 
         db.session.flush()
-        registrar_log_generico_usuario(userid, acao, aula_ativa, dados_anteriores, observacao="atraves do painel de horarios", skip_unchanged=True)
+
+        registrar_log_generico_usuario(
+            userid,
+            acao,
+            aula_ativa,
+            dados_anteriores,
+            observacao="Através do painel de horários",
+            skip_unchanged=True
+        )
 
         db.session.commit()
+
     except (DataError, IntegrityError, InterfaceError,
-        InternalError, OperationalError, ProgrammingError) as e:
+            InternalError, OperationalError, ProgrammingError) as e:
         db.session.rollback()
-        return jsonify({"error": f"Erro ao processar, verifique os dados: {e.orig}"}), 500
+        return jsonify({"error": f"Erro ao processar desativação: {e.orig}"}), 500
+
+    # ✅ 5. Sucesso
     return jsonify({"success": True, "msg": msg})
 
 @bp.route("/times/api/extender", methods = ["POST"])
