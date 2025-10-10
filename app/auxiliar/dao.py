@@ -2,8 +2,8 @@ from datetime import date, time
 from typing import Literal
 
 from flask import abort
-from sqlalchemy import (and_, between, func, literal, or_, select, text,
-                        union_all, case, desc)
+from sqlalchemy import (and_, between, case, desc, func, literal, or_, select,
+                        text, union_all)
 from sqlalchemy.exc import IntegrityError, MultipleResultsFound
 
 from app.models import (Aulas, Aulas_Ativas, Dias_da_Semana,

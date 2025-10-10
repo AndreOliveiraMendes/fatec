@@ -17,7 +17,8 @@ from app.auxiliar.auxiliar_cryptograph import ensure_secret_file, load_key
 from app.auxiliar.auxiliar_routes import (get_unique_or_500, get_user_info,
                                           parse_date_string,
                                           registrar_log_generico_usuario)
-from app.auxiliar.dao import check_aula_ativa, get_aula_intervalo, get_locais, sort_periodos
+from app.auxiliar.dao import (check_aula_ativa, get_aula_intervalo, get_locais,
+                              sort_periodos)
 from app.auxiliar.decorators import admin_required
 from app.models import (Aulas, Aulas_Ativas, Dias_da_Semana, TipoAulaEnum,
                         Turnos, db)
