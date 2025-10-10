@@ -3,7 +3,7 @@ from typing import Literal
 
 from flask import abort
 from sqlalchemy import (and_, between, func, literal, or_, select, text,
-                        union_all)
+                        union_all, case, desc)
 from sqlalchemy.exc import IntegrityError, MultipleResultsFound
 
 from app.models import (Aulas, Aulas_Ativas, Dias_da_Semana,
@@ -465,3 +465,22 @@ def check_aula_ativa(inicio, fim, aula, semana, tipo, id = None):
             params=None,
             orig=Exception("Já existe uma aula ativa com os mesmos dados (aula, semana e tipo).")
         )
+
+#sort periodos
+def sort_periodos(descending=False):
+    null_case = case(
+        (Aulas_Ativas.inicio_ativacao.is_(None), 0),
+        else_=1
+    )
+    order = [
+        Aulas_Ativas.tipo_aula,
+        Aulas_Ativas.id_semana,
+        Aulas_Ativas.id_aula
+    ]
+    if descending:
+        order.append(desc(null_case))
+        order.append(Aulas_Ativas.inicio_ativacao.desc())
+    else:
+        order.append(null_case)
+        order.append(Aulas_Ativas.inicio_ativacao)
+    return order

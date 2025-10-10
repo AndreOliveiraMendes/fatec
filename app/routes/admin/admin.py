@@ -17,7 +17,7 @@ from app.auxiliar.auxiliar_cryptograph import ensure_secret_file, load_key
 from app.auxiliar.auxiliar_routes import (get_unique_or_500, get_user_info,
                                           parse_date_string,
                                           registrar_log_generico_usuario)
-from app.auxiliar.dao import check_aula_ativa, get_aula_intervalo, get_locais
+from app.auxiliar.dao import check_aula_ativa, get_aula_intervalo, get_locais, sort_periodos
 from app.auxiliar.decorators import admin_required
 from app.models import (Aulas, Aulas_Ativas, Dias_da_Semana, TipoAulaEnum,
                         Turnos, db)
@@ -219,7 +219,9 @@ def api_listar_periodos():
             filtro.append(Aulas_Ativas.tipo_aula == tipo_enum)
         except ValueError:
             return jsonify({"error": "Tipo de aula inválido."}), 400
-    select_aula_ativa = select(Aulas_Ativas).where(*filtro)
+    select_aula_ativa = select(Aulas_Ativas).where(*filtro).order_by(
+        *sort_periodos(descending=False)
+    )
 
     aulas_ativas_paginadas = SelectPagination(select=select_aula_ativa, session=db.session,
         page=page, per_page=7, error_out=False)
@@ -262,15 +264,45 @@ def api_get_periodos_relacionados():
         Aulas_Ativas.tipo_aula == tipo_enum
     ]
 
-    aula_ativa = None
+    aula_atual = None
     if id_aula_ativa is not None:
         filtro_base.append(Aulas_Ativas.id_aula_ativa != id_aula_ativa)
-        aula_ativa = db.session.get(Aulas_Ativas, id_aula_ativa)
-        if not aula_ativa:
+        aula_atual = db.session.get(Aulas_Ativas, id_aula_ativa)
+        if not aula_atual:
             return jsonify({"error": "Ativação não encontrada."}), 404
 
     filtro_anterior = filtro_base + [Aulas_Ativas.fim_ativacao < dia]
     filtro_posterior = filtro_base + [Aulas_Ativas.inicio_ativacao > dia]
+
+    sel_aula_anterior = select(Aulas_Ativas).where(*filtro_anterior).order_by(
+        *sort_periodos(descending=True)
+    )
+
+    sel_aula_posterior = select(Aulas_Ativas).where(*filtro_posterior).order_by(
+        *sort_periodos(descending=False)
+    )
+
+    aula_anterior = db.session.execute(sel_aula_anterior).scalars().first()
+    aula_posterior = db.session.execute(sel_aula_posterior).scalars().first()
+
+    res_anterior = {
+        "inicio": aula_anterior.inicio_ativacao.strftime("%d/%m/%Y") if aula_anterior.inicio_ativacao else None,
+        "fim": aula_anterior.fim_ativacao.strftime("%d/%m/%Y") if aula_anterior.fim_ativacao else None
+    } if aula_anterior else None
+    res_atual = {
+        "inicio": aula_atual.inicio_ativacao.strftime("%d/%m/%Y") if aula_atual.inicio_ativacao else None,
+        "fim": aula_atual.fim_ativacao.strftime("%d/%m/%Y") if aula_atual.fim_ativacao else None
+    } if aula_atual else None
+    res_posterior = {
+        "inicio": aula_posterior.inicio_ativacao.strftime("%d/%m/%Y") if aula_posterior.inicio_ativacao else None,
+        "fim": aula_posterior.fim_ativacao.strftime("%d/%m/%Y") if aula_posterior.fim_ativacao else None
+    } if aula_posterior else None
+    res = {
+        "anterior": res_anterior,
+        "atual": res_atual,
+        "proxima": res_posterior
+    }
+    return jsonify(res)
 
 @bp.route("/times/api/ativar_perm", methods=["POST"])
 @admin_required

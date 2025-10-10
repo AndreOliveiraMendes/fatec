@@ -99,7 +99,7 @@
                 desativar: "{{ url_for('admin.api_desativar') }}",
                 extender: "{{ url_for('admin.api_extender') }}",
                 listarPeriodos: "{{ url_for('admin.api_listar_periodos') }}",
-                getPeriodosRelacionados: null // backend ainda não implementado
+                getPeriodosRelacionados: "{{ url_for('admin.api_get_periodos_relacionados') }}"
             }
         };
     </script>

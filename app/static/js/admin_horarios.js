@@ -264,29 +264,43 @@ $(function () {
         }
     }
 
-    function carregarPeriodosRelacionados(horarioId, semanaId, tipo, id_aula_ativa, dia) {
-        fetch(`${window.appConfig.api.getPeriodosRelacionados}?horario=${horarioId}&semana=${semanaId}&tipo=${tipo}&id_aula_ativa=${id_aula_ativa}&dia=${dia}`)
-            .then(r => r.json())
+    function carregarPeriodosRelacionados(horarioId, semanaId, tipo, idAulaAtiva, dia) {
+        const url = `${window.appConfig.api.getPeriodosRelacionados}?horario=${horarioId}&semana=${semanaId}&tipo=${tipo}&id_aula_ativa=${idAulaAtiva}&dia=${dia}`;
+
+        fetch(url)
+            .then(r => {
+                if (!r.ok) throw new Error(`Erro HTTP ${r.status}`);
+                return r.json();
+            })
             .then(data => {
-                const $info = $("#infoGerenciar");
-                const setCampo = (seletor, periodo) => {
-                    const $el = $info.find(seletor + " .periodo-detalhe");
-                    if (!periodo) {
-                        $el.text("—");
-                        return;
-                    }
-                    const fimTxt = periodo.fim ? `até ${periodo.fim}` : "(sem fim)";
-                    $el.html(`${periodo.inicio} <br><small>${fimTxt}</small>`);
+                const anterior = data.anterior || null;
+                const atual = data.atual || null;
+                const proxima = data.proxima || null;
+
+                // Função auxiliar para formatar período
+                const formatPeriodo = (p) => {
+                    if (!p) return "—";
+                    const inicio = p.inicio ? `<b>Início:</b> ${p.inicio}` : "";
+                    const fim = p.fim ? `<b>Fim:</b> ${p.fim}` : "";
+                    if (inicio && fim) return `${inicio}<br>${fim}`;
+                    if (inicio) return inicio;
+                    if (fim) return fim;
+                    return "<i>Ativação permanente</i>";
                 };
 
-                setCampo(".anterior", data.anterior);
-                setCampo(".atual", data.atual);
-                setCampo(".proximo", data.proximo);
+                if(anterior)
+                    $("#infoGerenciarPeriodos .periodo.anterior .periodo-detalhe").html(formatPeriodo(anterior));
+                if(atual)
+                    $("#infoGerenciarPeriodos .periodo.atual .periodo-detalhe").html(formatPeriodo(atual));
+                if(proxima)
+                    $("#infoGerenciarPeriodos .periodo.proximo .periodo-detalhe").html(formatPeriodo(proxima));
 
-                $info.removeClass("hide");
+                // Exibe a área de informação caso esteja oculta
+                $("#infoGerenciarPeriodos").removeClass("hide").slideDown();
             })
-            .catch(() => {
-                $("#infoGerenciar").addClass("hide");
+            .catch(err => {
+                console.error("Erro ao carregar períodos relacionados:", err);
+                $("#infoGerenciarPeriodos .periodo-detalhe").html("—");
             });
     }
 
@@ -327,6 +341,7 @@ $(function () {
                 atualizarAbasGerenciar(ativa);
                 $("#modalGerenciar").modal("show");
                 $("#modalGerenciar").data("id_aula", response.id_aula || null);
+                carregarPeriodosRelacionados(horarioId, semanaId, tipoSelecionado, response.id_aula || null, window.appConfig.hoje);
             });
     });
 
@@ -362,6 +377,7 @@ $(function () {
                     $("#formExtender input[name='fim']").val(fim);
                 atualizarAbasGerenciar(ativa);
                 $("#modalGerenciar").data("id_aula", response.id_aula || null);
+                carregarPeriodosRelacionados(horarioId, semanaId, tipoSelecionado, response.id_aula || null, window.appConfig.hoje);
             });
     });
 
@@ -553,6 +569,7 @@ $(function () {
         }
     });
 
+    // Limpar dados ao fechar
     $('#modalGerenciar').on('hidden.bs.modal', function () {
         const $modal = $(this);
         $modal.removeData('horario-id').removeData('semana-id').removeData('id_aula');
@@ -566,6 +583,19 @@ $(function () {
         $(".tab-pane").removeClass("in active");
         // Desabilitar abas
         $(".nav-tabs li").addClass("disabled").find("a").removeAttr("data-toggle").css("pointer-events", "none");
+        // Esconder
+        $("#infoGerenciarPeriodos").addClass("hide");
+        // Limpar informações
+        $("#infoGerenciarPeriodos .periodo.anterior .periodo-detalhe").html("—");
+        $("#infoGerenciarPeriodos .periodo.atual .periodo-detalhe").html("—");
+        $("#infoGerenciarPeriodos .periodo.proximo .periodo-detalhe").html("—");
+
+    });
+
+    // Limpar dados ao fechar
+    $('#modalPeriodos').on('hidden.bs.modal', function () {
+        const $modal = $(this);
+        $modal.find('form').each(function () { this.reset(); });
     });
 
 });
