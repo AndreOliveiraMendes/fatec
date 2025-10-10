@@ -188,7 +188,7 @@ $(function () {
                 }
 
                 const table = document.createElement('table');
-                table.className = 'table table-striped table-bordered';
+                table.className = 'table table-striped table-bordered table-hover';
                 table.innerHTML = `
                     <thead>
                         <tr>
@@ -197,6 +197,7 @@ $(function () {
                             <th>Horário</th>
                             <th>Início Ativação</th>
                             <th>Fim Ativação</th>
+                            <th>Ação</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -205,14 +206,50 @@ $(function () {
                                 <td>${item.semana}</td>
                                 <td>${item.tipo}</td>
                                 <td>${item.horario}</td>
-                                <td>${item.inicio_ativacao}</td>
-                                <td>${item.fim_ativacao}</td>
+                                <td>${item.inicio_ativacao || '-'}</td>
+                                <td>${item.fim_ativacao || '-'}</td>
+                                <td>
+                                    <button class="btn btn-xs btn-danger btn-excluir-periodo" data-id="${item.id_aula_ativa}">
+                                        <span class="glyphicon glyphicon-trash"></span> Excluir
+                                    </button>
+                                </td>
                             </tr>
                         `).join('')}
                     </tbody>
                 `;
                 lista.appendChild(table);
 
+                // ✅ Adiciona listener aos botões de exclusão
+                lista.querySelectorAll('.btn-excluir-periodo').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        const id = this.getAttribute('data-id');
+                        if (!id) return;
+
+                        payload = {'id_aula':id}
+
+                        if (confirm('Tem certeza que deseja excluir este período de ativação?')) {
+                            fetch(`${window.appConfig.api.apiDeletarPeriodos}`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(payload)
+                            })
+                            .then(r => r.json())
+                            .then(res => {
+                                if (res.success) {
+                                    alert('Período excluído com sucesso!');
+                                    carregarPeriodos(pagina); // 🔄 recarrega tabela
+                                } else {
+                                    alert(res.error || 'Erro ao excluir período.');
+                                }
+                            })
+                            .catch(() => {
+                                alert('Erro de conexão ao tentar excluir o período.');
+                            });
+                        }
+                    });
+                });
+
+                // 📄 Paginação
                 const paginacao = document.getElementById('paginacaoPeriodos');
                 paginacao.innerHTML = '';
                 for (let i = 1; i <= data.total_pages; i++) {

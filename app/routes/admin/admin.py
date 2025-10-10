@@ -232,6 +232,7 @@ def api_listar_periodos():
         "total_pages": aulas_ativas_paginadas.pages,
         "items": [
             {
+                "id_aula_ativa": p.id_aula_ativa,
                 "semana": p.dia_da_semana.nome_semana,
                 "tipo": p.tipo_aula.value,
                 "horario": f"{p.aula.horario_inicio} - {p.aula.horario_fim}",
@@ -241,6 +242,30 @@ def api_listar_periodos():
             for p in aulas_ativas_paginadas.items
         ]
     })
+
+@bp.route("/times/api/periodo/excluir", methods=["POST"])
+@admin_required
+def api_excluir_ativacao():
+    userid = session.get('userid')
+    data = request.get_json()
+    id_aula = data.get('id_aula')
+    if id_aula is None:
+        return jsonify({"error": "Parâmetros insuficientes."}), 400
+    aula_ativa = db.get_or_404(Aulas_Ativas, id_aula)
+
+    try:
+        db.session.delete(aula_ativa)
+
+        db.session.flush()
+        registrar_log_generico_usuario(userid, 'Exclusão', aula_ativa, None, "Atraves do painel de horarios")
+
+        db.session.commit()
+    except (DataError, IntegrityError, InterfaceError,
+        InternalError, OperationalError, ProgrammingError) as e:
+        db.session.rollback()
+        return jsonify({"error": f"Erro ao processar: {e.orig}"}), 500
+
+    return jsonify({"success":True})
 
 @bp.route("/times/api/periodos_relacionados")
 @admin_required
