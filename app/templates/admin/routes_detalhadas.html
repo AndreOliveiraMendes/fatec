@@ -1,0 +1,236 @@
+{% extends "base-fixed" %}
+{% block title %}
+    Rotas Detalhadas
+{% endblock title %}
+{% block content %}
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                <span class="glyphicon glyphicon-list-alt"></span>
+                Rotas Detalhadas
+                <span class="badge">{{ rotas|length }}</span>
+            </h3>
+        </div>
+        <div class="panel-body">
+            <!-- 🔍 Barra de filtro -->
+            <div class="row">
+                <div class="col-sm-6">
+                    <input type="text"
+                           id="filtroRotas"
+                           class="form-control input-sm"
+                           placeholder="Filtrar por qualquer campo...">
+                </div>
+                <div class="col-sm-6 text-right">
+                    <!-- 👁️ Opções de colunas -->
+                    <div class="dropdown">
+                        <button class="btn btn-default btn-sm dropdown-toggle"
+                                type="button"
+                                data-toggle="dropdown">
+                            <span class="glyphicon glyphicon-eye-open"></span> Colunas <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right ajust" id="colunasDropdown">
+                            <li>
+                                <label>
+                                    <input type="checkbox" data-col="0" checked>
+                                    URL
+                                </label>
+                            </li>
+                            <li>
+                                <label>
+                                    <input type="checkbox" data-col="1" checked>
+                                    Métodos
+                                </label>
+                            </li>
+                            <li>
+                                <label>
+                                    <input type="checkbox" data-col="2" checked>
+                                    Blueprint
+                                </label>
+                            </li>
+                            <li>
+                                <label>
+                                    <input type="checkbox" data-col="3" checked>
+                                    Endpoint
+                                </label>
+                            </li>
+                            <li>
+                                <label>
+                                    <input type="checkbox" data-col="4" checked>
+                                    Função
+                                </label>
+                            </li>
+                            <li>
+                                <label>
+                                    <input type="checkbox" data-col="5" checked>
+                                    Módulo
+                                </label>
+                            </li>
+                            <li>
+                                <label>
+                                    <input type="checkbox" data-col="6" checked>
+                                    Args
+                                </label>
+                            </li>
+                            <li>
+                                <label>
+                                    <input type="checkbox" data-col="7" checked>
+                                    Defaults
+                                </label>
+                            </li>
+                            <li>
+                                <label>
+                                    <input type="checkbox" data-col="8" checked>
+                                    Strict?
+                                </label>
+                            </li>
+                            <li>
+                                <label>
+                                    <input type="checkbox" data-col="9" checked>
+                                    Subdomínio
+                                </label>
+                            </li>
+                            <li role="separator" class="divider"></li>
+                            <li class="text-center">
+                                <button id="resetColunas" type="button" class="btn btn-link btn-xs">
+                                    <span class="glyphicon glyphicon-refresh"></span> Restaurar padrão
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <!-- 🧭 Tabela -->
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered table-condensed"
+                       id="tabelaRotasDetalhadas">
+                    <thead>
+                        <tr>
+                            <th>URL</th>
+                            <th>Métodos</th>
+                            <th>Blueprint</th>
+                            <th>Endpoint</th>
+                            <th>Função</th>
+                            <th>Módulo</th>
+                            <th>Args</th>
+                            <th>Defaults</th>
+                            <th>Strict?</th>
+                            <th>Subdomínio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in rotas %}
+                            <tr>
+                                <td>
+                                    <code>{{ r.url }}</code>
+                                </td>
+                                <td>
+                                    {% for m in r.methods %}<span class="badge">{{ m }}</span>{% endfor %}
+                                </td>
+                                <td>{{ r.blueprint }}</td>
+                                <td>{{ r.endpoint }}</td>
+                                <td>{{ r.function or '-' }}</td>
+                                <td>
+                                    <small>{{ r.module or '-' }}</small>
+                                </td>
+                                <td>{{ r.args|join(", ") if r.args else '-' }}</td>
+                                <td>{{ r.defaults or '-' }}</td>
+                                <td>{{ 'Sim' if r.strict_slashes else 'Não' }}</td>
+                                <td>{{ r.subdomain }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+{% block extra_script %}
+    <script>
+        (function () {
+            const filtro = document.getElementById('filtroRotas');
+            const tabela = document.getElementById('tabelaRotasDetalhadas');
+            const linhas = tabela.querySelectorAll('tbody tr');
+            const checkboxes = document.querySelectorAll('#colunasDropdown input[type="checkbox"]');
+            const resetBtn = document.getElementById('resetColunas');
+            const STORAGE_KEY = 'rotas_colunas_visiveis';
+
+            // 📌 Carrega preferências salvas
+            function carregarPreferencias() {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (!saved) return;
+
+                try {
+                    const prefs = JSON.parse(saved);
+                    checkboxes.forEach(cb => {
+                        const colIndex = cb.dataset.col;
+                        if (colIndex in prefs) {
+                            cb.checked = prefs[colIndex];
+                            aplicarVisibilidade(colIndex, cb.checked);
+                        }
+                    });
+                } catch (e) {
+                    console.warn('⚠️ Erro ao carregar preferências de colunas:', e);
+                }
+            }
+
+            // 💾 Salva preferências
+            function salvarPreferencias() {
+                const prefs = {};
+                checkboxes.forEach(cb => {
+                    prefs[cb.dataset.col] = cb.checked;
+                });
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
+            }
+
+            // 👁️ Aplica visibilidade de uma coluna
+            function aplicarVisibilidade(colIndex, visivel) {
+                const display = visivel ? '' : 'none';
+                tabela.querySelectorAll('tr').forEach(tr => {
+                    const cell = tr.children[colIndex];
+                    if (cell) cell.style.display = display;
+                });
+            }
+
+            // 🧼 Restaurar padrão (todas visíveis)
+            function resetarColunas() {
+                checkboxes.forEach(cb => {
+                    cb.checked = true;
+                    aplicarVisibilidade(cb.dataset.col, true);
+                });
+                localStorage.removeItem(STORAGE_KEY);
+            }
+
+            // 🔍 Filtro em tempo real
+            filtro.addEventListener('input', function () {
+                const termo = this.value.toLowerCase();
+                linhas.forEach(tr => {
+                    const match = tr.innerText.toLowerCase().includes(termo);
+                    tr.style.display = match ? '' : 'none';
+                });
+            });
+
+            // 👁️ Eventos de checkboxes
+            checkboxes.forEach(cb => {
+                cb.addEventListener('change', function () {
+                    aplicarVisibilidade(this.dataset.col, this.checked);
+                    salvarPreferencias();
+                });
+            });
+
+            // 🧼 Evento de reset
+            resetBtn.addEventListener('click', resetarColunas);
+
+            // 🚀 Inicializa
+            carregarPreferencias();
+        })();
+    </script>
+{% endblock extra_script %}
+{% block extra_css %}
+    <style>
+        .ajust {
+            max-height: 300px;
+            overflow-y: auto
+        }
+    </style>
+{% endblock extra_css %}

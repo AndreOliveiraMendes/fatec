@@ -5,6 +5,7 @@ from copy import copy
 from datetime import datetime, timedelta
 from importlib.resources import as_file
 from pathlib import Path
+import inspect
 
 from flask import (Blueprint, current_app, flash, jsonify, redirect,
                    render_template, request, session, url_for)
@@ -117,24 +118,62 @@ def listar_rotas():
     routes = []
     blueprint_counts = {}
 
-    # Itera uma única vez sobre as rotas
     for rule in current_app.url_map.iter_rules():
         methods = ",".join(sorted(rule.methods - {"HEAD", "OPTIONS"}))
         endpoint = rule.endpoint
         blueprint_name = endpoint.split('.')[0] if '.' in endpoint else '(sem_blueprint)'
 
         routes.append((rule.rule, methods, endpoint))
-
-        # Conta quantas rotas por blueprint
         blueprint_counts[blueprint_name] = blueprint_counts.get(blueprint_name, 0) + 1
 
-    # Ordena rotas por blueprint e depois URL
     routes.sort(key=lambda x: (x[2].split('.')[0], x[0]))
-
-    # Ordena blueprints alfabeticamente
     bps = sorted(blueprint_counts.items(), key=lambda x: x[0])
 
-    return render_template("admin/routes.html", user=user, rotas=routes, blueprints=bps)
+    directory = os.path.abspath('config')
+    archives = os.listdir(directory) if os.path.exists(directory) else []
+
+    return render_template(
+        "admin/routes.html",
+        user=user,
+        rotas=routes,
+        blueprints=bps,
+        archives=archives
+    )
+
+@bp.route("/listar_rotas_detalhadas")
+@admin_required
+def listar_rotas_detalhadas():
+    if not LIST_ROUTES:
+        flash("⚠️ A listagem de rotas não está habilitada.", "warning")
+        return redirect(url_for("admin.gerenciar_menu"))
+
+    userid = session.get('userid')
+    user = get_user_info(userid)
+
+    rotas = []
+
+    for rule in current_app.url_map.iter_rules():
+        endpoint = rule.endpoint
+        view_func = current_app.view_functions.get(endpoint)
+        blueprint = endpoint.split('.')[0] if '.' in endpoint else '(sem_blueprint)'
+
+        rotas.append({
+            "url": rule.rule,
+            "methods": sorted(rule.methods - {"HEAD", "OPTIONS"}),
+            "endpoint": endpoint,
+            "blueprint": blueprint,
+            "function": view_func.__name__ if view_func else None,
+            "module": view_func.__module__ if view_func else None,
+            "args": list(rule.arguments) if rule.arguments else [],
+            "defaults": rule.defaults if rule.defaults else {},
+            "strict_slashes": rule.strict_slashes,
+            "subdomain": rule.subdomain or "(padrão)",
+        })
+
+    # Ordena rotas por blueprint + URL
+    rotas.sort(key=lambda r: (r["blueprint"], r["url"]))
+
+    return render_template("admin/routes_detalhadas.html", user=user, rotas=rotas)
 
 @bp.route("/times")
 @admin_required
