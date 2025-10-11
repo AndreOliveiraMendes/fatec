@@ -140,6 +140,70 @@ def listar_rotas():
         archives=archives
     )
 
+def coletar_detalhes_rotas():
+    """
+    Retorna uma lista de dicionários com detalhes completos das rotas registradas no Flask.
+    """
+    detalhes = []
+    adapter = current_app.url_map.bind('')  # Para gerar URLs reversas
+
+    for rule in current_app.url_map.iter_rules():
+        endpoint = rule.endpoint
+        blueprint = endpoint.split('.')[0] if '.' in endpoint else None
+
+        # View function associada
+        view_func = current_app.view_functions.get(endpoint)
+        view_name = view_func.__name__ if view_func else None
+        view_module = view_func.__module__ if view_func else None
+        view_doc = (view_func.__doc__ or '').strip() if view_func else None
+
+        # Inspeciona assinatura da função Python (se possível)
+        parametros_funcao = []
+        if view_func:
+            try:
+                sig = inspect.signature(view_func)
+                for nome, param in sig.parameters.items():
+                    parametros_funcao.append({
+                        "nome": nome,
+                        "tipo": str(param.annotation) if param.annotation != inspect._empty else None,
+                        "default": None if param.default == inspect._empty else repr(param.default),
+                        "kind": str(param.kind),
+                    })
+            except (TypeError, ValueError):
+                # Algumas funções (ex: métodos de classes) podem falhar aqui
+                pass
+
+        # Defaults e URL gerada
+        defaults = rule.defaults or {}
+        try:
+            url_gerada = adapter.build(endpoint, defaults, force_external=False)
+        except Exception:
+            url_gerada = None
+
+        detalhes.append({
+            "url": rule.rule,
+            "url_gerada": url_gerada,
+            "endpoint": endpoint,
+            "blueprint": blueprint,
+            "metodos": sorted(rule.methods - {"HEAD", "OPTIONS"}),
+            "argumentos_url": sorted(rule.arguments),
+            "defaults": defaults,
+            "subdominio": rule.subdomain,
+            "strict_slashes": rule.strict_slashes,
+            "redirect_to": rule.redirect_to,
+            "host": getattr(rule, "host", None),
+
+            # Função Python associada
+            "view_func_nome": view_name,
+            "view_func_modulo": view_module,
+            "view_func_doc": view_doc,
+            "view_func_parametros": parametros_funcao,
+        })
+
+    # Ordena por blueprint > endpoint > URL
+    detalhes.sort(key=lambda d: (d["blueprint"] or "", d["endpoint"], d["url"]))
+    return detalhes
+
 @bp.route("/listar_rotas_detalhadas")
 @admin_required
 def listar_rotas_detalhadas():
@@ -149,31 +213,11 @@ def listar_rotas_detalhadas():
 
     userid = session.get('userid')
     user = get_user_info(userid)
+    rotas_detalhadas = coletar_detalhes_rotas()
 
-    rotas = []
-
-    for rule in current_app.url_map.iter_rules():
-        endpoint = rule.endpoint
-        view_func = current_app.view_functions.get(endpoint)
-        blueprint = endpoint.split('.')[0] if '.' in endpoint else '(sem_blueprint)'
-
-        rotas.append({
-            "url": rule.rule,
-            "methods": sorted(rule.methods - {"HEAD", "OPTIONS"}),
-            "endpoint": endpoint,
-            "blueprint": blueprint,
-            "function": view_func.__name__ if view_func else None,
-            "module": view_func.__module__ if view_func else None,
-            "args": list(rule.arguments) if rule.arguments else [],
-            "defaults": rule.defaults if rule.defaults else {},
-            "strict_slashes": rule.strict_slashes,
-            "subdomain": rule.subdomain or "(padrão)",
-        })
-
-    # Ordena rotas por blueprint + URL
-    rotas.sort(key=lambda r: (r["blueprint"], r["url"]))
-
-    return render_template("admin/routes_detalhadas.html", user=user, rotas=rotas)
+    return render_template("admin/routes_detalhadas.html",
+                           user=user,
+                           rotas=rotas_detalhadas)
 
 @bp.route("/times")
 @admin_required

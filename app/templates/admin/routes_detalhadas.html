@@ -4,118 +4,58 @@
 {% endblock title %}
 {% block content %}
     <div class="panel panel-default">
-        <div class="panel-heading">
-            <h3 class="panel-title">
-                <span class="glyphicon glyphicon-list-alt"></span>
-                Rotas Detalhadas
+        <div class="panel-heading clearfix">
+            <h3 class="panel-title pull-left">
+                <span class="glyphicon glyphicon-list-alt"></span> Rotas Detalhadas
                 <span class="badge">{{ rotas|length }}</span>
             </h3>
+            <div class="pull-right">
+                <input type="text"
+                       id="filtro"
+                       class="form-control input-sm"
+                       placeholder="Filtrar...">
+            </div>
         </div>
         <div class="panel-body">
-            <!-- 🔍 Barra de filtro -->
-            <div class="row">
-                <div class="col-sm-6">
-                    <input type="text"
-                           id="filtroRotas"
-                           class="form-control input-sm"
-                           placeholder="Filtrar por qualquer campo...">
-                </div>
-                <div class="col-sm-6 text-right">
-                    <!-- 👁️ Opções de colunas -->
-                    <div class="dropdown">
-                        <button class="btn btn-default btn-sm dropdown-toggle"
-                                type="button"
-                                data-toggle="dropdown">
-                            <span class="glyphicon glyphicon-eye-open"></span> Colunas <span class="caret"></span>
+            <!-- Ocultar colunas -->
+            <div class="dropdown mb-10">
+                <button class="btn btn-default btn-sm dropdown-toggle"
+                        type="button"
+                        id="colDropdown"
+                        data-toggle="dropdown">
+                    <span class="glyphicon glyphicon-eye-open"></span> Colunas
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="colDropdown">
+                    {% set colunas = [('URL', 'url'), ('Métodos', 'metodos'), ('Blueprint', 'blueprint'), ('Endpoint', 'endpoint'), ('URL Gerada', 'url_gerada'), ('Args URL', 'argumentos_url'), ('Defaults', 'defaults'), ('Subdomínio', 'subdominio'), ('View Nome', 'view_func_nome'), ('Módulo', 'view_func_modulo'), ('Docstring', 'view_func_doc'), ('Parâmetros', 'view_func_parametros')] %}
+                    {% for nome, classe in colunas %}
+                        <li>
+                            <label class="ml-10">
+                                <input type="checkbox"
+                                       class="col-toggle"
+                                       data-col="{{ loop.index0 }}"
+                                       checked>
+                                {{ nome }}
+                            </label>
+                        </li>
+                    {% endfor %}
+                    <li role="separator" class="divider"></li>
+                    <li>
+                        <button type="button"
+                                id="reset-colunas"
+                                class="btn btn-link btn-sm btn-reset-default">
+                            <span class="glyphicon glyphicon-refresh"></span> Restaurar padrão
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-right ajust" id="colunasDropdown">
-                            <li>
-                                <label>
-                                    <input type="checkbox" data-col="0" checked>
-                                    URL
-                                </label>
-                            </li>
-                            <li>
-                                <label>
-                                    <input type="checkbox" data-col="1" checked>
-                                    Métodos
-                                </label>
-                            </li>
-                            <li>
-                                <label>
-                                    <input type="checkbox" data-col="2" checked>
-                                    Blueprint
-                                </label>
-                            </li>
-                            <li>
-                                <label>
-                                    <input type="checkbox" data-col="3" checked>
-                                    Endpoint
-                                </label>
-                            </li>
-                            <li>
-                                <label>
-                                    <input type="checkbox" data-col="4" checked>
-                                    Função
-                                </label>
-                            </li>
-                            <li>
-                                <label>
-                                    <input type="checkbox" data-col="5" checked>
-                                    Módulo
-                                </label>
-                            </li>
-                            <li>
-                                <label>
-                                    <input type="checkbox" data-col="6" checked>
-                                    Args
-                                </label>
-                            </li>
-                            <li>
-                                <label>
-                                    <input type="checkbox" data-col="7" checked>
-                                    Defaults
-                                </label>
-                            </li>
-                            <li>
-                                <label>
-                                    <input type="checkbox" data-col="8" checked>
-                                    Strict?
-                                </label>
-                            </li>
-                            <li>
-                                <label>
-                                    <input type="checkbox" data-col="9" checked>
-                                    Subdomínio
-                                </label>
-                            </li>
-                            <li role="separator" class="divider"></li>
-                            <li class="text-center">
-                                <button id="resetColunas" type="button" class="btn btn-link btn-xs">
-                                    <span class="glyphicon glyphicon-refresh"></span> Restaurar padrão
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+                    </li>
+                </ul>
             </div>
-            <br>
-            <!-- 🧭 Tabela -->
+            <!-- Tabela -->
             <div class="table-responsive">
                 <table class="table table-striped table-bordered table-condensed"
-                       id="tabelaRotasDetalhadas">
+                       id="tabelaDetalhada">
                     <thead>
                         <tr>
-                            <th>URL</th>
-                            <th>Métodos</th>
-                            <th>Blueprint</th>
-                            <th>Endpoint</th>
-                            <th>Função</th>
-                            <th>Módulo</th>
-                            <th>Args</th>
-                            <th>Defaults</th>
-                            <th>Strict?</th>
-                            <th>Subdomínio</th>
+                            {% for nome, classe in colunas %}<th class="col-{{ classe }}">{{ nome }}</th>{% endfor %}
                         </tr>
                     </thead>
                     <tbody>
@@ -125,18 +65,45 @@
                                     <code>{{ r.url }}</code>
                                 </td>
                                 <td>
-                                    {% for m in r.methods %}<span class="badge">{{ m }}</span>{% endfor %}
+                                    {% for m in r.metodos %}
+                                        {% set badge_class = 'badge-success' if m == 'GET' else
+                                                                                    'badge-warning' if m == 'POST' else
+                                                                                    'badge-info' if m in ['PUT','PATCH'] else
+                                                                                    'badge-danger' if m == 'DELETE' else
+                                                                                'badge-secondary' %}
+                                        <span class="badge {{ badge_class }}">{{ m }}</span>
+                                    {% endfor %}
                                 </td>
-                                <td>{{ r.blueprint }}</td>
+                                <td>{{ r.blueprint or "(sem)" }}</td>
                                 <td>{{ r.endpoint }}</td>
-                                <td>{{ r.function or '-' }}</td>
                                 <td>
-                                    <small>{{ r.module or '-' }}</small>
+                                    <code>{{ r.url_gerada or "-" }}</code>
                                 </td>
-                                <td>{{ r.args|join(", ") if r.args else '-' }}</td>
-                                <td>{{ r.defaults or '-' }}</td>
-                                <td>{{ 'Sim' if r.strict_slashes else 'Não' }}</td>
-                                <td>{{ r.subdomain }}</td>
+                                <td>{{ r.argumentos_url|join(", ") }}</td>
+                                <td>
+                                    {% if r.defaults %}
+                                        <code>{{ r.defaults }}</code>
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>{{ r.subdominio or "-" }}</td>
+                                <td>{{ r.view_func_nome or "-" }}</td>
+                                <td>{{ r.view_func_modulo or "-" }}</td>
+                                <td>{{ r.view_func_doc or "-" }}</td>
+                                <td>
+                                    {% if r.view_func_parametros %}
+                                        {% for p in r.view_func_parametros %}
+                                            <div>
+                                                <strong>{{ p.nome }}</strong>
+                                                {% if p.tipo %}<small class="text-muted">({{ p.tipo }})</small>{% endif %}
+                                                {% if p.default %}=<code>{{ p.default }}</code>{% endif %}
+                                            </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -147,43 +114,14 @@
 {% endblock content %}
 {% block extra_script %}
     <script>
-        (function () {
-            const filtro = document.getElementById('filtroRotas');
-            const tabela = document.getElementById('tabelaRotasDetalhadas');
+        (function() {
+            const filtro = document.getElementById('filtro');
+            const tabela = document.getElementById('tabelaDetalhada');
             const linhas = tabela.querySelectorAll('tbody tr');
-            const checkboxes = document.querySelectorAll('#colunasDropdown input[type="checkbox"]');
-            const resetBtn = document.getElementById('resetColunas');
-            const STORAGE_KEY = 'rotas_colunas_visiveis';
+            const checkboxes = document.querySelectorAll('.col-toggle');
+            const STORAGE_KEY = 'rotas_detalhadas_colunas_visiveis';
 
-            // 📌 Carrega preferências salvas
-            function carregarPreferencias() {
-                const saved = localStorage.getItem(STORAGE_KEY);
-                if (!saved) return;
-
-                try {
-                    const prefs = JSON.parse(saved);
-                    checkboxes.forEach(cb => {
-                        const colIndex = cb.dataset.col;
-                        if (colIndex in prefs) {
-                            cb.checked = prefs[colIndex];
-                            aplicarVisibilidade(colIndex, cb.checked);
-                        }
-                    });
-                } catch (e) {
-                    console.warn('⚠️ Erro ao carregar preferências de colunas:', e);
-                }
-            }
-
-            // 💾 Salva preferências
-            function salvarPreferencias() {
-                const prefs = {};
-                checkboxes.forEach(cb => {
-                    prefs[cb.dataset.col] = cb.checked;
-                });
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
-            }
-
-            // 👁️ Aplica visibilidade de uma coluna
+            // 🧰 Aplica visibilidade a uma coluna específica
             function aplicarVisibilidade(colIndex, visivel) {
                 const display = visivel ? '' : 'none';
                 tabela.querySelectorAll('tr').forEach(tr => {
@@ -192,45 +130,85 @@
                 });
             }
 
-            // 🧼 Restaurar padrão (todas visíveis)
+            // 💾 Salva preferências de colunas no localStorage
+            function salvarPreferencias() {
+                const prefs = {};
+                checkboxes.forEach((cb, idx) => {
+                    prefs[idx] = cb.checked;
+                });
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
+            }
+
+            // 📌 Carrega preferências salvas e aplica
+            function carregarPreferencias() {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (!saved) return;
+                try {
+                    const prefs = JSON.parse(saved);
+                    checkboxes.forEach((cb, idx) => {
+                        if (idx in prefs) {
+                            cb.checked = prefs[idx];
+                            aplicarVisibilidade(idx, cb.checked);
+                        }
+                    });
+                } catch(e) {
+                    console.warn('⚠️ Erro ao carregar preferências de colunas:', e);
+                }
+            }
+
+            // 🧼 Reseta todas as colunas pro padrão (todas visíveis)
             function resetarColunas() {
-                checkboxes.forEach(cb => {
+                checkboxes.forEach((cb, idx) => {
                     cb.checked = true;
-                    aplicarVisibilidade(cb.dataset.col, true);
+                    aplicarVisibilidade(idx, true);
                 });
                 localStorage.removeItem(STORAGE_KEY);
             }
 
-            // 🔍 Filtro em tempo real
-            filtro.addEventListener('input', function () {
+            // 🔍 Filtro global
+            filtro.addEventListener('input', function() {
                 const termo = this.value.toLowerCase();
                 linhas.forEach(tr => {
-                    const match = tr.innerText.toLowerCase().includes(termo);
-                    tr.style.display = match ? '' : 'none';
+                    const texto = tr.innerText.toLowerCase();
+                    tr.style.display = texto.includes(termo) ? '' : 'none';
                 });
             });
 
-            // 👁️ Eventos de checkboxes
-            checkboxes.forEach(cb => {
-                cb.addEventListener('change', function () {
-                    aplicarVisibilidade(this.dataset.col, this.checked);
+            // 👁️ Eventos de checkbox de colunas
+            checkboxes.forEach((cb, idx) => {
+                cb.addEventListener('change', function() {
+                    aplicarVisibilidade(idx, this.checked);
                     salvarPreferencias();
                 });
             });
 
-            // 🧼 Evento de reset
-            resetBtn.addEventListener('click', resetarColunas);
-
             // 🚀 Inicializa
             carregarPreferencias();
+
+            // 🧼 Botão reset
+            const resetBtn = document.getElementById('reset-colunas');
+            resetBtn.addEventListener('click', resetarColunas);
         })();
     </script>
 {% endblock extra_script %}
 {% block extra_css %}
     <style>
-        .ajust {
-            max-height: 300px;
-            overflow-y: auto
+        th, td { vertical-align: top; }
+        code { white-space: nowrap; }
+        .dropdown-menu label {
+            font-weight: normal;
+            cursor: pointer;
+        }
+        .mb-10 {
+            margin-bottom: 10px;
+        }
+        .ml-10 {
+            margin-left: 10px;
+        }
+        .btn-reset-defaul{
+            width: 100%;
+            text-align: left;
+            padding-left: 10px
         }
     </style>
 {% endblock extra_css %}
