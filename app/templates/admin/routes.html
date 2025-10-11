@@ -101,13 +101,35 @@
             <!-- Aba de arquivos -->
             <div class="tab-pane fade" id="tab-archives">
                 <h4>Arquivos de configuração</h4>
-                <ul class="list-group">
-                    {% for archive in archives %}
-                        <li class="list-group-item clearfix">
-                            <strong>{{ archive }}</strong>
-                        </li>
-                    {% endfor %}
-                </ul>
+                <table class="table table-striped table-condensed sortable">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Tipo</th>
+                            <th>Tamanho</th>
+                            <th>Permissões</th>
+                            <th>Dono</th>
+                            <th>Grupo</th>
+                            <th>Última modificação</th>
+                        </tr>
+                        <!-- a linha de filtros é gerada dinamicamente -->
+                    </thead>
+                    <tbody>
+                        {% for a in archives %}
+                            <tr>
+                                <td>{{ a.nome }}</td>
+                                <td>{{ a.tipo }}</td>
+                                <td>{{ a.tamanho_formatado }}</td>
+                                <td>
+                                    <code>{{ a.permissoes }}</code>
+                                </td>
+                                <td>{{ a.owner }}</td>
+                                <td>{{ a.group }}</td>
+                                <td>{{ a.modificado_em|datahora }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -135,6 +157,180 @@
             });
         })();
     </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const table = document.querySelector("table.sortable");
+            if (!table) return;
+
+            const thead = table.querySelector("thead");
+            const headers = thead.querySelectorAll("tr:first-child > th");
+            const filterRow = document.createElement("tr");
+
+            // 🔸 Cria linha de filtros
+            headers.forEach((header, index) => {
+                const filterCell = document.createElement("th");
+                const input = document.createElement("input");
+                input.type = "text";
+                input.className = "form-control input-sm";
+                input.placeholder = "Filtrar...";
+                input.dataset.column = index;
+                input.addEventListener("input", filterTable);
+                filterCell.appendChild(input);
+                filterRow.appendChild(filterCell);
+            });
+
+            thead.appendChild(filterRow);
+
+            // 🔸 Botão de limpar filtros
+            const filterToolsRow = document.createElement("tr");
+            const filterToolsCell = document.createElement("th");
+            filterToolsCell.colSpan = headers.length;
+            filterToolsCell.style.textAlign = "right";
+            filterToolsCell.style.backgroundColor = "#f8f8f8";
+            filterToolsCell.style.padding = "6px";
+
+            const clearBtn = document.createElement("button");
+            clearBtn.textContent = "Limpar filtros";
+            clearBtn.className = "btn btn-xs btn-default";
+            clearBtn.addEventListener("click", clearFilters);
+
+            filterToolsCell.appendChild(clearBtn);
+            filterToolsRow.appendChild(filterToolsCell);
+            thead.appendChild(filterToolsRow);
+
+            // 🔸 Prepara valores de ordenação (data-sort-value)
+            table.querySelectorAll("tbody tr").forEach(row => {
+                const cells = row.querySelectorAll("td");
+                if (cells.length === 0) return;
+
+                // Tipo (coluna 1)
+                const tipoCell = cells[1];
+                const tipoTxt = tipoCell.innerText.trim().toLowerCase();
+                tipoCell.dataset.sortValue = tipoTxt.includes("diretório") ? 0 : 1;
+
+                // Tamanho (coluna 2)
+                const tamanhoCell = cells[2];
+                const tamanhoTxt = tamanhoCell.innerText.trim();
+                tamanhoCell.dataset.sortValue = parseSizeToBytes(tamanhoTxt);
+
+                // Última modificação (coluna 6)
+                const modCell = cells[6];
+                const modTxt = modCell.innerText.trim();
+                modCell.dataset.sortValue = parseDateToTimestamp(modTxt);
+            });
+
+            function parseSizeToBytes(sizeStr) {
+                if (!sizeStr) return 0;
+                const units = { b: 1, kb: 1024, mb: 1024 ** 2, gb: 1024 ** 3 };
+                const match = sizeStr.toLowerCase().match(/([\d.,]+)\s*([kmgb]*)b?/);
+                if (!match) return 0;
+                const num = parseFloat(match[1].replace(",", ".")) || 0;
+                const unit = match[2] || "b";
+                return num * (units[unit] || 1);
+            }
+
+            function parseDateToTimestamp(dateStr) {
+                if (!dateStr) return 0;
+                // Tenta formato dd/mm/yyyy hh:mm:ss
+                const parts = dateStr.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+                if (parts) {
+                    const [_, d, m, y, hh, mm, ss] = parts;
+                    return new Date(y, m - 1, d, hh, mm, ss || 0).getTime();
+                }
+                // fallback pra Date.parse
+                const ts = Date.parse(dateStr);
+                return isNaN(ts) ? 0 : ts;
+            }
+
+            // Configuração de ordenação (alterado)
+            const headerDirections = {};
+            headers.forEach((header, index) => {
+                header.style.cursor = "pointer";
+                header.addEventListener("click", () => {
+                    sortTableByColumn(index);
+                    updateHeaderIcons(index);
+                });
+            });
+
+            function sortTableByColumn(columnIndex) {
+                const rows = Array.from(table.querySelectorAll("tbody > tr"));
+                const currentDir = headerDirections[columnIndex] || "asc";
+                const newDir = currentDir === "asc" ? "desc" : "asc";
+                headerDirections[columnIndex] = newDir;
+
+                rows.sort((a, b) => {
+                    const aCell = a.cells[columnIndex];
+                    const bCell = b.cells[columnIndex];
+                    const aVal = aCell?.dataset.sortValue ?? aCell.innerText.trim();
+                    const bVal = bCell?.dataset.sortValue ?? bCell.innerText.trim();
+
+                    const aNum = parseFloat(aVal);
+                    const bNum = parseFloat(bVal);
+
+                    const bothNumeric = !isNaN(aNum) && !isNaN(bNum);
+                    if (bothNumeric) {
+                        return newDir === "asc" ? aNum - bNum : bNum - aNum;
+                    } else {
+                        return newDir === "asc"
+                            ? String(aVal).localeCompare(String(bVal))
+                            : String(bVal).localeCompare(String(aVal));
+                    }
+                });
+
+                const tbody = table.querySelector("tbody");
+                rows.forEach(row => tbody.appendChild(row));
+            };
+
+            function updateHeaderIcons(columnIndex) {
+                // Limpa os ícones de todas as colunas
+                headers.forEach((header, index) => {
+                    const icon = header.querySelector("span");
+                    if (icon) {
+                        header.removeChild(icon);
+                    }
+                });
+
+                // Adiciona a seta de ordenação para a coluna atual
+                const header = headers[columnIndex];
+                const iconSpan = document.createElement("span");
+                iconSpan.className = "glyphicon";
+                
+                if (headerDirections[columnIndex] === "asc") {
+                    iconSpan.classList.add("glyphicon-arrow-up");
+                } else {
+                    iconSpan.classList.add("glyphicon-arrow-down");
+                }
+                
+                header.appendChild(iconSpan);
+            }
+
+            // 🔸 Filtro por coluna
+            function filterTable() {
+                const inputs = table.querySelectorAll("thead input");
+                const rows = table.querySelectorAll("tbody tr");
+
+                rows.forEach(row => {
+                    let visible = true;
+                    inputs.forEach(input => {
+                        const columnIndex = parseInt(input.dataset.column);
+                        const filterValue = input.value.toLowerCase();
+                        const cellText = row.cells[columnIndex].innerText.toLowerCase();
+                        if (filterValue && !cellText.includes(filterValue)) {
+                            visible = false;
+                        }
+                    });
+                    row.style.display = visible ? "" : "none";
+                });
+            }
+
+            // 🔸 Resetar todos os filtros
+            function clearFilters() {
+                const inputs = table.querySelectorAll("thead input");
+                inputs.forEach(input => input.value = "");
+                filterTable();
+            }
+        });
+    </script>
 {% endblock extra_script %}
 {% block extra_css %}
     <style>
@@ -149,3 +345,6 @@
         }
     </style>
 {% endblock extra_css %}
+{#
+3PJJNTU34HT
+#}

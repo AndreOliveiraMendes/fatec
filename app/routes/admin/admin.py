@@ -1,11 +1,14 @@
+import grp
 import importlib.resources as resources
+import inspect
 import json
 import os
+import pwd
+import stat
 from copy import copy
 from datetime import datetime, timedelta
 from importlib.resources import as_file
 from pathlib import Path
-import inspect
 
 from flask import (Blueprint, current_app, flash, jsonify, redirect,
                    render_template, request, session, url_for)
@@ -105,6 +108,76 @@ def gerar_chave():
         flash("⚠️ A chave já estava configurada.", "warning")
     return redirect(url_for("admin.gerenciar_menu"))
 
+def listar_arquivos_config():
+    directory = os.path.abspath('config')
+    archives = []
+
+    if os.path.exists(directory):
+        for filename in os.listdir(directory):
+            full_path = os.path.join(directory, filename)
+            try:
+                info = os.lstat(full_path)  # lstat pra pegar info do link sem seguir
+
+                # 📌 Tipo do arquivo
+                if stat.S_ISDIR(info.st_mode):
+                    tipo = "Diretório"
+                elif stat.S_ISLNK(info.st_mode):
+                    tipo = "Link simbólico"
+                elif stat.S_ISREG(info.st_mode):
+                    tipo = "Arquivo regular"
+                elif stat.S_ISSOCK(info.st_mode):
+                    tipo = "Socket"
+                elif stat.S_ISCHR(info.st_mode):
+                    tipo = "Dispositivo caractere"
+                elif stat.S_ISBLK(info.st_mode):
+                    tipo = "Dispositivo bloco"
+                elif stat.S_ISFIFO(info.st_mode):
+                    tipo = "FIFO/pipe"
+                else:
+                    tipo = "Desconhecido"
+
+                # 📜 Permissões estilo `ls -l`
+                permissions = stat.filemode(info.st_mode)
+
+                # 👤 Dono e grupo (Unix)
+                try:
+                    owner = pwd.getpwuid(info.st_uid).pw_name
+                except KeyError:
+                    owner = str(info.st_uid)
+                try:
+                    group = grp.getgrgid(info.st_gid).gr_name
+                except KeyError:
+                    group = str(info.st_gid)
+
+                # 📏 Tamanho formatado
+                size_bytes = info.st_size
+                if size_bytes < 1024:
+                    size_fmt = f"{size_bytes} B"
+                elif size_bytes < 1024**2:
+                    size_fmt = f"{size_bytes/1024:.1f} KB"
+                elif size_bytes < 1024**3:
+                    size_fmt = f"{size_bytes/1024**2:.1f} MB"
+                else:
+                    size_fmt = f"{size_bytes/1024**3:.1f} GB"
+
+                archives.append({
+                    "nome": filename,
+                    "caminho": full_path,
+                    "tipo": tipo,
+                    "tamanho_bytes": size_bytes,
+                    "tamanho_formatado": size_fmt,
+                    "permissoes": permissions,
+                    "owner": owner,
+                    "group": group,
+                    "modificado_em": datetime.fromtimestamp(info.st_mtime),
+                    "criado_em": datetime.fromtimestamp(info.st_ctime),
+                })
+
+            except FileNotFoundError:
+                continue
+
+    return archives
+
 @bp.route("/listar_rotas")
 @admin_required
 def listar_rotas():
@@ -129,15 +202,12 @@ def listar_rotas():
     routes.sort(key=lambda x: (x[2].split('.')[0], x[0]))
     bps = sorted(blueprint_counts.items(), key=lambda x: x[0])
 
-    directory = os.path.abspath('config')
-    archives = os.listdir(directory) if os.path.exists(directory) else []
-
     return render_template(
         "admin/routes.html",
         user=user,
         rotas=routes,
         blueprints=bps,
-        archives=archives
+        archives=listar_arquivos_config()
     )
 
 def coletar_detalhes_rotas():
