@@ -325,12 +325,9 @@ $(function () {
                     return "<i>Ativação permanente</i>";
                 };
 
-                if(anterior)
-                    $("#infoGerenciarPeriodos .periodo.anterior .periodo-detalhe").html(formatPeriodo(anterior));
-                if(atual)
-                    $("#infoGerenciarPeriodos .periodo.atual .periodo-detalhe").html(formatPeriodo(atual));
-                if(proxima)
-                    $("#infoGerenciarPeriodos .periodo.proximo .periodo-detalhe").html(formatPeriodo(proxima));
+                $("#infoGerenciarPeriodos .periodo.anterior .periodo-detalhe").html(formatPeriodo(anterior));
+                $("#infoGerenciarPeriodos .periodo.atual .periodo-detalhe").html(formatPeriodo(atual));
+                $("#infoGerenciarPeriodos .periodo.proximo .periodo-detalhe").html(formatPeriodo(proxima));
 
                 // Exibe a área de informação caso esteja oculta
                 $("#infoGerenciarPeriodos").removeClass("hide").slideDown();
@@ -414,7 +411,7 @@ $(function () {
                     $("#formExtender input[name='fim']").val(fim);
                 atualizarAbasGerenciar(ativa);
                 $("#modalGerenciar").data("id_aula", response.id_aula || null);
-                carregarPeriodosRelacionados(horarioId, semanaId, tipoSelecionado, response.id_aula || null, window.appConfig.hoje);
+                carregarPeriodosRelacionados(horarioId, semanaId, tipo, response.id_aula || null, window.appConfig.hoje);
             });
     });
 
