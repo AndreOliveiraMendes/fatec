@@ -7,3 +7,4 @@ config.ini
 laboratorio
 logs
 config/*.json
+data/*

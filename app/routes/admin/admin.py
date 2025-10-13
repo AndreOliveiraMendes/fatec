@@ -6,14 +6,14 @@ from datetime import datetime, timedelta
 from importlib.resources import as_file
 from pathlib import Path
 
-from flask import (Blueprint, flash, jsonify, redirect, render_template,
+from flask import (Blueprint, jsonify, redirect, render_template,
                    request, session, url_for)
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import between, or_, select
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
                             InternalError, OperationalError, ProgrammingError)
 
-from app.auxiliar.auxiliar_cryptograph import ensure_secret_file, load_key
+from app.auxiliar.auxiliar_cryptograph import load_key
 from app.auxiliar.auxiliar_routes import (get_unique_or_500, get_user_info,
                                           parse_date_string,
                                           registrar_log_generico_usuario)
@@ -93,16 +93,6 @@ def configuracao_geral():
             config_file.write_text(json.dumps(config_cfg, indent=4, ensure_ascii=False), encoding="utf-8")
         return redirect(url_for('default.home'))
     return render_template("admin/control.html", user=user, **extras)
-
-@bp.route("/gerar_chave")
-@admin_required
-def gerar_chave():
-    key = ensure_secret_file()
-    if key:
-        flash("✅ Chave de criptografia gerada com sucesso!", "success")
-    else:
-        flash("⚠️ A chave já estava configurada.", "warning")
-    return redirect(url_for("admin.gerenciar_menu"))
 
 @bp.route("/times")
 @admin_required

@@ -1,3 +1,5 @@
+from pathlib import Path
+
 semana_inglesa = {
     '%a': {  # abreviada
         'Mon': 'Seg', 'Tue': 'Ter', 'Wed': 'Qua', 'Thu': 'Qui',
@@ -64,7 +66,9 @@ DEFAULT_CONFIG_CFG = {
 }
 
 SECRET_PATH = "config/secret.json"
-SSH_CRED_PATH = "config/ssh_credentials.json"
+
+SSH_CRED_PATH = "data/ssh_credentials.json"
+SSH_CRED_FILE = Path(SSH_CRED_PATH)
 
 ERROR_MESSAGES = {
     400: "Requisição inválida",

@@ -1,0 +1,237 @@
+{% extends "base-fixed" %}
+{% block title %}
+    Central de SSH
+{% endblock title %}
+{% block content %}
+    <div class="panel panel-default">
+        <div class="panel-heading clearfix">
+            <h3 class="panel-title pull-left">
+                <span class="glyphicon glyphicon-lock"></span> Gerenciamento de Credenciais SSH
+            </h3>
+            <div class="pull-right">
+                <button id="btnAddCred" class="btn btn-primary btn-sm">
+                    <span class="glyphicon glyphicon-plus"></span> Nova Credencial
+                </button>
+            </div>
+        </div>
+        <div class="panel-body">
+            <table class="table table-striped table-bordered" id="tableCreds">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Host</th>
+                        <th>Usuário</th>
+                        <th>Porta</th>
+                        <th>Chave?</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+    <!-- Modal de edição -->
+    <div class="modal fade" id="modalCred" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="formCred">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">×</button>
+                        <h4 class="modal-title">Credencial SSH</h4>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="id">
+                        <div class="form-group">
+                            <label>Host</label>
+                            <input type="text" name="host_ssh" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Usuário</label>
+                            <input type="text" name="user_ssh" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Porta</label>
+                            <input type="number"
+                                   name="port_ssh"
+                                   class="form-control"
+                                   value="22"
+                                   required>
+                        </div>
+                        <div class="form-group">
+                            <label>Senha</label>
+                            <input type="password" name="password_ssh" class="form-control">
+                            <span class="help-block">Opcional se usar chave</span>
+                        </div>
+                        <div class="form-group">
+                            <label>Chave privada (opcional)</label>
+                            <textarea name="key_ssh" class="form-control" rows="4"></textarea>
+                            <span class="help-block">Cole o conteúdo da chave aqui</span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+{% block extra_script %}
+    <script>
+        (function(){
+            const table = document.querySelector('#tableCreds');
+
+            // Check if tbody exists
+            let tableBody = table.querySelector('tbody');
+
+            if (!tableBody) {
+                // Create tbody if it doesn't exist
+                tableBody = document.createElement('tbody');
+                // Optionally set an ID or any other attributes
+                tableBody.id = 'tableBody';  
+                // Append tbody to the table
+                table.appendChild(tableBody);
+            }
+
+            const modal = $('#modalCred');
+            const form = document.getElementById('formCred');
+
+            function carregarCredenciais() {
+                fetch('{{ url_for("admin_remote.api_ssh_list") }}')
+                .then(r => r.json())
+                .then(data => {
+                    tableBody.innerHTML = '';
+                    if (data.length === 0) {
+                        tableBody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">Nenhuma credencial cadastrada.</td></tr>`;
+                        return;
+                    }
+                    data.forEach(c => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${c.id}</td>
+                            <td>${c.host_ssh}</td>
+                            <td>${c.user_ssh}</td>
+                            <td>${c.port_ssh}</td>
+                            <td>${c.key_ssh ? '<span class="label label-success">Sim</span>' : '<span class="label label-default">Não</span>'}</td>
+                            <td>
+                                <button class="btn btn-xs btn-success btn-test" data-id="${c.id}" title="Testar conexão">
+                                    <span class="glyphicon glyphicon-console"></span>
+                                </button>
+                                <button class="btn btn-xs btn-info btn-edit" data-id="${c.id}" title="Editar">
+                                    <span class="glyphicon glyphicon-pencil"></span>
+                                </button>
+                                <button class="btn btn-xs btn-danger btn-del" data-id="${c.id}" title="Excluir">
+                                    <span class="glyphicon glyphicon-trash"></span>
+                                </button>
+                            </td>
+                        `;
+                        tableBody.appendChild(tr);
+                    });
+                });
+            }
+
+            // Abrir modal de criação
+            document.getElementById('btnAddCred').addEventListener('click', () => {
+                form.reset();
+                form.id.value = '';
+                modal.modal('show');
+            });
+
+            // Salvar credencial
+            form.addEventListener('submit', e => {
+                e.preventDefault();
+                const data = Object.fromEntries(new FormData(form).entries());
+                if (data.port_ssh) data.port_ssh = parseInt(data.port_ssh);
+
+                fetch('{{ url_for("admin_remote.api_ssh_save") }}', {
+                    method: 'POST',
+                    headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify(data)
+                })
+                .then(r=>r.json())
+                .then(resp=>{
+                    if (resp.success) {
+                        modal.modal('hide');
+                        carregarCredenciais();
+                    } else {
+                        alert('Erro ao salvar');
+                    }
+                });
+            });
+
+            // Editar / deletar (delegado)
+            tableBody.addEventListener('click', e => {
+                const editBtn = e.target.closest('.btn-edit');
+                const delBtn = e.target.closest('.btn-del');
+                const testBtn = e.target.closest('.btn-test');
+
+                if (editBtn) {
+                    const id = editBtn.dataset.id;
+                    fetch('{{ url_for("admin_remote.api_ssh_list") }}')
+                    .then(r=>r.json())
+                    .then(data=>{
+                        const cred = data.find(c=>c.id==id);
+                        if (cred) {
+                            for (const k in cred) {
+                                if (form[k]) form[k].value = cred[k];
+                            }
+                            modal.modal('show');
+                        }
+                    });
+                }
+
+                if (delBtn) {
+                    const id = delBtn.dataset.id;
+                    if (!confirm('Tem certeza que deseja excluir esta credencial?')) return;
+                    fetch(`{{ url_for("admin_remote.api_ssh_delete", cred_id=0) }}`.replace('0', id), {
+                        method: 'POST'
+                    })
+                    .then(r=>r.json())
+                    .then(resp=>{
+                        if (resp.success) carregarCredenciais();
+                    });
+                }
+
+                if (testBtn) {
+                    const id = testBtn.dataset.id;
+                    testBtn.disabled = true;
+                    testBtn.classList.add('loading');
+
+                    fetch(`{{ url_for("admin_remote.api_ssh_test", cred_id=0) }}`.replace('0', id), {
+                        method: 'POST'
+                    })
+                    .then(r=>r.json())
+                    .then(resp=>{
+                        if (resp.success) {
+                            alert(resp.message || 'Conexão bem-sucedida!');
+                        } else {
+                            alert('❌ ' + (resp.error || 'Falha ao conectar.'));
+                        }
+                    })
+                    .catch(err=>{
+                        alert('Erro inesperado: ' + err);
+                    })
+                    .finally(()=>{
+                        testBtn.disabled = false;
+                        testBtn.classList.remove('loading');
+                    });
+                }
+            });
+
+            // Inicializa
+            carregarCredenciais();
+        })();
+    </script>
+{% endblock extra_script %}
+{% block extra_css %}
+    <style>
+        .btn-test.loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        .btn-test.loading span::after {
+            content: " …";
+            font-weight: bold;
+        }
+    </style>
+{% endblock extra_css %}

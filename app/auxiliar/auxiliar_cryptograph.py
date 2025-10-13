@@ -27,10 +27,19 @@ def load_key():
     except FileNotFoundError:
         return None
 
+
 def encrypt_password(password: str) -> str:
-    f = Fernet(load_key())
+    """Criptografa a senha com Fernet e devolve em formato string."""
+    key = load_key()
+    if not key:
+        raise RuntimeError("❌ Nenhuma chave Fernet encontrada. Gere primeiro.")
+    f = Fernet(key)
     return f.encrypt(password.encode()).decode()
 
 def decrypt_password(token: str) -> str:
-    f = Fernet(load_key())
+    """Descriptografa uma senha criptografada com Fernet."""
+    key = load_key()
+    if not key:
+        raise RuntimeError("❌ Nenhuma chave Fernet encontrada. Não é possível descriptografar.")
+    f = Fernet(key)
     return f.decrypt(token.encode()).decode()

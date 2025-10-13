@@ -110,12 +110,14 @@
                             🔒 Chave Configurada
                         </span>
                     {% else %}
-                        <a href="{{ url_for('admin.gerar_chave') }}"
+                        <a href="{{ url_for('admin_remote.gerar_chave') }}"
                            class="btn btn-danger"
                            onclick="return confirm('Tem certeza que deseja gerar a chave de criptografia? Essa ação não pode ser desfeita.');">
                             🔑 Gerar Chave
                         </a>
                     {% endif %}
+                    <a href="{{ url_for('admin_remote.manage_ssh') }}"
+                       class="btn btn-warning">Credenciais de SSH</a>
                 </div>
             </div>
         </div>
