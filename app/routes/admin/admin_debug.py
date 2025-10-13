@@ -14,17 +14,21 @@ from config.general import LIST_ROUTES
 
 bp = Blueprint("admin_debug", __name__, url_prefix='/admin')
 
+
 def listar_arquivos_config():
+    """
+    Lista arquivos e diretórios dentro de 'config' com informações detalhadas (permissões, owner, etc.)
+    """
     directory = os.path.abspath('config')
-    archives = []
+    arquivos = []
 
     if os.path.exists(directory):
         for filename in os.listdir(directory):
             full_path = os.path.join(directory, filename)
             try:
-                info = os.lstat(full_path)  # lstat pra pegar info do link sem seguir
+                info = os.lstat(full_path)  # lstat pega info do link sem seguir
 
-                # 📌 Tipo do arquivo
+                # Tipo de arquivo
                 if stat.S_ISDIR(info.st_mode):
                     tipo = "Diretório"
                 elif stat.S_ISLNK(info.st_mode):
@@ -42,10 +46,10 @@ def listar_arquivos_config():
                 else:
                     tipo = "Desconhecido"
 
-                # 📜 Permissões estilo `ls -l`
+                # Permissões estilo ls -l
                 permissions = stat.filemode(info.st_mode)
 
-                # 👤 Dono e grupo (Unix)
+                # Dono e grupo
                 try:
                     owner = pwd.getpwuid(info.st_uid).pw_name
                 except KeyError:
@@ -55,7 +59,7 @@ def listar_arquivos_config():
                 except KeyError:
                     group = str(info.st_gid)
 
-                # 📏 Tamanho formatado
+                # Tamanho human readable
                 size_bytes = info.st_size
                 if size_bytes < 1024:
                     size_fmt = f"{size_bytes} B"
@@ -66,7 +70,7 @@ def listar_arquivos_config():
                 else:
                     size_fmt = f"{size_bytes/1024**3:.1f} GB"
 
-                archives.append({
+                arquivos.append({
                     "nome": filename,
                     "caminho": full_path,
                     "tipo": tipo,
@@ -82,7 +86,8 @@ def listar_arquivos_config():
             except FileNotFoundError:
                 continue
 
-    return archives
+    return arquivos
+
 
 @bp.route("/listar_rotas")
 @admin_required
