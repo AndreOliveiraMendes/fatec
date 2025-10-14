@@ -19,6 +19,7 @@
                 <thead>
                     <tr>
                         <th>ID</th>
+                        <th>Nome</th>
                         <th>Host</th>
                         <th>Usuário</th>
                         <th>Porta</th>
@@ -40,6 +41,10 @@
                     </div>
                     <div class="modal-body">
                         <input type="hidden" name="id">
+                        <div class="form-group">
+                            <label>Nome</label>
+                            <input type="text" name="name_ssh" class="form-control" required>
+                        </div>
                         <div class="form-group">
                             <label>Host</label>
                             <input type="text" name="host_ssh" class="form-control" required>
@@ -109,6 +114,7 @@
                         const tr = document.createElement('tr');
                         tr.innerHTML = `
                             <td>${c.id}</td>
+                            <td>${c.name_ssh}</td>
                             <td>${c.host_ssh}</td>
                             <td>${c.user_ssh}</td>
                             <td>${c.port_ssh}</td>
