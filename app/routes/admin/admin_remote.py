@@ -61,6 +61,8 @@ def api_ssh_list():
 @admin_required
 def api_ssh_save():
     data = request.get_json() or {}
+    data.setdefault("auth_type", "password")
+    data.setdefault("key_passphrase", "")
     creds = load_ssh_credentials()
 
     # 🔐 Criptografa a senha se fornecida
@@ -115,33 +117,36 @@ def api_ssh_test(cred_id):
     host = cred.get("host_ssh")
     user = cred.get("user_ssh")
     port = int(cred.get("port_ssh", 22))
-    password_enc = cred.get("password_ssh") or None
-    password = None
-    key_str = cred.get("key_ssh") or None
-
-    if password_enc:
-        try:
-            password = decrypt_password(password_enc)
-        except Exception as e:
-            return jsonify({"success": False, "error": f"Falha ao descriptografar senha: {e}"})
+    auth_type = cred.get("auth_type", "password")  # default to password if not set
 
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
     try:
-        if key_str:
-            # Carrega a chave privada a partir da string
+        if auth_type == "key":
+            key_str = cred.get("key_ssh") or ""
+            passphrase = cred.get("key_passphrase") or None
+            if not key_str.strip():
+                return jsonify({"success": False, "error": "Nenhuma chave fornecida para autenticação por chave."}), 400
+
             import io
             key_file = io.StringIO(key_str)
-            pkey = paramiko.RSAKey.from_private_key(key_file)
+            pkey = paramiko.RSAKey.from_private_key(key_file, password=passphrase)
             client.connect(host, port=port, username=user, pkey=pkey, timeout=5)
-        else:
+
+        else:  # password auth
+            password_enc = cred.get("password_ssh")
+            if not password_enc:
+                return jsonify({"success": False, "error": "Senha não fornecida para autenticação por senha."}), 400
+            try:
+                password = decrypt_password(password_enc)
+            except Exception as e:
+                return jsonify({"success": False, "error": f"Falha ao descriptografar senha: {e}"})
             client.connect(host, port=port, username=user, password=password, timeout=5)
 
         # Testa um comando simples
         stdin, stdout, stderr = client.exec_command("echo ok")
         output = stdout.read().decode().strip()
-        client.close()
 
         if output == "ok":
             return jsonify({"success": True, "message": "Conexão bem-sucedida ✅"})

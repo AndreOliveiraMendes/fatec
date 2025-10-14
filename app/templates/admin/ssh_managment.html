@@ -62,14 +62,31 @@
                                    required>
                         </div>
                         <div class="form-group">
+                            <label>Tipo de autenticação</label>
+                            <br>
+                            <label class="radio-inline">
+                                <input type="radio" name="auth_type" value="password" checked>
+                                Senha
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name="auth_type" value="key">
+                                Chave
+                            </label>
+                        </div>
+                        <div id="fieldPassword" class="form-group">
                             <label>Senha</label>
                             <input type="password" name="password_ssh" class="form-control">
                             <span class="help-block">Opcional se usar chave</span>
                         </div>
-                        <div class="form-group">
-                            <label>Chave privada (opcional)</label>
+                        <div id="fieldKey" class="form-group hide">
+                            <label>Chave privada</label>
                             <textarea name="key_ssh" class="form-control" rows="4"></textarea>
                             <span class="help-block">Cole o conteúdo da chave aqui</span>
+                        </div>
+                        <div id="fieldKeyPass" class="form-group hide">
+                            <label>Passphrase da chave (opcional)</label>
+                            <input type="password" name="key_passphrase" class="form-control">
+                            <span class="help-block">Se a chave privada tiver passphrase, informe aqui</span>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -83,26 +100,38 @@
 {% endblock content %}
 {% block extra_script %}
     <script>
-        (function(){
-            const table = document.querySelector('#tableCreds');
+    (function () {
+        const table = document.querySelector('#tableCreds');
 
-            // Check if tbody exists
-            let tableBody = table.querySelector('tbody');
+        // Check if tbody exists
+        let tableBody = table.querySelector('tbody');
 
-            if (!tableBody) {
-                // Create tbody if it doesn't exist
-                tableBody = document.createElement('tbody');
-                // Optionally set an ID or any other attributes
-                tableBody.id = 'tableBody';  
-                // Append tbody to the table
-                table.appendChild(tableBody);
-            }
+        if (!tableBody) {
+            // Create tbody if it doesn't exist
+            tableBody = document.createElement('tbody');
+            // Optionally set an ID or any other attributes
+            tableBody.id = 'tableBody';
+            // Append tbody to the table
+            table.appendChild(tableBody);
+        }
 
-            const modal = $('#modalCred');
-            const form = document.getElementById('formCred');
+        const modal = $('#modalCred');
+        const form = document.getElementById('formCred');
 
-            function carregarCredenciais() {
-                fetch('{{ url_for("admin_remote.api_ssh_list") }}')
+        // Alterna campos de senha/chave conforme auth_type
+        form.querySelectorAll('input[name="auth_type"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                const type = form.querySelector('input[name="auth_type"]:checked').value;
+                document.getElementById('fieldKey').classList.remove('hide');
+                document.getElementById('fieldKeyPass').classList.remove('hide');
+                document.getElementById('fieldPassword').style.display = (type === 'password') ? '' : 'none';
+                document.getElementById('fieldKey').style.display = (type === 'key') ? '' : 'none';
+                document.getElementById('fieldKeyPass').style.display = (type === 'key') ? '' : 'none';
+            });
+        });
+
+        function carregarCredenciais() {
+            fetch('{{ url_for("admin_remote.api_ssh_list") }}')
                 .then(r => r.json())
                 .then(data => {
                     tableBody.innerHTML = '';
@@ -118,7 +147,11 @@
                             <td>${c.host_ssh}</td>
                             <td>${c.user_ssh}</td>
                             <td>${c.port_ssh}</td>
-                            <td>${c.key_ssh ? '<span class="label label-success">Sim</span>' : '<span class="label label-default">Não</span>'}</td>
+                            <td>
+                                ${c.key_ssh
+                                    ? `<span class="label label-success">Sim</span> ${c.key_passphrase ? '<span class="glyphicon glyphicon-lock text-muted" title="Chave com passphrase"></span>' : ''}`
+                                    : '<span class="label label-default">Não</span>'}
+                            </td>
                             <td>
                                 <button class="btn btn-xs btn-success btn-test" data-id="${c.id}" title="Testar conexão">
                                     <span class="glyphicon glyphicon-console"></span>
@@ -134,28 +167,28 @@
                         tableBody.appendChild(tr);
                     });
                 });
-            }
+        }
 
-            // Abrir modal de criação
-            document.getElementById('btnAddCred').addEventListener('click', () => {
-                form.reset();
-                form.id.value = '';
-                modal.modal('show');
-            });
+        // Abrir modal de criação
+        document.getElementById('btnAddCred').addEventListener('click', () => {
+            form.reset();
+            form.id.value = '';
+            modal.modal('show');
+        });
 
-            // Salvar credencial
-            form.addEventListener('submit', e => {
-                e.preventDefault();
-                const data = Object.fromEntries(new FormData(form).entries());
-                if (data.port_ssh) data.port_ssh = parseInt(data.port_ssh);
+        // Salvar credencial
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            const data = Object.fromEntries(new FormData(form).entries());
+            if (data.port_ssh) data.port_ssh = parseInt(data.port_ssh);
 
-                fetch('{{ url_for("admin_remote.api_ssh_save") }}', {
-                    method: 'POST',
-                    headers: {'Content-Type':'application/json'},
-                    body: JSON.stringify(data)
-                })
-                .then(r=>r.json())
-                .then(resp=>{
+            fetch('{{ url_for("admin_remote.api_ssh_save") }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+                .then(r => r.json())
+                .then(resp => {
                     if (resp.success) {
                         modal.modal('hide');
                         carregarCredenciais();
@@ -163,81 +196,103 @@
                         alert('Erro ao salvar');
                     }
                 });
-            });
+        });
 
-            // Editar / deletar (delegado)
-            tableBody.addEventListener('click', e => {
-                const editBtn = e.target.closest('.btn-edit');
-                const delBtn = e.target.closest('.btn-del');
-                const testBtn = e.target.closest('.btn-test');
+        // Editar / deletar (delegado)
+        tableBody.addEventListener('click', e => {
+            const editBtn = e.target.closest('.btn-edit');
+            const delBtn = e.target.closest('.btn-del');
+            const testBtn = e.target.closest('.btn-test');
 
-                if (editBtn) {
-                    const id = editBtn.dataset.id;
-                    fetch('{{ url_for("admin_remote.api_ssh_list") }}')
-                    .then(r=>r.json())
-                    .then(data=>{
-                        const cred = data.find(c=>c.id==id);
+            if (editBtn) {
+                const id = editBtn.dataset.id;
+                fetch('{{ url_for("admin_remote.api_ssh_list") }}')
+                    .then(r => r.json())
+                    .then(data => {
+                        const cred = data.find(c => c.id == id);
                         if (cred) {
+                            // Preenche campos simples
                             for (const k in cred) {
-                                if (form[k]) form[k].value = cred[k];
+                                if (form[k]) {
+                                    if (k === 'auth_type') {
+                                        const radio = form.querySelector(`input[name="auth_type"][value="${cred[k]}"]`);
+                                        if (radio) radio.checked = true;
+                                    } else {
+                                        form[k].value = cred[k];
+                                    }
+                                }
                             }
+
+                            // Atualiza visibilidade dos campos
+                            const type = form.querySelector('input[name="auth_type"]:checked').value;
+                            document.getElementById('fieldPassword').style.display = (type === 'password') ? '' : 'none';
+                            document.getElementById('fieldKey').style.display = (type === 'key') ? '' : 'none';
+                            document.getElementById('fieldKeyPass').style.display = (type === 'key') ? '' : 'none';
+
                             modal.modal('show');
                         }
                     });
-                }
+            }
 
-                if (delBtn) {
-                    const id = delBtn.dataset.id;
-                    if (!confirm('Tem certeza que deseja excluir esta credencial?')) return;
-                    fetch(`{{ url_for("admin_remote.api_ssh_delete", cred_id=0) }}`.replace('0', id), {
-                        method: 'POST'
-                    })
-                    .then(r=>r.json())
-                    .then(resp=>{
+            if (delBtn) {
+                const id = delBtn.dataset.id;
+                if (!confirm('Tem certeza que deseja excluir esta credencial?')) return;
+                fetch(`{{ url_for("admin_remote.api_ssh_delete", cred_id=0) }}`.replace('0', id), {
+                    method: 'POST'
+                })
+                    .then(r => r.json())
+                    .then(resp => {
                         if (resp.success) carregarCredenciais();
                     });
-                }
+            }
 
-                if (testBtn) {
-                    const id = testBtn.dataset.id;
-                    testBtn.disabled = true;
-                    testBtn.classList.add('loading');
+            if (testBtn) {
+                const id = testBtn.dataset.id;
+                testBtn.disabled = true;
+                testBtn.classList.add('loading');
 
-                    fetch(`{{ url_for("admin_remote.api_ssh_test", cred_id=0) }}`.replace('0', id), {
-                        method: 'POST'
-                    })
-                    .then(r=>r.json())
-                    .then(resp=>{
+                fetch(`{{ url_for("admin_remote.api_ssh_test", cred_id=0) }}`.replace('0', id), {
+                    method: 'POST'
+                })
+                    .then(r => r.json())
+                    .then(resp => {
                         if (resp.success) {
                             alert(resp.message || 'Conexão bem-sucedida!');
                         } else {
                             alert('❌ ' + (resp.error || 'Falha ao conectar.'));
                         }
                     })
-                    .catch(err=>{
+                    .catch(err => {
                         alert('Erro inesperado: ' + err);
                     })
-                    .finally(()=>{
+                    .finally(() => {
                         testBtn.disabled = false;
                         testBtn.classList.remove('loading');
                     });
-                }
-            });
+            }
+        });
 
-            // Inicializa
-            carregarCredenciais();
-        })();
+        // Inicializa
+        carregarCredenciais();
+    })();
     </script>
 {% endblock extra_script %}
 {% block extra_css %}
     <style>
-        .btn-test.loading {
-            opacity: 0.7;
-            pointer-events: none;
-        }
-        .btn-test.loading span::after {
-            content: " …";
-            font-weight: bold;
-        }
+    .btn-test.loading {
+        opacity: 0.7;
+        pointer-events: none;
+    }
+
+    .btn-test.loading span::after {
+        content: " …";
+        font-weight: bold;
+    }
+
+    .glyphicon-lock {
+        font-size: 12px;
+        vertical-align: middle;
+        margin-left: 4px;
+    }
     </style>
 {% endblock extra_css %}
