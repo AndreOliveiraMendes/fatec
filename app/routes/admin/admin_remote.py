@@ -74,7 +74,7 @@ def api_ssh_save():
 
     # 🆔 Normaliza ID (se vier string)
     cred_id = data.get("id")
-    if cred_id is not None:
+    if cred_id:
         try:
             cred_id = int(cred_id)
         except (ValueError, TypeError):

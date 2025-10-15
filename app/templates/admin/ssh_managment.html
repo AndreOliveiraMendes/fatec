@@ -115,19 +115,29 @@
             table.appendChild(tableBody);
         }
 
+        // Função utilitária para alternar os campos de acordo com o tipo de autenticação
+        function updateAuthFields(form) {
+            const type = form.querySelector('input[name="auth_type"]:checked').value;
+            const fieldPassword = document.getElementById('fieldPassword');
+            const fieldKey = document.getElementById('fieldKey');
+            const fieldKeyPass = document.getElementById('fieldKeyPass');
+
+            // Garante que não fiquem ocultos permanentemente
+            fieldKey.classList.remove('hide');
+            fieldKeyPass.classList.remove('hide');
+
+            // Exibe/esconde conforme o tipo
+            fieldPassword.style.display = (type === 'password') ? '' : 'none';
+            fieldKey.style.display = (type === 'key') ? '' : 'none';
+            fieldKeyPass.style.display = (type === 'key') ? '' : 'none';
+        }
+
         const modal = $('#modalCred');
         const form = document.getElementById('formCred');
 
-        // Alterna campos de senha/chave conforme auth_type
+        // Alterna campos quando muda o tipo de autenticação
         form.querySelectorAll('input[name="auth_type"]').forEach(radio => {
-            radio.addEventListener('change', () => {
-                const type = form.querySelector('input[name="auth_type"]:checked').value;
-                document.getElementById('fieldKey').classList.remove('hide');
-                document.getElementById('fieldKeyPass').classList.remove('hide');
-                document.getElementById('fieldPassword').style.display = (type === 'password') ? '' : 'none';
-                document.getElementById('fieldKey').style.display = (type === 'key') ? '' : 'none';
-                document.getElementById('fieldKeyPass').style.display = (type === 'key') ? '' : 'none';
-            });
+            radio.addEventListener('change', () => updateAuthFields(form));
         });
 
         function carregarCredenciais() {
@@ -173,6 +183,7 @@
         document.getElementById('btnAddCred').addEventListener('click', () => {
             form.reset();
             form.id.value = '';
+            updateAuthFields(form);
             modal.modal('show');
         });
 
@@ -224,11 +235,7 @@
                             }
 
                             // Atualiza visibilidade dos campos
-                            const type = form.querySelector('input[name="auth_type"]:checked').value;
-                            document.getElementById('fieldPassword').style.display = (type === 'password') ? '' : 'none';
-                            document.getElementById('fieldKey').style.display = (type === 'key') ? '' : 'none';
-                            document.getElementById('fieldKeyPass').style.display = (type === 'key') ? '' : 'none';
-
+                            updateAuthFields(form);
                             modal.modal('show');
                         }
                     });
