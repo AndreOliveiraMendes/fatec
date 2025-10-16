@@ -1,0 +1,112 @@
+{% extends "base-fixed" %}
+{% block title %}
+    Execução de Comandos SSH
+{% endblock title %}
+{% block content %}
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title">Execução Livre de Comandos SSH</h3>
+        </div>
+        <div class="panel-body">
+            <form id="formExec">
+                <div class="form-group">
+                    <label>Credencial</label>
+                    <select name="cred_id" id="credSelect" class="form-control" required></select>
+                </div>
+                <div class="form-group">
+                    <label>Comando</label>
+                    <textarea name="command"
+                              id="commandInput"
+                              class="form-control"
+                              rows="3"
+                              required></textarea>
+                </div>
+                <button type="submit" class="btn btn-success">Executar</button>
+            </form>
+            <hr>
+            <h4>Histórico</h4>
+            <div id="historyPanel" class="well history"></div>
+        </div>
+    </div>
+{% endblock content %}
+{% block extra_script %}
+    <script>
+        (function () {
+            const formExec = document.getElementById("formExec");
+            const credSelect = document.getElementById("credSelect");
+            const historyPanel = document.getElementById("historyPanel");
+
+            // 🔄 Carrega credenciais no select
+            function carregarCredenciaisExec() {
+                fetch("{{ url_for('admin_remote.api_ssh_list') }}")
+                    .then(r => r.json())
+                    .then(data => {
+                        credSelect.innerHTML = "";
+                        data.forEach(c => {
+                            const opt = document.createElement("option");
+                            opt.value = c.id;
+                            opt.textContent = `${c.name_ssh} (${c.user_ssh}@${c.host_ssh})`;
+                            credSelect.appendChild(opt);
+                        });
+                    });
+            }
+
+            // 📝 Executa comando
+            formExec.addEventListener("submit", e => {
+                e.preventDefault();
+                const credId = credSelect.value;
+                const command = document.getElementById("commandInput").value.trim();
+
+                if (!command) return alert("Digite um comando!");
+
+                fetch(`{{ url_for('admin_remote.api_ssh_exec', cred_id=0) }}`.replace("0", credId), {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ command })
+                })
+                .then(r => r.json())
+                .then(resp => {
+                    const entry = document.createElement("div");
+                    entry.classList.add("history-entry");
+                    entry.innerHTML = `
+                        <div><b>[${new Date().toLocaleTimeString()}]</b> <code>${resp.command}</code></div>
+                        ${resp.stdout ? `<pre class="stdout">${resp.stdout}</pre>` : ""}
+                        ${resp.stderr ? `<pre class="stderr">${resp.stderr}</pre>` : ""}
+                        ${resp.error ? `<div class="stderr">❌ ${resp.error}</div>` : ""}
+                        <hr>
+                    `;
+                    historyPanel.prepend(entry); // joga no topo
+                })
+                .catch(err => {
+                    alert("Erro: " + err);
+                });
+            });
+
+            carregarCredenciaisExec();
+        })();
+    </script>
+{% endblock extra_script %}
+{% block extra_css %}
+    <style>
+        .history-entry {
+            margin-bottom: 10px;
+        }
+        pre.stdout {
+            background: #111;
+            color: #0f0;
+            padding: 5px;
+            border-radius: 4px;
+        }
+        pre.stderr, .stderr {
+            background: #330000;
+            color: #ff4444;
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        .history {
+            max-height:400px;
+            overflow-y:auto;
+        }
+    </style>
+{% endblock extra_css %}
