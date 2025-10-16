@@ -138,6 +138,10 @@ body {
     font-weight: normal;
 }
 
+.wp60 {
+    width: 60%;
+}
+
 .full {
     width: 100%;
 }

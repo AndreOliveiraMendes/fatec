@@ -1,112 +1,159 @@
 {% extends "base-fixed" %}
 {% block title %}
-    Execução de Comandos SSH
+    Execução de Comandos
 {% endblock title %}
 {% block content %}
-    <div class="panel panel-primary">
+    <div class="panel panel-default">
         <div class="panel-heading">
-            <h3 class="panel-title">Execução Livre de Comandos SSH</h3>
+            <h3 class="panel-title">
+                <span class="glyphicon glyphicon-console"></span> Execução de Comandos SSH
+            </h3>
         </div>
         <div class="panel-body">
-            <form id="formExec">
-                <div class="form-group">
-                    <label>Credencial</label>
-                    <select name="cred_id" id="credSelect" class="form-control" required></select>
+            <!-- Abas -->
+            <ul class="nav nav-tabs" role="tablist">
+                <li class="active">
+                    <a href="#tab-free" role="tab" data-toggle="tab">Execução Livre</a>
+                </li>
+                <li>
+                    <a href="#tab-templates" role="tab" data-toggle="tab">Comandos Parametrizados</a>
+                </li>
+            </ul>
+            <!-- Conteúdo das Abas -->
+            <div class="tab-content margin-top-15">
+                <!-- ===================== ABA 1: EXECUÇÃO LIVRE ===================== -->
+                <div class="tab-pane fade in active" id="tab-free">
+                    <form id="formFreeCommand" class="form-inline margin-bottom-10">
+                        <div class="form-group">
+                            <label for="credSelect">Credencial:</label>
+                            <select id="credSelect" class="form-control" required></select>
+                        </div>
+                        <div class="form-group wp60">
+                            <label for="commandInput" class="sr-only">Comando</label>
+                            <input type="text"
+                                   id="commandInput"
+                                   class="form-control full"
+                                   placeholder="Digite um comando SSH..."
+                                   required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <span class="glyphicon glyphicon-play"></span> Executar
+                        </button>
+                    </form>
+                    <div id="commandHistory">
+                        <h4>Histórico</h4>
+                        <div class="clearfix margin-bottom-5">
+                            <button id="clearHistoryBtn"
+                                    type="button"
+                                    class="btn btn-xs btn-default pull-right">🧼 Limpar histórico</button>
+                        </div>
+                        <ul class="list-group" id="historyList">
+                        </ul>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Comando</label>
-                    <textarea name="command"
-                              id="commandInput"
-                              class="form-control"
-                              rows="3"
-                              required></textarea>
+                <!-- ===================== ABA 2: COMANDOS PARAMETRIZADOS ===================== -->
+                <div class="tab-pane fade" id="tab-templates">
+                    <p>🛠️ Em breve: aqui você poderá configurar comandos com parâmetros, salvar e reaproveitar.</p>
                 </div>
-                <button type="submit" class="btn btn-success">Executar</button>
-            </form>
-            <hr>
-            <h4>Histórico</h4>
-            <div id="historyPanel" class="well history"></div>
+            </div>
         </div>
     </div>
 {% endblock content %}
 {% block extra_script %}
     <script>
-        (function () {
-            const formExec = document.getElementById("formExec");
-            const credSelect = document.getElementById("credSelect");
-            const historyPanel = document.getElementById("historyPanel");
+        (function() {
+            const credSelect = document.getElementById('credSelect');
+            const formFree = document.getElementById('formFreeCommand');
+            const commandInput = document.getElementById('commandInput');
+            const historyList = document.getElementById('historyList');
 
-            // 🔄 Carrega credenciais no select
-            function carregarCredenciaisExec() {
-                fetch("{{ url_for('admin_remote.api_ssh_list') }}")
-                    .then(r => r.json())
-                    .then(data => {
-                        credSelect.innerHTML = "";
-                        data.forEach(c => {
-                            const opt = document.createElement("option");
-                            opt.value = c.id;
-                            opt.textContent = `${c.name_ssh} (${c.user_ssh}@${c.host_ssh})`;
-                            credSelect.appendChild(opt);
-                        });
+            // Carrega lista de credenciais
+            fetch('{{ url_for("admin_remote.api_ssh_list") }}')
+                .then(r => r.json())
+                .then(creds => {
+                    credSelect.innerHTML = '';
+                    creds.forEach(c => {
+                        const opt = document.createElement('option');
+                        opt.value = c.id;
+                        opt.textContent = `${c.name_ssh} (${c.user_ssh}@${c.host_ssh})`;
+                        credSelect.appendChild(opt);
                     });
+                });
+
+            // Função util para adicionar item ao histórico com estilos
+            function addToHistory(command, stdout, stderr) {
+                const li = document.createElement('li');
+                const isError = stderr && stderr.trim().length > 0;
+
+                li.className = 'list-group-item history-item ' + (isError ? 'history-error' : 'history-success');
+
+                li.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center">
+                        <b>[${new Date().toLocaleTimeString()}]</b> <strong>$ ${command}</strong>
+                        ${isError 
+                            ? '<span class="label label-danger">Erro</span>' 
+                            : '<span class="label label-success">OK</span>'}
+                    </div>
+                    <pre class="command-output">${isError ? stderr : stdout}</pre>
+                `;
+
+                historyList.insertBefore(li, historyList.firstChild);
             }
 
-            // 📝 Executa comando
-            formExec.addEventListener("submit", e => {
+            document.getElementById('clearHistoryBtn').addEventListener('click', () => {
+                historyList.innerHTML = '';
+            });
+
+            // Execução do comando livre
+            formFree.addEventListener('submit', e => {
                 e.preventDefault();
                 const credId = credSelect.value;
-                const command = document.getElementById("commandInput").value.trim();
+                const cmd = commandInput.value.trim();
+                if (!cmd) return;
 
-                if (!command) return alert("Digite um comando!");
-
-                fetch(`{{ url_for('admin_remote.api_ssh_exec', cred_id=0) }}`.replace("0", credId), {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ command })
+                fetch(`{{ url_for("admin_remote.api_ssh_execute", cred_id=0) }}`.replace('0', credId), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ command: cmd })
                 })
                 .then(r => r.json())
                 .then(resp => {
-                    const entry = document.createElement("div");
-                    entry.classList.add("history-entry");
-                    entry.innerHTML = `
-                        <div><b>[${new Date().toLocaleTimeString()}]</b> <code>${resp.command}</code></div>
-                        ${resp.stdout ? `<pre class="stdout">${resp.stdout}</pre>` : ""}
-                        ${resp.stderr ? `<pre class="stderr">${resp.stderr}</pre>` : ""}
-                        ${resp.error ? `<div class="stderr">❌ ${resp.error}</div>` : ""}
-                        <hr>
-                    `;
-                    historyPanel.prepend(entry); // joga no topo
+                    addToHistory(cmd, resp.stdout || '', resp.stderr || '');
                 })
                 .catch(err => {
-                    alert("Erro: " + err);
+                    addToHistory(cmd, '', 'Erro inesperado: ' + err);
                 });
-            });
 
-            carregarCredenciaisExec();
+                commandInput.value = '';
+            });
         })();
     </script>
 {% endblock extra_script %}
 {% block extra_css %}
     <style>
-        .history-entry {
-            margin-bottom: 10px;
-        }
-        pre.stdout {
-            background: #111;
-            color: #0f0;
-            padding: 5px;
+        .history-item {S
+            margin-bottom: 8px;
             border-radius: 4px;
-        }
-        pre.stderr, .stderr {
-            background: #330000;
-            color: #ff4444;
-            padding: 5px;
-            border-radius: 4px;
+            transition: background 0.3s;
         }
 
-        .history {
-            max-height:400px;
-            overflow-y:auto;
+        .history-success {
+            background: #f4fff4;       /* verde bem clarinho */
+            border-left: 4px solid #4caf50;
         }
+
+        .history-error {
+            background: #fff5f5;       /* vermelho bem clarinho */
+            border-left: 4px solid #f44336;
+        }
+
+        .command-output {
+            margin-top: 5px;
+            white-space: pre-wrap;
+            background: transparent;
+            border: none;
+            padding: 0;
+        }
+
     </style>
 {% endblock extra_css %}

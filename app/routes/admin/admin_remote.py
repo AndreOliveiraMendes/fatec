@@ -201,19 +201,18 @@ def manage_commands():
     user = get_user_info(userid)
     return render_template("admin/command_management.html", user=user)
 
-@bp.route("/api/ssh/exec/<int:cred_id>", methods=["POST"])
+@bp.route("/api/ssh/execute/<int:cred_id>", methods=["POST"])
 @admin_required
-def api_ssh_exec(cred_id):
+def api_ssh_execute(cred_id):
     data = request.get_json() or {}
     command = data.get("command", "").strip()
-
     if not command:
-        return jsonify({"success": False, "error": "Nenhum comando fornecido."}), 400
+        return jsonify({"stdout": "", "stderr": "Nenhum comando fornecido."}), 400
 
     creds = load_ssh_credentials()
     cred = next((c for c in creds if c["id"] == cred_id), None)
     if not cred:
-        return jsonify({"success": False, "error": "Credencial não encontrada."}), 404
+        return jsonify({"stdout": "", "stderr": "Credencial não encontrada."}), 404
 
     host = cred.get("host_ssh")
     user = cred.get("user_ssh")
@@ -226,36 +225,21 @@ def api_ssh_exec(cred_id):
     try:
         if auth_type == "key":
             import io
-            key_enc = cred.get("key_ssh")
-            passphrase_enc = cred.get("key_passphrase")
-            key_str = decrypt_field(key_enc) if key_enc else None
-            passphrase = decrypt_field(passphrase_enc) if passphrase_enc else None
-
-            if not key_str:
-                return jsonify({"success": False, "error": "Chave não encontrada para autenticação."})
-
+            key_str = decrypt_field(cred["key_ssh"])
+            passphrase = decrypt_field(cred["key_passphrase"]) if cred.get("key_passphrase") else None
             pkey = paramiko.RSAKey.from_private_key(io.StringIO(key_str), password=passphrase)
-            client.connect(host, port=port, username=user, pkey=pkey, timeout=8)
+            client.connect(host, port=port, username=user, pkey=pkey, timeout=5)
         else:
-            password_enc = cred.get("password_ssh")
-            if not password_enc:
-                return jsonify({"success": False, "error": "Senha não fornecida."})
-            password = decrypt_field(password_enc)
-            client.connect(host, port=port, username=user, password=password, timeout=8)
+            password = decrypt_field(cred["password_ssh"])
+            client.connect(host, port=port, username=user, password=password, timeout=5)
 
         stdin, stdout, stderr = client.exec_command(command)
+        out = stdout.read().decode()
+        err = stderr.read().decode()
 
-        out = stdout.read().decode(errors="ignore")
-        err = stderr.read().decode(errors="ignore")
-
-        return jsonify({
-            "success": True,
-            "command": command,
-            "stdout": out,
-            "stderr": err
-        })
+        return jsonify({"stdout": out, "stderr": err})
 
     except Exception as e:
-        return jsonify({"success": False, "error": f"Erro ao executar comando: {e}"})
+        return jsonify({"stdout": "", "stderr": f"Erro: {e}"})
     finally:
         client.close()
