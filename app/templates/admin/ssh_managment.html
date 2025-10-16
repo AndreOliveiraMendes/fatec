@@ -81,7 +81,10 @@
                         <div id="fieldKey" class="form-group hide">
                             <label>Chave privada</label>
                             <textarea name="key_ssh" class="form-control" rows="4"></textarea>
-                            <span class="help-block">Cole o conteúdo da chave aqui</span>
+                            <span class="help-block">
+                                Cole o conteúdo da chave aqui ou <strong>faça upload</strong> de um arquivo de chave privada (.pem, .key, .txt ou sem extensão).
+                            </span>
+                            <input type="file" id="keyFileInput"  class="form-control margin-top-5">
                         </div>
                         <div id="fieldKeyPass" class="form-group hide">
                             <label>Passphrase da chave (opcional)</label>
@@ -135,6 +138,27 @@
         const modal = $('#modalCred');
         const form = document.getElementById('formCred');
 
+        // Leitura automática do arquivo de chave privada
+        const keyFileInput = document.getElementById('keyFileInput');
+        const keyTextArea = form.querySelector('textarea[name="key_ssh"]');
+
+        keyFileInput.addEventListener('change', () => {
+            const file = keyFileInput.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const content = e.target.result.trim();
+                if (!content.startsWith('-----BEGIN')) {
+                    alert('O arquivo selecionado não parece conter uma chave privada válida.');
+                    keyFileInput.value = ''; // limpa o input
+                    return;
+                }
+                keyTextArea.value = content;
+            };
+            reader.readAsText(file);
+        });
+
         // Alterna campos quando muda o tipo de autenticação
         form.querySelectorAll('input[name="auth_type"]').forEach(radio => {
             radio.addEventListener('change', () => updateAuthFields(form));
@@ -182,6 +206,7 @@
         // Abrir modal de criação
         document.getElementById('btnAddCred').addEventListener('click', () => {
             form.reset();
+            keyFileInput.value = '';
             form.id.value = '';
             updateAuthFields(form);
             modal.modal('show');
@@ -235,6 +260,7 @@
                             }
 
                             // Atualiza visibilidade dos campos
+                            keyFileInput.value = '';
                             updateAuthFields(form);
                             modal.modal('show');
                         }

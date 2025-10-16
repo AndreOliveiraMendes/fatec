@@ -4,7 +4,7 @@ from copy import deepcopy
 from flask import (Blueprint, flash, jsonify, redirect, render_template,
                    request, session, url_for)
 
-from app.auxiliar.auxiliar_cryptograph import ensure_secret_file, load_key, encrypt_password, decrypt_password
+from app.auxiliar.auxiliar_cryptograph import ensure_secret_file, load_key, encrypt_field, decrypt_field
 from app.auxiliar.auxiliar_routes import get_user_info
 from app.auxiliar.decorators import admin_required
 from config.mapeamentos import SSH_CRED_FILE
@@ -50,10 +50,22 @@ def api_ssh_list():
     for c in result:
         if c.get("password_ssh"):
             try:
-                c["password_ssh"] = decrypt_password(c["password_ssh"])
+                c["password_ssh"] = decrypt_field(c["password_ssh"])
             except Exception:
                 # Se falhar, evita quebrar o restante da listagem
                 c["password_ssh"] = "[erro ao descriptografar]"
+        if c.get("key_ssh"):
+            try:
+                c["key_ssh"] = decrypt_field(c["key_ssh"])
+            except Exception:
+                # Se falhar, evita quebrar o restante da listagem
+                c["key_ssh"] = "[erro ao descriptografar]"
+        if c.get("key_passphrase"):
+            try:
+                c["key_passphrase"] = decrypt_field(c["key_passphrase"])
+            except Exception:
+                # Se falhar, evita quebrar o restante da listagem
+                c["key_passphrase"] = "[erro ao descriptografar]"
 
     return jsonify(result)
 
@@ -68,7 +80,17 @@ def api_ssh_save():
     # 🔐 Criptografa a senha se fornecida
     if data.get("password_ssh"):
         try:
-            data["password_ssh"] = encrypt_password(data["password_ssh"])
+            data["password_ssh"] = encrypt_field(data["password_ssh"])
+        except RuntimeError as e:
+            return jsonify({"success": False, "error": str(e)}), 400
+    if data.get("key_ssh"):
+        try:
+            data["key_ssh"] = encrypt_field(data["key_ssh"])
+        except RuntimeError as e:
+            return jsonify({"success": False, "error": str(e)}), 400
+    if data.get("key_passphrase"):
+        try:
+            data["key_passphrase"] = encrypt_field(data["key_passphrase"])
         except RuntimeError as e:
             return jsonify({"success": False, "error": str(e)}), 400
 
@@ -124,8 +146,20 @@ def api_ssh_test(cred_id):
 
     try:
         if auth_type == "key":
-            key_str = cred.get("key_ssh") or ""
-            passphrase = cred.get("key_passphrase") or None
+            key_enc = cred.get("key_ssh") or ""
+            passphrase_enc = cred.get("key_passphrase") or None
+            key_str = None
+            passphrase = None
+            if key_enc:
+                try:
+                    key_str = decrypt_field(key_enc)
+                except Exception as e:
+                    return jsonify({"success": False, "error": f"Falha ao descriptografar chave: {e}"})
+            if passphrase_enc:
+                try:
+                    passphrase = decrypt_field(passphrase_enc)
+                except Exception as e:
+                    return jsonify({"success": False, "error": f"Falha ao descriptografar senha da chave: {e}"})
             if not key_str.strip():
                 return jsonify({"success": False, "error": "Nenhuma chave fornecida para autenticação por chave."}), 400
 
@@ -139,7 +173,7 @@ def api_ssh_test(cred_id):
             if not password_enc:
                 return jsonify({"success": False, "error": "Senha não fornecida para autenticação por senha."}), 400
             try:
-                password = decrypt_password(password_enc)
+                password = decrypt_field(password_enc)
             except Exception as e:
                 return jsonify({"success": False, "error": f"Falha ao descriptografar senha: {e}"})
             client.connect(host, port=port, username=user, password=password, timeout=5)

@@ -28,18 +28,21 @@ def load_key():
         return None
 
 
-def encrypt_password(password: str) -> str:
-    """Criptografa a senha com Fernet e devolve em formato string."""
+def encrypt_field(field: str) -> str:
     key = load_key()
     if not key:
         raise RuntimeError("❌ Nenhuma chave Fernet encontrada. Gere primeiro.")
     f = Fernet(key)
-    return f.encrypt(password.encode()).decode()
+    # IMPORTANTE: normalizar quebras de linha
+    normalized = field.replace('\r\n', '\n')
+    encrypted = f.encrypt(normalized.encode('utf-8')).decode('utf-8')
+    return encrypted
 
-def decrypt_password(token: str) -> str:
-    """Descriptografa uma senha criptografada com Fernet."""
+
+def decrypt_field(field: str) -> str:
     key = load_key()
     if not key:
         raise RuntimeError("❌ Nenhuma chave Fernet encontrada. Não é possível descriptografar.")
     f = Fernet(key)
-    return f.decrypt(token.encode()).decode()
+    decrypted = f.decrypt(field.encode('utf-8')).decode('utf-8')
+    return decrypted
