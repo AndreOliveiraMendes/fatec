@@ -99,8 +99,8 @@
             <div class="panel-heading">
                 <h3 class="panel-title">SSH e relacionados</h3>
             </div>
-            <div class="panel panel-body">
-                <div class="well">
+            <div class="panel-body">
+                <div class="well d-flex align-items-center gap-2 flex-wrap">
                     {% if key %}
                         <span class="badge badge_fernet_key"
                               data-toggle="tooltip"
@@ -111,13 +111,15 @@
                         </span>
                     {% else %}
                         <a href="{{ url_for('admin_remote.gerar_chave') }}"
-                           class="btn btn-danger"
+                           class="btn btn-danger btn-sm"
                            onclick="return confirm('Tem certeza que deseja gerar a chave de criptografia? Essa ação não pode ser desfeita.');">
                             🔑 Gerar Chave
                         </a>
                     {% endif %}
                     <a href="{{ url_for('admin_remote.manage_ssh') }}"
-                       class="btn btn-warning">Credenciais de SSH</a>
+                       class="btn btn-warning btn-sm">Credenciais de SSH</a>
+                    <a href="{{ url_for('admin_remote.manage_commands') }}"
+                       class="btn btn-warning btn-sm">Configurar Comandos Remotos</a>
                 </div>
             </div>
         </div>

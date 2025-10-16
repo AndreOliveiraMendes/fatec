@@ -3,7 +3,7 @@ import os
 
 from cryptography.fernet import Fernet
 
-from config.mapeamentos import SECRET_PATH, SSH_CRED_PATH
+from config.mapeamentos import SECRET_PATH
 
 
 def ensure_secret_file(path=SECRET_PATH):

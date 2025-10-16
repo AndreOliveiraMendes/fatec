@@ -4,7 +4,7 @@ from copy import deepcopy
 from flask import (Blueprint, flash, jsonify, redirect, render_template,
                    request, session, url_for)
 
-from app.auxiliar.auxiliar_cryptograph import ensure_secret_file, load_key, encrypt_field, decrypt_field
+from app.auxiliar.auxiliar_cryptograph import ensure_secret_file, encrypt_field, decrypt_field
 from app.auxiliar.auxiliar_routes import get_user_info
 from app.auxiliar.decorators import admin_required
 from config.mapeamentos import SSH_CRED_FILE
@@ -193,3 +193,10 @@ def api_ssh_test(cred_id):
         return jsonify({"success": False, "error": f"Erro inesperado: {e}"})
     finally:
         client.close()
+
+@bp.route('managa_remote_commands')
+@admin_required
+def manage_commands():
+    userid = session.get('userid')
+    user = get_user_info(userid)
+    return render_template("admin/comand_managment.html", user=user)
