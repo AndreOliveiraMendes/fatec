@@ -206,6 +206,7 @@ def manage_commands():
 def api_ssh_execute(cred_id):
     data = request.get_json() or {}
     command = data.get("command", "").strip()
+    stdin_data = data.get("stdin", "")
     if not command:
         return jsonify({"stdout": "", "stderr": "Nenhum comando fornecido."}), 400
 
@@ -234,6 +235,13 @@ def api_ssh_execute(cred_id):
             client.connect(host, port=port, username=user, password=password, timeout=5)
 
         stdin, stdout, stderr = client.exec_command(command)
+
+        # 🔸 Envia dados para o stdin, se houver
+        if stdin_data:
+            stdin.write(stdin_data)
+            stdin.flush()
+        stdin.close()
+
         out = stdout.read().decode()
         err = stderr.read().decode()
 
