@@ -3,7 +3,7 @@
     Execução de Comandos
 {% endblock title %}
 {% block content %}
-    <div class="panel panel-default">
+    <div class="panel panel-info">
         <div class="panel-heading">
             <h3 class="panel-title">
                 <span class="glyphicon glyphicon-console"></span> Execução de Comandos SSH
@@ -80,24 +80,37 @@
                     });
                 });
 
-            // Função util para adicionar item ao histórico com estilos
             function addToHistory(command, stdout, stderr) {
-                const li = document.createElement('li');
-                const isError = stderr && stderr.trim().length > 0;
+                const history = document.getElementById('commandHistory');
 
-                li.className = 'list-group-item history-item ' + (isError ? 'history-error' : 'history-success');
+                // Container do histórico
+                const entry = document.createElement('div');
+                entry.className = 'history-entry';
 
-                li.innerHTML = `
-                    <div class="d-flex justify-content-between align-items-center">
-                        <b>[${new Date().toLocaleTimeString()}]</b> <strong>$ ${command}</strong>
-                        ${isError 
-                            ? '<span class="label label-danger">Erro</span>' 
-                            : '<span class="label label-success">OK</span>'}
-                    </div>
-                    <pre class="command-output">${isError ? stderr : stdout}</pre>
-                `;
+                // Comando executado
+                const cmdEl = document.createElement('div');
+                cmdEl.className = 'history-command';
+                cmdEl.textContent = `[${new Date().toLocaleTimeString()}] $ ${command}`;
+                entry.appendChild(cmdEl);
 
-                historyList.insertBefore(li, historyList.firstChild);
+                // stdout (verde)
+                if (stdout && stdout.trim() !== '') {
+                    const outEl = document.createElement('pre');
+                    outEl.className = 'history-stdout';
+                    outEl.textContent = stdout;
+                    entry.appendChild(outEl);
+                }
+
+                // stderr (vermelho)
+                if (stderr && stderr.trim() !== '') {
+                    const errEl = document.createElement('pre');
+                    errEl.className = 'history-stderr';
+                    errEl.textContent = stderr;
+                    entry.appendChild(errEl);
+                }
+
+                // Adiciona no topo (mais recente primeiro)
+                history.insertBefore(entry, history.firstChild);
             }
 
             document.getElementById('clearHistoryBtn').addEventListener('click', () => {
@@ -131,28 +144,41 @@
 {% endblock extra_script %}
 {% block extra_css %}
     <style>
-        .history-item {S
-            margin-bottom: 8px;
-            border-radius: 4px;
-            transition: background 0.3s;
+        #commandHistory {
+            margin-top: 15px;
         }
 
-        .history-success {
-            background: #f4fff4;       /* verde bem clarinho */
+        .history-entry {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 8px;
+            margin-bottom: 10px;
+            font-family: monospace;
+        }
+
+        .history-command {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 6px;
+        }
+
+        .history-stdout {
+            background: #e8f5e9;
             border-left: 4px solid #4caf50;
-        }
-
-        .history-error {
-            background: #fff5f5;       /* vermelho bem clarinho */
-            border-left: 4px solid #f44336;
-        }
-
-        .command-output {
-            margin-top: 5px;
+            padding: 6px;
+            margin: 0;
             white-space: pre-wrap;
-            background: transparent;
-            border: none;
-            padding: 0;
+            word-wrap: break-word;
+        }
+
+        .history-stderr {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+            padding: 6px;
+            margin-top: 6px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
         }
 
     </style>
