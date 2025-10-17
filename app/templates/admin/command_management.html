@@ -37,9 +37,10 @@
                                        placeholder="Digite um comando SSH..."
                                        required>
                             </div>
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary" id="executeBtn">
                                 <span class="glyphicon glyphicon-play"></span> Executar
                             </button>
+                            <span id="spinner" class="glyphicon glyphicon-refresh spinning margin-left-8 hide"></span>
                         </div>
                         <div class="form-group">
                             <label for="stdinInput">Entrada (stdin) opcional:</label>
@@ -88,6 +89,12 @@
                         credSelect.appendChild(opt);
                     });
                 });
+
+            function disableAllReruns(disabled = true) {
+                document.querySelectorAll('.rerun-btn').forEach(btn => {
+                    btn.disabled = disabled;
+                });
+            }
 
             function addToHistory(command, stdout, stderr, stdinData = '') {
                 const history = document.getElementById('commandHistory');
@@ -138,6 +145,9 @@
             function rerunCommand(command, stdinData) {
                 const credId = credSelect.value;
                 if (!credId) return;
+                spinner.classList.remove('hide');
+                executeBtn.disabled = true;
+                disableAllReruns();
 
                 fetch(`{{ url_for("admin_remote.api_ssh_execute", cred_id=0) }}`.replace('0', credId), {
                     method: 'POST',
@@ -150,20 +160,33 @@
                 })
                 .catch(err => {
                     addToHistory(command, '', 'Erro inesperado: ' + err, stdinData);
+                })
+                .finally(() => {
+                    spinner.classList.add('hide');
+                    executeBtn.disabled = false;
+                    commandInput.value = '';
+                    disableAllReruns(false);
                 });
             }
 
             document.getElementById('clearHistoryBtn').addEventListener('click', () => {
                 historyList.innerHTML = '';
-            });
+                });
+
+            const spinner = document.getElementById('spinner');
+            const executeBtn = document.getElementById('executeBtn');
 
             // Execução do comando livre
             formFree.addEventListener('submit', e => {
                 e.preventDefault();
+
                 const credId = credSelect.value;
                 const cmd = commandInput.value.trim();
                 const stdinData = document.getElementById('stdinInput').value;
                 if (!cmd) return;
+                spinner.classList.remove('hide');
+                executeBtn.disabled = true;
+                disableAllReruns();
 
                 fetch(`{{ url_for("admin_remote.api_ssh_execute", cred_id=0) }}`.replace('0', credId), {
                     method: 'POST',
@@ -176,6 +199,12 @@
                 })
                 .catch(err => {
                     addToHistory(cmd, '', 'Erro inesperado: ' + err);
+                })
+                .finally(() => {
+                    spinner.classList.add('hide');
+                    executeBtn.disabled = false;
+                    commandInput.value = '';
+                    disableAllReruns(false);
                 });
 
                 commandInput.value = '';
@@ -239,5 +268,14 @@
             line-height: 1;
         }
 
+        .spinning {
+            animation: spin 1s linear infinite;
+            -webkit-animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(359deg); }
+        }
     </style>
 {% endblock extra_css %}
