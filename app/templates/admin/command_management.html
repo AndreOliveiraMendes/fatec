@@ -57,8 +57,6 @@
                                     type="button"
                                     class="btn btn-xs btn-default pull-right">🧼 Limpar histórico</button>
                         </div>
-                        <ul class="list-group" id="historyList">
-                        </ul>
                     </div>
                 </div>
                 <!-- ===================== ABA 2: COMANDOS PARAMETRIZADOS ===================== -->
@@ -75,7 +73,6 @@
             const credSelect = document.getElementById('credSelect');
             const formFree = document.getElementById('formFreeCommand');
             const commandInput = document.getElementById('commandInput');
-            const historyList = document.getElementById('historyList');
 
             // Carrega lista de credenciais
             fetch('{{ url_for("admin_remote.api_ssh_list") }}')
@@ -170,8 +167,10 @@
             }
 
             document.getElementById('clearHistoryBtn').addEventListener('click', () => {
-                historyList.innerHTML = '';
-                });
+                const historyEntries = document.querySelectorAll('.history-entry');
+
+                historyEntries.forEach(entry => entry.remove());
+            });
 
             const spinner = document.getElementById('spinner');
             const executeBtn = document.getElementById('executeBtn');
