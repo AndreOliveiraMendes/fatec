@@ -242,13 +242,18 @@
 
             if (editBtn) {
                 const id = editBtn.dataset.id;
+                form.reset();
                 fetch('{{ url_for("admin_remote.api_ssh_list") }}')
                     .then(r => r.json())
                     .then(data => {
                         const cred = data.find(c => c.id == id);
                         if (cred) {
                             // Preenche campos simples
+                            const SENSITIVE_FIELDS = ['password_ssh', 'key_ssh', 'key_passphrase'];
+
                             for (const k in cred) {
+                                if (SENSITIVE_FIELDS.includes(k)) continue;
+
                                 if (form[k]) {
                                     if (k === 'auth_type') {
                                         const radio = form.querySelector(`input[name="auth_type"][value="${cred[k]}"]`);

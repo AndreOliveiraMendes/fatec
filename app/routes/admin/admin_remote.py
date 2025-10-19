@@ -48,24 +48,14 @@ def api_ssh_list():
     result = deepcopy(creds)
 
     for c in result:
-        if c.get("password_ssh"):
-            try:
-                c["password_ssh"] = decrypt_field(c["password_ssh"])
-            except Exception:
-                # Se falhar, evita quebrar o restante da listagem
-                c["password_ssh"] = "[erro ao descriptografar]"
-        if c.get("key_ssh"):
-            try:
-                c["key_ssh"] = decrypt_field(c["key_ssh"])
-            except Exception:
-                # Se falhar, evita quebrar o restante da listagem
-                c["key_ssh"] = "[erro ao descriptografar]"
-        if c.get("key_passphrase"):
-            try:
-                c["key_passphrase"] = decrypt_field(c["key_passphrase"])
-            except Exception:
-                # Se falhar, evita quebrar o restante da listagem
-                c["key_passphrase"] = "[erro ao descriptografar]"
+        c["has_password"] = bool(c.get("password_ssh"))
+        c["has_key"] = bool(c.get("key_ssh"))
+        c["has_key_passphrase"] = bool(c.get("key_passphrase"))
+
+        # Remove campos sensíveis antes de enviar
+        c.pop("password_ssh", None)
+        c.pop("key_ssh", None)
+        c.pop("key_passphrase", None)
 
     return jsonify(result)
 
@@ -77,41 +67,66 @@ def api_ssh_save():
     data.setdefault("key_passphrase", "")
     creds = load_ssh_credentials()
 
-    # 🔐 Criptografa a senha se fornecida
-    if data.get("password_ssh"):
-        try:
-            data["password_ssh"] = encrypt_field(data["password_ssh"])
-        except RuntimeError as e:
-            return jsonify({"success": False, "error": str(e)}), 400
-    if data.get("key_ssh"):
-        try:
-            data["key_ssh"] = encrypt_field(data["key_ssh"])
-        except RuntimeError as e:
-            return jsonify({"success": False, "error": str(e)}), 400
-    if data.get("key_passphrase"):
-        try:
-            data["key_passphrase"] = encrypt_field(data["key_passphrase"])
-        except RuntimeError as e:
-            return jsonify({"success": False, "error": str(e)}), 400
-
-    # 🆔 Normaliza ID (se vier string)
+    # 🆔 Normaliza ID
     cred_id = data.get("id")
     if cred_id:
         try:
             cred_id = int(cred_id)
         except (ValueError, TypeError):
             return jsonify({"success": False, "error": "ID inválido."}), 400
+    else:
+        cred_id = None
 
     # ✍️ Atualiza credencial existente
     if cred_id is not None and any(c["id"] == cred_id for c in creds):
         for c in creds:
             if c["id"] == cred_id:
-                c.update(data)
-                c["id"] = cred_id  # garante consistência
+                # Atualiza sempre campos básicos (nome, host, user, porta, tipo)
+                for field in ["name_ssh", "host_ssh", "user_ssh", "port_ssh", "auth_type"]:
+                    if field in data:
+                        c[field] = data[field]
+
+                # 🔐 Atualiza senha/chave/passphrase somente se vier algo não vazio
+                if "password_ssh" in data and data["password_ssh"].strip():
+                    try:
+                        c["password_ssh"] = encrypt_field(data["password_ssh"])
+                    except RuntimeError as e:
+                        return jsonify({"success": False, "error": str(e)}), 400
+
+                if "key_ssh" in data and data["key_ssh"].strip():
+                    try:
+                        c["key_ssh"] = encrypt_field(data["key_ssh"])
+                    except RuntimeError as e:
+                        return jsonify({"success": False, "error": str(e)}), 400
+
+                if "key_passphrase" in data and data["key_passphrase"].strip():
+                    try:
+                        c["key_passphrase"] = encrypt_field(data["key_passphrase"])
+                    except RuntimeError as e:
+                        return jsonify({"success": False, "error": str(e)}), 400
+
+                c["id"] = cred_id
                 break
 
     # ➕ Cria nova credencial
     else:
+        # Criptografa os campos sensíveis normalmente
+        if data.get("password_ssh"):
+            try:
+                data["password_ssh"] = encrypt_field(data["password_ssh"])
+            except RuntimeError as e:
+                return jsonify({"success": False, "error": str(e)}), 400
+        if data.get("key_ssh"):
+            try:
+                data["key_ssh"] = encrypt_field(data["key_ssh"])
+            except RuntimeError as e:
+                return jsonify({"success": False, "error": str(e)}), 400
+        if data.get("key_passphrase"):
+            try:
+                data["key_passphrase"] = encrypt_field(data["key_passphrase"])
+            except RuntimeError as e:
+                return jsonify({"success": False, "error": str(e)}), 400
+
         new_id = max([c["id"] for c in creds], default=0) + 1
         data["id"] = new_id
         creds.append(data)
