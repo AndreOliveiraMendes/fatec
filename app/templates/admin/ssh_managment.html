@@ -76,12 +76,18 @@
                         <div id="fieldPassword" class="form-group">
                             <label>Senha</label>
                             <input type="password" name="password_ssh" class="form-control">
-                            <span class="help-block" id="fieldPasswordMsg">Opcional se usar chave</span>
+                            <span id="fieldPasswordMsg"
+                                  class="help-block"
+                                  data-original-html="Opcional se usar <strong>chave</strong>">
+                                Opcional se usar <strong>chave</strong>
+                            </span>
                         </div>
                         <div id="fieldKey" class="form-group hide">
                             <label>Chave privada</label>
                             <textarea name="key_ssh" class="form-control" rows="4"></textarea>
-                            <span class="help-block" id="fieldKeyMsg">
+                            <span id="fieldKeyMsg"
+                                  class="help-block"
+                                  data-original-html="Cole o conteúdo da chave aqui ou <strong>faça upload</strong> de um arquivo de chave privada (.pem, .key, .txt ou sem extensão).">
                                 Cole o conteúdo da chave aqui ou <strong>faça upload</strong> de um arquivo de chave privada (.pem, .key, .txt ou sem extensão).
                             </span>
                             <input type="file" id="keyFileInput"  class="form-control margin-top-5">
@@ -89,7 +95,11 @@
                         <div id="fieldKeyPass" class="form-group hide">
                             <label>Passphrase da chave (opcional)</label>
                             <input type="password" name="key_passphrase" class="form-control">
-                            <span class="help-block" id="fieldKeyPassphraseMsg">Se a chave privada tiver passphrase, informe aqui</span>
+                            <span id="fieldKeyPassphraseMsg"
+                                  class="help-block"
+                                  data-original-html="Se a chave privada tiver passphrase, informe aqui">
+                                Se a chave privada tiver passphrase, informe aqui
+                            </span>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -138,39 +148,21 @@
         function setEditMode(isEditing, form) {
             const auth_type = form.querySelector('input[name="auth_type"]:checked').value;
 
-            const fields = {
-                password: {
-                    el: document.getElementById('fieldPasswordMsg'),
-                    newHtml: 'Preencha para substituir a senha atual'
-                },
-                key: {
-                    el: document.getElementById('fieldKeyMsg'),
-                    newHtml: 'Preencha ou faça upload para substituir a chave atual'
-                },
-                key_passphrase: {
-                    el: document.getElementById('fieldKeyPassphraseMsg'),
-                    newHtml: 'Preencha para atribuir ou substituir a senha da chave atual'
-                }
-            };
+            const fieldPasswordMsg = document.getElementById('fieldPasswordMsg');
+            const fieldKeyMsg = document.getElementById('fieldKeyMsg');
+            const fieldKeyPassphraseMsg = document.getElementById('fieldKeyPassphraseMsg');
 
             if (isEditing) {
                 if (auth_type === 'password') {
-                    const f = fields.password;
-                    f.el.dataset.originalHtml = f.el.dataset.originalHtml || f.el.innerHTML;
-                    f.el.innerHTML = f.newHtml;
+                    fieldPasswordMsg.innerHTML = "Preencha para substituir a senha atual";
                 } else if (auth_type === 'key') {
-                    ['key', 'key_passphrase'].forEach(k => {
-                        const f = fields[k];
-                        f.el.dataset.originalHtml = f.el.dataset.originalHtml || f.el.innerHTML;
-                        f.el.innerHTML = f.newHtml;
-                    });
+                    fieldKeyMsg.innerHTML = "Preencha ou faça upload para substituir a chave atual";
+                    fieldKeyPassphraseMsg.innerHTML = "Preencha para atribuir ou substituir a senha da chave atual";
                 }
             } else {
-                Object.values(fields).forEach(f => {
-                    if (f.el.dataset.originalHtml) {
-                        f.el.innerHTML = f.el.dataset.originalHtml;
-                    }
-                });
+                fieldPasswordMsg.innerHTML = fieldPasswordMsg.dataset.originalHtml;
+                fieldKeyMsg.innerHTML = fieldKeyMsg.dataset.originalHtml;
+                fieldKeyPassphraseMsg.innerHTML = fieldKeyPassphraseMsg.dataset.originalHtml;
             }
         }
 
