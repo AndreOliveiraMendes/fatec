@@ -76,12 +76,12 @@
                         <div id="fieldPassword" class="form-group">
                             <label>Senha</label>
                             <input type="password" name="password_ssh" class="form-control">
-                            <span class="help-block">Opcional se usar chave</span>
+                            <span class="help-block" id="fieldPasswordMsg">Opcional se usar chave</span>
                         </div>
                         <div id="fieldKey" class="form-group hide">
                             <label>Chave privada</label>
                             <textarea name="key_ssh" class="form-control" rows="4"></textarea>
-                            <span class="help-block">
+                            <span class="help-block" id="fieldKeyMsg">
                                 Cole o conteúdo da chave aqui ou <strong>faça upload</strong> de um arquivo de chave privada (.pem, .key, .txt ou sem extensão).
                             </span>
                             <input type="file" id="keyFileInput"  class="form-control margin-top-5">
@@ -89,7 +89,7 @@
                         <div id="fieldKeyPass" class="form-group hide">
                             <label>Passphrase da chave (opcional)</label>
                             <input type="password" name="key_passphrase" class="form-control">
-                            <span class="help-block">Se a chave privada tiver passphrase, informe aqui</span>
+                            <span class="help-block" id="fieldKeyPassphraseMsg">Se a chave privada tiver passphrase, informe aqui</span>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -133,6 +133,45 @@
             fieldPassword.style.display = (type === 'password') ? '' : 'none';
             fieldKey.style.display = (type === 'key') ? '' : 'none';
             fieldKeyPass.style.display = (type === 'key') ? '' : 'none';
+        }
+
+        function setEditMode(isEditing, form) {
+            const auth_type = form.querySelector('input[name="auth_type"]:checked').value;
+
+            const fields = {
+                password: {
+                    el: document.getElementById('fieldPasswordMsg'),
+                    newHtml: 'Preencha para substituir a senha atual'
+                },
+                key: {
+                    el: document.getElementById('fieldKeyMsg'),
+                    newHtml: 'Preencha ou faça upload para substituir a chave atual'
+                },
+                key_passphrase: {
+                    el: document.getElementById('fieldKeyPassphraseMsg'),
+                    newHtml: 'Preencha para atribuir ou substituir a senha da chave atual'
+                }
+            };
+
+            if (isEditing) {
+                if (auth_type === 'password') {
+                    const f = fields.password;
+                    f.el.dataset.originalHtml = f.el.dataset.originalHtml || f.el.innerHTML;
+                    f.el.innerHTML = f.newHtml;
+                } else if (auth_type === 'key') {
+                    ['key', 'key_passphrase'].forEach(k => {
+                        const f = fields[k];
+                        f.el.dataset.originalHtml = f.el.dataset.originalHtml || f.el.innerHTML;
+                        f.el.innerHTML = f.newHtml;
+                    });
+                }
+            } else {
+                Object.values(fields).forEach(f => {
+                    if (f.el.dataset.originalHtml) {
+                        f.el.innerHTML = f.el.dataset.originalHtml;
+                    }
+                });
+            }
         }
 
         const modal = $('#modalCred');
@@ -209,6 +248,7 @@
             keyFileInput.value = '';
             form.id.value = '';
             updateAuthFields(form);
+            setEditMode(false, form);
             modal.modal('show');
         });
 
@@ -267,6 +307,7 @@
                             // Atualiza visibilidade dos campos
                             keyFileInput.value = '';
                             updateAuthFields(form);
+                            setEditMode(true, form);
                             modal.modal('show');
                         }
                     });
