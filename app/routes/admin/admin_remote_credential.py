@@ -1,28 +1,18 @@
-import json
 from copy import deepcopy
 
+import paramiko
 from flask import (Blueprint, flash, jsonify, redirect, render_template,
                    request, session, url_for)
+from paramiko.ssh_exception import (AuthenticationException,
+                                    NoValidConnectionsError, SSHException)
 
-from app.auxiliar.auxiliar_cryptograph import ensure_secret_file, encrypt_field, decrypt_field
+from app.auxiliar.auxiliar_cryptograph import (decrypt_field, encrypt_field,
+                                               ensure_secret_file)
 from app.auxiliar.auxiliar_routes import get_user_info
 from app.auxiliar.decorators import admin_required
-from config.mapeamentos import SSH_CRED_FILE
-import paramiko
-from paramiko.ssh_exception import SSHException, AuthenticationException, NoValidConnectionsError
+from config.json_related import load_ssh_credentials, save_ssh_credentials
 
-bp = Blueprint('admin_remote', __name__, url_prefix='/admin')
-
-def load_ssh_credentials():
-    if SSH_CRED_FILE.exists():
-        with SSH_CRED_FILE.open("r", encoding="utf-8") as f:
-            return json.load(f)
-    return []
-
-def save_ssh_credentials(creds):
-    SSH_CRED_FILE.parent.mkdir(parents=True, exist_ok=True)
-    with SSH_CRED_FILE.open("w", encoding="utf-8") as f:
-        json.dump(creds, f, ensure_ascii=False, indent=4)
+bp = Blueprint('admin_remote_credential', __name__, url_prefix='/admin')
 
 @bp.route("/gerar_chave")
 @admin_required
@@ -206,63 +196,5 @@ def api_ssh_test(cred_id):
         return jsonify({"success": False, "error": f"Erro de conexão SSH: {e}"})
     except Exception as e:
         return jsonify({"success": False, "error": f"Erro inesperado: {e}"})
-    finally:
-        client.close()
-
-@bp.route("/manage_remote_commands")
-@admin_required
-def manage_commands():
-    userid = session.get('userid')
-    user = get_user_info(userid)
-    return render_template("admin/command_management.html", user=user)
-
-@bp.route("/api/ssh/execute/<int:cred_id>", methods=["POST"])
-@admin_required
-def api_ssh_execute(cred_id):
-    data = request.get_json() or {}
-    command = data.get("command", "").strip()
-    stdin_data = data.get("stdin", "")
-    if not command:
-        return jsonify({"stdout": "", "stderr": "Nenhum comando fornecido."}), 400
-
-    creds = load_ssh_credentials()
-    cred = next((c for c in creds if c["id"] == cred_id), None)
-    if not cred:
-        return jsonify({"stdout": "", "stderr": "Credencial não encontrada."}), 404
-
-    host = cred.get("host_ssh")
-    user = cred.get("user_ssh")
-    port = int(cred.get("port_ssh", 22))
-    auth_type = cred.get("auth_type", "password")
-
-    client = paramiko.SSHClient()
-    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-
-    try:
-        if auth_type == "key":
-            import io
-            key_str = decrypt_field(cred["key_ssh"])
-            passphrase = decrypt_field(cred["key_passphrase"]) if cred.get("key_passphrase") else None
-            pkey = paramiko.RSAKey.from_private_key(io.StringIO(key_str), password=passphrase)
-            client.connect(host, port=port, username=user, pkey=pkey, timeout=5)
-        else:
-            password = decrypt_field(cred["password_ssh"])
-            client.connect(host, port=port, username=user, password=password, timeout=5)
-
-        stdin, stdout, stderr = client.exec_command(command)
-
-        # 🔸 Envia dados para o stdin, se houver
-        if stdin_data:
-            stdin.write(stdin_data)
-            stdin.flush()
-        stdin.close()
-
-        out = stdout.read().decode()
-        err = stderr.read().decode()
-
-        return jsonify({"stdout": out, "stderr": err})
-
-    except Exception as e:
-        return jsonify({"stdout": "", "stderr": f"Erro: {e}"})
     finally:
         client.close()
