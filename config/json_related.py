@@ -3,7 +3,8 @@ import json
 from importlib.resources import as_file
 from pathlib import Path
 
-from config.mapeamentos import DEFAULT_CONFIG_CFG, DEFAULT_PAINEL_CFG
+from config.mapeamentos import (COMMANDS_FILE, DEFAULT_CONFIG_CFG,
+                                DEFAULT_PAINEL_CFG, SSH_CRED_FILE)
 
 
 def validar_json(data, *args):
@@ -53,3 +54,31 @@ def carregar_config_geral():
             # reescreve com padrão se estiver corrompido
             config_file.write_text(json.dumps(DEFAULT_CONFIG_CFG, indent=4, ensure_ascii=False), encoding="utf-8")
             return DEFAULT_CONFIG_CFG
+
+def load_ssh_credentials():
+    if SSH_CRED_FILE.exists():
+        with SSH_CRED_FILE.open("r", encoding="utf-8") as f:
+            try:
+                return json.load(f)
+            except json.JSONDecodeError:
+                return []
+    return []
+
+def save_ssh_credentials(creds):
+    SSH_CRED_FILE.parent.mkdir(parents=True, exist_ok=True)
+    with SSH_CRED_FILE.open("w", encoding="utf-8") as f:
+        json.dump(creds, f, ensure_ascii=False, indent=4)
+
+def load_commands():
+    if COMMANDS_FILE.exists():
+        with open(COMMANDS_FILE, "r", encoding="utf-8") as f:
+            try:
+                return json.load(f)
+            except json.JSONDecodeError:
+                return []
+    return []
+
+def save_commands(commands):
+    COMMANDS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    with COMMANDS_FILE.open("w", encoding="utf-8") as f:
+        json.dump(commands, f, ensure_ascii=False, indent=4)

@@ -40,7 +40,8 @@
                             <button type="submit" class="btn btn-primary" id="executeBtn">
                                 <span class="glyphicon glyphicon-play"></span> Executar
                             </button>
-                            <span id="spinner" class="glyphicon glyphicon-refresh spinning margin-left-8 hide"></span>
+                            <span id="spinner"
+                                  class="glyphicon glyphicon-refresh spinning margin-left-8 hide"></span>
                         </div>
                         <div class="form-group">
                             <label for="stdinInput">Entrada (stdin) opcional:</label>
@@ -61,13 +62,136 @@
                 </div>
                 <!-- ===================== ABA 2: COMANDOS PARAMETRIZADOS ===================== -->
                 <div class="tab-pane fade" id="tab-templates">
-                    <p>🛠️ Em breve: aqui você poderá configurar comandos com parâmetros, salvar e reaproveitar.</p>
+                    <div class="clearfix margin-bottom-10">
+                        <button id="btnAddCommand" class="btn btn-success pull-right">
+                            <span class="glyphicon glyphicon-plus"></span> Novo Comando
+                        </button>
+                        <h4>📋 Lista de Comandos</h4>
+                    </div>
+                    <div id="commandList" class="row">
+                        <!-- Cards de comandos vão ser injetados aqui via JS -->
+                        <div class="col-xs-12">
+                            <p class="text-muted text-center" id="noCommandsMsg">Nenhum comando configurado ainda.</p>
+                        </div>
+                    </div>
                 </div>
+            </div>
+        </div>
+    </div>
+    <!-- ===================== MODAL DE COMANDO ===================== -->
+    <div class="modal fade"
+         id="commandModal"
+         tabindex="-1"
+         role="dialog"
+         aria-labelledby="commandModalLabel">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <form id="formCommand">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                        <h4 class="modal-title" id="commandModalLabel">Novo Comando</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="cmdName">Nome do Comando</label>
+                            <input type="text" id="cmdName" name="nome" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cmdTemplate">Template</label>
+                            <input type="text"
+                                   id="cmdTemplate"
+                                   name="template"
+                                   class="form-control"
+                                   placeholder="Ex: systemctl restart {service}"
+                                   required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cmdCred">Credencial SSH</label>
+                            <select id="cmdCred" name="cred_ssh" class="form-control" required></select>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" id="cmdActive" name="active" checked>
+                                Ativo
+                            </label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">
+                            <span class="glyphicon glyphicon-floppy-disk"></span> Salvar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- ===================== MODAL DE ADICIONAR / EDITAR COMANDO ===================== -->
+    <div class="modal fade"
+         id="commandModal"
+         tabindex="-1"
+         role="dialog"
+         aria-labelledby="commandModalLabel">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <form id="formCommand">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                        <h4 class="modal-title" id="commandModalLabel">Novo Comando</h4>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Nome do comando -->
+                        <div class="form-group">
+                            <label for="cmdName">Nome do Comando</label>
+                            <input type="text" id="cmdName" name="name" class="form-control" required>
+                        </div>
+                        <!-- Template -->
+                        <div class="form-group">
+                            <label for="cmdTemplate">Template</label>
+                            <input type="text"
+                                   id="cmdTemplate"
+                                   name="template"
+                                   class="form-control"
+                                   placeholder="Ex: systemctl restart {service}"
+                                   required>
+                            <p class="help-block">
+                                Use <code>{param}</code> para indicar parâmetros dinâmicos.
+                                <br>
+                                Ex: <code>ping -c {count} {host}</code>
+                            </p>
+                        </div>
+                        <!-- Credencial SSH -->
+                        <div class="form-group">
+                            <label for="cmdCred">Credencial SSH</label>
+                            <select id="cmdCred" name="cred_id" class="form-control" required></select>
+                        </div>
+                        <!-- Checkbox de ativo -->
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" id="cmdActive" name="active" checked>
+                                Ativo
+                            </label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="hidden" id="cmdId" name="id">
+                        <!-- Usado no modo editar -->
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">
+                            <span class="glyphicon glyphicon-floppy-disk"></span> Salvar
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 {% endblock content %}
 {% block extra_script %}
+    <!-- script para comandos livres -->
     <script>
         (function() {
             const credSelect = document.getElementById('credSelect');
@@ -75,7 +199,7 @@
             const commandInput = document.getElementById('commandInput');
 
             // Carrega lista de credenciais
-            fetch('{{ url_for("admin_remote.api_ssh_list") }}')
+            fetch('{{ url_for("admin_remote_credential.api_ssh_list") }}')
                 .then(r => r.json())
                 .then(creds => {
                     credSelect.innerHTML = '';
@@ -146,7 +270,7 @@
                 executeBtn.disabled = true;
                 disableAllReruns();
 
-                fetch(`{{ url_for("admin_remote.api_ssh_execute", cred_id=0) }}`.replace('0', credId), {
+                fetch(`{{ url_for("admin_remote_commands.api_ssh_execute", cred_id=0) }}`.replace('0', credId), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ command: command, stdin: stdinData })
@@ -187,7 +311,7 @@
                 executeBtn.disabled = true;
                 disableAllReruns();
 
-                fetch(`{{ url_for("admin_remote.api_ssh_execute", cred_id=0) }}`.replace('0', credId), {
+                fetch(`{{ url_for("admin_remote_commands.api_ssh_execute", cred_id=0) }}`.replace('0', credId), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ command: cmd, stdin: stdinData })
@@ -211,6 +335,166 @@
             });
         })();
     </script>
+    <!-- script para aba de comandos parametrizados -->
+<script>
+(function() {
+    // ===================== VARIÁVEIS GLOBAIS =====================
+    const commandList = [];
+    const credMap = {}; // 🔸 cred_id → objeto com nome/user/host
+    const cmdModal = $('#commandModal');
+    const formCmd = document.getElementById('formCommand');
+
+    const cmdIdField = document.getElementById('cmdId');
+    const cmdNameField = document.getElementById('cmdName');
+    const cmdTemplateField = document.getElementById('cmdTemplate');
+    const cmdCredField = document.getElementById('cmdCred');
+    const cmdActiveField = document.getElementById('cmdActive');
+
+    // ===================== INICIALIZAÇÃO =====================
+    // ===================== Carrega credenciais =====================
+    fetch('{{ url_for("admin_remote_credential.api_ssh_list") }}')
+        .then(r => r.json())
+        .then(creds => {
+            cmdCredField.innerHTML = '';
+            creds.forEach(c => {
+                credMap[c.id] = c; // 🔸 guarda no dicionário
+
+                const opt = document.createElement('option');
+                opt.value = c.id;
+                opt.textContent = `${c.name_ssh} (${c.user_ssh}@${c.host_ssh})`;
+                cmdCredField.appendChild(opt);
+            });
+        });
+
+    // Botão fictício para abrir o modal de "Novo Comando" (depois colocamos na UI real)
+    document.addEventListener('click', e => {
+        if (e.target.matches('[data-action="new-command"]')) {
+            openCommandModal();
+        }
+        if (e.target.matches('[data-action="edit-command"]')) {
+            const id = e.target.dataset.id;
+            const cmd = commandList.find(c => c.id === id);
+            if (cmd) openCommandModal(cmd);
+        }
+    });
+
+    // ===================== FUNÇÕES DO MODAL =====================
+
+    function openCommandModal(command = null) {
+        if (command) {
+            // Editar
+            document.getElementById('commandModalLabel').textContent = 'Editar Comando';
+            cmdIdField.value = command.id;
+            cmdNameField.value = command.name;
+            cmdTemplateField.value = command.template;
+            cmdCredField.value = command.cred_ssh;
+            cmdActiveField.checked = command.active;
+        } else {
+            // Novo
+            document.getElementById('commandModalLabel').textContent = 'Novo Comando';
+            cmdIdField.value = '';
+            cmdNameField.value = '';
+            cmdTemplateField.value = '';
+            cmdCredField.selectedIndex = 0;
+            cmdActiveField.checked = true;
+        }
+
+        cmdModal.modal('show');
+    }
+
+    // ===================== SALVAR (ADD/EDIT) =====================
+    formCmd.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const data = {
+            id: cmdIdField.value || crypto.randomUUID(),
+            name: cmdNameField.value.trim(),
+            template: cmdTemplateField.value.trim(),
+            cred_ssh: cmdCredField.value,
+            active: cmdActiveField.checked,
+            params: [] // ainda vazio por enquanto
+        };
+
+        if (!data.name || !data.template) {
+            alert('Preencha os campos obrigatórios.');
+            return;
+        }
+
+        const existingIndex = commandList.findIndex(c => c.id === data.id);
+        if (existingIndex !== -1) {
+            // Editar
+            commandList[existingIndex] = data;
+        } else {
+            // Novo
+            commandList.push(data);
+        }
+
+        renderCommandCards();
+        cmdModal.modal('hide');
+    });
+
+    // ===================== RENDERIZAÇÃO DOS CARDS =====================
+    function renderCommandCards() {
+        const container = document.getElementById('commandsContainer');
+        if (!container) return;
+
+        container.innerHTML = '';
+
+        if (commandList.length === 0) {
+            container.innerHTML = '<p class="text-muted">Nenhum comando cadastrado ainda.</p>';
+            return;
+        }
+
+        commandList.forEach(cmd => {
+            const card = document.createElement('div');
+            card.className = 'panel ' + (cmd.active ? 'panel-success' : 'panel-danger');
+            card.style.marginBottom = '10px';
+
+            const heading = document.createElement('div');
+            heading.className = 'panel-heading';
+            heading.innerHTML = `<strong>${cmd.name}</strong>`;
+            card.appendChild(heading);
+
+            const body = document.createElement('div');
+            body.className = 'panel-body';
+
+            const credInfo = credMap[cmd.cred_ssh]
+                ? `${credMap[cmd.cred_ssh].name_ssh} (${credMap[cmd.cred_ssh].user_ssh}@${credMap[cmd.cred_ssh].host_ssh})`
+                : `<span class="text-danger">Credencial não encontrada</span>`;
+
+            body.innerHTML = `
+                <p><strong>Template:</strong> <code>${cmd.template}</code></p>
+                <p><strong>Credencial:</strong> ${credInfo}</p>
+                <div class="text-right">
+                    <button class="btn btn-xs btn-default" data-action="edit-command" data-id="${cmd.id}">
+                        ✏️ Editar
+                    </button>
+                </div>
+            `;
+            card.appendChild(body);
+
+            container.appendChild(card);
+        });
+    }
+
+    // ===================== CONTAINER NA ABA DE COMANDOS =====================
+    // (pode ficar na aba de "Comandos Parametrizados")
+    document.addEventListener('DOMContentLoaded', () => {
+        const tab = document.getElementById('tab-templates');
+        const html = `
+            <div class="margin-top-10">
+                <button class="btn btn-primary" data-action="new-command">
+                    <span class="glyphicon glyphicon-plus"></span> Novo Comando
+                </button>
+            </div>
+            <div id="commandsContainer" class="margin-top-15"></div>
+        `;
+        tab.innerHTML = html;
+        renderCommandCards();
+    });
+})();
+</script>
+
 {% endblock extra_script %}
 {% block extra_css %}
     <style>

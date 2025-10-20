@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 semana_inglesa = {
@@ -67,8 +68,11 @@ DEFAULT_CONFIG_CFG = {
 
 SECRET_PATH = "config/secret.json"
 
-SSH_CRED_PATH = "data/ssh_credentials.json"
+DATA_BASE = "data"
+SSH_CRED_PATH = os.path.join("data", "ssh_credentials.json")
 SSH_CRED_FILE = Path(SSH_CRED_PATH)
+COMMANDS_PATH = os.path.join("data", "comandos.json")
+COMMANDS_FILE = Path(COMMANDS_PATH)
 
 ERROR_MESSAGES = {
     400: "Requisição inválida",

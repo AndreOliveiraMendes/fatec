@@ -6,8 +6,8 @@ from datetime import datetime, timedelta
 from importlib.resources import as_file
 from pathlib import Path
 
-from flask import (Blueprint, jsonify, redirect, render_template,
-                   request, session, url_for)
+from flask import (Blueprint, jsonify, redirect, render_template, request,
+                   session, url_for)
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import between, or_, select
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
