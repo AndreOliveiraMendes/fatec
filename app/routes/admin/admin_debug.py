@@ -15,11 +15,11 @@ from config.general import LIST_ROUTES
 bp = Blueprint("admin_debug", __name__, url_prefix='/admin')
 
 
-def listar_arquivos_config():
+def listar_arquivos_config(directory):
     """
     Lista arquivos e diretórios dentro de 'config' com informações detalhadas (permissões, owner, etc.)
     """
-    directory = os.path.abspath('config')
+    directory = os.path.abspath(directory)
     arquivos = []
 
     if os.path.exists(directory):
@@ -118,7 +118,8 @@ def listar_rotas():
         user=user,
         rotas=routes,
         blueprints=bps,
-        archives=listar_arquivos_config()
+        config_archives=listar_arquivos_config('config'),
+        data_archives=listar_arquivos_config('data')
     )
 
 def coletar_detalhes_rotas():
