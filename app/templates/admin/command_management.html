@@ -338,9 +338,6 @@
     <!-- script para aba de comandos parametrizados -->
 <script>
 (function() {
-    // ===================== VARIÁVEIS GLOBAIS =====================
-    const commandList = [];
-    const credMap = {}; // 🔸 cred_id → objeto com nome/user/host
     const cmdModal = $('#commandModal');
     const formCmd = document.getElementById('formCommand');
 
@@ -350,39 +347,60 @@
     const cmdCredField = document.getElementById('cmdCred');
     const cmdActiveField = document.getElementById('cmdActive');
 
-    // ===================== INICIALIZAÇÃO =====================
-    // ===================== Carrega credenciais =====================
-    fetch('{{ url_for("admin_remote_credential.api_ssh_list") }}')
-        .then(r => r.json())
-        .then(creds => {
-            cmdCredField.innerHTML = '';
-            creds.forEach(c => {
-                credMap[c.id] = c; // 🔸 guarda no dicionário
+    const container = document.getElementById('commandList');
+    let commandList = [];
+    const credMap = {};
 
-                const opt = document.createElement('option');
-                opt.value = c.id;
-                opt.textContent = `${c.name_ssh} (${c.user_ssh}@${c.host_ssh})`;
-                cmdCredField.appendChild(opt);
-            });
+    // ===================== INICIALIZAÇÃO =====================
+    Promise.all([
+        fetch('{{ url_for("admin_remote_credential.api_ssh_list") }}').then(r => r.json()),
+        fetch('{{ url_for("admin_remote_commands.list_commands") }}').then(r => r.json())
+    ])
+    .then(([creds, commands]) => {
+        // popula credenciais
+        cmdCredField.innerHTML = '';
+        creds.forEach(c => {
+            credMap[c.id] = c;
+            const opt = document.createElement('option');
+            opt.value = c.id;
+            opt.textContent = `${c.name_ssh} (${c.user_ssh}@${c.host_ssh})`;
+            cmdCredField.appendChild(opt);
         });
 
-    // Botão fictício para abrir o modal de "Novo Comando" (depois colocamos na UI real)
-    document.addEventListener('click', e => {
-        if (e.target.matches('[data-action="new-command"]')) {
-            openCommandModal();
-        }
-        if (e.target.matches('[data-action="edit-command"]')) {
-            const id = e.target.dataset.id;
-            const cmd = commandList.find(c => c.id === id);
+        commandList = commands;
+        renderCommandCards();
+    });
+
+    // ===================== BOTÃO "NOVO" =====================
+    document.getElementById('btnAddCommand').addEventListener('click', () => {
+        openCommandModal();
+    });
+
+    // ===================== EVENT DELEGATION (EDITAR / DELETAR) =====================
+    container.addEventListener('click', e => {
+        const editBtn = e.target.closest('[data-action="edit-command"]');
+        const delBtn = e.target.closest('[data-action="delete-command"]');
+
+        if (editBtn) {
+            const id = editBtn.dataset.id;
+            const cmd = commandList.find(c => String(c.id) === String(id));
             if (cmd) openCommandModal(cmd);
+        }
+
+        if (delBtn) {
+            const id = delBtn.dataset.id;
+            const cmd = commandList.find(c => String(c.id) === String(id));
+            if (cmd) {
+                if (confirm(`Deseja realmente excluir o comando "${cmd.name}"?`)) {
+                    deleteCommand(id);
+                }
+            }
         }
     });
 
-    // ===================== FUNÇÕES DO MODAL =====================
-
+    // ===================== MODAL (ABRIR) =====================
     function openCommandModal(command = null) {
         if (command) {
-            // Editar
             document.getElementById('commandModalLabel').textContent = 'Editar Comando';
             cmdIdField.value = command.id;
             cmdNameField.value = command.name;
@@ -390,7 +408,6 @@
             cmdCredField.value = command.cred_ssh;
             cmdActiveField.checked = command.active;
         } else {
-            // Novo
             document.getElementById('commandModalLabel').textContent = 'Novo Comando';
             cmdIdField.value = '';
             cmdNameField.value = '';
@@ -406,54 +423,90 @@
     formCmd.addEventListener('submit', function(e) {
         e.preventDefault();
 
-        const data = {
-            id: cmdIdField.value || crypto.randomUUID(),
+        const payload = {
+            id: cmdIdField.value || null,
             name: cmdNameField.value.trim(),
             template: cmdTemplateField.value.trim(),
             cred_ssh: cmdCredField.value,
-            active: cmdActiveField.checked,
-            params: [] // ainda vazio por enquanto
+            active: cmdActiveField.checked
         };
 
-        if (!data.name || !data.template) {
-            alert('Preencha os campos obrigatórios.');
+        if (!payload.name || !payload.template) {
+            alert('Preencha todos os campos obrigatórios.');
             return;
         }
 
-        const existingIndex = commandList.findIndex(c => c.id === data.id);
-        if (existingIndex !== -1) {
-            // Editar
-            commandList[existingIndex] = data;
-        } else {
-            // Novo
-            commandList.push(data);
-        }
-
-        renderCommandCards();
-        cmdModal.modal('hide');
+        fetch("{{ url_for('admin_remote_commands.save_command') }}", {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(r => r.json())
+        .then(resp => {
+            if (resp.success) {
+                cmdModal.modal('hide');
+                loadCommands();
+            } else {
+                alert('Erro ao salvar: ' + (resp.error || 'desconhecido'));
+            }
+        })
+        .catch(err => {
+            alert('Erro inesperado: ' + err);
+        });
     });
 
-    // ===================== RENDERIZAÇÃO DOS CARDS =====================
-    function renderCommandCards() {
-        const container = document.getElementById('commandsContainer');
-        if (!container) return;
+    // ===================== DELETAR COMANDO =====================
+    function deleteCommand(id) {
+        fetch(`{{ url_for("admin_remote_commands.delete_command", cmd_id=0) }}`.replace('0', id), {
+            method: 'DELETE'
+        })
+        .then(r => r.json())
+        .then(resp => {
+            if (resp.success) {
+                loadCommands();
+            } else {
+                alert('Erro ao deletar: ' + (resp.error || 'desconhecido'));
+            }
+        })
+        .catch(err => {
+            alert('Erro inesperado: ' + err);
+        });
+    }
 
+    // ===================== RECARREGAR E RENDERIZAR =====================
+    function loadCommands() {
+        fetch('{{ url_for("admin_remote_commands.list_commands") }}')
+            .then(r => r.json())
+            .then(commands => {
+                commandList = commands;
+                renderCommandCards();
+            });
+    }
+
+    function renderCommandCards() {
         container.innerHTML = '';
 
         if (commandList.length === 0) {
-            container.innerHTML = '<p class="text-muted">Nenhum comando cadastrado ainda.</p>';
+            container.innerHTML = `
+                <div class="col-xs-12">
+                    <p class="text-muted text-center" id="noCommandsMsg">
+                        Nenhum comando configurado ainda.
+                    </p>
+                </div>`;
             return;
         }
 
         commandList.forEach(cmd => {
-            const card = document.createElement('div');
-            card.className = 'panel ' + (cmd.active ? 'panel-success' : 'panel-danger');
-            card.style.marginBottom = '10px';
+            const col = document.createElement('div');
+            col.className = 'col-sm-6 col-md-4';
+
+            const panel = document.createElement('div');
+            panel.className = 'panel ' + (cmd.active ? 'panel-success' : 'panel-danger');
 
             const heading = document.createElement('div');
             heading.className = 'panel-heading';
             heading.innerHTML = `<strong>${cmd.name}</strong>`;
-            card.appendChild(heading);
+            panel.appendChild(heading);
 
             const body = document.createElement('div');
             body.className = 'panel-body';
@@ -469,29 +522,17 @@
                     <button class="btn btn-xs btn-default" data-action="edit-command" data-id="${cmd.id}">
                         ✏️ Editar
                     </button>
+                    <button class="btn btn-xs btn-danger" data-action="delete-command" data-id="${cmd.id}">
+                        🗑️ Excluir
+                    </button>
                 </div>
             `;
-            card.appendChild(body);
 
-            container.appendChild(card);
+            panel.appendChild(body);
+            col.appendChild(panel);
+            container.appendChild(col);
         });
     }
-
-    // ===================== CONTAINER NA ABA DE COMANDOS =====================
-    // (pode ficar na aba de "Comandos Parametrizados")
-    document.addEventListener('DOMContentLoaded', () => {
-        const tab = document.getElementById('tab-templates');
-        const html = `
-            <div class="margin-top-10">
-                <button class="btn btn-primary" data-action="new-command">
-                    <span class="glyphicon glyphicon-plus"></span> Novo Comando
-                </button>
-            </div>
-            <div id="commandsContainer" class="margin-top-15"></div>
-        `;
-        tab.innerHTML = html;
-        renderCommandCards();
-    });
 })();
 </script>
 

@@ -26,14 +26,16 @@ def save_command():
     if not data.get("name") or not data.get("template") or not data.get("cred_ssh"):
         return jsonify({"success": False, "error": "Campos obrigatórios faltando."}), 400
 
-    cmd_id = data.get("id")
 
-    if cmd_id is not None:
+    cmd_id = data.get("id")
+    if cmd_id:
         try:
             cmd_id = int(cmd_id)
+            data["id"] = cmd_id
         except (ValueError, TypeError):
             return jsonify({"success": False, "error": "ID inválido."}), 400
 
+    if cmd_id:
         # Atualiza existente
         updated = False
         for c in commands:
