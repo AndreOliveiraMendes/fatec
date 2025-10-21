@@ -12,7 +12,7 @@ from app.auxiliar.auxiliar_routes import get_user_info
 from app.auxiliar.decorators import admin_required
 from config.json_related import load_ssh_credentials, save_ssh_credentials
 
-bp = Blueprint('admin_remote_credential', __name__, url_prefix='/admin')
+bp = Blueprint('admin_remote_credential', __name__, url_prefix='/manage_ssh_cred')
 
 @bp.route("/gerar_chave")
 @admin_required
@@ -24,7 +24,7 @@ def gerar_chave():
         flash("⚠️ A chave já estava configurada.", "warning")
     return redirect(url_for("admin.gerenciar_menu"))
 
-@bp.route("/manage_ssh_cred")
+@bp.route("/")
 @admin_required
 def manage_ssh():
     userid = session.get('userid')

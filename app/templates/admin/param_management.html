@@ -1,0 +1,227 @@
+{% extends "base-fixed" %}
+{% block title %}
+    Parâmetros do Comando
+{% endblock title %}
+{% block content %}
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                ⚙️ Parâmetros de: <strong id="cmdName"></strong>
+            </h3>
+        </div>
+        <div class="panel-body">
+            <div class="clearfix margin-bottom-10">
+                <a href="{{ url_for('admin_remote_commands.manage_commands') }}"
+                   class="btn btn-default btn-sm pull-left">← Voltar</a>
+                <button id="btnAddParam" class="btn btn-success btn-sm pull-right">➕ Novo Parâmetro</button>
+            </div>
+            <div id="paramsList" class="margin-top-10">
+                <!-- Cards de parâmetros serão inseridos aqui -->
+            </div>
+        </div>
+    </div>
+    <!-- Modal de Adicionar/Editar Parâmetro -->
+    <div class="modal fade" id="paramModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="paramForm">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="paramModalTitle">Novo Parâmetro</h4>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="paramId">
+                        <div class="form-group">
+                            <label>Nome (ex: {usuario})</label>
+                            <input type="text" id="paramName" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Alias (ex: Nome do Usuário)</label>
+                            <input type="text" id="paramAlias" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo</label>
+                            <select id="paramType" class="form-control">
+                                <option value="str">Texto</option>
+                                <option value="int">Inteiro</option>
+                                <option value="number">Número</option>
+                                <option value="date">Data</option>
+                                <option value="time">Hora</option>
+                                <option value="datetime">Data e hora</option>
+                            </select>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" id="paramOptional">
+                                Opcional
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo de Seleção</label>
+                            <select id="paramSelectionType" class="form-control">
+                                <option value="manual">Manual</option>
+                                <option value="auto">Automático</option>
+                            </select>
+                        </div>
+                        <!-- Seção de valores (manual) -->
+                        <div id="manualValuesSection" class="hide">
+                            <label>Valores pré-definidos</label>
+                            <div id="valuesContainer"></div>
+                            <button type="button" id="addValueBtn" class="btn btn-xs btn-default">➕ Adicionar valor</button>
+                        </div>
+                        <!-- Seção automática -->
+                        <div id="autoValuesSection" class="hide">
+                            <label>Valores automáticos</label>
+                            <p class="text-muted">Associar locais (ID + valor). Implementar após integração com API de locais.</p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+{% block extra_script %}
+    <script>
+(function() {
+    const cmdId = {{ cmd_id }}; // passado pela rota
+    const paramsList = document.getElementById('paramsList');
+    const btnAddParam = document.getElementById('btnAddParam');
+    const cmdName = document.getElementById('cmdName');
+    const BASE_COMAND_URL = "{{ url_for('admin_remote_commands.get_command', cmd_id=0) }}".split('/0')[0];
+    const BASE_DELET_URL_DETAILS = "{{ url_for('admin_remote_commands.delete_param', cmd_id=0, param_id=0) }}".split('/0');
+    const BASE_SAVE_URL = "{{ url_for('admin_remote_commands.save_param', cmd_id=0) }}".split('/0')[0];
+
+    function list_url(cmdId){
+        return `${BASE_COMAND_URL}/${cmdId}`;
+    }
+
+    function delet_url(cmdId, id){
+        return `${BASE_DELET_URL_DETAILS[0]}/${cmdId}/${BASE_DELET_URL_DETAILS[1]}/${id}`;
+    }
+
+    function save_url(cmdId, suffix='params') {
+        return `${BASE_SAVE_URL}/${cmdId}/${suffix}`;
+    }
+
+    // Carrega os parâmetros do comando
+    fetch(list_url(cmdId))
+        .then(r => r.json())
+        .then(cmd => {
+            cmdName.textContent = cmd.name;
+            renderParams(cmd.params || []);
+        });
+
+    function renderParams(params) {
+        paramsList.innerHTML = '';
+        if (!params.length) {
+            paramsList.innerHTML = '<p class="text-muted">Nenhum parâmetro configurado.</p>';
+            return;
+        }
+
+        params.forEach(p => {
+            const card = document.createElement('div');
+            card.className = 'panel panel-default';
+            card.innerHTML = `
+                <div class="panel-body">
+                    <strong>${p.name}</strong> (${p.type})
+                    ${p.optional ? '<span class="label label-info">Opcional</span>' : ''}
+                    <br><small>${p.alias || ''}</small>
+                    <div class="pull-right">
+                        <button class="btn btn-xs btn-primary btn-edit" data-id="${p.id}">✏️</button>
+                        <button class="btn btn-xs btn-danger btn-del" data-id="${p.id}">🗑️</button>
+                    </div>
+                </div>
+            `;
+            paramsList.appendChild(card);
+        });
+
+        // Botões
+        paramsList.querySelectorAll('.btn-edit').forEach(btn => {
+            btn.addEventListener('click', e => editParam(e.target.dataset.id));
+        });
+        paramsList.querySelectorAll('.btn-del').forEach(btn => {
+            btn.addEventListener('click', e => deleteParam(e.target.dataset.id));
+        });
+    }
+
+    // Adicionar parâmetro
+    btnAddParam.addEventListener('click', () => {
+        document.getElementById('paramForm').reset();
+        document.getElementById('paramId').value = '';
+        $('#paramModal').modal('show');
+    });
+
+    // --- elementos principais ---
+    const paramForm = document.getElementById('paramForm');
+    const paramModalTitle = document.getElementById('paramModalTitle');
+    const paramIdField = document.getElementById('paramId');
+
+    // Abrir modal pra edição
+    function editParam(id) {
+        fetch(list_url(cmdId))
+            .then(r => r.json())
+            .then(cmd => {
+                const param = (cmd.params || []).find(p => p.id == id);
+                if (!param) return alert("Parâmetro não encontrado.");
+
+                // Preenche os campos
+                paramModalTitle.textContent = `Editar Parâmetro #${id}`;
+                paramIdField.value = param.id;
+                document.getElementById('paramName').value = param.name || '';
+                document.getElementById('paramAlias').value = param.alias || '';
+                document.getElementById('paramType').value = param.type || 'str';
+                document.getElementById('paramOptional').checked = !!param.optional;
+                document.getElementById('paramSelectionType').value = param.selection_type || 'manual';
+
+                $('#paramModal').modal('show');
+            });
+    }
+
+    // Salvar (novo ou edição)
+    paramForm.addEventListener('submit', e => {
+        e.preventDefault();
+
+        const payload = {
+            id: paramIdField.value || null,
+            name: document.getElementById('paramName').value.trim(),
+            alias: document.getElementById('paramAlias').value.trim(),
+            type: document.getElementById('paramType').value,
+            optional: document.getElementById('paramOptional').checked,
+            selection_type: document.getElementById('paramSelectionType').value,
+            values: [] // por enquanto vazio, depois implementa o modal de valores
+        };
+
+        fetch(save_url(cmdId), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(r => r.json())
+        .then(resp => {
+            if (resp.success) {
+                $('#paramModal').modal('hide');
+                location.reload();
+            } else {
+                alert(resp.error || "Erro ao salvar parâmetro.");
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Erro inesperado.");
+        });
+    });
+
+    function deleteParam(id) {
+        if (!confirm('Excluir este parâmetro?')) return;
+        fetch(delet_url(cmdId, id), { method: 'DELETE' })
+            .then(r => r.json())
+            .then(resp => {
+                if (resp.success) location.reload();
+            });
+    }
+})();
+    </script>
+{% endblock extra_script %}
