@@ -340,6 +340,7 @@
 (function() {
     const cmdModal = $('#commandModal');
     const formCmd = document.getElementById('formCommand');
+    const BASE_PARAMS_URL = "{{ url_for('admin_remote_commands.manage_params', cmd_id=0) }}".split('/0')[0];
 
     const cmdIdField = document.getElementById('cmdId');
     const cmdNameField = document.getElementById('cmdName');
@@ -350,6 +351,12 @@
     const container = document.getElementById('commandList');
     let commandList = [];
     const credMap = {};
+
+    // ===================== HELPERS ===========================
+
+    function makeParamUrl(cmdId, suffix = 'params') {
+        return `${BASE_PARAMS_URL}/${cmdId}/${suffix}`;
+    }
 
     // ===================== INICIALIZAÇÃO =====================
     Promise.all([
@@ -524,6 +531,10 @@
                     </button>
                     <button class="btn btn-xs btn-danger" data-action="delete-command" data-id="${cmd.id}">
                         🗑️ Excluir
+                    </button>
+                    <button class="btn btn-xs btn-info"
+                        onclick="window.location.href='${makeParamUrl(cmd.id)}'">
+                        ⚙️ Parâmetros
                     </button>
                 </div>
             `;
