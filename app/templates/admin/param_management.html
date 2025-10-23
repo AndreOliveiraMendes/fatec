@@ -8,6 +8,7 @@
             <h3 class="panel-title">
                 ⚙️ Parâmetros de: <strong id="cmdName"></strong>
             </h3>
+            Template: <strong id="cmdTemplate" class="text-primary font-weight-bold"></strong>
         </div>
         <div class="panel-body">
             <div class="clearfix margin-bottom-10">
@@ -84,12 +85,16 @@
     </div>
 {% endblock content %}
 {% block extra_script %}
-    <script>
+<script>
 (function() {
-    const cmdId = {{ cmd_id }}; // passado pela rota
+    const cmdId = {{ cmd_id }};
     const paramsList = document.getElementById('paramsList');
     const btnAddParam = document.getElementById('btnAddParam');
     const cmdName = document.getElementById('cmdName');
+    const paramForm = document.getElementById('paramForm');
+    const paramModalTitle = document.getElementById('paramModalTitle');
+    const paramIdField = document.getElementById('paramId');
+
     const BASE_COMAND_URL = "{{ url_for('admin_remote_commands.get_command', cmd_id=0) }}".split('/0')[0];
     const BASE_DELET_URL_DETAILS = "{{ url_for('admin_remote_commands.delete_param', cmd_id=0, param_id=0) }}".split('/0');
     const BASE_SAVE_URL = "{{ url_for('admin_remote_commands.save_param', cmd_id=0) }}".split('/0')[0];
@@ -98,12 +103,12 @@
         return `${BASE_COMAND_URL}/${cmdId}`;
     }
 
-    function delet_url(cmdId, id){
+    function delete_url(cmdId, id){
         return `${BASE_DELET_URL_DETAILS[0]}/${cmdId}/${BASE_DELET_URL_DETAILS[1]}/${id}`;
     }
 
-    function save_url(cmdId, suffix='params') {
-        return `${BASE_SAVE_URL}/${cmdId}/${suffix}`;
+    function save_url(cmdId) {
+        return `${BASE_SAVE_URL}/${cmdId}/params`;
     }
 
     // Carrega os parâmetros do comando
@@ -138,7 +143,6 @@
             paramsList.appendChild(card);
         });
 
-        // Botões
         paramsList.querySelectorAll('.btn-edit').forEach(btn => {
             btn.addEventListener('click', e => editParam(e.target.dataset.id));
         });
@@ -147,19 +151,45 @@
         });
     }
 
-    // Adicionar parâmetro
+    // --- Controle do modal ---
+    const manualSection = document.getElementById('manualValuesSection');
+    const autoSection = document.getElementById('autoValuesSection');
+    const selectionType = document.getElementById('paramSelectionType');
+    const valuesContainer = document.getElementById('valuesContainer');
+    const addValueBtn = document.getElementById('addValueBtn');
+
+    selectionType.addEventListener('change', () => {
+        const type = selectionType.value;
+        manualSection.classList.toggle('hide', type !== 'manual');
+        autoSection.classList.toggle('hide', type !== 'auto');
+    });
+
+    // Adicionar valor manual
+    addValueBtn.addEventListener('click', () => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'input-group margin-bottom-5';
+        wrapper.innerHTML = `
+            <input type="text" class="form-control param-value" placeholder="Valor">
+            <span class="input-group-btn">
+                <button type="button" class="btn btn-danger btn-xs remove-value">🗑️</button>
+            </span>
+        `;
+        wrapper.querySelector('.remove-value').addEventListener('click', () => wrapper.remove());
+        valuesContainer.appendChild(wrapper);
+    });
+
+    // Botão adicionar parâmetro
     btnAddParam.addEventListener('click', () => {
-        document.getElementById('paramForm').reset();
-        document.getElementById('paramId').value = '';
+        paramForm.reset();
+        paramIdField.value = '';
+        valuesContainer.innerHTML = '';
+        manualSection.classList.add('hide');
+        autoSection.classList.add('hide');
+        paramModalTitle.textContent = "Novo Parâmetro";
         $('#paramModal').modal('show');
     });
 
-    // --- elementos principais ---
-    const paramForm = document.getElementById('paramForm');
-    const paramModalTitle = document.getElementById('paramModalTitle');
-    const paramIdField = document.getElementById('paramId');
-
-    // Abrir modal pra edição
+    // Editar parâmetro existente
     function editParam(id) {
         fetch(list_url(cmdId))
             .then(r => r.json())
@@ -167,7 +197,6 @@
                 const param = (cmd.params || []).find(p => p.id == id);
                 if (!param) return alert("Parâmetro não encontrado.");
 
-                // Preenche os campos
                 paramModalTitle.textContent = `Editar Parâmetro #${id}`;
                 paramIdField.value = param.id;
                 document.getElementById('paramName').value = param.name || '';
@@ -176,13 +205,45 @@
                 document.getElementById('paramOptional').checked = !!param.optional;
                 document.getElementById('paramSelectionType').value = param.selection_type || 'manual';
 
+                selectionType.dispatchEvent(new Event('change'));
+                valuesContainer.innerHTML = '';
+
+                if (param.selection_type === 'manual' && Array.isArray(param.values)) {
+                    param.values.forEach(v => {
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'input-group margin-bottom-5';
+                        wrapper.innerHTML = `
+                            <input type="text" class="form-control param-value" value="${v}" placeholder="Valor">
+                            <span class="input-group-btn">
+                                <button type="button" class="btn btn-danger btn-xs remove-value">🗑️</button>
+                            </span>
+                        `;
+                        wrapper.querySelector('.remove-value').addEventListener('click', () => wrapper.remove());
+                        valuesContainer.appendChild(wrapper);
+                    });
+                }
+
                 $('#paramModal').modal('show');
             });
     }
 
-    // Salvar (novo ou edição)
+    // Excluir parâmetro
+    function deleteParam(id) {
+        if (!confirm('Excluir este parâmetro?')) return;
+        fetch(delete_url(cmdId, id), { method: 'DELETE' })
+            .then(r => r.json())
+            .then(resp => {
+                if (resp.success) location.reload();
+            });
+    }
+
+    // Salvar parâmetro (novo ou edição)
     paramForm.addEventListener('submit', e => {
         e.preventDefault();
+
+        const values = Array.from(document.querySelectorAll('.param-value'))
+                            .map(input => input.value.trim())
+                            .filter(v => v.length);
 
         const payload = {
             id: paramIdField.value || null,
@@ -191,7 +252,7 @@
             type: document.getElementById('paramType').value,
             optional: document.getElementById('paramOptional').checked,
             selection_type: document.getElementById('paramSelectionType').value,
-            values: [] // por enquanto vazio, depois implementa o modal de valores
+            values: values
         };
 
         fetch(save_url(cmdId), {
@@ -213,15 +274,6 @@
             alert("Erro inesperado.");
         });
     });
-
-    function deleteParam(id) {
-        if (!confirm('Excluir este parâmetro?')) return;
-        fetch(delet_url(cmdId, id), { method: 'DELETE' })
-            .then(r => r.json())
-            .then(resp => {
-                if (resp.success) location.reload();
-            });
-    }
 })();
-    </script>
+</script>
 {% endblock extra_script %}
