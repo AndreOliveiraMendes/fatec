@@ -2,6 +2,7 @@ from flask import (Blueprint, redirect, render_template, send_from_directory,
                    session, url_for)
 
 from app.auxiliar.auxiliar_routes import get_user_info
+from config.json_related import carregar_config_geral
 
 bp = Blueprint('default', __name__)
 
@@ -13,7 +14,8 @@ def painel():
 def home():
     userid = session.get('userid')
     user = get_user_info(userid)
-    return render_template("homepage.html", user=user)
+    config = carregar_config_geral()
+    return render_template("homepage.html", user=user, config=config)
 
 @bp.route('/under_dev')
 def under_dev_page():

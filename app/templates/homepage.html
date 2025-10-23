@@ -9,14 +9,16 @@
             {% if user %}{{ user.username }}{% endif %}
         </h1>
         <div class="btn-group-vertical" role="group" aria-label="Menu Principal">
-            {% if user %}
-                <a href="{{ url_for('auth.logout') }}" class="btn btn-primary">
-                    <span class="glyphicon glyphicon-log-out"></span> Sair de {{ user.username }}
-                </a>
-            {% else %}
-                <a href="{{ url_for('auth.login') }}" class="btn btn-primary">
-                    <span class="glyphicon glyphicon-log-in"></span> Ir para Login
-                </a>
+            {% if config.get('login') %}
+                {% if user %}
+                    <a href="{{ url_for('auth.logout') }}" class="btn btn-primary">
+                        <span class="glyphicon glyphicon-log-out"></span> Sair de {{ user.username }}
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-primary">
+                        <span class="glyphicon glyphicon-log-in"></span> Ir para Login
+                    </a>
+                {% endif %}
             {% endif %}
             {% if user and user.perm|has_flag(ADMIN) %}
                 <a href="{{ url_for('admin.gerenciar_menu') }}" class="btn btn-danger">
@@ -36,7 +38,8 @@
                 </a>
             {% endif %}
             {% if user and user.perm|has_flag(AUDITORIO) %}
-                <a href="{{ url_for('reservas_auditorios.main_page') }}" class="btn btn-info">
+                <a href="{{ url_for('reservas_auditorios.main_page') }}"
+                   class="btn btn-info">
                     <span class="glyphicon glyphicon-bullhorn"></span> Reserva Auditorio
                 </a>
             {% endif %}

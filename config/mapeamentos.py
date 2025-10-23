@@ -63,7 +63,8 @@ DEFAULT_PAINEL_CFG = {
 
 DEFAULT_CONFIG_CFG = {
     "modo_gerenciacao": "multiplo",
-    "toleranca": 20
+    "toleranca": 20,
+    "login": False
 }
 
 SECRET_PATH = "config/secret.json"
