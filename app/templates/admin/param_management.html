@@ -91,6 +91,7 @@
     const paramsList = document.getElementById('paramsList');
     const btnAddParam = document.getElementById('btnAddParam');
     const cmdName = document.getElementById('cmdName');
+    const cmdTemplate = document.getElementById('cmdTemplate');
     const paramForm = document.getElementById('paramForm');
     const paramModalTitle = document.getElementById('paramModalTitle');
     const paramIdField = document.getElementById('paramId');
@@ -116,6 +117,7 @@
         .then(r => r.json())
         .then(cmd => {
             cmdName.textContent = cmd.name;
+            cmdTemplate.textContent = cmd.template;
             renderParams(cmd.params || []);
         });
 
