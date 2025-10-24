@@ -2,8 +2,8 @@ from copy import copy
 from datetime import datetime
 from typing import Literal
 
-from flask import (Blueprint, abort, current_app, flash, jsonify, redirect,
-                   render_template, request, session, url_for)
+from flask import (Blueprint, abort, flash, redirect, render_template, request,
+                   session, url_for)
 from sqlalchemy import func, select
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
                             InternalError, OperationalError, ProgrammingError)
@@ -11,11 +11,9 @@ from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
 from app.auxiliar.auxiliar_routes import (get_user_info, parse_date_string,
                                           registrar_log_generico_usuario)
 from app.auxiliar.constant import PERM_ADMIN, PERM_AUTORIZAR
-from app.auxiliar.dao import (get_auditorios, get_aulas_ativas_por_dia,
-                              get_reservas_auditorios)
+from app.auxiliar.dao import get_auditorios, get_reservas_auditorios
 from app.auxiliar.decorators import reserva_auditorio_required
-from app.models import (Aulas, Aulas_Ativas, Dias_da_Semana,
-                        Reservas_Auditorios, StatusReservaAuditorioEnum,
+from app.models import (Reservas_Auditorios, StatusReservaAuditorioEnum,
                         Usuarios, db)
 from config.general import LOCAL_TIMEZONE
 
@@ -168,22 +166,6 @@ def editar_observacao(field, id_reserva):
         db.session.rollback()
         flash(f"Erro ao comentar:{str(e.orig)}", "danger")
     return redirect(url_for('reservas_auditorios.main_page'))
-
-@bp.route('/api/times', methods=['GET'])
-def get_times():
-    dia = parse_date_string(request.args.get('dia'))
-    if not dia:
-        abort(500)
-    aulas_ativas = get_aulas_ativas_por_dia(dia)
-    result = []
-    for aula_ativa, aula, dia_semana in aulas_ativas:
-        result.append({
-            'id_aula_ativa': aula_ativa.id_aula_ativa,
-            'horario_inicio': aula.horario_inicio.strftime('%H:%M'),
-            'horario_fim': aula.horario_fim.strftime('%H:%M'),
-            'nome_semana': dia_semana.nome_semana
-        })
-    return result
 
 @bp.route('/adicionando_reserva_auditorio', methods=['POST'])
 @reserva_auditorio_required

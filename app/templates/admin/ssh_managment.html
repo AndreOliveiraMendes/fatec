@@ -196,7 +196,7 @@
         });
 
         function carregarCredenciais() {
-            fetch('{{ url_for("admin_remote_credential.api_ssh_list") }}')
+            fetch('{{ url_for("api.api_ssh_list") }}')
                 .then(r => r.json())
                 .then(data => {
                     tableBody.innerHTML = '';
@@ -250,7 +250,7 @@
             const data = Object.fromEntries(new FormData(form).entries());
             if (data.port_ssh) data.port_ssh = parseInt(data.port_ssh);
 
-            fetch('{{ url_for("admin_remote_credential.api_ssh_save") }}', {
+            fetch('{{ url_for("api.api_ssh_save") }}', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
@@ -275,7 +275,7 @@
             if (editBtn) {
                 const id = editBtn.dataset.id;
                 form.reset();
-                fetch('{{ url_for("admin_remote_credential.api_ssh_list") }}')
+                fetch('{{ url_for("api.api_ssh_list") }}')
                     .then(r => r.json())
                     .then(data => {
                         const cred = data.find(c => c.id == id);
@@ -308,7 +308,7 @@
             if (delBtn) {
                 const id = delBtn.dataset.id;
                 if (!confirm('Tem certeza que deseja excluir esta credencial?')) return;
-                fetch(`{{ url_for("admin_remote_credential.api_ssh_delete", cred_id=0) }}`.replace('0', id), {
+                fetch(`{{ url_for("api.api_ssh_delete", cred_id=0) }}`.replace('0', id), {
                     method: 'POST'
                 })
                     .then(r => r.json())
@@ -322,7 +322,7 @@
                 testBtn.disabled = true;
                 testBtn.classList.add('loading');
 
-                fetch(`{{ url_for("admin_remote_credential.api_ssh_test", cred_id=0) }}`.replace('0', id), {
+                fetch(`{{ url_for("api.api_ssh_test", cred_id=0) }}`.replace('0', id), {
                     method: 'POST'
                 })
                     .then(r => r.json())

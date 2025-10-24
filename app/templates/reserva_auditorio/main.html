@@ -332,7 +332,7 @@
             loadingOption.selected = true;
             horaSelect.appendChild(loadingOption);
 
-            fetch(`{{ url_for('reservas_auditorios.get_times') }}?dia=${selectedDate}`)
+            fetch(`{{ url_for('api.get_times') }}?dia=${selectedDate}`)
                 .then(response => response.json())
                 .then(data => {
                     horaSelect.innerHTML = '<option value="">Selecione um horário</option>';
