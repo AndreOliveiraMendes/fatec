@@ -16,6 +16,24 @@ def create_app(name=None):
     db.init_app(app)
 
     configure_logging(app)
+    if app.debug:
+        from flask_scss import Scss
+        Scss(
+            app,
+            static_dir=os.path.join(app.root_path, 'static', 'css'),
+            asset_dir=os.path.join(app.root_path, 'static', 'css'))
+        print("[SCSS] Compilação automática ativada (modo dev)")
+    else:
+        import sass
+        scss_dir = os.path.join(app.root_path, 'static', 'scss')
+        css_dir = os.path.join(app.root_path, 'static', 'css')
+        os.makedirs(css_dir, exist_ok=True)
+
+        sass.compile(
+            dirname=(scss_dir, css_dir),
+            output_style='compressed'
+        )
+        print("[SCSS] Compilado para produção")
 
     with app.app_context():
         from app.auxiliar import auxiliar_template, error, url_custom_types

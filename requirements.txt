@@ -8,3 +8,5 @@ tzlocal
 mysql-connector-python
 gunicorn
 paramiko
+flask-scss
+libsass

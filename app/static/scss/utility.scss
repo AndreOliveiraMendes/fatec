@@ -1,0 +1,8 @@
+$spacers: 0, 5, 8, 10, 15, 20, 25;
+
+@each $space in $spacers {
+  .margin-left-#{$space} { margin-left: #{$space}px !important; }
+  .margin-right-#{$space} { margin-right: #{$space}px !important; }
+  .margin-top-#{$space} { margin-top: #{$space}px !important; }
+  .margin-bottom-#{$space} { margin-bottom: #{$space}px !important; }
+}

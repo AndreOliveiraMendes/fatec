@@ -25,6 +25,8 @@
             <!-- Custom CSS -->
             <link rel="stylesheet"
                   href="{{ url_for('static', filename='css/custom.css') }}">
+            <link rel="stylesheet"
+                  href="{{ url_for('static', filename='css/utility.css') }}">
             <!-- Optional extra CSS for specific pages -->
             {% block extra_css %}
             {% endblock extra_css %}

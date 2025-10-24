@@ -92,10 +92,13 @@
             <div class="tab-pane fade" id="tab-blueprints">
                 <div class="row">
                     <div class="col-sm-6">
-                        <h4>
+                        <h4 class="margin-bottom-0">
                             <span class="glyphicon glyphicon-folder-open text-info"></span>
                             Blueprints registradas (<span id="contadorBlueprints">{{ blueprints|length }}</span>)
                         </h4>
+                        <small id="contadorRotasVisiveis" class="text-muted margin-left-25">
+                            <span class="glyphicon glyphicon-link"></span> —
+                        </small>
                     </div>
                     <div class="col-sm-6 text-right">
                         <input type="text"
@@ -118,7 +121,8 @@
             <!-- Aba de arquivos de configuração -->
             <div class="tab-pane fade" id="tab-config-archives">
                 <h4>Arquivos de configuração</h4>
-                <table class="table table-striped table-condensed sortable" id="table-config">
+                <table class="table table-striped table-condensed sortable"
+                       id="table-config">
                     <thead>
                         <tr>
                             <th>Nome</th>
@@ -211,22 +215,39 @@
     <!-- aba de blueprints -->
     <script>
         (function () {
-            // Filtro da aba de Blueprints
             const filtroBp = document.getElementById('filtroBlueprints');
             const itensBp = document.querySelectorAll('#listaBlueprints li');
             const contadorBp = document.getElementById('contadorBlueprints');
+            const contadorRotas = document.getElementById('contadorRotasVisiveis');
 
-            filtroBp.addEventListener('input', function () {
-                const termo = this.value.toLowerCase();
+            function atualizarContadores() {
+                const termo = filtroBp.value.toLowerCase();
                 let visiveis = 0;
+                let totalRotasVisiveis = 0;
+
                 itensBp.forEach(li => {
                     const texto = li.innerText.toLowerCase();
                     const match = texto.includes(termo);
                     li.style.display = match ? '' : 'none';
-                    if (match) visiveis++;
+                    if (match) {
+                        visiveis++;
+                        const badge = li.querySelector('.badge');
+                        if (badge) {
+                            const num = parseInt(badge.textContent) || 0;
+                            totalRotasVisiveis += num;
+                        }
+                    }
                 });
+
                 contadorBp.textContent = visiveis;
-            });
+                contadorRotas.innerHTML = `
+                    <span class="glyphicon glyphicon-link"></span>
+                    ${totalRotasVisiveis} rota${totalRotasVisiveis !== 1 ? 's' : ''}
+                `;
+            }
+
+            filtroBp.addEventListener('input', atualizarContadores);
+            atualizarContadores();
         })();
     </script>
     <!-- arquivos -->
