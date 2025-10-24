@@ -21,7 +21,8 @@ def create_app(name=None):
         Scss(
             app,
             static_dir=os.path.join(app.root_path, 'static', 'css'),
-            asset_dir=os.path.join(app.root_path, 'static', 'css'))
+            asset_dir=os.path.join(app.root_path, 'static', 'css')
+        )
         print("[SCSS] Compilação automática ativada (modo dev)")
     else:
         import sass

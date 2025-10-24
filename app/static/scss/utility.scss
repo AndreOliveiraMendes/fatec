@@ -1,8 +1,10 @@
-$spacers: 0, 5, 8, 10, 15, 20, 25;
+$margins: 0, 5, 8, 10, 15, 20, 25;
 
-@each $space in $spacers {
-  .margin-left-#{$space} { margin-left: #{$space}px !important; }
-  .margin-right-#{$space} { margin-right: #{$space}px !important; }
-  .margin-top-#{$space} { margin-top: #{$space}px !important; }
-  .margin-bottom-#{$space} { margin-bottom: #{$space}px !important; }
+@each $size in $margins {
+    $val: $size * 1px;
+
+    .margin-left-#{$size}  { margin-left:  $val; }
+    .margin-right-#{$size} { margin-right: $val; }
+    .margin-top-#{$size}   { margin-top:   $val; }
+    .margin-bottom-#{$size}{ margin-bottom:$val; }
 }

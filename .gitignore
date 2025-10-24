@@ -8,3 +8,4 @@ laboratorio
 logs
 config/*.json
 data/*
+app/static/css/utility.css
