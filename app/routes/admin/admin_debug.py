@@ -100,24 +100,29 @@ def listar_rotas():
     user = get_user_info(userid)
 
     routes = []
-    blueprint_counts = {}
+    blueprints = {}
 
     for rule in current_app.url_map.iter_rules():
         methods = ",".join(sorted(rule.methods - {"HEAD", "OPTIONS"}))
         endpoint = rule.endpoint
         blueprint_name = endpoint.split('.')[0] if '.' in endpoint else '(sem_blueprint)'
+        endpoint_function = endpoint.split('.')[1] if '.' in endpoint else 'static'
 
         routes.append((rule.rule, methods, endpoint))
-        blueprint_counts[blueprint_name] = blueprint_counts.get(blueprint_name, 0) + 1
+        bp = blueprints.get(blueprint_name, [])
+        bp.append(endpoint_function)
+        blueprints[blueprint_name] = bp
 
     routes.sort(key=lambda x: (x[2].split('.')[0], x[0]))
-    bps = sorted(blueprint_counts.items(), key=lambda x: x[0])
+    blueprints = dict(sorted(blueprints.items(), key=lambda x: x[0]))
+    for bps in blueprints.values():
+        bps.sort()
 
     return render_template(
         "admin/routes.html",
         user=user,
         rotas=routes,
-        blueprints=bps,
+        blueprints=blueprints,
         config_archives=listar_arquivos_config('config'),
         data_archives=listar_arquivos_config('data')
     )
