@@ -377,7 +377,7 @@ def api_extender():
     return jsonify({"success": True})
 
 @bp.route('/times', methods=['GET'])
-def get_times():
+def api_get_times():
     dia = parse_date_string(request.args.get('dia'))
     if not dia:
         abort(500)

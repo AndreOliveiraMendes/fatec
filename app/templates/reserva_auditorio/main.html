@@ -74,15 +74,15 @@
             </form>
             {% if request.args.get('tipo-filtro') == 'intervalo' %}
                 {% if request.args.get('reserva-dia-inicio') and request.args.get('reserva-dia-fim') %}
-                <span class="label label-info">Reservas de {{ request.args.get('reserva-dia-inicio')|data }} ate {{ request.args.get('reserva-dia-fim')|data }}</span>
+                    <span class="label label-info">Reservas de {{ request.args.get("reserva-dia-inicio") |data }} ate {{ request.args.get("reserva-dia-fim") |data }}</span>
                 {% elif request.args.get('reserva-dia-inicio') %}
-                <span class="label label-info">Reservas a partir do dia {{ request.args.get('reserva-dia-inicio')|data }}</span>
+                    <span class="label label-info">Reservas a partir do dia {{ request.args.get("reserva-dia-inicio") |data }}</span>
                 {% elif request.args.get('reserva-dia-fim') %}
-                <span class="label label-info">Reservas ate o dia {{ request.args.get('reserva-dia-fim')|data }}</span>
+                    <span class="label label-info">Reservas ate o dia {{ request.args.get("reserva-dia-fim") |data }}</span>
                 {% endif %}
             {% else %}
                 {% if request.args.get('reserva-dia') %}
-                    <span class="label label-info">Reservas do dia {{ request.args.get("reserva-dia")|data }}</span>
+                    <span class="label label-info">Reservas do dia {{ request.args.get("reserva-dia") |data }}</span>
                 {% endif %}
             {% endif %}
         </div>
@@ -199,9 +199,6 @@
                         </tbody>
                     </table>
                 </div>
-                {% include "reserva_auditorio/modal_detalhes.html" %}
-                {% include "reserva_auditorio/modal_editar.html" %}
-                {% include "reserva_auditorio/modal_nova_reserva.html" %}
             {% else %}
                 <div class="alert alert-warning" role="alert">Nenhuma reserva ainda</div>
             {% endif %}
@@ -210,6 +207,9 @@
             <a href="#modalNovaReserva" data-toggle="modal" class="btn btn-success">Abrir Nova Reserva</a>
         </div>
     </div>
+    {% include "reserva_auditorio/modal_detalhes.html" %}
+    {% include "reserva_auditorio/modal_editar.html" %}
+    {% include "reserva_auditorio/modal_nova_reserva.html" %}
 {% endblock content %}
 {% block extra_script %}
     <script>
@@ -332,7 +332,7 @@
             loadingOption.selected = true;
             horaSelect.appendChild(loadingOption);
 
-            fetch(`{{ url_for('api.get_times') }}?dia=${selectedDate}`)
+            fetch(`{{ url_for('api.api_get_times') }}?dia=${selectedDate}`)
                 .then(response => response.json())
                 .then(data => {
                     horaSelect.innerHTML = '<option value="">Selecione um horário</option>';
