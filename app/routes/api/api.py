@@ -16,7 +16,8 @@ from app.auxiliar.auxiliar_routes import (get_unique_or_500, parse_date_string,
 from app.auxiliar.dao import (check_aula_ativa, get_aula_intervalo,
                               get_aulas_ativas_por_dia, sort_periodos)
 from app.auxiliar.decorators import admin_required
-from app.models import Aulas, Aulas_Ativas, TipoAulaEnum, Turnos, db
+from app.models import (Aulas, Aulas_Ativas, Locais, TipoAulaEnum,
+                        TipoLocalEnum, Turnos, db)
 from config import LOCAL_TIMEZONE
 from config.json_related import (load_commands, load_ssh_credentials,
                                  save_commands, save_ssh_credentials)
@@ -738,3 +739,23 @@ def api_delete_param(cmd_id, param_id):
     save_commands(commands)
 
     return jsonify({"success": True})
+
+@bp.route("listar_laboratorios")
+@admin_required
+def api_get_laboratorios():
+    sel_laboratorios = select(Locais).where(
+        Locais.tipo == TipoLocalEnum.LABORATORIO
+    )
+
+    laboratorios = db.session.execute(sel_laboratorios).scalars().all()
+
+    result_labs = []
+    for laboratorio in laboratorios:
+        res = {
+            "id": laboratorio.id_local,
+            "nome": laboratorio.nome_local,
+            "disponivel": laboratorio.disponibilidade.value
+        }
+        result_labs.append(res)
+
+    return jsonify(result_labs)
