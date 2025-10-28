@@ -415,3 +415,8 @@ body {
     pointer-events: none;
     color: gray;
 }
+
+.container_valores_automaticos {
+    max-height: 200px;
+    overflow-y: auto;
+}

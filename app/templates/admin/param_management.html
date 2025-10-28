@@ -72,7 +72,10 @@
                         <!-- Seção automática -->
                         <div id="autoValuesSection" class="hide">
                             <label>Valores automáticos</label>
-                            <p class="text-muted">Associar locais (ID + valor). Implementar após integração com API de locais.</p>
+                            <div id="autoValuesContainer"
+                                 class="well well-sm container_valores_automaticos">
+                                <p class="text-muted">Carregando locais...</p>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -85,197 +88,268 @@
     </div>
 {% endblock content %}
 {% block extra_script %}
-<script>
-(function() {
-    const cmdId = {{ cmd_id }};
-    const paramsList = document.getElementById('paramsList');
-    const btnAddParam = document.getElementById('btnAddParam');
-    const cmdName = document.getElementById('cmdName');
-    const cmdTemplate = document.getElementById('cmdTemplate');
-    const paramForm = document.getElementById('paramForm');
-    const paramModalTitle = document.getElementById('paramModalTitle');
-    const paramIdField = document.getElementById('paramId');
+    <script>
+        (function() {
+            const cmdId = {{ cmd_id }};
+            const paramsList = document.getElementById('paramsList');
+            const btnAddParam = document.getElementById('btnAddParam');
+            const cmdName = document.getElementById('cmdName');
+            const cmdTemplate = document.getElementById('cmdTemplate');
+            const paramForm = document.getElementById('paramForm');
+            const paramModalTitle = document.getElementById('paramModalTitle');
+            const paramIdField = document.getElementById('paramId');
 
-    const BASE_COMAND_URL = "{{ url_for('api.api_get_command', cmd_id=0) }}".split('/0')[0];
-    const BASE_DELET_URL_DETAILS = "{{ url_for('api.api_delete_param', cmd_id=0, param_id=0) }}".split('/0');
-    const BASE_SAVE_URL = "{{ url_for('api.api_save_param', cmd_id=0) }}".split('/0')[0];
+            const BASE_COMAND_URL = "{{ url_for('api.api_get_command', cmd_id=0) }}".split('/0')[0];
+            const BASE_DELET_URL_DETAILS = "{{ url_for('api.api_delete_param', cmd_id=0, param_id=0) }}".split('/0');
+            const BASE_SAVE_URL = "{{ url_for('api.api_save_param', cmd_id=0) }}".split('/0')[0];
 
-    function list_url(cmdId){
-        return `${BASE_COMAND_URL}/${cmdId}`;
-    }
+            function list_url(cmdId){
+                return `${BASE_COMAND_URL}/${cmdId}`;
+            }
 
-    function delete_url(cmdId, id){
-        return `${BASE_DELET_URL_DETAILS[0]}/${cmdId}/${BASE_DELET_URL_DETAILS[1]}/${id}`;
-    }
+            function delete_url(cmdId, id){
+                return `${BASE_DELET_URL_DETAILS[0]}/${cmdId}/${BASE_DELET_URL_DETAILS[1]}/${id}`;
+            }
 
-    function save_url(cmdId) {
-        return `${BASE_SAVE_URL}/${cmdId}/params`;
-    }
+            function save_url(cmdId) {
+                return `${BASE_SAVE_URL}/${cmdId}/params`;
+            }
 
-    // Carrega os parâmetros do comando
-    fetch(list_url(cmdId))
-        .then(r => r.json())
-        .then(cmd => {
-            cmdName.textContent = cmd.name;
-            cmdTemplate.textContent = cmd.template;
-            renderParams(cmd.params || []);
-        });
+            // Carrega os parâmetros do comando
+            fetch(list_url(cmdId))
+                .then(r => r.json())
+                .then(cmd => {
+                    cmdName.textContent = cmd.name;
+                    cmdTemplate.textContent = cmd.template;
+                    renderParams(cmd.params || []);
+                });
 
-    function renderParams(params) {
-        paramsList.innerHTML = '';
-        if (!params.length) {
-            paramsList.innerHTML = '<p class="text-muted">Nenhum parâmetro configurado.</p>';
-            return;
-        }
-
-        params.forEach(p => {
-            const card = document.createElement('div');
-            card.className = 'panel panel-default';
-            card.innerHTML = `
-                <div class="panel-body">
-                    <strong>${p.name}</strong> (${p.type})
-                    ${p.optional ? '<span class="label label-info">Opcional</span>' : ''}
-                    <br><small>${p.alias || ''}</small>
-                    <div class="pull-right">
-                        <button class="btn btn-xs btn-primary btn-edit" data-id="${p.id}">✏️</button>
-                        <button class="btn btn-xs btn-danger btn-del" data-id="${p.id}">🗑️</button>
-                    </div>
-                </div>
-            `;
-            paramsList.appendChild(card);
-        });
-
-        paramsList.querySelectorAll('.btn-edit').forEach(btn => {
-            btn.addEventListener('click', e => editParam(e.target.dataset.id));
-        });
-        paramsList.querySelectorAll('.btn-del').forEach(btn => {
-            btn.addEventListener('click', e => deleteParam(e.target.dataset.id));
-        });
-    }
-
-    // --- Controle do modal ---
-    const manualSection = document.getElementById('manualValuesSection');
-    const autoSection = document.getElementById('autoValuesSection');
-    const selectionType = document.getElementById('paramSelectionType');
-    const valuesContainer = document.getElementById('valuesContainer');
-    const addValueBtn = document.getElementById('addValueBtn');
-
-    selectionType.addEventListener('change', () => {
-        const type = selectionType.value;
-        manualSection.classList.toggle('hide', type !== 'manual');
-        autoSection.classList.toggle('hide', type !== 'auto');
-    });
-
-    // Adicionar valor manual
-    addValueBtn.addEventListener('click', () => {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'input-group margin-bottom-5';
-        wrapper.innerHTML = `
-            <input type="text" class="form-control param-value" placeholder="Valor">
-            <span class="input-group-btn">
-                <button type="button" class="btn btn-danger btn-xs remove-value">🗑️</button>
-            </span>
-        `;
-        wrapper.querySelector('.remove-value').addEventListener('click', () => wrapper.remove());
-        valuesContainer.appendChild(wrapper);
-    });
-
-    // Botão adicionar parâmetro
-    btnAddParam.addEventListener('click', () => {
-        paramForm.reset();
-        paramIdField.value = '';
-        valuesContainer.innerHTML = '';
-        manualSection.classList.add('hide');
-        autoSection.classList.add('hide');
-        paramModalTitle.textContent = "Novo Parâmetro";
-        $('#paramModal').modal('show');
-    });
-
-    // Editar parâmetro existente
-    function editParam(id) {
-        fetch(list_url(cmdId))
-            .then(r => r.json())
-            .then(cmd => {
-                const param = (cmd.params || []).find(p => p.id == id);
-                if (!param) return alert("Parâmetro não encontrado.");
-
-                paramModalTitle.textContent = `Editar Parâmetro #${id}`;
-                paramIdField.value = param.id;
-                document.getElementById('paramName').value = param.name || '';
-                document.getElementById('paramAlias').value = param.alias || '';
-                document.getElementById('paramType').value = param.type || 'str';
-                document.getElementById('paramOptional').checked = !!param.optional;
-                document.getElementById('paramSelectionType').value = param.selection_type || 'manual';
-
-                selectionType.dispatchEvent(new Event('change'));
-                valuesContainer.innerHTML = '';
-
-                if (param.selection_type === 'manual' && Array.isArray(param.values)) {
-                    param.values.forEach(v => {
-                        const wrapper = document.createElement('div');
-                        wrapper.className = 'input-group margin-bottom-5';
-                        wrapper.innerHTML = `
-                            <input type="text" class="form-control param-value" value="${v}" placeholder="Valor">
-                            <span class="input-group-btn">
-                                <button type="button" class="btn btn-danger btn-xs remove-value">🗑️</button>
-                            </span>
-                        `;
-                        wrapper.querySelector('.remove-value').addEventListener('click', () => wrapper.remove());
-                        valuesContainer.appendChild(wrapper);
-                    });
+            function renderParams(params) {
+                paramsList.innerHTML = '';
+                if (!params.length) {
+                    paramsList.innerHTML = '<p class="text-muted">Nenhum parâmetro configurado.</p>';
+                    return;
                 }
 
+                params.forEach(p => {
+                    const card = document.createElement('div');
+                    card.className = 'panel panel-default';
+                    card.innerHTML = `
+                        <div class="panel-body">
+                            <strong>${p.name}</strong> (${p.type})
+                            ${p.optional ? '<span class="label label-info">Opcional</span>' : ''}
+                            <br><small>${p.alias || ''}</small>
+                            <div class="pull-right">
+                                <button class="btn btn-xs btn-primary btn-edit" data-id="${p.id}">✏️</button>
+                                <button class="btn btn-xs btn-danger btn-del" data-id="${p.id}">🗑️</button>
+                            </div>
+                        </div>
+                    `;
+                    paramsList.appendChild(card);
+                });
+
+                paramsList.querySelectorAll('.btn-edit').forEach(btn => {
+                    btn.addEventListener('click', e => editParam(e.target.dataset.id));
+                });
+                paramsList.querySelectorAll('.btn-del').forEach(btn => {
+                    btn.addEventListener('click', e => deleteParam(e.target.dataset.id));
+                });
+            }
+
+            // --- Controle do modal ---
+            const manualSection = document.getElementById('manualValuesSection');
+            const autoSection = document.getElementById('autoValuesSection');
+            const selectionType = document.getElementById('paramSelectionType');
+            const valuesContainer = document.getElementById('valuesContainer');
+            const addValueBtn = document.getElementById('addValueBtn');
+            const autoValuesContainer = document.getElementById('autoValuesContainer');
+
+
+            // Alterna entre manual/auto
+            selectionType.addEventListener('change', function() {
+                if (this.value === 'manual') {
+                    manualSection.classList.remove('hide');
+                    autoSection.classList.add('hide');
+                } else {
+                    manualSection.classList.add('hide');
+                    autoSection.classList.remove('hide');
+                    carregarLocaisAuto(); // chama a API
+                }
+            });
+
+            // Função pra carregar os locais da API
+            function carregarLocaisAuto(savedValues = null) {
+                autoValuesContainer.innerHTML = '<p class="text-muted">Carregando locais...</p>';
+
+                fetch('{{ url_for("api.api_get_laboratorios") }}')
+                    .then(r => r.json())
+                    .then(data => {
+                        if (!data.length) {
+                            autoValuesContainer.innerHTML = '<p class="text-muted">Nenhum laboratório encontrado.</p>';
+                            return;
+                        }
+
+                        const list = document.createElement('ul');
+                        list.className = 'list-group';
+
+                        data.forEach(lab => {
+                            const li = document.createElement('li');
+                            li.className = 'list-group-item';
+                            const savedVal = savedValues?.find(v => v.lab_id == lab.id)?.valor || '';
+                            li.innerHTML = `
+                                <div class="row">
+                                    <div class="col-xs-6">
+                                        <strong>${lab.nome}</strong>
+                                        <span class="text-muted"> (#${lab.id})</span>
+                                    </div>
+                                    <div class="col-xs-4">
+                                        <input type="text" class="form-control input-sm auto-lab-value" placeholder="Valor associado" value="${savedVal}" data-lab-id="${lab.id}">
+                                    </div>
+                                    <div class="col-xs-2 text-right">
+                                        <span class="label label-${lab.disponivel === "Disponivel" ? "success" : "default"}">
+                                            ${lab.disponivel}
+                                        </span>
+                                    </div>
+                                </div>
+                            `;
+                            list.appendChild(li);
+                        });
+
+                        autoValuesContainer.innerHTML = '';
+                        autoValuesContainer.appendChild(list);
+                    })
+                    .catch(() => {
+                        autoValuesContainer.innerHTML = '<p class="text-danger">Erro ao carregar laboratórios.</p>';
+                    });
+            }
+
+            // Adicionar valor manual
+            addValueBtn.addEventListener('click', () => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'input-group margin-bottom-5';
+                wrapper.innerHTML = `
+                    <input type="text" class="form-control param-value" placeholder="Valor">
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-danger btn-xs remove-value">🗑️</button>
+                    </span>
+                `;
+                wrapper.querySelector('.remove-value').addEventListener('click', () => wrapper.remove());
+                valuesContainer.appendChild(wrapper);
+            });
+
+            // Botão adicionar parâmetro
+            btnAddParam.addEventListener('click', () => {
+                paramForm.reset();
+                paramIdField.value = '';
+                valuesContainer.innerHTML = '';
+                manualSection.classList.add('hide');
+                autoSection.classList.add('hide');
+                paramModalTitle.textContent = "Novo Parâmetro";
                 $('#paramModal').modal('show');
             });
-    }
 
-    // Excluir parâmetro
-    function deleteParam(id) {
-        if (!confirm('Excluir este parâmetro?')) return;
-        fetch(delete_url(cmdId, id), { method: 'DELETE' })
-            .then(r => r.json())
-            .then(resp => {
-                if (resp.success) location.reload();
-            });
-    }
+            // Editar parâmetro existente
+            function editParam(id) {
+                fetch(list_url(cmdId))
+                    .then(r => r.json())
+                    .then(cmd => {
+                        const param = (cmd.params || []).find(p => p.id == id);
+                        if (!param) return alert("Parâmetro não encontrado.");
 
-    // Salvar parâmetro (novo ou edição)
-    paramForm.addEventListener('submit', e => {
-        e.preventDefault();
+                        paramModalTitle.textContent = `Editar Parâmetro #${id}`;
+                        paramIdField.value = param.id;
+                        document.getElementById('paramName').value = param.name || '';
+                        document.getElementById('paramAlias').value = param.alias || '';
+                        document.getElementById('paramType').value = param.type || 'str';
+                        document.getElementById('paramOptional').checked = !!param.optional;
+                        document.getElementById('paramSelectionType').value = param.selection_type || 'manual';
 
-        const values = Array.from(document.querySelectorAll('.param-value'))
-                            .map(input => input.value.trim())
-                            .filter(v => v.length);
+                        selectionType.dispatchEvent(new Event('change'));
+                        valuesContainer.innerHTML = '';
 
-        const payload = {
-            id: paramIdField.value || null,
-            name: document.getElementById('paramName').value.trim(),
-            alias: document.getElementById('paramAlias').value.trim(),
-            type: document.getElementById('paramType').value,
-            optional: document.getElementById('paramOptional').checked,
-            selection_type: document.getElementById('paramSelectionType').value,
-            values: values
-        };
+                        if (param.selection_type === 'manual' && Array.isArray(param.values)) {
+                            param.values.forEach(v => {
+                                const wrapper = document.createElement('div');
+                                wrapper.className = 'input-group margin-bottom-5';
+                                wrapper.innerHTML = `
+                                    <input type="text" class="form-control param-value" value="${v}" placeholder="Valor">
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-danger btn-xs remove-value">🗑️</button>
+                                    </span>
+                                `;
+                                wrapper.querySelector('.remove-value').addEventListener('click', () => wrapper.remove());
+                                valuesContainer.appendChild(wrapper);
+                            });
+                        }
 
-        fetch(save_url(cmdId), {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        })
-        .then(r => r.json())
-        .then(resp => {
-            if (resp.success) {
-                $('#paramModal').modal('hide');
-                location.reload();
-            } else {
-                alert(resp.error || "Erro ao salvar parâmetro.");
+                        if (param.selection_type === 'auto') {
+                            carregarLocaisAuto(param.values);
+                        }
+
+                        $('#paramModal').modal('show');
+                    });
             }
-        })
-        .catch(err => {
-            console.error(err);
-            alert("Erro inesperado.");
-        });
-    });
-})();
-</script>
+
+            // Excluir parâmetro
+            function deleteParam(id) {
+                if (!confirm('Excluir este parâmetro?')) return;
+                fetch(delete_url(cmdId, id), { method: 'DELETE' })
+                    .then(r => r.json())
+                    .then(resp => {
+                        if (resp.success) location.reload();
+                    });
+            }
+
+            // Salvar parâmetro (novo ou edição)
+            paramForm.addEventListener('submit', e => {
+                e.preventDefault();
+
+            let values = [];
+
+            if (document.getElementById('paramSelectionType').value === 'manual') {
+                // modo manual
+                values = Array.from(document.querySelectorAll('.param-value'))
+                    .map(input => input.value.trim())
+                    .filter(v => v.length);
+            } else {
+                // modo automático — pega { id_lab, valor_associado }
+                values = Array.from(document.querySelectorAll('.auto-lab-value'))
+                    .map(input => {
+                        const val = input.value.trim();
+                        return val ? { lab_id: parseInt(input.dataset.labId), valor: val } : null;
+                    })
+                    .filter(v => v !== null);
+            }
+
+                const payload = {
+                    id: paramIdField.value || null,
+                    name: document.getElementById('paramName').value.trim(),
+                    alias: document.getElementById('paramAlias').value.trim(),
+                    type: document.getElementById('paramType').value,
+                    optional: document.getElementById('paramOptional').checked,
+                    selection_type: document.getElementById('paramSelectionType').value,
+                    values: values
+                };
+
+                fetch(save_url(cmdId), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                })
+                .then(r => r.json())
+                .then(resp => {
+                    if (resp.success) {
+                        $('#paramModal').modal('hide');
+                        location.reload();
+                    } else {
+                        alert(resp.error || "Erro ao salvar parâmetro.");
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("Erro inesperado.");
+                });
+            });
+        })();
+    </script>
 {% endblock extra_script %}
