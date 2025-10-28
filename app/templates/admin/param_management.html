@@ -96,9 +96,9 @@
     const paramModalTitle = document.getElementById('paramModalTitle');
     const paramIdField = document.getElementById('paramId');
 
-    const BASE_COMAND_URL = "{{ url_for('api.get_command', cmd_id=0) }}".split('/0')[0];
-    const BASE_DELET_URL_DETAILS = "{{ url_for('api.delete_param', cmd_id=0, param_id=0) }}".split('/0');
-    const BASE_SAVE_URL = "{{ url_for('api.save_param', cmd_id=0) }}".split('/0')[0];
+    const BASE_COMAND_URL = "{{ url_for('api.api_get_command', cmd_id=0) }}".split('/0')[0];
+    const BASE_DELET_URL_DETAILS = "{{ url_for('api.api_delete_param', cmd_id=0, param_id=0) }}".split('/0');
+    const BASE_SAVE_URL = "{{ url_for('api.api_save_param', cmd_id=0) }}".split('/0')[0];
 
     function list_url(cmdId){
         return `${BASE_COMAND_URL}/${cmdId}`;

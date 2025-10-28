@@ -613,12 +613,12 @@ def api_ssh_execute(cred_id):
 
 @bp.route("commands/list", methods=["GET"])
 @admin_required
-def list_commands():
+def api_list_commands():
     return jsonify(load_commands())
 
 @bp.route("commands/save", methods=["POST"])
 @admin_required
-def save_command():
+def api_save_command():
     data = request.get_json() or {}
     commands = load_commands()
 
@@ -659,7 +659,7 @@ def save_command():
 
 @bp.route("commands/delete/<int:cmd_id>", methods=["DELETE"])
 @admin_required
-def delete_command(cmd_id):
+def api_delete_command(cmd_id):
     commands = load_commands()
     new_commands = [c for c in commands if c["id"] != cmd_id]
     if len(new_commands) == len(commands):
@@ -670,7 +670,7 @@ def delete_command(cmd_id):
 
 @bp.route("commands/<int:cmd_id>", methods=["GET"])
 @admin_required
-def get_command(cmd_id):
+def api_get_command(cmd_id):
     commands = load_commands()
     cmd = next((c for c in commands if c["id"] == cmd_id), None)
     if not cmd:
@@ -679,7 +679,7 @@ def get_command(cmd_id):
 
 @bp.route("commands/<int:cmd_id>/params", methods=["POST"])
 @admin_required
-def save_param(cmd_id):
+def api_save_param(cmd_id):
     data = request.get_json() or {}
     commands = load_commands()
 
@@ -720,9 +720,9 @@ def save_param(cmd_id):
     save_commands(commands)
     return jsonify({"success": True, "id": param_id})
 
-@bp.route("api/commands/<int:cmd_id>/params/<int:param_id>", methods=["DELETE"])
+@bp.route("/commands/<int:cmd_id>/params/<int:param_id>", methods=["DELETE"])
 @admin_required
-def delete_param(cmd_id, param_id):
+def api_delete_param(cmd_id, param_id):
     commands = load_commands()
     cmd = next((c for c in commands if c["id"] == cmd_id), None)
     if not cmd:
