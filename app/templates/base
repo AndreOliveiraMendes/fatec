@@ -36,29 +36,24 @@
       <body>
             {% block body %}
                   {% block navigation %}
+                        {% macro perm_icon(flag, icon, color, title) %}
+                              {% if user and user.perm|has_flag(flag) %}
+                                    <i class="glyphicon glyphicon-{{ icon }} hover-icon"
+                                       style="--hover-color: {{ color }}"
+                                       title="{{ title }}"></i>
+                              {% endif %}
+                        {% endmacro %}
                         <div class="container-fluid">
                               <div class="navbar-header">
                                     <a class="navbar-brand"
                                        title="ir a pagina inicial"
                                        href="{{ url_for('default.home') }}">
                                           Sistema RLF
-                                          {% if user and user.perm|has_flag(FIXA) %}
-                                                <i class="glyphicon glyphicon-calendar"
-                                                   title="Permissão de Reserva Fixa"></i>
-                                          {% endif %}
-                                          {% if user and user.perm|has_flag(TEMP) %}
-                                                <i class="glyphicon glyphicon-time"
-                                                   title="Permissão de Reserva Temporária"></i>
-                                          {% endif %}
-                                          {% if user and user.perm|has_flag(AUDITORIO) %}
-                                          <i class="glyphicon glyphicon-bullhorn" title="Permissão de Reserva de Auditório"></i>
-                                          {% endif %}
-                                          {% if user and user.perm|has_flag(ADMIN) %}
-                                                <i class="glyphicon glyphicon-fire" title="Permissão de Administrador"></i>
-                                          {% endif %}
-                                          {% if user and user.perm|has_flag(CONFIGURAR_COMANDOS) %}
-                                                <i class="glyphicon glyphicon-console" title="Permissão de Configurar Comandos Remotos"></i>
-                                          {% endif %}
+                                          {{ perm_icon(FIXA, 'calendar', 'greenyellow', 'Permissão de Reserva Fixa') }}
+                                          {{ perm_icon(TEMP, 'time', 'greenyellow', 'Permissão de Reserva Temporária') }}
+                                          {{ perm_icon(AUDITORIO, 'bullhorn', 'greenyellow', 'Permissão de Reserva de Auditório') }}
+                                          {{ perm_icon(ADMIN, 'fire', 'red', 'Permissão de Administrador') }}
+                                          {{ perm_icon(CONFIGURAR_COMANDOS, 'console', 'blue', 'Permissão de Configurar Comandos Remotos') }}
                                     </a>
                               </div>
                               <ul class="nav navbar-nav navbar-right">

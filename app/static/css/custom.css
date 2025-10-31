@@ -420,3 +420,7 @@ body {
     max-height: 200px;
     overflow-y: auto;
 }
+
+.hover-icon:hover {
+    color: var(--hover-color, inherit);
+}
