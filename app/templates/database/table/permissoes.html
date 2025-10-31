@@ -62,6 +62,9 @@
                             <li>
                                 <code>16</code> = Autorizar Reservas Auditorio
                             </li>
+                            <li>
+                                <code>32</code> = Configurar Comandos Remotos
+                            </li>
                         </ul>
                     </td>
                 </tr>
@@ -111,6 +114,10 @@
                                    for="btn-check-5">
                                 <input id="btn-check-5" type="checkbox" name="flag_autorizar">
                                 AUTORIZAR
+                            </label>
+                            <label title="Permissão de criar comandos remotos" for="btn-check-6">
+                                <input id="btn-check-6" type="checkbox" name="flag_cmd_config">
+                                COMANDOS REMOTOS
                             </label>
                         </div>
                         <hr>
@@ -172,6 +179,10 @@
                                    for="btn-check-5">
                                 <input id="btn-check-5" type="checkbox" name="flag_autorizar">
                                 AUTORIZAR
+                            </label>
+                            <label title="Permissão de criar comandos remotos" for="btn-check-6">
+                                <input id="btn-check-6" type="checkbox" name="flag_cmd_config">
+                                COMANDOS REMOTOS
                             </label>
                         </div>
                     </div>
@@ -258,6 +269,13 @@
                                        {% if permissao.permissao|has_flag(AUTORIZAR) %}checked{% endif %}>
                                 AUTORIZAR
                             </label>
+                            <label title="Permissão de criar comandos remotos" for="btn-check-6">
+                                <input id="btn-check-6"
+                                       type="checkbox"
+                                       name="flag_cmd_config"
+                                       {% if permissao.permissao|has_flag(CONFIGURAR_COMANDOS) %}checked{% endif %}>
+                                COMANDOS REMOTOS
+                            </label>
                         </div>
                     </div>
                 </div>
@@ -339,6 +357,14 @@
                                        disabled>
                                 AUTORIZAR
                             </label>
+                            <label title="Permissão de criar comandos remotos" for="btn-check-6">
+                                <input id="btn-check-6"
+                                       type="checkbox"
+                                       name="flag_cmd_config"
+                                       {% if permissao.permissao|has_flag(CONFIGURAR_COMANDOS) %}checked{% endif %}
+                                       disabled>
+                                COMANDOS REMOTOS
+                            </label>
                         </div>
                     </div>
                 </div>
@@ -360,6 +386,7 @@
                         <th>AUDITORIO</th>
                         <th>ADMIN</th>
                         <th>AUTORIZAR</th>
+                        <th>COMANDOS REMOTOS</th>
                         <th>Ação</th>
                     </tr>
                 </thead>
@@ -387,6 +414,10 @@
                             <td>
                                 <i title="Permissão de autorizar reservas"
                                    class="{% if p.permissao|has_flag(AUTORIZAR) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}"></i>
+                            </td>
+                            <td>
+                                <i title="Permissão de autorizar reservas"
+                                   class="{% if p.permissao|has_flag(CONFIGURAR_COMANDOS) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}"></i>
                             </td>
                             <td>
                                 <form method="post" class="form-inline">

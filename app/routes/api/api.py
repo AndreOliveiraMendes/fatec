@@ -15,7 +15,7 @@ from app.auxiliar.auxiliar_routes import (get_unique_or_500, parse_date_string,
                                           registrar_log_generico_usuario)
 from app.auxiliar.dao import (check_aula_ativa, get_aula_intervalo,
                               get_aulas_ativas_por_dia, sort_periodos)
-from app.auxiliar.decorators import admin_required
+from app.auxiliar.decorators import admin_required, cmd_config_required
 from app.models import (Aulas, Aulas_Ativas, Locais, TipoAulaEnum,
                         TipoLocalEnum, Turnos, db)
 from config import LOCAL_TIMEZONE
@@ -618,7 +618,7 @@ def api_list_commands():
     return jsonify(load_commands())
 
 @bp.route("commands/save", methods=["POST"])
-@admin_required
+@cmd_config_required
 def api_save_command():
     data = request.get_json() or {}
     commands = load_commands()
@@ -659,7 +659,7 @@ def api_save_command():
     return jsonify({"success": True, "id": cmd_id})
 
 @bp.route("commands/delete/<int:cmd_id>", methods=["DELETE"])
-@admin_required
+@cmd_config_required
 def api_delete_command(cmd_id):
     commands = load_commands()
     new_commands = [c for c in commands if c["id"] != cmd_id]
@@ -679,7 +679,7 @@ def api_get_command(cmd_id):
     return jsonify(cmd)
 
 @bp.route("commands/<int:cmd_id>/params", methods=["POST"])
-@admin_required
+@cmd_config_required
 def api_save_param(cmd_id):
     data = request.get_json() or {}
     commands = load_commands()
@@ -722,7 +722,7 @@ def api_save_param(cmd_id):
     return jsonify({"success": True, "id": param_id})
 
 @bp.route("/commands/<int:cmd_id>/params/<int:param_id>", methods=["DELETE"])
-@admin_required
+@cmd_config_required
 def api_delete_param(cmd_id, param_id):
     commands = load_commands()
     cmd = next((c for c in commands if c["id"] == cmd_id), None)

@@ -2,8 +2,9 @@ from functools import wraps
 
 from flask import abort, session
 
-from app.auxiliar.constant import (PERM_ADMIN, PERM_RESERVA_AUDITORIO,
-                                   PERM_RESERVA_FIXA, PERM_RESERVA_TEMPORARIA)
+from app.auxiliar.constant import (PERM_ADMIN, PERM_CMD_CONFIG,
+                                   PERM_RESERVA_AUDITORIO, PERM_RESERVA_FIXA,
+                                   PERM_RESERVA_TEMPORARIA)
 from app.models import Permissoes, db
 
 
@@ -51,5 +52,12 @@ def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         require_permission(PERM_ADMIN)
+        return f(*args, **kwargs)
+    return decorated_function
+
+def cmd_config_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        require_permission(PERM_CMD_CONFIG)
         return f(*args, **kwargs)
     return decorated_function

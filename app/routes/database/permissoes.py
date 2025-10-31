@@ -1,4 +1,6 @@
 import copy
+from functools import reduce
+import operator
 
 from flask import Blueprint, Request, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
@@ -13,7 +15,7 @@ from app.auxiliar.auxiliar_routes import (get_query_params,
                                           registrar_log_generico_usuario)
 from app.auxiliar.constant import (PERM_ADMIN, PERM_AUTORIZAR,
                                    PERM_RESERVA_AUDITORIO, PERM_RESERVA_FIXA,
-                                   PERM_RESERVA_TEMPORARIA)
+                                   PERM_RESERVA_TEMPORARIA, PERM_CMD_CONFIG)
 from app.auxiliar.dao import get_usuarios
 from app.auxiliar.decorators import admin_required
 from app.models import Permissoes, Pessoas, Usuarios, db
@@ -36,13 +38,16 @@ def get_perm(acao, userid):
         sel_permissoes = sel_permissoes.where(Permissoes.id_permissao_usuario!=userid)
     return db.session.execute(sel_permissoes).all()
 
-def get_flag(req:Request) -> int:
-    flag_fixa = PERM_RESERVA_FIXA if 'flag_fixa' in req.form else 0
-    flag_temp = PERM_RESERVA_TEMPORARIA if 'flag_temp' in req.form else 0
-    flag_auditorio = PERM_RESERVA_AUDITORIO if 'flag_auditorio' in req.form else 0
-    flag_admin = PERM_ADMIN if 'flag_admin' in req.form else 0
-    flag_autorizar = PERM_AUTORIZAR if 'flag_autorizar' in req.form else 0
-    return flag_fixa|flag_temp|flag_auditorio|flag_admin|flag_autorizar
+def get_flag(req: Request) -> int:
+    flags = {
+        "flag_fixa": PERM_RESERVA_FIXA,
+        "flag_temp": PERM_RESERVA_TEMPORARIA,
+        "flag_auditorio": PERM_RESERVA_AUDITORIO,
+        "flag_admin": PERM_ADMIN,
+        "flag_autorizar": PERM_AUTORIZAR,
+        "flag_cmd_config": PERM_CMD_CONFIG,
+    }
+    return reduce(operator.or_, (v for k, v in flags.items() if k in req.form), 0)
 
 @bp.route("/permissoes", methods=["GET", "POST"])
 @admin_required
