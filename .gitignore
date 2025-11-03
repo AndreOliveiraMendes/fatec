@@ -4,7 +4,6 @@ config.ini
 !.env*.example
 .venv
 .vscode/settings.json
-laboratorio
 logs
 config/*.json
 data/*
