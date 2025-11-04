@@ -171,7 +171,7 @@ def register_filters(app:Flask):
         return Markup(''.join(html_parts))
 
     @app.template_global()
-    def generate_situacao_head(current: Literal['exibicao', 'fixa', 'temporaria']) -> Markup:
+    def generate_situacao_head(current: Literal['exibicao', 'fixa', 'temporaria', 'comandos']) -> Markup:
         html_parts: List[str] = ['<div class="pills-group"><ul class="nav nav-pills">']
         
         for builder in situacoes_helper:

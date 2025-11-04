@@ -52,6 +52,10 @@ situacoes_helper = [
             "tipo_reserva":"temporaria"
         },
         "label":"situação reserva temporaria"
+    },{
+        "state":"comandos",
+        "url_path":'gestao_reserva.comandos_remotos',
+        "label":"comandos remotos"
     }
 ]
 

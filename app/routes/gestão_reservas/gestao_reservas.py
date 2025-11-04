@@ -383,3 +383,10 @@ def atualizar_situacoes_temporaria(common):
     if error_messages:
         flash('<br>'.join(error_messages))
     return redirect(url_for('gestao_reserva.gerenciar_situacoes', tipo_reserva="temporaria"))
+
+@bp.route('/comandos_remotos')
+@admin_required
+def comandos_remotos():
+    userid = session.get('userid')
+    user = get_user_info(userid)
+    return render_template("gestão_reservas/remote_commands.html", user=user)

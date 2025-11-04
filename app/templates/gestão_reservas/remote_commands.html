@@ -1,0 +1,204 @@
+{% extends "base-fixed" %}
+{% block title %}
+Comandos Remotos
+{% endblock title %}
+
+{% block content %}
+{{ generate_situacao_head("comandos") }}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">💻 Comandos por Laboratório</h3>
+    </div>
+    <div class="panel-body">
+        <div id="labsContainer" class="table-responsive">
+            <p class="text-muted">Carregando laboratórios...</p>
+        </div>
+    </div>
+</div>
+
+<!-- Painel extra para comandos globais -->
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <h3 class="panel-title">⚙️ Comandos Gerais (sem vínculo com laboratório)</h3>
+    </div>
+    <div class="panel-body">
+        <div id="globalCmdsContainer">
+            <p class="text-muted">Carregando comandos...</p>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_script %}
+<script>
+(function() {
+    const labsContainer = document.getElementById('labsContainer');
+    const globalCmdsContainer = document.getElementById('globalCmdsContainer');
+
+    const LABS_URL = "{{ url_for('api.api_get_laboratorios') }}";
+    const COMMANDS_URL = "{{ url_for('api.api_list_commands') }}"; // endpoint de comandos
+
+    async function carregarDados() {
+        try {
+            const [labsResp, cmdsResp] = await Promise.all([
+                fetch(LABS_URL),
+                fetch(COMMANDS_URL)
+            ]);
+
+            const labs = await labsResp.json();
+            const comandos = await cmdsResp.json();
+
+            renderTabelaLabs(labs, comandos);
+            renderTabelaGlobais(comandos);
+        } catch (e) {
+            console.error(e);
+            labsContainer.innerHTML = '<p class="text-danger">Erro ao carregar dados.</p>';
+            globalCmdsContainer.innerHTML = '<p class="text-danger">Erro ao carregar dados.</p>';
+        }
+    }
+
+    // --- Tabela principal (laboratórios)
+    function renderTabelaLabs(labs, comandos) {
+        if (!labs.length) {
+            labsContainer.innerHTML = '<p class="text-muted">Nenhum laboratório encontrado.</p>';
+            return;
+        }
+
+        const tabela = document.createElement('table');
+        tabela.className = 'table table-bordered table-striped table-condensed';
+
+        tabela.innerHTML = `
+            <thead>
+                <tr class="info">
+                    <th style="width: 200px;">Laboratório</th>
+                    <th colspan="4" class="text-center">Comandos disponíveis</th>
+                </tr>
+            </thead>
+        `;
+
+        const tbody = document.createElement('tbody');
+
+        labs.forEach(lab => {
+            const linha = document.createElement('tr');
+            const colLab = document.createElement('td');
+            colLab.innerHTML = `
+                <strong>${lab.nome}</strong><br>
+                <small class="text-muted">#${lab.id}</small><br>
+                <span class="label label-${lab.disponivel === "DISPONIVEL" ? "success" : "default"}">
+                    ${lab.disponivel}
+                </span>
+            `;
+            linha.appendChild(colLab);
+
+            const cmdsLab = comandos.filter(cmd =>
+                cmd.params.some(p =>
+                    p.selection_type === 'auto' &&
+                    Array.isArray(p.values) &&
+                    p.values.some(v => v.lab_id === lab.id)
+                )
+            );
+
+            if (!cmdsLab.length) {
+                const td = document.createElement('td');
+                td.colSpan = 4;
+                td.className = 'text-center text-muted';
+                td.textContent = '— Nenhum comando automático associado —';
+                linha.appendChild(td);
+            } else {
+                cmdsLab.forEach(cmd => {
+                    const td = document.createElement('td');
+                    td.innerHTML = `
+                        <button class="btn btn-sm btn-primary btn-run"
+                                data-cmd-id="${cmd.id}"
+                                data-lab-id="${lab.id}">
+                            ⚙️ ${cmd.name}
+                        </button>
+                    `;
+                    linha.appendChild(td);
+                });
+
+                // completa até 4 células
+                const restantes = 4 - (cmdsLab.length % 4);
+                if (restantes < 4) {
+                    for (let i = 0; i < restantes; i++) {
+                        linha.appendChild(document.createElement('td'));
+                    }
+                }
+            }
+
+            tbody.appendChild(linha);
+        });
+
+        tabela.appendChild(tbody);
+        labsContainer.innerHTML = '';
+        labsContainer.appendChild(tabela);
+
+        // eventos de clique
+        tabela.querySelectorAll('.btn-run').forEach(btn => {
+            btn.addEventListener('click', e => {
+                const cmdId = e.target.dataset.cmdId;
+                const labId = e.target.dataset.labId;
+                executarComando(cmdId, labId);
+            });
+        });
+    }
+
+    // --- Painel de comandos sem laboratório ---
+    function renderTabelaGlobais(comandos) {
+        const globais = comandos.filter(cmd => 
+            !cmd.params.some(p => 
+                p.selection_type === 'auto' && Array.isArray(p.values) && p.values.length
+            )
+        );
+
+        if (!globais.length) {
+            globalCmdsContainer.innerHTML = '<p class="text-muted">Nenhum comando global disponível.</p>';
+            return;
+        }
+
+        const grid = document.createElement('div');
+        grid.className = 'row';
+
+        globais.forEach(cmd => {
+            const col = document.createElement('div');
+            col.className = 'col-sm-6 col-md-3';
+            col.innerHTML = `
+                <div class="panel panel-default">
+                    <div class="panel-body text-center">
+                        <h5><strong>${cmd.name}</strong></h5>
+                        <code>${cmd.template}</code><br>
+                        <button class="btn btn-sm btn-primary btn-run-global margin-top-5"
+                                data-cmd-id="${cmd.id}">
+                            ⚙️ Executar
+                        </button>
+                    </div>
+                </div>
+            `;
+            grid.appendChild(col);
+        });
+
+        globalCmdsContainer.innerHTML = '';
+        globalCmdsContainer.appendChild(grid);
+
+        grid.querySelectorAll('.btn-run-global').forEach(btn => {
+            btn.addEventListener('click', e => {
+                const cmdId = e.target.dataset.cmdId;
+                executarComando(cmdId, null);
+            });
+        });
+    }
+
+    // --- Execução ---
+    function executarComando(cmdId, labId) {
+        const msg = labId
+            ? `Executar comando #${cmdId} no laboratório #${labId}`
+            : `Executar comando global #${cmdId}`;
+        alert(msg);
+        // aqui depois você chama o endpoint /api/run_command
+    }
+
+    carregarDados();
+})();
+</script>
+{% endblock extra_script %}
