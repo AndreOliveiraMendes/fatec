@@ -336,217 +336,215 @@
         })();
     </script>
     <!-- script para aba de comandos parametrizados -->
-<script>
-(function() {
-    const cmdModal = $('#commandModal');
-    const formCmd = document.getElementById('formCommand');
-    const BASE_PARAMS_URL = "{{ url_for('admin_remote_commands.manage_params', cmd_id=0) }}".split('/0')[0];
+    <script>
+        (function() {
+            const cmdModal = $('#commandModal');
+            const formCmd = document.getElementById('formCommand');
+            const BASE_PARAMS_URL = "{{ url_for('admin_remote_commands.manage_params', cmd_id=0) }}".split('/0')[0];
 
-    const cmdIdField = document.getElementById('cmdId');
-    const cmdNameField = document.getElementById('cmdName');
-    const cmdTemplateField = document.getElementById('cmdTemplate');
-    const cmdCredField = document.getElementById('cmdCred');
-    const cmdActiveField = document.getElementById('cmdActive');
+            const cmdIdField = document.getElementById('cmdId');
+            const cmdNameField = document.getElementById('cmdName');
+            const cmdTemplateField = document.getElementById('cmdTemplate');
+            const cmdCredField = document.getElementById('cmdCred');
+            const cmdActiveField = document.getElementById('cmdActive');
 
-    const container = document.getElementById('commandList');
-    let commandList = [];
-    const credMap = {};
+            const container = document.getElementById('commandList');
+            let commandList = [];
+            const credMap = {};
 
-    // ===================== HELPERS ===========================
+            // ===================== HELPERS ===========================
 
-    function makeParamUrl(cmdId, suffix = 'params') {
-        return `${BASE_PARAMS_URL}/${cmdId}/${suffix}`;
-    }
-
-    // ===================== INICIALIZAÇÃO =====================
-    Promise.all([
-        fetch('{{ url_for("api.api_ssh_list") }}').then(r => r.json()),
-        fetch('{{ url_for("api.api_list_commands") }}').then(r => r.json())
-    ])
-    .then(([creds, commands]) => {
-        // popula credenciais
-        cmdCredField.innerHTML = '';
-        creds.forEach(c => {
-            credMap[c.id] = c;
-            const opt = document.createElement('option');
-            opt.value = c.id;
-            opt.textContent = `${c.name_ssh} (${c.user_ssh}@${c.host_ssh})`;
-            cmdCredField.appendChild(opt);
-        });
-
-        commandList = commands;
-        renderCommandCards();
-    });
-
-    // ===================== BOTÃO "NOVO" =====================
-    document.getElementById('btnAddCommand').addEventListener('click', () => {
-        openCommandModal();
-    });
-
-    // ===================== EVENT DELEGATION (EDITAR / DELETAR) =====================
-    container.addEventListener('click', e => {
-        const editBtn = e.target.closest('[data-action="edit-command"]');
-        const delBtn = e.target.closest('[data-action="delete-command"]');
-
-        if (editBtn) {
-            const id = editBtn.dataset.id;
-            const cmd = commandList.find(c => String(c.id) === String(id));
-            if (cmd) openCommandModal(cmd);
-        }
-
-        if (delBtn) {
-            const id = delBtn.dataset.id;
-            const cmd = commandList.find(c => String(c.id) === String(id));
-            if (cmd) {
-                if (confirm(`Deseja realmente excluir o comando "${cmd.name}"?`)) {
-                    deleteCommand(id);
-                }
+            function makeParamUrl(cmdId, suffix = 'params') {
+                return `${BASE_PARAMS_URL}/${cmdId}/${suffix}`;
             }
-        }
-    });
 
-    // ===================== MODAL (ABRIR) =====================
-    function openCommandModal(command = null) {
-        if (command) {
-            document.getElementById('commandModalLabel').textContent = 'Editar Comando';
-            cmdIdField.value = command.id;
-            cmdNameField.value = command.name;
-            cmdTemplateField.value = command.template;
-            cmdCredField.value = command.cred_ssh;
-            cmdActiveField.checked = command.active;
-        } else {
-            document.getElementById('commandModalLabel').textContent = 'Novo Comando';
-            cmdIdField.value = '';
-            cmdNameField.value = '';
-            cmdTemplateField.value = '';
-            cmdCredField.selectedIndex = 0;
-            cmdActiveField.checked = true;
-        }
+            // ===================== INICIALIZAÇÃO =====================
+            Promise.all([
+                fetch('{{ url_for("api.api_ssh_list") }}').then(r => r.json()),
+                fetch('{{ url_for("api.api_list_commands") }}').then(r => r.json())
+            ])
+            .then(([creds, commands]) => {
+                // popula credenciais
+                cmdCredField.innerHTML = '';
+                creds.forEach(c => {
+                    credMap[c.id] = c;
+                    const opt = document.createElement('option');
+                    opt.value = c.id;
+                    opt.textContent = `${c.name_ssh} (${c.user_ssh}@${c.host_ssh})`;
+                    cmdCredField.appendChild(opt);
+                });
 
-        cmdModal.modal('show');
-    }
-
-    // ===================== SALVAR (ADD/EDIT) =====================
-    formCmd.addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        const payload = {
-            id: cmdIdField.value || null,
-            name: cmdNameField.value.trim(),
-            template: cmdTemplateField.value.trim(),
-            cred_ssh: cmdCredField.value,
-            active: cmdActiveField.checked
-        };
-
-        if (!payload.name || !payload.template) {
-            alert('Preencha todos os campos obrigatórios.');
-            return;
-        }
-
-        fetch("{{ url_for('api.api_save_command') }}", {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        })
-        .then(r => r.json())
-        .then(resp => {
-            if (resp.success) {
-                cmdModal.modal('hide');
-                loadCommands();
-            } else {
-                alert('Erro ao salvar: ' + (resp.error || 'desconhecido'));
-            }
-        })
-        .catch(err => {
-            alert('Erro inesperado: ' + err);
-        });
-    });
-
-    // ===================== DELETAR COMANDO =====================
-    function deleteCommand(id) {
-        fetch(`{{ url_for("api.api_delete_command", cmd_id=0) }}`.replace('0', id), {
-            method: 'DELETE'
-        })
-        .then(r => r.json())
-        .then(resp => {
-            if (resp.success) {
-                loadCommands();
-            } else {
-                alert('Erro ao deletar: ' + (resp.error || 'desconhecido'));
-            }
-        })
-        .catch(err => {
-            alert('Erro inesperado: ' + err);
-        });
-    }
-
-    // ===================== RECARREGAR E RENDERIZAR =====================
-    function loadCommands() {
-        fetch('{{ url_for("api.api_list_commands") }}')
-            .then(r => r.json())
-            .then(commands => {
                 commandList = commands;
                 renderCommandCards();
             });
-    }
 
-    function renderCommandCards() {
-        container.innerHTML = '';
+            // ===================== BOTÃO "NOVO" =====================
+            document.getElementById('btnAddCommand').addEventListener('click', () => {
+                openCommandModal();
+            });
 
-        if (commandList.length === 0) {
-            container.innerHTML = `
-                <div class="col-xs-12">
-                    <p class="text-muted text-center" id="noCommandsMsg">
-                        Nenhum comando configurado ainda.
-                    </p>
-                </div>`;
-            return;
-        }
+            // ===================== EVENT DELEGATION (EDITAR / DELETAR) =====================
+            container.addEventListener('click', e => {
+                const editBtn = e.target.closest('[data-action="edit-command"]');
+                const delBtn = e.target.closest('[data-action="delete-command"]');
 
-        commandList.forEach(cmd => {
-            const col = document.createElement('div');
-            col.className = 'col-sm-6 col-md-4';
+                if (editBtn) {
+                    const id = editBtn.dataset.id;
+                    const cmd = commandList.find(c => String(c.id) === String(id));
+                    if (cmd) openCommandModal(cmd);
+                }
 
-            const panel = document.createElement('div');
-            panel.className = 'panel ' + (cmd.active ? 'panel-success' : 'panel-danger');
+                if (delBtn) {
+                    const id = delBtn.dataset.id;
+                    const cmd = commandList.find(c => String(c.id) === String(id));
+                    if (cmd) {
+                        if (confirm(`Deseja realmente excluir o comando "${cmd.name}"?`)) {
+                            deleteCommand(id);
+                        }
+                    }
+                }
+            });
 
-            const heading = document.createElement('div');
-            heading.className = 'panel-heading';
-            heading.innerHTML = `<strong>${cmd.name}</strong>`;
-            panel.appendChild(heading);
+            // ===================== MODAL (ABRIR) =====================
+            function openCommandModal(command = null) {
+                if (command) {
+                    document.getElementById('commandModalLabel').textContent = 'Editar Comando';
+                    cmdIdField.value = command.id;
+                    cmdNameField.value = command.name;
+                    cmdTemplateField.value = command.template;
+                    cmdCredField.value = command.cred_ssh;
+                    cmdActiveField.checked = command.active;
+                } else {
+                    document.getElementById('commandModalLabel').textContent = 'Novo Comando';
+                    cmdIdField.value = '';
+                    cmdNameField.value = '';
+                    cmdTemplateField.value = '';
+                    cmdCredField.selectedIndex = 0;
+                    cmdActiveField.checked = true;
+                }
 
-            const body = document.createElement('div');
-            body.className = 'panel-body';
+                cmdModal.modal('show');
+            }
 
-            const credInfo = credMap[cmd.cred_ssh]
-                ? `${credMap[cmd.cred_ssh].name_ssh} (${credMap[cmd.cred_ssh].user_ssh}@${credMap[cmd.cred_ssh].host_ssh})`
-                : `<span class="text-danger">Credencial não encontrada</span>`;
+            // ===================== SALVAR (ADD/EDIT) =====================
+            formCmd.addEventListener('submit', function(e) {
+                e.preventDefault();
 
-            body.innerHTML = `
-                <p><strong>Template:</strong> <code>${cmd.template}</code></p>
-                <p><strong>Credencial:</strong> ${credInfo}</p>
-                <div class="text-right">
-                    <button class="btn btn-xs btn-default" data-action="edit-command" data-id="${cmd.id}">
-                        ✏️ Editar
-                    </button>
-                    <button class="btn btn-xs btn-danger" data-action="delete-command" data-id="${cmd.id}">
-                        🗑️ Excluir
-                    </button>
-                    <button class="btn btn-xs btn-info"
-                        onclick="window.location.href='${makeParamUrl(cmd.id)}'">
-                        ⚙️ Parâmetros
-                    </button>
-                </div>
-            `;
+                const payload = {
+                    id: cmdIdField.value || null,
+                    name: cmdNameField.value.trim(),
+                    template: cmdTemplateField.value.trim(),
+                    cred_ssh: cmdCredField.value,
+                    active: cmdActiveField.checked
+                };
 
-            panel.appendChild(body);
-            col.appendChild(panel);
-            container.appendChild(col);
-        });
-    }
-})();
-</script>
+                if (!payload.name || !payload.template) {
+                    alert('Preencha todos os campos obrigatórios.');
+                    return;
+                }
 
+                fetch("{{ url_for('api.api_save_command') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                })
+                .then(r => r.json())
+                .then(resp => {
+                    if (resp.success) {
+                        cmdModal.modal('hide');
+                        loadCommands();
+                    } else {
+                        alert('Erro ao salvar: ' + (resp.error || 'desconhecido'));
+                    }
+                })
+                .catch(err => {
+                    alert('Erro inesperado: ' + err);
+                });
+            });
+
+            // ===================== DELETAR COMANDO =====================
+            function deleteCommand(id) {
+                fetch(`{{ url_for("api.api_delete_command", cmd_id=0) }}`.replace('0', id), {
+                    method: 'DELETE'
+                })
+                .then(r => r.json())
+                .then(resp => {
+                    if (resp.success) {
+                        loadCommands();
+                    } else {
+                        alert('Erro ao deletar: ' + (resp.error || 'desconhecido'));
+                    }
+                })
+                .catch(err => {
+                    alert('Erro inesperado: ' + err);
+                });
+            }
+
+            // ===================== RECARREGAR E RENDERIZAR =====================
+            function loadCommands() {
+                fetch('{{ url_for("api.api_list_commands") }}')
+                    .then(r => r.json())
+                    .then(commands => {
+                        commandList = commands;
+                        renderCommandCards();
+                    });
+            }
+
+            function renderCommandCards() {
+                container.innerHTML = '';
+
+                if (commandList.length === 0) {
+                    container.innerHTML = `
+                        <div class="col-xs-12">
+                            <p class="text-muted text-center" id="noCommandsMsg">
+                                Nenhum comando configurado ainda.
+                            </p>
+                        </div>`;
+                    return;
+                }
+
+                commandList.forEach(cmd => {
+                    const col = document.createElement('div');
+                    col.className = 'col-sm-6 col-md-4';
+
+                    const panel = document.createElement('div');
+                    panel.className = 'panel ' + (cmd.active ? 'panel-success' : 'panel-danger');
+
+                    const heading = document.createElement('div');
+                    heading.className = 'panel-heading';
+                    heading.innerHTML = `<strong>${cmd.name}</strong>`;
+                    panel.appendChild(heading);
+
+                    const body = document.createElement('div');
+                    body.className = 'panel-body';
+
+                    const credInfo = credMap[cmd.cred_ssh]
+                        ? `${credMap[cmd.cred_ssh].name_ssh} (${credMap[cmd.cred_ssh].user_ssh}@${credMap[cmd.cred_ssh].host_ssh})`
+                        : `<span class="text-danger">Credencial não encontrada</span>`;
+
+                    body.innerHTML = `
+                        <p><strong>Template:</strong> <code>${cmd.template}</code></p>
+                        <p><strong>Credencial:</strong> ${credInfo}</p>
+                        <div class="text-right">
+                            <button class="btn btn-xs btn-default" data-action="edit-command" data-id="${cmd.id}">
+                                ✏️ Editar
+                            </button>
+                            <button class="btn btn-xs btn-danger" data-action="delete-command" data-id="${cmd.id}">
+                                🗑️ Excluir
+                            </button>
+                            <button class="btn btn-xs btn-info" onclick="window.location.href='${makeParamUrl(cmd.id)}'">
+                                ⚙️ Parâmetros
+                            </button>
+                        </div>
+                    `;
+
+                    panel.appendChild(body);
+                    col.appendChild(panel);
+                    container.appendChild(col);
+                });
+            }
+        })();
+    </script>
 {% endblock extra_script %}
 {% block extra_css %}
     <style>
