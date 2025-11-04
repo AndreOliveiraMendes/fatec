@@ -45,7 +45,13 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │   │   ├── __init__.py
 │   │   ├── admin
 │   │   │   ├── __init__.py
-│   │   │   └── admin.py
+│   │   │   ├── admin.py
+│   │   │   ├── admin_debug.py
+│   │   │   ├── admin_remote_commands.py
+│   │   │   └── admin_remote_credential.py
+│   │   ├── api
+│   │   │   ├── __init__.py
+│   │   │   └── api.py
 │   │   ├── auth
 │   │   │   ├── __init__.py
 │   │   │   └── auth.py
@@ -103,7 +109,8 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │   │   │   ├── bootstrap.min.css.map
 │   │   │   ├── custom.css
 │   │   │   ├── modal_overwrite.css
-│   │   │   └── times.css
+│   │   │   ├── times.css
+│   │   │   └── utility.css
 │   │   ├── fonts
 │   │   │   ├── glyphicons-halflings-regular.eot
 │   │   │   ├── glyphicons-halflings-regular.svg
@@ -114,17 +121,23 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │   │   │   ├── favicon.ico
 │   │   │   ├── favicon.png
 │   │   │   └── favicon.svg
-│   │   └── js
-│   │       ├── admin_horarios.js
-│   │       ├── bootstrap.min.js
-│   │       └── jquery.min.js
+│   │   ├── js
+│   │   │   ├── admin_horarios.js
+│   │   │   ├── bootstrap.min.js
+│   │   │   └── jquery.min.js
+│   │   └── scss
+│   │       └── utility.scss
 │   └── templates
 │       ├── admin
 │       │   ├── _modal_gerenciar.html
 │       │   ├── _modal_periodos.html
 │       │   ├── admin.html
+│       │   ├── command_management.html
 │       │   ├── control.html
+│       │   ├── param_management.html
 │       │   ├── routes.html
+│       │   ├── routes_detalhadas.html
+│       │   ├── ssh_managment.html
 │       │   └── times.html
 │       ├── auth
 │       │   ├── login.html
@@ -217,7 +230,8 @@ Sistema Flask para gerenciamento de reservas de laboratórios.
 │   ├── general.py
 │   ├── json_related.py
 │   ├── mapeamentos.py
-│   └── painel.json
+│   ├── painel.json
+│   └── secret.json
 ├── requirements.txt
 ├── schema.sql
 ├── test
