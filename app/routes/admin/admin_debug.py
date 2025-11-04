@@ -14,8 +14,7 @@ from config.general import LIST_ROUTES
 
 bp = Blueprint("admin_debug", __name__, url_prefix='/admin')
 
-
-def listar_arquivos_config(directory):
+def listar_arquivos(directory, recursive=False):
     """
     Lista arquivos e diretórios dentro de 'config' com informações detalhadas (permissões, owner, etc.)
     """
@@ -70,6 +69,11 @@ def listar_arquivos_config(directory):
                 else:
                     size_fmt = f"{size_bytes/1024**3:.1f} GB"
 
+                if tipo == "Diretório" and recursive:
+                    child = listar_arquivos(full_path, True)
+
+                print(info)
+
                 arquivos.append({
                     "nome": filename,
                     "caminho": full_path,
@@ -81,6 +85,7 @@ def listar_arquivos_config(directory):
                     "group": group,
                     "modificado_em": datetime.fromtimestamp(info.st_mtime),
                     "criado_em": datetime.fromtimestamp(info.st_ctime),
+                    "acessado_em": datetime.fromtimestamp(info.st_atime)
                 })
 
             except FileNotFoundError:
@@ -123,8 +128,8 @@ def listar_rotas():
         user=user,
         rotas=routes,
         blueprints=blueprints,
-        config_archives=listar_arquivos_config('config'),
-        data_archives=listar_arquivos_config('data')
+        config_archives=listar_arquivos('config'),
+        data_archives=listar_arquivos('data')
     )
 
 def coletar_detalhes_rotas():

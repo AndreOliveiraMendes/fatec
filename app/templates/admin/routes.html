@@ -147,7 +147,9 @@
                             <th>Permissões</th>
                             <th>Dono</th>
                             <th>Grupo</th>
+                            <th>Criado em</th>
                             <th>Última modificação</th>
+                            <th>Último Acesso</th>
                         </tr>
                         <!-- a linha de filtros é gerada dinamicamente -->
                     </thead>
@@ -162,7 +164,9 @@
                                 </td>
                                 <td>{{ a.owner }}</td>
                                 <td>{{ a.group }}</td>
+                                <td>{{ a.criado_em|datahora }}</td>
                                 <td>{{ a.modificado_em|datahora }}</td>
+                                <td>{{ a.acessado_em|datahora }}</td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -180,7 +184,9 @@
                             <th>Permissões</th>
                             <th>Dono</th>
                             <th>Grupo</th>
+                            <th>Criado em</th>
                             <th>Última modificação</th>
+                            <th>Último Acesso</th>
                         </tr>
                         <!-- a linha de filtros é gerada dinamicamente -->
                     </thead>
@@ -195,7 +201,9 @@
                                 </td>
                                 <td>{{ a.owner }}</td>
                                 <td>{{ a.group }}</td>
+                                <td>{{ a.criado_em|datahora }}</td>
                                 <td>{{ a.modificado_em|datahora }}</td>
+                                <td>{{ a.acessado_em|datahora }}</td>
                             </tr>
                         {% endfor %}
                     </tbody>
