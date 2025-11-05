@@ -2,7 +2,7 @@ from copy import copy, deepcopy
 from datetime import datetime, timedelta
 
 import paramiko
-from flask import Blueprint, abort, jsonify, request, session
+from flask import Blueprint, abort, current_app, jsonify, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from paramiko.ssh_exception import (AuthenticationException,
                                     NoValidConnectionsError, SSHException)
@@ -11,7 +11,8 @@ from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
                             InternalError, OperationalError, ProgrammingError)
 
 from app.auxiliar.auxiliar_cryptograph import decrypt_field, encrypt_field
-from app.auxiliar.auxiliar_routes import (get_unique_or_500, parse_date_string,
+from app.auxiliar.auxiliar_routes import (get_unique_or_500, get_user_info,
+                                          parse_date_string,
                                           registrar_log_generico_usuario)
 from app.auxiliar.dao import (check_aula_ativa, get_aula_intervalo,
                               get_aulas_ativas_por_dia, sort_periodos)
@@ -759,3 +760,106 @@ def api_get_laboratorios():
         result_labs.append(res)
 
     return jsonify(result_labs)
+
+def run_remote_command(cred_ssh, command):
+    """Executa um comando remoto via SSH e retorna stdout/stderr separados."""
+    import io
+
+    import paramiko
+
+    creds = load_ssh_credentials()
+    cred = next((c for c in creds if c["id"] == int(cred_ssh)), None)
+    if not cred:
+        return {"success": False, "error": "Credencial SSH não encontrada."}
+
+    host = cred.get("host_ssh")
+    user = cred.get("user_ssh")
+    port = int(cred.get("port_ssh", 22))
+    auth_type = cred.get("auth_type", "password")
+
+    client = paramiko.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+    try:
+        if auth_type == "key":
+            key_str = decrypt_field(cred["key_ssh"])
+            passphrase = decrypt_field(cred["key_passphrase"]) if cred.get("key_passphrase") else None
+            pkey = paramiko.RSAKey.from_private_key(io.StringIO(key_str), password=passphrase)
+            client.connect(host, port=port, username=user, pkey=pkey, timeout=10)
+        else:
+            password = decrypt_field(cred["password_ssh"])
+            client.connect(host, port=port, username=user, password=password, timeout=10)
+
+        stdin, stdout, stderr = client.exec_command(command)
+
+        out = stdout.read().decode(errors="ignore").strip()
+        err = stderr.read().decode(errors="ignore").strip()
+        exit_code = stdout.channel.recv_exit_status()
+
+        return {
+            "success": True,
+            "stdout": out,
+            "stderr": err,
+            "exit_code": exit_code
+        }
+
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e),
+            "stdout": "",
+            "stderr": str(e),
+            "exit_code": 1
+        }
+    finally:
+        client.close()
+
+@bp.route("/run_command", methods=["POST"])
+@admin_required
+def api_run_command():
+    from datetime import datetime
+
+    from flask import current_app, jsonify, request, session
+
+    data = request.get_json(force=True)
+    cmd_id = data.get("cmd_id")
+    lab_id = data.get("lab_id")
+    parametros = data.get("parametros", {})
+
+    # 1️⃣ — Identifica o usuário atual (pra log)
+    userid = session.get("userid")
+    user = get_user_info(userid)  # ajusta conforme tua função existente
+
+    # 2️⃣ — Carrega o comando
+    comandos = load_commands()
+    cmd = next((c for c in comandos if c["id"] == cmd_id), None)
+    if not cmd:
+        return jsonify({"success": False, "error": "Comando não encontrado."}), 404
+
+    # 3️⃣ — Monta o comando final
+    try:
+        comando_final = cmd["template"].format(**parametros)
+    except KeyError as e:
+        return jsonify({"success": False, "error": f"Parâmetro ausente: {e.args[0]}"}), 400
+
+    # 4️⃣ — Loga execução
+    current_app.logger.info(
+        f"[COMANDO] User={user.pessoa.nome_pessoa} (ID {user.id_usuario}) | "
+        f"Cmd='{cmd['name']}' | Lab={lab_id or '-'} | "
+        f"Template='{cmd['template']}' | Exec='{comando_final}' | "
+        f"Hora={datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+    )
+
+    # 5️⃣ — Executa via SSH
+    resultado = run_remote_command(cmd["cred_ssh"], comando_final)
+
+    # 6️⃣ — Retorna JSON pra o modal no front
+    return jsonify({
+        "success": resultado["success"],
+        "stdout": resultado.get("stdout", ""),
+        "stderr": resultado.get("stderr", ""),
+        "exit_code": resultado.get("exit_code"),
+        "command": comando_final,
+        "executed_by": user.pessoa.nome_pessoa,
+        "lab_id": lab_id
+    })

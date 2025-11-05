@@ -1,204 +1,380 @@
 {% extends "base-fixed" %}
 {% block title %}
-Comandos Remotos
+    Comandos Remotos
 {% endblock title %}
-
 {% block content %}
-{{ generate_situacao_head("comandos") }}
-
-<div class="panel panel-default">
-    <div class="panel-heading">
-        <h3 class="panel-title">💻 Comandos por Laboratório</h3>
-    </div>
-    <div class="panel-body">
-        <div id="labsContainer" class="table-responsive">
-            <p class="text-muted">Carregando laboratórios...</p>
+    {{ generate_situacao_head("comandos") }}
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">💻 Comandos por Laboratório</h3>
+        </div>
+        <div class="panel-body">
+            <div id="labsContainer" class="table-responsive">
+                <p class="text-muted">Carregando laboratórios...</p>
+            </div>
         </div>
     </div>
-</div>
-
-<!-- Painel extra para comandos globais -->
-<div class="panel panel-info">
-    <div class="panel-heading">
-        <h3 class="panel-title">⚙️ Comandos Gerais (sem vínculo com laboratório)</h3>
-    </div>
-    <div class="panel-body">
-        <div id="globalCmdsContainer">
-            <p class="text-muted">Carregando comandos...</p>
+    <!-- Painel extra para comandos globais -->
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h3 class="panel-title">⚙️ Comandos Gerais (sem vínculo com laboratório)</h3>
+        </div>
+        <div class="panel-body">
+            <div id="globalCmdsContainer">
+                <p class="text-muted">Carregando comandos...</p>
+            </div>
         </div>
     </div>
-</div>
+    <!-- modal de comandos -->
+    <div class="modal fade" id="paramModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-info">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h4 class="modal-title">Executar Comando</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="paramForm">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btnExecutar">Executar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal de Resultado da Execução -->
+    <div class="modal fade" id="resultModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h4 class="modal-title">🖥️ Resultado da Execução</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="stdoutPanel" class="well well-sm command-output stdout">
+                        <strong>Saída (stdout):</strong>
+                        <div id="stdoutContent" class="margin-top-5"></div>
+                    </div>
+                    <div id="stderrPanel" class="well well-sm command-output stderr">
+                        <strong>Erros (stderr):</strong>
+                        <div id="stderrContent" class="margin-top-5"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-default" data-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock content %}
-
 {% block extra_script %}
-<script>
-(function() {
-    const labsContainer = document.getElementById('labsContainer');
-    const globalCmdsContainer = document.getElementById('globalCmdsContainer');
+    <script>
+        (function() {
+            const labsContainer = document.getElementById('labsContainer');
+            const globalCmdsContainer = document.getElementById('globalCmdsContainer');
+            let comandosGlobais = []; // para uso na execução
 
-    const LABS_URL = "{{ url_for('api.api_get_laboratorios') }}";
-    const COMMANDS_URL = "{{ url_for('api.api_list_commands') }}"; // endpoint de comandos
+            const LABS_URL = "{{ url_for('api.api_get_laboratorios') }}";
+            const COMMANDS_URL = "{{ url_for('api.api_list_commands') }}"; // endpoint de comandos
 
-    async function carregarDados() {
-        try {
-            const [labsResp, cmdsResp] = await Promise.all([
-                fetch(LABS_URL),
-                fetch(COMMANDS_URL)
-            ]);
+            async function carregarDados() {
+                try {
+                    const [labsResp, cmdsResp] = await Promise.all([
+                        fetch(LABS_URL),
+                        fetch(COMMANDS_URL)
+                    ]);
 
-            const labs = await labsResp.json();
-            const comandos = await cmdsResp.json();
+                    const labs = await labsResp.json();
+                    const comandos = await cmdsResp.json();
+                    comandosGlobais = comandos;
 
-            renderTabelaLabs(labs, comandos);
-            renderTabelaGlobais(comandos);
-        } catch (e) {
-            console.error(e);
-            labsContainer.innerHTML = '<p class="text-danger">Erro ao carregar dados.</p>';
-            globalCmdsContainer.innerHTML = '<p class="text-danger">Erro ao carregar dados.</p>';
-        }
-    }
-
-    // --- Tabela principal (laboratórios)
-    function renderTabelaLabs(labs, comandos) {
-        if (!labs.length) {
-            labsContainer.innerHTML = '<p class="text-muted">Nenhum laboratório encontrado.</p>';
-            return;
-        }
-
-        const tabela = document.createElement('table');
-        tabela.className = 'table table-bordered table-striped table-condensed';
-
-        tabela.innerHTML = `
-            <thead>
-                <tr class="info">
-                    <th style="width: 200px;">Laboratório</th>
-                    <th colspan="4" class="text-center">Comandos disponíveis</th>
-                </tr>
-            </thead>
-        `;
-
-        const tbody = document.createElement('tbody');
-
-        labs.forEach(lab => {
-            const linha = document.createElement('tr');
-            const colLab = document.createElement('td');
-            colLab.innerHTML = `
-                <strong>${lab.nome}</strong><br>
-                <small class="text-muted">#${lab.id}</small><br>
-                <span class="label label-${lab.disponivel === "Disponivel" ? "success" : "default"}">
-                    ${lab.disponivel}
-                </span>
-            `;
-            linha.appendChild(colLab);
-
-            const cmdsLab = comandos.filter(cmd =>
-                cmd.params.some(p =>
-                    p.selection_type === 'auto' &&
-                    Array.isArray(p.values) &&
-                    p.values.some(v => v.lab_id === lab.id)
-                )
-            );
-
-            if (!cmdsLab.length) {
-                const td = document.createElement('td');
-                td.colSpan = 4;
-                td.className = 'text-center text-muted';
-                td.textContent = '— Nenhum comando automático associado —';
-                linha.appendChild(td);
-            } else {
-                cmdsLab.forEach(cmd => {
-                    const td = document.createElement('td');
-                    td.innerHTML = `
-                        <button class="btn btn-sm btn-primary btn-run"
-                                data-cmd-id="${cmd.id}"
-                                data-lab-id="${lab.id}">
-                            ⚙️ ${cmd.name}
-                        </button>
-                    `;
-                    linha.appendChild(td);
-                });
-
-                // completa até 4 células
-                const restantes = 4 - (cmdsLab.length % 4);
-                if (restantes < 4) {
-                    for (let i = 0; i < restantes; i++) {
-                        linha.appendChild(document.createElement('td'));
-                    }
+                    renderTabelaLabs(labs, comandos);
+                    renderTabelaGlobais(comandos);
+                } catch (e) {
+                    console.error(e);
+                    labsContainer.innerHTML = '<p class="text-danger">Erro ao carregar dados.</p>';
+                    globalCmdsContainer.innerHTML = '<p class="text-danger">Erro ao carregar dados.</p>';
                 }
             }
 
-            tbody.appendChild(linha);
-        });
+            // --- Tabela principal (laboratórios)
+            function renderTabelaLabs(labs, comandos) {
+                if (!labs.length) {
+                    labsContainer.innerHTML = '<p class="text-muted">Nenhum laboratório encontrado.</p>';
+                    return;
+                }
 
-        tabela.appendChild(tbody);
-        labsContainer.innerHTML = '';
-        labsContainer.appendChild(tabela);
+                const tabela = document.createElement('table');
+                tabela.className = 'table table-bordered table-striped table-condensed';
 
-        // eventos de clique
-        tabela.querySelectorAll('.btn-run').forEach(btn => {
-            btn.addEventListener('click', e => {
-                const cmdId = e.target.dataset.cmdId;
-                const labId = e.target.dataset.labId;
-                executarComando(cmdId, labId);
-            });
-        });
-    }
+                tabela.innerHTML = `
+                    <thead>
+                        <tr class="info">
+                            <th style="width: 200px;">Laboratório</th>
+                            <th colspan="4" class="text-center">Comandos disponíveis</th>
+                        </tr>
+                    </thead>
+                `;
 
-    // --- Painel de comandos sem laboratório ---
-    function renderTabelaGlobais(comandos) {
-        const globais = comandos.filter(cmd => 
-            !cmd.params.some(p => 
-                p.selection_type === 'auto' && Array.isArray(p.values) && p.values.length
-            )
-        );
+                const tbody = document.createElement('tbody');
 
-        if (!globais.length) {
-            globalCmdsContainer.innerHTML = '<p class="text-muted">Nenhum comando global disponível.</p>';
-            return;
+                labs.forEach(lab => {
+                    const linha = document.createElement('tr');
+                    const colLab = document.createElement('td');
+                    colLab.innerHTML = `
+                        <strong>${lab.nome}</strong><br>
+                        <small class="text-muted">#${lab.id}</small><br>
+                        <span class="label label-${lab.disponivel === "Disponivel" ? "success" : "default"}">
+                            ${lab.disponivel}
+                        </span>
+                    `;
+                    linha.appendChild(colLab);
+
+                    const cmdsLab = comandos.filter(cmd =>
+                        cmd.params.some(p =>
+                            p.selection_type === 'auto' &&
+                            Array.isArray(p.values) &&
+                            p.values.some(v => v.lab_id === lab.id)
+                        )
+                    );
+
+                    if (!cmdsLab.length) {
+                        const td = document.createElement('td');
+                        td.colSpan = 4;
+                        td.className = 'text-center text-muted';
+                        td.textContent = '— Nenhum comando automático associado —';
+                        linha.appendChild(td);
+                    } else {
+                        cmdsLab.forEach(cmd => {
+                            const td = document.createElement('td');
+                            td.innerHTML = `
+                                <button class="btn btn-sm btn-primary btn-run" data-cmd-id="${cmd.id}" data-lab-id="${lab.id}">
+                                    ⚙️ ${cmd.name}
+                                </button>
+                            `;
+                            linha.appendChild(td);
+                        });
+
+                        // completa até 4 células
+                        const restantes = 4 - (cmdsLab.length % 4);
+                        if (restantes < 4) {
+                            for (let i = 0; i < restantes; i++) {
+                                linha.appendChild(document.createElement('td'));
+                            }
+                        }
+                    }
+
+                    tbody.appendChild(linha);
+                });
+
+                tabela.appendChild(tbody);
+                labsContainer.innerHTML = '';
+                labsContainer.appendChild(tabela);
+
+                // eventos de clique
+                tabela.querySelectorAll('.btn-run').forEach(btn => {
+                    btn.addEventListener('click', e => {
+                        const cmdId = e.target.dataset.cmdId;
+                        const labId = e.target.dataset.labId;
+                        executarComando(cmdId, labId);
+                    });
+                });
+            }
+
+            // --- Painel de comandos sem laboratório ---
+            function renderTabelaGlobais(comandos) {
+                const globais = comandos.filter(cmd => 
+                    !cmd.params.some(p => 
+                        p.selection_type === 'auto' && Array.isArray(p.values) && p.values.length
+                    )
+                );
+
+                if (!globais.length) {
+                    globalCmdsContainer.innerHTML = '<p class="text-muted">Nenhum comando global disponível.</p>';
+                    return;
+                }
+
+                const grid = document.createElement('div');
+                grid.className = 'row';
+
+                globais.forEach(cmd => {
+                    const col = document.createElement('div');
+                    col.className = 'col-sm-6 col-md-3';
+                    col.innerHTML = `
+                        <div class="panel panel-default">
+                            <div class="panel-body text-center">
+                                <h5><strong>${cmd.name}</strong></h5>
+                                <code>${cmd.template}</code><br>
+                                <button class="btn btn-sm btn-primary btn-run-global margin-top-5" data-cmd-id="${cmd.id}">
+                                    ⚙️ Executar
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    grid.appendChild(col);
+                });
+
+                globalCmdsContainer.innerHTML = '';
+                globalCmdsContainer.appendChild(grid);
+
+                grid.querySelectorAll('.btn-run-global').forEach(btn => {
+                    btn.addEventListener('click', e => {
+                        const cmdId = e.target.dataset.cmdId;
+                        executarComando(cmdId, null);
+                    });
+                });
+            }
+
+            // --- Execução ---
+            function executarComando(cmdId, labId) {
+                const cmd = comandosGlobais.find(c => c.id == cmdId); // salva comandosGlobais no escopo maior
+                if (!cmd) return alert("Comando não encontrado.");
+
+                if (labId) {
+                    const faltando = cmd.params.filter(p =>
+                        p.selection_type === "auto" &&
+                        (
+                            !Array.isArray(p.values) ||
+                            !p.values.some(v => v.lab_id === Number(labId))
+                        )
+                    );
+
+                    if (faltando.length) {
+                        alert(`❌ Parâmetros automáticos não configurados para este laboratório:\n- ${faltando.map(f => f.alias || f.name).join("\n- ")}`);
+                        return;
+                    }
+                }
+
+                abrirModalParametros(cmd, labId);
+            }
+            function abrirModalParametros(cmd, labId) {
+                const form = document.getElementById("paramForm");
+                form.innerHTML = "";
+
+                const paramsManuais = cmd.params.filter(p => p.selection_type === "manual");
+
+                if (!paramsManuais.length) {
+                    // sem parâmetros manuais → executar direto
+                    executarComandoFinal(cmd, labId, {});
+                    return;
+                }
+
+                paramsManuais.forEach(p => {
+                    const grupo = document.createElement("div");
+                    grupo.className = "form-group";
+                    grupo.innerHTML = `<label>${p.alias || p.name}</label>`;
+
+                    if (Array.isArray(p.values) && p.values.length > 0) {
+                        const select = document.createElement("select");
+                        select.className = "form-control";
+                        select.name = p.name;
+                        p.values.forEach(v => {
+                            const opt = document.createElement("option");
+                            opt.value = v;
+                            opt.textContent = v;
+                            select.appendChild(opt);
+                        });
+                        grupo.appendChild(select);
+                    } else {
+                        const input = document.createElement("input");
+                        input.type = p.type === "int" ? "number" : p.type === "time" ? "time" : "text";
+                        input.className = "form-control";
+                        input.name = p.name;
+                        grupo.appendChild(input);
+                    }
+
+                    form.appendChild(grupo);
+                });
+
+                const btnExec = document.getElementById("btnExecutar");
+                btnExec.onclick = () => {
+                    const dados = Object.fromEntries(new FormData(form).entries());
+                    executarComandoFinal(cmd, labId, dados);
+                    $("#paramModal").modal("hide");
+                };
+
+                $("#paramModal").modal("show");
+            }
+            function executarComandoFinal(cmd, labId, paramsManuais) {
+                const paramsCompletos = {};
+
+                // juntar automáticos
+                cmd.params.forEach(p => {
+                    if (p.selection_type === "auto" && labId) {
+                        const val = p.values.find(v => v.lab_id === Number(labId));
+                        if (val) paramsCompletos[p.name] = val.valor;
+                    } else if (p.selection_type === "manual") {
+                        paramsCompletos[p.name] = paramsManuais[p.name] || "";
+                    }
+                });
+
+                const corpo = {
+                    cmd_id: cmd.id,
+                    lab_id: labId,
+                    parametros: paramsCompletos
+                };
+
+                console.log("Executando comando:", corpo);
+
+                fetch("{{ url_for('api.api_run_command') }}", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(corpo)
+                })
+                .then(r => r.json())
+                .then(data => {
+                    console.log(data.success)
+                    if (!data.success) {
+                        alert(data.error || "Falha ao executar comando.");
+                        return;
+                    }
+
+                    // preenche o modal com stdout/stderr
+                    document.getElementById("stdoutContent").textContent =
+                        data.stdout && data.stdout.trim() ? data.stdout.trim() : "(sem saída)";
+                    document.getElementById("stderrContent").textContent =
+                        data.stderr && data.stderr.trim() ? data.stderr.trim() : "(sem erros)";
+
+                    // destaque visual se houve erro
+                    const stderrPanel = document.getElementById("stderrPanel");
+                    stderrPanel.style.borderLeft = data.stderr ? "5px solid #d9534f" : "5px solid #5cb85c";
+
+                    $("#resultModal").modal("show");
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("❌ Erro ao executar comando.");
+                });
+            }
+
+            carregarDados();
+        })();
+    </script>
+{% endblock extra_script %}
+{% block extra_css %}
+    <style>
+        .command-output {
+            font-family: monospace;
+            white-space: pre-wrap;
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 10px;
         }
 
-        const grid = document.createElement('div');
-        grid.className = 'row';
+        .command-output.stdout {
+            background-color: #f5f5f5;
+            color: #2e8b57; /* verde */
+        }
 
-        globais.forEach(cmd => {
-            const col = document.createElement('div');
-            col.className = 'col-sm-6 col-md-3';
-            col.innerHTML = `
-                <div class="panel panel-default">
-                    <div class="panel-body text-center">
-                        <h5><strong>${cmd.name}</strong></h5>
-                        <code>${cmd.template}</code><br>
-                        <button class="btn btn-sm btn-primary btn-run-global margin-top-5"
-                                data-cmd-id="${cmd.id}">
-                            ⚙️ Executar
-                        </button>
-                    </div>
-                </div>
-            `;
-            grid.appendChild(col);
-        });
+        .command-output.stderr {
+            background-color: #fff5f5;
+            color: #b22222; /* vermelho */
+        }
 
-        globalCmdsContainer.innerHTML = '';
-        globalCmdsContainer.appendChild(grid);
-
-        grid.querySelectorAll('.btn-run-global').forEach(btn => {
-            btn.addEventListener('click', e => {
-                const cmdId = e.target.dataset.cmdId;
-                executarComando(cmdId, null);
-            });
-        });
-    }
-
-    // --- Execução ---
-    function executarComando(cmdId, labId) {
-        const msg = labId
-            ? `Executar comando #${cmdId} no laboratório #${labId}`
-            : `Executar comando global #${cmdId}`;
-        alert(msg);
-        // aqui depois você chama o endpoint /api/run_command
-    }
-
-    carregarDados();
-})();
-</script>
-{% endblock extra_script %}
+        .command-output strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+    </style>
+{% endblock extra_css %}

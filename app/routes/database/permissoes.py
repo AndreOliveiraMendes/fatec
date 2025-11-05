@@ -1,6 +1,6 @@
 import copy
-from functools import reduce
 import operator
+from functools import reduce
 
 from flask import Blueprint, Request, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
@@ -13,9 +13,9 @@ from app.auxiliar.auxiliar_routes import (get_query_params,
                                           get_user_info, none_if_empty,
                                           register_return,
                                           registrar_log_generico_usuario)
-from app.auxiliar.constant import (PERM_ADMIN, PERM_AUTORIZAR,
+from app.auxiliar.constant import (PERM_ADMIN, PERM_AUTORIZAR, PERM_CMD_CONFIG,
                                    PERM_RESERVA_AUDITORIO, PERM_RESERVA_FIXA,
-                                   PERM_RESERVA_TEMPORARIA, PERM_CMD_CONFIG)
+                                   PERM_RESERVA_TEMPORARIA)
 from app.auxiliar.dao import get_usuarios
 from app.auxiliar.decorators import admin_required
 from app.models import Permissoes, Pessoas, Usuarios, db
