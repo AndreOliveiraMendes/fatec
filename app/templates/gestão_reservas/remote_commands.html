@@ -89,7 +89,11 @@
                     ]);
 
                     const labs = await labsResp.json();
-                    const comandos = await cmdsResp.json();
+                    var comandos = await cmdsResp.json();
+
+                    //filtra apenas comandos ativos
+                    comandos = comandos.filter(c => c.active);
+
                     comandosGlobais = comandos;
 
                     renderTabelaLabs(labs, comandos);
