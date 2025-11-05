@@ -4,6 +4,9 @@
 {% endblock title %}
 {% block content %}
     {{ generate_situacao_head("comandos") }}
+    <div class="text-right margin-bottom-10">
+        <button id="btnRefresh" class="btn btn-sm btn-default">🔄 Recarregar</button>
+    </div>
     <div class="panel panel-default">
         <div class="panel-heading">
             <h3 class="panel-title">💻 Comandos por Laboratório</h3>
@@ -347,6 +350,10 @@
                     alert("❌ Erro ao executar comando.");
                 });
             }
+
+            document.getElementById("btnRefresh").addEventListener("click", () => {
+                carregarDados();
+            });
 
             carregarDados();
         })();
