@@ -11,13 +11,6 @@ COPY requirements.txt .
 RUN python -m pip install --root-user-action=ignore --upgrade pip && \
     pip install --root-user-action=ignore --no-cache-dir -r requirements.txt
 
-# 📂 Copia código da aplicação
-#COPY app/ app/
-#COPY config/ config/
-#COPY data/ data/
-#COPY logs/ logs/
-#COPY wsgi.py wsgi.py
-
 # 🌐 Expõe a porta Flask
 EXPOSE 5000
 
