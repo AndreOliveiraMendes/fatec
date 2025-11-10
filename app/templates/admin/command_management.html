@@ -495,20 +495,15 @@
 
                 if (commandList.length === 0) {
                     container.innerHTML = `
-                        <div class="col-xs-12">
-                            <p class="text-muted text-center" id="noCommandsMsg">
-                                Nenhum comando configurado ainda.
-                            </p>
+                        <div class="text-center text-muted" id="noCommandsMsg">
+                            Nenhum comando configurado ainda.
                         </div>`;
                     return;
                 }
 
                 commandList.forEach(cmd => {
-                    const col = document.createElement('div');
-                    col.className = 'col-sm-6 col-md-4';
-
                     const panel = document.createElement('div');
-                    panel.className = 'panel ' + (cmd.active ? 'panel-success' : 'panel-danger');
+                    panel.className = 'margin-left-10 margin-right-10 panel ' + (cmd.active ? 'panel-success' : 'panel-danger');
 
                     const heading = document.createElement('div');
                     heading.className = 'panel-heading';
@@ -539,8 +534,7 @@
                     `;
 
                     panel.appendChild(body);
-                    col.appendChild(panel);
-                    container.appendChild(col);
+                    container.appendChild(panel);
                 });
             }
         })();
@@ -610,5 +604,36 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(359deg); }
         }
+
+        /* ========== GRID DE COMANDOS ========== */
+        .command-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            align-items: stretch;
+        }
+
+        .command-grid .panel {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .command-grid .panel-body {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .command-grid .panel-body .text-right {
+            margin-top: auto;
+        }
+
+        .command-grid .panel code {
+            white-space: nowrap;
+            overflow-x: auto;
+        }
+
     </style>
 {% endblock extra_css %}
