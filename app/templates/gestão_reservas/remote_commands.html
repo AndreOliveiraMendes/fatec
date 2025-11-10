@@ -70,6 +70,10 @@
             </div>
         </div>
     </div>
+    <div id="spinnerOverlay" class="spinner-overlay hide">
+        <div class="spinner"></div>
+        <p class="text-white">Executando comando...</p>
+    </div>
 {% endblock content %}
 {% block extra_script %}
     <script>
@@ -305,6 +309,15 @@
             }
             function executarComandoFinal(cmd, labId, paramsManuais) {
                 const paramsCompletos = {};
+                const btn_run = document.querySelectorAll(".btn-run");
+                const btn_run_global = document.querySelectorAll(".btn-run-global");
+                const btn_refresh = document.getElementById("btnRefresh");
+                // desativa botões de execução
+                btn_run.forEach(b => b.disabled = true);
+                btn_run_global.forEach(b => b.disabled = true);
+                btn_refresh.disabled = true;
+                // mostra spinner
+                document.getElementById("spinnerOverlay").classList.remove("hide");
 
                 // juntar automáticos
                 cmd.params.forEach(p => {
@@ -321,8 +334,6 @@
                     lab_id: labId,
                     parametros: paramsCompletos
                 };
-
-                console.log("Executando comando:", corpo);
 
                 fetch("{{ url_for('api.api_run_command') }}", {
                     method: "POST",
@@ -352,6 +363,13 @@
                 .catch(err => {
                     console.error(err);
                     alert("❌ Erro ao executar comando.");
+                })
+                .finally(() => {
+                    // reativa botões de execução
+                    document.querySelectorAll(".btn-run, .btn-run-global").forEach(b => b.disabled = false);
+                    btn_refresh.disabled = false;
+                    // esconde spinner
+                    document.getElementById("spinnerOverlay").classList.add("hide");
                 });
             }
 
@@ -386,6 +404,34 @@
         .command-output strong {
             display: block;
             margin-bottom: 5px;
+        }
+
+        .spinner-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .spinner {
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 0.9s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 {% endblock extra_css %}
