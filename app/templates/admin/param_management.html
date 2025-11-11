@@ -32,8 +32,15 @@
                     <div class="modal-body">
                         <input type="hidden" id="paramId">
                         <div class="form-group">
-                            <label>Nome (ex: {usuario})</label>
-                            <input type="text" id="paramName" class="form-control" required>
+                            <label>
+                                Nome <small class="text-muted">ex: para {usuario} seria 'usuario'</small>
+                            </label>
+                            <input type="text"
+                                   id="paramName"
+                                   class="form-control"
+                                   placeholder="ex: admin"
+                                   required>
+                            <p class="help-block">Digite apenas o valor — sem { }</p>
                         </div>
                         <div class="form-group">
                             <label>Alias (ex: Nome do Usuário)</label>

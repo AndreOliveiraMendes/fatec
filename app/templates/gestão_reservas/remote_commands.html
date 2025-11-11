@@ -124,6 +124,7 @@
                         <tr class="info">
                             <th style="width: 200px;">Laboratório</th>
                             <th colspan="4" class="text-center">Comandos disponíveis</th>
+                            <th>ver mais...</th>
                         </tr>
                     </thead>
                 `;
@@ -152,12 +153,18 @@
 
                     if (!cmdsLab.length) {
                         const td = document.createElement('td');
-                        td.colSpan = 4;
+                        td.colSpan = 5;
                         td.className = 'text-center text-muted';
                         td.textContent = '— Nenhum comando automático associado —';
                         linha.appendChild(td);
                     } else {
-                        cmdsLab.forEach(cmd => {
+                        // filtra os primeiro 4 comandos
+                        const cmdsLab4 = cmdsLab.slice(0, 4);
+                        console.log(cmdsLab);
+                        console.log(cmdsLab4);
+
+                        // cria células para cada comando
+                        cmdsLab4.forEach(cmd => {
                             const td = document.createElement('td');
                             td.innerHTML = `
                                 <button class="btn btn-sm btn-primary btn-run" data-cmd-id="${cmd.id}" data-lab-id="${lab.id}">
@@ -167,13 +174,49 @@
                             linha.appendChild(td);
                         });
 
-                        // completa até 4 células
-                        const restantes = 4 - (cmdsLab.length % 4);
-                        if (restantes < 4) {
-                            for (let i = 0; i < restantes; i++) {
-                                linha.appendChild(document.createElement('td'));
-                            }
+                        // completa até 4 celulas se necessário
+                        for (let i = cmdsLab4.length; i < 4; i++) {
+                            linha.appendChild(document.createElement('td'));
                         }
+
+                        // opção "ver mais" (abre um mini modal com os comandos restantes)
+                        const tdMais = document.createElement('td');
+                        if (cmdsLab.length > 4) {
+                            tdMais.innerHTML = `
+                                <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#moreCmdsModal${lab.id}">
+                                    +${cmdsLab.length - 4} mais...
+                                </button>
+
+                                <!-- Modal de mais comandos -->
+                                <div class="modal fade" id="moreCmdsModal${lab.id}" tabindex="-1" role="dialog">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-info">
+                                                <button type="button" class="close" data-dismiss="modal">×</button>
+                                                <h4 class="modal-title">Comandos adicionais para ${lab.nome}</h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                ${cmdsLab.slice(4).map(cmd => `
+                                                    <div class="margin-bottom-10">
+                                                        <strong>${cmd.name}</strong><br>
+                                                        <code>${cmd.template}</code><br>
+                                                        <button class="btn btn-sm btn-primary btn-run" data-cmd-id="${cmd.id}" data-lab-id="${lab.id}">
+                                                            ⚙️ Executar
+                                                        </button>
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            tdMais.innerHTML = '<span class="text-muted">—</span>';
+                        }
+                        linha.appendChild(tdMais);
                     }
 
                     tbody.appendChild(linha);
