@@ -39,8 +39,12 @@
                                    id="paramName"
                                    class="form-control"
                                    placeholder="ex: admin"
+                                   list="paramNameSuggestions"
                                    required>
                             <p class="help-block">Digite apenas o valor — sem { }</p>
+                            <!-- auto complete -->
+                            <datalist id="paramNameSuggestions">
+                            </datalist>
                         </div>
                         <div class="form-group">
                             <label>Alias (ex: Nome do Usuário)</label>
@@ -122,6 +126,30 @@
                 return `${BASE_SAVE_URL}/${cmdId}/params`;
             }
 
+            // --- auto complet --
+            function setupAutoComplete() {
+                // pega o template do comando pelo ID
+                const template = document.getElementById('cmdTemplate').textContent;
+
+                const regex = /\{(\w+)\}/g;
+                const suggestions = new Set();
+                let match;
+                while ((match = regex.exec(template)) !== null) {
+                    suggestions.add(match[1]);
+                }
+                //remove alredy set param names
+                Array.from(paramsList.querySelectorAll('strong')).forEach(el => {
+                    suggestions.delete(el.textContent);
+                });
+                const dataList = document.getElementById('paramNameSuggestions');
+                dataList.innerHTML = '';
+                suggestions.forEach(s => {
+                    const option = document.createElement('option');
+                    option.value = s;
+                    dataList.appendChild(option);
+                });
+            }
+
             // Carrega os parâmetros do comando
             fetch(list_url(cmdId))
                 .then(r => r.json())
@@ -129,6 +157,7 @@
                     cmdName.textContent = cmd.name;
                     cmdTemplate.textContent = cmd.template;
                     renderParams(cmd.params || []);
+                    if (cmd.template) setupAutoComplete();
                 });
 
             function renderParams(params) {
