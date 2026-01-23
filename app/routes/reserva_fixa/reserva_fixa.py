@@ -232,7 +232,7 @@ def get_lab_especifico(id_semestre, id_turno, id_lab):
     helper = {}
     for r in reservas:
         title = get_responsavel_reserva(r)
-        helper[(r.id_reserva_local, r.id_reserva_aula)] = title
+        helper[(r.id_reserva_local, r.id_reserva_aula)] = {"title": title, "id":r.id_reserva_fixa}
     extras['helper'] = helper
     extras['finalidade_reserva'] = FinalidadeReservaEnum
     extras['aulas_extras'] = get_aulas_extras(semestre, turno)

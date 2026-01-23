@@ -25,6 +25,7 @@ from config.json_related import (load_commands, load_ssh_credentials,
 
 bp = Blueprint('api', __name__, url_prefix='/api')
 
+# Periods Management APIs
 @bp.route('times/periodos')
 def api_listar_periodos():
     page = int(request.args.get('page', 1))
@@ -394,6 +395,7 @@ def api_get_times():
         })
     return jsonify(result)
 
+# SSH Credentials Management APIs
 @bp.route("/ssh/list", methods=["GET"])
 @admin_required
 def api_ssh_list():
@@ -613,6 +615,7 @@ def api_ssh_execute(cred_id):
     finally:
         client.close()
 
+# Command Management APIs
 @bp.route("commands/list", methods=["GET"])
 @admin_required
 def api_list_commands():
