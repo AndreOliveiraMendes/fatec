@@ -132,6 +132,13 @@ def get_lab(id_semestre, id_turno=None, id_lab=None):
     else:
         return get_lab_especifico(id_semestre, id_turno, id_lab)
 
+def builder_helper(reservas:list[Reservas_Fixas]):
+    helper = {}
+    for r in reservas:
+        title = get_responsavel_reserva(r)
+        helper[(r.id_reserva_local, r.id_reserva_aula)] = {"title": title, "id":r.id_reserva_fixa}
+    return helper
+
 def get_lab_geral(id_semestre, id_turno=None):
     userid = session.get('userid')
     user = get_user_info(userid)
@@ -170,11 +177,7 @@ def get_lab_geral(id_semestre, id_turno=None):
     extras['head_turno'] = contagem_turnos
     sel_reservas = select(Reservas_Fixas).where(Reservas_Fixas.id_reserva_semestre == id_semestre)
     reservas = db.session.execute(sel_reservas).scalars().all()
-    helper = {}
-    for r in reservas:
-        title = get_responsavel_reserva(r)
-        helper[(r.id_reserva_local, r.id_reserva_aula)] = title
-    extras['helper'] = helper
+    extras['helper'] = builder_helper(reservas)
     extras['finalidade_reserva'] = FinalidadeReservaEnum
     extras['aulas_extras'] = get_aulas_extras(semestre, turno)
     extras['responsavel'] = get_pessoas()
@@ -229,11 +232,7 @@ def get_lab_especifico(id_semestre, id_turno, id_lab):
         Reservas_Fixas.id_reserva_semestre == id_semestre,
         Reservas_Fixas.id_reserva_local == id_lab)
     reservas = db.session.execute(sel_reservas).scalars().all()
-    helper = {}
-    for r in reservas:
-        title = get_responsavel_reserva(r)
-        helper[(r.id_reserva_local, r.id_reserva_aula)] = {"title": title, "id":r.id_reserva_fixa}
-    extras['helper'] = helper
+    extras['helper'] = builder_helper(reservas)
     extras['finalidade_reserva'] = FinalidadeReservaEnum
     extras['aulas_extras'] = get_aulas_extras(semestre, turno)
     extras['responsavel'] = get_pessoas()
