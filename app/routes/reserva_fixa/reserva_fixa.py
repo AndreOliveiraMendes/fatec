@@ -18,7 +18,7 @@ from app.auxiliar.constant import PERM_ADMIN
 from app.auxiliar.dao import (get_aulas_ativas_por_semestre, get_aulas_extras,
                               get_laboratorios, get_pessoas,
                               get_usuarios_especiais)
-from app.auxiliar.decorators import reserva_fixa_required
+from app.auxiliar.decorators import reserva_fixa_required, admin_required
 from app.models import (FinalidadeReservaEnum, Locais, Permissoes,
                         Reservas_Fixas, Semestres, Turnos, Usuarios, db)
 from config.general import (DISPONIBILIDADE_DATABASE, DISPONIBILIDADE_HOST,
@@ -296,3 +296,18 @@ def efetuar_reserva(id_semestre):
         current_app.logger.error(f"falha ao realizar reserva:{e}")
 
     return redirect(url_for('default.home'))
+
+# helper api (to be moved soon)
+@bp.route('api/reserva/<int:id_reserva>')
+@reserva_fixa_required
+@admin_required
+def get_reserva_info(id_reserva):
+    reserva = db.get_or_404(Reservas_Fixas, id_reserva)
+    responsavel = get_responsavel_reserva(reserva)
+    return {
+        "id": reserva.id_reserva_fixa,
+        "responsavel": responsavel,
+        "finalidade": reserva.finalidade_reserva.name,
+        "observacoes": reserva.observacoes,
+        "descricao": reserva.descricao
+    }

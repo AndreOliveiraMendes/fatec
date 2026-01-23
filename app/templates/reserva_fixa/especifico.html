@@ -53,8 +53,9 @@
                                     {% if info %}
                                         {% set reserva = helper[(local.id_local, info[0].id_aula_ativa)] %}
                                         {% if reserva %}
-                                            <td class="reservado" title="{{ reserva['title'] }}"
-                                                data-id-reserva="{{ reserva['id'] }}">
+                                            <td class="reservado"
+                                                title="{{ reserva['title'] }}"
+                                                {% if user and user.perm|has_flag(ADMIN) %}data-id-reserva="{{ reserva['id'] }}"{% endif %}>
                                                 <span class="sr-only">Reservado</span>
                                                 <input type="checkbox"
                                                        class="form-check-input checkbox-danger"
@@ -195,4 +196,31 @@
         document.getElementById('finalidade_reserva').dispatchEvent(new Event('change'));
     });
     </script>
+    {% if user and user.perm|has_flag(ADMIN) %}
+        <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('td.reservado').forEach(td => {
+            td.addEventListener('click', async () => {
+                const id = td.dataset.idReserva;
+
+                const r = await fetch(`/reserva_fixa/api/reserva/${id}`);
+                if (!r.ok) {
+                    alert('Erro ao carregar reserva');
+                    return;
+                }
+
+                const data = await r.json();
+
+                alert(
+                    `Reserva:\n` +
+                    `Responsável: ${data.responsavel}\n` +
+                    `Finalidade: ${data.finalidade}\n` +
+                    `Observações: ${data.observacoes}\n` +
+                    `Descrição: ${data.descricao}`
+                );
+            });
+        });
+    });
+        </script>
+    {% endif %}
 {% endblock extra_script %}
