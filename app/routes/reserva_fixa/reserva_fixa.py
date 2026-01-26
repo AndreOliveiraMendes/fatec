@@ -132,7 +132,13 @@ def get_lab(id_semestre, id_turno=None, id_lab=None):
     else:
         return get_lab_especifico(id_semestre, id_turno, id_lab)
 
-def builder_helper(reservas:list[Reservas_Fixas]):
+def builder_helper(id_semestre:int, id_lab: int|None=None):
+    """Monta helper de reservas fixas indexado por (local, aula)."""
+    conditions = [Reservas_Fixas.id_reserva_semestre == id_semestre]
+    if id_lab is not None:
+        conditions.append(Reservas_Fixas.id_reserva_local == id_lab)
+    sel_reservas = select(Reservas_Fixas).where(*conditions)
+    reservas = db.session.execute(sel_reservas).scalars().all()
     helper = {}
     for r in reservas:
         title = get_responsavel_reserva(r)
@@ -175,9 +181,7 @@ def get_lab_geral(id_semestre, id_turno=None):
     extras['head1'] = head1
     extras['head2'] = head2
     extras['head_turno'] = contagem_turnos
-    sel_reservas = select(Reservas_Fixas).where(Reservas_Fixas.id_reserva_semestre == id_semestre)
-    reservas = db.session.execute(sel_reservas).scalars().all()
-    extras['helper'] = builder_helper(reservas)
+    extras['helper'] = builder_helper(id_semestre)
     extras['finalidade_reserva'] = FinalidadeReservaEnum
     extras['aulas_extras'] = get_aulas_extras(semestre, turno)
     extras['responsavel'] = get_pessoas()
@@ -228,11 +232,7 @@ def get_lab_especifico(id_semestre, id_turno, id_lab):
     extras['aulas_extras'] = get_aulas_extras(semestre, turno)
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
-    sel_reservas = select(Reservas_Fixas).where(
-        Reservas_Fixas.id_reserva_semestre == id_semestre,
-        Reservas_Fixas.id_reserva_local == id_lab)
-    reservas = db.session.execute(sel_reservas).scalars().all()
-    extras['helper'] = builder_helper(reservas)
+    extras['helper'] = builder_helper(id_semestre, id_lab)
     extras['finalidade_reserva'] = FinalidadeReservaEnum
     extras['aulas_extras'] = get_aulas_extras(semestre, turno)
     extras['responsavel'] = get_pessoas()
