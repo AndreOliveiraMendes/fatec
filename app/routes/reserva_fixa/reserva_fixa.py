@@ -10,7 +10,8 @@ from sqlalchemy import between, select
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
                             InternalError, OperationalError, ProgrammingError)
 
-from app.auxiliar.auxiliar_routes import (check_local, get_responsavel_reserva,
+from app.auxiliar.auxiliar_routes import (builder_helper_fixa, check_local,
+                                          get_responsavel_reserva,
                                           get_unique_or_500, get_user_info,
                                           none_if_empty,
                                           registrar_log_generico_usuario)
@@ -18,7 +19,7 @@ from app.auxiliar.constant import PERM_ADMIN
 from app.auxiliar.dao import (get_aulas_ativas_por_semestre, get_aulas_extras,
                               get_laboratorios, get_pessoas,
                               get_usuarios_especiais)
-from app.auxiliar.decorators import reserva_fixa_required, admin_required
+from app.auxiliar.decorators import admin_required, reserva_fixa_required
 from app.models import (FinalidadeReservaEnum, Locais, Permissoes,
                         Reservas_Fixas, Semestres, Turnos, Usuarios, db)
 from config.general import (DISPONIBILIDADE_DATABASE, DISPONIBILIDADE_HOST,
@@ -59,6 +60,81 @@ def check_semestre(semestre:Semestres, userid, perm:Permissoes):
         user = db.get_or_404(Usuarios, userid)
         if has_priority and not user.pessoa.id_pessoa in prioridade:
             abort(403)
+
+def build_table_headers_geral(aulas, extras, id_turno=None):
+    contagem_dias = Counter()
+    contagem_turnos = Counter()
+    label = {}
+    head2 = []
+
+    for info in aulas:
+        aula = info[1]
+        semana = info[2]
+
+        # Contagem por dia da semana
+        contagem_dias[semana.id_semana] += 1
+
+        # Contagem por turno (somente se não houver turno fixo)
+        if id_turno is None:
+            turno = get_unique_or_500(
+                Turnos,
+                between(aula.horario_inicio, Turnos.horario_inicio, Turnos.horario_fim)
+            )
+            contagem_turnos[(semana.id_semana, turno)] += 1
+
+        # Labels e cabeçalho secundário
+        label[semana.id_semana] = semana.nome_semana
+        head2.append(aula.selector_identification)
+
+    extras["head1"] = [
+        (label[id_semana], count)
+        for id_semana, count in contagem_dias.items()
+    ]
+    extras["head2"] = head2
+    extras["head_turno"] = contagem_turnos
+
+def build_table_semanas_aulas(aulas, extras):
+    table_aulas = []
+    table_semanas = []
+
+    # 🔹 Coleta aulas únicas
+    for info in aulas:
+        _, aula, _ = info
+        if aula not in table_aulas:
+            table_aulas.append(aula)
+
+    # 🔹 Ordena aulas por horário
+    table_aulas.sort(key=lambda e: e.horario_inicio)
+    size = len(table_aulas)
+
+    # 🔹 Monta estrutura por semana × aula
+    for info in aulas:
+        _, aula, semana = info
+
+        # Procura semana existente
+        index_semana = None
+        for i, v in enumerate(table_semanas):
+            if v["semana"] == semana:
+                index_semana = i
+                break
+        else:
+            table_semanas.append({
+                "semana": semana,
+                "infos": [None] * size
+            })
+            index_semana = len(table_semanas) - 1
+
+        # Procura índice da aula
+        index_aula = None
+        for i, v in enumerate(table_aulas):
+            if v == aula:
+                index_aula = i
+                break
+
+        table_semanas[index_semana]["infos"][index_aula] = info
+
+    extras["aulas"] = table_aulas
+    extras["semanas"] = table_semanas
 
 @bp.route('/')
 @reserva_fixa_required
@@ -132,19 +208,6 @@ def get_lab(id_semestre, id_turno=None, id_lab=None):
     else:
         return get_lab_especifico(id_semestre, id_turno, id_lab)
 
-def builder_helper(id_semestre:int, id_lab: int|None=None):
-    """Monta helper de reservas fixas indexado por (local, aula)."""
-    conditions = [Reservas_Fixas.id_reserva_semestre == id_semestre]
-    if id_lab is not None:
-        conditions.append(Reservas_Fixas.id_reserva_local == id_lab)
-    sel_reservas = select(Reservas_Fixas).where(*conditions)
-    reservas = db.session.execute(sel_reservas).scalars().all()
-    helper = {}
-    for r in reservas:
-        title = get_responsavel_reserva(r)
-        helper[(r.id_reserva_local, r.id_reserva_aula)] = {"title": title, "id":r.id_reserva_fixa}
-    return helper
-
 def get_lab_geral(id_semestre, id_turno=None):
     userid = session.get('userid')
     user = get_user_info(userid)
@@ -163,25 +226,8 @@ def get_lab_geral(id_semestre, id_turno=None):
         return redirect(url_for('default.home'))
     extras['locais'] = locais
     extras['aulas'] = aulas
-    contagem_dias = Counter()
-    contagem_turnos = Counter()
-    label = {}
-    head2 = []
-
-    for info in aulas:
-        semana = info[2]
-        contagem_dias[semana.id_semana] += 1
-        if id_turno is None:
-            turno = get_unique_or_500(Turnos, between(info[1].horario_inicio, Turnos.horario_inicio, Turnos.horario_fim))
-            contagem_turnos[(semana.id_semana, turno)] += 1
-        label[semana.id_semana] = semana.nome_semana
-        head2.append(info[1].selector_identification)
-
-    head1 = [(label[id_semana], count) for id_semana, count in contagem_dias.items()]
-    extras['head1'] = head1
-    extras['head2'] = head2
-    extras['head_turno'] = contagem_turnos
-    extras['helper'] = builder_helper(id_semestre)
+    build_table_headers_geral(aulas, extras, id_turno)
+    extras['helper'] = builder_helper_fixa(id_semestre)
     extras['finalidade_reserva'] = FinalidadeReservaEnum
     extras['aulas_extras'] = get_aulas_extras(semestre, turno)
     extras['responsavel'] = get_pessoas()
@@ -203,36 +249,12 @@ def get_lab_especifico(id_semestre, id_turno, id_lab):
     if len(aulas) == 0:
         flash("não há horarios disponiveis nesse turno", "danger")
         return redirect(url_for('default.home'))
-    table_aulas = []
-    table_semanas = []
-    for info in aulas:
-        _, aula, _ = info
-        if not aula in table_aulas:
-            table_aulas.append(aula)
-    table_aulas.sort(key = lambda e:e.horario_inicio)
-    size = len(table_aulas)
-    for info in aulas:
-        _, aula, semana = info
-        index_semana, index_aula = None, None
-        for i, v in enumerate(table_semanas):
-            if v['semana'] == semana:
-                index_semana = i
-                break
-        else:
-            table_semanas.append({'semana':semana, 'infos':[None]*size})
-            index_semana = len(table_semanas) - 1
-        for i, v in enumerate(table_aulas):
-            if v == aula:
-                index_aula = i
-                break
-        table_semanas[index_semana]['infos'][index_aula] = info
-    extras['aulas'] = table_aulas
-    extras['semanas'] = table_semanas
+    build_table_semanas_aulas(aulas, extras)
     extras['finalidade_reserva'] = FinalidadeReservaEnum
     extras['aulas_extras'] = get_aulas_extras(semestre, turno)
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
-    extras['helper'] = builder_helper(id_semestre, id_lab)
+    extras['helper'] = builder_helper_fixa(id_semestre, id_lab)
     extras['finalidade_reserva'] = FinalidadeReservaEnum
     extras['aulas_extras'] = get_aulas_extras(semestre, turno)
     extras['responsavel'] = get_pessoas()
@@ -309,5 +331,8 @@ def get_reserva_info(id_reserva):
         "responsavel": responsavel,
         "finalidade": reserva.finalidade_reserva.name,
         "observacoes": reserva.observacoes,
-        "descricao": reserva.descricao
+        "descricao": reserva.descricao,
+        "id_aula_ativa": reserva.aula_ativa.id_aula_ativa,
+        "horario": reserva.aula_ativa.aula.selector_identification,
+        "semana": reserva.aula_ativa.dia_da_semana.nome_semana
     }

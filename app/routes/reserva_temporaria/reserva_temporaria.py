@@ -4,13 +4,14 @@ from typing import List
 
 from flask import (Blueprint, abort, current_app, flash, redirect,
                    render_template, request, session, url_for)
-from sqlalchemy import and_, between, select
+from sqlalchemy import between, select
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
                             InternalError, OperationalError, ProgrammingError)
 
-from app.auxiliar.auxiliar_routes import (check_local, get_responsavel_reserva,
-                                          get_unique_or_500, get_user_info,
-                                          none_if_empty, parse_date_string,
+from app.auxiliar.auxiliar_routes import (builder_helper_temporaria,
+                                          check_local, get_unique_or_500,
+                                          get_user_info, none_if_empty,
+                                          parse_date_string,
                                           registrar_log_generico_usuario,
                                           time_range)
 from app.auxiliar.constant import PERM_ADMIN
@@ -133,20 +134,7 @@ def get_lab_geral(inicio, fim, id_turno):
     extras['contagem_dias'] = contagem_dias
     extras['aulas'] = aulas
     extras['contagem_turnos'] = contagem_turnos
-    sel_reservas = select(Reservas_Temporarias).where(
-        and_(
-            Reservas_Temporarias.inicio_reserva <= fim,
-            Reservas_Temporarias.fim_reserva >= inicio
-        )
-    )
-    reservas = db.session.execute(sel_reservas).scalars().all()
-    helper = {}
-    for r in reservas:
-        title = get_responsavel_reserva(r)
-        days = [day.strftime('%Y-%m-%d') for day in time_range(r.inicio_reserva, r.fim_reserva, 7)]
-        for day in days:
-            helper[(r.id_reserva_local, r.id_reserva_aula, day)] = title
-    extras['helper'] = helper
+    extras['helper'] = builder_helper_temporaria(inicio, fim)
     extras['finalidade_reserva'] = FinalidadeReservaEnum
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
@@ -201,21 +189,7 @@ def get_lab_especifico(inicio, fim, id_turno, id_lab):
         table_dias[index_dia]['infos'][index_aula] = info
     extras['aulas'] = table_aulas
     extras['dias'] = table_dias
-    sel_reservas = select(Reservas_Temporarias).where(
-        and_(
-            Reservas_Temporarias.inicio_reserva <= fim,
-            Reservas_Temporarias.fim_reserva >= inicio
-        ),
-        Reservas_Temporarias.id_reserva_local == id_lab
-    )
-    reservas = db.session.execute(sel_reservas).scalars().all()
-    helper = {}
-    for r in reservas:
-        title = get_responsavel_reserva(r)
-        days = [day.strftime('%Y-%m-%d') for day in time_range(r.inicio_reserva, r.fim_reserva, 7)]
-        for day in days:
-            helper[(r.id_reserva_local, r.id_reserva_aula, day)] = title
-    extras['helper'] = helper
+    extras['helper'] = builder_helper_temporaria(inicio, fim, id_lab)
     extras['finalidade_reserva'] = FinalidadeReservaEnum
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
