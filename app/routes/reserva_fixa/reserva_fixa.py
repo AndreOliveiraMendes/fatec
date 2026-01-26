@@ -325,14 +325,15 @@ def efetuar_reserva(id_semestre):
 @admin_required
 def get_reserva_info(id_reserva):
     reserva = db.get_or_404(Reservas_Fixas, id_reserva)
-    responsavel = get_responsavel_reserva(reserva)
     return {
-        "id": reserva.id_reserva_fixa,
-        "responsavel": responsavel,
+        "id_reserva": reserva.id_reserva_fixa,
+        "id_semestre": reserva.id_reserva_semestre,
+        "id_responsavel": reserva.id_responsavel,
+        "id_responsavel_especial": reserva.id_responsavel_especial,
+        "id_aula_ativa": reserva.aula_ativa.id_aula_ativa,
+        "id_local": reserva.id_reserva_local,
         "finalidade": reserva.finalidade_reserva.name,
         "observacoes": reserva.observacoes,
         "descricao": reserva.descricao,
-        "id_aula_ativa": reserva.aula_ativa.id_aula_ativa,
-        "horario": reserva.aula_ativa.aula.selector_identification,
-        "semana": reserva.aula_ativa.dia_da_semana.nome_semana
+        "semestre": reserva.semestre.nome_semestre
     }

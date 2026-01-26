@@ -173,6 +173,9 @@
                 </div>
             </div>
         {% endif %}
+        {% if user and user.perm|has_flag(ADMIN) %}
+            {% include "reserva_fixa/modal_reserva.html" %}
+        {% endif %}
     </div>
 {% endblock content %}
 {% block extra_script %}
@@ -197,30 +200,21 @@
     });
     </script>
     {% if user and user.perm|has_flag(ADMIN) %}
+        <script src="{{ url_for('static', filename='js/reserva_fixa_modal.js') }}"></script>
         <script>
     document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('td.reservado').forEach(td => {
-            td.addEventListener('click', async () => {
+            document.addEventListener("click", function (e) {
+                const td = e.target.closest("td.reservado");
+                if (!td) return;
+
                 const id = td.dataset.idReserva;
+                const url = {{ url_for('reservas_semanais.get_reserva_info', id_reserva='0')|tojson }};
 
-                const r = await fetch(`/reserva_fixa/api/reserva/${id}`);
-                if (!r.ok) {
-                    alert('Erro ao carregar reserva');
-                    return;
-                }
-
-                const data = await r.json();
-
-                alert(
-                    `Reserva:\n` +
-                    `Responsável: ${data.responsavel}\n` +
-                    `Finalidade: ${data.finalidade}\n` +
-                    `Observações: ${data.observacoes}\n` +
-                    `Descrição: ${data.descricao}\n` +
-                    `id aula ativa: ${data.id_aula_ativa}\n` +
-                    `Horário: ${data.horario}\n` +
-                    `Semana: ${data.semana}`
-                );
+                fetch(url.replace('0', id))
+                    .then(r => r.json())
+                    .then(data => openReservaModal(data))
+                    .catch((e) => alert("Erro ao carregar reserva devido a " + e));
             });
         });
     });
