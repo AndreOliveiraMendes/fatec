@@ -28,7 +28,7 @@
                 <strong>Horário:</strong> 00:00 às 23:59
             {% endif %}
             <br>
-            <strong>Horarios disponiveis:</strong> {{ aulas|length }} <strong>Local:</strong> {{ local.nome_local }}
+            <strong>Horarios disponiveis:</strong> {{ head1|length }} <strong>Local:</strong> {{ local.nome_local }}
             <br>
             <strong>Especificação:</strong> {{ local.descrição }}
         </p>
@@ -42,7 +42,7 @@
                     <thead>
                         <tr class="information">
                             <th>Dias da semana</th>
-                            {% for aula in aulas %}<th>{{ aula.horario_inicio|hora }} - {{ aula.horario_fim|hora }}</th>{% endfor %}
+                            {% for aula in head1 %}<th>{{ aula.horario_inicio|hora }} - {{ aula.horario_fim|hora }}</th>{% endfor %}
                         </tr>
                     </thead>
                     <tbody>
@@ -57,11 +57,14 @@
                                                 title="{{ reserva['title'] }}"
                                                 {% if user and user.perm|has_flag(ADMIN) %}data-id-reserva="{{ reserva['id'] }}"{% endif %}>
                                                 <span class="sr-only">Reservado</span>
+                                                <!--
                                                 <input type="checkbox"
                                                        class="form-check-input checkbox-danger"
                                                        title="{{ reserva['title'] }}"
                                                        name="reserva[{{ local.id_local }},{{ info[0].id_aula_ativa }}]"
                                                        disabled>
+                                                -->
+                                                {{ reserva['title'].strip().split()[0] }}
                                             </td>
                                         {% else %}
                                             <td>
@@ -202,22 +205,29 @@
     {% if user and user.perm|has_flag(ADMIN) %}
         <script src="{{ url_for('static', filename='js/reserva_fixa_modal.js') }}"></script>
         <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        document.querySelectorAll('td.reservado').forEach(td => {
-            document.addEventListener("click", function (e) {
-                const td = e.target.closest("td.reservado");
-                if (!td) return;
+            document.addEventListener('DOMContentLoaded', () => {
+                document.addEventListener("click", function (e) {
+                    const td = e.target.closest("td.reservado");
+                    if (!td) return;
 
-                const id = td.dataset.idReserva;
-                const url = {{ url_for('reservas_semanais.get_reserva_info', id_reserva='0')|tojson }};
+                    const altPressed = e.altKey;
+                    const id = td.dataset.idReserva;
+                    const url = {{ url_for('reservas_semanais.get_reserva_info', id_reserva='0')|tojson }};
 
-                fetch(url.replace('0', id))
-                    .then(r => r.json())
-                    .then(data => openReservaModal(data))
-                    .catch((e) => alert("Erro ao carregar reserva devido a " + e));
+                    fetch(url.replace('0', id))
+                        .then(r => r.json())
+                        .then(data => {
+                            if (altPressed) {
+                                DeleteData(data);
+                            } else {
+                                openReservaModal(data);
+                            }
+                        })
+                        .catch(err =>
+                            alert("Erro ao carregar reserva devido a: " + err)
+                        );
+                });
             });
-        });
-    });
         </script>
     {% endif %}
 {% endblock extra_script %}

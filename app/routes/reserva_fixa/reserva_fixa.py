@@ -133,7 +133,7 @@ def build_table_semanas_aulas(aulas, extras):
 
         table_semanas[index_semana]["infos"][index_aula] = info
 
-    extras["aulas"] = table_aulas
+    extras["head1"] = table_aulas
     extras["semanas"] = table_semanas
 
 @bp.route('/')
@@ -249,9 +249,10 @@ def get_lab_especifico(id_semestre, id_turno, id_lab):
     if len(aulas) == 0:
         flash("não há horarios disponiveis nesse turno", "danger")
         return redirect(url_for('default.home'))
+    extras['aulas'] = aulas
+    extras['locais'] = get_laboratorios(user.perm&PERM_ADMIN)
     build_table_semanas_aulas(aulas, extras)
     extras['finalidade_reserva'] = FinalidadeReservaEnum
-    extras['aulas_extras'] = get_aulas_extras(semestre, turno)
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
     extras['helper'] = builder_helper_fixa(id_semestre, id_lab)
@@ -260,7 +261,6 @@ def get_lab_especifico(id_semestre, id_turno, id_lab):
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
     extras['contador'] = session.get('contador')
-    extras['locais'] = get_laboratorios(user.perm&PERM_ADMIN)
     return render_template('reserva_fixa/especifico.html', user=user, **extras)
 
 @bp.route('/semestre/<int:id_semestre>', methods=['POST'])
@@ -325,15 +325,17 @@ def efetuar_reserva(id_semestre):
 @admin_required
 def get_reserva_info(id_reserva):
     reserva = db.get_or_404(Reservas_Fixas, id_reserva)
+    responsavel = get_responsavel_reserva(reserva)
     return {
         "id_reserva": reserva.id_reserva_fixa,
         "id_semestre": reserva.id_reserva_semestre,
         "id_responsavel": reserva.id_responsavel,
         "id_responsavel_especial": reserva.id_responsavel_especial,
-        "id_aula_ativa": reserva.aula_ativa.id_aula_ativa,
         "id_local": reserva.id_reserva_local,
+        "id_aula_ativa": reserva.id_reserva_aula,
         "finalidade": reserva.finalidade_reserva.name,
         "observacoes": reserva.observacoes,
         "descricao": reserva.descricao,
-        "semestre": reserva.semestre.nome_semestre
+        "semestre": reserva.semestre.nome_semestre,
+        "responsavel": responsavel
     }
