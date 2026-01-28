@@ -11,8 +11,8 @@
                 </button>
                 <h4 class="modal-title">Detalhes da Reserva</h4>
             </div>
-            <div class="modal-body">
-                <form class="form-horizontal">
+            <form class="form-horizontal" method="post" id="modal_edit_reserva">
+                <div class="modal-body">
                     <div class="form-group">
                         <label for="id_reserva" class="col-sm-4 control-label">ID da Reserva</label>
                         <div class="col-sm-8">
@@ -24,7 +24,7 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="id_semestre" class="col-sm-4 control-label">ID do Semestre</label>
+                        <label for="id_semestre" class="col-sm-4 control-label">Semestre</label>
                         <div class="col-sm-8">
                             <input type="text" id="semestre" class="form-control" disabled>
                             <input type="hidden"
@@ -53,7 +53,7 @@
                                     class="form-control">
                                 <option value="">Selecione o responsavel especial</option>
                                 {% for especial in responsavel_especial %}
-                                    <option value="{{ especial.id_usuario_especial }}">{{ nome_usuario_especial }}</option>
+                                    <option value="{{ especial.id_usuario_especial }}">{{ especial.nome_usuario_especial }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -78,11 +78,35 @@
                             </select>
                         </div>
                     </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
-            </div>
+                    <div class="form-group">
+                        <label for="finalidade" class="col-sm-4 control-label">Finalidade</label>
+                        <div class="col-sm-8">
+                            <select id="finalidade" name="finalidade" class="form-control">
+                                <option value="">Selecione a finalidade</option>
+                                {% for finalidade in finalidade_reserva %}
+                                    <option value="{{ finalidade.value }}">{{ finalidade.value }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="observacoes" class="col-sm-4 control-label">Observações</label>
+                        <div class="col-sm-8">
+                            <textarea id="observacoes" name="observacoes" class="form-control" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="descricao" class="col-sm-4 control-label">Descrição</label>
+                        <div class="col-sm-8">
+                            <input type="text" id="descricao" class="form-control" name="descricao">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

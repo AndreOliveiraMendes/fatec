@@ -4,6 +4,7 @@ from datetime import date
 import mysql
 from flask import (Blueprint, abort, current_app, flash, redirect,
                    render_template, request, session, url_for)
+from flask import Response
 from markupsafe import Markup
 from mysql.connector import DatabaseError, OperationalError
 from sqlalchemy import between, select
@@ -252,9 +253,6 @@ def get_lab_especifico(id_semestre, id_turno, id_lab):
     extras['aulas'] = aulas
     extras['locais'] = get_laboratorios(user.perm&PERM_ADMIN)
     build_table_semanas_aulas(aulas, extras)
-    extras['finalidade_reserva'] = FinalidadeReservaEnum
-    extras['responsavel'] = get_pessoas()
-    extras['responsavel_especial'] = get_usuarios_especiais()
     extras['helper'] = builder_helper_fixa(id_semestre, id_lab)
     extras['finalidade_reserva'] = FinalidadeReservaEnum
     extras['aulas_extras'] = get_aulas_extras(semestre, turno)
@@ -333,9 +331,39 @@ def get_reserva_info(id_reserva):
         "id_responsavel_especial": reserva.id_responsavel_especial,
         "id_local": reserva.id_reserva_local,
         "id_aula_ativa": reserva.id_reserva_aula,
-        "finalidade": reserva.finalidade_reserva.name,
+        "finalidade": reserva.finalidade_reserva.value,
         "observacoes": reserva.observacoes,
         "descricao": reserva.descricao,
         "semestre": reserva.semestre.nome_semestre,
-        "responsavel": responsavel
+        "responsavel": responsavel,
+        "horario": reserva.aula_ativa.selector_identification,
+        "local": reserva.local.nome_local
     }
+
+@reserva_fixa_required
+@admin_required
+@bp.route('api/reserva/delete/<int:id_reserva>', methods=['DELETE'])
+def delete_reserva(id_reserva):
+    userid = session.get('userid')
+    reserva = db.get_or_404(Reservas_Fixas, id_reserva)
+
+    try:
+        db.session.delete(reserva)
+        registrar_log_generico_usuario(
+            userid,
+            'Exclusão',
+            reserva,
+            observacao='através de reserva'
+        )
+        db.session.commit()
+        current_app.logger.info(
+            f"reserva removida com sucesso para {reserva} por {userid}"
+        )
+
+        return Response(status=204)
+
+    except (DataError, IntegrityError, InterfaceError,
+            InternalError, OperationalError, ProgrammingError) as e:
+        db.session.rollback()
+        current_app.logger.error(f"falha ao remover reserva: {e}")
+        return Response(status=500)

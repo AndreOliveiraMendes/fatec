@@ -213,12 +213,13 @@
                     const altPressed = e.altKey;
                     const id = td.dataset.idReserva;
                     const url = {{ url_for('reservas_semanais.get_reserva_info', id_reserva='0')|tojson }};
+                    const url_delete = {{ url_for('reservas_semanais.delete_reserva', id_reserva='0')|tojson }};
 
                     fetch(url.replace('0', id))
                         .then(r => r.json())
                         .then(data => {
                             if (altPressed) {
-                                DeleteData(data);
+                                DeleteData(data, url_delete.replace('0', id));
                             } else {
                                 openReservaModal(data);
                             }
