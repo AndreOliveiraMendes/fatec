@@ -1,16 +1,18 @@
 import enum
 from datetime import date, datetime, timedelta
-from typing import Any, Callable, Literal, Optional, Type, TypeVar
+from typing import (Any, Callable, Literal, MutableMapping, Optional, Type,
+                    TypeVar)
 
 from flask import abort, redirect, session, url_for
+from flask.typing import ResponseReturnValue
 from sqlalchemy import and_, select
 from sqlalchemy.exc import MultipleResultsFound
 from sqlalchemy.inspection import inspect
 
 from app.auxiliar.constant import PERM_ADMIN
-from app.models import (Base, Historicos, Locais, OrigemEnum, Permissoes,
-                        Pessoas, Reservas_Fixas, Reservas_Temporarias,
-                        Usuarios, Usuarios_Especiais, db)
+from app.models import (Base, Historicos, Locais, OrigemEnum, Pessoas,
+                        Reservas_Fixas, Reservas_Temporarias, Usuarios,
+                        Usuarios_Especiais, db)
 from config.general import AFTER_ACTION, LOCAL_TIMEZONE
 
 IGNORED_FORM_FIELDS = ['page', 'acao', 'bloco']
@@ -185,7 +187,7 @@ def include_action(extras, include):
 def get_session_or_request(request, session, key, default = None):
     return session.pop(key, request.form.get(key, default))
 
-def register_return(url, acao, extras = None, bloco = 0, **args):
+def register_return(url:str, acao:str, extras:Optional[MutableMapping[str, Any]] = None, bloco:int = 0, **args: Any) -> tuple[ResponseReturnValue | None, int | None]:
     if AFTER_ACTION == 'noredirect':
         ret_bloco = bloco
         if extras is not None:
@@ -196,6 +198,8 @@ def register_return(url, acao, extras = None, bloco = 0, **args):
         if AFTER_ACTION == 'redirectback':
             session['acao'] = acao
         return redirect(url_for(url)), None
+    else:
+        raise ValueError(f"Configuração AFTER_ACTION inválida: {AFTER_ACTION}")
 
 def time_range(start:date, end:date, step:int = 1):
     day = start

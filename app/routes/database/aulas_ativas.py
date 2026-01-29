@@ -1,7 +1,7 @@
 import copy
 from typing import Any
 
-from flask import Blueprint, flash, render_template, request, session
+from flask import Blueprint, flash, render_template, request, session, abort
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import and_, func, or_, select
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
@@ -158,6 +158,10 @@ def gerenciar_aulas_ativas():
             id_semana = none_if_empty(request.form.get('id_semana'), int)
             tipo_aula = none_if_empty(request.form.get('tipo_aula'))
             aula_ativa = db.get_or_404(Aulas_Ativas, id_aula_ativa)
+            if id_aula is None:
+                abort(400, description="id_aula é obrigatório")
+            if id_semana is None:
+                abort(400, description="id_semana é obrigatório")
             try:
                 check_aula_ativa(inicio_ativacao, fim_ativacao, id_aula, id_semana, tipo_aula, id_aula_ativa)
                 dados_anteriores = copy.copy(aula_ativa)
