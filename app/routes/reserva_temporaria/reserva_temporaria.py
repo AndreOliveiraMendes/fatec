@@ -112,7 +112,7 @@ def get_lab_geral(inicio, fim, id_turno):
     except ValueError as ve:
         current_app.logger.error(f"error:{ve}")
         abort(400)
-    locais = get_laboratorios(user.perm&PERM_ADMIN)
+    locais = get_laboratorios(user.perm&PERM_ADMIN > 0)
     dias = [(dia, turno) for dia in time_range(inicio, fim)]
     aulas = get_aulas_ativas_por_lista_de_dias(dias, tipo_horario)
     if len(aulas) == 0 or len(locais) == 0:

@@ -1,12 +1,12 @@
 from collections import Counter
 from datetime import date
+from typing import Sequence, Set, Tuple, cast
 
 import mysql
-from flask import (Blueprint, abort, current_app, flash, redirect,
+from flask import (Blueprint, Response, abort, current_app, flash, redirect,
                    render_template, request, session, url_for)
-from flask import Response
 from markupsafe import Markup
-from mysql.connector import DatabaseError, OperationalError
+from mysql.connector import DatabaseError, OperationalError, connect
 from sqlalchemy import between, select
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
                             InternalError, OperationalError, ProgrammingError)
@@ -31,7 +31,7 @@ bp = Blueprint('reservas_semanais', __name__, url_prefix="/reserva_fixa")
 
 def get_prioridade():
     try:
-        with mysql.connector.connect(
+        with connect(
             host=DISPONIBILIDADE_HOST,
             user=DISPONIBILIDADE_USER,
             password=DISPONIBILIDADE_PASSWORD,
@@ -45,12 +45,13 @@ def get_prioridade():
                     WHERE professor is not NULL and lab = 1
                     ORDER BY professor
                 """)
-                return True, cursor.fetchall()
+                rows = cast(Sequence[tuple[int]], cursor.fetchall())
+                return True, {row[0] for row in rows}
     except (DatabaseError, OperationalError) as e:
         current_app.logger.error(f"erro ao ler banco, rodando sem regra de prioridade:{e}")
         return False, None
 
-def check_semestre(semestre:Semestres, userid, perm:Permissoes):
+def check_semestre(semestre:Semestres, userid, perm:int):
     if perm&PERM_ADMIN > 0:
         return
     today = date.today()
@@ -59,7 +60,7 @@ def check_semestre(semestre:Semestres, userid, perm:Permissoes):
     if (today - semestre.data_inicio_reserva).days < semestre.dias_de_prioridade:
         has_priority, prioridade = get_prioridade()
         user = db.get_or_404(Usuarios, userid)
-        if has_priority and not user.pessoa.id_pessoa in prioridade:
+        if has_priority and prioridade is not None and user.pessoa.id_pessoa not in prioridade:
             abort(403)
 
 def build_table_headers_geral(aulas, extras, id_turno=None):
@@ -159,13 +160,13 @@ def main_page():
         else:
             state = 'default'
         if today < semestre.data_inicio_reserva or today > semestre.data_fim_reserva:
-            if not user.perm&PERM_ADMIN > 0:
+            if not user or not user.perm&PERM_ADMIN > 0:
                 state += ' disabled'
             icon = Markup("<span class='glyphicon glyphicon-lock'></span>")
         elif (today - semestre.data_inicio_reserva).days < semestre.dias_de_prioridade:
             icon = Markup("<span class='glyphicon glyphicon-warning-sign'></span>")
-        semestre.state = state
-        semestre.icon = icon
+        setattr(semestre, "state", state)
+        setattr(semestre, "icon", icon)
     extras['day'] = today
     return render_template('reserva_fixa/main.html', user=user, **extras)
 
@@ -174,6 +175,8 @@ def main_page():
 def get_semestre(id_semestre):
     userid = session.get('userid')
     user = get_user_info(userid)
+    if not user:
+        abort(403)
     semestre = db.get_or_404(Semestres, id_semestre)
     check_semestre(semestre, userid, user.perm)
     today = date.today()
@@ -212,13 +215,15 @@ def get_lab(id_semestre, id_turno=None, id_lab=None):
 def get_lab_geral(id_semestre, id_turno=None):
     userid = session.get('userid')
     user = get_user_info(userid)
+    if not user:
+        abort(403)
     semestre = db.get_or_404(Semestres, id_semestre)
     check_semestre(semestre, userid, user.perm)
     turno = db.get_or_404(Turnos, id_turno) if id_turno is not None else id_turno
     today = date.today()
     extras = {'semestre':semestre, 'turno':turno, 'day':today}
     aulas = get_aulas_ativas_por_semestre(semestre, turno)
-    locais = get_laboratorios(user.perm&PERM_ADMIN)
+    locais = get_laboratorios(user.perm&PERM_ADMIN > 0)
     if len(aulas) == 0 or len(locais) == 0:
         if len(aulas) == 0:
             flash("não há horarios disponiveis nesse turno", "danger")
@@ -239,6 +244,8 @@ def get_lab_geral(id_semestre, id_turno=None):
 def get_lab_especifico(id_semestre, id_turno, id_lab):
     userid = session.get('userid')
     user = get_user_info(userid)
+    if not user:
+        abort(403)
     semestre = db.get_or_404(Semestres, id_semestre)
     check_semestre(semestre, userid, user.perm)
     turno = db.get_or_404(Turnos, id_turno) if id_turno is not None else id_turno
@@ -251,7 +258,7 @@ def get_lab_especifico(id_semestre, id_turno, id_lab):
         flash("não há horarios disponiveis nesse turno", "danger")
         return redirect(url_for('default.home'))
     extras['aulas'] = aulas
-    extras['locais'] = get_laboratorios(user.perm&PERM_ADMIN)
+    extras['locais'] = get_laboratorios(user.perm&PERM_ADMIN > 0)
     build_table_semanas_aulas(aulas, extras)
     extras['helper'] = builder_helper_fixa(id_semestre, id_lab)
     extras['finalidade_reserva'] = FinalidadeReservaEnum
@@ -305,7 +312,8 @@ def efetuar_reserva(id_semestre):
 
         db.session.commit()
         flash("reserva efetuada com sucesso", "success")
-        current_app.logger.info(f"reserva efetuada com sucesso para {reserva}")
+        for reserva in reservas_efetuadas:
+            current_app.logger.info(f"reserva efetuada com sucesso para {reserva} por {userid}")
     except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
         db.session.rollback()
         flash(f"Erro ao efetuar reserva:{str(e.orig)}", "danger")
@@ -313,7 +321,7 @@ def efetuar_reserva(id_semestre):
     except ValueError as ve:
         db.session.rollback()
         flash(f"Erro ao efetuar reserva:{str(ve)}", "danger")
-        current_app.logger.error(f"falha ao realizar reserva:{e}")
+        current_app.logger.error(f"falha ao realizar reserva:{ve}")
 
     return redirect(url_for('default.home'))
 
