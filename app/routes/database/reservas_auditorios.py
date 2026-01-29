@@ -1,4 +1,5 @@
 import copy
+from typing import Any
 
 from flask import Blueprint, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
@@ -12,7 +13,7 @@ from app.auxiliar.auxiliar_routes import (get_query_params,
                                           parse_date_string, register_return,
                                           registrar_log_generico_usuario)
 from app.auxiliar.dao import (get_aulas_ativas, get_locais, get_pessoas,
-                              get_reservas_auditorios)
+                              get_reservas_auditorios_database)
 from app.auxiliar.decorators import admin_required
 from app.models import Reservas_Auditorios, StatusReservaAuditorioEnum, db
 from config.general import PER_PAGE
@@ -29,7 +30,7 @@ def gerenciar_reservas_auditorios():
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
     user = get_user_info(userid)
-    extras = {'url':url}
+    extras: dict[str, Any] = {'url':url}
     extras['SRAE'] = StatusReservaAuditorioEnum
     if request.method == 'POST':
         if acao == 'listar':
@@ -133,7 +134,7 @@ def gerenciar_reservas_auditorios():
                 pessoas=get_pessoas(), locais=get_locais(), aulas_ativas=get_aulas_ativas())
 
         elif acao in ['editar', 'excluir'] and bloco == 0:
-            extras['reservas_auditorios'] = get_reservas_auditorios()
+            extras['reservas_auditorios'] = get_reservas_auditorios_database()
         elif acao in ['editar', 'excluir'] and bloco == 1:
             id_reserva_auditorio = none_if_empty(request.form.get('id_reserva_auditorio'), int)
             reserva_auditorio = db.get_or_404(Reservas_Auditorios, id_reserva_auditorio)
@@ -176,7 +177,7 @@ def gerenciar_reservas_auditorios():
                 flash(f"Erro ao editar reserva:{ve}")
 
             redirect_action, bloco = register_return(url, acao, extras,
-                reservas_auditorios=get_reservas_auditorios())
+                reservas_auditorios=get_reservas_auditorios_database())
         elif acao == 'excluir' and bloco == 2:
             id_reserva_auditorio = none_if_empty(request.form.get('id_reserva_auditorio'), int)
             reserva_auditorio = db.get_or_404(Reservas_Auditorios, id_reserva_auditorio)
@@ -193,7 +194,7 @@ def gerenciar_reservas_auditorios():
                 flash(f"Erro ao excluir reserva:{str(e.orig)}", "danger")
 
             redirect_action, bloco = register_return(url, acao, extras,
-                reservas_auditorios=get_reservas_auditorios())
+                reservas_auditorios=get_reservas_auditorios_database())
     if redirect_action:
         return redirect_action
     return render_template("database/table/reservas_auditorios.html",

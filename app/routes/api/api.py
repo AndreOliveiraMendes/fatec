@@ -299,7 +299,7 @@ def api_desativar():
     today = datetime.now(LOCAL_TIMEZONE).date()
     data_desativacao = parse_date_string(data.get("data_desativacao")) or today
 
-    if data_desativacao < aula_ativa.inicio_ativacao:
+    if aula_ativa.inicio_ativacao and data_desativacao < aula_ativa.inicio_ativacao:
         return jsonify({"error": "Data de desativação não pode ser anterior ao início da ativação."}), 400
 
     if aula_ativa.fim_ativacao and aula_ativa.fim_ativacao < today:
@@ -530,7 +530,7 @@ def api_ssh_test(cred_id):
                     passphrase = decrypt_field(passphrase_enc)
                 except Exception as e:
                     return jsonify({"success": False, "error": f"Falha ao descriptografar senha da chave: {e}"})
-            if not key_str.strip():
+            if not (key_str and key_str.strip()):
                 return jsonify({"success": False, "error": "Nenhuma chave fornecida para autenticação por chave."}), 400
 
             import io
@@ -820,9 +820,9 @@ def run_remote_command(cred_ssh, command):
 @bp.route("/run_command", methods=["POST"])
 @admin_required
 def api_run_command():
-    from datetime import datetime
+    
 
-    from flask import current_app, jsonify, request, session
+    
 
     data = request.get_json(force=True)
     cmd_id = data.get("cmd_id")
@@ -831,7 +831,10 @@ def api_run_command():
 
     # 1️⃣ — Identifica o usuário atual (pra log)
     userid = session.get("userid")
-    user = get_user_info(userid)  # ajusta conforme tua função existente
+    user = get_user_info(userid)
+    if not user:
+        return jsonify({"success": False, "error": "Usuário não encontrado."}), 404
+    
 
     # 2️⃣ — Carrega o comando
     comandos = load_commands()

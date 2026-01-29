@@ -1,6 +1,6 @@
 import enum
 from datetime import date, datetime, timedelta
-from typing import Literal, Type, TypeVar
+from typing import Any, Callable, Literal, Optional, Type, TypeVar
 
 from flask import abort, redirect, session, url_for
 from sqlalchemy import and_, select
@@ -16,8 +16,9 @@ from config.general import AFTER_ACTION, LOCAL_TIMEZONE
 IGNORED_FORM_FIELDS = ['page', 'acao', 'bloco']
 
 T = TypeVar("T", bound=Base)
+V = TypeVar("V")
 
-def none_if_empty(value, cast_type=str):
+def none_if_empty(value:Any, cast_type: Callable[[Any], V] = str) -> Optional[V]:
     if value is None:
         return None
     # Se for string, verifica se está vazia ou só com espaços

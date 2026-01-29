@@ -1,4 +1,5 @@
-from flask import Flask, flash, jsonify, render_template, request, session
+from flask import (Flask, abort, flash, jsonify, render_template, request,
+                   session)
 
 from app.auxiliar.auxiliar_routes import get_user_info
 from config.general import SHOW_DEBUG_ERRORS
@@ -36,6 +37,8 @@ def register_error_handler(app:Flask):
     def acesso_negado(e):
         userid = session.get('userid')
         user = get_user_info(userid)
+        if not user:
+            abort(401)
         mensagem = getattr(e, 'description', 'Access Denied')
         if wants_json_response():
             return jsonify({"error": "Access Denied", "message": mensagem, "user": user.username, "perm": user.perm}), 403

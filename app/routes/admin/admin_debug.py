@@ -108,7 +108,7 @@ def listar_rotas():
     blueprints = {}
 
     for rule in current_app.url_map.iter_rules():
-        methods = ",".join(sorted(rule.methods - {"HEAD", "OPTIONS"}))
+        methods = ",".join(sorted(rule.methods - {"HEAD", "OPTIONS"})) if rule.methods else ""
         endpoint = rule.endpoint
         blueprint_name = endpoint.split('.')[0] if '.' in endpoint else '(sem_blueprint)'
         endpoint_function = endpoint.split('.')[1] if '.' in endpoint else 'static'
@@ -177,7 +177,7 @@ def coletar_detalhes_rotas():
             "url_gerada": url_gerada,
             "endpoint": endpoint,
             "blueprint": blueprint,
-            "metodos": sorted(rule.methods - {"HEAD", "OPTIONS"}),
+            "metodos": sorted(rule.methods - {"HEAD", "OPTIONS"}) if rule.methods else "",
             "argumentos_url": sorted(rule.arguments),
             "defaults": defaults,
             "subdominio": rule.subdomain,

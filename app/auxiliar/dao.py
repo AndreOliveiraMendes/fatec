@@ -5,6 +5,7 @@ from flask import abort
 from sqlalchemy import (and_, between, case, desc, func, literal, or_, select,
                         text, union_all)
 from sqlalchemy.exc import IntegrityError, MultipleResultsFound
+from sqlalchemy.sql.elements import ColumnElement
 
 from app.models import (Aulas, Aulas_Ativas, Dias_da_Semana,
                         DisponibilidadeEnum, Exibicao_Reservas, Locais,
@@ -99,7 +100,7 @@ def get_reservas_temporarias():
     return db.session.execute(sel_reservas_temporarias).scalars().all()
 
 #Reservas Auditorios
-def get_reservas_auditorios():
+def get_reservas_auditorios_database():
     sel_reservas_auditorios = select(Reservas_Auditorios)
     return db.session.execute(sel_reservas_auditorios).scalars().all()
 
@@ -279,7 +280,10 @@ def check_reserva_temporaria(inicio, fim, local, aula, id = None):
         and_(Reservas_Temporarias.fim_reserva >= inicio, Reservas_Temporarias.inicio_reserva <= fim)
     )
     count_rtc = select(func.count()).select_from(Reservas_Temporarias).where(*base_filter)
-    if db.session.scalar(count_rtc) > 0:
+    res = db.session.scalar(count_rtc)
+    if res is None:
+        abort(403)
+    if res > 0:
         raise IntegrityError(
             statement=None,
             params=None,
@@ -337,7 +341,7 @@ def get_reservas_por_dia(dia:date, turno:Turnos|None=None, tipo_horario:TipoAula
             abort(500)
     if tipo_reservas is None or tipo_reservas == 'temporaria':
         try:
-            filtro_temp = [between(dia, Reservas_Temporarias.inicio_reserva, Reservas_Temporarias.fim_reserva)]
+            filtro_temp: list[ColumnElement[bool]] = [between(dia, Reservas_Temporarias.inicio_reserva, Reservas_Temporarias.fim_reserva)]
             if turno is not None:
                 filtro_temp.append(get_aula_turno(turno))
             #dia da semana
@@ -459,7 +463,10 @@ def check_aula_ativa(inicio, fim, aula, semana, tipo, id = None):
             or_(Aulas_Ativas.inicio_ativacao.is_(None), Aulas_Ativas.inicio_ativacao <= fim)
             )
     countl_sel_aulas_ativas = select(func.count()).select_from(Aulas_Ativas).where(*base_filter)
-    if db.session.scalar(countl_sel_aulas_ativas) > 0:
+    res = db.session.scalar(countl_sel_aulas_ativas)
+    if res is None:
+        abort(403)
+    if res > 0:
         raise IntegrityError(
             statement=None,
             params=None,
