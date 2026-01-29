@@ -99,7 +99,7 @@ def get_reservas_temporarias():
     sel_reservas_temporarias = select(Reservas_Temporarias)
     return db.session.execute(sel_reservas_temporarias).scalars().all()
 
-#Reservas Auditorios
+#Reservas Auditorios (usada no CRUD de auditorios)
 def get_reservas_auditorios_database():
     sel_reservas_auditorios = select(Reservas_Auditorios)
     return db.session.execute(sel_reservas_auditorios).scalars().all()
@@ -424,8 +424,8 @@ def get_turno_by_time(hora:time):
     except MultipleResultsFound as e:
         return None
 
-#reservas de auditorio
-def get_reservas_auditorios(id:int, all:bool = False, *args):
+#reservas de auditorio (usada na tela de reserva de auditorios)
+def get_reservas_auditorios_filtrada(id:int, all:bool = False, *args):
     sel_reservas_auditorios = select(Reservas_Auditorios)
     filtro = []
     if not all:

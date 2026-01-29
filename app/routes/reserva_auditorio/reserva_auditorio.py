@@ -11,7 +11,7 @@ from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
 from app.auxiliar.auxiliar_routes import (get_user_info, parse_date_string,
                                           registrar_log_generico_usuario)
 from app.auxiliar.constant import PERM_ADMIN, PERM_AUTORIZAR
-from app.auxiliar.dao import get_auditorios, get_reservas_auditorios
+from app.auxiliar.dao import get_auditorios, get_reservas_auditorios_filtrada
 from app.auxiliar.decorators import reserva_auditorio_required
 from app.models import (Reservas_Auditorios, StatusReservaAuditorioEnum,
                         Usuarios, db)
@@ -45,7 +45,7 @@ def main_page():
             conditions.append(Reservas_Auditorios.dia_reserva >= reserva_dia_inicio)
         if reserva_dia_fim:
             conditions.append(Reservas_Auditorios.dia_reserva <= reserva_dia_fim)
-    extras['reservas_auditorios'] = get_reservas_auditorios(user.pessoa.id_pessoa, user.perm&(PERM_ADMIN+PERM_AUTORIZAR), *conditions)
+    extras['reservas_auditorios'] = get_reservas_auditorios_filtrada(user.pessoa.id_pessoa, user.perm&(PERM_ADMIN+PERM_AUTORIZAR), *conditions)
     return render_template('reserva_auditorio/main.html', user=user, **extras)
 
 def check_own_reserva(reserva:Reservas_Auditorios, user:Usuarios):
