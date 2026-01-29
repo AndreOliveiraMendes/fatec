@@ -1,4 +1,4 @@
-let uiTimeout;
+let uiTimeout = null;
 
 function openReservaModal(data) {
     $('#reservaModal form')[0].reset();
@@ -19,31 +19,19 @@ function openReservaModal(data) {
 }
 
 function DeleteData(data, url_delete) {
-    const ok = confirm(
-        "Tem certeza que deseja excluir esta reserva?\n\n" +
-        "Reserva: " + data.id_reserva + "\n" +
-        "Responsável: " + data.responsavel + "\n" +
-        "Horario: " + data.horario + "\n" +
-        "Local: " + data.local + "\n" +
-        "Semestre: " + data.semestre
-    );
+    // Preenche o modal
+    $('#del-id').text(data.id_reserva);
+    $('#del-responsavel').text(data.responsavel);
+    $('#del-horario').text(data.horario);
+    $('#del-local').text(data.local);
+    $('#del-semestre').text(data.semestre);
 
-    if (!ok) return;
+    // Guarda a URL direto no botão
+    $('#confirm-delete-btn').data('url', url_delete);
 
-    blockUI();
-
-    fetch(url_delete, { method: 'DELETE' })
-        .then(response => {
-            if (!response.ok) throw new Error();
-            alert('Reserva excluída com sucesso.');
-            location.reload();
-        })
-        .catch(() => {
-            alert('Erro ao excluir a reserva.');
-            unblockUI();
-        });
+    // Abre o modal
+    $('#deleteReservaModal').modal('show');
 }
-
 
 function blockUI() {
     document.getElementById('ui-blocker').style.display = 'block';
@@ -57,3 +45,25 @@ function unblockUI() {
     clearTimeout(uiTimeout);
     document.getElementById('ui-blocker').style.display = 'none';
 }
+
+// Evento de submissão do formulário de edição
+
+// Evento de submissão do formulário de exclusão
+$('#confirm-delete-btn').on('click', function () {
+    const url = $(this).data('url');
+    if (!url) return;
+
+    $('#deleteReservaModal').modal('hide');
+    blockUI();
+
+    fetch(url, { method: 'DELETE' })
+        .then(response => {
+            if (!response.ok) throw new Error();
+            alert('Reserva excluída com sucesso.');
+            location.reload();
+        })
+        .catch(() => {
+            alert('Erro ao excluir a reserva.');
+            unblockUI();
+        });
+});

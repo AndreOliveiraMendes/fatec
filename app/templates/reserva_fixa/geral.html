@@ -8,7 +8,7 @@
     {{ generate_reserva_head(locais, 'fixo', turno, semestre=semestre) }}
     <div class="btn-group">
         {{ go_back(contador) }}
-        <a href="{{ url_for('default.home') }}" class="btn btn-default">
+        <a href="{{ url_for("default.home") }}" class="btn btn-default">
             <span class="glyphicon glyphicon-home"></span> Início
         </a>
     </div>
@@ -177,7 +177,8 @@
         </div>
     {% endif %}
     {% if user and user.perm|has_flag(ADMIN) %}
-        {% include "reserva_fixa/modal_reserva.html" %}
+        {% include "reserva_fixa/modal_reserva_editar.html" %}
+        {% include "reserva_fixa/modal_reserva_excluir.html" %}
     {% endif %}
 {% endblock content %}
 {% block extra_script %}

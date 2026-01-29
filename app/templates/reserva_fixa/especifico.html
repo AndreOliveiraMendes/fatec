@@ -9,7 +9,7 @@
     <div class="center-content">
         <div class="btn-group">
             {{ go_back(contador) }}
-            <a href="{{ url_for('default.home') }}" class="btn btn-default">
+            <a href="{{ url_for("default.home") }}" class="btn btn-default">
                 <span class="glyphicon glyphicon-home"></span> Início
             </a>
         </div>
@@ -58,11 +58,7 @@
                                                 {% if user and user.perm|has_flag(ADMIN) %}data-id-reserva="{{ reserva['id'] }}"{% endif %}>
                                                 <span class="sr-only">Reservado</span>
                                                 <!--
-                                                <input type="checkbox"
-                                                       class="form-check-input checkbox-danger"
-                                                       title="{{ reserva['title'] }}"
-                                                       name="reserva[{{ local.id_local }},{{ info[0].id_aula_ativa }}]"
-                                                       disabled>
+                                                <input type="checkbox" class="form-check-input checkbox-danger" title="{{ reserva['title'] }}" name="reserva[{{ local.id_local }},{{ info[0].id_aula_ativa }}]" disabled>
                                                 -->
                                                 {{ reserva['title'].strip().split()[0] }}
                                             </td>
@@ -177,7 +173,8 @@
             </div>
         {% endif %}
         {% if user and user.perm|has_flag(ADMIN) %}
-            {% include "reserva_fixa/modal_reserva.html" %}
+            {% include "reserva_fixa/modal_reserva_editar.html" %}
+            {% include "reserva_fixa/modal_reserva_excluir.html" %}
         {% endif %}
     </div>
 {% endblock content %}
