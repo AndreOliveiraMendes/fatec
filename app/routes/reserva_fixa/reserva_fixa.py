@@ -326,7 +326,7 @@ def efetuar_reserva(id_semestre):
     return redirect(url_for('default.home'))
 
 # helper api (to be moved soon)
-@bp.route('api/reserva/<int:id_reserva>')
+@bp.route('/api/reserva/<int:id_reserva>')
 @reserva_fixa_required
 @admin_required
 def get_reserva_info(id_reserva):
@@ -347,10 +347,60 @@ def get_reserva_info(id_reserva):
         "horario": reserva.aula_ativa.selector_identification,
         "local": reserva.local.nome_local
     }
+    
+@reserva_fixa_required
+@admin_required
+@bp.route('/api/reserva/update/<int:id_reserva>', methods=['POST'])
+def update_reserva(id_reserva):
+    userid = session.get('userid')
+    reserva = db.get_or_404(Reservas_Fixas, id_reserva)
+    data = request.form
+
+    responsavel = none_if_empty(data.get('id_responsavel'), int)
+    responsavel_especial = none_if_empty(data.get('id_responsavel_especial'), int)
+    local = none_if_empty(data.get('id_local'), int)
+    aula = none_if_empty(data.get('id_aula'), int)
+    finalidade_reserva = data.get('finalidade')
+    observacoes = data.get('observacoes')
+    descricao = data.get('descricao')
+    if local is None or aula is None:
+        return Response(status=400)
+
+    try:
+        reserva.id_responsavel = responsavel
+        reserva.id_responsavel_especial = responsavel_especial
+        reserva.id_reserva_local = local
+        reserva.id_reserva_aula = aula
+        reserva.finalidade_reserva = FinalidadeReservaEnum(finalidade_reserva)
+        reserva.observacoes = observacoes
+        reserva.descricao = descricao
+
+        registrar_log_generico_usuario(
+            userid,
+            'Edição',
+            reserva,
+            observacao='através de reserva'
+        )
+        db.session.commit()
+        current_app.logger.info(
+            f"reserva atualizada com sucesso para {reserva} por {userid}"
+        )
+
+        return Response(status=204)
+
+    except (DataError, IntegrityError, InterfaceError,
+            InternalError, OperationalError, ProgrammingError) as e:
+        db.session.rollback()
+        current_app.logger.error(f"falha ao atualizar reserva: {e}")
+        return Response(status=500)
+    except ValueError as ve:
+        db.session.rollback()
+        current_app.logger.error(f"falha ao atualizar reserva: {ve}")
+        return Response(status=500)
 
 @reserva_fixa_required
 @admin_required
-@bp.route('api/reserva/delete/<int:id_reserva>', methods=['DELETE'])
+@bp.route('/api/reserva/delete/<int:id_reserva>', methods=['DELETE'])
 def delete_reserva(id_reserva):
     userid = session.get('userid')
     reserva = db.get_or_404(Reservas_Fixas, id_reserva)

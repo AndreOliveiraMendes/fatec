@@ -1,6 +1,6 @@
 let uiTimeout = null;
 
-function openReservaModal(data) {
+function openReservaModal(data, url_edit) {
     $('#reservaModal form')[0].reset();
     // Preenche os campos de id
     $('#id_reserva').val(data.id_reserva);
@@ -15,6 +15,10 @@ function openReservaModal(data) {
     // Preenche os campos visíveis (auxiliares)
     $('#semestre').val(data.semestre);
 
+    // guarda a URL direto no botao
+    $('#confirm-edit-btn').data('url', url_edit);
+
+    // Abre o modal
     $('#reservaModal').modal('show');
 }
 
@@ -47,6 +51,31 @@ function unblockUI() {
 }
 
 // Evento de submissão do formulário de edição
+$('#modal_edit_reserva').on('submit', function (e) {
+    e.preventDefault();
+
+    const url = $('#confirm-edit-btn').data('url');
+    if (!url) return;
+
+    blockUI();
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: $(this).serialize()
+    })
+    .then(response => {
+        if (!response.ok) throw new Error();
+        alert('Reserva atualizada com sucesso.');
+        location.reload();
+    })
+    .catch(() => {
+        alert('Erro ao atualizar a reserva.');
+        unblockUI();
+    });
+});
 
 // Evento de submissão do formulário de exclusão
 $('#confirm-delete-btn').on('click', function () {
