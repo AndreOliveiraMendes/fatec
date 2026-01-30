@@ -1,7 +1,7 @@
 import copy
 from typing import Any
 
-from flask import Blueprint, flash, render_template, request, session, abort
+from flask import Blueprint, abort, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import and_, func, or_, select
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
