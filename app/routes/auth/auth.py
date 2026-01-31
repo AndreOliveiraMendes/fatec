@@ -1,9 +1,9 @@
 import copy
-from typing import Literal, Tuple, Union
 
 import requests
 from flask import (Blueprint, abort, current_app, flash, redirect,
                    render_template, request, session, url_for)
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from app.auxiliar.auxiliar_routes import (get_user_info, none_if_empty,
                                           registrar_log_generico_sistema)
@@ -15,8 +15,13 @@ from config.general import API_BASIC_PASS, API_BASIC_USER, TOMCAT_API_URL
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
-def check_login(id, password) -> Union[Tuple[Literal[False], None, None], Tuple[Literal[True], int, Usuarios]]:
-    loged, userid, user = False, None, None
+LoginResult = tuple[bool, int | None, Usuarios | None]
+
+def check_login(id, password) -> LoginResult:
+    if API_BASIC_USER is None or API_BASIC_PASS is None:
+        raise RuntimeError("Credenciais da API não configuradas")
+
+    logged, userid, user = False, None, None
     authentication = {
         "login": id,
         "senha": password
@@ -26,7 +31,7 @@ def check_login(id, password) -> Union[Tuple[Literal[False], None, None], Tuple[
         response = requests.post(TOMCAT_API_URL, data=authentication, auth=auth)
 
         if response.status_code == 200:
-            loged = True
+            logged = True
             json = response.json()
             usuario_json = json["usuario"]
 
@@ -43,55 +48,72 @@ def check_login(id, password) -> Union[Tuple[Literal[False], None, None], Tuple[
             if tipo_pessoa == 'ALUNO':
                 abort(403)
 
-            # Pessoas
-            pessoa = db.session.get(Pessoas, id_pessoa)
-            old_pessoa = None
-            if not pessoa:
-                pessoa = Pessoas(id_pessoa=id_pessoa)
-                aux = nome_pessoa.split()
-                if len(aux) > 1:
-                    pessoa.alias = f"{aux[0]} {aux[-1]}"
-            else:
-                old_pessoa = copy.copy(pessoa)
-            pessoa.nome_pessoa = nome_pessoa
-            pessoa.email_pessoa = email_pessoa
-            db.session.add(pessoa)
-
-            # Usuarios
-            user = db.session.get(Usuarios, id_usuario)
-            old_user = None
-            if not user:
-                user = Usuarios(id_usuario=id_usuario)
-            else:
-                old_user = copy.copy(user)
-            user.id_pessoa = id_pessoa
-            user.tipo_pessoa = tipo_pessoa
-            user.situacao_pessoa = situacao_pessoa
-            user.grupo_pessoa = grupo_pessoa
-            db.session.add(user)
-
-            # Permissoes
-            perm = db.session.get(Permissoes, id_usuario)
-            old_perm = None
-            if not perm:
-                if user.grupo_pessoa in ['ADMINISTRADOR', 'REDE']:
-                    permission = PERM_RESERVA_FIXA | PERM_RESERVA_TEMPORARIA | PERM_RESERVA_AUDITORIO | PERM_ADMIN
-                elif user.grupo_pessoa in ['DOCENTE']:
-                    permission = PERM_RESERVA_FIXA | PERM_RESERVA_AUDITORIO
+            try:
+                # Pessoas
+                pessoa = db.session.get(Pessoas, id_pessoa)
+                old_pessoa = None
+                if not pessoa:
+                    pessoa = Pessoas(id_pessoa=id_pessoa)
+                    aux = nome_pessoa.split()
+                    if len(aux) > 1:
+                        pessoa.alias = f"{aux[0]} {aux[-1]}"
                 else:
-                    permission = 0
-                perm=Permissoes(id_permissao_usuario = id_usuario, permissao = permission)
-            else:
-                old_perm = copy.copy(perm)
+                    old_pessoa = copy.copy(pessoa)
+                pessoa.nome_pessoa = nome_pessoa
+                pessoa.email_pessoa = email_pessoa
+                db.session.add(pessoa)
+
+                # Usuarios
+                user = db.session.get(Usuarios, id_usuario)
+                old_user = None
+                if not user:
+                    user = Usuarios(id_usuario=id_usuario)
+                else:
+                    old_user = copy.copy(user)
+                user.id_pessoa = id_pessoa
+                user.tipo_pessoa = tipo_pessoa
+                user.situacao_pessoa = situacao_pessoa
+                user.grupo_pessoa = grupo_pessoa
+                db.session.add(user)
+
+                # Permissoes
+                perm = db.session.get(Permissoes, id_usuario)
+                old_perm = None
+                if not perm:
+                    if user.grupo_pessoa in ['ADMINISTRADOR', 'REDE']:
+                        permission = PERM_RESERVA_FIXA | PERM_RESERVA_TEMPORARIA | PERM_RESERVA_AUDITORIO | PERM_ADMIN
+                    elif user.grupo_pessoa in ['DOCENTE']:
+                        permission = PERM_RESERVA_FIXA | PERM_RESERVA_AUDITORIO
+                    else:
+                        permission = 0
+                    perm=Permissoes(id_permissao_usuario = id_usuario, permissao = permission)
+                else:
+                    old_perm = copy.copy(perm)
+                    
+                db.session.add(perm)
+
+                registrar_log_generico_sistema("Login", pessoa, old_pessoa, skip_unchanged=True)
+                registrar_log_generico_sistema("Login", user, old_user, skip_unchanged=True)
+                registrar_log_generico_sistema("Login", perm, old_perm, skip_unchanged=True)
                 
-            db.session.add(perm)
+                db.session.commit()
 
-            registrar_log_generico_sistema("Login", pessoa, old_pessoa, skip_unchanged=True)
-            registrar_log_generico_sistema("Login", user, old_user, skip_unchanged=True)
-            registrar_log_generico_sistema("Login", perm, old_perm, skip_unchanged=True)
-
-            userid = id_usuario
-            user = user
+                userid = id_usuario
+                user = user
+            
+            # Rollback transaction on any database or data error
+            except (IntegrityError, SQLAlchemyError) as e:
+                db.session.rollback()
+                logged = False
+                userid = None
+                user = None
+                current_app.logger.error(f"Erro de integridade ou de banco: {e}")
+            except (ValueError, TypeError) as e:
+                db.session.rollback()
+                logged = False
+                userid = None
+                user = None
+                current_app.logger.error(f"Erro de dados: {e}")
 
         elif response.status_code == 404:
             flash("Verifique suas credenciais de acesso", "danger")
@@ -105,7 +127,7 @@ def check_login(id, password) -> Union[Tuple[Literal[False], None, None], Tuple[
         current_app.logger.error(f"erro ao conectar: {e}")
         flash("Falha ao conectar à API externa.", "danger")
 
-    return loged, userid, user
+    return logged, userid, user
 
 @bp.route("/login", methods=['GET', 'POST'])
 def login():
@@ -115,8 +137,7 @@ def login():
         userlogin = none_if_empty(request.form.get("userlogin"))
         userpassword = none_if_empty(request.form.get("userpassword"))
         logged, userid, user = check_login(userlogin, userpassword)
-        if logged:
-            db.session.commit()
+        if logged and user:
             session['userid'] = userid
             flash("login realizado com sucesso", "success")
             current_app.logger.info(f"usuario {user.username} efetuou login no sistema")
@@ -135,6 +156,8 @@ def login():
 def logout():
     userid = session.pop('userid') 
     user = get_user_info(userid)
+    if not user:
+        abort(400)
     current_app.logger.info(f"usuario {user.username} efetuou logout no sistema")
     flash("logout realizado com sucesso", "success")
     return render_template("auth/logout.html", user=user)
