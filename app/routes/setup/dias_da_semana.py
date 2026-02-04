@@ -1,3 +1,5 @@
+from typing import Any
+
 from flask import (Blueprint, abort, flash, redirect, render_template, request,
                    session, url_for)
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
@@ -18,7 +20,7 @@ def fast_setup_dias_da_semana():
     userid = session.get('userid')
     user = get_user_info(userid)
     stage = int(request.form.get('stage', request.args.get('stage', 0)))
-    extras = {'extras':SETUP_HEAD}
+    extras: dict[str, Any] = {'extras':SETUP_HEAD}
 
     if stage == 0:
         dias_da_semana = ["domingo", "segunda", "terça", "quarta", "quinta", "sexta", "sabado"]

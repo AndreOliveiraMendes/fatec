@@ -1,4 +1,5 @@
 import copy
+from typing import Any
 
 from flask import Blueprint, abort, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
@@ -28,7 +29,7 @@ def gerenciar_exibicao_reservas():
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
     user = get_user_info(userid)
-    extras = {'url':url}
+    extras: dict[str, Any] = {'url':url}
     if request.method == 'POST':
         if acao == 'listar':
             sel_exibicao = select(Exibicao_Reservas)
@@ -128,6 +129,8 @@ def gerenciar_exibicao_reservas():
             tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
 
             exibicao_da_reserva = db.get_or_404(Exibicao_Reservas, id_exibicao)
+            if id_exibicao_local is None or id_exibicao_aula is None or exibicao_dia is None:
+                abort(400, description="Campos obrigatórios não preenchidos")
             try:
                 dados_anteriores = copy.copy(exibicao_da_reserva)
                 exibicao_da_reserva.id_exibicao_local = id_exibicao_local

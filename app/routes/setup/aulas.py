@@ -1,3 +1,5 @@
+from typing import Any
+
 from flask import (Blueprint, flash, redirect, render_template, request,
                    session, url_for)
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
@@ -17,7 +19,7 @@ def fast_setup_aulas():
     userid = session.get('userid')
     user = get_user_info(userid)
     stage = int(request.form.get('stage', request.args.get('stage', 0)))
-    extras = {'extras':SETUP_HEAD}
+    extras: dict[str, Any] = {'extras':SETUP_HEAD}
     if stage == 1:
         extras['quantidade'] = int(request.args.get('quantidade', 1))
     elif stage == 2:

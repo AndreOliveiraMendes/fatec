@@ -1,4 +1,5 @@
 import copy
+from typing import Any
 
 from flask import Blueprint, abort, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
@@ -29,7 +30,7 @@ def gerenciar_pessoas():
     userid = session.get('userid')
     user = get_user_info(userid)
     disabled = ['inserir', 'excluir']
-    extras = {'url':url}
+    extras: dict[str, Any] = {'url':url}
     disable_action(extras, disabled)
     if request.method == 'POST':
         if acao in disabled:
@@ -114,6 +115,8 @@ def gerenciar_pessoas():
 
             pessoa = db.get_or_404(Pessoas, id_pessoa)
 
+            if nome is None or nome.strip() == "":
+                abort(400, description="O nome da pessoa não pode ser vazio ou nulo.")
             try:
                 # Cria uma cópia dos dados antigos antes de editar
                 dados_anteriores = copy.copy(pessoa)

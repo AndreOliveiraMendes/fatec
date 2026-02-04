@@ -1,4 +1,5 @@
 import copy
+from typing import Any
 
 from flask import Blueprint, abort, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
@@ -29,7 +30,7 @@ def gerenciar_usuarios():
     userid = session.get('userid')
     user = get_user_info(userid)
     disabled = ['inserir', 'editar', 'excluir']
-    extras = {'url':url}
+    extras: dict[str, Any] = {'url':url}
     disable_action(extras, disabled)
     if request.method == 'POST':
         if acao in disabled:
@@ -120,6 +121,12 @@ def gerenciar_usuarios():
 
             usuario = db.get_or_404(Usuarios, id_usuario)
 
+            if id_pessoa is None:
+                abort(400, description="O campo 'id_pessoa' é obrigatório.")
+            if tipo_pessoa is None:
+                abort(400, description="O campo 'tipo_pessoa' é obrigatório.")
+            if situacao_pessoa is None:
+                abort(400, description="O campo 'situacao_pessoa' é obrigatório.")
             try:
                 dados_anteriores = copy.copy(usuario)
 

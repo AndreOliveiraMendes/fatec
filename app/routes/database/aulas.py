@@ -1,6 +1,7 @@
 import copy
+from typing import Any
 
-from flask import Blueprint, flash, render_template, request, session
+from flask import Blueprint, abort, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
@@ -28,7 +29,7 @@ def gerenciar_aulas():
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
     user = get_user_info(userid)
-    extras = {'url':url}
+    extras: dict[str, Any] = {'url':url}
     if request.method == 'POST':
         if acao == 'listar':
             sel_aulas = select(Aulas)
@@ -102,6 +103,8 @@ def gerenciar_aulas():
             horario_inicio = parse_time_string(request.form.get('horario_inicio'))
             horario_fim = parse_time_string(request.form.get('horario_fim'))
             aula = db.get_or_404(Aulas, id_aula)
+            if horario_inicio is None or horario_fim is None:
+                abort(400, description="Horário de início e fim são obrigatórios.")
             try:
                 dados_anteriores = copy.copy(aula)
                 aula.horario_inicio = horario_inicio

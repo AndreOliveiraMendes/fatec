@@ -1,5 +1,6 @@
 import csv
 from io import StringIO
+from typing import Any
 
 from flask import (Blueprint, Response, abort, flash, jsonify, render_template,
                    request, session)
@@ -88,11 +89,11 @@ def gerenciar_historicos():
     user = get_user_info(userid)
     disabled = ['inserir', 'editar', 'excluir']
     include = [{'label':"Exportar", 'value':"exportar", 'icon':"glyphicon-download"}]
-    extras = {'url':url}
+    extras: dict[str, Any] = {'url':url}
     disable_action(extras, disabled)
     include_action(extras, include)
     user_agent = request.headers.get('User-Agent')
-    is_mobile = 'Mobile' in user_agent
+    is_mobile = 'Mobile' in user_agent if user_agent else False
     extras['is_mobile'] = is_mobile
     if request.method == 'POST':
         if acao in disabled:
@@ -132,7 +133,10 @@ def gerenciar_historicos():
             data_filter, sel_historicos, query_params = get_data()
             if data_filter:
                 sel_historicos = sel_historicos.where(*data_filter)
-            sel_count_historicos = select(func.count()).select_from(sel_historicos)
+            sel_count_historicos = (
+                select(func.count())
+                .select_from(sel_historicos.subquery())
+            )
             extras['count'] = db.session.execute(sel_count_historicos).scalar()
             extras['query_params'] = query_params
     if redirect_action:

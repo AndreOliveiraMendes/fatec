@@ -1,6 +1,7 @@
 import copy
+from typing import Any
 
-from flask import Blueprint, flash, render_template, request, session
+from flask import Blueprint, abort, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
@@ -29,7 +30,7 @@ def gerenciar_situacoes_das_reservas():
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
     user = get_user_info(userid)
-    extras = {'url':url}
+    extras: dict[str, Any] = {'url':url}
     if request.method == 'POST':
         if acao == 'listar':
             sel_situacoes = select(Situacoes_Das_Reserva)
@@ -135,6 +136,8 @@ def gerenciar_situacoes_das_reservas():
             tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
 
             situacao_da_reserva = db.get_or_404(Situacoes_Das_Reserva, id_situacao)
+            if id_situacao_local is None or id_situacao_aula is None or situacao_dia is None or situacao_chave is None:
+                abort(400, description="Campos obrigatórios não preenchidos.")
             try:
                 dados_anteriores = copy.copy(situacao_da_reserva)
                 situacao_da_reserva.id_situacao_local = id_situacao_local

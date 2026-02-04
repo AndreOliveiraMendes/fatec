@@ -1,6 +1,7 @@
 import copy
+from typing import Any
 
-from flask import Blueprint, flash, render_template, request, session
+from flask import Blueprint, abort, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
@@ -30,7 +31,7 @@ def gerenciar_reservas_fixas():
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
     user = get_user_info(userid)
-    extras = {'url':url}
+    extras: dict[str, Any] = {'url':url}
     if request.method == 'POST':
         if acao == 'listar':
             sel_reservas = select(Reservas_Fixas)
@@ -166,6 +167,11 @@ def gerenciar_reservas_fixas():
             observacoes = none_if_empty(request.form.get('observacoes'))
             descricao = none_if_empty(request.form.get('descricao'))
             reserva_fixa = db.get_or_404(Reservas_Fixas, id_reserva_fixa)
+            
+            if tipo_responsavel is None or (tipo_responsavel == 1 and id_responsavel is None) or (tipo_responsavel == 2 and id_responsavel_especial is None):
+                abort(400, description="Tipo de responsável inconsistente com os dados fornecidos.")
+            if id_reserva_local is None or id_reserva_aula is None or id_reserva_semestre is None or finalidade_reserva is None:
+                abort(400, description="Dados de reserva incompletos.")
             try:
                 dados_anteriores = copy.copy(reserva_fixa)
                 reserva_fixa.id_responsavel = id_responsavel

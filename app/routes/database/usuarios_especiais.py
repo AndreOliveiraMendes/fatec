@@ -1,6 +1,7 @@
 import copy
+from typing import Any
 
-from flask import Blueprint, flash, render_template, request, session
+from flask import Blueprint, abort, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
@@ -28,7 +29,7 @@ def gerenciar_usuarios_especiais():
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
     user = get_user_info(userid)
-    extras = {'url':url}
+    extras: dict[str, Any] = {'url':url}
     if request.method == 'POST':
         if acao == "listar":
             sel_users = select(Usuarios_Especiais)
@@ -94,6 +95,8 @@ def gerenciar_usuarios_especiais():
             nome_usuario_especial = none_if_empty(request.form.get('nome_usuario_especial'))
 
             usuario_especial = db.get_or_404(Usuarios_Especiais, id_usuario_especial)
+            if nome_usuario_especial is None:
+                abort(400, description="Nome do usuario especial é obrigatório.")
             try:
                 dados_anteriores = copy.copy(usuario_especial)
 

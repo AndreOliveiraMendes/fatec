@@ -1,6 +1,7 @@
 import copy
+from typing import Any
 
-from flask import Blueprint, flash, render_template, request, session
+from flask import Blueprint, abort, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import and_, select
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
@@ -43,7 +44,7 @@ def gerenciar_reservas_temporarias():
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
     user = get_user_info(userid)
-    extras = {'url':url}
+    extras: dict[str, Any] = {'url':url}
     if request.method == 'POST':
         if acao == 'listar':
             sel_reservas = select(Reservas_Temporarias)
@@ -177,11 +178,20 @@ def gerenciar_reservas_temporarias():
             observacoes = none_if_empty(request.form.get('observacoes'))
             descricao = none_if_empty(request.form.get('descricao'))
             reserva_temporaria = db.get_or_404(Reservas_Temporarias, id_reserva_temporaria)
+            
+            if tipo_responsavel is None or (tipo_responsavel == 1 and id_responsavel is None) or (tipo_responsavel == 2 and id_responsavel_especial is None):
+                abort(400, description="Tipo de responsável inconsistente com os dados fornecidos.")
+            if id_reserva_local is None or id_reserva_aula is None or finalidade_reserva is None:
+                abort(400, description="Dados de reserva incompletos.")
+            if finalidade_reserva is None:
+                abort(400, description="Finalidade da reserva não especificada.")
+            if inicio_reserva is None or fim_reserva is None:
+                abort(400, description="Intervalo de reserva incompleto.")
             try:
                 dados_anteriores = copy.copy(reserva_temporaria)
                 reserva_temporaria.id_responsavel = id_responsavel
                 reserva_temporaria.id_responsavel_especial = id_responsavel_especial
-                reserva_temporaria.finalidade_reserva = finalidade_reserva
+                reserva_temporaria.tipo_responsavel = tipo_responsavel
                 reserva_temporaria.id_reserva_local = id_reserva_local
                 reserva_temporaria.id_reserva_aula = id_reserva_aula
                 reserva_temporaria.inicio_reserva = inicio_reserva
