@@ -100,6 +100,13 @@
                         </div>
                   {% endblock navigation %}
             {% endblock body %}
+            <div id="ui-blocker" class="ui-blocker">
+                  <div class="ui-blocker-content">
+                        <span class="glyphicon glyphicon-refresh glyphicon-spin"></span>
+                        <br>
+                        Processando...
+                  </div>
+            </div>
             <!-- JS Scripts -->
             <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
             <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>

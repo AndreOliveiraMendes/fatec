@@ -1,10 +1,16 @@
-$margins: 0, 5, 8, 10, 15, 20, 25;
+$sizes: (
+  0:  0px,
+  5:  5px,
+  8:  8px,
+  10: 10px,
+  15: 15px,
+  20: 20px,
+  25: 25px,
+);
 
-@each $size in $margins {
-    $val: $size * 1px;
-
-    .margin-left-#{$size}  { margin-left:  $val; }
-    .margin-right-#{$size} { margin-right: $val; }
-    .margin-top-#{$size}   { margin-top:   $val; }
-    .margin-bottom-#{$size}{ margin-bottom:$val; }
+@each $name, $value in $sizes {
+  .margin-left-#{$name}  { margin-left:   $value; }
+  .margin-right-#{$name} { margin-right:  $value; }
+  .margin-top-#{$name}   { margin-top:    $value; }
+  .margin-bottom-#{$name}{ margin-bottom: $value; }
 }

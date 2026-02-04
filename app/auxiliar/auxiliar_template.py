@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List, Literal, Optional, Sequence, Tuple
 
-from flask import Flask, session, url_for
+from flask import Flask, abort, session, url_for
 from markupsafe import Markup
 from sqlalchemy import between, select
 
@@ -143,6 +143,8 @@ def register_filters(app:Flask):
     @app.template_global()
     def generate_reserva_head(locais:Sequence[Locais], tipo, turno: Turnos, current: Optional[Locais] = None, **kwargs) -> Markup:
         user = get_user_info(session.get('userid'))
+        if not user:
+            abort(403)
 
         html_parts = ['<div class="pills-group"><ul class="nav nav-pills">']
         

@@ -25,6 +25,7 @@ from config.json_related import (load_commands, load_ssh_credentials,
 
 bp = Blueprint('api', __name__, url_prefix='/api')
 
+# Periods Management APIs
 @bp.route('times/periodos')
 def api_listar_periodos():
     page = int(request.args.get('page', 1))
@@ -298,7 +299,7 @@ def api_desativar():
     today = datetime.now(LOCAL_TIMEZONE).date()
     data_desativacao = parse_date_string(data.get("data_desativacao")) or today
 
-    if data_desativacao < aula_ativa.inicio_ativacao:
+    if aula_ativa.inicio_ativacao and data_desativacao < aula_ativa.inicio_ativacao:
         return jsonify({"error": "Data de desativação não pode ser anterior ao início da ativação."}), 400
 
     if aula_ativa.fim_ativacao and aula_ativa.fim_ativacao < today:
@@ -394,6 +395,7 @@ def api_get_times():
         })
     return jsonify(result)
 
+# SSH Credentials Management APIs
 @bp.route("/ssh/list", methods=["GET"])
 @admin_required
 def api_ssh_list():
@@ -528,7 +530,7 @@ def api_ssh_test(cred_id):
                     passphrase = decrypt_field(passphrase_enc)
                 except Exception as e:
                     return jsonify({"success": False, "error": f"Falha ao descriptografar senha da chave: {e}"})
-            if not key_str.strip():
+            if not (key_str and key_str.strip()):
                 return jsonify({"success": False, "error": "Nenhuma chave fornecida para autenticação por chave."}), 400
 
             import io
@@ -613,6 +615,7 @@ def api_ssh_execute(cred_id):
     finally:
         client.close()
 
+# Command Management APIs
 @bp.route("commands/list", methods=["GET"])
 @admin_required
 def api_list_commands():
@@ -817,9 +820,9 @@ def run_remote_command(cred_ssh, command):
 @bp.route("/run_command", methods=["POST"])
 @admin_required
 def api_run_command():
-    from datetime import datetime
+    
 
-    from flask import current_app, jsonify, request, session
+    
 
     data = request.get_json(force=True)
     cmd_id = data.get("cmd_id")
@@ -828,7 +831,10 @@ def api_run_command():
 
     # 1️⃣ — Identifica o usuário atual (pra log)
     userid = session.get("userid")
-    user = get_user_info(userid)  # ajusta conforme tua função existente
+    user = get_user_info(userid)
+    if not user:
+        return jsonify({"success": False, "error": "Usuário não encontrado."}), 404
+    
 
     # 2️⃣ — Carrega o comando
     comandos = load_commands()

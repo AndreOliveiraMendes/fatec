@@ -1,23 +1,26 @@
 import enum
 from datetime import date, datetime, timedelta
-from typing import Literal, Type, TypeVar
+from typing import (Any, Callable, Literal, MutableMapping, Optional, Type,
+                    TypeVar)
 
 from flask import abort, redirect, session, url_for
-from sqlalchemy import select
+from flask.typing import ResponseReturnValue
+from sqlalchemy import and_, select
 from sqlalchemy.exc import MultipleResultsFound
 from sqlalchemy.inspection import inspect
 
 from app.auxiliar.constant import PERM_ADMIN
-from app.models import (Base, Historicos, Locais, OrigemEnum, Permissoes,
-                        Pessoas, Reservas_Fixas, Reservas_Temporarias,
-                        Usuarios, Usuarios_Especiais, db)
+from app.models import (Base, Historicos, Locais, OrigemEnum, Pessoas,
+                        Reservas_Fixas, Reservas_Temporarias, Usuarios,
+                        Usuarios_Especiais, db)
 from config.general import AFTER_ACTION, LOCAL_TIMEZONE
 
 IGNORED_FORM_FIELDS = ['page', 'acao', 'bloco']
 
 T = TypeVar("T", bound=Base)
+V = TypeVar("V")
 
-def none_if_empty(value, cast_type=str):
+def none_if_empty(value:Any, cast_type: Callable[[Any], V] = str) -> Optional[V]:
     if value is None:
         return None
     # Se for string, verifica se está vazia ou só com espaços
@@ -184,7 +187,7 @@ def include_action(extras, include):
 def get_session_or_request(request, session, key, default = None):
     return session.pop(key, request.form.get(key, default))
 
-def register_return(url, acao, extras = None, bloco = 0, **args):
+def register_return(url:str, acao:str, extras:Optional[MutableMapping[str, Any]] = None, bloco:int = 0, **args: Any) -> tuple[ResponseReturnValue | None, int | None]:
     if AFTER_ACTION == 'noredirect':
         ret_bloco = bloco
         if extras is not None:
@@ -195,6 +198,8 @@ def register_return(url, acao, extras = None, bloco = 0, **args):
         if AFTER_ACTION == 'redirectback':
             session['acao'] = acao
         return redirect(url_for(url)), None
+    else:
+        raise ValueError(f"Configuração AFTER_ACTION inválida: {AFTER_ACTION}")
 
 def time_range(start:date, end:date, step:int = 1):
     day = start
@@ -231,3 +236,35 @@ def check_local(local:Locais, perm):
         return
     if local.disponibilidade.value == 'Indisponivel':
         abort(403)
+
+def builder_helper_fixa(id_semestre:int, id_lab: int|None=None):
+    """Monta helper de reservas fixas indexado por (local, aula)."""
+    conditions = [Reservas_Fixas.id_reserva_semestre == id_semestre]
+    if id_lab is not None:
+        conditions.append(Reservas_Fixas.id_reserva_local == id_lab)
+    sel_reservas = select(Reservas_Fixas).where(*conditions)
+    reservas = db.session.execute(sel_reservas).scalars().all()
+    helper = {}
+    for r in reservas:
+        title = get_responsavel_reserva(r)
+        helper[(r.id_reserva_local, r.id_reserva_aula)] = {"title": title, "id":r.id_reserva_fixa}
+    return helper
+
+def builder_helper_temporaria(inicio, fim, id_lab: int|None=None):
+    conditions = [
+        and_(
+            Reservas_Temporarias.inicio_reserva <= fim,
+            Reservas_Temporarias.fim_reserva >= inicio
+        )
+    ]
+    if id_lab is not None:
+        conditions.append(Reservas_Temporarias.id_reserva_local == id_lab)
+    sel_reservas = select(Reservas_Temporarias).where(*conditions)
+    reservas = db.session.execute(sel_reservas).scalars().all()
+    helper = {}
+    for r in reservas:
+        title = get_responsavel_reserva(r)
+        days = [day.strftime('%Y-%m-%d') for day in time_range(r.inicio_reserva, r.fim_reserva, 7)]
+        for day in days:
+            helper[(r.id_reserva_local, r.id_reserva_aula, day)] = title
+    return helper

@@ -9,7 +9,7 @@
     <div class="center-content">
         <div class="btn-group">
             {{ go_back(contador) }}
-            <a href="{{ url_for('default.home') }}" class="btn btn-default">
+            <a href="{{ url_for("default.home") }}" class="btn btn-default">
                 <span class="glyphicon glyphicon-home"></span> Início
             </a>
         </div>
@@ -28,7 +28,7 @@
                 <strong>Horário:</strong> 00:00 às 23:59
             {% endif %}
             <br>
-            <strong>Horarios disponiveis:</strong> {{ aulas|length }} <strong>Local:</strong> {{ local.nome_local }}
+            <strong>Horarios disponiveis:</strong> {{ head1|length }} <strong>Local:</strong> {{ local.nome_local }}
             <br>
             <strong>Especificação:</strong> {{ local.descrição }}
         </p>
@@ -42,7 +42,7 @@
                     <thead>
                         <tr class="information">
                             <th>Dias da semana</th>
-                            {% for aula in aulas %}<th>{{ aula.horario_inicio|hora }} - {{ aula.horario_fim|hora }}</th>{% endfor %}
+                            {% for aula in head1 %}<th>{{ aula.horario_inicio|hora }} - {{ aula.horario_fim|hora }}</th>{% endfor %}
                         </tr>
                     </thead>
                     <tbody>
@@ -51,15 +51,16 @@
                                 <td>{{ semana['semana'].nome_semana }}</td>
                                 {% for info in semana['infos'] %}
                                     {% if info %}
-                                        {% set reservado = helper[(local.id_local, info[0].id_aula_ativa)] %}
-                                        {% if reservado %}
-                                            <td class="reservado" title="{{ reservado }}">
+                                        {% set reserva = helper[(local.id_local, info[0].id_aula_ativa)] %}
+                                        {% if reserva %}
+                                            <td class="reservado"
+                                                title="{{ reserva['title'] }}"
+                                                {% if user and user.perm|has_flag(ADMIN) %}data-id-reserva="{{ reserva['id'] }}"{% endif %}>
                                                 <span class="sr-only">Reservado</span>
-                                                <input type="checkbox"
-                                                       class="form-check-input checkbox-danger"
-                                                       title="{{ reservado }}"
-                                                       name="reserva[{{ local.id_local }},{{ info[0].id_aula_ativa }}]"
-                                                       disabled>
+                                                <!--
+                                                <input type="checkbox" class="form-check-input checkbox-danger" title="{{ reserva['title'] }}" name="reserva[{{ local.id_local }},{{ info[0].id_aula_ativa }}]" disabled>
+                                                -->
+                                                {{ reserva['title'].strip().split()[0] }}
                                             </td>
                                         {% else %}
                                             <td>
@@ -171,6 +172,10 @@
                 </div>
             </div>
         {% endif %}
+        {% if user and user.perm|has_flag(ADMIN) %}
+            {% include "reserva_fixa/modal_reserva_editar.html" %}
+            {% include "reserva_fixa/modal_reserva_excluir.html" %}
+        {% endif %}
     </div>
 {% endblock content %}
 {% block extra_script %}
@@ -194,4 +199,34 @@
         document.getElementById('finalidade_reserva').dispatchEvent(new Event('change'));
     });
     </script>
+    {% if user and user.perm|has_flag(ADMIN) %}
+        <script src="{{ url_for('static', filename='js/reserva_fixa_modal.js') }}"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                document.addEventListener("click", function (e) {
+                    const td = e.target.closest("td.reservado");
+                    if (!td) return;
+
+                    const altPressed = e.altKey;
+                    const id = td.dataset.idReserva;
+                    const url = {{ url_for('reservas_semanais.get_reserva_info', id_reserva='0')|tojson }};
+                    const url_delete = {{ url_for('reservas_semanais.delete_reserva', id_reserva='0')|tojson }};
+                    const url_edit = {{ url_for('reservas_semanais.update_reserva', id_reserva='0')|tojson }};
+
+                    fetch(url.replace('0', id))
+                        .then(r => r.json())
+                        .then(data => {
+                            if (altPressed) {
+                                DeleteData(data, url_delete.replace('0', id));
+                            } else {
+                                openReservaModal(data, url_edit.replace('0', id));
+                            }
+                        })
+                        .catch(err =>
+                            alert("Erro ao carregar reserva devido a: " + err)
+                        );
+                });
+            });
+        </script>
+    {% endif %}
 {% endblock extra_script %}

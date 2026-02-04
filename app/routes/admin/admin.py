@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 from importlib.resources import as_file
 from pathlib import Path
+from typing import Any
 
 from flask import (Blueprint, redirect, render_template, request, session,
                    url_for)
@@ -94,7 +95,7 @@ def control_times():
     userid = session.get('userid')
     user = get_user_info(userid)
     hoje = datetime.now(LOCAL_TIMEZONE).date()
-    extras = {'hoje': hoje}
+    extras: dict[str, Any] = {'hoje': hoje}
     extras['dias_da_semana'] = db.session.execute(
         select(Dias_da_Semana).order_by(Dias_da_Semana.id_semana)
     ).scalars().all()
