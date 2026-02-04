@@ -1,0 +1,20 @@
+{% extends "base-fixed" %}
+{% block title %}
+    {{ code }} - {{ title }}
+{% endblock title %}
+{% block content %}
+    <div class="alert alert-warning" role="alert">
+        <h3>{{ code }} - {{ title }}</h3>
+        {% if message %}
+            <p>{{ message }}</p>
+        {% else %}
+            <p>Mensagem de erro não disponível.</p>
+        {% endif %}
+    </div>
+    <div class="btn-group">
+        <a href="{{ url_for("default.home") }}" class="btn btn-info"><span class="glyphicon glyphicon-home"></span> Voltar à página de início</a>
+        {% if code == 401 %}
+            <a href="{{ url_for("auth.login") }}" class="btn btn-success"><span class="glyphicon glyphicon-log-in"></span> Ir para Login</a>
+        {% endif %}
+    </div>
+{% endblock content %}

@@ -88,3 +88,13 @@ ERROR_MESSAGES = {
     422: "Entidade não processável.",
     500: "Erro Interno do Servidor"
 }
+
+ERROR_TITLES = {
+    400: "Requisição inválida",
+    401: "Não autorizado",
+    403: "Acesso negado",
+    404: "Página não encontrada",
+    409: "Conflito",
+    422: "Entidade não processável",
+    500: "Erro Interno do Servidor"
+}
