@@ -33,10 +33,19 @@ SHOW_DEBUG_ERRORS = str_to_bool(os.getenv("SHOW_DEBUG_ERRORS", "False"))
 AUTO_CREATE_MYSQL = str_to_bool(os.getenv("AUTO_CREATE_MYSQL", "False"))
 
 # api
-TOMCAT_PROTOCOL = os.getenv("TOMCAT_PROTOCOL", "http")
-TOMCAT_HOST = os.getenv("TOMCAT_HOST", "127.0.0.1")
-TOMCAT_PORT = os.getenv("TOMCAT_PORT", "5001")
-TOMCAT_API_URL = f"{TOMCAT_PROTOCOL}://{TOMCAT_HOST}:{TOMCAT_PORT}/autenticar/json"
+API_BASIC_PROTOCOL = os.getenv("API_BASIC_PROTOCOL", os.getenv("TOMCAT_PROTOCOL", "http"))
+API_BASIC_HOST = os.getenv("API_BASIC_HOST", os.getenv("TOMCAT_HOST", "127.0.0.1"))
+API_BASIC_PORT = os.getenv("API_BASIC_PORT", os.getenv("TOMCAT_PORT"))
+
+# checks for accidental None values from env
+if API_BASIC_PORT:
+    API_BASIC_PORT = API_BASIC_PORT.strip().lower()
+    if API_BASIC_PORT in ("none", "null"):
+        API_BASIC_PORT = None
+
+# builds the final url and then get the api user and pass
+API_FINAL_PORT = f":{API_BASIC_PORT}" if API_BASIC_PORT else ""
+API_BASIC_URL = f"{API_BASIC_PROTOCOL}://{API_BASIC_HOST}{API_FINAL_PORT}/autenticar/json"
 API_BASIC_USER = os.getenv("API_BASIC_USER")
 API_BASIC_PASS = os.getenv("API_BASIC_PASS")
 

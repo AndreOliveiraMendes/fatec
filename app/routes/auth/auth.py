@@ -11,7 +11,7 @@ from app.auxiliar.constant import (PERM_ADMIN, PERM_RESERVA_AUDITORIO,
                                    PERM_RESERVA_FIXA, PERM_RESERVA_TEMPORARIA)
 from app.auxiliar.decorators import login_required
 from app.models import Permissoes, Pessoas, Usuarios, db
-from config.general import API_BASIC_PASS, API_BASIC_USER, TOMCAT_API_URL
+from config.general import API_BASIC_PASS, API_BASIC_USER, API_BASIC_URL
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -28,7 +28,7 @@ def check_login(id, password) -> LoginResult:
     }
     auth = (API_BASIC_USER, API_BASIC_PASS)
     try:
-        response = requests.post(TOMCAT_API_URL, data=authentication, auth=auth)
+        response = requests.post(API_BASIC_URL, data=authentication, auth=auth)
 
         if response.status_code == 200:
             logged = True
