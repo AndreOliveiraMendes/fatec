@@ -27,7 +27,7 @@ def fast_setup_dias_da_semana():
         fdow = FIRST_DAY_OF_WEEK.lower()
 
         if fdow not in dias_da_semana or INDEX_START not in (0, 1):
-            abort(400)
+            abort(400, "Configuração inválida do primeiro dia da semana ou do índice inicial.")
 
         # Gira a lista para que o primeiro dia da semana seja o configurado
         while dias_da_semana[0] != fdow:

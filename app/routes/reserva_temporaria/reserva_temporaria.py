@@ -50,7 +50,7 @@ def main_page():
         dia_inicial = parse_date_string(request.form.get('dia_inicio'))
         dia_final = parse_date_string(request.form.get('dia_fim'))
         if not dia_inicial or not dia_final:
-            abort(400)
+            abort(400, description="datas invalidas")
         if dia_inicial > dia_final:
             dia_inicial, dia_final = dia_final, dia_inicial
         return redirect(url_for('reservas_temporarias.dias', inicio=dia_inicial, fim=dia_final))
@@ -104,6 +104,8 @@ def get_lab(inicio, fim, id_turno=None, id_lab=None):
 def get_lab_geral(inicio, fim, id_turno):
     userid = session.get('userid')
     user = get_user_info(userid)
+    if not user:
+        abort(404, description="usuario não encontrado")
     turno = db.get_or_404(Turnos, id_turno) if id_turno else None
     extras = {'inicio':inicio, 'fim':fim, 'turno':turno}
     tipo_horario = none_if_empty(session.get('tipo'))
@@ -111,7 +113,7 @@ def get_lab_geral(inicio, fim, id_turno):
         tipo_horario = TipoAulaEnum(tipo_horario)
     except ValueError as ve:
         current_app.logger.error(f"error:{ve}")
-        abort(400)
+        abort(400, description="tipo de horario invalido")
     locais = get_laboratorios(user.perm&PERM_ADMIN > 0)
     dias = [(dia, turno) for dia in time_range(inicio, fim)]
     aulas = get_aulas_ativas_por_lista_de_dias(dias, tipo_horario)
@@ -144,6 +146,8 @@ def get_lab_geral(inicio, fim, id_turno):
 def get_lab_especifico(inicio, fim, id_turno, id_lab):
     userid = session.get('userid')
     user = get_user_info(userid)
+    if not user:
+        abort(404, description="usuario não encontrado")
     turno = db.get_or_404(Turnos, id_turno) if id_turno else None
     extras = {'inicio':inicio, 'fim':fim, 'turno':turno}
     tipo_horario = none_if_empty(session.get('tipo'))
@@ -151,7 +155,7 @@ def get_lab_especifico(inicio, fim, id_turno, id_lab):
         tipo_horario = TipoAulaEnum(tipo_horario)
     except ValueError as ve:
         current_app.logger.error(f"error:{ve}")
-        abort(400)
+        abort(400, description="tipo de horario invalido")
     local = db.get_or_404(Locais, id_lab)
     check_local(local, user.perm)
     extras['local'] = local
@@ -194,7 +198,7 @@ def get_lab_especifico(inicio, fim, id_turno, id_lab):
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
     extras['contador'] = session.get('contador')
-    extras['locais'] = get_laboratorios(user.perm&PERM_ADMIN)
+    extras['locais'] = get_laboratorios(user.perm&PERM_ADMIN > 0)
     return render_template('reserva_temporaria/especifico.html', user=user, **extras)
 
 
@@ -259,7 +263,8 @@ def efetuar_reserva(inicio, fim):
 
         db.session.commit()
         flash("reserva efetuada com sucesso", "success")
-        current_app.logger.info(f"reserva efetuada com sucesso para {reserva}")
+        for reserva in reservas_efetuadas:
+            current_app.logger.info(f"reserva efetuada com sucesso para {reserva}")
     except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
         db.session.rollback()
         flash(f"Erro ao efetuar reserva:{str(e.orig)}", "danger")
@@ -267,5 +272,5 @@ def efetuar_reserva(inicio, fim):
     except ValueError as ve:
         db.session.rollback()
         flash(f"Erro ao efetuar reserva:{str(ve)}", "danger")
-        current_app.logger.error(f"falha ao realizar reserva:{e}")
+        current_app.logger.error(f"falha ao realizar reserva:{ve}")
     return redirect(url_for('default.home'))

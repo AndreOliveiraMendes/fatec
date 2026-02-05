@@ -46,7 +46,7 @@ def check_login(id, password) -> LoginResult:
             email_pessoa = pessoa.get("email")
 
             if tipo_pessoa == 'ALUNO':
-                abort(403)
+                abort(403, description="Acesso negado para alunos.")
 
             try:
                 # Pessoas
@@ -157,7 +157,7 @@ def logout():
     userid = session.pop('userid') 
     user = get_user_info(userid)
     if not user:
-        abort(400)
+        abort(400, description="Usuário inválido.")
     current_app.logger.info(f"usuario {user.username} efetuou logout no sistema")
     flash("logout realizado com sucesso", "success")
     return render_template("auth/logout.html", user=user)

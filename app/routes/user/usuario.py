@@ -1,5 +1,6 @@
 import copy
 from datetime import datetime
+from typing import Any
 
 from flask import (Blueprint, abort, flash, redirect, render_template, request,
                    session, url_for)
@@ -22,6 +23,8 @@ bp = Blueprint('usuario', __name__, url_prefix='/usuario')
 
 def get_reservas_fixas(userid, semestre, page, all=False):
     user = db.session.get(Usuarios, userid)
+    if not user:
+        abort(404, description="Usuário não encontrado.")
     filtro = []
     if not all:
         filtro.append(Reservas_Fixas.id_responsavel == user.pessoa.id_pessoa)
@@ -39,6 +42,8 @@ def get_reservas_fixas(userid, semestre, page, all=False):
 
 def get_reservas_temporarias(userid, dia, page, all=False):
     user = db.session.get(Usuarios, userid)
+    if not user:
+        abort(404, description="Usuário não encontrado.")
     filtro = []
     if not all:
         filtro.append(Reservas_Temporarias.id_responsavel == user.pessoa.id_pessoa)
@@ -75,12 +80,14 @@ def menu_reservas_usuario():
 def gerenciar_reserva_fixa():
     userid = session.get('userid')
     user = get_user_info(userid)
+    if not user:
+        abort(404, description="Usuário não encontrado.")
     semestres = get_semestres()
     if not semestres:
         flash("nenhum semestre definido", "danger")
         return redirect(url_for('default.home'))
     today = datetime.now(LOCAL_TIMEZONE)
-    extras = {'datetime':today}
+    extras: dict[str, Any] = {'datetime':today}
     extras['semestres'] = semestres
     semestre_id = request.args.get("semestre", type=int)
     page = int(request.args.get("page", 1))
@@ -100,8 +107,10 @@ def gerenciar_reserva_fixa():
 def gerenciar_reserva_temporaria():
     userid = session.get('userid')
     user = get_user_info(userid)
+    if not user:
+        abort(404, description="Usuário não encontrado.")
     today = datetime.now(LOCAL_TIMEZONE)
-    extras = {'datetime':today}
+    extras: dict[str, Any] = {'datetime':today}
     dia = parse_date_string(request.args.get('dia'))
     page = int(request.args.get("page", 1))
     all = "all" in request.args and user.perm&PERM_ADMIN > 0
@@ -120,7 +129,7 @@ def check_ownership_or_admin(reserva:Reservas_Fixas|Reservas_Temporarias):
     user = db.get_or_404(Usuarios, userid)
     perm = db.session.get(Permissoes, userid)
     if reserva.id_responsavel != user.pessoa.id_pessoa and (not perm or perm.permissao&PERM_ADMIN == 0):
-        abort(403)
+        abort(403, description="Acesso negado à reserva de outro usuário.")
 
 def info_reserva_fixa(id_reserva):
     reserva = db.get_or_404(Reservas_Fixas, id_reserva)
@@ -162,7 +171,7 @@ def get_info_reserva(tipo_reserva, id_reserva):
     elif tipo_reserva == 'temporaria':
         return info_reserva_temporaria(id_reserva)
     else:
-        abort(400)
+        abort(400, description="Tipo de reserva inválido.")
 
 def cancelar_reserva_generico(modelo, id_reserva, redirect_url):
     userid = session.get('userid')
@@ -187,7 +196,7 @@ def cancelar_reserva(tipo_reserva, id_reserva):
     elif tipo_reserva == 'temporaria':
         return cancelar_reserva_generico(Reservas_Temporarias, id_reserva, url_for('usuario.gerenciar_reserva_temporaria'))
     else:
-        abort(400)
+        abort(400, description="Tipo de reserva inválido.")
 
 def editar_reserva_generico(model, id_reserva, redirect_url):
     userid = session.get('userid')
@@ -238,4 +247,4 @@ def editar_reserva(tipo_reserva, id_reserva):
     elif tipo_reserva == 'temporaria':
         return editar_reserva_generico(Reservas_Temporarias, id_reserva, url_for('usuario.gerenciar_reserva_temporaria'))
     else:
-        abort(400)
+        abort(400, description="Tipo de reserva inválido.")

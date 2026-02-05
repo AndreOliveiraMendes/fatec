@@ -1,6 +1,6 @@
 from copy import copy
 from datetime import datetime
-from typing import Literal
+from typing import Any, Literal
 
 from flask import (Blueprint, abort, flash, redirect, render_template, request,
                    session, url_for)
@@ -8,7 +8,8 @@ from sqlalchemy import func, select
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
                             InternalError, OperationalError, ProgrammingError)
 
-from app.auxiliar.auxiliar_routes import (get_user_info, parse_date_string,
+from app.auxiliar.auxiliar_routes import (get_user_info, none_if_empty,
+                                          parse_date_string,
                                           registrar_log_generico_usuario)
 from app.auxiliar.constant import PERM_ADMIN, PERM_AUTORIZAR
 from app.auxiliar.dao import get_auditorios, get_reservas_auditorios_filtrada
@@ -25,11 +26,13 @@ def main_page():
     userid = session.get('userid')
     user = get_user_info(userid)
     today = datetime.now(LOCAL_TIMEZONE)
-    extras = {'dia':today}
+    extras: dict[str, Any] = {'dia':today}
     auditorios = get_auditorios()
     if len(auditorios) == 0:
         flash("sem auditorio cadastrado ou ativo", "danger")
         return redirect(url_for('default.home'))
+    if not user:
+        abort(403, description="Usuário não encontrado.")
     extras['auditorios'] = auditorios
 
     reserva_dia = parse_date_string(request.args.get('reserva-dia'))
@@ -45,18 +48,18 @@ def main_page():
             conditions.append(Reservas_Auditorios.dia_reserva >= reserva_dia_inicio)
         if reserva_dia_fim:
             conditions.append(Reservas_Auditorios.dia_reserva <= reserva_dia_fim)
-    extras['reservas_auditorios'] = get_reservas_auditorios_filtrada(user.pessoa.id_pessoa, user.perm&(PERM_ADMIN+PERM_AUTORIZAR), *conditions)
+    extras['reservas_auditorios'] = get_reservas_auditorios_filtrada(user.pessoa.id_pessoa, user.perm&(PERM_ADMIN+PERM_AUTORIZAR) > 0, *conditions)
     return render_template('reserva_auditorio/main.html', user=user, **extras)
 
 def check_own_reserva(reserva:Reservas_Auditorios, user:Usuarios):
     if user.id_pessoa != reserva.id_responsavel and user.perm & (PERM_ADMIN+PERM_AUTORIZAR) == 0:
-        abort(403)
+        abort(403, description="Acesso negado à reserva de outro usuário.")
 
 def check_role(user:Usuarios, action:Literal['CR', 'AR']):
     if action == 'CR' and user.perm & PERM_ADMIN == 0:
-        abort(403)
+        abort(403, description="Acesso negado à atualização de reservas.")
     elif action == 'AR' and user.perm & (PERM_ADMIN+PERM_AUTORIZAR) == 0:
-        abort(403)
+        abort(403, description="Acesso negado à autorização de reservas.")
 
 def check_unique_aprovada(reserva:Reservas_Auditorios):
     count_rtc = select(func.count()).select_from(Reservas_Auditorios).where(
@@ -66,7 +69,10 @@ def check_unique_aprovada(reserva:Reservas_Auditorios):
         Reservas_Auditorios.dia_reserva == reserva.dia_reserva,
         Reservas_Auditorios.status_reserva == StatusReservaAuditorioEnum.APROVADA
     )
-    if db.session.scalar(count_rtc) > 0:
+    res = db.session.scalar(count_rtc)
+    if res is None:
+        res = 0
+    if res > 0:
         abort(409, description="Já existe uma reserva aprovada para este auditório no mesmo horário.")
 
 
@@ -79,6 +85,8 @@ def atualizar_status(id_reserva):
     """
     userid = session.get('userid')
     user = get_user_info(userid)
+    if not user:
+        abort(403, description="Usuário não encontrado.")
     reserva = db.get_or_404(Reservas_Auditorios, id_reserva)
     check_own_reserva(reserva, user)
     old_reserva = copy(reserva)
@@ -126,6 +134,8 @@ def atualizar_status(id_reserva):
 def get_info_reserva(id_reserva):
     userid = session.get('userid')
     user = get_user_info(userid)
+    if not user:
+        abort(403, description="Usuário não encontrado.")
     reserva = db.get_or_404(Reservas_Auditorios, id_reserva)
     check_own_reserva(reserva, user)
     return {
@@ -146,6 +156,8 @@ def get_info_reserva(id_reserva):
 def editar_observacao(field, id_reserva):
     userid = session.get('userid')
     user = get_user_info(userid)
+    if not user:
+        abort(403, description="Usuário não encontrado.")
     reserva = db.get_or_404(Reservas_Auditorios, id_reserva)
     check_own_reserva(reserva, user)
     observacao = request.form.get('observacao')
@@ -172,10 +184,14 @@ def editar_observacao(field, id_reserva):
 def adicionar():
     userid = session.get('userid')
     user = get_user_info(userid)
-    auditorio = request.form.get('auditorio')
+    if not user:
+        abort(403, description="Usuário não encontrado.")
+    auditorio = none_if_empty(request.form.get('auditorio'), int)
     dia = parse_date_string(request.form.get('dia'))
-    hora = request.form.get('hora')
+    hora = none_if_empty(request.form.get('hora'), int)
     observacao = request.form.get('observacao')
+    if auditorio is None or dia is None or hora is None:
+        abort(400, description="Parâmetros inválidos para criação de reserva.")
     try:
         nova_reserva = Reservas_Auditorios()
         nova_reserva.id_reserva_local = auditorio
