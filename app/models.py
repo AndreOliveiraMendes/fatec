@@ -177,14 +177,14 @@ class ReservaBase(Base):  # herda de Base
         else:
             return 3
 
-    @tipo_responsavel.expression
-    def tipo_responsavel(cls):
-        return case(
-            (cls.id_responsavel.isnot(None) & cls.id_responsavel_especial.is_(None), 0),
-            (cls.id_responsavel.is_(None) & cls.id_responsavel_especial.isnot(None), 1),
-            (cls.id_responsavel.isnot(None) & cls.id_responsavel_especial.isnot(None), 2),
-            else_=3  # Valor padrão se nenhuma condição for atendida
-        )
+#    @tipo_responsavel.expression
+#    def tipo_responsavel(cls):
+#        return case(
+#            (cls.id_responsavel.isnot(None) & cls.id_responsavel_especial.is_(None), 0),
+#            (cls.id_responsavel.is_(None) & cls.id_responsavel_especial.isnot(None), 1),
+#            (cls.id_responsavel.isnot(None) & cls.id_responsavel_especial.isnot(None), 2),
+#            else_=3  # Valor padrão se nenhuma condição for atendida
+#        )
 
 class Reservas_Fixas(ReservaBase):
     __tablename__ = 'reservas_fixas'
