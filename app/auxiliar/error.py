@@ -4,7 +4,7 @@ from werkzeug.exceptions import HTTPException
 
 from app.auxiliar.auxiliar_routes import get_user_info
 from config.general import SHOW_DEBUG_ERRORS
-from config.mapeamentos import ERROR_MESSAGES, ERROR_TITLES
+from config.mapeamentos import ERRORS
 
 
 def wants_json_response():
@@ -14,8 +14,7 @@ def debug_message(e, code):
     if SHOW_DEBUG_ERRORS:
         flash(e, "danger")
     else:
-        flash(ERROR_MESSAGES.get(code, "Ocorreu um erro inesperado."), "danger")
-
+        flash(ERRORS.get(code, {}).get("message", "Ocorreu um erro inesperado."), "danger")
 def handle_http_error(e: HTTPException):
     code = e.code or 500
     mensagem = getattr(e, 'description', e.name)
@@ -27,7 +26,7 @@ def handle_http_error(e: HTTPException):
         return jsonify({
             "error": e.name,
             "message": mensagem,
-            "title": ERROR_TITLES.get(code, "Erro HTTP")
+            "title": ERRORS.get(code, {}).get("title", "Erro HTTP")
         }), code
 
     debug_message(e, code)
@@ -36,9 +35,9 @@ def handle_http_error(e: HTTPException):
         user=user,
         message=mensagem,
         code=code,
-        title=ERROR_TITLES.get(code, "Erro HTTP")
+        title=ERRORS.get(code, {}).get("title", "Erro HTTP")
     ), code
 
 def register_error_handler(app: Flask):
-    for code in (400, 401, 403, 404, 409, 422, 500):
+    for code in ERRORS.keys():
         app.register_error_handler(code, handle_http_error)
