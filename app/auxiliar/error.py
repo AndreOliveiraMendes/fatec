@@ -12,7 +12,7 @@ def wants_json_response():
 
 def debug_message(e, code):
     if SHOW_DEBUG_ERRORS:
-        flash(e, "danger")
+        flash(str(e), "danger")
     else:
         flash(ERRORS.get(code, {}).get("message", "Ocorreu um erro inesperado."), "danger")
 def handle_http_error(e: HTTPException):
@@ -24,6 +24,7 @@ def handle_http_error(e: HTTPException):
 
     if wants_json_response():
         return jsonify({
+            "status": code,
             "error": e.name,
             "message": mensagem,
             "title": ERRORS.get(code, {}).get("title", "Erro HTTP")
