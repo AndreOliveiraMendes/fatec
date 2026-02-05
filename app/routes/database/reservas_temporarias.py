@@ -7,7 +7,8 @@ from sqlalchemy import and_, select
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
                             InternalError, OperationalError, ProgrammingError)
 
-from app.auxiliar.auxiliar_routes import (get_query_params,
+from app.auxiliar.auxiliar_routes import (filtro_tipo_responsavel,
+                                          get_query_params,
                                           get_session_or_request,
                                           get_user_info, none_if_empty,
                                           parse_date_string, register_return,
@@ -81,7 +82,7 @@ def gerenciar_reservas_temporarias():
             if id_responsavel_especial is not None:
                 filter.append(Reservas_Temporarias.id_responsavel_especial == id_responsavel_especial)
             if tipo_responsavel is not None:
-                filter.append(Reservas_Temporarias.tipo_responsavel == tipo_responsavel)
+                filter.append(filtro_tipo_responsavel(Reservas_Temporarias, tipo_responsavel))
             if id_reserva_local is not None:
                 filter.append(Reservas_Temporarias.id_reserva_local == id_reserva_local)
             if id_reserva_aula is not None:
@@ -117,7 +118,6 @@ def gerenciar_reservas_temporarias():
         elif acao == 'inserir' and bloco == 1:
             id_responsavel = none_if_empty(request.form.get('id_responsavel'), int)
             id_responsavel_especial = none_if_empty(request.form.get('id_responsavel_especial'), int)
-            tipo_responsavel = none_if_empty(request.form.get('tipo_responsavel'), int)
             id_reserva_local = none_if_empty(request.form.get('id_reserva_local'), int)
             id_reserva_aula = none_if_empty(request.form.get('id_reserva_aula'), int)
             inicio_reserva = parse_date_string(request.form.get('inicio_reserva'))
@@ -131,8 +131,7 @@ def gerenciar_reservas_temporarias():
                     id_reserva_local, id_reserva_aula)
                 nova_reserva_temporaria = Reservas_Temporarias(
                     id_responsavel=id_responsavel, id_responsavel_especial=id_responsavel_especial,
-                    tipo_responsavel=tipo_responsavel, id_reserva_local=id_reserva_local,
-                    id_reserva_aula=id_reserva_aula, inicio_reserva=inicio_reserva,
+                    id_reserva_local=id_reserva_local, id_reserva_aula=id_reserva_aula, inicio_reserva=inicio_reserva,
                     fim_reserva=fim_reserva, finalidade_reserva=FinalidadeReservaEnum(finalidade_reserva),
                     observacoes=observacoes,
                     descricao=descricao
@@ -169,7 +168,6 @@ def gerenciar_reservas_temporarias():
             id_reserva_temporaria = none_if_empty(request.form.get('id_reserva_temporaria'), int)
             id_responsavel = none_if_empty(request.form.get('id_responsavel'), int)
             id_responsavel_especial = none_if_empty(request.form.get('id_responsavel_especial'), int)
-            tipo_responsavel = none_if_empty(request.form.get('tipo_responsavel'), int)
             id_reserva_local = none_if_empty(request.form.get('id_reserva_local'), int)
             id_reserva_aula = none_if_empty(request.form.get('id_reserva_aula'), int)
             inicio_reserva = parse_date_string(request.form.get('inicio_reserva'))
@@ -179,8 +177,6 @@ def gerenciar_reservas_temporarias():
             descricao = none_if_empty(request.form.get('descricao'))
             reserva_temporaria = db.get_or_404(Reservas_Temporarias, id_reserva_temporaria)
             
-            if tipo_responsavel is None or (tipo_responsavel == 1 and id_responsavel is None) or (tipo_responsavel == 2 and id_responsavel_especial is None):
-                abort(400, description="Tipo de responsável inconsistente com os dados fornecidos.")
             if id_reserva_local is None or id_reserva_aula is None or finalidade_reserva is None:
                 abort(400, description="Dados de reserva incompletos.")
             if finalidade_reserva is None:
@@ -191,7 +187,6 @@ def gerenciar_reservas_temporarias():
                 dados_anteriores = copy.copy(reserva_temporaria)
                 reserva_temporaria.id_responsavel = id_responsavel
                 reserva_temporaria.id_responsavel_especial = id_responsavel_especial
-                reserva_temporaria.tipo_responsavel = tipo_responsavel
                 reserva_temporaria.id_reserva_local = id_reserva_local
                 reserva_temporaria.id_reserva_aula = id_reserva_aula
                 reserva_temporaria.inicio_reserva = inicio_reserva

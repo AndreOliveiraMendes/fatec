@@ -4,6 +4,7 @@ from typing import Any
 
 from flask import (Blueprint, abort, flash, redirect, render_template, request,
                    session, url_for)
+from flask.typing import ResponseReturnValue
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import between, select
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
@@ -198,7 +199,7 @@ def cancelar_reserva(tipo_reserva, id_reserva):
     else:
         abort(400, description="Tipo de reserva inválido.")
 
-def editar_reserva_generico(model, id_reserva, redirect_url):
+def editar_reserva_generico(model, id_reserva: int, redirect_url: str) -> ResponseReturnValue:
     userid = session.get('userid')
     reserva = db.get_or_404(model, id_reserva)
     check_ownership_or_admin(reserva)
@@ -206,25 +207,16 @@ def editar_reserva_generico(model, id_reserva, redirect_url):
     finalidade_reserva = request.form.get('finalidade_reserva')
     responsavel = none_if_empty(request.form.get('responsavel'))
     responsavel_especial = none_if_empty(request.form.get('responsavel_especial'))
-    tipo_responsavel = None
-    if responsavel_especial is None:
-        tipo_responsavel = 0
-    elif responsavel is None:
-        tipo_responsavel = 1
-    else:
-        tipo_responsavel = 2
     perm = db.session.get(Permissoes, userid)
     if not perm or perm.permissao&PERM_ADMIN == 0:
         responsavel = reserva.id_responsavel
         responsavel_especial = reserva.id_responsavel_especial
-        tipo_responsavel = reserva.tipo_responsavel
     try:
         old_data = copy.copy(reserva)
         reserva.observacoes = observacao
         reserva.finalidade_reserva = FinalidadeReservaEnum(finalidade_reserva)
         reserva.id_responsavel = responsavel
         reserva.id_responsavel_especial = responsavel_especial
-        reserva.tipo_responsavel = tipo_responsavel
 
         db.session.flush()
         registrar_log_generico_usuario(userid, 'Edição', reserva, old_data, observacao='atraves de listagem')

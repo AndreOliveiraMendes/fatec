@@ -1,4 +1,5 @@
 from datetime import date, datetime, time
+from typing import Type
 
 from sqlalchemy import (TEXT, CheckConstraint, Enum, ForeignKey, String,
                         UniqueConstraint, case)
@@ -178,7 +179,7 @@ class ReservaBase(Base):  # herda de Base
             return 3
 
 #    @tipo_responsavel.expression
-#    def tipo_responsavel(cls):
+#    def tipo_responsavel(cls: Type["ReservaBase"]):
 #        return case(
 #            (cls.id_responsavel.isnot(None) & cls.id_responsavel_especial.is_(None), 0),
 #            (cls.id_responsavel.is_(None) & cls.id_responsavel_especial.isnot(None), 1),
