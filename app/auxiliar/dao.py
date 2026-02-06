@@ -1,5 +1,5 @@
 from datetime import date, time
-from typing import Literal
+from typing import Literal, Sequence, Tuple, overload
 
 from flask import abort
 from sqlalchemy import (and_, between, case, desc, func, literal, or_, select,
@@ -282,7 +282,7 @@ def check_reserva_temporaria(inicio, fim, local, aula, id = None):
     count_rtc = select(func.count()).select_from(Reservas_Temporarias).where(*base_filter)
     res = db.session.scalar(count_rtc)
     if res is None:
-        abort(403)
+        abort(403, description="Erro ao verificar conflito de reserva temporaria.")
     if res > 0:
         raise IntegrityError(
             statement=None,
@@ -291,6 +291,36 @@ def check_reserva_temporaria(inicio, fim, local, aula, id = None):
         )
 
 # get reservas por dia
+@overload
+def get_reservas_por_dia(
+    dia: date,
+    turno: Turnos | None,
+    tipo_horario: TipoAulaEnum | None,
+    tipo_reservas: Literal['fixa']
+) -> Sequence[Reservas_Fixas]:
+    ...
+
+@overload
+def get_reservas_por_dia(
+    dia: date,
+    turno: Turnos | None,
+    tipo_horario: TipoAulaEnum | None,
+    tipo_reservas: Literal['temporaria']
+) -> Sequence[Reservas_Temporarias]:
+    ...
+
+@overload
+def get_reservas_por_dia(
+    dia: date,
+    turno: Turnos | None = ...,
+    tipo_horario: TipoAulaEnum | None = ...,
+    tipo_reservas: None = ...
+) -> tuple[
+    Sequence[Reservas_Fixas],
+    Sequence[Reservas_Temporarias]
+]:
+    ...
+
 def get_reservas_por_dia(dia:date, turno:Turnos|None=None, tipo_horario:TipoAulaEnum|None=None, tipo_reservas:Literal['fixa', 'temporaria']|None=None):
     """
     Obtém as reservas de aulas para um dia específico.
@@ -338,7 +368,7 @@ def get_reservas_por_dia(dia:date, turno:Turnos|None=None, tipo_horario:TipoAula
                 )
                 reservas_fixas = db.session.execute(sel_reserva_fixa).scalars().all()
         except MultipleResultsFound:
-            abort(500)
+            abort(500, description="Erro ao consultar reservas fixas.")
     if tipo_reservas is None or tipo_reservas == 'temporaria':
         try:
             filtro_temp: list[ColumnElement[bool]] = [between(dia, Reservas_Temporarias.inicio_reserva, Reservas_Temporarias.fim_reserva)]
@@ -363,7 +393,7 @@ def get_reservas_por_dia(dia:date, turno:Turnos|None=None, tipo_horario:TipoAula
             )
             reservas_temporarias = db.session.execute(sel_reserva_temporaria).scalars().all()
         except MultipleResultsFound:
-            abort(500)
+            abort(500, description="Erro ao consultar reservas temporarias.")
     if tipo_reservas == 'fixa':
         return reservas_fixas
     elif tipo_reservas == 'temporaria':
@@ -397,7 +427,7 @@ def get_situacoes_por_dia(aula:Aulas_Ativas, local:Locais, dia:date, tipo_reserv
     try:
         return db.session.execute(sel_situacoes).scalar_one_or_none()
     except MultipleResultsFound:
-        abort(500)
+        abort(500, description="Erro ao consultar situação da reserva.")
 
 def get_exibicao_por_dia(aula:Aulas_Ativas, local:Locais, dia:date):
     sel_exibicao = select(
@@ -410,7 +440,7 @@ def get_exibicao_por_dia(aula:Aulas_Ativas, local:Locais, dia:date):
     try:
         return db.session.execute(sel_exibicao).scalar_one_or_none()
     except MultipleResultsFound:
-        abort(500)
+        abort(500, description="Erro ao consultar exibição da reserva.")
 
 def get_turno_by_time(hora:time):
     try:
@@ -465,7 +495,7 @@ def check_aula_ativa(inicio, fim, aula, semana, tipo, id = None):
     countl_sel_aulas_ativas = select(func.count()).select_from(Aulas_Ativas).where(*base_filter)
     res = db.session.scalar(countl_sel_aulas_ativas)
     if res is None:
-        abort(403)
+        abort(500, description="Erro ao verificar conflito de aula ativa.")
     if res > 0:
         raise IntegrityError(
             statement=None,

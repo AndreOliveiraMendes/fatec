@@ -1,5 +1,6 @@
 from copy import copy
 from datetime import datetime
+from typing import Any
 
 from flask import (Blueprint, abort, flash, redirect, render_template, request,
                    session, url_for)
@@ -45,7 +46,7 @@ def gerenciar_exibicao():
     userid = session.get('userid')
     user = get_user_info(userid)
     hoje = datetime.today()
-    extras = {'hoje':hoje}
+    extras: dict[str, Any] = {'hoje':hoje}
     reserva_dia = parse_date_string(request.args.get('reserva-dia', default=hoje.date().strftime("%Y-%m-%d")))
     reserva_turno = request.args.get('reserva_turno', type=int)
     reserva_tipo_horario = request.args.get('reserva_tipo_horario', default=TipoAulaEnum.AULA.value)
@@ -180,14 +181,14 @@ def atualizar_exibicao(id_aula, id_lab, dia):
 @bp.route('/<tipo_reserva>')
 def gerenciar_situacoes(tipo_reserva):
     if not tipo_reserva in ['fixa', 'temporaria']:
-        abort(404)
+        abort(404, description="Tipo de reserva inválido.")
     icons = [
         ["glyphicon-thumbs-down", "danger", "Não pegou a chave"],
         ["glyphicon-thumbs-up", "success", "Pegou a chave"],
         ["glyphicon-ok", "info", "Reserva concluida"] 
     ]
     hoje = datetime.today()
-    extras = {'hoje':hoje}
+    extras: dict[str, Any] = {'hoje':hoje}
     extras['icons'] = icons
     extras['situacaoChave'] = list(zip(SituacaoChaveEnum, icons))
     reserva_dia = parse_date_string(request.args.get('reserva-dia', default=hoje.date().strftime("%Y-%m-%d")))
@@ -209,6 +210,8 @@ def gerenciar_situacoes(tipo_reserva):
         return gerenciar_situacoes_reservas_fixas(extras)
     elif tipo_reserva == 'temporaria':
         return gerenciar_situacoes_reservas_temporarias(extras)
+    else:
+        abort(404, description="Tipo de reserva inválido.")
 
 def gerenciar_situacoes_reservas_fixas(extras):
     userid = session.get('userid')
@@ -229,12 +232,11 @@ def gerenciar_situacoes_reservas_fixas(extras):
             modo = extras.get("config", {}).get("modo_gerenciacao", "multiplo")
             ultima = reservas[-1] if reservas else None
             toleranca = int(extras.get("config", {}).get("toleranca", 20))
-
-            match (modo, bool(ultima and verificar_merge_reserva(ultima, reserva, toleranca))):
-                case ("multiplo", True):
-                    ultima["horarios"] += reserva["horarios"]
-                case _:
-                    reservas.append(reserva)
+            
+            if modo == "multiplo" and ultima is not None and verificar_merge_reserva(ultima, reserva, toleranca):
+                ultima["horarios"] += reserva["horarios"]
+            else:
+                reservas.append(reserva)
             reserva['situacao'] = get_situacoes_por_dia(reserva['horarios'][0], reserva['local'], extras['reserva_dia'], 'fixa')
     extras['reservas'] = reservas
     return render_template("gestão_reservas/status_fixas.html", user=user, **extras)
@@ -257,12 +259,11 @@ def gerenciar_situacoes_reservas_temporarias(extras):
         modo = extras.get("config", {}).get("modo_gerenciacao", "multiplo")
         ultima = reservas[-1] if reservas else None
         toleranca = int(extras.get("config", {}).get("toleranca", 20))
-
-        match (modo, bool(ultima and verificar_merge_reserva(ultima, reserva, toleranca))):
-            case ("multiplo", True):
-                ultima["horarios"] += reserva["horarios"]
-            case _:
-                reservas.append(reserva)
+        
+        if modo == "multiplo" and ultima is not None and verificar_merge_reserva(ultima, reserva, toleranca):
+            ultima["horarios"] += reserva["horarios"]
+        else:
+            reservas.append(reserva)
         reserva['situacao'] = get_situacoes_por_dia(reserva['horarios'][0], reserva['local'], extras['reserva_dia'], 'temporaria')
     extras['reservas'] = reservas
     return render_template("gestão_reservas/status_temporarias.html", user=user, **extras)
@@ -282,7 +283,7 @@ def atualizar_situacoes(tipo_reserva, lab, dia):
     elif tipo_reserva == 'temporaria':
         return atualizar_situacoes_temporaria(common)
     else:
-        abort(404)
+        abort(404, description="Tipo de reserva inválido.")
 
 def atualizar_situacoes_fixa(common):
     userid = common.get('userid')

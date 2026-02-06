@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any
 
 from flask import Blueprint, render_template, request, session
 
@@ -33,7 +34,7 @@ def main_page():
     userid = session.get('userid')
     user = get_user_info(userid)
     today = datetime.now(LOCAL_TIMEZONE)
-    extras = {'dia':today}
+    extras: dict[str, Any] = {'dia':today}
     reserva_dia = parse_date_string(request.args.get('reserva-dia', default=today.date().strftime("%Y-%m-%d")))
     reserva_turno = request.args.get('reserva_turno', type=int)
     reserva_tipo_horario = request.args.get('reserva_tipo_horario', default=TipoAulaEnum.AULA.value)
@@ -60,11 +61,11 @@ def main_page():
 def tela_televisor():
     userid = session.get('userid')
     user = get_user_info(userid)
-    extras = {}
+    extras: dict[str, Any] = {}
     painel_cfg = carregar_painel_config()
-    tipo_horario = painel_cfg.get('tipo')
-    intervalo = int(painel_cfg.get('tempo'))
-    qt_lab = int(painel_cfg.get('laboratorios'))
+    tipo_horario = painel_cfg.get('tipo', TipoAulaEnum.AULA.value)
+    intervalo = int(painel_cfg.get('tempo', 15))
+    qt_lab = int(painel_cfg.get('laboratorios', 6))
     locais = divide(get_laboratorios(True), qt_lab)
     extras['intervalo'] = intervalo*1000
     extras['locais'] = locais

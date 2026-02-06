@@ -1,7 +1,7 @@
 import copy
 from typing import Any
 
-from flask import Blueprint, flash, render_template, request, session
+from flask import Blueprint, abort, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
@@ -153,6 +153,10 @@ def gerenciar_reservas_auditorios():
             observação_responsavel = none_if_empty(request.form.get('observação_responsavel'))
             observação_autorizador = none_if_empty(request.form.get('observação_autorizador'))
             reserva_auditorio = db.get_or_404(Reservas_Auditorios, id_reserva_auditorio)
+            
+            if id_responsavel is None or id_reserva_local is None or id_reserva_aula is None or \
+               dia_reserva is None or status_reserva is None:
+                abort(400, description="Campos obrigatórios não foram preenchidos.")
             try:
                 dados_anteriores = copy.copy(reserva_auditorio)
                 reserva_auditorio.id_responsavel = id_responsavel

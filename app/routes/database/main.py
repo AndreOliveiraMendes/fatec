@@ -103,7 +103,7 @@ def wiki():
             pk = field['name'] in pks[table]['constrained_columns']
             if pk:
                 restrição = f"PK"
-                if field['autoincrement']:
+                if field.get('autoincrement'):
                     restrição += ', AUTO_INCREMENT'
                 column['restrição'] = restrição
             else:

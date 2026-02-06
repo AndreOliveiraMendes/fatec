@@ -1,4 +1,5 @@
 import copy
+from typing import Any
 
 from flask import Blueprint, abort, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
@@ -29,7 +30,7 @@ def gerenciar_dias_da_semana():
     userid = session.get('userid')
     user = get_user_info(userid)
     disabled = ['procurar']
-    extras = {'url':url}
+    extras: dict[str, Any] = {'url':url}
     disable_action(extras, disabled)
     if request.method == 'POST':
         if acao in disabled:
@@ -72,6 +73,8 @@ def gerenciar_dias_da_semana():
             id_semana = none_if_empty(request.form.get('id_semana'), int)
             nome_semana = none_if_empty(request.form.get('nome_semana'))
             dia_da_semana = db.get_or_404(Dias_da_Semana, id_semana)
+            if not nome_semana:
+                abort(400, description="Nome do dia da semana é obrigatório.")
             try:
                 dados_anteriores = copy.copy(dia_da_semana)
                 dia_da_semana.nome_semana = nome_semana

@@ -1,3 +1,5 @@
+from typing import Any
+
 from flask import (Blueprint, abort, flash, redirect, render_template, request,
                    session, url_for)
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
@@ -18,14 +20,14 @@ def fast_setup_dias_da_semana():
     userid = session.get('userid')
     user = get_user_info(userid)
     stage = int(request.form.get('stage', request.args.get('stage', 0)))
-    extras = {'extras':SETUP_HEAD}
+    extras: dict[str, Any] = {'extras':SETUP_HEAD}
 
     if stage == 0:
         dias_da_semana = ["domingo", "segunda", "terça", "quarta", "quinta", "sexta", "sabado"]
         fdow = FIRST_DAY_OF_WEEK.lower()
 
         if fdow not in dias_da_semana or INDEX_START not in (0, 1):
-            abort(400)
+            abort(400, "Configuração inválida do primeiro dia da semana ou do índice inicial.")
 
         # Gira a lista para que o primeiro dia da semana seja o configurado
         while dias_da_semana[0] != fdow:

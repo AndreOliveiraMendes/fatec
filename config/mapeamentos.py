@@ -79,12 +79,12 @@ SSH_CRED_FILE = Path(SSH_CRED_PATH)
 COMMANDS_PATH = os.path.join("data", "comandos.json")
 COMMANDS_FILE = Path(COMMANDS_PATH)
 
-ERROR_MESSAGES = {
-    400: "Requisição inválida",
-    401: "Você precisa fazer login para acessar esta página.",
-    403: "Você não possui as permissões necessárias para acessar esta página.",
-    404: "A página requisitada não existe.",
-    409: "Conflito",
-    422: "Entidade não processável.",
-    500: "Erro Interno do Servidor"
+ERRORS = {
+    400: {"message": "Requisição inválida", "title": "Requisição inválida"},
+    401: {"message": "Você precisa fazer login para acessar esta página.", "title": "Não autorizado"},
+    403: {"message": "Você não possui as permissões necessárias para acessar esta página.", "title": "Acesso negado"},
+    404: {"message": "A página requisitada não existe.", "title": "Página não encontrada"},
+    409: {"message": "Conflito", "title": "Conflito"},
+    422: {"message": "Entidade não processável.", "title": "Entidade não processável"},
+    500: {"message": "Erro Interno do Servidor", "title": "Erro Interno do Servidor"}
 }

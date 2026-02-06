@@ -11,7 +11,7 @@ from app.auxiliar.constant import (PERM_ADMIN, PERM_RESERVA_AUDITORIO,
                                    PERM_RESERVA_FIXA, PERM_RESERVA_TEMPORARIA)
 from app.auxiliar.decorators import login_required
 from app.models import Permissoes, Pessoas, Usuarios, db
-from config.general import API_BASIC_PASS, API_BASIC_USER, API_BASIC_URL
+from config.general import API_BASIC_PASS, API_BASIC_URL, API_BASIC_USER
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -46,7 +46,7 @@ def check_login(id, password) -> LoginResult:
             email_pessoa = pessoa.get("email")
 
             if tipo_pessoa == 'ALUNO':
-                abort(403)
+                abort(403, description="Acesso negado para alunos.")
 
             try:
                 # Pessoas
@@ -157,7 +157,7 @@ def logout():
     userid = session.pop('userid') 
     user = get_user_info(userid)
     if not user:
-        abort(400)
+        abort(400, description="Usuário inválido.")
     current_app.logger.info(f"usuario {user.username} efetuou logout no sistema")
     flash("logout realizado com sucesso", "success")
     return render_template("auth/logout.html", user=user)

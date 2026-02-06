@@ -56,12 +56,12 @@ def check_semestre(semestre:Semestres, userid, perm:int):
         return
     today = date.today()
     if today < semestre.data_inicio_reserva or today > semestre.data_fim_reserva:
-        abort(403)
+        abort(403, description="Semestre fora do período de reservas.")
     if (today - semestre.data_inicio_reserva).days < semestre.dias_de_prioridade:
         has_priority, prioridade = get_prioridade()
         user = db.get_or_404(Usuarios, userid)
         if has_priority and prioridade is not None and user.pessoa.id_pessoa not in prioridade:
-            abort(403)
+            abort(403, description="Usuário não se enquadra na regra de prioridade.")
 
 def build_table_headers_geral(aulas, extras, id_turno=None):
     contagem_dias = Counter()
@@ -176,7 +176,7 @@ def get_semestre(id_semestre):
     userid = session.get('userid')
     user = get_user_info(userid)
     if not user:
-        abort(403)
+        abort(403, description="Usuário não autenticado.")
     semestre = db.get_or_404(Semestres, id_semestre)
     check_semestre(semestre, userid, user.perm)
     today = date.today()
@@ -216,7 +216,7 @@ def get_lab_geral(id_semestre, id_turno=None):
     userid = session.get('userid')
     user = get_user_info(userid)
     if not user:
-        abort(403)
+        abort(403, description="Usuário não autenticado.")
     semestre = db.get_or_404(Semestres, id_semestre)
     check_semestre(semestre, userid, user.perm)
     turno = db.get_or_404(Turnos, id_turno) if id_turno is not None else id_turno
@@ -245,7 +245,7 @@ def get_lab_especifico(id_semestre, id_turno, id_lab):
     userid = session.get('userid')
     user = get_user_info(userid)
     if not user:
-        abort(403)
+        abort(403, description="Usuário não autenticado.")
     semestre = db.get_or_404(Semestres, id_semestre)
     check_semestre(semestre, userid, user.perm)
     turno = db.get_or_404(Turnos, id_turno) if id_turno is not None else id_turno

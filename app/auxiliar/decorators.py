@@ -11,14 +11,14 @@ from app.models import Permissoes, db
 def require_login():
     userid = session.get('userid')
     if not userid:
-        abort(401)
+        abort(401, description="Usuário não autenticado.")
     return userid
 
 def require_permission(flag):
     userid = require_login()
     perm = db.session.get(Permissoes, userid)
     if not perm or not (perm.permissao & flag):
-        abort(403)
+        abort(403, description="Usuário não possui permissão necessária.")
 
 def login_required(f):
     @wraps(f)

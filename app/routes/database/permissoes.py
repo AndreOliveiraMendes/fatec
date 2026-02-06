@@ -1,6 +1,7 @@
 import copy
 import operator
 from functools import reduce
+from typing import Any
 
 from flask import Blueprint, Request, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
@@ -59,7 +60,7 @@ def gerenciar_permissoes():
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
     user = get_user_info(userid)
-    extras = {'url':url}
+    extras: dict[str, Any] = {'url':url}
     if request.method == 'POST':
         if acao == 'listar':
             sel_permissoes = select(Permissoes)

@@ -383,7 +383,7 @@ def api_extender():
 def api_get_times():
     dia = parse_date_string(request.args.get('dia'))
     if not dia:
-        abort(500)
+        abort(500, description="Data inválida ou não fornecida.")
     aulas_ativas = get_aulas_ativas_por_dia(dia)
     result = []
     for aula_ativa, aula, dia_semana in aulas_ativas:

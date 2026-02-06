@@ -8,11 +8,12 @@ from flask.typing import ResponseReturnValue
 from sqlalchemy import and_, select
 from sqlalchemy.exc import MultipleResultsFound
 from sqlalchemy.inspection import inspect
+from sqlalchemy.sql.elements import ColumnElement
 
 from app.auxiliar.constant import PERM_ADMIN
 from app.models import (Base, Historicos, Locais, OrigemEnum, Pessoas,
-                        Reservas_Fixas, Reservas_Temporarias, Usuarios,
-                        Usuarios_Especiais, db)
+                        ReservaBase, Reservas_Fixas, Reservas_Temporarias,
+                        Usuarios, Usuarios_Especiais, db)
 from config.general import AFTER_ACTION, LOCAL_TIMEZONE
 
 IGNORED_FORM_FIELDS = ['page', 'acao', 'bloco']
@@ -229,13 +230,13 @@ def get_unique_or_500(model: Type[T], *args, **kwargs):
             select(model).where(*args, **kwargs)
         ).scalar_one_or_none()
     except MultipleResultsFound:
-        abort(500)
+        abort(500, description=f"Erro ao consultar {model.__name__}.")
 
 def check_local(local:Locais, perm):
     if perm&PERM_ADMIN > 0:
         return
     if local.disponibilidade.value == 'Indisponivel':
-        abort(403)
+        abort(403, description="Local indisponível para reservas.")
 
 def builder_helper_fixa(id_semestre:int, id_lab: int|None=None):
     """Monta helper de reservas fixas indexado por (local, aula)."""
@@ -268,3 +269,31 @@ def builder_helper_temporaria(inicio, fim, id_lab: int|None=None):
         for day in days:
             helper[(r.id_reserva_local, r.id_reserva_aula, day)] = title
     return helper
+
+def filtro_tipo_responsavel(
+    model: Type[ReservaBase],
+    tipo: int
+) -> ColumnElement[bool]:
+    match tipo:
+        case 0:
+            return (
+                model.id_responsavel.isnot(None)
+                & model.id_responsavel_especial.is_(None)
+            )
+        case 1:
+            return (
+                model.id_responsavel.is_(None)
+                & model.id_responsavel_especial.isnot(None)
+            )
+        case 2:
+            return (
+                model.id_responsavel.isnot(None)
+                & model.id_responsavel_especial.isnot(None)
+            )
+        case 3:
+            return (
+                model.id_responsavel.is_(None)
+                & model.id_responsavel_especial.is_(None)
+            )
+        case _:
+            raise ValueError("tipo_responsavel inválido")

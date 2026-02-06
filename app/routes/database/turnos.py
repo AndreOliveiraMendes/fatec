@@ -1,4 +1,5 @@
 import copy
+from typing import Any
 
 from flask import Blueprint, abort, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
@@ -29,7 +30,7 @@ def gerenciar_turnos():
     userid = session.get('userid')
     user = get_user_info(userid)
     disabled = ['procurar']
-    extras = {'url':url}
+    extras: dict[str, Any] = {'url':url}
     disable_action(extras, disabled)
     if request.method == 'POST':
         if acao in disabled:
@@ -76,6 +77,11 @@ def gerenciar_turnos():
             horario_inicio = parse_time_string(request.form.get('horario_inicio'))
             horario_fim = parse_time_string(request.form.get('horario_fim'))
             turno = db.get_or_404(Turnos, id_turno)
+            
+            if nome_turno is None:
+                abort(400, description="O nome do turno não pode ser vazio.")
+            if horario_inicio is None or horario_fim is None:
+                abort(400, description="O horário de início e fim devem ser válidos.")
             try:
                 dados_anteriores = copy.copy(turno)
                 turno.nome_turno = nome_turno

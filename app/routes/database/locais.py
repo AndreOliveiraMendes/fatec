@@ -1,6 +1,7 @@
 import copy
+from typing import Any
 
-from flask import Blueprint, flash, render_template, request, session
+from flask import Blueprint, abort, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
@@ -28,7 +29,7 @@ def gerenciar_locais():
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
     user = get_user_info(userid)
-    extras = {'url':url}
+    extras: dict[str, Any] = {'url':url}
     if request.method == 'POST':
         if acao == 'listar':
             sel_locais = select(Locais)
@@ -118,6 +119,8 @@ def gerenciar_locais():
             tipo = none_if_empty(request.form.get('tipo'))
 
             local = db.get_or_404(Locais, id_local)
+            if nome_local is None:
+                abort(400, description="Nome do local é obrigatório.")
             try:
                 dados_anteriores = copy.copy(local)
 

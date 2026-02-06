@@ -1,12 +1,14 @@
 import copy
+from typing import Any
 
-from flask import Blueprint, flash, render_template, request, session
+from flask import Blueprint, abort, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
                             InternalError, OperationalError, ProgrammingError)
 
-from app.auxiliar.auxiliar_routes import (get_query_params,
+from app.auxiliar.auxiliar_routes import (filtro_tipo_responsavel,
+                                          get_query_params,
                                           get_session_or_request,
                                           get_user_info, none_if_empty,
                                           register_return,
@@ -30,7 +32,7 @@ def gerenciar_reservas_fixas():
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
     user = get_user_info(userid)
-    extras = {'url':url}
+    extras: dict[str, Any] = {'url':url}
     if request.method == 'POST':
         if acao == 'listar':
             sel_reservas = select(Reservas_Fixas)
@@ -67,7 +69,7 @@ def gerenciar_reservas_fixas():
             if id_responsavel_especial is not None:
                 filter.append(Reservas_Fixas.id_responsavel_especial == id_responsavel_especial)
             if tipo_responsavel is not None:
-                filter.append(Reservas_Fixas.tipo_responsavel == tipo_responsavel)
+                filter.append(filtro_tipo_responsavel(Reservas_Fixas, tipo_responsavel))
             if id_reserva_local is not None:
                 filter.append(Reservas_Fixas.id_reserva_local == id_reserva_local)
             if id_reserva_aula is not None:
@@ -106,7 +108,6 @@ def gerenciar_reservas_fixas():
         elif acao == 'inserir' and bloco == 1:
             id_responsavel = none_if_empty(request.form.get('id_responsavel'), int)
             id_responsavel_especial = none_if_empty(request.form.get('id_responsavel_especial'), int)
-            tipo_responsavel = none_if_empty(request.form.get('tipo_responsavel'), int)
             id_reserva_local = none_if_empty(request.form.get('id_reserva_local'), int)
             id_reserva_aula = none_if_empty(request.form.get('id_reserva_aula'), int)
             id_reserva_semestre = none_if_empty(request.form.get('id_reserva_semestre'), int)
@@ -117,8 +118,7 @@ def gerenciar_reservas_fixas():
             try:
                 nova_reserva_fixa = Reservas_Fixas(
                     id_responsavel=id_responsavel, id_responsavel_especial=id_responsavel_especial,
-                    tipo_responsavel=tipo_responsavel, id_reserva_local=id_reserva_local,
-                    id_reserva_aula=id_reserva_aula, id_reserva_semestre=id_reserva_semestre,
+                    id_reserva_local=id_reserva_local, id_reserva_aula=id_reserva_aula, id_reserva_semestre=id_reserva_semestre,
                     finalidade_reserva=FinalidadeReservaEnum(finalidade_reserva),
                     observacoes=observacoes,
                     descricao=descricao
@@ -158,7 +158,6 @@ def gerenciar_reservas_fixas():
             id_reserva_fixa = none_if_empty(request.form.get('id_reserva_fixa'), int)
             id_responsavel = none_if_empty(request.form.get('id_responsavel'), int)
             id_responsavel_especial = none_if_empty(request.form.get('id_responsavel_especial'), int)
-            tipo_responsavel = none_if_empty(request.form.get('tipo_responsavel'), int)
             id_reserva_local = none_if_empty(request.form.get('id_reserva_local'), int)
             id_reserva_aula = none_if_empty(request.form.get('id_reserva_aula'), int)
             id_reserva_semestre = none_if_empty(request.form.get('id_reserva_semestre'), int)
@@ -166,11 +165,13 @@ def gerenciar_reservas_fixas():
             observacoes = none_if_empty(request.form.get('observacoes'))
             descricao = none_if_empty(request.form.get('descricao'))
             reserva_fixa = db.get_or_404(Reservas_Fixas, id_reserva_fixa)
+            
+            if id_reserva_local is None or id_reserva_aula is None or id_reserva_semestre is None or finalidade_reserva is None:
+                abort(400, description="Dados de reserva incompletos.")
             try:
                 dados_anteriores = copy.copy(reserva_fixa)
                 reserva_fixa.id_responsavel = id_responsavel
                 reserva_fixa.id_responsavel_especial = id_responsavel_especial
-                reserva_fixa.tipo_responsavel = tipo_responsavel
                 reserva_fixa.id_reserva_local = id_reserva_local
                 reserva_fixa.id_reserva_aula = id_reserva_aula
                 reserva_fixa.id_reserva_semestre = id_reserva_semestre
