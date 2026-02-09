@@ -205,6 +205,8 @@ def editar_reserva_generico(model, id_reserva: int, redirect_url: str) -> Respon
     check_ownership_or_admin(reserva)
     observacao = request.form.get('observacao')
     finalidade_reserva = request.form.get('finalidade_reserva')
+    if not finalidade_reserva:
+        finalidade_reserva = FinalidadeReservaEnum.GRADUACAO.value
     responsavel = none_if_empty(request.form.get('responsavel'))
     responsavel_especial = none_if_empty(request.form.get('responsavel_especial'))
     perm = db.session.get(Permissoes, userid)
