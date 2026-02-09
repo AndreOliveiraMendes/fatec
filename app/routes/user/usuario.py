@@ -101,6 +101,7 @@ def gerenciar_reserva_fixa():
     extras['TipoReserva'] = FinalidadeReservaEnum
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
+    extras['all'] = all
     return render_template("usuario/reserva_fixa.html", user=user, **extras)
 
 @bp.route("/reserva/reservas_temporarias")
@@ -123,6 +124,7 @@ def gerenciar_reserva_temporaria():
     extras['TipoReserva'] = FinalidadeReservaEnum
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
+    extras['all'] = all
     return render_template("usuario/reserva_temporaria.html", user=user, **extras)
 
 def check_ownership_or_admin(reserva:Reservas_Fixas|Reservas_Temporarias):
