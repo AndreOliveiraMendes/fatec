@@ -83,7 +83,7 @@
                                             {% endif %}
                                             <span class="badge badge_status badge-{{ color }}">{{ reserva.situacao.situacao_chave.value }}</span>
                                         {% else %}
-                                            <span class="badge badge_status">???</span>
+                                            <span class="badge badge_status badge-danger">não pegou a chave*</span>
                                         {% endif %}
                                     </td>
                                     <td>
@@ -98,7 +98,7 @@
                                                 {% if reserva.situacao and reserva.situacao.situacao_chave.value == sit[0].value %}
                                                     {% set color = sit[1][1] %}
                                                 {% else %}
-                                                    {% set color = "muted" %}
+                                                    {% set color = "danger" %}
                                                 {% endif %}
                                                 <button type="submit"
                                                         name="situacao"
