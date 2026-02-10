@@ -79,9 +79,11 @@
 {% endblock content %}
 {% block extra_script %}
     <script>
+        // slide automático para cada grupo de laboratórios
         document.addEventListener('DOMContentLoaded', function () {
             const slides = document.querySelectorAll('#grupolocal .slide');
             let current = 0;
+            let ciclos = 0;
             const intervalo = {{ intervalo|default(5000) }};  // ms
 
             function showSlide(index) {
@@ -94,6 +96,14 @@
             setInterval(() => {
                 current = (current + 1) % slides.length;
                 showSlide(current);
+                if (current === 0) {
+                    console.log(ciclos);
+                    ciclos++;
+                    // Atualiza a página a cada 3 ciclos
+                    if (ciclos % 3 === 0) {
+                        window.location.reload();
+                    }
+                }
             }, intervalo);
         });
     </script>
