@@ -26,21 +26,16 @@
                     <div class="form-group">
                         <label for="inicio_reserva" class="col-sm-4 control-label">Data de Início</label>
                         <div class="col-sm-8">
-                            <input type="text"
+                            <input type="date"
                                    id="inicio_reserva"
                                    class="form-control"
-                                   name="inicio_reserva"
-                                   readonly>
+                                   name="inicio_reserva">
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="fim_reserva" class="col-sm-4 control-label">Data de Fim</label>
                         <div class="col-sm-8">
-                            <input type="text"
-                                   id="fim_reserva"
-                                   class="form-control"
-                                   name="fim_reserva"
-                                   readonly>
+                            <input type="date" id="fim_reserva" class="form-control" name="fim_reserva">
                         </div>
                     </div>
                     <div class="form-group">
@@ -82,8 +77,23 @@
                             <select id="id_aula" name="id_aula" class="form-control">
                                 <option value="">Selecione o horario</option>
                                 {% for info in aulas %}
-                                    <option value="{{ info[0].id_aula_ativa }}">{{ info[0].selector_identification }}</option>
+                                    <option value="{{ info.id_aula_ativa }}">{{ info.horario_inicio }} - {{ info.horario_fim }} na {{ info.nome_semana }} [turno: {{ info.turno_consulta }}]</option>
                                 {% endfor %}
+                                {# campos:
+                                    'id_aula_ativa'
+                                    'id_aula'
+                                    'inicio_ativacao'
+                                    'fim_ativacao'
+                                    'id_semana'
+                                    'tipo_aula'
+                                    'id_aula_1'
+                                    'horario_inicio'
+                                    'horario_fim'
+                                    'id_semana_1'
+                                    'nome_semana'
+                                    'dia_consulta'
+                                    'turno_consulta'
+                                #}
                             </select>
                         </div>
                     </div>
@@ -112,7 +122,10 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary" id="confirm-edit-btn" data-url="">Salvar</button>
+                    <button type="submit"
+                            class="btn btn-primary"
+                            id="confirm-edit-btn"
+                            data-url="">Salvar</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
                 </div>
             </form>

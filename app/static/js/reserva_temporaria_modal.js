@@ -4,6 +4,7 @@ function openReservaModal(data, url_edit) {
     $('#reservaModal form')[0].reset();
     // Preenche os campos de id
     $('#id_reserva').val(data.id_reserva);
+    // dia de inicio e fim no formato YYYY-MM-DD
     $('#inicio_reserva').val(data.inicio);
     $('#fim_reserva').val(data.fim);
     $('#id_responsavel').val(data.id_responsavel);

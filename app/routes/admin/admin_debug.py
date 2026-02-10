@@ -72,8 +72,6 @@ def listar_arquivos(directory, recursive=False):
                 if tipo == "Diretório" and recursive:
                     child = listar_arquivos(full_path, True)
 
-                print(info)
-
                 arquivos.append({
                     "nome": filename,
                     "caminho": full_path,

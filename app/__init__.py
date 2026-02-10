@@ -28,7 +28,7 @@ def create_app(name=None):
             static_dir=css_dir
         )
 
-        print("[SCSS] Compilação automática ativada (modo dev)")
+        #print("[SCSS] Compilação automática ativada (modo dev)")
     else:
         import sass
 
@@ -39,7 +39,7 @@ def create_app(name=None):
             output_style='compressed'
         )
 
-        print("[SCSS] Compilado para produção")
+        #print("[SCSS] Compilado para produção")
 
     with app.app_context():
         from app.auxiliar import auxiliar_template, error, url_custom_types

@@ -183,8 +183,11 @@ def gerenciar_reservas_temporarias():
                 abort(400, description="Finalidade da reserva não especificada.")
             if inicio_reserva is None or fim_reserva is None:
                 abort(400, description="Intervalo de reserva incompleto.")
+                
+            dados_anteriores = copy.copy(reserva_temporaria)
             try:
-                dados_anteriores = copy.copy(reserva_temporaria)
+                check_reserva_temporaria(inicio_reserva, fim_reserva,
+                    id_reserva_local, id_reserva_aula, id_reserva_temporaria)
                 reserva_temporaria.id_responsavel = id_responsavel
                 reserva_temporaria.id_responsavel_especial = id_responsavel_especial
                 reserva_temporaria.id_reserva_local = id_reserva_local
