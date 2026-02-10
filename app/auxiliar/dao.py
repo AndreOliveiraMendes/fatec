@@ -26,6 +26,7 @@ def get_pessoas(acao = None, userid = None):
         user = db.session.get(Usuarios, userid)
         if user:
             sel_pessoas = sel_pessoas.where(Pessoas.id_pessoa != user.id_usuario)
+    sel_pessoas = sel_pessoas.order_by(Pessoas.nome_pessoa)
     return db.session.execute(sel_pessoas).all()
 
 #usuarios
