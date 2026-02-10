@@ -19,8 +19,7 @@ from app.auxiliar.auxiliar_routes import (get_responsavel_reserva,
 from app.auxiliar.dao import (check_aula_ativa, check_reserva_temporaria,
                               get_aula_intervalo, get_aulas_ativas_por_dia,
                               sort_periodos)
-from app.auxiliar.decorators import (admin_required, cmd_config_required,
-                                     reserva_fixa_required)
+from app.auxiliar.decorators import (admin_required, cmd_config_required)
 from app.enums import FinalidadeReservaEnum
 from app.models import (Aulas, Aulas_Ativas, Locais, Reservas_Fixas,
                         Reservas_Temporarias, TipoAulaEnum, TipoLocalEnum,
