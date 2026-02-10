@@ -6,8 +6,8 @@ from importlib.resources import as_file
 from pathlib import Path
 from typing import Any
 
-from flask import (Blueprint, redirect, render_template, request, session,
-                   url_for)
+from flask import (Blueprint, abort, current_app, flash, redirect,
+                   render_template, request, session, url_for)
 from sqlalchemy import select
 
 from app.auxiliar.auxiliar_cryptograph import load_key
@@ -44,6 +44,8 @@ def gerenciar_menu():
 def configurar_tela_televisor():
     userid = session.get('userid')
     user = get_user_info(userid)
+    if not user:
+        abort(403, description="Usuário não encontrado.")
     extras = {}
     if request.method == 'GET':
         extras['tipo_aula'] = TipoAulaEnum
@@ -62,9 +64,17 @@ def configurar_tela_televisor():
             "laboratorios": lab,
             "status_indefinido": status_indefinido
         }
-        with as_file(resource) as painel_path:
-            painel_file = Path(painel_path)
-            painel_file.write_text(json.dumps(PAINEL_CFG, indent=4, ensure_ascii=False), encoding="utf-8")
+        try:
+            with as_file(resource) as painel_path:
+                painel_file = Path(painel_path)
+                painel_file.write_text(json.dumps(PAINEL_CFG, indent=4, ensure_ascii=False), encoding="utf-8")
+            current_app.logger.info("Configuração do painel efetuada com sucesso pelo usuário (%s) %s", user.pessoa.id_pessoa, user.pessoa.nome_pessoa)
+            # loga as mudanças específicas para cada campo
+            current_app.logger.info(f"Configuração do painel - tipo: {tipo_horario}, tempo: {tempo}, laboratorios: {lab}, status_indefinido: {status_indefinido}")
+            flash("Configuração do painel salva com sucesso!", "success")
+        except Exception as e:
+            current_app.logger.error(f"Erro ao salvar configuração do painel: {e}")
+            flash("Ocorreu um erro ao salvar a configuração do painel. Tente novamente.", "danger")
         return redirect(url_for('default.home'))
     return render_template("reserva/televisor_control.html", user=user, **extras)
 
@@ -87,9 +97,17 @@ def configuracao_geral():
         config_cfg['toleranca'] = toleranca
         config_cfg['login'] = home_login
         config_cfg['status_indefinido'] = status_indefinido
-        with as_file(resource) as config_path:
-            config_file = Path(config_path)
-            config_file.write_text(json.dumps(config_cfg, indent=4, ensure_ascii=False), encoding="utf-8")
+        try:
+            with as_file(resource) as config_path:
+                config_file = Path(config_path)
+                config_file.write_text(json.dumps(config_cfg, indent=4, ensure_ascii=False), encoding="utf-8")
+            current_app.logger.info("Configuração geral efetuada com sucesso pelo usuário (%s) %s", user.pessoa.id_pessoa, user.pessoa.nome_pessoa)
+            # loga as mudanças específicas para cada campo
+            current_app.logger.info(f"Configuração geral - modo_gerenciacao: {modo_gerenciacao}, toleranca: {toleranca}, login: {home_login}, status_indefinido: {status_indefinido}")
+            flash("Configuração geral salva com sucesso!", "success")
+        except Exception as e:
+            current_app.logger.error(f"Erro ao salvar configuração geral: {e}")
+            flash("Ocorreu um erro ao salvar a configuração geral. Tente novamente.", "danger")
         return redirect(url_for('default.home'))
     return render_template("admin/control.html", user=user, **extras)
 
