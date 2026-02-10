@@ -1002,7 +1002,7 @@ def update_reserva_temporaria(id_reserva):
 
     dados_anteriores = copy(reserva)
     try:
-        check_reserva_temporaria(inicio, fim, aula, local, reserva.id_reserva_temporaria)
+        check_reserva_temporaria(inicio, fim, local, aula, reserva.id_reserva_temporaria)
         reserva.inicio_reserva = inicio
         reserva.fim_reserva = fim
         reserva.id_responsavel = responsavel
