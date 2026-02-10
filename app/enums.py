@@ -17,6 +17,7 @@ class FinalidadeReservaEnum(enum.Enum):
     NAPTI = "NAPTI"
     CURSO = "Curso"
     USO_DOS_ALUNOS = "Uso dos Alunos"
+    NEPLE = "NEPLE"
 
 class DisponibilidadeEnum(enum.Enum):
     DISPONIVEL = "Disponivel"
