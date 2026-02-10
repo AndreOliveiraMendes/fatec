@@ -123,6 +123,19 @@
                 </div>
             </div>
         </div>
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">Outros</h3>
+            </div>
+            <div class="panel-body">
+                <div class="well d-flex align-items-center gap-2 flex-wrap">
+                    <a href="{{ url_for('consultar_reservas.tela_televisor') }}"
+                       class="btn btn-info btn-sm">
+                        <span class="glyphicon glyphicon-eye-open"></span> Visualizar Tela do Televisor
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock content %}
 {% block extra_script %}
