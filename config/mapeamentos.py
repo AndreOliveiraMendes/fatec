@@ -27,7 +27,7 @@ meses_ingleses = {
 }
 
 mapa_icones_status = {
-    None: ("text-muted", "glyphicon-user", None, "indefinido"),
+    None: ("text-default", "glyphicon-user", None, "indefinido"),
     "NAO_PEGOU_A_CHAVE": ("text-danger", "glyphicon-user", "glyphicon-remove", "não pegou a chave"),
     "PEGOU_A_CHAVE": ("text-success", "glyphicon-user", "glyphicon-ok", "esta em sala"),
     "DEVOLVEU_A_CHAVE": ("text-primary", "glyphicon-user", "glyphicon-log-out", "reserva efetuada"),
@@ -62,13 +62,15 @@ situacoes_helper = [
 DEFAULT_PAINEL_CFG = {
     "tipo": "Aula",
     "tempo": "15",
-    "laboratorios": "6"
+    "laboratorios": "6",
+    "status_indefinido": True
 }
 
 DEFAULT_CONFIG_CFG = {
     "modo_gerenciacao": "multiplo",
     "toleranca": 20,
-    "login": False
+    "login": False,
+    "status_indefinido": True
 }
 
 SECRET_PATH = "config/secret.json"

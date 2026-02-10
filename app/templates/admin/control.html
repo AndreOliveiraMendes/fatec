@@ -33,15 +33,29 @@
                    value="{{ config_cfg.get('toleranca') }}"
                    required>
         </div>
-        <div class="checkbox">
-            <label>
-                <input type="checkbox"
-                       id="login"
-                       name="login"
-                       value="1"
-                       {% if config_cfg.get('login') %}checked{% endif %}>
-                Mostrar botão de login na home
-            </label>
+        <div class="form-group">
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox"
+                        id="login"
+                        name="login"
+                        value="1"
+                        {% if config_cfg.get('login') %}checked{% endif %}>
+                    Mostrar botão de login na home
+                </label>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox"
+                        id="status_indefinido"
+                        name="status_indefinido"
+                        value="1"
+                        {% if config_cfg.get('status_indefinido') %}checked{% endif %}>
+                    "Status indefinido" tratado como "não pegou chave" (sem efeito internamente)
+                </label>
+            </div>
         </div>
         {{ action_buttons('montar', show_voltar=False, label='') }}
     </form>

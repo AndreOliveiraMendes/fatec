@@ -43,6 +43,17 @@
                    value="{{ painel_cfg.laboratorios }}"
                    required>
         </div>
+        <div class="form-group">
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox"
+                        id="status_indefinido"
+                        name="status_indefinido"
+                        {% if painel_cfg.status_indefinido %}checked{% endif %}>
+                    <span>Mostrar status indefinido como não pegou chave</span>
+                </label>
+            </div>
+        </div>
         {{ action_buttons('montar', show_voltar=False, label='') }}
     </form>
 {% endblock content %}

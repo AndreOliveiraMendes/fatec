@@ -83,7 +83,11 @@
                                             {% endif %}
                                             <span class="badge badge_status badge-{{ color }}">{{ reserva.situacao.situacao_chave.value }}</span>
                                         {% else %}
-                                            <span class="badge badge_status badge-danger">não pegou a chave*</span>
+                                            {% if config.get('status_indefinido') %}
+                                                <span class="badge badge_status badge-danger">não pegou a chave*</span>
+                                            {% else %}
+                                                <span class="badge badge_status badge-default">???</span>
+                                            {% endif %}
                                         {% endif %}
                                     </td>
                                     <td>

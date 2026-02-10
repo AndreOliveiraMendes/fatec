@@ -12,8 +12,9 @@ from app.auxiliar.constant import (DATA_ABREV, DATA_COMPLETA, DATA_FLAGS,
                                    PERMISSIONS, SEMANA_ABREV, SEMANA_COMPLETA)
 from app.models import (Exibicao_Reservas, FinalidadeReservaEnum, Locais,
                         Reservas_Fixas, Reservas_Temporarias, Semestres,
-                        Situacoes_Das_Reserva, Turnos, db)
+                        SituacaoChaveEnum, Situacoes_Das_Reserva, Turnos, db)
 from config.database_views import SECOES
+from config.json_related import carregar_painel_config
 from config.mapeamentos import (mapa_icones_status, meses_ingleses,
                                 semana_inglesa, situacoes_helper)
 
@@ -222,7 +223,7 @@ def register_filters(app:Flask):
         return get_responsavel_reserva(reserva)
 
     @app.template_global()
-    def get_reserva(lab, aula, dia, mostrar_icone=False):
+    def get_reserva(lab, aula, dia, mostrar_icone=False, tela_televisor=False):
         fixa, temp, choose = None, None, None
         semestre = get_unique_or_500(
             Semestres,
@@ -267,12 +268,13 @@ def register_filters(app:Flask):
         else:
             partes.append(get_responsavel_reserva(choose))
             if mostrar_icone:
-                partes.append(status_reserva(lab, aula, dia))
+                partes.append(status_reserva(lab, aula, dia, tela_televisor))
 
         return Markup("<br>".join(partes))
 
     @app.template_global()
-    def status_reserva(lab, aula, dia):
+    def status_reserva(lab, aula, dia, tela_televisor=False):
+        painel_cfg = carregar_painel_config()
         status = get_unique_or_500(
             Situacoes_Das_Reserva,
             Situacoes_Das_Reserva.id_situacao_local == lab,
@@ -280,6 +282,8 @@ def register_filters(app:Flask):
             Situacoes_Das_Reserva.situacao_dia == dia
         )
         chave = status.situacao_chave.name if status else None
+        if chave is None and painel_cfg.get('status_indefinido'):
+            chave = SituacaoChaveEnum.NAO_PEGOU_A_CHAVE.name
         cor, base, overlay, tooltip = mapa_icones_status[chave]
         icon = f"""
         <span class="reserva-icon { cor }" title="{ tooltip }">

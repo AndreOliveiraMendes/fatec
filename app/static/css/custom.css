@@ -441,3 +441,20 @@ body {
     color: white;
     text-align: center;
 }
+
+/* cores personalizadas para ícone de reserva */
+.text-indefinido {
+    color: #999;
+}
+
+.text-pegou-chave {
+    color: #28a745;
+}
+
+.text-nao-pegou-chave {
+    color: #dc3545;
+}
+
+.text-devolveu-chave {
+    color: #17a2b8;
+}

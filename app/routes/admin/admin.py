@@ -55,10 +55,12 @@ def configurar_tela_televisor():
         tipo_horario = request.form.get('reserva_tipo_horario')
         tempo = request.form.get('intervalo')
         lab = request.form.get('qt_lab')
+        status_indefinido = "status_indefinido" in request.form
         PAINEL_CFG = {
             "tipo": tipo_horario,
             "tempo": tempo,
-            "laboratorios": lab
+            "laboratorios": lab,
+            "status_indefinido": status_indefinido
         }
         with as_file(resource) as painel_path:
             painel_file = Path(painel_path)
@@ -80,9 +82,11 @@ def configuracao_geral():
         modo_gerenciacao = request.form.get('modo_gerenciacao')
         toleranca = request.form.get('toleranca')
         home_login = "login" in request.form
+        status_indefinido = "status_indefinido" in request.form
         config_cfg['modo_gerenciacao'] = modo_gerenciacao
         config_cfg['toleranca'] = toleranca
         config_cfg['login'] = home_login
+        config_cfg['status_indefinido'] = status_indefinido
         with as_file(resource) as config_path:
             config_file = Path(config_path)
             config_file.write_text(json.dumps(config_cfg, indent=4, ensure_ascii=False), encoding="utf-8")

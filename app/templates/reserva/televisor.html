@@ -67,7 +67,7 @@
                                     <td class="fixa text-{{ loop.cycle('info', 'success') }}">
                                         <span class="glyphicon glyphicon-time"></span> {{ aula[1].horario_inicio|hora }} - {{ aula[1].horario_fim|hora }}
                                     </td>
-                                    {% for lab in lab_group %}<td>{{ get_reserva(lab.id_local, aula[0].id_aula_ativa, hoje, true) }}</td>{% endfor %}
+                                    {% for lab in lab_group %}<td>{{ get_reserva(lab.id_local, aula[0].id_aula_ativa, hoje, true, true) }}</td>{% endfor %}
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -98,8 +98,8 @@
                 showSlide(current);
                 if (current === 0) {
                     ciclos++;
-                    // Atualiza a página a cada 3 ciclos
-                    if (ciclos % 3 === 0) {
+                    // Atualiza a página a cada 1 ciclos
+                    if (ciclos % 2 === 0) {
                         window.location.reload();
                     }
                 }
@@ -112,27 +112,27 @@
         <strong>Legenda dos ícones:</strong>
         <ul class="list-inline">
             <li>
-                <span class="reserva-icon text-muted">
+                <span class="reserva-icon text-indefinido">
                     <i class="glyphicon glyphicon-user base-icon"></i>
                 </span>
                 — indefinido
             </li>
             <li>
-                <span class="reserva-icon text-danger">
+                <span class="reserva-icon text-nao-pegou-chave">
                     <i class="glyphicon glyphicon-user base-icon"></i>
                     <i class="glyphicon glyphicon-remove icon-contrast overlay-icon"></i>
                 </span>
                 — não pegou a chave
             </li>
             <li>
-                <span class="reserva-icon text-success">
+                <span class="reserva-icon text-pegou-chave">
                     <i class="glyphicon glyphicon-user base-icon"></i>
                     <i class="glyphicon glyphicon-ok icon-contrast overlay-icon"></i>
                 </span>
                 — está em sala
             </li>
             <li>
-                <span class="reserva-icon text-primary">
+                <span class="reserva-icon text-devolveu-chave">
                     <i class="glyphicon glyphicon-user base-icon"></i>
                     <i class="glyphicon glyphicon-log-out icon-contrast overlay-icon"></i>
                 </span>
