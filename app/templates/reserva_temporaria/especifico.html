@@ -9,7 +9,7 @@
     <div class="center-content">
         <div class="btn-group">
             {{ go_back(contador) }}
-            <a href="{{ url_for('default.home') }}" class="btn btn-default">
+            <a href="{{ url_for("default.home") }}" class="btn btn-default">
                 <span class="glyphicon glyphicon-home"></span> Início
             </a>
         </div>
@@ -49,15 +49,16 @@
                                 <td>{{ dia['dia'] }} ({{ dia['semana'] }})</td>
                                 {% for info in dia['infos'] %}
                                     {% if info %}
-                                        {% set reservado = helper[(local.id_local, info.id_aula_ativa, dia['dia'])] %}
-                                        {% if reservado %}
-                                            <td class="reservado" title="{{ reservado }}">
+                                        {% set reserva = helper[(local.id_local, info.id_aula_ativa, dia['dia'])] %}
+                                        {% if reserva %}
+                                            <td class="reservado"
+                                                title="{{ reserva.title }}"
+                                                {% if user and user.perm|has_flag(ADMIN) %}data-id-reserva="{{ reserva['id'] }}"{% endif %}>
                                                 <span class="sr-only">Reservado</span>
-                                                <input type="checkbox"
-                                                       class="form-check-input checkbox-danger"
-                                                       title="{{ reservado }}"
-                                                       name="reserva[{{ local.id_local }},{{ info.id_aula_ativa }},{{ dia['dia'] }}]"
-                                                       disabled>
+                                                <!--
+                                                <input type="checkbox" class="form-check-input checkbox-danger" title="{{ reserva.title }}" name="reserva[{{ local.id_local }},{{ info.id_aula_ativa }},{{ dia['dia'] }}]" disabled>
+                                                -->
+                                                {{ reserva['title'].strip().split()[0] }}
                                             </td>
                                         {% else %}
                                             <td>
@@ -125,6 +126,10 @@
             {{ action_buttons('inserir', show_voltar=False, label='') }}
         </form>
     </div>
+    {% if user and user.perm|has_flag(ADMIN) %}
+        {% include "reserva_temporaria/modal_reserva_editar.html" %}
+        {% include "reserva_temporaria/modal_reserva_excluir.html" %}
+    {% endif %}
 {% endblock content %}
 {% block extra_script %}
     <script>{{ adjust_head_fix() }}</script>
@@ -147,4 +152,34 @@
         document.getElementById('finalidade_reserva').dispatchEvent(new Event('change'));
     });
     </script>
+    {% if user and user.perm|has_flag(ADMIN) %}
+        <script src="{{ url_for('static', filename='js/reserva_temporaria_modal.js') }}"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                document.addEventListener("click", function (e) {
+                    const td = e.target.closest("td.reservado");
+                    if (!td) return;
+
+                    const altPressed = e.altKey;
+                    const id = td.dataset.idReserva;
+                    const url = {{ url_for('api.get_reserva_info', tipo_reserva=1, id_reserva='0')|tojson }};
+                    const url_delete = {{ url_for('api.delete_reserva', tipo_reserva=1, id_reserva='0')|tojson }};
+                    const url_edit = {{ url_for('api.update_reserva', tipo_reserva=1, id_reserva='0')|tojson }};
+
+                    fetch(url.replace(/0$/, id))
+                        .then(r => r.json())
+                        .then(data => {
+                            if (altPressed) {
+                                DeleteData(data, url_delete.replace(/0$/, id));
+                            } else {
+                                openReservaModal(data, url_edit.replace(/0$/, id));
+                            }
+                        })
+                        .catch(err =>
+                            alert("Erro ao carregar reserva devido a: " + err)
+                        );
+                });
+            });
+        </script>
+    {% endif %}
 {% endblock extra_script %}

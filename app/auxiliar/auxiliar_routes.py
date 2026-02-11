@@ -267,7 +267,7 @@ def builder_helper_temporaria(inicio, fim, id_lab: int|None=None):
         title = get_responsavel_reserva(r)
         days = [day.strftime('%Y-%m-%d') for day in time_range(r.inicio_reserva, r.fim_reserva, 7)]
         for day in days:
-            helper[(r.id_reserva_local, r.id_reserva_aula, day)] = title
+            helper[(r.id_reserva_local, r.id_reserva_aula, day)] = {"title": title, "id":r.id_reserva_temporaria}
     return helper
 
 def filtro_tipo_responsavel(

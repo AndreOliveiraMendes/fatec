@@ -2,7 +2,8 @@ from copy import copy, deepcopy
 from datetime import datetime, timedelta
 
 import paramiko
-from flask import Blueprint, abort, current_app, jsonify, request, session
+from flask import (Blueprint, Response, abort, current_app, jsonify, request,
+                   session)
 from flask_sqlalchemy.pagination import SelectPagination
 from paramiko.ssh_exception import (AuthenticationException,
                                     NoValidConnectionsError, SSHException)
@@ -11,14 +12,18 @@ from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
                             InternalError, OperationalError, ProgrammingError)
 
 from app.auxiliar.auxiliar_cryptograph import decrypt_field, encrypt_field
-from app.auxiliar.auxiliar_routes import (get_unique_or_500, get_user_info,
-                                          parse_date_string,
+from app.auxiliar.auxiliar_routes import (get_responsavel_reserva,
+                                          get_unique_or_500, get_user_info,
+                                          none_if_empty, parse_date_string,
                                           registrar_log_generico_usuario)
-from app.auxiliar.dao import (check_aula_ativa, get_aula_intervalo,
-                              get_aulas_ativas_por_dia, sort_periodos)
-from app.auxiliar.decorators import admin_required, cmd_config_required
-from app.models import (Aulas, Aulas_Ativas, Locais, TipoAulaEnum,
-                        TipoLocalEnum, Turnos, db)
+from app.auxiliar.dao import (check_aula_ativa, check_reserva_temporaria,
+                              get_aula_intervalo, get_aulas_ativas_por_dia,
+                              sort_periodos)
+from app.auxiliar.decorators import (admin_required, cmd_config_required)
+from app.enums import FinalidadeReservaEnum
+from app.models import (Aulas, Aulas_Ativas, Locais, Reservas_Fixas,
+                        Reservas_Temporarias, TipoAulaEnum, TipoLocalEnum,
+                        Turnos, db)
 from config import LOCAL_TIMEZONE
 from config.json_related import (load_commands, load_ssh_credentials,
                                  save_commands, save_ssh_credentials)
@@ -869,3 +874,225 @@ def api_run_command():
         "executed_by": user.pessoa.nome_pessoa,
         "lab_id": lab_id
     })
+
+# reservas fixas/temporarias
+@bp.route('/reserva/<int:tipo_reserva>/<int:id_reserva>')
+@admin_required
+def get_reserva_info(tipo_reserva, id_reserva):
+    if tipo_reserva == 0: # reserva fixa
+        return get_reserva_fixa_info(id_reserva)
+    elif tipo_reserva == 1: # reserva temporaria
+        return get_reserva_temporaria_info(id_reserva)
+    else:
+        return Response(status=400)
+
+def get_reserva_fixa_info(id_reserva):
+    reserva = db.get_or_404(Reservas_Fixas, id_reserva)
+    responsavel = get_responsavel_reserva(reserva)
+    return {
+        "id_reserva": reserva.id_reserva_fixa,
+        "id_semestre": reserva.id_reserva_semestre,
+        "id_responsavel": reserva.id_responsavel,
+        "id_responsavel_especial": reserva.id_responsavel_especial,
+        "id_local": reserva.id_reserva_local,
+        "id_aula_ativa": reserva.id_reserva_aula,
+        "finalidade": reserva.finalidade_reserva.value,
+        "observacoes": reserva.observacoes,
+        "descricao": reserva.descricao,
+        "semestre": reserva.semestre.nome_semestre,
+        "responsavel": responsavel,
+        "horario": reserva.aula_ativa.selector_identification,
+        "local": reserva.local.nome_local
+    }
+
+def get_reserva_temporaria_info(id_reserva):
+    reserva = db.get_or_404(Reservas_Temporarias, id_reserva)
+    responsavel = get_responsavel_reserva(reserva)
+    return {
+        "id_reserva": reserva.id_reserva_temporaria,
+        "inicio": reserva.inicio_reserva.strftime("%Y-%m-%d") if reserva.inicio_reserva else None,
+        "fim": reserva.fim_reserva.strftime("%Y-%m-%d") if reserva.fim_reserva else None,
+        "id_responsavel": reserva.id_responsavel,
+        "id_responsavel_especial": reserva.id_responsavel_especial,
+        "id_local": reserva.id_reserva_local,
+        "id_aula_ativa": reserva.id_reserva_aula,
+        "finalidade": reserva.finalidade_reserva.value,
+        "observacoes": reserva.observacoes,
+        "descricao": reserva.descricao,
+        "responsavel": responsavel,
+        "horario": reserva.aula_ativa.selector_identification,
+        "local": reserva.local.nome_local
+    }
+
+@admin_required
+@bp.route('/reserva/<int:tipo_reserva>/update/<int:id_reserva>', methods=['POST'])
+def update_reserva(tipo_reserva, id_reserva):
+    if tipo_reserva == 0: # reserva fixa
+        return update_reserva_fixa(id_reserva)
+    elif tipo_reserva == 1: # reserva temporaria
+        return update_reserva_temporaria(id_reserva)
+    else:
+        return Response(status=400)
+
+def update_reserva_fixa(id_reserva):
+    userid = session.get('userid')
+    reserva = db.get_or_404(Reservas_Fixas, id_reserva)
+    data = request.form
+
+    responsavel = none_if_empty(data.get('id_responsavel'), int)
+    responsavel_especial = none_if_empty(data.get('id_responsavel_especial'), int)
+    local = none_if_empty(data.get('id_local'), int)
+    aula = none_if_empty(data.get('id_aula'), int)
+    finalidade_reserva = data.get('finalidade')
+    observacoes = data.get('observacoes')
+    descricao = data.get('descricao')
+    if local is None or aula is None:
+        return Response(status=400)
+    old_reserva = copy(reserva)
+    try:
+        reserva.id_responsavel = responsavel
+        reserva.id_responsavel_especial = responsavel_especial
+        reserva.id_reserva_local = local
+        reserva.id_reserva_aula = aula
+        reserva.finalidade_reserva = FinalidadeReservaEnum(finalidade_reserva)
+        reserva.observacoes = observacoes
+        reserva.descricao = descricao
+
+        registrar_log_generico_usuario(
+            userid,
+            'Edição',
+            reserva,
+            observacao='através de reserva',
+            antes=old_reserva
+        )
+        db.session.commit()
+        current_app.logger.info(
+            f"reserva atualizada com sucesso para {reserva} por {userid}"
+        )
+
+        return Response(status=204)
+
+    except (DataError, IntegrityError, InterfaceError,
+            InternalError, OperationalError, ProgrammingError) as e:
+        db.session.rollback()
+        current_app.logger.error(f"falha ao atualizar reserva: {e}")
+        return Response(status=500)
+    except ValueError as ve:
+        db.session.rollback()
+        current_app.logger.error(f"falha ao atualizar reserva: {ve}")
+        return Response(status=500)
+    
+def update_reserva_temporaria(id_reserva):
+    userid = session.get('userid')
+    reserva = db.get_or_404(Reservas_Temporarias, id_reserva)
+    data = request.form
+
+    responsavel = none_if_empty(data.get('id_responsavel'), int)
+    responsavel_especial = none_if_empty(data.get('id_responsavel_especial'), int)
+    inicio = parse_date_string(data.get('inicio_reserva'))
+    fim = parse_date_string(data.get('fim_reserva'))
+    local = none_if_empty(data.get('id_local'), int)
+    aula = none_if_empty(data.get('id_aula'), int)
+    finalidade_reserva = data.get('finalidade')
+    observacoes = data.get('observacoes')
+    descricao = data.get('descricao')
+    
+    if local is None or aula is None or inicio is None or fim is None:
+        return Response(status=400)
+
+    dados_anteriores = copy(reserva)
+    try:
+        check_reserva_temporaria(inicio, fim, local, aula, reserva.id_reserva_temporaria)
+        reserva.inicio_reserva = inicio
+        reserva.fim_reserva = fim
+        reserva.id_responsavel = responsavel
+        reserva.id_responsavel_especial = responsavel_especial
+        reserva.id_reserva_local = local
+        reserva.id_reserva_aula = aula
+        reserva.finalidade_reserva = FinalidadeReservaEnum(finalidade_reserva)
+        reserva.observacoes = observacoes
+        reserva.descricao = descricao
+
+        registrar_log_generico_usuario(
+            userid,
+            'Edição',
+            reserva,
+            observacao='através de reserva',
+            antes=dados_anteriores
+        )
+        db.session.commit()
+        current_app.logger.info(
+            f"reserva atualizada com sucesso para {reserva} por {userid}"
+        )
+
+        return Response(status=204)
+
+    except (DataError, IntegrityError, InterfaceError,
+            InternalError, OperationalError, ProgrammingError) as e:
+        db.session.rollback()
+        current_app.logger.error(f"falha ao atualizar reserva: {e}")
+        return Response(status=500)
+    except ValueError as ve:
+        db.session.rollback()
+        current_app.logger.error(f"falha ao atualizar reserva: {ve}")
+        return Response(status=500)
+
+@admin_required
+@bp.route('/reserva/<int:tipo_reserva>/delete/<int:id_reserva>', methods=['DELETE'])
+def delete_reserva(tipo_reserva, id_reserva):
+    if tipo_reserva == 0: # reserva fixa
+        return delete_reserva_fixa(id_reserva)
+    elif tipo_reserva == 1: # reserva temporaria
+        return delete_reserva_temporaria(id_reserva)
+    else:
+        return Response(status=400)
+
+def delete_reserva_fixa(id_reserva):
+    userid = session.get('userid')
+    reserva = db.get_or_404(Reservas_Fixas, id_reserva)
+
+    try:
+        db.session.delete(reserva)
+        registrar_log_generico_usuario(
+            userid,
+            'Exclusão',
+            reserva,
+            observacao='através de reserva'
+        )
+        db.session.commit()
+        current_app.logger.info(
+            f"reserva removida com sucesso para {reserva} por {userid}"
+        )
+
+        return Response(status=204)
+
+    except (DataError, IntegrityError, InterfaceError,
+            InternalError, OperationalError, ProgrammingError) as e:
+        db.session.rollback()
+        current_app.logger.error(f"falha ao remover reserva: {e}")
+        return Response(status=500)
+
+def delete_reserva_temporaria(id_reserva):
+    userid = session.get('userid')
+    reserva = db.get_or_404(Reservas_Temporarias, id_reserva)
+
+    try:
+        db.session.delete(reserva)
+        registrar_log_generico_usuario(
+            userid,
+            'Exclusão',
+            reserva,
+            observacao='através de reserva'
+        )
+        db.session.commit()
+        current_app.logger.info(
+            f"reserva removida com sucesso para {reserva} por {userid}"
+        )
+
+        return Response(status=204)
+
+    except (DataError, IntegrityError, InterfaceError,
+            InternalError, OperationalError, ProgrammingError) as e:
+        db.session.rollback()
+        current_app.logger.error(f"falha ao remover reserva: {e}")
+        return Response(status=500)

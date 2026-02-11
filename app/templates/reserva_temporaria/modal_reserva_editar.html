@@ -1,0 +1,134 @@
+<div class="modal fade"
+     id="reservaModal"
+     tabindex="-1"
+     role="dialog"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title">Detalhes da Reserva</h4>
+            </div>
+            <form class="form-horizontal" method="post" id="modal_edit_reserva">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="id_reserva" class="col-sm-4 control-label">ID da Reserva</label>
+                        <div class="col-sm-8">
+                            <input type="text"
+                                   id="id_reserva"
+                                   class="form-control"
+                                   name="id_reserva"
+                                   readonly>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inicio_reserva" class="col-sm-4 control-label">Data de Início</label>
+                        <div class="col-sm-8">
+                            <input type="date"
+                                   id="inicio_reserva"
+                                   class="form-control"
+                                   name="inicio_reserva">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="fim_reserva" class="col-sm-4 control-label">Data de Fim</label>
+                        <div class="col-sm-8">
+                            <input type="date" id="fim_reserva" class="form-control" name="fim_reserva">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_responsavel" class="col-sm-4 control-label">ID do Responsável</label>
+                        <div class="col-sm-8">
+                            <select id="id_responsavel" name="id_responsavel" class="form-control">
+                                <option value="">Selecione o responsavel</option>
+                                {% for pessoa in responsavel %}
+                                    <option value="{{ pessoa.id_pessoa }}">{{ pessoa.alias if pessoa.alias else pessoa.nome_pessoa }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_responsavel_especial" class="col-sm-4 control-label">ID do Responsável Especial</label>
+                        <div class="col-sm-8">
+                            <select id="id_responsavel_especial"
+                                    name="id_responsavel_especial"
+                                    class="form-control">
+                                <option value="">Selecione o responsavel especial</option>
+                                {% for especial in responsavel_especial %}
+                                    <option value="{{ especial.id_usuario_especial }}">{{ especial.nome_usuario_especial }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_local" class="col-sm-4 control-label">ID do Local</label>
+                        <div class="col-sm-8">
+                            <select id="id_local" name="id_local" class="form-control">
+                                <option value="">Selecione o local</option>
+                                {% for local in locais %}<option value="{{ local.id_local }}">{{ local.nome_local }}</option>{% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_aula" class="col-sm-4 control-label">ID do horario</label>
+                        <div class="col-sm-8">
+                            <select id="id_aula" name="id_aula" class="form-control">
+                                <option value="">Selecione o horario</option>
+                                {% for info in aulas %}
+                                    <option value="{{ info.id_aula_ativa }}">{{ info.horario_inicio }} - {{ info.horario_fim }} na {{ info.nome_semana }} [turno: {{ info.turno_consulta }}]</option>
+                                {% endfor %}
+                                {# campos:
+                                    'id_aula_ativa'
+                                    'id_aula'
+                                    'inicio_ativacao'
+                                    'fim_ativacao'
+                                    'id_semana'
+                                    'tipo_aula'
+                                    'id_aula_1'
+                                    'horario_inicio'
+                                    'horario_fim'
+                                    'id_semana_1'
+                                    'nome_semana'
+                                    'dia_consulta'
+                                    'turno_consulta'
+                                #}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="finalidade" class="col-sm-4 control-label">Finalidade</label>
+                        <div class="col-sm-8">
+                            <select id="finalidade" name="finalidade" class="form-control">
+                                <option value="">Selecione a finalidade</option>
+                                {% for finalidade in finalidade_reserva %}
+                                    <option value="{{ finalidade.value }}">{{ finalidade.value }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="observacoes" class="col-sm-4 control-label">Observações</label>
+                        <div class="col-sm-8">
+                            <textarea id="observacoes" name="observacoes" class="form-control" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="descricao" class="col-sm-4 control-label">Descrição</label>
+                        <div class="col-sm-8">
+                            <input type="text" id="descricao" class="form-control" name="descricao">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit"
+                            class="btn btn-primary"
+                            id="confirm-edit-btn"
+                            data-url="">Salvar</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
