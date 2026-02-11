@@ -415,7 +415,12 @@ body {
 table > tbody > tr > td.reservado {
     background-color: #f50b0b;
     cursor: not-allowed;
-    color: white; /* opcional para melhor contraste */
+    color: black; /* opcional para melhor contraste */
+}
+
+table > tbody > tr > td.livre {
+    background-color: rgb(29, 190, 29);
+    color: black; /* opcional para melhor contraste */
 }
 
 .slide,
