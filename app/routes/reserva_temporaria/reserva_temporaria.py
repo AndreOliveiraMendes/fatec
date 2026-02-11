@@ -49,7 +49,10 @@ def main_page():
     if request.method == 'POST':
         dia_inicial = parse_date_string(request.form.get('dia_inicio'))
         dia_final = parse_date_string(request.form.get('dia_fim'))
-        if not dia_inicial or not dia_final:
+        if not dia_final:
+            flash("data final não informada, considerando mesma data de início", "warning")
+            dia_final = dia_inicial
+        if not dia_inicial:
             abort(400, description="datas invalidas")
         if dia_inicial > dia_final:
             dia_inicial, dia_final = dia_final, dia_inicial
