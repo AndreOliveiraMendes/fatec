@@ -412,9 +412,10 @@ body {
 /* ==========================
    OUTROS
    ========================== */
-.reservado {
+table > tbody > tr > td.reservado {
     background-color: #f50b0b;
     cursor: not-allowed;
+    color: white; /* opcional para melhor contraste */
 }
 
 .slide,

@@ -43,7 +43,7 @@
                         <th class="col-fixa">horario</th>
                         {% for local in locais %}
                             <th class="row-fixa"
-                                title="{{ local.descrição if local.descrição else '' }}">{{ local.nome_local }}</th>
+                                title="{{ local.descrição if local.descrição else '' }}">{{ local.nome_local.replace("laboratorio ", "") }}</th>
                         {% endfor %}
                     </tr>
                 </thead>
@@ -202,36 +202,53 @@
         function buildReservaUrl(localId, aulaId) {
             return baseUrl.replace('/0/0', `/${localId}/${aulaId}`);
         }
-        document.querySelectorAll('.tabela-reserva td[data-aula]').forEach(async td => {
-            const localId = td.dataset.local;
-            const aulaId = td.dataset.aula;
 
-            const url=buildReservaUrl(localId, aulaId);
-            console.log("Checking reserva for URL: " + url);
-            try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+        // Função que atualiza as reservas
+        async function atualizarReservas() {
+            console.log(`atualizando reservas no horario ${new Date().toLocaleTimeString()}`);
+            document.querySelectorAll('.tabela-reserva td[data-aula]').forEach(async td => {
+                const localId = td.dataset.local;
+                const aulaId = td.dataset.aula;
+
+                const url = buildReservaUrl(localId, aulaId); // sua função de gerar URL dinâmica
+
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const data = await response.json();
+
+                    if (data.reservado) {
+                        td.classList.add('reservado');
+                        td.dataset.idReserva = data.id_reserva;
+
+                        const checkbox = td.querySelector('input');
+                        if (checkbox) checkbox.remove();
+
+                        const firstName = data.responsavel?.split(' ')[0] || 'Reservado';
+                        td.textContent = firstName;
+                        td.title = data.responsavel || '';
+                    } else {
+                        // Caso não esteja reservado, restaurar checkbox se não tiver
+                        td.classList.remove('reservado');
+                        if (!td.querySelector('input')) {
+                            td.innerHTML = `<input type="checkbox" class="form-check-input" 
+                                name="reserva[${localId}, ${aulaId}]">`;
+                        }
+                        td.dataset.idReserva = '';
+                        td.title = '';
+                    }
+                } catch (err) {
+                    console.error(`Erro ao verificar reserva para local ${localId} e aula ${aulaId}:`, err);
                 }
-                const data = await response.json();
-                console.log("Reserva data for local " + localId + " and aula " + aulaId + ": ", data);
-                if (data.reservado) {
-                    td.classList.add('reservado');
+            });
+        }
 
-                    td.dataset.idReserva = data.id_reserva;
+        // Atualiza a cada 30 segundos (30000 ms)
+        atualizarReservas(); // primeira chamada imediata
+        setInterval(atualizarReservas, 30000);
 
-                    // Remove the checkbox
-                    const checkbox = td.querySelector('input');
-                    if (checkbox) checkbox.remove();
-
-                    // Insert the first name of the responsible person
-                    const firstName = data.responsavel?.split(' ')[0] || 'Reservado';
-                    td.textContent = firstName;
-                }
-            } catch (err) {
-                console.error("Erro ao verificar reserva para local " + localId + " e aula " + aulaId + ": ", err);
-            }
-        });
     });
     </script>
     {% if user and user.perm|has_flag(ADMIN) %}
