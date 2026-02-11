@@ -162,9 +162,9 @@
 
                     const altPressed = e.altKey;
                     const id = td.dataset.idReserva;
-                    const url = {{ url_for('api.get_reserva_info', tipo_reserva=1, id_reserva='0')|tojson }};
-                    const url_delete = {{ url_for('api.delete_reserva', tipo_reserva=1, id_reserva='0')|tojson }};
-                    const url_edit = {{ url_for('api.update_reserva', tipo_reserva=1, id_reserva='0')|tojson }};
+                    const url = {{ url_for('api_reservas.get_reserva_info', tipo_reserva=1, id_reserva='0')|tojson }};
+                    const url_delete = {{ url_for('api_reservas.delete_reserva', tipo_reserva=1, id_reserva='0')|tojson }};
+                    const url_edit = {{ url_for('api_reservas.update_reserva', tipo_reserva=1, id_reserva='0')|tojson }};
 
                     fetch(url.replace(/0$/, id))
                         .then(r => r.json())

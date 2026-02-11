@@ -199,7 +199,7 @@
             const commandInput = document.getElementById('commandInput');
 
             // Carrega lista de credenciais
-            fetch('{{ url_for("api.api_ssh_list") }}')
+            fetch('{{ url_for("api_ssh.api_ssh_list") }}')
                 .then(r => r.json())
                 .then(creds => {
                     credSelect.innerHTML = '';
@@ -270,7 +270,7 @@
                 executeBtn.disabled = true;
                 disableAllReruns();
 
-                fetch(`{{ url_for("api.api_ssh_execute", cred_id=0) }}`.replace('0', credId), {
+                fetch(`{{ url_for("api_ssh.api_ssh_execute", cred_id=0) }}`.replace('0', credId), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ command: command, stdin: stdinData })
@@ -311,7 +311,7 @@
                 executeBtn.disabled = true;
                 disableAllReruns();
 
-                fetch(`{{ url_for("api.api_ssh_execute", cred_id=0) }}`.replace('0', credId), {
+                fetch(`{{ url_for("api_ssh.api_ssh_execute", cred_id=0) }}`.replace('0', credId), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ command: cmd, stdin: stdinData })
@@ -360,8 +360,8 @@
 
             // ===================== INICIALIZAÇÃO =====================
             Promise.all([
-                fetch('{{ url_for("api.api_ssh_list") }}').then(r => r.json()),
-                fetch('{{ url_for("api.api_list_commands") }}').then(r => r.json())
+                fetch('{{ url_for("api_ssh.api_ssh_list") }}').then(r => r.json()),
+                fetch('{{ url_for("api_commands.api_list_commands") }}').then(r => r.json())
             ])
             .then(([creds, commands]) => {
                 // popula credenciais
@@ -443,7 +443,7 @@
                     return;
                 }
 
-                fetch("{{ url_for('api.api_save_command') }}", {
+                fetch("{{ url_for('api_commands.api_save_command') }}", {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
@@ -464,7 +464,7 @@
 
             // ===================== DELETAR COMANDO =====================
             function deleteCommand(id) {
-                fetch(`{{ url_for("api.api_delete_command", cmd_id=0) }}`.replace('0', id), {
+                fetch(`{{ url_for("api_commands.api_delete_command", cmd_id=0) }}`.replace('0', id), {
                     method: 'DELETE'
                 })
                 .then(r => r.json())
@@ -482,7 +482,7 @@
 
             // ===================== RECARREGAR E RENDERIZAR =====================
             function loadCommands() {
-                fetch('{{ url_for("api.api_list_commands") }}')
+                fetch('{{ url_for("api_commands.api_list_commands") }}')
                     .then(r => r.json())
                     .then(commands => {
                         commandList = commands;

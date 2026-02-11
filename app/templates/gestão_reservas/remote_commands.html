@@ -83,7 +83,7 @@
             let comandosGlobais = []; // para uso na execução
 
             const LABS_URL = "{{ url_for('api.api_get_laboratorios') }}";
-            const COMMANDS_URL = "{{ url_for('api.api_list_commands') }}"; // endpoint de comandos
+            const COMMANDS_URL = "{{ url_for('api_commands.api_list_commands') }}"; // endpoint de comandos
 
             async function carregarDados() {
                 try {
@@ -378,7 +378,7 @@
                     parametros: paramsCompletos
                 };
 
-                fetch("{{ url_for('api.api_run_command') }}", {
+                fetch("{{ url_for('api_commands.api_run_command') }}", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(corpo)

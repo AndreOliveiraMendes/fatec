@@ -92,15 +92,15 @@
         window.appConfig = {
             hoje: "{{ hoje }}",
             api: {
-                getTurno: "{{ url_for('api.api_get_turno') }}",
-                getAulasAtivas: "{{ url_for('api.api_get_aulas_ativas') }}",
-                ativarTemp: "{{ url_for('api.api_ativar_temp') }}",
-                ativarPerm: "{{ url_for('api.api_ativar_perm') }}",
-                desativar: "{{ url_for('api.api_desativar') }}",
-                extender: "{{ url_for('api.api_extender') }}",
-                listarPeriodos: "{{ url_for('api.api_listar_periodos') }}",
-                getPeriodosRelacionados: "{{ url_for('api.api_get_periodos_relacionados') }}",
-                apiDeletarPeriodos: "{{ url_for('api.api_excluir_ativacao') }}"
+                getTurno: "{{ url_for('api_times.api_get_turno') }}",
+                getAulasAtivas: "{{ url_for('api_times.api_get_aulas_ativas') }}",
+                ativarTemp: "{{ url_for('api_times.api_ativar_temp') }}",
+                ativarPerm: "{{ url_for('api_times.api_ativar_perm') }}",
+                desativar: "{{ url_for('api_times.api_desativar') }}",
+                extender: "{{ url_for('api_times.api_extender') }}",
+                listarPeriodos: "{{ url_for('api_times.api_listar_periodos') }}",
+                getPeriodosRelacionados: "{{ url_for('api_times.api_get_periodos_relacionados') }}",
+                apiDeletarPeriodos: "{{ url_for('api_times.api_excluir_ativacao') }}"
             }
         };
     </script>
