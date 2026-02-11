@@ -23,9 +23,14 @@ input[disabled] {
     vertical-align: middle;
 }
 
+.tabela-wrapper {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
 .tabela-reserva {
-    border-collapse: collapse;
-    overflow-x: auto;
+    border-collapse: separate; /* importante para sticky funcionar melhor */
+    border-spacing: 0;
     width: 100%;
 }
 
@@ -35,18 +40,28 @@ input[disabled] {
     text-align: center;
     border: 1px solid #5bc0de;
     white-space: nowrap;
+    background-color: #fff; /* evita transparência no sticky */
 }
 
+/* HEADER sticky */
 .tabela-reserva thead th {
+    position: sticky;
+    top: 0;
     background-color: #5bc0de;
+    z-index: 20; /* maior que a coluna */
 }
 
+/* PRIMEIRA COLUNA sticky */
 .tabela-reserva .col-fixa {
     position: sticky;
     left: 0;
     background-color: #5bc0de;
-    z-index: 3;
-    vertical-align: middle;
+    z-index: 15;
+}
+
+/* CÉLULA do header que também é col-fixa */
+.tabela-reserva thead .col-fixa {
+    z-index: 30; /* precisa ser maior que tudo */
 }
 
 .tabela-reserva-tv {

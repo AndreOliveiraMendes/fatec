@@ -232,8 +232,6 @@ def get_lab_geral(id_semestre, id_turno=None):
         return redirect(url_for('default.home'))
     extras['locais'] = locais
     extras['aulas'] = aulas
-    build_table_headers_geral(aulas, extras, id_turno)
-    extras['helper'] = builder_helper_fixa(id_semestre)
     extras['finalidade_reserva'] = FinalidadeReservaEnum
     extras['aulas_extras'] = get_aulas_extras(semestre, turno)
     extras['responsavel'] = get_pessoas()
