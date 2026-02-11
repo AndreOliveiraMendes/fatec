@@ -3,7 +3,7 @@ from datetime import date, datetime, timedelta
 from typing import (Any, Callable, Literal, MutableMapping, Optional, Type,
                     TypeVar)
 
-from flask import abort, redirect, session, url_for
+from flask import abort, current_app, redirect, session, url_for
 from flask.typing import ResponseReturnValue
 from sqlalchemy import and_, select
 from sqlalchemy.exc import MultipleResultsFound
@@ -78,6 +78,7 @@ def get_user_info(userid):
     if user:
         return user
     else:
+        current_app.logger.error(f"Usuário com ID {userid} não encontrado.")
         session.pop('userid')
 
 def formatar_valor(valor):

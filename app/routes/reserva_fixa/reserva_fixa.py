@@ -1,3 +1,4 @@
+import re
 from collections import Counter
 from datetime import date
 from typing import Sequence, Set, Tuple, cast
@@ -62,38 +63,6 @@ def check_semestre(semestre:Semestres, userid, perm:int):
         user = db.get_or_404(Usuarios, userid)
         if has_priority and prioridade is not None and user.pessoa.id_pessoa not in prioridade:
             abort(403, description="Usuário não se enquadra na regra de prioridade.")
-
-def build_table_headers_geral(aulas, extras, id_turno=None):
-    contagem_dias = Counter()
-    contagem_turnos = Counter()
-    label = {}
-    head2 = []
-
-    for info in aulas:
-        aula = info[1]
-        semana = info[2]
-
-        # Contagem por dia da semana
-        contagem_dias[semana.id_semana] += 1
-
-        # Contagem por turno (somente se não houver turno fixo)
-        if id_turno is None:
-            turno = get_unique_or_500(
-                Turnos,
-                between(aula.horario_inicio, Turnos.horario_inicio, Turnos.horario_fim)
-            )
-            contagem_turnos[(semana.id_semana, turno)] += 1
-
-        # Labels e cabeçalho secundário
-        label[semana.id_semana] = semana.nome_semana
-        head2.append(aula.selector_identification)
-
-    extras["head1"] = [
-        (label[id_semana], count)
-        for id_semana, count in contagem_dias.items()
-    ]
-    extras["head2"] = head2
-    extras["head_turno"] = contagem_turnos
 
 def build_table_semanas_aulas(aulas, extras):
     table_aulas = []
@@ -192,13 +161,15 @@ def get_semestre(id_semestre):
 @bp.before_request
 def return_counter():
     if request.endpoint == "reservas_semanais.get_lab":
-        session["contador"] = session.get("contador", 0) + 1
+        pattern = r"/reserva_fixa/semestre/\d+/turno/\d+/lab(?:/\d+)?$"
+        referer = request.headers.get("Referer", "")
+        if re.search(pattern, referer):
+            print("DENTRO")
+            session["contador"] = session.get("contador", 0) + 1
+        else:
+            print("FORA")
+            session["contador"] = 1
     else:
-        session.pop("contador", None)
-
-@bp.before_app_request
-def clear_counter():
-    if not request.endpoint:
         session.pop("contador", None)
 
 @bp.route('/semestre/<int:id_semestre>/turno/lab')
