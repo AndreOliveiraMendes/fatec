@@ -282,7 +282,7 @@ def register_filters(app:Flask):
             Situacoes_Das_Reserva.situacao_dia == dia
         )
         chave = status.situacao_chave.name if status else None
-        if chave is None and painel_cfg.get('status_indefinido'):
+        if chave is None and painel_cfg.get('status_indefinido') and tela_televisor:
             chave = SituacaoChaveEnum.NAO_PEGOU_A_CHAVE.name
         cor, base, overlay, tooltip = mapa_icones_status[chave]
         icon = f"""
