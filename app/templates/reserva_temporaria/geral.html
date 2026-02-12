@@ -40,10 +40,7 @@
                     <tr>
                         <th class="col-fixa">Horario</th>
                         {% for local in locais %}
-                            <th class="row-fixa"
-                                title="{{ local.descrição if local.descrição else '' }}">
-                                {{ local.nome_local.replace('laboratorio ', '') }}
-                            </th>
+                            <th title="{{ local.descrição if local.descrição else '' }}">{{ local.nome_local.replace('laboratorio ', '') }}</th>
                         {% endfor %}
                     </tr>
                 </thead>
@@ -124,6 +121,7 @@
         {% include "reserva_temporaria/modal_reserva_editar.html" %}
         {% include "reserva_temporaria/modal_reserva_excluir.html" %}
     {% endif %}
+    {% include "reserva_temporaria/modal_reserva_fixa_info.html" %}
 {% endblock content %}
 {% block extra_script %}
     <script>{{ adjust_head_fix() }}</script>
@@ -151,7 +149,15 @@
     <script>
     document.addEventListener("DOMContentLoaded", function () {
 
-        const baseUrl = {{ url_for(
+        const baseUrlFixa = {{ url_for(
+            'api_reservas.get_reserva_indirect',
+            tipo_reserva=0,
+            dia=fake_data,
+            id_local=0,
+            id_aula=0
+        )|tojson }};
+
+        const baseUrlTemporaria = {{ url_for(
             'api_reservas.get_reserva_indirect',
             tipo_reserva=1,
             dia=fake_data,
@@ -159,8 +165,12 @@
             id_aula=0
         )|tojson }};
 
-        function buildReservaUrl(dia, localId, aulaId) {
-            return baseUrl.replace('2000-01-01/0/0', `/${dia}/${localId}/${aulaId}`);
+        function buildReservaFixaUrl(dia, localId, aulaId) {
+            return baseUrlFixa.replace('2000-01-01/0/0', `/${dia}/${localId}/${aulaId}`);
+        }
+
+        function buildReservaTemporariaUrl(dia, localId, aulaId) {
+            return baseUrlTemporaria.replace('2000-01-01/0/0', `/${dia}/${localId}/${aulaId}`);
         }
 
         // função para atualizar o status das reservas na tabela
@@ -170,8 +180,9 @@
                 const localId = td.dataset.local;
                 const aulaId = td.dataset.aula;
                 
-                const url = buildReservaUrl(dia, localId, aulaId);
+                const url = buildReservaTemporariaUrl(dia, localId, aulaId);
 
+                // Primeiro verifica a reserva temporária
                 try {
                     const response = await fetch(url);
                     const data = await response.json();
@@ -193,14 +204,36 @@
                         td.classList.add('livre');
                         td.dataset.idReserva = '';
                         if (!td.querySelector('input')) {
-                            td.innerHTML = `<input type="checkbox" class="form-check-input" 
-                                name="reserva[${localId},${aulaId},${dia}]">`;
+                            td.innerHTML = `<input type="checkbox" class="form-check-input" name="reserva[${localId},${aulaId},${dia}]">`;
                         }
                         td.dataset.idReserva = '';
                         td.title = '';
                     }
                 } catch (err) {
                     console.error(`Erro ao verificar reserva para o dia ${dia} local ${localId} e aula ${aulaId}:`, err);
+                }
+            });
+
+            // Agora verifica as reservas fixas
+            document.querySelectorAll('.tabela-reserva td[data-aula]').forEach(async td => {
+                const dia = td.dataset.dia;
+                const localId = td.dataset.local;
+                const aulaId = td.dataset.aula;
+                const url = buildReservaFixaUrl(dia, localId, aulaId);
+
+                try {
+                    const response = await fetch(url);
+                    const data = await response.json();
+
+                    if (data.reservado){
+                        td.classList.add('reservado-fixo');
+                        td.dataset.idReservaFixa = data.id_reserva;
+                    } else {
+                        td.classList.remove('reservado-fixo');
+                        td.dataset.idReservaFixa = '';
+                    }
+                } catch (err) {
+                    console.error(`Erro ao verificar reserva fixa para o dia ${dia} local ${localId} e aula ${aulaId}:`, err);
                 }
             });
         }
@@ -215,27 +248,46 @@
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 document.addEventListener("click", function (e) {
-                    const td = e.target.closest("td.reservado");
+
+                    const td = e.target.closest("td.reservado, td.reservado-fixo");
                     if (!td) return;
 
                     const altPressed = e.altKey;
+                    const ctrlPressed = e.ctrlKey;
                     const id = td.dataset.idReserva;
+
                     const url = {{ url_for('api_reservas.get_reserva_info', tipo_reserva=1, id_reserva='0')|tojson }};
                     const url_delete = {{ url_for('api_reservas.delete_reserva', tipo_reserva=1, id_reserva='0')|tojson }};
                     const url_edit = {{ url_for('api_reservas.update_reserva', tipo_reserva=1, id_reserva='0')|tojson }};
 
-                    fetch(url.replace(/0$/, id))
-                        .then(r => r.json())
-                        .then(data => {
-                            if (altPressed) {
-                                DeleteData(data, url_delete.replace(/0$/, id));
-                            } else {
-                                openReservaModal(data, url_edit.replace(/0$/, id));
-                            }
-                        })
-                        .catch(err =>
-                            alert("Erro ao carregar reserva devido a: " + err)
-                        );
+                    const id_fixa = td.dataset.idReservaFixa;
+                    const url_info = {{ url_for('api_reservas.get_reserva_info', tipo_reserva=0, id_reserva='0')|tojson }};
+
+                    if (td.classList.contains('reservado')) {
+                        e.preventDefault();
+
+                        fetch(url.replace(/0$/, id))
+                            .then(r => r.json())
+                            .then(data => {
+                                if (altPressed) {
+                                    DeleteData(data, url_delete.replace(/0$/, id));
+                                } else if (ctrlPressed && id_fixa) {
+                                    openInfoModal(url_info.replace(/0$/, id_fixa));
+                                } else {
+                                    openReservaModal(data, url_edit.replace(/0$/, id));
+                                }
+                            })
+                            .catch(err => {
+                                alert("Erro ao carregar reserva devido a: " + err);
+                            });
+
+                    } else {
+                        e.preventDefault();
+                        if (ctrlPressed && id_fixa) {
+                            openInfoModal(url_info.replace(/0$/, id_fixa));
+                        }
+                    }
+
                 });
             });
         </script>

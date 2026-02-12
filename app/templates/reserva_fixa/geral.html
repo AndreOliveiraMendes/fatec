@@ -42,8 +42,7 @@
                     <tr>
                         <th class="col-fixa">horario</th>
                         {% for local in locais %}
-                            <th class="row-fixa"
-                                title="{{ local.descrição if local.descrição else '' }}">{{ local.nome_local.replace("laboratorio ", "") }}</th>
+                            <th title="{{ local.descrição if local.descrição else '' }}">{{ local.nome_local.replace('laboratorio ', '') }}</th>
                         {% endfor %}
                     </tr>
                 </thead>
@@ -235,8 +234,7 @@
                         td.classList.add('livre');
                         td.dataset.idReserva = '';
                         if (!td.querySelector('input')) {
-                            td.innerHTML = `<input type="checkbox" class="form-check-input" 
-                                name="reserva[${localId},${aulaId}]">`;
+                            td.innerHTML = `<input type="checkbox" class="form-check-input" name="reserva[${localId},${aulaId}]">`;
                         }
                         td.dataset.idReserva = '';
                         td.title = '';
