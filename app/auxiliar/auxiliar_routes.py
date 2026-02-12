@@ -239,18 +239,21 @@ def check_local(local:Locais, perm):
     if local.disponibilidade.value == 'Indisponivel':
         abort(403, description="Local indisponível para reservas.")
 
-def builder_helper_fixa(id_semestre:int, id_lab: int|None=None):
-    """Monta helper de reservas fixas indexado por (local, aula)."""
-    conditions = [Reservas_Fixas.id_reserva_semestre == id_semestre]
-    if id_lab is not None:
-        conditions.append(Reservas_Fixas.id_reserva_local == id_lab)
-    sel_reservas = select(Reservas_Fixas).where(*conditions)
-    reservas = db.session.execute(sel_reservas).scalars().all()
-    helper = {}
-    for r in reservas:
-        title = get_responsavel_reserva(r)
-        helper[(r.id_reserva_local, r.id_reserva_aula)] = {"title": title, "id":r.id_reserva_fixa}
-    return helper
+def builder_helper_fixa(extras, info):
+    """Monta helper de reservas fixas para montar a tabela de reservas"""
+    aulas = set()
+    semanas = set()
+    row = {}
+    for aula_ativa, aula, semana in info:
+        aulas.add(aula)
+        semanas.add(semana)
+        row[(aula.id_aula, semana.id_semana)] = aula_ativa.id_aula_ativa
+    aulas = sorted(aulas, key=lambda a: a.horario_inicio)
+    semanas = sorted(semanas, key=lambda s: s.id_semana)
+    extras['head'] = semanas
+    extras['first_col'] = aulas
+    extras['row'] = row
+    
 
 def builder_helper_temporaria(inicio, fim, id_lab: int|None=None):
     conditions = [
