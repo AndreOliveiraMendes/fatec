@@ -281,7 +281,7 @@ def builder_helper_temporaria(extras, aulas):
                 index_aula = i
                 break
         table_dias[index_dia]['infos'][index_aula] = info
-    extras['aulas'] = table_aulas
+    extras['head'] = table_aulas
     extras['dias'] = table_dias
 
 def filtro_tipo_responsavel(

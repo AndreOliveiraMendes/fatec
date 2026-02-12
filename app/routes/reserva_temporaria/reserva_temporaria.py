@@ -174,15 +174,16 @@ def get_lab_especifico(inicio, fim, id_turno, id_lab):
         abort(400, description="tipo de horario invalido")
     local = db.get_or_404(Locais, id_lab)
     check_local(local, user.perm)
-    extras['local'] = local
     today = date.today()
-    extras['day'] = today
     dias = [(dia, turno) for dia in time_range(inicio, fim)]
     aulas = get_aulas_ativas_por_lista_de_dias(dias, tipo_horario)
     if len(aulas) == 0:
         flash("não há horarios disponiveis nesse turno", "danger")
         return redirect(url_for('default.home'))
     builder_helper_temporaria(extras, aulas)
+    extras['local'] = local
+    extras['day'] = today
+    extras['aulas'] = aulas
     extras['fake_data'] = date(2000, 1, 1)
     extras['finalidade_reserva'] = FinalidadeReservaEnum
     extras['responsavel'] = get_pessoas()

@@ -77,23 +77,8 @@
                             <select id="id_aula" name="id_aula" class="form-control">
                                 <option value="">Selecione o horario</option>
                                 {% for info in aulas %}
-                                    <option value="{{ info.id_aula_ativa }}">{{ info.horario_inicio }} - {{ info.horario_fim }} na {{ info.nome_semana }} [turno: {{ info.turno_consulta }}]</option>
+                                    <option value="{{ info.id_aula_ativa }}">{{ info.horario_inicio }} - {{ info.horario_fim }} na {{ info.nome_semana }}</option>
                                 {% endfor %}
-                                {# campos:
-                                    'id_aula_ativa'
-                                    'id_aula'
-                                    'inicio_ativacao'
-                                    'fim_ativacao'
-                                    'id_semana'
-                                    'tipo_aula'
-                                    'id_aula_1'
-                                    'horario_inicio'
-                                    'horario_fim'
-                                    'id_semana_1'
-                                    'nome_semana'
-                                    'dia_consulta'
-                                    'turno_consulta'
-                                #}
                             </select>
                         </div>
                     </div>
