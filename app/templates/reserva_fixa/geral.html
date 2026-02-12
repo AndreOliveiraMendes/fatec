@@ -209,7 +209,7 @@
                 const localId = td.dataset.local;
                 const aulaId = td.dataset.aula;
 
-                const url = buildReservaUrl(localId, aulaId); // sua função de gerar URL dinâmica
+                const url = buildReservaUrl(localId, aulaId);
 
                 try {
                     const response = await fetch(url);
@@ -233,9 +233,10 @@
                         // Caso não esteja reservado, restaurar checkbox se não tiver
                         td.classList.remove('reservado');
                         td.classList.add('livre');
+                        td.dataset.idReserva = '';
                         if (!td.querySelector('input')) {
                             td.innerHTML = `<input type="checkbox" class="form-check-input" 
-                                name="reserva[${localId}, ${aulaId}]">`;
+                                name="reserva[${localId},${aulaId}]">`;
                         }
                         td.dataset.idReserva = '';
                         td.title = '';

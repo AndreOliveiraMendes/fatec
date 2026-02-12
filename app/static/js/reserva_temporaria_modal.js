@@ -11,8 +11,8 @@ function openReservaModal(data, url_edit) {
     $('#id_local').val(data.id_local);
     $('#id_aula').val(data.id_aula_ativa);
     $('#finalidade').val(data.finalidade);
-    $('#observacoes').val(data.observacoes);
-    $('#descricao').val(data.descricao);
+    $('#modalEObservacoes').val(data.observacoes);
+    $('#modalEDescricao').val(data.descricao);
 
     // guarda a URL direto no botao
     $('#confirm-edit-btn').data('url', url_edit);

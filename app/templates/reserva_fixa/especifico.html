@@ -37,7 +37,7 @@
               action="{{ url_for('reservas_semanais.efetuar_reserva', id_semestre=semestre.id_semestre) }}"
               id="reserva"
               method="post">
-            <div class="table-responsive">
+            <div class="table-responsive tabela-wrapper">
                 <table class="table table-bordered table-striped table-hover tabela-reserva">
                     <thead>
                         <tr>
@@ -232,9 +232,10 @@
                         // Caso não esteja reservado, restaurar checkbox se não tiver
                         td.classList.remove('reservado');
                         td.classList.add('livre');
+                        td.dataset.idReserva = '';
                         if (!td.querySelector('input')) {
                             td.innerHTML = `<input type="checkbox" class="form-check-input" 
-                                name="reserva[${localId}, ${aulaId}]">`;
+                                name="reserva[${localId},${aulaId}]">`;
                         }
                         td.dataset.idReserva = '';
                         td.title = '';

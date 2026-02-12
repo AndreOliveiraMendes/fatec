@@ -1,16 +1,15 @@
-from collections import Counter
 from datetime import date
 from typing import List
+from urllib.parse import urlparse
 
 from flask import (Blueprint, abort, current_app, flash, redirect,
                    render_template, request, session, url_for)
-from sqlalchemy import between, select
+from sqlalchemy import select
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
                             InternalError, OperationalError, ProgrammingError)
 
 from app.auxiliar.auxiliar_routes import (builder_helper_temporaria,
-                                          check_local, get_unique_or_500,
-                                          get_user_info, none_if_empty,
+                                          check_local, get_user_info, none_if_empty,
                                           parse_date_string,
                                           registrar_log_generico_usuario,
                                           time_range)
@@ -81,15 +80,40 @@ def dias(inicio, fim):
 @bp.before_request
 def return_counter():
     if request.endpoint == "reservas_temporarias.get_lab":
-        session["contador"] = session.get("contador", 0) + 1
-        session["tipo"] = request.args.get("tipo", session.get("tipo"))
-    else:
-        session.pop("contador", None)
-        session.pop("tipo", None)
+        referer = request.headers.get("Referer", "")
 
-@bp.before_app_request
-def clear_counter():
-    if not request.endpoint:
+        path = urlparse(referer).path
+        parts = path.strip("/").split("/")
+
+        dentro = (
+            len(parts) in (6, 7, 8)
+            and parts[0] == "reserva_temporaria"
+            and parts[1] == "dias"
+            and parts[4] == "turno"
+            and (
+                (len(parts) == 6 and parts[5] == "lab") or
+                (len(parts) == 7 and (
+                    (parts[5] == "lab" and parts[6].isdigit()) or
+                    (parts[5].isdigit() and parts[6] == "lab")
+                )) or
+                (
+                    len(parts) == 8
+                    and parts[5].isdigit()
+                    and parts[6] == "lab" 
+                    and parts[7].isdigit()
+                )
+            )
+
+        )
+
+        if dentro:
+            session["contador"] = session.get("contador", 0) + 1
+            session["tipo"] = session.get("tipo", request.args.get("tipo"))
+        else:
+            session["contador"] = 1
+            session["tipo"] = request.args.get("tipo")
+
+    else:
         session.pop("contador", None)
         session.pop("tipo", None)
 
@@ -126,20 +150,9 @@ def get_lab_geral(inicio, fim, id_turno):
         if len(locais) == 0:
             flash("não há local disponivel para reserva", "danger")
         return redirect(url_for('default.home'))
+    extras['fake_data'] = date(2000, 1, 1)
     extras['locais'] = locais
     extras['aulas'] = aulas
-    contagem_dias = Counter()
-    contagem_turnos = Counter()
-    for info in aulas:
-        dia_consulta = parse_date_string(info.dia_consulta)
-        contagem_dias[(dia_consulta, info.nome_semana)] += 1
-        if id_turno is None:
-            turno = get_unique_or_500(Turnos, between(info.horario_inicio, Turnos.horario_inicio, Turnos.horario_fim))
-            contagem_turnos[(dia_consulta, turno)] += 1
-    extras['contagem_dias'] = contagem_dias
-    extras['aulas'] = aulas
-    extras['contagem_turnos'] = contagem_turnos
-    extras['helper'] = builder_helper_temporaria(inicio, fim)
     extras['finalidade_reserva'] = FinalidadeReservaEnum
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
@@ -169,34 +182,8 @@ def get_lab_especifico(inicio, fim, id_turno, id_lab):
     if len(aulas) == 0:
         flash("não há horarios disponiveis nesse turno", "danger")
         return redirect(url_for('default.home'))
-    table_aulas = []
-    table_dias = []
-    for info in aulas:
-        if not (info.horario_inicio, info.horario_fim) in table_aulas:
-            table_aulas.append((info.horario_inicio, info.horario_fim))
-    table_aulas.sort(key = lambda e:e[0])
-    size = len(table_aulas)
-    for info in aulas:
-        dia = info.dia_consulta
-        semana = info.nome_semana
-        hora_inicio = info.horario_inicio
-        hora_fim = info.horario_fim
-        index_dia, index_aula = None, None;
-        for i, v in enumerate(table_dias):
-            if v['dia'] == dia:
-                index_dia = i
-                break
-        else:
-            table_dias.append({'dia':dia, 'semana':semana, 'infos':[None]*size})
-            index_dia = len(table_dias) - 1
-        for i, v in enumerate(table_aulas):
-            if hora_inicio == v[0] and hora_fim == v[1]:
-                index_aula = i
-                break
-        table_dias[index_dia]['infos'][index_aula] = info
-    extras['aulas'] = table_aulas
-    extras['dias'] = table_dias
-    extras['helper'] = builder_helper_temporaria(inicio, fim, id_lab)
+    builder_helper_temporaria(extras, aulas)
+    extras['fake_data'] = date(2000, 1, 1)
     extras['finalidade_reserva'] = FinalidadeReservaEnum
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()

@@ -120,14 +120,19 @@ def return_counter():
         parts = path.strip("/").split("/")
 
         dentro = (
-            len(parts) in (6, 7)
+            len(parts) in (5, 6, 7)
             and parts[0] == "reserva_fixa"
             and parts[1] == "semestre"
             and parts[2].isdigit()
             and parts[3] == "turno"
-            and parts[4].isdigit()
-            and parts[5] == "lab"
-            and (len(parts) == 6 or parts[6].isdigit())
+            and (
+                (len(parts) == 5 and parts[4] == "lab") or
+                (len(parts) == 6 and (
+                    (parts[4].isdigit() and parts[5] == "lab") or
+                    (parts[4] == "lab" and parts[5].isdigit())
+                )) or
+                (len(parts) == 7 and parts[4].isdigit() and parts[5] == "lab" and parts[6].isdigit())
+            )
         )
 
         if dentro:

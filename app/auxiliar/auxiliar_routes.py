@@ -255,24 +255,34 @@ def builder_helper_fixa(extras, info):
     extras['row'] = row
     
 
-def builder_helper_temporaria(inicio, fim, id_lab: int|None=None):
-    conditions = [
-        and_(
-            Reservas_Temporarias.inicio_reserva <= fim,
-            Reservas_Temporarias.fim_reserva >= inicio
-        )
-    ]
-    if id_lab is not None:
-        conditions.append(Reservas_Temporarias.id_reserva_local == id_lab)
-    sel_reservas = select(Reservas_Temporarias).where(*conditions)
-    reservas = db.session.execute(sel_reservas).scalars().all()
-    helper = {}
-    for r in reservas:
-        title = get_responsavel_reserva(r)
-        days = [day.strftime('%Y-%m-%d') for day in time_range(r.inicio_reserva, r.fim_reserva, 7)]
-        for day in days:
-            helper[(r.id_reserva_local, r.id_reserva_aula, day)] = {"title": title, "id":r.id_reserva_temporaria}
-    return helper
+def builder_helper_temporaria(extras, aulas):
+    table_aulas = []
+    table_dias = []
+    for info in aulas:
+        if not (info.horario_inicio, info.horario_fim) in table_aulas:
+            table_aulas.append((info.horario_inicio, info.horario_fim))
+    table_aulas.sort(key = lambda e:e[0])
+    size = len(table_aulas)
+    for info in aulas:
+        dia = info.dia_consulta
+        semana = info.nome_semana
+        hora_inicio = info.horario_inicio
+        hora_fim = info.horario_fim
+        index_dia, index_aula = None, None;
+        for i, v in enumerate(table_dias):
+            if v['dia'] == dia:
+                index_dia = i
+                break
+        else:
+            table_dias.append({'dia':dia, 'semana':semana, 'infos':[None]*size})
+            index_dia = len(table_dias) - 1
+        for i, v in enumerate(table_aulas):
+            if hora_inicio == v[0] and hora_fim == v[1]:
+                index_aula = i
+                break
+        table_dias[index_dia]['infos'][index_aula] = info
+    extras['aulas'] = table_aulas
+    extras['dias'] = table_dias
 
 def filtro_tipo_responsavel(
     model: Type[ReservaBase],
