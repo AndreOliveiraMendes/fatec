@@ -1,28 +1,23 @@
-import re
-from collections import Counter
 from datetime import date
-from typing import Sequence, Set, Tuple, cast
+from typing import Sequence, cast
 from urllib.parse import urlparse
 
-import mysql
-from flask import (Blueprint, Response, abort, current_app, flash, redirect,
+from flask import (Blueprint, abort, current_app, flash, redirect,
                    render_template, request, session, url_for)
 from markupsafe import Markup
 from mysql.connector import DatabaseError, OperationalError, connect
-from sqlalchemy import between, select
+from sqlalchemy import select
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
                             InternalError, OperationalError, ProgrammingError)
 
 from app.auxiliar.auxiliar_routes import (builder_helper_fixa, check_local,
-                                          get_responsavel_reserva,
-                                          get_unique_or_500, get_user_info,
-                                          none_if_empty,
+                                          get_user_info, none_if_empty,
                                           registrar_log_generico_usuario)
 from app.auxiliar.constant import PERM_ADMIN
 from app.auxiliar.dao import (get_aulas_ativas_por_semestre, get_aulas_extras,
                               get_laboratorios, get_pessoas,
                               get_usuarios_especiais)
-from app.auxiliar.decorators import admin_required, reserva_fixa_required
+from app.auxiliar.decorators import reserva_fixa_required
 from app.models import (FinalidadeReservaEnum, Locais, Permissoes,
                         Reservas_Fixas, Semestres, Turnos, Usuarios, db)
 from config.general import (DISPONIBILIDADE_DATABASE, DISPONIBILIDADE_HOST,
