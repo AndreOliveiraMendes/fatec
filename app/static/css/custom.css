@@ -423,6 +423,10 @@ table > tbody > tr > td.livre {
     color: black; /* opcional para melhor contraste */
 }
 
+table > tbody > tr > td.reservado-fixo {
+    cursor: help;
+}
+
 .slide,
 .hide {
     display: none;

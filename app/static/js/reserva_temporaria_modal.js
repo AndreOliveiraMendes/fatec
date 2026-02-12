@@ -37,6 +37,30 @@ function DeleteData(data, url_delete) {
     $('#deleteReservaModal').modal('show');
 }
 
+function openInfoModal(url_info) {
+    // Preenche o modal
+    console.log(url_info);
+    fetch(url_info)
+        .then(r => r.json())
+        .then(data => {
+            $('#info-id').text(data.id_reserva);
+            $('#info-responsavel').text(data.responsavel);
+            $('#info-horario').text(data.horario);
+            $('#info-local').text(data.local);
+            $('#info-semestre').text(data.semestre);
+            $('#info-finalidade').text(data.finalidade);
+            $('#info-descricao').text(data.descricao);
+            $('#info-observacoes').text(data.observacoes);
+
+            // Abre o modal
+            $('#infoReservaFixaModal').modal('show');
+        })
+        .catch(() => {
+            alert('Erro ao carregar as informações da reserva fixa.');
+        });
+
+}
+
 function blockUI() {
     document.getElementById('ui-blocker').style.display = 'block';
     uiTimeout = setTimeout(() => {
