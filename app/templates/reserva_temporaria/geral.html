@@ -249,6 +249,16 @@
             document.addEventListener('DOMContentLoaded', () => {
                 document.addEventListener("click", function (e) {
 
+                    // Se clicou diretamente no checkbox, deixa passar
+                    if (e.target.matches('input[type="checkbox"]')) {
+                        const td = e.target.closest("td.reservado-fixo");
+                        const checkbox = e.target;
+                        if (td && checkbox.checked) {
+                            alert("⚠️ Este horário possui uma reserva fixa, pressione ctrl + no quadrado (fora da check box) para ver mais detalhes");
+                        }
+                        return; // NÃO bloqueia
+                    }
+
                     const td = e.target.closest("td.reservado, td.reservado-fixo");
                     if (!td) return;
 
@@ -264,7 +274,6 @@
                     const url_info = {{ url_for('api_reservas.get_reserva_info', tipo_reserva=0, id_reserva='0')|tojson }};
 
                     if (td.classList.contains('reservado')) {
-                        e.preventDefault();
 
                         fetch(url.replace(/0$/, id))
                             .then(r => r.json())
@@ -282,7 +291,6 @@
                             });
 
                     } else {
-                        e.preventDefault();
                         if (ctrlPressed && id_fixa) {
                             openInfoModal(url_info.replace(/0$/, id_fixa));
                         }

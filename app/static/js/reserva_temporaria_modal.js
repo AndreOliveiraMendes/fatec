@@ -39,7 +39,6 @@ function DeleteData(data, url_delete) {
 
 function openInfoModal(url_info) {
     // Preenche o modal
-    console.log(url_info);
     fetch(url_info)
         .then(r => r.json())
         .then(data => {

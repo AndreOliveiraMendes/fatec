@@ -108,11 +108,9 @@ def return_counter():
 
         if dentro:
             session["contador"] = session.get("contador", 0) + 1
-            session["tipo"] = session.get("tipo", request.args.get("tipo"))
         else:
             session["contador"] = 1
-            session["tipo"] = request.args.get("tipo")
-
+        session["tipo"] = session.get("tipo", request.args.get("tipo"))
     else:
         session.pop("contador", None)
         session.pop("tipo", None)
