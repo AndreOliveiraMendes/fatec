@@ -160,8 +160,6 @@
                     } else {
                         // filtra os primeiro 4 comandos
                         const cmdsLab4 = cmdsLab.slice(0, 4);
-                        console.log(cmdsLab);
-                        console.log(cmdsLab4);
 
                         // cria células para cada comando
                         cmdsLab4.forEach(cmd => {
@@ -385,7 +383,6 @@
                 })
                 .then(r => r.json())
                 .then(data => {
-                    console.log(data.success)
                     if (!data.success) {
                         alert(data.error || "Falha ao executar comando.");
                         return;

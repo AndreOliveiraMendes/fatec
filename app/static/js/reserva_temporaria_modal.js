@@ -11,8 +11,8 @@ function openReservaModal(data, url_edit) {
     $('#id_local').val(data.id_local);
     $('#id_aula').val(data.id_aula_ativa);
     $('#finalidade').val(data.finalidade);
-    $('#observacoes').val(data.observacoes);
-    $('#descricao').val(data.descricao);
+    $('#modalEObservacoes').val(data.observacoes);
+    $('#modalEDescricao').val(data.descricao);
 
     // guarda a URL direto no botao
     $('#confirm-edit-btn').data('url', url_edit);
@@ -35,6 +35,29 @@ function DeleteData(data, url_delete) {
 
     // Abre o modal
     $('#deleteReservaModal').modal('show');
+}
+
+function openInfoModal(url_info) {
+    // Preenche o modal
+    fetch(url_info)
+        .then(r => r.json())
+        .then(data => {
+            $('#info-id').text(data.id_reserva);
+            $('#info-responsavel').text(data.responsavel);
+            $('#info-horario').text(data.horario);
+            $('#info-local').text(data.local);
+            $('#info-semestre').text(data.semestre);
+            $('#info-finalidade').text(data.finalidade);
+            $('#info-descricao').text(data.descricao);
+            $('#info-observacoes').text(data.observacoes);
+
+            // Abre o modal
+            $('#infoReservaFixaModal').modal('show');
+        })
+        .catch(() => {
+            alert('Erro ao carregar as informações da reserva fixa.');
+        });
+
 }
 
 function blockUI() {

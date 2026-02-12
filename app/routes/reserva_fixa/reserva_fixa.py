@@ -1,26 +1,23 @@
-from collections import Counter
 from datetime import date
-from typing import Sequence, Set, Tuple, cast
+from typing import Sequence, cast
+from urllib.parse import urlparse
 
-import mysql
-from flask import (Blueprint, Response, abort, current_app, flash, redirect,
+from flask import (Blueprint, abort, current_app, flash, redirect,
                    render_template, request, session, url_for)
 from markupsafe import Markup
 from mysql.connector import DatabaseError, OperationalError, connect
-from sqlalchemy import between, select
+from sqlalchemy import select
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
                             InternalError, OperationalError, ProgrammingError)
 
 from app.auxiliar.auxiliar_routes import (builder_helper_fixa, check_local,
-                                          get_responsavel_reserva,
-                                          get_unique_or_500, get_user_info,
-                                          none_if_empty,
+                                          get_user_info, none_if_empty,
                                           registrar_log_generico_usuario)
 from app.auxiliar.constant import PERM_ADMIN
 from app.auxiliar.dao import (get_aulas_ativas_por_semestre, get_aulas_extras,
                               get_laboratorios, get_pessoas,
                               get_usuarios_especiais)
-from app.auxiliar.decorators import admin_required, reserva_fixa_required
+from app.auxiliar.decorators import reserva_fixa_required
 from app.models import (FinalidadeReservaEnum, Locais, Permissoes,
                         Reservas_Fixas, Semestres, Turnos, Usuarios, db)
 from config.general import (DISPONIBILIDADE_DATABASE, DISPONIBILIDADE_HOST,
@@ -62,81 +59,6 @@ def check_semestre(semestre:Semestres, userid, perm:int):
         user = db.get_or_404(Usuarios, userid)
         if has_priority and prioridade is not None and user.pessoa.id_pessoa not in prioridade:
             abort(403, description="Usuário não se enquadra na regra de prioridade.")
-
-def build_table_headers_geral(aulas, extras, id_turno=None):
-    contagem_dias = Counter()
-    contagem_turnos = Counter()
-    label = {}
-    head2 = []
-
-    for info in aulas:
-        aula = info[1]
-        semana = info[2]
-
-        # Contagem por dia da semana
-        contagem_dias[semana.id_semana] += 1
-
-        # Contagem por turno (somente se não houver turno fixo)
-        if id_turno is None:
-            turno = get_unique_or_500(
-                Turnos,
-                between(aula.horario_inicio, Turnos.horario_inicio, Turnos.horario_fim)
-            )
-            contagem_turnos[(semana.id_semana, turno)] += 1
-
-        # Labels e cabeçalho secundário
-        label[semana.id_semana] = semana.nome_semana
-        head2.append(aula.selector_identification)
-
-    extras["head1"] = [
-        (label[id_semana], count)
-        for id_semana, count in contagem_dias.items()
-    ]
-    extras["head2"] = head2
-    extras["head_turno"] = contagem_turnos
-
-def build_table_semanas_aulas(aulas, extras):
-    table_aulas = []
-    table_semanas = []
-
-    # 🔹 Coleta aulas únicas
-    for info in aulas:
-        _, aula, _ = info
-        if aula not in table_aulas:
-            table_aulas.append(aula)
-
-    # 🔹 Ordena aulas por horário
-    table_aulas.sort(key=lambda e: e.horario_inicio)
-    size = len(table_aulas)
-
-    # 🔹 Monta estrutura por semana × aula
-    for info in aulas:
-        _, aula, semana = info
-
-        # Procura semana existente
-        index_semana = None
-        for i, v in enumerate(table_semanas):
-            if v["semana"] == semana:
-                index_semana = i
-                break
-        else:
-            table_semanas.append({
-                "semana": semana,
-                "infos": [None] * size
-            })
-            index_semana = len(table_semanas) - 1
-
-        # Procura índice da aula
-        index_aula = None
-        for i, v in enumerate(table_aulas):
-            if v == aula:
-                index_aula = i
-                break
-
-        table_semanas[index_semana]["infos"][index_aula] = info
-
-    extras["head1"] = table_aulas
-    extras["semanas"] = table_semanas
 
 @bp.route('/')
 @reserva_fixa_required
@@ -192,13 +114,32 @@ def get_semestre(id_semestre):
 @bp.before_request
 def return_counter():
     if request.endpoint == "reservas_semanais.get_lab":
-        session["contador"] = session.get("contador", 0) + 1
-    else:
-        session.pop("contador", None)
+        referer = request.headers.get("Referer", "")
 
-@bp.before_app_request
-def clear_counter():
-    if not request.endpoint:
+        path = urlparse(referer).path
+        parts = path.strip("/").split("/")
+
+        dentro = (
+            len(parts) in (5, 6, 7)
+            and parts[0] == "reserva_fixa"
+            and parts[1] == "semestre"
+            and parts[2].isdigit()
+            and parts[3] == "turno"
+            and (
+                (len(parts) == 5 and parts[4] == "lab") or
+                (len(parts) == 6 and (
+                    (parts[4].isdigit() and parts[5] == "lab") or
+                    (parts[4] == "lab" and parts[5].isdigit())
+                )) or
+                (len(parts) == 7 and parts[4].isdigit() and parts[5] == "lab" and parts[6].isdigit())
+            )
+        )
+
+        if dentro:
+            session["contador"] = session.get("contador", 0) + 1
+        else:
+            session["contador"] = 1
+    else:
         session.pop("contador", None)
 
 @bp.route('/semestre/<int:id_semestre>/turno/lab')
@@ -230,10 +171,9 @@ def get_lab_geral(id_semestre, id_turno=None):
         if len(locais) == 0:
             flash("não há local disponiveis para reserva", "danger")
         return redirect(url_for('default.home'))
+    
     extras['locais'] = locais
     extras['aulas'] = aulas
-    build_table_headers_geral(aulas, extras, id_turno)
-    extras['helper'] = builder_helper_fixa(id_semestre)
     extras['finalidade_reserva'] = FinalidadeReservaEnum
     extras['aulas_extras'] = get_aulas_extras(semestre, turno)
     extras['responsavel'] = get_pessoas()
@@ -257,10 +197,9 @@ def get_lab_especifico(id_semestre, id_turno, id_lab):
     if len(aulas) == 0:
         flash("não há horarios disponiveis nesse turno", "danger")
         return redirect(url_for('default.home'))
+    builder_helper_fixa(extras, aulas)
     extras['aulas'] = aulas
     extras['locais'] = get_laboratorios(user.perm&PERM_ADMIN > 0)
-    build_table_semanas_aulas(aulas, extras)
-    extras['helper'] = builder_helper_fixa(id_semestre, id_lab)
     extras['finalidade_reserva'] = FinalidadeReservaEnum
     extras['aulas_extras'] = get_aulas_extras(semestre, turno)
     extras['responsavel'] = get_pessoas()

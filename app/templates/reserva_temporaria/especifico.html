@@ -35,41 +35,28 @@
               action="{{ url_for('reservas_temporarias.efetuar_reserva', inicio=inicio, fim=fim) }}"
               id="reserva"
               method="post">
-            <div class="table-responsive">
+            <div class="table-responsive tabela-wrapper">
                 <table class="table table-bordered table-striped table-hover tabela-reserva">
                     <thead>
-                        <tr class="information">
-                            <th>Dias</th>
-                            {% for aula in aulas %}<th>{{ aula[0]|hora }} - {{ aula[1]|hora }}</th>{% endfor %}
+                        <tr>
+                            <th class="col-fixa">Dias</th>
+                            {% for aula in head %}<th>{{ aula[0]|hora }} - {{ aula[1]|hora }}</th>{% endfor %}
                         </tr>
                     </thead>
                     <tbody>
                         {% for dia in dias %}
                             <tr>
-                                <td>{{ dia['dia'] }} ({{ dia['semana'] }})</td>
+                                <td class="col-fixa">{{ dia['dia'] }} ({{ dia['semana'] }})</td>
                                 {% for info in dia['infos'] %}
-                                    {% if info %}
-                                        {% set reserva = helper[(local.id_local, info.id_aula_ativa, dia['dia'])] %}
-                                        {% if reserva %}
-                                            <td class="reservado"
-                                                title="{{ reserva.title }}"
-                                                {% if user and user.perm|has_flag(ADMIN) %}data-id-reserva="{{ reserva['id'] }}"{% endif %}>
-                                                <span class="sr-only">Reservado</span>
-                                                <!--
-                                                <input type="checkbox" class="form-check-input checkbox-danger" title="{{ reserva.title }}" name="reserva[{{ local.id_local }},{{ info.id_aula_ativa }},{{ dia['dia'] }}]" disabled>
-                                                -->
-                                                {{ reserva['title'].strip().split()[0] }}
-                                            </td>
-                                        {% else %}
-                                            <td>
-                                                <input type="checkbox"
-                                                       class="form-check-input checkbox-danger"
-                                                       name="reserva[{{ local.id_local }},{{ info.id_aula_ativa }},{{ dia['dia'] }}]">
-                                            </td>
-                                        {% endif %}
-                                    {% else %}
-                                        <td>-</td>
-                                    {% endif %}
+                                    <td
+                                        data-aula="{{ info.id_aula_ativa }}"
+                                        data-local="{{ local.id_local }}"
+                                        data-dia="{{ dia['dia'] }}"
+                                        data-id-reserva="">
+                                        <input type="checkbox"
+                                            class="form-check-input"
+                                            name="reserva[{{ local.id_local }},{{ info.id_aula_ativa }},{{ dia['dia'] }}]">
+                                    </td>
                                 {% endfor %}
                             </tr>
                         {% endfor %}
@@ -130,9 +117,11 @@
         {% include "reserva_temporaria/modal_reserva_editar.html" %}
         {% include "reserva_temporaria/modal_reserva_excluir.html" %}
     {% endif %}
+    {% include "reserva_temporaria/modal_reserva_fixa_info.html" %}
 {% endblock content %}
 {% block extra_script %}
     <script>{{ adjust_head_fix() }}</script>
+    <!-- Script para mostrar/ocultar campo de descrição baseado na finalidade da reserva -->
     <script>
     document.getElementById('finalidade_reserva').addEventListener('change', function() {
         var value = this.value;
@@ -152,32 +141,157 @@
         document.getElementById('finalidade_reserva').dispatchEvent(new Event('change'));
     });
     </script>
+    <!-- Script para atualizar a tabela -->
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const baseUrlFixa = {{ url_for(
+            'api_reservas.get_reserva_indirect',
+            tipo_reserva=0,
+            dia=fake_data,
+            id_local=0,
+            id_aula=0
+        )|tojson }};
+
+        const baseUrlTemporaria = {{ url_for(
+            'api_reservas.get_reserva_indirect',
+            tipo_reserva=1,
+            dia=fake_data,
+            id_local=0,
+            id_aula=0
+        )|tojson }};
+
+        function buildReservaFixaUrl(dia, localId, aulaId) {
+            return baseUrlFixa.replace('2000-01-01/0/0', `/${dia}/${localId}/${aulaId}`);
+        }
+
+        function buildReservaTemporariaUrl(dia, localId, aulaId) {
+            return baseUrlTemporaria.replace('2000-01-01/0/0', `/${dia}/${localId}/${aulaId}`);
+        }
+
+        // função para atualizar o status das reservas na tabela
+        async function atualizarReservas(){
+            document.querySelectorAll('.tabela-reserva td[data-aula]').forEach(async td => {
+                const dia = td.dataset.dia;
+                const localId = td.dataset.local;
+                const aulaId = td.dataset.aula;
+                
+                const url = buildReservaTemporariaUrl(dia, localId, aulaId);
+
+                // Primeiro verifica a reserva temporária
+                try {
+                    const response = await fetch(url);
+                    const data = await response.json();
+
+                    if (data.reservado) {
+                        td.classList.add('reservado');
+                        td.classList.remove('livre');
+                        td.dataset.idReserva = data.id_reserva;
+
+                        const checkbox = td.querySelector('input[type="checkbox"]');
+                        if (checkbox) checkbox.remove();
+
+                        const firstName = data.responsavel?.split(' ')[0] || 'Reservado';
+                        td.textContent = firstName;
+                        td.title = data.responsavel || '';
+                    } else {
+                        // Caso não esteja reservado, restaurar checkbox se não tiver
+                        td.classList.remove('reservado');
+                        td.classList.add('livre');
+                        td.dataset.idReserva = '';
+                        if (!td.querySelector('input')) {
+                            td.innerHTML = `<input type="checkbox" class="form-check-input" name="reserva[${localId},${aulaId},${dia}]">`;
+                        }
+                        td.dataset.idReserva = '';
+                        td.title = '';
+                    }
+                } catch (err) {
+                    console.error(`Erro ao verificar reserva para o dia ${dia} local ${localId} e aula ${aulaId}:`, err);
+                }
+            });
+
+            // Agora verifica as reservas fixas
+            document.querySelectorAll('.tabela-reserva td[data-aula]').forEach(async td => {
+                const dia = td.dataset.dia;
+                const localId = td.dataset.local;
+                const aulaId = td.dataset.aula;
+                const url = buildReservaFixaUrl(dia, localId, aulaId);
+
+                try {
+                    const response = await fetch(url);
+                    const data = await response.json();
+
+                    if (data.reservado){
+                        td.classList.add('reservado-fixo');
+                        td.dataset.idReservaFixa = data.id_reserva;
+                    } else {
+                        td.classList.remove('reservado-fixo');
+                        td.dataset.idReservaFixa = '';
+                    }
+                } catch (err) {
+                    console.error(`Erro ao verificar reserva fixa para o dia ${dia} local ${localId} e aula ${aulaId}:`, err);
+                }
+            });
+        }
+
+        // Atualiza a cada 60 segundos (60000 ms)
+        atualizarReservas(); // primeira chamada imediata
+        setInterval(atualizarReservas, 60000);
+    });
+    </script>
     {% if user and user.perm|has_flag(ADMIN) %}
         <script src="{{ url_for('static', filename='js/reserva_temporaria_modal.js') }}"></script>
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 document.addEventListener("click", function (e) {
-                    const td = e.target.closest("td.reservado");
+
+                    // Se clicou diretamente no checkbox, deixa passar
+                    if (e.target.matches('input[type="checkbox"]')) {
+                        const td = e.target.closest("td.reservado-fixo");
+                        const checkbox = e.target;
+                        if (td && checkbox.checked) {
+                            alert("⚠️ Este horário possui uma reserva fixa, pressione ctrl + no quadrado (fora da check box) para ver mais detalhes");
+                        }
+                        return; // NÃO bloqueia
+                    }
+
+                    const td = e.target.closest("td.reservado, td.reservado-fixo");
                     if (!td) return;
 
                     const altPressed = e.altKey;
+                    const ctrlPressed = e.ctrlKey;
                     const id = td.dataset.idReserva;
+
                     const url = {{ url_for('api_reservas.get_reserva_info', tipo_reserva=1, id_reserva='0')|tojson }};
                     const url_delete = {{ url_for('api_reservas.delete_reserva', tipo_reserva=1, id_reserva='0')|tojson }};
                     const url_edit = {{ url_for('api_reservas.update_reserva', tipo_reserva=1, id_reserva='0')|tojson }};
 
-                    fetch(url.replace(/0$/, id))
-                        .then(r => r.json())
-                        .then(data => {
-                            if (altPressed) {
-                                DeleteData(data, url_delete.replace(/0$/, id));
-                            } else {
-                                openReservaModal(data, url_edit.replace(/0$/, id));
-                            }
-                        })
-                        .catch(err =>
-                            alert("Erro ao carregar reserva devido a: " + err)
-                        );
+                    const id_fixa = td.dataset.idReservaFixa;
+                    const url_info = {{ url_for('api_reservas.get_reserva_info', tipo_reserva=0, id_reserva='0')|tojson }};
+
+                    if (td.classList.contains('reservado')) {
+
+                        fetch(url.replace(/0$/, id))
+                            .then(r => r.json())
+                            .then(data => {
+                                if (altPressed) {
+                                    DeleteData(data, url_delete.replace(/0$/, id));
+                                } else if (ctrlPressed && id_fixa) {
+                                    openInfoModal(url_info.replace(/0$/, id_fixa));
+                                } else {
+                                    openReservaModal(data, url_edit.replace(/0$/, id));
+                                }
+                            })
+                            .catch(err => {
+                                alert("Erro ao carregar reserva devido a: " + err);
+                            });
+
+                    } else {
+                        if (ctrlPressed && id_fixa) {
+                            openInfoModal(url_info.replace(/0$/, id_fixa));
+                        }
+                    }
+
                 });
             });
         </script>
