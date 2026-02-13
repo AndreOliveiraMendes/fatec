@@ -116,58 +116,26 @@
                     <table id="gradeTable" class="table table-bordered table-hover">
                         <thead>
                             <tr>
-                                <th>Professor</th>
-                                <th>Período</th>
-                                <th>Ciclo</th>
-                                <th>Curso</th>
-                                <th>Disciplina</th>
+                                {% for nome, campo in colunas %}
+                                    {% if campo != "professor" or tem_professor %}<th>{{ nome }}</th>{% endif %}
+                                {% endfor %}
                             </tr>
-                            <!-- Filtros por coluna -->
-                            <tr id="filters">
-                                <th>
-                                    <input type="text"
-                                           class="form-control input-sm filtro-coluna"
-                                           data-col="0"
-                                           placeholder="Filtrar Professor">
-                                </th>
-                                <th>
-                                    <input type="text"
-                                           class="form-control input-sm filtro-coluna"
-                                           data-col="1"
-                                           placeholder="Filtrar Período">
-                                </th>
-                                <th>
-                                    <input type="text"
-                                           class="form-control input-sm filtro-coluna"
-                                           data-col="2"
-                                           placeholder="Filtrar Ciclo">
-                                </th>
-                                <th>
-                                    <input type="text"
-                                           class="form-control input-sm filtro-coluna"
-                                           data-col="3"
-                                           placeholder="Filtrar Curso">
-                                </th>
-                                <th>
-                                    <input type="text"
-                                           class="form-control input-sm filtro-coluna"
-                                           data-col="4"
-                                           placeholder="Filtrar Disciplina">
-                                </th>
+                            <tr>
+                                {% for nome, campo in colunas %}
+                                    {% if campo != "professor" or tem_professor %}
+                                        <th>
+                                            <input class="form-control input-sm filtro-coluna"
+                                                   data-col="{{ loop.index0 }}"
+                                                   placeholder="Filtrar {{ nome }}">
+                                        </th>
+                                    {% endif %}
+                                {% endfor %}
                             </tr>
                         </thead>
                         <tbody>
                             {% for item in grade %}
-                                {% set classe_periodo = "" %}
-                                {% if item.periodo == 'M' %}
-                                    {% set classe_periodo = "grade-manha" %}
-                                {% elif item.periodo == 'T' %}
-                                    {% set classe_periodo = "grade-vespertino" %}
-                                {% elif item.periodo == 'N' %}
-                                    {% set classe_periodo = "grade-noturno" %}
-                                {% endif %}
-                                <tr class="{{ classe_periodo }}">
-                                    <td>{{ item.professor }}</td>
+                                <tr class="{{ item.periodo_class }}">
+                                    {% if tem_professor %}<td>{{ item.professor }}</td>{% endif %}
                                     <td>{{ item.periodo }}</td>
                                     <td>{{ item.ciclo }}</td>
                                     <td>{{ item.curso_nome }}</td>
