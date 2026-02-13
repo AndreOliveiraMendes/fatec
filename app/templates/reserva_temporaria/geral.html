@@ -51,10 +51,13 @@
                                 {{ info.horario_inicio|hora }} às {{ info.horario_fim|hora }} no dia {{ info.dia_consulta|data }} ({{ info.nome_semana }})
                             </td>
                             {% for local in locais %}
+                                {% set reserva = helper(1, local.id_local, info.id_aula_ativa, info.dia_consulta) %}
                                 <td data-aula="{{ info.id_aula_ativa }}"
                                     data-local="{{ local.id_local }}"
                                     data-dia="{{ info.dia_consulta }}"
-                                    data-id_reserva="">
+                                    data-id_reserva=""
+                                    data-reserva-backup-title="{{ reserva['title'] if reserva['title'] else '' }}"
+                                    data-reserva-backup-id="{{ reserva['id_reserva'] if reserva['id_reserva'] else '' }}">
                                     <input type="checkbox"
                                            class="form-check-input"
                                            name="reserva[{{ local.id_local }},{{ info.id_aula_ativa }},{{ info.dia_consulta }}]">
@@ -211,6 +214,28 @@
                     }
                 } catch (err) {
                     console.error(`Erro ao verificar reserva para o dia ${dia} local ${localId} e aula ${aulaId}:`, err);
+                    // ativando plano de backup
+                    responsavel = td.dataset.reservaBackupTitle
+                    id = td.dataset.reservaBackupId
+                    if(id){
+                        td.classList.add('reservado');
+                        td.classList.remove('livre');
+                        td.dataset.idReserva = id;
+                        const checkbox = td.querySelector('input[type="checkbox"]');
+                        if (checkbox) checkbox.remove();
+                        const firstName = responsavel?.split(' ')[0] || 'Reservado';
+                        td.textContent = firstName;
+                        td.title = reserva;
+                    } else {
+                        td.classList.remove('reservado');
+                        td.classList.add('livre');
+                        td.dataset.idReserva = '';
+                        if (!td.querySelector('input')) {
+                            td.innerHTML = `<input type="checkbox" class="form-check-input" name="reserva[${localId},${aulaId},${dia}]">`;
+                        }
+                        td.dataset.idReserva = '';
+                        td.title = '';
+                    }
                 }
             });
 

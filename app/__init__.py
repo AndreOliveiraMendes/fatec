@@ -1,6 +1,6 @@
-from datetime import timedelta
 import logging
 import os
+from datetime import timedelta
 from logging.handlers import TimedRotatingFileHandler
 
 from flask import Flask
