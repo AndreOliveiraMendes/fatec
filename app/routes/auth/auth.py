@@ -139,6 +139,7 @@ def login():
         logged, userid, user = check_login(userlogin, userpassword)
         if logged and user:
             session['userid'] = userid
+            session.permanent = True
             flash("login realizado com sucesso", "success")
             current_app.logger.info(f"usuario {user.username} efetuou login no sistema")
             url_base = url_for('default.home')

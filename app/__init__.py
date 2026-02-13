@@ -1,3 +1,4 @@
+from datetime import timedelta
 import logging
 import os
 from logging.handlers import TimedRotatingFileHandler
@@ -51,6 +52,14 @@ def create_app(name=None):
 
         if AUTO_CREATE_MYSQL:
             db.create_all()
+    
+    #sessao
+    app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=7)
+    app.config.update(
+        SESSION_COOKIE_HTTPONLY=not app.debug,
+        SESSION_COOKIE_SECURE=not app.debug,
+        SESSION_COOKIE_SAMESITE="Lax"
+    )
 
     return app
 
