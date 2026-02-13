@@ -1,9 +1,9 @@
 from datetime import datetime
 from typing import List, Literal, Optional, Sequence, Tuple
 
-from flask import Flask, abort, current_app, session, url_for
+from flask import Flask, abort, session, url_for
 from markupsafe import Markup
-from sqlalchemy import between, select
+from sqlalchemy import between
 
 from app.auxiliar.auxiliar_routes import (get_responsavel_reserva,
                                           get_unique_or_500, get_user_info)
@@ -12,7 +12,7 @@ from app.auxiliar.constant import (DATA_ABREV, DATA_COMPLETA, DATA_FLAGS,
                                    PERMISSIONS, SEMANA_ABREV, SEMANA_COMPLETA)
 from app.models import (Exibicao_Reservas, FinalidadeReservaEnum, Locais,
                         Reservas_Fixas, Reservas_Temporarias, Semestres,
-                        SituacaoChaveEnum, Situacoes_Das_Reserva, Turnos, db)
+                        SituacaoChaveEnum, Situacoes_Das_Reserva, Turnos)
 from config.database_views import SECOES
 from config.json_related import carregar_painel_config
 from config.mapeamentos import (mapa_icones_status, meses_ingleses,
@@ -293,30 +293,6 @@ def register_filters(app:Flask):
             icon += f"""<i class="glyphicon { overlay } icon-contrast overlay-icon"></i>"""
         icon += "</span>"
         return Markup(icon);
-
-    @app.template_global()
-    def helper(tipo_reserva, id_local, id_aula, dia):
-        if tipo_reserva == 0:
-            pass #do reserva fixa backup plan
-        elif tipo_reserva == 1:
-            sel_reserva = select(Reservas_Temporarias).where(
-                Reservas_Temporarias.id_reserva_local == id_local,
-                Reservas_Temporarias.id_reserva_aula == id_aula,
-                Reservas_Temporarias.inicio_reserva <= dia,
-                Reservas_Temporarias.fim_reserva >= dia
-            )
-            reservas = db.session.execute(sel_reserva).scalars().all()
-            if len(reservas) > 1:
-                current_app.logger.warning("mais de uma reserva")
-            elif len(reservas) == 1:
-                reserva = reservas[0]
-                return {"id_reserva": reserva.id_reserva_temporaria, "title": get_responsavel_reserva(reserva)}
-            else:
-                return {"id_reserva": None, "title": None}
-        else:
-            raise ValueError("tipo de reserva inexistente")
-
-
 
     @app.template_filter('has_flag')
     def has_flag(value, flag, strict_mode=False):

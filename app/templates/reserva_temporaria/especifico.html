@@ -9,7 +9,7 @@
     <div class="center-content">
         <div class="btn-group">
             {{ go_back(contador) }}
-            <a href="{{ url_for("default.home") }}" class="btn btn-default">
+            <a href="{{ url_for('default.home') }}" class="btn btn-default">
                 <span class="glyphicon glyphicon-home"></span> Início
             </a>
         </div>
@@ -48,17 +48,13 @@
                             <tr>
                                 <td class="col-fixa">{{ dia['dia'] }} ({{ dia['semana'] }})</td>
                                 {% for info in dia['infos'] %}
-                                    {% set reserva = helper(1, local.id_local, info.id_aula_ativa, dia['dia']) %}
-                                    <td
-                                        data-aula="{{ info.id_aula_ativa }}"
+                                    <td data-aula="{{ info.id_aula_ativa }}"
                                         data-local="{{ local.id_local }}"
                                         data-dia="{{ dia['dia'] }}"
-                                        data-id-reserva=""
-                                        data-reserva-backup-title="{{ reserva['title'] if reserva['title'] else '' }}"
-                                        data-reserva-backup-id="{{ reserva['id_reserva'] if reserva['id_reserva'] else '' }}">
+                                        data-id-reserva="">
                                         <input type="checkbox"
-                                            class="form-check-input"
-                                            name="reserva[{{ local.id_local }},{{ info.id_aula_ativa }},{{ dia['dia'] }}]">
+                                               class="form-check-input"
+                                               name="reserva[{{ local.id_local }},{{ info.id_aula_ativa }},{{ dia['dia'] }}]">
                                     </td>
                                 {% endfor %}
                             </tr>
@@ -210,7 +206,7 @@
                     }
                 } catch (err) {
                     console.error(`Erro ao verificar reserva para o dia ${dia} local ${localId} e aula ${aulaId}:`, err);
-                    // ativando plano de backup
+                    /** fallback removed - was used for 308 redirect bug (double slash URL) *{#
                     responsavel = td.dataset.reservaBackupTitle
                     id = td.dataset.reservaBackupId
                     if(id){
@@ -232,6 +228,7 @@
                         td.dataset.idReserva = '';
                         td.title = '';
                     }
+                    #}*/
                 }
             });
 
