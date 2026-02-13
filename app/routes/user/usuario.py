@@ -3,11 +3,10 @@ from datetime import datetime
 from typing import Any
 
 from flask import (Blueprint, abort, flash, redirect, render_template, request,
-                   session, url_for, current_app)
+                   session, url_for)
 from flask.typing import ResponseReturnValue
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import between, select
-from mysql.connector import DatabaseError as mysql_DatabaseError, OperationalError as mysqlOperationalError, connect
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
                             InternalError, OperationalError, ProgrammingError)
 
@@ -17,10 +16,10 @@ from app.auxiliar.auxiliar_routes import (get_user_info, none_if_empty,
 from app.auxiliar.constant import PERM_ADMIN
 from app.auxiliar.dao import get_pessoas, get_semestres, get_usuarios_especiais
 from app.auxiliar.decorators import login_required
+from app.auxiliar.external_dao import get_grade_by_professor
 from app.models import (Aulas, Aulas_Ativas, FinalidadeReservaEnum, Permissoes,
                         Reservas_Fixas, Reservas_Temporarias, Usuarios, db)
 from config.general import LOCAL_TIMEZONE
-from config.general import DISPONIBILIDADE_DATABASE, DISPONIBILIDADE_HOST, DISPONIBILIDADE_PASSWORD, DISPONIBILIDADE_USER
 
 bp = Blueprint('usuario', __name__, url_prefix='/usuario')
 
@@ -67,30 +66,14 @@ def get_reservas_temporarias(userid, dia, page, all=False):
 def perfil():
     userid = session.get('userid')
     user = get_user_info(userid)
+    if not user:
+        abort(404, description="Usuário não encontrado.")
     extras: dict[str, Any] = {}
-    try:
-        with connect(
-            host=DISPONIBILIDADE_HOST,
-            user=DISPONIBILIDADE_USER,
-            password=DISPONIBILIDADE_PASSWORD,
-            database=DISPONIBILIDADE_DATABASE
-        ) as conn:
-            with conn.cursor(dictionary=True) as cursor:
-                cursor.execute("""
-                    select 
-                        grade.professor, 
-                        grade.periodo, 
-                        grade.ciclo, 
-                        curso.nome as curso_nome, 
-                        disciplina.nome as disciplina_nome
-                    from grade 
-                    inner join curso on grade.curso = curso.codigo 
-                    inner join disciplina on grade.disciplina = disciplina.codigo;
-                """)
-                rows = cursor.fetchall()
-                extras["grade"] = rows
-    except (mysql_DatabaseError, mysqlOperationalError) as e:
-        current_app.logger.error(f"erro ao acessar disponibilidade: {e}")
+    grade, erro = get_grade_by_professor(user.id_pessoa)
+
+    extras["grade"] = grade
+    extras["erro_grade"] = erro
+    
     return render_template("usuario/perfil.html", user=user, **extras)
 
 @bp.route("/reservas")

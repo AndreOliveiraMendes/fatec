@@ -5,4 +5,5 @@ from app.auxiliar.auxiliar_template import *
 from app.auxiliar.constant import *
 from app.auxiliar.dao import *
 from app.auxiliar.decorators import *
+from app.auxiliar.external_dao import *
 from app.auxiliar.url_custom_types import *
