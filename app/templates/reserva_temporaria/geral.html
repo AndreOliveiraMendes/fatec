@@ -169,11 +169,11 @@
         )|tojson }};
 
         function buildReservaFixaUrl(dia, localId, aulaId) {
-            return baseUrlFixa.replace('2000-01-01/0/0', `/${dia}/${localId}/${aulaId}`);
+            return baseUrlFixa.replace('2000-01-01/0/0', `${dia}/${localId}/${aulaId}`);
         }
 
         function buildReservaTemporariaUrl(dia, localId, aulaId) {
-            return baseUrlTemporaria.replace('2000-01-01/0/0', `/${dia}/${localId}/${aulaId}`);
+            return baseUrlTemporaria.replace('2000-01-01/0/0', `${dia}/${localId}/${aulaId}`);
         }
 
         // função para atualizar o status das reservas na tabela
