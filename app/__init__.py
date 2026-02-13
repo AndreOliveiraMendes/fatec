@@ -54,12 +54,12 @@ def create_app(name=None):
             db.create_all()
     
     #sessao
-    app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=7)
-    app.config.update(
-        SESSION_COOKIE_HTTPONLY=not app.debug,
-        SESSION_COOKIE_SECURE=not app.debug,
-        SESSION_COOKIE_SAMESITE="Lax"
-    )
+    #app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=7)
+    #app.config.update(
+    #    SESSION_COOKIE_HTTPONLY=not app.debug,
+    #    SESSION_COOKIE_SECURE=not app.debug,
+    #    SESSION_COOKIE_SAMESITE="Lax"
+    #)
 
     return app
 
