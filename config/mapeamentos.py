@@ -70,7 +70,8 @@ DEFAULT_CONFIG_CFG = {
     "modo_gerenciacao": "multiplo",
     "toleranca": 20,
     "login": False,
-    "status_indefinido": True
+    "status_indefinido": True,
+    "alertar": False
 }
 
 SECRET_PATH = "config/secret.json"

@@ -57,6 +57,18 @@
                 </label>
             </div>
         </div>
+        <div class="form-group">
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox"
+                        id="alertar"
+                        name="alertar"
+                        value="1"
+                        {% if config_cfg.get('alertar') %}checked{% endif %}>
+                    Alertar se a reservva temporaria pode sobrescrever uma reserva existente
+                </label>
+            </div>
+        </div>
         {{ action_buttons('montar', show_voltar=False, label='') }}
     </form>
 {% endblock content %}

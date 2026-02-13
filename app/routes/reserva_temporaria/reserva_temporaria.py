@@ -1,5 +1,5 @@
 from datetime import date
-from typing import List
+from typing import Any, List
 from urllib.parse import urlparse
 
 from flask import (Blueprint, abort, current_app, flash, redirect,
@@ -22,6 +22,7 @@ from app.auxiliar.decorators import reserva_temp_required
 from app.models import (FinalidadeReservaEnum, Locais, Permissoes,
                         Reservas_Temporarias, TipoAulaEnum, Turnos, Usuarios,
                         db)
+from config.json_related import carregar_config_geral
 
 bp = Blueprint('reservas_temporarias', __name__, url_prefix="/reserva_temporaria")
 
@@ -46,13 +47,25 @@ def main_page():
     userid = session.get('userid')
     user = get_user_info(userid)
     if request.method == 'POST':
-        dia_inicial = parse_date_string(request.form.get('dia_inicio'))
-        dia_final = parse_date_string(request.form.get('dia_fim'))
+        dia_inicial = parse_date_string(request.form.get("dia_inicio"))
+        dia_final = parse_date_string(request.form.get("dia_fim"))
+
+        if not dia_inicial and not dia_final:
+            flash("datas inválidas, por favor informe datas válidas", "danger")
+            return redirect(url_for("reservas_temporarias.main_page"))
+
         if not dia_final:
             flash("data final não informada, considerando mesma data de início", "warning")
             dia_final = dia_inicial
+
         if not dia_inicial:
+            flash("data inicial não informada, considerando mesma data de fim", "warning")
+            dia_inicial = dia_final
+
+        # segurança extra
+        if not dia_inicial or not dia_final:
             abort(400, description="datas invalidas")
+
         if dia_inicial > dia_final:
             dia_inicial, dia_final = dia_final, dia_inicial
         return redirect(url_for('reservas_temporarias.dias', inicio=dia_inicial, fim=dia_final))
@@ -155,6 +168,8 @@ def get_lab_geral(inicio, fim, id_turno):
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
     extras['contador'] = session.get('contador')
+    
+    extras['cfg'] = carregar_config_geral()
     return render_template('reserva_temporaria/geral.html', user=user, **extras)
 
 def get_lab_especifico(inicio, fim, id_turno, id_lab):
@@ -188,6 +203,8 @@ def get_lab_especifico(inicio, fim, id_turno, id_lab):
     extras['responsavel_especial'] = get_usuarios_especiais()
     extras['contador'] = session.get('contador')
     extras['locais'] = get_laboratorios(user.perm&PERM_ADMIN > 0)
+    
+    extras['cfg'] = carregar_config_geral()
     return render_template('reserva_temporaria/especifico.html', user=user, **extras)
 
 

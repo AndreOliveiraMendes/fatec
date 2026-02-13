@@ -83,6 +83,8 @@ def configurar_tela_televisor():
 def configuracao_geral():
     userid = session.get('userid')
     user = get_user_info(userid)
+    if not user:
+        abort(403, description="Usuário não encontrado.")
     extras = {}
     config_cfg = carregar_config_geral()
     if request.method == 'GET':
@@ -97,6 +99,7 @@ def configuracao_geral():
         config_cfg['toleranca'] = toleranca
         config_cfg['login'] = home_login
         config_cfg['status_indefinido'] = status_indefinido
+        config_cfg['alertar'] = "alertar" in request.form
         try:
             with as_file(resource) as config_path:
                 config_file = Path(config_path)

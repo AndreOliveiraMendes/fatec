@@ -245,7 +245,8 @@
             document.addEventListener('DOMContentLoaded', () => {
                 document.addEventListener("click", function (e) {
 
-                    // Se clicou diretamente no checkbox, deixa passar
+                    // Se clicou diretamente no checkbox, deixa passar (caso habilitado)
+                    {% if cfg and cfg.get('alertar') %}
                     if (e.target.matches('input[type="checkbox"]')) {
                         const td = e.target.closest("td.reservado-fixo");
                         const checkbox = e.target;
@@ -254,6 +255,7 @@
                         }
                         return; // NÃO bloqueia
                     }
+                    {% endif %}
 
                     const td = e.target.closest("td.reservado, td.reservado-fixo");
                     if (!td) return;
