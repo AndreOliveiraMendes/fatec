@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Any, List
+from typing import List
 from urllib.parse import urlparse
 
 from flask import (Blueprint, abort, current_app, flash, redirect,
@@ -9,8 +9,8 @@ from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
                             InternalError, OperationalError, ProgrammingError)
 
 from app.auxiliar.auxiliar_routes import (builder_helper_temporaria,
-                                          check_local, get_user_info, none_if_empty,
-                                          parse_date_string,
+                                          check_local, get_user_info,
+                                          none_if_empty, parse_date_string,
                                           registrar_log_generico_usuario,
                                           time_range)
 from app.auxiliar.constant import PERM_ADMIN
