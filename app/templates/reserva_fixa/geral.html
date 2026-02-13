@@ -54,7 +54,8 @@
                                 <td data-aula="{{ aula_ativa.id_aula_ativa }}"
                                     data-local="{{ local.id_local }}"
                                     data-semestre="{{ semestre.inicio_semestre|data }}"
-                                    data-id-reserva="">
+                                    data-id-reserva=""
+                                    data-id-responsavel="">
                                     <input type="checkbox"
                                            class="form-check-input"
                                            name="reserva[{{ local.id_local }}, {{ aula_ativa.id_aula_ativa }}]">
@@ -190,6 +191,8 @@
     <script>
     document.addEventListener("DOMContentLoaded", function () {
 
+        const idResponsavelAtual = {{ user.pessoa.id_pessoa|tojson }};
+
         const baseUrl = {{ url_for(
             'api_reservas.get_reserva_indirect',
             tipo_reserva=0,
@@ -200,6 +203,39 @@
 
         function buildReservaUrl(localId, aulaId) {
             return baseUrl.replace('/0/0', `/${localId}/${aulaId}`);
+        }
+
+        function aplicarBloqueioPorHorario(idResponsavelAtual) {
+
+            // Primeiro limpa bloqueios antigos
+            document.querySelectorAll('td').forEach(td => {
+                td.classList.remove("td-conflito-horario");
+                const checkbox = td.querySelector('input[type="checkbox"]');
+                if (checkbox) checkbox.disabled = false;
+            });
+
+            // Procura horários onde o responsável já está reservado
+            const horariosOcupados = new Set();
+
+            document.querySelectorAll('td[data-id-responsavel]').forEach(td => {
+                if (String(td.dataset.idResponsavel) === String(idResponsavelAtual)) {
+                    horariosOcupados.add(td.dataset.aula);
+                }
+            });
+
+            // Agora bloqueia todos os TDs com esses horários
+            horariosOcupados.forEach(hora => {
+
+                document.querySelectorAll(`td[data-aula="${hora}"]`).forEach(td => {
+
+                    const checkbox = td.querySelector('input[type="checkbox"]');
+                    if (checkbox) checkbox.disabled = true;
+
+                    td.classList.add("td-conflito-horario");
+                });
+
+            });
+
         }
 
         // Função que atualiza as reservas
@@ -221,6 +257,7 @@
                         td.classList.add('reservado');
                         td.classList.remove('livre');
                         td.dataset.idReserva = data.id_reserva;
+                        td.dataset.idResponsavel = data.id_responsavel;
 
                         const checkbox = td.querySelector('input');
                         if (checkbox) checkbox.remove();
@@ -233,15 +270,19 @@
                         td.classList.remove('reservado');
                         td.classList.add('livre');
                         td.dataset.idReserva = '';
+                        td.dataset.idResponsavel = '';
                         if (!td.querySelector('input')) {
                             td.innerHTML = `<input type="checkbox" class="form-check-input" name="reserva[${localId},${aulaId}]">`;
                         }
                         td.dataset.idReserva = '';
                         td.title = '';
+
                     }
                 } catch (err) {
                     console.error(`Erro ao verificar reserva para local ${localId} e aula ${aulaId}:`, err);
                 }
+
+                aplicarBloqueioPorHorario(idResponsavelAtual);
             });
         }
 
@@ -251,6 +292,7 @@
 
     });
     </script>
+    {# script para gerenciar a reserva pelo painel de reservas #}
     {% if user and user.perm|has_flag(ADMIN) %}
         <script src="{{ url_for('static', filename='js/reserva_fixa_modal.js') }}"></script>
         <script>
@@ -281,4 +323,40 @@
             });
         </script>
     {% endif %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            // ===============================
+            // BLOQUEIO POR AULA (já tinha)
+            // ===============================
+            document.addEventListener("change", function (e) {
+
+                const checkbox = e.target.closest('td[data-aula] input[type="checkbox"]');
+                if (!checkbox) return;
+
+                const tdAtual = checkbox.closest("td");
+                const aulaAtual = tdAtual.dataset.aula;
+                const localAtual = tdAtual.dataset.local;
+
+                const tdsMesmaAula = document.querySelectorAll(
+                    'td[data-aula="' + aulaAtual + '"]'
+                );
+
+                tdsMesmaAula.forEach(function (td) {
+
+                    const local = td.dataset.local;
+                    const input = td.querySelector('input[type="checkbox"]');
+                    if (!input) return;
+
+                    if (local !== localAtual) {
+                        input.disabled = checkbox.checked;
+                        td.classList.toggle("td-bloqueado", checkbox.checked);
+                    }
+
+                });
+
+            });
+
+        });
+    </script>
 {% endblock extra_script %}
