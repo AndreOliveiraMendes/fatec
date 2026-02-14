@@ -15,7 +15,6 @@ from app.auxiliar.decorators import admin_required
 
 bp = Blueprint('api_reservas', __name__, url_prefix='/api/reservas')
 
-
 # -------------------------
 # MAPEAMENTO DE TIPOS
 # -------------------------
@@ -33,7 +32,6 @@ RESERVA_HANDLERS = {
         "indirect": get_reserva_temporaria_indirect
     }
 }
-
 
 def get_handler(tipo_reserva: int, action: str):
     handler = RESERVA_HANDLERS.get(tipo_reserva, {}).get(action)
