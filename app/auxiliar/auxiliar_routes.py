@@ -11,9 +11,9 @@ from sqlalchemy.inspection import inspect
 from sqlalchemy.sql.elements import ColumnElement
 
 from app.auxiliar.constant import PERM_ADMIN
-from app.models import (Base, Historicos, Locais, OrigemEnum, Pessoas,
-                        ReservaBase, Reservas_Fixas, Reservas_Temporarias,
-                        Usuarios, Usuarios_Especiais, db)
+from app.models import (Base, Historicos, Locais, OrigemEnum, Permissoes,
+                        Pessoas, ReservaBase, Reservas_Fixas,
+                        Reservas_Temporarias, Usuarios, Usuarios_Especiais, db)
 from config.general import AFTER_ACTION, LOCAL_TIMEZONE
 
 IGNORED_FORM_FIELDS = ['page', 'acao', 'bloco']
@@ -311,3 +311,44 @@ def filtro_tipo_responsavel(
             )
         case _:
             raise ValueError("tipo_responsavel inválido")
+        
+# informações das reservas
+
+def check_ownership_or_admin(reserva:Reservas_Fixas|Reservas_Temporarias):
+    userid = session.get('userid')
+    user = db.get_or_404(Usuarios, userid)
+    perm = db.session.get(Permissoes, userid)
+    if reserva.id_responsavel != user.pessoa.id_pessoa and (not perm or perm.permissao&PERM_ADMIN == 0):
+        abort(403, description="Acesso negado à reserva de outro usuário.")
+
+def info_reserva_fixa(id_reserva):
+    reserva = db.get_or_404(Reservas_Fixas, id_reserva)
+    check_ownership_or_admin(reserva)
+    return {
+        "local": reserva.local.nome_local,
+        "semestre": reserva.semestre.nome_semestre,
+        "semana": reserva.aula_ativa.dia_da_semana.nome_semana,
+        "horario": f"{reserva.aula_ativa.aula.horario_inicio:%H:%M} às {reserva.aula_ativa.aula.horario_fim:%H:%M}",
+        "observacao": reserva.observacoes,
+        "finalidadereserva": reserva.finalidade_reserva.value,
+        "responsavel": reserva.id_responsavel,
+        "responsavel_especial": reserva.id_responsavel_especial,
+        "cancel_url": url_for("usuario.cancelar_reserva", tipo_reserva="fixa", id_reserva=id_reserva),
+        "editar_url": url_for("usuario.editar_reserva", tipo_reserva="fixa", id_reserva=id_reserva)
+    }
+
+def info_reserva_temporaria(id_reserva):
+    reserva = db.get_or_404(Reservas_Temporarias, id_reserva)
+    check_ownership_or_admin(reserva)
+    return {
+        "local": reserva.local.nome_local,
+        "periodo": f"{reserva.inicio_reserva} - {reserva.fim_reserva}",
+        "semana": reserva.aula_ativa.dia_da_semana.nome_semana,
+        "horario": f"{reserva.aula_ativa.aula.horario_inicio:%H:%M} às {reserva.aula_ativa.aula.horario_fim:%H:%M}",
+        "observacao": reserva.observacoes,
+        "finalidadereserva": reserva.finalidade_reserva.value,
+        "responsavel": reserva.id_responsavel,
+        "responsavel_especial": reserva.id_responsavel_especial,
+        "cancel_url": url_for("usuario.cancelar_reserva", tipo_reserva="temporaria", id_reserva=id_reserva),
+        "editar_url": url_for("usuario.editar_reserva", tipo_reserva="temporaria", id_reserva=id_reserva)
+    }

@@ -10,8 +10,10 @@ from sqlalchemy import between, select
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
                             InternalError, OperationalError, ProgrammingError)
 
-from app.auxiliar.auxiliar_routes import (get_user_info, none_if_empty,
-                                          parse_date_string,
+from app.auxiliar.auxiliar_routes import (check_ownership_or_admin,
+                                          get_user_info, info_reserva_fixa,
+                                          info_reserva_temporaria,
+                                          none_if_empty, parse_date_string,
                                           registrar_log_generico_usuario)
 from app.auxiliar.constant import PERM_ADMIN
 from app.auxiliar.dao import get_pessoas, get_semestres, get_usuarios_especiais
@@ -22,6 +24,25 @@ from app.models import (Aulas, Aulas_Ativas, FinalidadeReservaEnum, Permissoes,
 from config.general import LOCAL_TIMEZONE
 
 bp = Blueprint('usuario', __name__, url_prefix='/usuario')
+
+RESERVA_MAP = {
+    "fixa": {
+        "model": Reservas_Fixas,
+        "info": info_reserva_fixa,
+        "redirect": lambda: url_for('usuario.gerenciar_reserva_fixa')
+    },
+    "temporaria": {
+        "model": Reservas_Temporarias,
+        "info": info_reserva_temporaria,
+        "redirect": lambda: url_for('usuario.gerenciar_reserva_temporaria')
+    }
+}
+
+def resolve_tipo(tipo_reserva: str):
+    data = RESERVA_MAP.get(tipo_reserva)
+    if data is None:
+        abort(404, description="Tipo de reserva inexistente")
+    return data
 
 def get_reservas_fixas(userid, semestre, page, all=False):
     user = db.session.get(Usuarios, userid)
@@ -155,54 +176,11 @@ def gerenciar_reserva_temporaria():
     extras['all'] = all
     return render_template("usuario/reserva_temporaria.html", user=user, **extras)
 
-def check_ownership_or_admin(reserva:Reservas_Fixas|Reservas_Temporarias):
-    userid = session.get('userid')
-    user = db.get_or_404(Usuarios, userid)
-    perm = db.session.get(Permissoes, userid)
-    if reserva.id_responsavel != user.pessoa.id_pessoa and (not perm or perm.permissao&PERM_ADMIN == 0):
-        abort(403, description="Acesso negado à reserva de outro usuário.")
-
-def info_reserva_fixa(id_reserva):
-    reserva = db.get_or_404(Reservas_Fixas, id_reserva)
-    check_ownership_or_admin(reserva)
-    return {
-        "local": reserva.local.nome_local,
-        "semestre": reserva.semestre.nome_semestre,
-        "semana": reserva.aula_ativa.dia_da_semana.nome_semana,
-        "horario": f"{reserva.aula_ativa.aula.horario_inicio:%H:%M} às {reserva.aula_ativa.aula.horario_fim:%H:%M}",
-        "observacao": reserva.observacoes,
-        "finalidadereserva": reserva.finalidade_reserva.value,
-        "responsavel": reserva.id_responsavel,
-        "responsavel_especial": reserva.id_responsavel_especial,
-        "cancel_url": url_for("usuario.cancelar_reserva", tipo_reserva="fixa", id_reserva=id_reserva),
-        "editar_url": url_for("usuario.editar_reserva", tipo_reserva="fixa", id_reserva=id_reserva)
-    }
-
-def info_reserva_temporaria(id_reserva):
-    reserva = db.get_or_404(Reservas_Temporarias, id_reserva)
-    check_ownership_or_admin(reserva)
-    return {
-        "local": reserva.local.nome_local,
-        "periodo": f"{reserva.inicio_reserva} - {reserva.fim_reserva}",
-        "semana": reserva.aula_ativa.dia_da_semana.nome_semana,
-        "horario": f"{reserva.aula_ativa.aula.horario_inicio:%H:%M} às {reserva.aula_ativa.aula.horario_fim:%H:%M}",
-        "observacao": reserva.observacoes,
-        "finalidadereserva": reserva.finalidade_reserva.value,
-        "responsavel": reserva.id_responsavel,
-        "responsavel_especial": reserva.id_responsavel_especial,
-        "cancel_url": url_for("usuario.cancelar_reserva", tipo_reserva="temporaria", id_reserva=id_reserva),
-        "editar_url": url_for("usuario.editar_reserva", tipo_reserva="temporaria", id_reserva=id_reserva)
-    }
-
 @bp.route("/get_info/<tipo_reserva>/<int:id_reserva>")
 @login_required
 def get_info_reserva(tipo_reserva, id_reserva):
-    if tipo_reserva == 'fixa':
-        return info_reserva_fixa(id_reserva)
-    elif tipo_reserva == 'temporaria':
-        return info_reserva_temporaria(id_reserva)
-    else:
-        abort(400, description="Tipo de reserva inválido.")
+    tipo = resolve_tipo(tipo_reserva)
+    return tipo["info"](id_reserva)
 
 def cancelar_reserva_generico(modelo, id_reserva, redirect_url):
     userid = session.get('userid')
@@ -222,12 +200,13 @@ def cancelar_reserva_generico(modelo, id_reserva, redirect_url):
 @bp.route("/cancelar_reserva/<tipo_reserva>/<int:id_reserva>", methods=['POST'])
 @login_required
 def cancelar_reserva(tipo_reserva, id_reserva):
-    if tipo_reserva == 'fixa':
-        return cancelar_reserva_generico(Reservas_Fixas, id_reserva, url_for('usuario.gerenciar_reserva_fixa'))
-    elif tipo_reserva == 'temporaria':
-        return cancelar_reserva_generico(Reservas_Temporarias, id_reserva, url_for('usuario.gerenciar_reserva_temporaria'))
-    else:
-        abort(400, description="Tipo de reserva inválido.")
+    tipo = resolve_tipo(tipo_reserva)
+
+    return cancelar_reserva_generico(
+        tipo["model"],
+        id_reserva,
+        tipo["redirect"]()
+    )
 
 def editar_reserva_generico(model, id_reserva: int, redirect_url: str) -> ResponseReturnValue:
     userid = session.get('userid')
@@ -266,9 +245,10 @@ def editar_reserva_generico(model, id_reserva: int, redirect_url: str) -> Respon
 @bp.route("/editar_reservas/<tipo_reserva>/<int:id_reserva>", methods=['POST'])
 @login_required
 def editar_reserva(tipo_reserva, id_reserva):
-    if tipo_reserva == 'fixa':
-        return editar_reserva_generico(Reservas_Fixas, id_reserva, url_for('usuario.gerenciar_reserva_fixa'))
-    elif tipo_reserva == 'temporaria':
-        return editar_reserva_generico(Reservas_Temporarias, id_reserva, url_for('usuario.gerenciar_reserva_temporaria'))
-    else:
-        abort(400, description="Tipo de reserva inválido.")
+    tipo = resolve_tipo(tipo_reserva)
+
+    return editar_reserva_generico(
+        tipo["model"],
+        id_reserva,
+        tipo["redirect"]()
+    )
