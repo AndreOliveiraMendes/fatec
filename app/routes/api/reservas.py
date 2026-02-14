@@ -34,9 +34,16 @@ RESERVA_HANDLERS = {
 }
 
 def get_handler(tipo_reserva: int, action: str):
-    handler = RESERVA_HANDLERS.get(tipo_reserva, {}).get(action)
-    if not handler:
-        abort(400, description="Tipo de reserva inválido")
+    handler_map = RESERVA_HANDLERS.get(tipo_reserva)
+
+    if handler_map is None:
+        abort(404, description="Tipo de reserva inexistente")
+
+    handler = handler_map.get(action)
+
+    if handler is None:
+        abort(405, description="Ação não permitida para este tipo de reserva")
+
     return handler
 
 
