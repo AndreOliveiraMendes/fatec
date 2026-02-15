@@ -3,10 +3,10 @@ from datetime import datetime
 from typing import Any
 
 from flask import (Blueprint, abort, flash, redirect, render_template, request,
-                   session, url_for)
+                   session, url_for, current_app)
 from flask.typing import ResponseReturnValue
 from flask_sqlalchemy.pagination import SelectPagination
-from sqlalchemy import between, select
+from sqlalchemy import between, select, and_
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
                             InternalError, OperationalError, ProgrammingError)
 
@@ -28,13 +28,26 @@ bp = Blueprint('usuario', __name__, url_prefix='/usuario')
 RESERVA_MAP = {
     "fixa": {
         "model": Reservas_Fixas,
+        "order": Reservas_Fixas.id_reserva_semestre,
         "info": info_reserva_fixa,
         "redirect": lambda: url_for('usuario.gerenciar_reserva_fixa')
     },
     "temporaria": {
         "model": Reservas_Temporarias,
+        "order": Reservas_Temporarias.inicio_reserva,
         "info": info_reserva_temporaria,
         "redirect": lambda: url_for('usuario.gerenciar_reserva_temporaria')
+    }
+}
+
+FILTERS = {
+    "fixa": {
+        "semestre": (lambda s:Reservas_Fixas.id_reserva_semestre == s, int),
+        "responsavel": (lambda r:Reservas_Fixas.id_responsavel == r, int),
+    },
+    "temporaria": {
+        "responsavel": (lambda r:Reservas_Temporarias.id_responsavel == r, int),
+        "dia": (lambda d:and_(Reservas_Temporarias.inicio_reserva <= d, Reservas_Temporarias.fim_reserva >= d), str),
     }
 }
 
@@ -44,36 +57,31 @@ def resolve_tipo(tipo_reserva: str):
         abort(404, description="Tipo de reserva inexistente")
     return data
 
-def get_reservas_fixas(userid, semestre, page, all=False):
-    user = db.session.get(Usuarios, userid)
-    if not user:
-        abort(404, description="Usuário não encontrado.")
-    filtro = []
-    if not all:
-        filtro.append(Reservas_Fixas.id_responsavel == user.pessoa.id_pessoa)
-    if semestre is not None:
-        filtro.append(Reservas_Fixas.id_reserva_semestre == semestre)
-    sel_reservas = select(Reservas_Fixas).join(Aulas_Ativas).join(Aulas).where(*filtro).order_by(
-        Reservas_Fixas.id_reserva_semestre,
-        Aulas_Ativas.id_semana,
-        Aulas.horario_inicio
-    )
-    pagination = SelectPagination(select=sel_reservas, session=db.session,
-        page=page, per_page=5, error_out=False
-    )
-    return pagination
+def make_params(request):
+    return {key:value for key, value in request.args.items() if key != 'page'}
 
-def get_reservas_temporarias(userid, dia, page, all=False):
+def get_reservas(userid, params, page, tipo):
     user = db.session.get(Usuarios, userid)
-    if not user:
+    base = RESERVA_MAP.get(tipo, {})
+    if not base:
+        abort(404, description="Tipo invalido")
+    model = base.get('model')
+    org_column = base.get('order')
+    if not user or not model:
         abort(404, description="Usuário não encontrado.")
     filtro = []
-    if not all:
-        filtro.append(Reservas_Temporarias.id_responsavel == user.pessoa.id_pessoa)
-    if dia is not None:
-        filtro.append(between(dia, Reservas_Temporarias.inicio_reserva, Reservas_Temporarias.fim_reserva))
-    sel_reservas = select(Reservas_Temporarias).join(Aulas_Ativas).join(Aulas).where(*filtro).order_by(
-        Reservas_Temporarias.inicio_reserva,
+    if not user.perm & PERM_ADMIN:
+        filtro.append(model.id_responsavel == user.id_pessoa)
+    for key, (condition, cast) in FILTERS.get(tipo, {}).items():
+        raw = params.get(key)
+        if raw:
+            try:
+                filtro.append(condition(cast(raw)))
+            except (TypeError, ValueError) as e:
+                current_app.logger.warning(f"Filtro inválido {key}={raw}")
+
+    sel_reservas = select(model).join(Aulas_Ativas).join(Aulas).where(*filtro).order_by(
+        org_column,
         Aulas_Ativas.id_semana,
         Aulas.horario_inicio
     )
@@ -138,19 +146,17 @@ def gerenciar_reserva_fixa():
         return redirect(url_for('default.home'))
     today = datetime.now(LOCAL_TIMEZONE)
     extras: dict[str, Any] = {'datetime':today}
-    extras['semestres'] = semestres
-    semestre_id = request.args.get("semestre", type=int)
     page = int(request.args.get("page", 1))
-    all = "all" in request.args and user.perm&PERM_ADMIN > 0
-    reservas_fixas = get_reservas_fixas(userid, semestre_id, page, all)
+    args_extras = make_params(request)
+    reservas_fixas = get_reservas(userid, args_extras, page, "fixa")
     extras['reservas_fixas'] = reservas_fixas.items
     extras['pagination'] = reservas_fixas
-    args_extras = {key:value for key, value in request.args.items() if key != 'page'}
     extras['args_extras'] = args_extras
+    # for edit and filter
+    extras['semestres'] = semestres
     extras['TipoReserva'] = FinalidadeReservaEnum
-    extras['responsavel'] = get_pessoas()
-    extras['responsavel_especial'] = get_usuarios_especiais()
-    extras['all'] = all
+    extras['pessoas'] = get_pessoas()
+    extras['usuarios_especiais'] = get_usuarios_especiais()
     return render_template("usuario/reserva_fixa.html", user=user, **extras)
 
 @bp.route("/reserva/reservas_temporarias")
@@ -162,18 +168,15 @@ def gerenciar_reserva_temporaria():
         abort(404, description="Usuário não encontrado.")
     today = datetime.now(LOCAL_TIMEZONE)
     extras: dict[str, Any] = {'datetime':today}
-    dia = parse_date_string(request.args.get('dia'))
     page = int(request.args.get("page", 1))
-    all = "all" in request.args and user.perm&PERM_ADMIN > 0
-    reservas_temporarias = get_reservas_temporarias(userid, dia, page, all)
+    args_extras = make_params(request)
+    reservas_temporarias = get_reservas(userid, args_extras, page, "temporaria")
     extras['reservas_temporarias'] = reservas_temporarias.items
     extras['pagination'] = reservas_temporarias
-    args_extras = {key:value for key, value in request.args.items() if key != 'page'}
     extras['args_extras'] = args_extras
     extras['TipoReserva'] = FinalidadeReservaEnum
-    extras['responsavel'] = get_pessoas()
-    extras['responsavel_especial'] = get_usuarios_especiais()
-    extras['all'] = all
+    extras['pessoas'] = get_pessoas()
+    extras['usuarios_especiais'] = get_usuarios_especiais()
     return render_template("usuario/reserva_temporaria.html", user=user, **extras)
 
 @bp.route("/get_info/<tipo_reserva>/<int:id_reserva>")

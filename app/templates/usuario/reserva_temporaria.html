@@ -41,15 +41,20 @@ Reservas Avulsas (temporárias)
                 </div>
 
                 {% if user.perm|has_flag(ADMIN) %}
-                <div class="checkbox chk-all">
-                    <label>
-                        <input type="checkbox"
-                               name="all"
-                               onchange="this.form.submit()"
-                               {% if 'all' in request.args %}checked{% endif %}>
-                        Mostrar todos
-                    </label>
-                </div>
+                        <div class="form-group filtro_all">
+                            <label>Responsável:</label>
+                            <select name="responsavel"
+                                    class="form-control input-sm"
+                                    onchange="this.form.submit()">
+                                <option value="">Todos</option>
+                                {% for p in pessoas %}
+                                    <option value="{{ p.id_pessoa }}"
+                                            {% if request.args.get('responsavel')|int == p.id_pessoa %}selected{% endif %}>
+                                        {{ p.nome_pessoa }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
                 {% endif %}
 
             </form>
@@ -65,7 +70,7 @@ Reservas Avulsas (temporárias)
 
             <thead>
                 <tr class="info">
-                    {% if all %}<th>Resp</th>{% endif %}
+                    {% if user.perm|has_flag(ADMIN) %}<th>Resp</th>{% endif %}
                     <th>Lab</th>
                     <th>Período</th>
                     <th>Dia / Horário</th>
@@ -79,7 +84,7 @@ Reservas Avulsas (temporárias)
             <tr class="linha-click"
                 data-info-url="{{ url_for('usuario.get_info_reserva', tipo_reserva='temporaria', id_reserva=r.id_reserva_temporaria) }}">
 
-                {% if all %}
+                {% if user.perm|has_flag(ADMIN) %}
                 <td title="{{ get_responsavel_reserva(r) }}">
                     {{ get_responsavel_reserva(r)|truncate(12) }}
                 </td>
@@ -231,7 +236,7 @@ $(document).on('click','.btn-detalhes',function(){
 <style>
 .table-responsive { overflow: visible; }
 .filtro { padding-bottom:0 }
-.chk-all { margin-left:15px }
+.filtro_all { margin-left:15px }
 .col-action { width:80px }
 </style>
 {% endblock extra_css %}
