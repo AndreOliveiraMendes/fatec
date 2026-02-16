@@ -3,12 +3,20 @@ from flask import (Blueprint, redirect, render_template, send_from_directory,
 
 from app.auxiliar.auxiliar_routes import get_user_info
 from config.json_related import carregar_config_geral
+from app.auxiliar.constant import REDIRECT_HOME, REDIRECT_TV
 
 bp = Blueprint('default', __name__)
 
 @bp.route("/")
 def painel():
-    return redirect(url_for('consultar_reservas.tela_televisor'))
+    config = carregar_config_geral()
+    target = config.get('navbar_redirect_target')
+    if target == REDIRECT_TV:
+        return redirect(url_for('consultar_reservas.tela_televisor'))
+    elif target == REDIRECT_HOME:
+        return redirect(url_for('default.home'))
+    else:
+        return "limbo"
 
 @bp.route("/home")
 def home():
