@@ -2,56 +2,97 @@ import copy
 from datetime import datetime
 from typing import Any
 
-from flask import (Blueprint, abort, flash, redirect, render_template, request,
-                   session, url_for)
+from flask import (Blueprint, abort, current_app, flash, redirect,
+                   render_template, request, session, url_for)
 from flask.typing import ResponseReturnValue
 from flask_sqlalchemy.pagination import SelectPagination
-from sqlalchemy import between, select
+from sqlalchemy import and_, select
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
                             InternalError, OperationalError, ProgrammingError)
 
-from app.auxiliar.auxiliar_routes import (get_user_info, none_if_empty,
-                                          parse_date_string,
+from app.auxiliar.auxiliar_routes import (check_ownership_or_admin,
+                                          check_periodo_fixa, get_user_info,
+                                          info_reserva_fixa,
+                                          info_reserva_temporaria,
+                                          none_if_empty,
                                           registrar_log_generico_usuario)
 from app.auxiliar.constant import PERM_ADMIN
-from app.auxiliar.dao import get_pessoas, get_semestres, get_usuarios_especiais
+from app.auxiliar.dao import (get_dias_da_semana, get_laboratorios,
+                              get_pessoas, get_semestres,
+                              get_usuarios_especiais)
 from app.auxiliar.decorators import login_required
+from app.auxiliar.external_dao import get_grade_by_professor
 from app.models import (Aulas, Aulas_Ativas, FinalidadeReservaEnum, Permissoes,
                         Reservas_Fixas, Reservas_Temporarias, Usuarios, db)
 from config.general import LOCAL_TIMEZONE
 
 bp = Blueprint('usuario', __name__, url_prefix='/usuario')
 
-def get_reservas_fixas(userid, semestre, page, all=False):
-    user = db.session.get(Usuarios, userid)
-    if not user:
-        abort(404, description="Usuário não encontrado.")
-    filtro = []
-    if not all:
-        filtro.append(Reservas_Fixas.id_responsavel == user.pessoa.id_pessoa)
-    if semestre is not None:
-        filtro.append(Reservas_Fixas.id_reserva_semestre == semestre)
-    sel_reservas = select(Reservas_Fixas).join(Aulas_Ativas).join(Aulas).where(*filtro).order_by(
-        Reservas_Fixas.id_reserva_semestre,
-        Aulas_Ativas.id_semana,
-        Aulas.horario_inicio
-    )
-    pagination = SelectPagination(select=sel_reservas, session=db.session,
-        page=page, per_page=5, error_out=False
-    )
-    return pagination
+RESERVA_MAP = {
+    "fixa": {
+        "model": Reservas_Fixas,
+        "order": Reservas_Fixas.id_reserva_semestre,
+        "info": info_reserva_fixa,
+        "redirect": lambda: url_for('usuario.gerenciar_reserva_fixa')
+    },
+    "temporaria": {
+        "model": Reservas_Temporarias,
+        "order": Reservas_Temporarias.inicio_reserva,
+        "info": info_reserva_temporaria,
+        "redirect": lambda: url_for('usuario.gerenciar_reserva_temporaria')
+    }
+}
 
-def get_reservas_temporarias(userid, dia, page, all=False):
+FILTERS = {
+    "fixa": {
+        "semestre": (lambda s:Reservas_Fixas.id_reserva_semestre == s, int),
+        "responsavel": (lambda r:Reservas_Fixas.id_responsavel == r, int),
+        "responsavel_especial": (lambda re:Reservas_Fixas.id_responsavel_especial == re, int),
+        "lab": (lambda l:Reservas_Fixas.id_reserva_local == l, int),
+        "semana": (lambda s:Aulas_Ativas.id_semana == s, int),
+        "finalidade": (lambda f:Reservas_Fixas.finalidade_reserva == FinalidadeReservaEnum(f), str)
+    },
+    "temporaria": {
+        "responsavel": (lambda r:Reservas_Temporarias.id_responsavel == r, int),
+        "responsavel_especial": (lambda re:Reservas_Temporarias.id_responsavel_especial == re, int),
+        "lab": (lambda l:Reservas_Temporarias.id_reserva_local == l, int),
+        "dia": (lambda d:and_(Reservas_Temporarias.inicio_reserva <= d, Reservas_Temporarias.fim_reserva >= d), str),
+        "semana": (lambda s:Aulas_Ativas.id_semana == s, int),
+        "finalidade": (lambda f:Reservas_Temporarias.finalidade_reserva == FinalidadeReservaEnum(f), str)
+    }
+}
+
+def resolve_tipo(tipo_reserva: str):
+    data = RESERVA_MAP.get(tipo_reserva)
+    if data is None:
+        abort(404, description="Tipo de reserva inexistente")
+    return data
+
+def make_params(request):
+    return {key:value for key, value in request.args.items() if key != 'page'}
+
+def get_reservas(userid, params, page, tipo):
     user = db.session.get(Usuarios, userid)
-    if not user:
+    base = RESERVA_MAP.get(tipo, {})
+    if not base:
+        abort(404, description="Tipo invalido")
+    model = base.get('model')
+    org_column = base.get('order')
+    if not user or not model:
         abort(404, description="Usuário não encontrado.")
     filtro = []
-    if not all:
-        filtro.append(Reservas_Temporarias.id_responsavel == user.pessoa.id_pessoa)
-    if dia is not None:
-        filtro.append(between(dia, Reservas_Temporarias.inicio_reserva, Reservas_Temporarias.fim_reserva))
-    sel_reservas = select(Reservas_Temporarias).join(Aulas_Ativas).join(Aulas).where(*filtro).order_by(
-        Reservas_Temporarias.inicio_reserva,
+    if not user.perm & PERM_ADMIN:
+        filtro.append(model.id_responsavel == user.id_pessoa)
+    for key, (condition, cast) in FILTERS.get(tipo, {}).items():
+        raw = params.get(key)
+        if raw:
+            try:
+                filtro.append(condition(cast(raw)))
+            except (TypeError, ValueError) as e:
+                current_app.logger.warning(f"Filtro inválido {key}={raw}")
+
+    sel_reservas = select(model).join(Aulas_Ativas).join(Aulas).where(*filtro).order_by(
+        org_column,
         Aulas_Ativas.id_semana,
         Aulas.horario_inicio
     )
@@ -65,7 +106,34 @@ def get_reservas_temporarias(userid, dia, page, all=False):
 def perfil():
     userid = session.get('userid')
     user = get_user_info(userid)
-    return render_template("usuario/perfil.html", user=user)
+    if not user:
+        abort(404, description="Usuário não encontrado.")
+    extras: dict[str, Any] = {}
+    grade, erro = get_grade_by_professor(user.id_pessoa)
+    
+    PERIODO_CLASS = {
+        "M": "grade-manha",
+        "T": "grade-vespertino",
+        "N": "grade-noturno"
+    }
+    
+    colunas = [
+        ("Professor", "professor"),
+        ("Período", "periodo"),
+        ("Ciclo", "ciclo"),
+        ("Curso", "curso_nome"),
+        ("Disciplina", "disciplina_nome"),
+    ]
+    
+    for items in grade:
+        items['periodo_class'] = PERIODO_CLASS.get(items['periodo'], "")
+
+    extras["grade"] = grade
+    extras["erro_grade"] = erro
+    extras["tem_professor"] = bool(grade and grade[0].get("professor"))
+    extras["colunas"] = colunas
+    
+    return render_template("usuario/perfil.html", user=user, **extras)
 
 @bp.route("/reservas")
 @login_required
@@ -89,19 +157,19 @@ def gerenciar_reserva_fixa():
         return redirect(url_for('default.home'))
     today = datetime.now(LOCAL_TIMEZONE)
     extras: dict[str, Any] = {'datetime':today}
-    extras['semestres'] = semestres
-    semestre_id = request.args.get("semestre", type=int)
     page = int(request.args.get("page", 1))
-    all = "all" in request.args and user.perm&PERM_ADMIN > 0
-    reservas_fixas = get_reservas_fixas(userid, semestre_id, page, all)
+    args_extras = make_params(request)
+    reservas_fixas = get_reservas(userid, args_extras, page, "fixa")
     extras['reservas_fixas'] = reservas_fixas.items
     extras['pagination'] = reservas_fixas
-    args_extras = {key:value for key, value in request.args.items() if key != 'page'}
     extras['args_extras'] = args_extras
+    # for edit and filter
+    extras['semestres'] = semestres
     extras['TipoReserva'] = FinalidadeReservaEnum
-    extras['responsavel'] = get_pessoas()
-    extras['responsavel_especial'] = get_usuarios_especiais()
-    extras['all'] = all
+    extras['pessoas'] = get_pessoas()
+    extras['usuarios_especiais'] = get_usuarios_especiais()
+    extras['laboratorios'] = get_laboratorios(user.perm & PERM_ADMIN > 0)
+    extras['semanas'] = get_dias_da_semana()
     return render_template("usuario/reserva_fixa.html", user=user, **extras)
 
 @bp.route("/reserva/reservas_temporarias")
@@ -113,73 +181,31 @@ def gerenciar_reserva_temporaria():
         abort(404, description="Usuário não encontrado.")
     today = datetime.now(LOCAL_TIMEZONE)
     extras: dict[str, Any] = {'datetime':today}
-    dia = parse_date_string(request.args.get('dia'))
     page = int(request.args.get("page", 1))
-    all = "all" in request.args and user.perm&PERM_ADMIN > 0
-    reservas_temporarias = get_reservas_temporarias(userid, dia, page, all)
+    args_extras = make_params(request)
+    reservas_temporarias = get_reservas(userid, args_extras, page, "temporaria")
     extras['reservas_temporarias'] = reservas_temporarias.items
     extras['pagination'] = reservas_temporarias
-    args_extras = {key:value for key, value in request.args.items() if key != 'page'}
     extras['args_extras'] = args_extras
     extras['TipoReserva'] = FinalidadeReservaEnum
-    extras['responsavel'] = get_pessoas()
-    extras['responsavel_especial'] = get_usuarios_especiais()
-    extras['all'] = all
+    extras['pessoas'] = get_pessoas()
+    extras['usuarios_especiais'] = get_usuarios_especiais()
+    extras['laboratorios'] = get_laboratorios(user.perm & PERM_ADMIN > 0)
+    extras['semanas'] = get_dias_da_semana()
     return render_template("usuario/reserva_temporaria.html", user=user, **extras)
-
-def check_ownership_or_admin(reserva:Reservas_Fixas|Reservas_Temporarias):
-    userid = session.get('userid')
-    user = db.get_or_404(Usuarios, userid)
-    perm = db.session.get(Permissoes, userid)
-    if reserva.id_responsavel != user.pessoa.id_pessoa and (not perm or perm.permissao&PERM_ADMIN == 0):
-        abort(403, description="Acesso negado à reserva de outro usuário.")
-
-def info_reserva_fixa(id_reserva):
-    reserva = db.get_or_404(Reservas_Fixas, id_reserva)
-    check_ownership_or_admin(reserva)
-    return {
-        "local": reserva.local.nome_local,
-        "semestre": reserva.semestre.nome_semestre,
-        "semana": reserva.aula_ativa.dia_da_semana.nome_semana,
-        "horario": f"{reserva.aula_ativa.aula.horario_inicio:%H:%M} às {reserva.aula_ativa.aula.horario_fim:%H:%M}",
-        "observacao": reserva.observacoes,
-        "finalidadereserva": reserva.finalidade_reserva.value,
-        "responsavel": reserva.id_responsavel,
-        "responsavel_especial": reserva.id_responsavel_especial,
-        "cancel_url": url_for("usuario.cancelar_reserva", tipo_reserva="fixa", id_reserva=id_reserva),
-        "editar_url": url_for("usuario.editar_reserva", tipo_reserva="fixa", id_reserva=id_reserva)
-    }
-
-def info_reserva_temporaria(id_reserva):
-    reserva = db.get_or_404(Reservas_Temporarias, id_reserva)
-    check_ownership_or_admin(reserva)
-    return {
-        "local": reserva.local.nome_local,
-        "periodo": f"{reserva.inicio_reserva} - {reserva.fim_reserva}",
-        "semana": reserva.aula_ativa.dia_da_semana.nome_semana,
-        "horario": f"{reserva.aula_ativa.aula.horario_inicio:%H:%M} às {reserva.aula_ativa.aula.horario_fim:%H:%M}",
-        "observacao": reserva.observacoes,
-        "finalidadereserva": reserva.finalidade_reserva.value,
-        "responsavel": reserva.id_responsavel,
-        "responsavel_especial": reserva.id_responsavel_especial,
-        "cancel_url": url_for("usuario.cancelar_reserva", tipo_reserva="temporaria", id_reserva=id_reserva),
-        "editar_url": url_for("usuario.editar_reserva", tipo_reserva="temporaria", id_reserva=id_reserva)
-    }
 
 @bp.route("/get_info/<tipo_reserva>/<int:id_reserva>")
 @login_required
 def get_info_reserva(tipo_reserva, id_reserva):
-    if tipo_reserva == 'fixa':
-        return info_reserva_fixa(id_reserva)
-    elif tipo_reserva == 'temporaria':
-        return info_reserva_temporaria(id_reserva)
-    else:
-        abort(400, description="Tipo de reserva inválido.")
+    tipo = resolve_tipo(tipo_reserva)
+    return tipo["info"](id_reserva)
 
 def cancelar_reserva_generico(modelo, id_reserva, redirect_url):
     userid = session.get('userid')
     reserva = db.get_or_404(modelo, id_reserva)
     check_ownership_or_admin(reserva)
+    if modelo == Reservas_Fixas and not check_periodo_fixa(reserva):
+        abort(403, description="periodo de cadastro expirado ou ainda não começado")
     try:
         db.session.delete(reserva)
         db.session.flush()
@@ -194,17 +220,20 @@ def cancelar_reserva_generico(modelo, id_reserva, redirect_url):
 @bp.route("/cancelar_reserva/<tipo_reserva>/<int:id_reserva>", methods=['POST'])
 @login_required
 def cancelar_reserva(tipo_reserva, id_reserva):
-    if tipo_reserva == 'fixa':
-        return cancelar_reserva_generico(Reservas_Fixas, id_reserva, url_for('usuario.gerenciar_reserva_fixa'))
-    elif tipo_reserva == 'temporaria':
-        return cancelar_reserva_generico(Reservas_Temporarias, id_reserva, url_for('usuario.gerenciar_reserva_temporaria'))
-    else:
-        abort(400, description="Tipo de reserva inválido.")
+    tipo = resolve_tipo(tipo_reserva)
+
+    return cancelar_reserva_generico(
+        tipo["model"],
+        id_reserva,
+        tipo["redirect"]()
+    )
 
 def editar_reserva_generico(model, id_reserva: int, redirect_url: str) -> ResponseReturnValue:
     userid = session.get('userid')
     reserva = db.get_or_404(model, id_reserva)
     check_ownership_or_admin(reserva)
+    if model == Reservas_Fixas and not check_periodo_fixa(reserva):
+        abort(403, description="Esta reserva não pode mais ser alterada fora do período permitido.")
     observacao = request.form.get('observacao')
     finalidade_reserva = request.form.get('finalidade_reserva')
     if not finalidade_reserva:
@@ -238,9 +267,10 @@ def editar_reserva_generico(model, id_reserva: int, redirect_url: str) -> Respon
 @bp.route("/editar_reservas/<tipo_reserva>/<int:id_reserva>", methods=['POST'])
 @login_required
 def editar_reserva(tipo_reserva, id_reserva):
-    if tipo_reserva == 'fixa':
-        return editar_reserva_generico(Reservas_Fixas, id_reserva, url_for('usuario.gerenciar_reserva_fixa'))
-    elif tipo_reserva == 'temporaria':
-        return editar_reserva_generico(Reservas_Temporarias, id_reserva, url_for('usuario.gerenciar_reserva_temporaria'))
-    else:
-        abort(400, description="Tipo de reserva inválido.")
+    tipo = resolve_tipo(tipo_reserva)
+
+    return editar_reserva_generico(
+        tipo["model"],
+        id_reserva,
+        tipo["redirect"]()
+    )

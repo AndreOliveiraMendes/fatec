@@ -69,6 +69,7 @@ DEFAULT_PAINEL_CFG = {
 DEFAULT_CONFIG_CFG = {
     "modo_gerenciacao": "multiplo",
     "toleranca": 20,
+    "navbar_redirect_target": "home",
     "login": False,
     "status_indefinido": True,
     "alertar": False

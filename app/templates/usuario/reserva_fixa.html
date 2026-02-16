@@ -2,106 +2,201 @@
 {% from "macros/pagination.html" import render_pagination %}
 {% from "macros/navigation.html" import go_back %}
 {% block title %}
-    Reservas Semestrais (fixas)
+    Reservas Semanais (fixas)
 {% endblock title %}
-{#
-{% block extra_head %}
-    <noscript>{{ refresh_page(60) }}</noscript>
-{% endblock extra_head %}
-#}
 {% block content %}
     <div class="btn-group">
-        <a href="{{ url_for('default.home') }}" class="btn btn-default">
+        <a href="{{ url_for("default.home") }}" class="btn btn-default">
             <span class="glyphicon glyphicon-home"></span> Início
         </a>
-        <a href="{{ url_for('usuario.menu_reservas_usuario') }}"
+        <a href="{{ url_for("usuario.menu_reservas_usuario") }}"
            class="btn btn-primary">
             <span class="glyphicon glyphicon-list"></span> Menu
         </a>
     </div>
-    <h3>Agora: {{ datetime|datahora }}</h3>
+    <h4 class="text-muted">Agora: {{ datetime|datahora }}</h4>
     <div class="panel panel-info">
+        <!-- HEADER -->
         <div class="panel-heading">
-            <h3 class="panel-title">
-                Reservas Semanais:
-                <hr>
-                <form method="get"
-                      class="form-inline"
-                      action="{{ url_for('usuario.gerenciar_reserva_fixa') }}">
-                    <div class="form-group">
-                        <label for="semestre">Semestre:</label>
-                        <select name="semestre"
-                                id="semestre"
-                                class="form-control"
-                                onchange="if (this.checkValidity()) this.form.submit();">
-                            <option value="">selecione o semestre</option>
-                            {% for s in semestres %}
-                                <option value="{{ s.id_semestre }}"
-                                        {% if s.id_semestre == request.args.get('semestre') | int %}selected{% endif %}>
-                                    {{ s.nome_semestre }}
-                                </option>
-                            {% endfor %}
-                        </select>
+            <strong>Reservas Semanais</strong>
+        </div>
+        <!-- FILTROS -->
+        <div class="panel-body filtro">
+            <div class="well well-sm">
+                <form method="get">
+                    <div class="row">
+                        <!-- SEMESTRE -->
+                        <div class="col-sm-4 col-md-3">
+                            <div class="form-group">
+                                <label>Semestre</label>
+                                <select name="semestre"
+                                        class="form-control input-sm"
+                                        onchange="this.form.submit()">
+                                    <option value="">Todos</option>
+                                    {% for s in semestres %}
+                                        <option value="{{ s.id_semestre }}"
+                                                {% if s.id_semestre == request.args.get('semestre')|int %}selected{% endif %}>
+                                            {{ s.nome_semestre }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <!-- FILTRO LAB -->
+                        <div class="col-sm-4 col-md-3">
+                            <div class="form-group">
+                                <label>Laboratório</label>
+                                <select name="lab"
+                                        class="form-control input-sm"
+                                        onchange="this.form.submit()">
+                                    <option value="">Todos</option>
+                                    {% for lab in laboratorios %}
+                                        <option value="{{ lab.id_local }}"
+                                                {% if request.args.get('lab')|int == lab.id_local %}selected{% endif %}>
+                                            {{ lab.nome_local }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <!-- FILTRO semanas-->
+                        <div class="col-sm-4 col-md-3">
+                            <div class="form-group">
+                                <label>dia da semana</label>
+                                <select name="semana"
+                                        class="form-control input-sm"
+                                        onchange="this.form.submit()">
+                                    <option value="">Todos</option>
+                                    {% for semana in semanas %}
+                                        <option value="{{ semana.id_semana }}"
+                                                {% if request.args.get('semana')|int == semana.id_semana %}selected{% endif %}>
+                                            {{ semana.nome_semana }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <!-- FILTRO finalidade -->
+                        <div class="col-sm-4 col-md-3">
+                            <div class="form-group">
+                                <label>Finalidade da Reserva</label>
+                                <select name="finalidade"
+                                        class="form-control input-sm"
+                                        onchange="this.form.submit()">
+                                    <option value="">Todos</option>
+                                    {% for tr in TipoReserva %}
+                                    <option value="{{ tr.value }}" {% if request.args.get('finalidade') == tr.value %}selected{% endif %}>{{ tr.value }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
                     </div>
                     {% if user.perm|has_flag(ADMIN) %}
-                        <div class="form-group">
-                            <label for="all">Todos usuarios</label>
-                            <input type="checkbox"
-                                   id="all"
-                                   name="all"
-                                   class="form-control"
-                                   title="Mostrar reservas de todos os usuários"
-                                   {% if 'all' in request.args %}checked{% endif %}
-                                   onchange="if (this.checkValidity()) this.form.submit();">
+                        <div class="form-section">Filtros administrativos</div>
+                        <div class="row">
+                            <!-- RESPONSAVEL -->
+                            <div class="col-sm-4 col-md-3">
+                                <div class="form-group">
+                                    <label>Responsável</label>
+                                    <select name="responsavel"
+                                            class="form-control input-sm"
+                                            onchange="this.form.submit()">
+                                        <option value="">Todos</option>
+                                        {% for p in pessoas %}
+                                            <option value="{{ p.id_pessoa }}"
+                                                    {% if request.args.get('responsavel')|int == p.id_pessoa %}selected{% endif %}>
+                                                {{ p.nome_pessoa }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- RESPONSAVEL ESPECIAL -->
+                            <div class="col-sm-4 col-md-3">
+                                <div class="form-group">
+                                    <label>Resp. especial</label>
+                                    <select name="responsavel_especial"
+                                            class="form-control input-sm"
+                                            onchange="this.form.submit()">
+                                        <option value="">Todos</option>
+                                        {% for ue in usuarios_especiais %}
+                                            <option value="{{ ue.id_usuario_especial }}"
+                                                    {% if request.args.get('responsavel_especial')|int == ue.id_usuario_especial %}selected{% endif %}>
+                                                {{ ue.nome_usuario_especial }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                     {% endif %}
                 </form>
-            </h3>
+            </div>
         </div>
+        <!-- TABELA -->
         <div class="panel-body">
             {% if reservas_fixas %}
                 <div class="table-responsive">
-                    <table class="table table-striped table-bordered">
+                    <table class="table table-striped table-condensed table-bordered table-hover">
                         <thead>
-                            <tr class="information">
-                                {% if all %}<th>Responsavel</th>{% endif %}
-                                <th>Laboratório</th>
-                                <th>Semestre</th>
-                                <th>Semana</th>
-                                <th>Horário</th>
+                            <tr class="info">
+                                {% if user and user.perm|has_flag(ADMIN) %}<th>Resp</th>{% endif %}
+                                <th>Lab</th>
+                                <th>Dia / Horário</th>
                                 <th>Tipo</th>
-                                <th>Ação</th>
+                                <th class="col-action">Ações</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for r in reservas_fixas %}
-                                <tr>
-                                    {% if all %}<td>{{ get_responsavel_reserva(r) }}</td>{% endif %}
+                                <tr class="linha-click"
+                                    data-info-url="{{ url_for('usuario.get_info_reserva', tipo_reserva='fixa', id_reserva=r.id_reserva_fixa) }}">
+                                    {% if user and user.perm|has_flag(ADMIN) %}
+                                        <td title="{{ get_responsavel_reserva(r) }}">{{ get_responsavel_reserva(r) |truncate(12) }}</td>
+                                    {% endif %}
                                     <td>{{ r.local.nome_local }}</td>
-                                    <td>{{ r.semestre.nome_semestre }}</td>
-                                    <td>{{ r.aula_ativa.dia_da_semana.nome_semana }}</td>
-                                    <td>{{ r.aula_ativa.aula.horario_inicio|hora }} às {{ r.aula_ativa.aula.horario_fim|hora }}</td>
-                                    <td>{{ r.finalidade_reserva.value }}</td>
                                     <td>
+                                        {{ r.aula_ativa.dia_da_semana.nome_semana }}
+                                        <br>
+                                        <small class="text-muted">
+                                            {{ r.aula_ativa.aula.horario_inicio|hora }}
+                                            –
+                                            {{ r.aula_ativa.aula.horario_fim|hora }}
+                                        </small>
+                                    </td>
+                                    <td>{{ r.finalidade_reserva.value }}</td>
+                                    <!-- AÇÕES -->
+                                    {% set pode_editar = dentro_periodo or user.perm|has_flag(ADMIN) %}
+                                    <td class="acoes">
                                         <div class="btn-group">
-                                            <a href="#modalCancelar"
-                                               data-toggle="modal"
-                                               data-info-url="{{ url_for('usuario.get_info_reserva', tipo_reserva='fixa', id_reserva=r.id_reserva_fixa) }}"
-                                               class="btn btn-danger btn-xs btn-cancelar">
-                                                <span class="glyphicon glyphicon-trash"></span> Cancelar
-                                            </a>
-                                            <a href="#modalEditar"
-                                               data-toggle="modal"
-                                               data-info-url="{{ url_for('usuario.get_info_reserva', tipo_reserva='fixa', id_reserva=r.id_reserva_fixa) }}"
-                                               class="btn btn-warning btn-xs btn-editar">
-                                                <span class="glyphicon glyphicon-pencil"></span> Editar
-                                            </a>
-                                            <a href="#modalDetalhes"
-                                               data-toggle="modal"
-                                               data-info-url="{{ url_for('usuario.get_info_reserva', tipo_reserva='fixa', id_reserva=r.id_reserva_fixa) }}"
-                                               class="btn btn-info btn-xs btn-detalhes">
-                                                <span class="glyphicon glyphicon-search"></span> Detalhes
-                                            </a>
+                                            <button type="button"
+                                                    class="btn btn-default btn-xs dropdown-toggle"
+                                                    data-toggle="dropdown">
+                                                <span class="glyphicon glyphicon-cog"></span>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-right">
+                                                <li>
+                                                    <a class="btn-detalhes"
+                                                       data-toggle="modal"
+                                                       data-target="#modalDetalhes"
+                                                       data-info-url="{{ url_for('usuario.get_info_reserva', tipo_reserva='fixa', id_reserva=r.id_reserva_fixa) }}">
+                                                        Detalhes
+                                                    </a>
+                                                </li>
+                                                <li class="{% if not pode_editar %}disabled{% endif %}">
+                                                    <a class="btn-editar"
+                                                       {% if pode_editar %} data-toggle="modal" data-target="#modalEditar" data-info-url="{{ url_for('usuario.get_info_reserva', tipo_reserva='fixa', id_reserva=r.id_reserva_fixa) }}" {% else %} title="Fora do período permitido" {% endif %}>
+                                                        Editar
+                                                    </a>
+                                                </li>
+                                                <li class="divider"></li>
+                                                <li class="{% if not pode_editar %}disabled{% endif %}">
+                                                    <a class="btn-cancelar text-danger"
+                                                       {% if pode_editar %} data-toggle="modal" data-target="#modalCancelar" data-info-url="{{ url_for('usuario.get_info_reserva', tipo_reserva='fixa', id_reserva=r.id_reserva_fixa) }}" {% else %} title="Fora do período permitido" {% endif %}>
+                                                        Cancelar
+                                                    </a>
+                                                </li>
+                                            </ul>
                                         </div>
                                     </td>
                                 </tr>
@@ -110,23 +205,25 @@
                     </table>
                 </div>
                 {{ render_pagination(pagination, 'usuario.gerenciar_reserva_fixa', args_extras) }}
-                {# Modal único #}
                 {% include "usuario/modal_cancelar.html" %}
                 {% include "usuario/modal_editar.html" %}
                 {% include "usuario/modal_detalhes.html" %}
             {% else %}
-                <div class="alert alert-warning" role="alert">Nenhuma reserva no semestre selecionado</div>
+                <div class="alert alert-warning">Nenhuma reserva encontrada.</div>
             {% endif %}
         </div>
     </div>
 {% endblock content %}
 {% block extra_script %}
-    <script>{{ refresh_page_full_minute_script() }}</script>
     <script>
-        $(document).on('click', '.btn-cancelar', function () {
-            var infoUrl = $(this).data('info-url');
+        $(document).on('click','.linha-click',function(e){
+            if($(e.target).closest('.btn-group').length) return;
+            let url = $(this).data('info-url');
+            $('.btn-detalhes[data-info-url="'+url+'"]').click();
+        });
 
-            $.getJSON(infoUrl, function (data) {
+        $(document).on('click','.btn-cancelar',function(){
+            $.getJSON($(this).data('info-url'), function(data){
                 $('#modalCLocal').text(data.local);
                 $('#modalCSemana').text(data.semana);
                 $('#modalCSemestre').text(data.semestre);
@@ -134,10 +231,9 @@
                 $('#formCancelar').attr('action', data.cancel_url);
             });
         });
-        $(document).on('click', '.btn-editar', function () {
-            var infoUrl = $(this).data('info-url');
 
-            $.getJSON(infoUrl, function (data) {
+        $(document).on('click','.btn-editar',function(){
+            $.getJSON($(this).data('info-url'), function(data){
                 $('#modalELocal').text(data.local);
                 $('#modalESemana').text(data.semana);
                 $('#modalESemestre').text(data.semestre);
@@ -145,34 +241,55 @@
                 $('#modalEObservacao').val(data.observacao);
                 $('#modalETipoReserva').val(data.finalidadereserva);
                 $('#formEditar').attr('action', data.editar_url);
+
                 {% if user.perm|has_flag(ADMIN) %}
-                    $('#modalEResponsavel').val(data.responsavel);
-                    $('#modalEResponsavelEspecial').val(data.responsavel_especial);
+                $('#modalEResponsavel').val(data.responsavel);
+                $('#modalEResponsavelEspecial').val(data.responsavel_especial);
                 {% endif %}
             });
         });
-        $(document).on('click', '.btn-detalhes', function () {
-            var infoUrl = $(this).data('info-url');
 
-            $.getJSON(infoUrl, function (data) {
+        $(document).on('click','.btn-detalhes',function(){
+            $.getJSON($(this).data('info-url'), function(data){
                 $('#modalDLocal').text(data.local);
                 $('#modalDSemana').text(data.semana);
                 $('#modalDSemestre').text(data.semestre);
                 $('#modalDHorario').text(data.horario);
-                if(data.observacao)
-                    $('#modalDObservacao').text(data.observacao);
-                else
-                    $('#modalDObservacao').text("sem observações")
+                $('#modalDObservacao').text(data.observacao || "sem observações");
             });
         });
+
+        $(document).on('click','.acoes',function(e){
+            e.stopPropagation();
+        });
+
     </script>
 {% endblock extra_script %}
-{% block footer %}
-    <p class="text-muted">
-        <small>Esta página se atualiza automaticamente.</small>
-    </p>
-{% endblock footer %}
 {% block extra_css %}
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/modal_overwrite.css') }}">
+    <style>
+        .table-responsive {
+            overflow: visible;
+        }
+
+        .filtro {
+            padding-bottom:0
+        }
+
+        .filtro_all {
+            margin-left:15px
+        }
+
+        .col-action {
+            width:80px
+        }
+
+        .form-section{
+            margin:20px 0 10px;
+            font-size:12px;
+            text-transform:uppercase;
+            color:#777;
+            border-bottom:1px solid #ddd;
+        }
+
+    </style>
 {% endblock extra_css %}

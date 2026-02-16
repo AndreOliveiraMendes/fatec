@@ -5,7 +5,7 @@
 {% endblock title %}
 {% block content %}
     <form class="form-group"
-          action="{{ url_for('admin.configuracao_geral') }}"
+          action="{{ url_for("admin.configuracao_geral") }}"
           role="form"
           method="post">
         <div class="form-group">
@@ -30,17 +30,38 @@
             <input class="form-control"
                    id="toleranca"
                    name="toleranca"
-                   value="{{ config_cfg.get('toleranca') }}"
+                   value="{{ config_cfg.get("toleranca") }}"
                    required>
+        </div>
+        <div class="form-group">
+            <label for="navbar_redirect_target">
+                Redirecionamento da barra:
+                <span class="glyphicon glyphicon-info-sign text-muted"
+                      data-toggle="tooltip"
+                      data-placement="right"
+                      title="Define para onde o usuário será enviado ao clicar no botão principal da barra."></span>
+                <small class="text-muted">Atual: {{ config_cfg.get("navbar_redirect_target") }}</small>
+            </label>
+            <select class="form-control"
+                    id="navbar_redirect_target"
+                    name="navbar_redirect_target"
+                    required>
+                <option value="home"
+                        {% if config_cfg.get('navbar_redirect_target') == 'home' %}selected{% endif %}>Home</option>
+                <option value="tv"
+                        {% if config_cfg.get('navbar_redirect_target') == 'tv' %}selected{% endif %}>
+                    Tela televisor
+                </option>
+            </select>
         </div>
         <div class="form-group">
             <div class="checkbox">
                 <label>
                     <input type="checkbox"
-                        id="login"
-                        name="login"
-                        value="1"
-                        {% if config_cfg.get('login') %}checked{% endif %}>
+                           id="login"
+                           name="login"
+                           value="1"
+                           {% if config_cfg.get('login') %}checked{% endif %}>
                     Mostrar botão de login na home
                 </label>
             </div>
@@ -49,10 +70,10 @@
             <div class="checkbox">
                 <label>
                     <input type="checkbox"
-                        id="status_indefinido"
-                        name="status_indefinido"
-                        value="1"
-                        {% if config_cfg.get('status_indefinido') %}checked{% endif %}>
+                           id="status_indefinido"
+                           name="status_indefinido"
+                           value="1"
+                           {% if config_cfg.get('status_indefinido') %}checked{% endif %}>
                     "Status indefinido" tratado como "não pegou chave" (sem efeito internamente)
                 </label>
             </div>
@@ -61,10 +82,10 @@
             <div class="checkbox">
                 <label>
                     <input type="checkbox"
-                        id="alertar"
-                        name="alertar"
-                        value="1"
-                        {% if config_cfg.get('alertar') %}checked{% endif %}>
+                           id="alertar"
+                           name="alertar"
+                           value="1"
+                           {% if config_cfg.get('alertar') %}checked{% endif %}>
                     Alertar se a reservva temporaria pode sobrescrever uma reserva existente
                 </label>
             </div>
@@ -72,3 +93,10 @@
         {{ action_buttons('montar', show_voltar=False, label='') }}
     </form>
 {% endblock content %}
+{% block extra_script %}
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+{% endblock extra_script %}

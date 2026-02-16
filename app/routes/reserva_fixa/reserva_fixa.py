@@ -25,7 +25,7 @@ from config.general import (DISPONIBILIDADE_DATABASE, DISPONIBILIDADE_HOST,
 
 bp = Blueprint('reservas_semanais', __name__, url_prefix="/reserva_fixa")
 
-
+# revisar depois
 def get_prioridade():
     try:
         with connect(
@@ -34,7 +34,7 @@ def get_prioridade():
             password=DISPONIBILIDADE_PASSWORD,
             database=DISPONIBILIDADE_DATABASE
         ) as conn:
-            with conn.cursor() as cursor:
+            with conn.cursor(dictionary=True) as cursor:
                 cursor.execute("""
                     SELECT DISTINCT professor
                     FROM grade

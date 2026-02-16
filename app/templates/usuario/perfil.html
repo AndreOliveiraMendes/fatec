@@ -3,6 +3,7 @@
     Perfil
 {% endblock title %}
 {% block content %}
+    <!-- Painel do Usuário -->
     <div class="panel panel-primary">
         <div class="panel-heading">
             <strong>Usuário</strong>
@@ -10,7 +11,7 @@
         <div class="panel-body">
             <form class="form-horizontal">
                 <div class="form-group">
-                    <label for="id_usuario" class="col-sm-2 control-label">Código do Usuario:</label>
+                    <label for="id_usuario" class="col-sm-2 control-label">Código do Usuário:</label>
                     <div class="col-sm-10">
                         <input type="number"
                                class="form-control"
@@ -55,6 +56,7 @@
             </form>
         </div>
     </div>
+    <!-- Painel de Informações Pessoais -->
     <div class="panel panel-primary">
         <div class="panel-heading">
             <strong>Informações Pessoais</strong>
@@ -72,9 +74,7 @@
                 <div class="col-sm-6">
                     <label for="nome">Nome:</label>
                     <div class="input-group">
-                        <span class="input-group-addon">
-                            <i class="glyphicon glyphicon-user"></i>
-                        </span>
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
                         <input type="text"
                                maxlength="100"
                                id="nome"
@@ -100,4 +100,126 @@
             </div>
         </div>
     </div>
+    <!-- Painel da Grade com Busca -->
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <strong>Grade</strong>
+        </div>
+        <div class="panel-body">
+            {% if erro_grade %}
+                <div class="alert alert-warning">Não foi possível carregar sua grade no momento.</div>
+            {% elif not grade %}
+                <div class="alert alert-info">Nenhuma disciplina vinculada ao seu perfil.</div>
+            {% else %}
+                <!-- grade -->
+                <div class="table-responsive">
+                    <table id="gradeTable" class="table table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                {% for nome, campo in colunas %}
+                                    {% if campo != "professor" or tem_professor %}<th>{{ nome }}</th>{% endif %}
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                {% for nome, campo in colunas %}
+                                    {% if campo != "professor" or tem_professor %}
+                                        <th>
+                                            <input class="form-control input-sm filtro-coluna"
+                                                   data-col="{{ loop.index0 }}"
+                                                   placeholder="Filtrar {{ nome }}">
+                                        </th>
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in grade %}
+                                <tr class="{{ item.periodo_class }}">
+                                    {% if tem_professor %}<td>{{ item.professor }}</td>{% endif %}
+                                    <td>{{ item.periodo }}</td>
+                                    <td>{{ item.ciclo }}</td>
+                                    <td>{{ item.curso_nome }}</td>
+                                    <td>{{ item.disciplina_nome }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <!-- JS do filtro -->
+                <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        const filtros = document.querySelectorAll(".filtro-coluna");
+                        const tabela = document.querySelector("#gradeTable tbody");
+                        const linhas = tabela.getElementsByTagName("tr");
+
+                        filtros.forEach(function(input) {
+                            input.addEventListener("keyup", function() {
+                                const valoresFiltro = Array.from(filtros).map(f => f.value.toLowerCase());
+
+                                for (let i = 0; i < linhas.length; i++) {
+                                    let mostrar = true;
+                                    const colunas = linhas[i].getElementsByTagName("td");
+
+                                    for (let j = 0; j < valoresFiltro.length; j++) {
+                                        if (valoresFiltro[j] && !colunas[j].textContent.toLowerCase().includes(valoresFiltro[j])) {
+                                            mostrar = false;
+                                            break;
+                                        }
+                                    }
+
+                                    linhas[i].style.display = mostrar ? "" : "none";
+                                }
+                            });
+                        });
+                    });
+                </script>
+            {% endif %}
+        </div>
+        <div class="panel-footer">
+            <div class="table-responsive">
+                <table class="table table-condensed table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Período</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="grade-manha">
+                            <td>M</td>
+                            <td>Matutino / Manhã</td>
+                        </tr>
+                        <tr class="grade-vespertino">
+                            <td>T</td>
+                            <td>Vespertino / Tarde</td>
+                        </tr>
+                        <tr class="grade-noturno">
+                            <td>N</td>
+                            <td>Noturno / Noite</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 {% endblock content %}
+{% block extra_css %}
+    <style>
+        /* Cores leves para cada período */
+        .grade-manha {
+            background-color: #fff8dc; /* bege claro */
+        }
+        .grade-vespertino {
+            background-color: #d0f0c0; /* verde claro */
+        }
+        .grade-noturno {
+            background-color: #cce5ff; /* azul claro */
+        }
+
+        /* Mantém o hover da tabela do Bootstrap */
+        #gradeTable tbody tr:hover {
+            background-color: #f5f5f5 !important;
+        }
+
+    </style>
+{% endblock extra_css %}

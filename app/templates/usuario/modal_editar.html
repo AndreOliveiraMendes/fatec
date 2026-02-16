@@ -25,8 +25,8 @@
                             <label for="modalEResponsavel">Responsavel:</label>
                             <select id="modalEResponsavel" name="responsavel" class="form-control">
                                 <option value="">Selecione o responsavel pela reserva</option>
-                                {% for r in responsavel %}
-                                    <option value="{{ r.id_pessoa }}">({{ r.id_pessoa }}) {{ r.nome_pessoa }}</option>
+                                {% for p in pessoas %}
+                                    <option value="{{ p.id_pessoa }}">({{ p.id_pessoa }}) {{ p.nome_pessoa }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -36,8 +36,8 @@
                                     name="responsavel_especial"
                                     class="form-control">
                                 <option value="">Selecione o responsavel especial pela reserva</option>
-                                {% for r in responsavel_especial %}
-                                    <option value="{{ r.id_usuario_especial }}">({{ r.id_usuario_especial }}) {{ r.nome_usuario_especial }}</option>
+                                {% for ue in usuarios_especiais %}
+                                    <option value="{{ ue.id_usuario_especial }}">({{ ue.id_usuario_especial }}) {{ ue.nome_usuario_especial }}</option>
                                 {% endfor %}
                             </select>
                         </div>

@@ -93,10 +93,12 @@ def configuracao_geral():
         resource = resources.files("config").joinpath("config.json")
         modo_gerenciacao = request.form.get('modo_gerenciacao')
         toleranca = request.form.get('toleranca')
+        navbar_redirect_target = request.form.get('navbar_redirect_target')
         home_login = "login" in request.form
         status_indefinido = "status_indefinido" in request.form
         config_cfg['modo_gerenciacao'] = modo_gerenciacao
         config_cfg['toleranca'] = toleranca
+        config_cfg['navbar_redirect_target'] = navbar_redirect_target
         config_cfg['login'] = home_login
         config_cfg['status_indefinido'] = status_indefinido
         config_cfg['alertar'] = "alertar" in request.form
