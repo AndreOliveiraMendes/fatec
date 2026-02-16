@@ -320,6 +320,17 @@ def check_ownership_or_admin(reserva:Reservas_Fixas|Reservas_Temporarias):
     perm = db.session.get(Permissoes, userid)
     if reserva.id_responsavel != user.pessoa.id_pessoa and (not perm or perm.permissao&PERM_ADMIN == 0):
         abort(403, description="Acesso negado à reserva de outro usuário.")
+        
+def check_periodo_fixa(reserva:Reservas_Fixas):
+    userid = session.get('userid')
+    #user = db.get_or_404(Usuarios, userid)
+    perm = db.session.get(Permissoes, userid)
+    if perm and perm.permissao & PERM_ADMIN:
+        return True
+    hoje = date.today()
+    if reserva.semestre.data_inicio_reserva > hoje or reserva.semestre.data_fim_reserva < hoje:
+        return False
+    return True
 
 def info_reserva_fixa(id_reserva):
     reserva = db.get_or_404(Reservas_Fixas, id_reserva)

@@ -11,7 +11,8 @@ from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
                             InternalError, OperationalError, ProgrammingError)
 
 from app.auxiliar.auxiliar_routes import (check_ownership_or_admin,
-                                          get_user_info, info_reserva_fixa,
+                                          check_periodo_fixa, get_user_info,
+                                          info_reserva_fixa,
                                           info_reserva_temporaria,
                                           none_if_empty,
                                           registrar_log_generico_usuario)
@@ -196,6 +197,8 @@ def cancelar_reserva_generico(modelo, id_reserva, redirect_url):
     userid = session.get('userid')
     reserva = db.get_or_404(modelo, id_reserva)
     check_ownership_or_admin(reserva)
+    if modelo == Reservas_Fixas and not check_periodo_fixa(reserva):
+        abort(403, description="periodo de cadastro expirado ou ainda não começado")
     try:
         db.session.delete(reserva)
         db.session.flush()
@@ -222,6 +225,8 @@ def editar_reserva_generico(model, id_reserva: int, redirect_url: str) -> Respon
     userid = session.get('userid')
     reserva = db.get_or_404(model, id_reserva)
     check_ownership_or_admin(reserva)
+    if model == Reservas_Fixas and not check_periodo_fixa(reserva):
+        abort(403, description="Esta reserva não pode mais ser alterada fora do período permitido.")
     observacao = request.form.get('observacao')
     finalidade_reserva = request.form.get('finalidade_reserva')
     if not finalidade_reserva:

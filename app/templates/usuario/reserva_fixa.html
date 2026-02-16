@@ -132,6 +132,7 @@
                                     </td>
                                     <td>{{ r.finalidade_reserva.value }}</td>
                                     <!-- AÇÕES -->
+                                    {% set pode_editar = dentro_periodo or user.perm|has_flag(ADMIN) %}
                                     <td class="acoes">
                                         <div class="btn-group">
                                             <button type="button"
@@ -148,20 +149,16 @@
                                                         Detalhes
                                                     </a>
                                                 </li>
-                                                <li>
+                                                <li class="{% if not pode_editar %}disabled{% endif %}">
                                                     <a class="btn-editar"
-                                                       data-toggle="modal"
-                                                       data-target="#modalEditar"
-                                                       data-info-url="{{ url_for('usuario.get_info_reserva', tipo_reserva='fixa', id_reserva=r.id_reserva_fixa) }}">
+                                                       {% if pode_editar %} data-toggle="modal" data-target="#modalEditar" data-info-url="{{ url_for('usuario.get_info_reserva', tipo_reserva='fixa', id_reserva=r.id_reserva_fixa) }}" {% else %} title="Fora do período permitido" {% endif %}>
                                                         Editar
                                                     </a>
                                                 </li>
                                                 <li class="divider"></li>
-                                                <li>
+                                                <li class="{% if not pode_editar %}disabled{% endif %}">
                                                     <a class="btn-cancelar text-danger"
-                                                       data-toggle="modal"
-                                                       data-target="#modalCancelar"
-                                                       data-info-url="{{ url_for('usuario.get_info_reserva', tipo_reserva='fixa', id_reserva=r.id_reserva_fixa) }}">
+                                                       {% if pode_editar %} data-toggle="modal" data-target="#modalCancelar" data-info-url="{{ url_for('usuario.get_info_reserva', tipo_reserva='fixa', id_reserva=r.id_reserva_fixa) }}" {% else %} title="Fora do período permitido" {% endif %}>
                                                         Cancelar
                                                     </a>
                                                 </li>
