@@ -23,37 +23,79 @@
         <!-- FILTROS -->
         <div class="panel-body filtro">
             <div class="well well-sm">
-                <form method="get" class="form-inline">
-                    <div class="form-group">
-                        <label>Semestre:</label>
-                        <select name="semestre"
-                                class="form-control input-sm"
-                                onchange="this.form.submit()">
-                            <option value="">Selecione</option>
-                            {% for s in semestres %}
-                                <option value="{{ s.id_semestre }}"
-                                        {% if s.id_semestre == request.args.get('semestre')|int %}selected{% endif %}>
-                                    {{ s.nome_semestre }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    {% if user.perm|has_flag(ADMIN) %}
-                        <div class="form-group filtro_all">
-                            <label>Responsável:</label>
-                            <select name="responsavel"
-                                    class="form-control input-sm"
-                                    onchange="this.form.submit()">
-                                <option value="">Todos</option>
-                                {% for p in pessoas %}
-                                    <option value="{{ p.id_pessoa }}"
-                                            {% if request.args.get('responsavel')|int == p.id_pessoa %}selected{% endif %}>
-                                        {{ p.nome_pessoa }}
-                                    </option>
-                                {% endfor %}
-                            </select>
+                <form method="get">
+                    <div class="row">
+                        <!-- SEMESTRE -->
+                        <div class="col-sm-4 col-md-3">
+                            <div class="form-group">
+                                <label>Semestre</label>
+                                <select name="semestre"
+                                        class="form-control input-sm"
+                                        onchange="this.form.submit()">
+                                    <option value="">Todos</option>
+                                    {% for s in semestres %}
+                                        <option value="{{ s.id_semestre }}"
+                                                {% if s.id_semestre == request.args.get('semestre')|int %}selected{% endif %}>
+                                            {{ s.nome_semestre }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
                         </div>
-                    {% endif %}
+                        {% if user.perm|has_flag(ADMIN) %}
+                            <!-- RESPONSAVEL -->
+                            <div class="col-sm-4 col-md-3">
+                                <div class="form-group">
+                                    <label>Responsável</label>
+                                    <select name="responsavel"
+                                            class="form-control input-sm"
+                                            onchange="this.form.submit()">
+                                        <option value="">Todos</option>
+                                        {% for p in pessoas %}
+                                            <option value="{{ p.id_pessoa }}"
+                                                    {% if request.args.get('responsavel')|int == p.id_pessoa %}selected{% endif %}>
+                                                {{ p.nome_pessoa }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- RESPONSAVEL ESPECIAL -->
+                            <div class="col-sm-4 col-md-3">
+                                <div class="form-group">
+                                    <label>Resp. especial</label>
+                                    <select name="responsavel_especial"
+                                            class="form-control input-sm"
+                                            onchange="this.form.submit()">
+                                        <option value="">Todos</option>
+                                        {% for ue in usuarios_especiais %}
+                                            <option value="{{ ue.id_usuario_especial }}"
+                                                    {% if request.args.get('responsavel_especial')|int == ue.id_usuario_especial %}selected{% endif %}>
+                                                {{ ue.nome_usuario_especial }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        {% endif %}
+                        <!-- FUTURO FILTRO LAB -->
+                        <div class="col-sm-4 col-md-3">
+                            <div class="form-group">
+                                <label>Laboratório</label>
+                                <select name="lab"
+                                        class="form-control input-sm"
+                                        onchange="this.form.submit()">
+                                    <option value="">Todos</option>
+                                    {% for lab in laboratorios %}
+                                        <option value="{{ lab.id_local }}"
+                                                {% if request.args.get('lab')|int == lab.id_local %}selected{% endif %}>
+                                            {{ lab.nome_local }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                 </form>
             </div>
         </div>

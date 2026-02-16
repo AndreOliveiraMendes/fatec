@@ -2,21 +2,22 @@ import copy
 from datetime import datetime
 from typing import Any
 
-from flask import (Blueprint, abort, flash, redirect, render_template, request,
-                   session, url_for, current_app)
+from flask import (Blueprint, abort, current_app, flash, redirect,
+                   render_template, request, session, url_for)
 from flask.typing import ResponseReturnValue
 from flask_sqlalchemy.pagination import SelectPagination
-from sqlalchemy import between, select, and_
+from sqlalchemy import and_, select
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
                             InternalError, OperationalError, ProgrammingError)
 
 from app.auxiliar.auxiliar_routes import (check_ownership_or_admin,
                                           get_user_info, info_reserva_fixa,
                                           info_reserva_temporaria,
-                                          none_if_empty, parse_date_string,
+                                          none_if_empty,
                                           registrar_log_generico_usuario)
 from app.auxiliar.constant import PERM_ADMIN
-from app.auxiliar.dao import get_pessoas, get_semestres, get_usuarios_especiais
+from app.auxiliar.dao import (get_laboratorios, get_pessoas, get_semestres,
+                              get_usuarios_especiais)
 from app.auxiliar.decorators import login_required
 from app.auxiliar.external_dao import get_grade_by_professor
 from app.models import (Aulas, Aulas_Ativas, FinalidadeReservaEnum, Permissoes,
@@ -44,9 +45,13 @@ FILTERS = {
     "fixa": {
         "semestre": (lambda s:Reservas_Fixas.id_reserva_semestre == s, int),
         "responsavel": (lambda r:Reservas_Fixas.id_responsavel == r, int),
+        "responsavel_especial": (lambda re:Reservas_Fixas.id_responsavel_especial == re, int),
+        "lab": (lambda l:Reservas_Fixas.id_reserva_local == l, int)
     },
     "temporaria": {
         "responsavel": (lambda r:Reservas_Temporarias.id_responsavel == r, int),
+        "responsavel_especial": (lambda re:Reservas_Temporarias.id_responsavel_especial == re, int),
+        "lab": (lambda l:Reservas_Temporarias.id_reserva_local == l, int),
         "dia": (lambda d:and_(Reservas_Temporarias.inicio_reserva <= d, Reservas_Temporarias.fim_reserva >= d), str),
     }
 }
@@ -157,6 +162,7 @@ def gerenciar_reserva_fixa():
     extras['TipoReserva'] = FinalidadeReservaEnum
     extras['pessoas'] = get_pessoas()
     extras['usuarios_especiais'] = get_usuarios_especiais()
+    extras['laboratorios'] = get_laboratorios(user.perm & PERM_ADMIN > 0)
     return render_template("usuario/reserva_fixa.html", user=user, **extras)
 
 @bp.route("/reserva/reservas_temporarias")
@@ -177,6 +183,7 @@ def gerenciar_reserva_temporaria():
     extras['TipoReserva'] = FinalidadeReservaEnum
     extras['pessoas'] = get_pessoas()
     extras['usuarios_especiais'] = get_usuarios_especiais()
+    extras['laboratorios'] = get_laboratorios(user.perm & PERM_ADMIN > 0)
     return render_template("usuario/reserva_temporaria.html", user=user, **extras)
 
 @bp.route("/get_info/<tipo_reserva>/<int:id_reserva>")

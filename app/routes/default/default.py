@@ -2,8 +2,8 @@ from flask import (Blueprint, redirect, render_template, send_from_directory,
                    session, url_for)
 
 from app.auxiliar.auxiliar_routes import get_user_info
-from config.json_related import carregar_config_geral
 from app.auxiliar.constant import REDIRECT_HOME, REDIRECT_TV
+from config.json_related import carregar_config_geral
 
 bp = Blueprint('default', __name__)
 
