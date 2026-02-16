@@ -42,7 +42,61 @@
                                 </select>
                             </div>
                         </div>
-                        {% if user.perm|has_flag(ADMIN) %}
+                        <!-- FUTURO FILTRO LAB -->
+                        <div class="col-sm-4 col-md-3">
+                            <div class="form-group">
+                                <label>Laboratório</label>
+                                <select name="lab"
+                                        class="form-control input-sm"
+                                        onchange="this.form.submit()">
+                                    <option value="">Todos</option>
+                                    {% for lab in laboratorios %}
+                                        <option value="{{ lab.id_local }}"
+                                                {% if request.args.get('lab')|int == lab.id_local %}selected{% endif %}>
+                                            {{ lab.nome_local }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <!-- FILTRO semanas-->
+                        <div class="col-sm-4 col-md-3">
+                            <div class="form-group">
+                                <label>dia da semana</label>
+                                <select name="semana"
+                                        class="form-control input-sm"
+                                        onchange="this.form.submit()">
+                                    <option value="">Todos</option>
+                                    {% for semana in semanas %}
+                                        <option value="{{ semana.id_semana }}"
+                                                {% if request.args.get('semana')|int == semana.id_semana %}selected{% endif %}>
+                                            {{ semana.nome_semana }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <!-- FILTRO finalidade -->
+                        <div class="col-sm-4 col-md-3">
+                            <div class="form-group">
+                                <label>Finalidade da Reserva</label>
+                                <select name="finalidade"
+                                        class="form-control input-sm"
+                                        onchange="this.form.submit()">
+                                    <option value="">Todos</option>
+                                    {% for tr in TipoReserva %}
+                                        <option value="{{ tr.value }}"
+                                                {% if request.args.get('finalidade') == tr.value %}selected{% endif %}>
+                                            {{ tr.value }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    {% if user.perm|has_flag(ADMIN) %}
+                        <div class="form-section">Filtros administrativos</div>
+                        <div class="row">
                             <!-- RESPONSAVEL -->
                             <div class="col-sm-4 col-md-3">
                                 <div class="form-group">
@@ -77,25 +131,8 @@
                                     </select>
                                 </div>
                             </div>
-                        {% endif %}
-                        <!-- FUTURO FILTRO LAB -->
-                        <div class="col-sm-4 col-md-3">
-                            <div class="form-group">
-                                <label>Laboratório</label>
-                                <select name="lab"
-                                        class="form-control input-sm"
-                                        onchange="this.form.submit()">
-                                    <option value="">Todos</option>
-                                    {% for lab in laboratorios %}
-                                        <option value="{{ lab.id_local }}"
-                                                {% if request.args.get('lab')|int == lab.id_local %}selected{% endif %}>
-                                            {{ lab.nome_local }}
-                                        </option>
-                                    {% endfor %}
-                                </select>
-                            </div>
                         </div>
-                    </div>
+                    {% endif %}
                 </form>
             </div>
         </div>
@@ -242,9 +279,16 @@ $(document).on('click','.btn-detalhes',function(){
 {% endblock extra_script %}
 {% block extra_css %}
     <style>
-.table-responsive { overflow: visible; }
-.filtro { padding-bottom:0 }
-.filtro_all { margin-left:15px }
-.col-action { width:80px }
+        .table-responsive { overflow: visible; }
+        .filtro { padding-bottom:0 }
+        .filtro_all { margin-left:15px }
+        .col-action { width:80px }
+        .form-section{
+            margin:20px 0 10px;
+            font-size:12px;
+            text-transform:uppercase;
+            color:#777;
+            border-bottom:1px solid #ddd;
+        }
     </style>
 {% endblock extra_css %}

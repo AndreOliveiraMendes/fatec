@@ -17,7 +17,8 @@ from app.auxiliar.auxiliar_routes import (check_ownership_or_admin,
                                           none_if_empty,
                                           registrar_log_generico_usuario)
 from app.auxiliar.constant import PERM_ADMIN
-from app.auxiliar.dao import (get_laboratorios, get_pessoas, get_semestres,
+from app.auxiliar.dao import (get_dias_da_semana, get_laboratorios,
+                              get_pessoas, get_semestres,
                               get_usuarios_especiais)
 from app.auxiliar.decorators import login_required
 from app.auxiliar.external_dao import get_grade_by_professor
@@ -47,13 +48,17 @@ FILTERS = {
         "semestre": (lambda s:Reservas_Fixas.id_reserva_semestre == s, int),
         "responsavel": (lambda r:Reservas_Fixas.id_responsavel == r, int),
         "responsavel_especial": (lambda re:Reservas_Fixas.id_responsavel_especial == re, int),
-        "lab": (lambda l:Reservas_Fixas.id_reserva_local == l, int)
+        "lab": (lambda l:Reservas_Fixas.id_reserva_local == l, int),
+        "semana": (lambda s:Aulas_Ativas.id_semana == s, int),
+        "finalidade": (lambda f:Reservas_Fixas.finalidade_reserva == FinalidadeReservaEnum(f), str)
     },
     "temporaria": {
         "responsavel": (lambda r:Reservas_Temporarias.id_responsavel == r, int),
         "responsavel_especial": (lambda re:Reservas_Temporarias.id_responsavel_especial == re, int),
         "lab": (lambda l:Reservas_Temporarias.id_reserva_local == l, int),
         "dia": (lambda d:and_(Reservas_Temporarias.inicio_reserva <= d, Reservas_Temporarias.fim_reserva >= d), str),
+        "semana": (lambda s:Aulas_Ativas.id_semana == s, int),
+        "finalidade": (lambda f:Reservas_Temporarias.finalidade_reserva == FinalidadeReservaEnum(f), str)
     }
 }
 
@@ -164,6 +169,7 @@ def gerenciar_reserva_fixa():
     extras['pessoas'] = get_pessoas()
     extras['usuarios_especiais'] = get_usuarios_especiais()
     extras['laboratorios'] = get_laboratorios(user.perm & PERM_ADMIN > 0)
+    extras['semanas'] = get_dias_da_semana()
     return render_template("usuario/reserva_fixa.html", user=user, **extras)
 
 @bp.route("/reserva/reservas_temporarias")
@@ -185,6 +191,7 @@ def gerenciar_reserva_temporaria():
     extras['pessoas'] = get_pessoas()
     extras['usuarios_especiais'] = get_usuarios_especiais()
     extras['laboratorios'] = get_laboratorios(user.perm & PERM_ADMIN > 0)
+    extras['semanas'] = get_dias_da_semana()
     return render_template("usuario/reserva_temporaria.html", user=user, **extras)
 
 @bp.route("/get_info/<tipo_reserva>/<int:id_reserva>")
