@@ -205,8 +205,19 @@
                 id_aula=0
             )|tojson }};
 
+            const baseConflictUrl = {{ url_for(
+                'api_reservas.check_conflito_reserva',
+                tipo_reserva=0,
+                dia=semestre.data_inicio,
+                id_aula=0,
+                id_responsavel=0
+            )|tojson }};
+
             const buildReservaUrl = (localId, aulaId) =>
                 baseUrl.replace('/0/0', `/${localId}/${aulaId}`);
+
+            const buildConflictUrl = (aulaId, responsavelId) =>
+                baseConflictUrl.replace('/0/0', `/${aulaId}/${responsavelId}`);
 
             async function atualizarReservas(){
                 const cells = document.querySelectorAll('.tabela-reserva td[data-aula]');
@@ -224,6 +235,7 @@
                         if(data.reservado){
                             td.classList.add('reservado');
                             td.classList.remove('livre');
+                            td.classList.remove('td-conflito-horario')
                             td.dataset.idReserva = data.id_reserva;
 
                             td.querySelector('input')?.remove();
@@ -235,12 +247,34 @@
                             td.classList.remove('reservado');
                             td.classList.add('livre');
                             td.dataset.idReserva = '';
-                            td.title = '';
 
                             if(!td.querySelector('input')){
                                 td.innerHTML =
                                     `<input type="checkbox" class="form-check-input" name="reserva[${localId},${aulaId}]">`;
                             }
+
+                            {% if not user or not user.perm|has_flag(ADMIN) %}
+                            const check = await fetch(buildConflictUrl(aulaId, idResponsavelAtual));
+                            if(!check.ok) throw new Error(check.status);
+
+                            const data = await check.json();
+
+                            if(data.conflict){
+                                td.classList.add('td-conflito-horario');
+
+                                const checkbox = td.querySelector('input[type="checkbox"]');
+                                if (checkbox){
+                                    checkbox.disabled = true;
+                                    checkbox.checked = false;
+
+                                    const labs = data.labs.map(l => l.nome).join(", ");
+                                    td.title = `Conflito de horário: ${labs}`;
+                                }
+                            } else {
+                                td.classList.remove('td-conflito-horario');
+                                td.title = '';
+                            }
+                            {% endif %}
                         }
 
                     }catch(err){

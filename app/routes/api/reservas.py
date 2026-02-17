@@ -73,8 +73,8 @@ def get_reserva_indirect(tipo_reserva, dia, id_local, id_aula):
     return get_handler(tipo_reserva, "indirect")(dia, id_local, id_aula)
 
 # checagem de conflitos
-@bp.route('/check_conflict_reserva/<int:tipo_reserva>/<data:dia>/<int:id_local>/<int:id_aula>/<int:id_responsavel>')
-def check_conflito_reserva(tipo_reserva, dia, id_local, id_aula, id_responsavel):
-    return get_handler(tipo_reserva, "get_reserva_temporaria_indirect")(dia, id_local, id_aula, id_responsavel)
+@bp.route('/check_conflict_reserva/<int:tipo_reserva>/<data:dia>/<int:id_aula>/<int:id_responsavel>')
+def check_conflito_reserva(tipo_reserva, dia, id_aula, id_responsavel):
+    return get_handler(tipo_reserva, "check_conflict")(dia, id_aula, id_responsavel)
 
 # isort --filter-files usuarios.py

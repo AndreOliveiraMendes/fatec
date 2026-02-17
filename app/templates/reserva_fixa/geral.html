@@ -225,7 +225,10 @@
                 td.classList.remove("td-conflito-horario");
 
                 const checkbox = td.querySelector('input[type="checkbox"]');
-                if (checkbox) checkbox.disabled = false;
+                if (checkbox){
+                    checkbox.disabled = false;
+                    checkbox.checked = false;
+                }
             });
 
             const horariosOcupados = new Set();
