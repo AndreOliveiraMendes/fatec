@@ -47,6 +47,13 @@ def get_prioridade():
     except (DatabaseError, OperationalError) as e:
         current_app.logger.error(f"erro ao ler banco, rodando sem regra de prioridade:{e}")
         return False, None
+    
+def parse_reserva_key(key):
+    if hasattr(key, "removeprefix"):
+        key = key.removeprefix('reserva[').removesuffix(']')
+    else:
+        key = key[8:-1]
+    return tuple(map(int, key.split(',')))
 
 def check_semestre(semestre:Semestres, userid, perm:int):
     if perm&PERM_ADMIN > 0:
@@ -222,14 +229,18 @@ def efetuar_reserva(id_semestre):
     if not perm or perm.permissao & PERM_ADMIN == 0:
         responsavel = user.id_pessoa
         responsavel_especial = None
-    checks = [key for key, value in request.form.items() if key.startswith('reserva') and value == 'on']
-    if not checks:
+    reservas = [
+            parse_reserva_key(key)
+            for key, value in request.form.items()
+            if key.startswith('reserva') and value == 'on'
+    ]
+    if not reservas:
         flash("voce não selecionou reserva alguma", "warning")
         return redirect(url_for('default.home'))
+    # aqui (implementar o check)
     try:
         reservas_efetuadas = []
-        for check in checks:
-            lab, aula = map(int, check.replace('reserva[', '').replace(']', '').split(','))
+        for lab, aula in reservas:
 
             reserva = Reservas_Fixas(
                 id_responsavel = responsavel,
