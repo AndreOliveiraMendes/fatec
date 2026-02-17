@@ -412,16 +412,21 @@ body {
 /* ==========================
    OUTROS
    ========================== */
-table > tbody > tr > td.reservado {
-    background-color: #f50b0b;
-    cursor: not-allowed;
-    color: black; /* opcional para melhor contraste */
+table > tbody > tr > td.livre {
+    background: #28a745;
 }
 
-table > tbody > tr > td.livre {
-    background-color: rgb(29, 190, 29);
-    color: black; /* opcional para melhor contraste */
+table > tbody > tr > td.reservado {
+    background: #dc3545;
+    color: white;
+    font-weight: bold;
 }
+
+table > tbody > tr > td.indisponivel {
+    background: #e9ecef;
+    cursor: not-allowed;
+}
+
 
 table > tbody > tr > td.reservado-fixo {
     cursor: help;

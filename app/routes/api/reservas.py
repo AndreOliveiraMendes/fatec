@@ -1,16 +1,14 @@
 from flask import Blueprint, abort
 
-from app.auxiliar.auxiliar_api import (
-    delete_reserva_fixa,
-    delete_reserva_temporaria,
-    get_reserva_fixa_indirect,
-    get_reserva_fixa_info,
-    get_reserva_temporaria_indirect,
-    get_reserva_temporaria_info,
-    update_reserva_fixa,
-    update_reserva_temporaria
-)
-
+from app.auxiliar.auxiliar_api import (check_conflict_reservas_fixas,
+                                       delete_reserva_fixa,
+                                       delete_reserva_temporaria,
+                                       get_reserva_fixa_indirect,
+                                       get_reserva_fixa_info,
+                                       get_reserva_temporaria_indirect,
+                                       get_reserva_temporaria_info,
+                                       update_reserva_fixa,
+                                       update_reserva_temporaria)
 from app.auxiliar.decorators import admin_required
 
 bp = Blueprint('api_reservas', __name__, url_prefix='/api/reservas')
@@ -23,7 +21,8 @@ RESERVA_HANDLERS = {
         "info": get_reserva_fixa_info,
         "update": update_reserva_fixa,
         "delete": delete_reserva_fixa,
-        "indirect": get_reserva_fixa_indirect
+        "indirect": get_reserva_fixa_indirect,
+        "check_conflict": check_conflict_reservas_fixas
     },
     1: {
         "info": get_reserva_temporaria_info,
@@ -72,3 +71,10 @@ def delete_reserva(tipo_reserva, id_reserva):
 @bp.route('/get_reserva/<int:tipo_reserva>/<data:dia>/<int:id_local>/<int:id_aula>')
 def get_reserva_indirect(tipo_reserva, dia, id_local, id_aula):
     return get_handler(tipo_reserva, "indirect")(dia, id_local, id_aula)
+
+# checagem de conflitos
+@bp.route('/check_conflict_reserva/<int:tipo_reserva>/<data:dia>/<int:id_local>/<int:id_aula>/<int:id_responsavel>')
+def check_conflito_reserva(tipo_reserva, dia, id_local, id_aula, id_responsavel):
+    return get_handler(tipo_reserva, "get_reserva_temporaria_indirect")(dia, id_local, id_aula, id_responsavel)
+
+# isort --filter-files usuarios.py

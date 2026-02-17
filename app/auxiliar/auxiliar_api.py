@@ -335,3 +335,6 @@ def get_reserva_temporaria_indirect(dia, id_local, id_aula):
             "local": reserva.local.nome_local
         }
         return jsonify(result)
+    
+def check_conflict_reservas_fixas(dia, id_local, id_aula, id_responsavel):
+    pass
