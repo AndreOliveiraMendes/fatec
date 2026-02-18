@@ -48,15 +48,16 @@
                     <tbody>
                         {% for fc in first_col %}
                             <tr>
-                                <td class="col-fixa">{{ fc.horario_inicio|hora }}</td>
+                                <td class="col-fixa">{{ fc.horario_inicio|hora }} - {{ fc.horario_fim|hora }}</td>
                                 {% for h in head %}
-                                    <td data-aula="{{ row.get((fc.id_aula, h.id_semana) , '') }}"
-                                        data-local="{{ local.id_local }}"
-                                        data-semestre="{{ semestre.inicio_semestre|data }}"
-                                        data-reserva="">
-                                        <input type="checkbox"
-                                               class="form-check-input"
-                                               name="reserva[{{ local.id_local }}, {{ row.get((fc.id_aula, h.id_semana) , '') }}]">
+                                    {% set aula_id = row.get((fc.id_aula, h.id_semana)) %}
+                                    <td class=" {% if aula_id %} livre {% else %} indisponivel {% endif %} "
+                                        {% if aula_id %} data-aula="{{ aula_id }}" data-local="{{ local.id_local }}" data-semestre="{{ semestre.inicio_semestre|data }}" {% endif %}>
+                                        {% if aula_id %}
+                                            <input type="checkbox"
+                                                   class="form-check-input"
+                                                   name="reserva[{{ local.id_local }}, {{ aula_id }}]">
+                                        {% endif %}
                                     </td>
                                 {% endfor %}
                             </tr>
@@ -166,120 +167,163 @@
 {% endblock content %}
 {% block extra_script %}
     <script>{{ adjust_head_fix() }}</script>
-    <!-- Script para mostrar/ocultar campo de descrição baseado na finalidade da reserva -->
     <script>
-    document.getElementById('finalidade_reserva').addEventListener('change', function() {
-        var value = this.value;
-        var descricao = document.getElementById('descricao');
-        var descricaoWrapper = descricao.parentElement;
+        document.addEventListener("DOMContentLoaded", function () {
 
-        if(value == 'Curso'){
-            descricao.disabled = false;
-            descricaoWrapper.style.display = 'block';
-        } else {
-            descricao.disabled = true;
-            descricaoWrapper.style.display = 'none';
-        }
-    });
+            const idResponsavelAtual = {{ user.pessoa.id_pessoa|tojson }};
 
-    window.addEventListener('load', function() {
-        document.getElementById('finalidade_reserva').dispatchEvent(new Event('change'));
-    });
-    </script>
-    <!-- Script para atualizar a tabela -->
-    <script>
-    document.addEventListener("DOMContentLoaded", function () {
+            /* =========================
+            FINALIDADE → DESCRIÇÃO
+            ========================== */
+            const finalidade = document.getElementById('finalidade_reserva');
+            const descricao = document.getElementById('descricao');
 
-        const baseUrl = {{ url_for(
-            'api_reservas.get_reserva_indirect',
-            tipo_reserva=0,
-            dia=semestre.data_inicio,
-            id_local=0,
-            id_aula=0
-        )|tojson }};
+            function toggleDescricao(){
+                if(!finalidade || !descricao) return;
 
-        function buildReservaUrl(localId, aulaId) {
-            return baseUrl.replace('/0/0', `/${localId}/${aulaId}`);
-        }
+                const wrapper = descricao.parentElement;
+                const ativo = finalidade.value === 'Curso';
 
-        // Função que atualiza as reservas
-        async function atualizarReservas() {
-            document.querySelectorAll('.tabela-reserva td[data-aula]').forEach(async td => {
-                const localId = td.dataset.local;
-                const aulaId = td.dataset.aula;
+                descricao.disabled = !ativo;
+                wrapper.style.display = ativo ? 'block' : 'none';
+            }
 
-                const url = buildReservaUrl(localId, aulaId); // sua função de gerar URL dinâmica
+            if(finalidade){
+                finalidade.addEventListener('change', toggleDescricao);
+                toggleDescricao(); // estado inicial
+            }
 
-                try {
-                    const response = await fetch(url);
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    const data = await response.json();
 
-                    if (data.reservado) {
-                        td.classList.add('reservado');
-                        td.classList.remove('livre');
-                        td.dataset.idReserva = data.id_reserva;
+            /* =========================
+            TABELA RESERVAS AUTOLOAD
+            ========================== */
+            const baseUrl = {{ url_for(
+                'api_reservas.get_reserva_indirect',
+                tipo_reserva=0,
+                dia=semestre.data_inicio,
+                id_local=0,
+                id_aula=0
+            )|tojson }};
 
-                        const checkbox = td.querySelector('input');
-                        if (checkbox) checkbox.remove();
+            const baseConflictUrl = {{ url_for(
+                'api_reservas.check_conflito_reserva',
+                tipo_reserva=0,
+                dia=semestre.data_inicio,
+                id_aula=0,
+                id_responsavel=0
+            )|tojson }};
 
-                        const firstName = data.responsavel?.split(' ')[0] || 'Reservado';
-                        td.textContent = firstName;
-                        td.title = data.responsavel || '';
-                    } else {
-                        // Caso não esteja reservado, restaurar checkbox se não tiver
-                        td.classList.remove('reservado');
-                        td.classList.add('livre');
-                        td.dataset.idReserva = '';
-                        if (!td.querySelector('input')) {
-                            td.innerHTML = `<input type="checkbox" class="form-check-input" 
-                                name="reserva[${localId},${aulaId}]">`;
+            const buildReservaUrl = (localId, aulaId) =>
+                baseUrl.replace('/0/0', `/${localId}/${aulaId}`);
+
+            const buildConflictUrl = (aulaId, responsavelId) =>
+                baseConflictUrl.replace('/0/0', `/${aulaId}/${responsavelId}`);
+
+            async function atualizarReservas(){
+                const cells = document.querySelectorAll('.tabela-reserva td[data-aula]');
+
+                for(const td of cells){
+                    const localId = td.dataset.local;
+                    const aulaId = td.dataset.aula;
+
+                    try{
+                        const res = await fetch(buildReservaUrl(localId, aulaId));
+                        if(!res.ok) throw new Error(res.status);
+
+                        const data = await res.json();
+
+                        if(data.reservado){
+                            td.classList.add('reservado');
+                            td.classList.remove('livre');
+                            td.classList.remove('td-conflito-horario')
+                            td.dataset.idReserva = data.id_reserva;
+
+                            td.querySelector('input')?.remove();
+
+                            const firstName = data.responsavel?.split(' ')[0] || 'Reservado';
+                            td.textContent = firstName;
+                            td.title = data.responsavel || '';
+                        } else {
+                            td.classList.remove('reservado');
+                            td.classList.add('livre');
+                            td.dataset.idReserva = '';
+
+                            if(!td.querySelector('input')){
+                                td.innerHTML =
+                                    `<input type="checkbox" class="form-check-input" name="reserva[${localId},${aulaId}]">`;
+                            }
+
+                            {% if not user or not user.perm|has_flag(ADMIN) %}
+                            const check = await fetch(buildConflictUrl(aulaId, idResponsavelAtual));
+                            if(!check.ok) throw new Error(check.status);
+
+                            const data = await check.json();
+
+                            if(data.conflict){
+                                td.classList.add('td-conflito-horario');
+
+                                const checkbox = td.querySelector('input[type="checkbox"]');
+                                if (checkbox){
+                                    checkbox.disabled = true;
+                                    checkbox.checked = false;
+
+                                    const labs = data.labs.map(l => l.nome).join(", ");
+                                    td.title = `Conflito de horário: ${labs}`;
+                                }
+                            } else {
+                                td.classList.remove('td-conflito-horario');
+                                td.title = '';
+                            }
+                            {% endif %}
                         }
-                        td.dataset.idReserva = '';
-                        td.title = '';
+
+                    }catch(err){
+                        console.error(`Erro reserva ${localId}/${aulaId}:`, err);
                     }
-                } catch (err) {
-                    console.error(`Erro ao verificar reserva para local ${localId} e aula ${aulaId}:`, err);
                 }
+            }
+
+            atualizarReservas();
+            setInterval(atualizarReservas, 60000);
+
+
+            /* =========================
+            CLICK EM RESERVA (ADMIN)
+            ========================== */
+            {% if user and user.perm|has_flag(ADMIN) %}
+            document.addEventListener("click", async e => {
+
+                const td = e.target.closest("td.reservado");
+                if(!td) return;
+
+                const id = td.dataset.idReserva;
+                if(!id) return;
+
+                const altPressed = e.altKey;
+
+                const urlInfo = {{ url_for('api_reservas.get_reserva_info', tipo_reserva=0, id_reserva='0')|tojson }}.replace(/0$/, id);
+                const urlDelete = {{ url_for('api_reservas.delete_reserva', tipo_reserva=0, id_reserva='0')|tojson }}.replace(/0$/, id);
+                const urlEdit = {{ url_for('api_reservas.update_reserva', tipo_reserva=0, id_reserva='0')|tojson }}.replace(/0$/, id);
+
+                try{
+                    const res = await fetch(urlInfo);
+                    const data = await res.json();
+
+                    if(altPressed){
+                        DeleteData(data, urlDelete);
+                    } else {
+                        openReservaModal(data, urlEdit);
+                    }
+                }catch(err){
+                    alert("Erro ao carregar reserva: " + err);
+                }
+
             });
-        }
+            {% endif %}
 
-        // Atualiza a cada 60 segundos (60000 ms)
-        atualizarReservas(); // primeira chamada imediata
-        setInterval(atualizarReservas, 60000);
-
-    });
+        });
     </script>
     {% if user and user.perm|has_flag(ADMIN) %}
         <script src="{{ url_for('static', filename='js/reserva_fixa_modal.js') }}"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                document.addEventListener("click", function (e) {
-                    const td = e.target.closest("td.reservado");
-                    if (!td) return;
-
-                    const altPressed = e.altKey;
-                    const id = td.dataset.idReserva;
-                    const url = {{ url_for('api_reservas.get_reserva_info', tipo_reserva=0, id_reserva='0')|tojson }};
-                    const url_delete = {{ url_for('api_reservas.delete_reserva', tipo_reserva=0, id_reserva='0')|tojson }};
-                    const url_edit = {{ url_for('api_reservas.update_reserva', tipo_reserva=0, id_reserva='0')|tojson }};
-
-                    fetch(url.replace(/0$/, id))
-                        .then(r => r.json())
-                        .then(data => {
-                            if (altPressed) {
-                                DeleteData(data, url_delete.replace(/0$/, id));
-                            } else {
-                                openReservaModal(data, url_edit.replace(/0$/, id));
-                            }
-                        })
-                        .catch(err =>
-                            alert("Erro ao carregar reserva devido a: " + err)
-                        );
-                });
-            });
-        </script>
     {% endif %}
 {% endblock extra_script %}

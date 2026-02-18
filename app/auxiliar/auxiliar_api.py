@@ -335,3 +335,30 @@ def get_reserva_temporaria_indirect(dia, id_local, id_aula):
             "local": reserva.local.nome_local
         }
         return jsonify(result)
+    
+def check_conflict_reservas_fixas(dia, id_aula, id_responsavel):
+    sel_reservas = select(Reservas_Fixas).where(
+        Reservas_Fixas.semestre.has(
+            and_(
+                Semestres.data_inicio <= dia,
+                Semestres.data_fim >= dia
+                )
+            ),
+            Reservas_Fixas.id_reserva_aula == id_aula,
+            Reservas_Fixas.id_responsavel == id_responsavel
+        )
+    
+    reservas = db.session.execute(sel_reservas).scalars().all()
+    if len(reservas) == 0:
+        return {
+            "conflict": False,
+            "labs": []
+        }
+    else:
+        labs = []
+        for reserva in reservas:
+            labs.append({"id":reserva.id_reserva_local, "nome":reserva.local.nome_local})
+        return {
+            "conflict": True,
+            "labs": labs
+        }

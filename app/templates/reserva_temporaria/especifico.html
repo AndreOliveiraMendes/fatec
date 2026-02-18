@@ -9,7 +9,7 @@
     <div class="center-content">
         <div class="btn-group">
             {{ go_back(contador) }}
-            <a href="{{ url_for('default.home') }}" class="btn btn-default">
+            <a href="{{ url_for("default.home") }}" class="btn btn-default">
                 <span class="glyphicon glyphicon-home"></span> Início
             </a>
         </div>
@@ -48,13 +48,14 @@
                             <tr>
                                 <td class="col-fixa">{{ dia['dia'] }} ({{ dia['semana'] }})</td>
                                 {% for info in dia['infos'] %}
-                                    <td data-aula="{{ info.id_aula_ativa }}"
-                                        data-local="{{ local.id_local }}"
-                                        data-dia="{{ dia['dia'] }}"
-                                        data-id-reserva="">
-                                        <input type="checkbox"
-                                               class="form-check-input"
-                                               name="reserva[{{ local.id_local }},{{ info.id_aula_ativa }},{{ dia['dia'] }}]">
+                                    {% set ativo = info and info.id_aula_ativa %}
+                                    <td class="{{ 'livre' if ativo else 'indisponivel' }}"
+                                        {% if ativo %} data-aula="{{ info.id_aula_ativa }}" data-local="{{ local.id_local }}" data-dia="{{ dia['dia'] }}" data-id-reserva="" {% endif %}>
+                                        {% if ativo %}
+                                            <input type="checkbox"
+                                                   class="form-check-input"
+                                                   name="reserva[{{ local.id_local }},{{ info.id_aula_ativa }},{{ dia['dia'] }}]">
+                                        {% endif %}
                                     </td>
                                 {% endfor %}
                             </tr>
@@ -260,10 +261,10 @@
         atualizarReservas(); // primeira chamada imediata
         setInterval(atualizarReservas, 60000);
     });
-    </script>
-    {% if user and user.perm|has_flag(ADMIN) %}
-        <script src="{{ url_for('static', filename='js/reserva_temporaria_modal.js') }}"></script>
-        <script>
+</script>
+{% if user and user.perm|has_flag(ADMIN) %}
+<script src="{{ url_for('static', filename='js/reserva_temporaria_modal.js') }}"></script>
+<script>
             document.addEventListener('DOMContentLoaded', () => {
                 document.addEventListener("click", function (e) {
 
@@ -318,6 +319,6 @@
 
                 });
             });
-        </script>
-    {% endif %}
+</script>
+{% endif %}
 {% endblock extra_script %}
