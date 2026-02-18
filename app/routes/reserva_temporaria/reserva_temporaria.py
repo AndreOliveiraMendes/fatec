@@ -120,12 +120,12 @@ def return_counter():
         )
 
         if dentro:
-            session["contador"] = session.get("contador", 0) + 1
+            session["contador_temporaria"] = session.get("contador_temporaria", 0) + 1
         else:
-            session["contador"] = 1
+            session["contador_temporaria"] = 1
         session["tipo"] = session.get("tipo", request.args.get("tipo"))
     else:
-        session.pop("contador", None)
+        session.pop("contador_temporaria", None)
         session.pop("tipo", None)
 
 @bp.route('/dias/<data:inicio>/<data:fim>/turno/lab')
@@ -167,7 +167,7 @@ def get_lab_geral(inicio, fim, id_turno):
     extras['finalidade_reserva'] = FinalidadeReservaEnum
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
-    extras['contador'] = session.get('contador')
+    extras['contador_temporaria'] = session.get('contador_temporaria')
     
     extras['cfg'] = carregar_config_geral()
     return render_template('reserva_temporaria/geral.html', user=user, **extras)
@@ -201,7 +201,7 @@ def get_lab_especifico(inicio, fim, id_turno, id_lab):
     extras['finalidade_reserva'] = FinalidadeReservaEnum
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
-    extras['contador'] = session.get('contador')
+    extras['contador_temporaria'] = session.get('contador_temporaria')
     extras['locais'] = get_laboratorios(user.perm&PERM_ADMIN > 0)
     
     extras['cfg'] = carregar_config_geral()

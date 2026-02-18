@@ -7,7 +7,7 @@
 {% block content %}
     {{ generate_reserva_head(locais, 'temporaria', turno, inicio=inicio, fim=fim) }}
     <div class="btn-group">
-        {{ go_back(contador) }}
+        {{ go_back(contador_temporaria) }}
         <a href="{{ url_for('default.home') }}" class="btn btn-default">
             <span class="glyphicon glyphicon-home"></span> Início
         </a>

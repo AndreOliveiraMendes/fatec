@@ -1,11 +1,9 @@
 from datetime import date
-from typing import Sequence, cast
 from urllib.parse import urlparse
 
 from flask import (Blueprint, abort, current_app, flash, redirect,
                    render_template, request, session, url_for)
 from markupsafe import Markup
-from mysql.connector import DatabaseError, OperationalError, connect
 from sqlalchemy import select
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
                             InternalError, OperationalError, ProgrammingError)
@@ -19,37 +17,13 @@ from app.auxiliar.dao import (get_aulas_ativas_por_semestre, get_aulas_extras,
                               get_laboratorios, get_pessoas,
                               get_usuarios_especiais)
 from app.auxiliar.decorators import reserva_fixa_required
+from app.auxiliar.external_dao import get_prioridade
 from app.models import (FinalidadeReservaEnum, Locais, Permissoes,
                         Reservas_Fixas, Semestres, Turnos, Usuarios, db)
-from config.general import (DISPONIBILIDADE_DATABASE, DISPONIBILIDADE_HOST,
-                            DISPONIBILIDADE_PASSWORD, DISPONIBILIDADE_USER)
 
 bp = Blueprint('reservas_semanais', __name__, url_prefix="/reserva_fixa")
-
-# revisar depois
-def get_prioridade():
-    try:
-        with connect(
-            host=DISPONIBILIDADE_HOST,
-            user=DISPONIBILIDADE_USER,
-            password=DISPONIBILIDADE_PASSWORD,
-            database=DISPONIBILIDADE_DATABASE
-        ) as conn:
-            with conn.cursor(dictionary=True) as cursor:
-                cursor.execute("""
-                    SELECT DISTINCT professor
-                    FROM grade
-                    INNER JOIN disciplina ON disciplina.codigo = grade.disciplina
-                    WHERE professor is not NULL and lab = 1
-                    ORDER BY professor
-                """)
-                rows = cast(Sequence[tuple[int]], cursor.fetchall())
-                return True, {row[0] for row in rows}
-    except (DatabaseError, OperationalError) as e:
-        current_app.logger.error(f"erro ao ler banco, rodando sem regra de prioridade:{e}")
-        return False, None
     
-def parse_reserva_key(key):
+def parse_reserva_key(key:str):
     if hasattr(key, "removeprefix"):
         key = key.removeprefix('reserva[').removesuffix(']')
     else:
@@ -158,11 +132,11 @@ def return_counter():
         )
 
         if dentro:
-            session["contador"] = session.get("contador", 0) + 1
+            session["contador_fixa"] = session.get("contador_fixa", 0) + 1
         else:
-            session["contador"] = 1
+            session["contador_fixa"] = 1
     else:
-        session.pop("contador", None)
+        session.pop("contador_fixa", None)
 
 @bp.route('/semestre/<int:id_semestre>/turno/lab')
 @bp.route('/semestre/<int:id_semestre>/turno/lab/<int:id_lab>')
@@ -200,7 +174,7 @@ def get_lab_geral(id_semestre, id_turno=None):
     extras['aulas_extras'] = get_aulas_extras(semestre, turno)
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
-    extras['contador'] = session.get('contador')
+    extras['contador_fixa'] = session.get('contador_fixa')
     return render_template('reserva_fixa/geral.html', user=user, **extras)
 
 def get_lab_especifico(id_semestre, id_turno, id_lab):
@@ -226,7 +200,7 @@ def get_lab_especifico(id_semestre, id_turno, id_lab):
     extras['aulas_extras'] = get_aulas_extras(semestre, turno)
     extras['responsavel'] = get_pessoas()
     extras['responsavel_especial'] = get_usuarios_especiais()
-    extras['contador'] = session.get('contador')
+    extras['contador_fixa'] = session.get('contador_fixa')
     return render_template('reserva_fixa/especifico.html', user=user, **extras)
 
 @bp.route('/semestre/<int:id_semestre>', methods=['POST'])

@@ -8,7 +8,7 @@
     {{ generate_reserva_head(locais, 'fixo', turno, local, semestre=semestre) }}
     <div class="center-content">
         <div class="btn-group">
-            {{ go_back(contador) }}
+            {{ go_back(contador_fixa) }}
             <a href="{{ url_for("default.home") }}" class="btn btn-default">
                 <span class="glyphicon glyphicon-home"></span> Início
             </a>
