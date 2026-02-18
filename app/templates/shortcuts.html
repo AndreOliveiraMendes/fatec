@@ -1,0 +1,38 @@
+{% extends "base-fixed" %}
+{% block title %}
+    atalhos
+{% endblock title %}
+{% block content %}
+    {% if user.perm and user.perm|has_flag(ADMIN) %}
+        <div class="panel panel-info">
+            <div class="panel-heading" role="tab" id="headingAtalhos">
+                <h4 class="panel-title">
+                    <a role="button"
+                       data-toggle="collapse"
+                       href="#collapseAtalhos"
+                       aria-expanded="false"
+                       aria-controls="collapseAtalhos"
+                       class="collapsed">Atalhos reservas semanais/avulsas</a>
+                </h4>
+            </div>
+            <div id="collapseAtalhos"
+                 class="panel-collapse collapse"
+                 role="tabpanel"
+                 aria-labelledby="headingAtalhos">
+                <div class="panel-body">
+                    <ul class="list-unstyled margin-bottom-0">
+                        <li>
+                            <strong>Clicar</strong> na célula com reserva → exibir informações
+                        </li>
+                        <li>
+                            <strong>Clicar + ALT</strong> na célula com reserva → excluir reserva
+                        </li>
+                        <li>
+                            <strong>Clicar + CTRL</strong> na célula <span class="label label-warning">amarela</span> → ver reservas semanais naquele dia
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock content %}

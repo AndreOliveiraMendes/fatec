@@ -94,6 +94,11 @@
                                                 <li>
                                                       <a href="https://getbootstrap.com/docs/3.4/" target="_blank"><i class="glyphicon glyphicon-question-sign"></i> Bootstrap 3.4.1</a>
                                                 </li>
+                                                {% if user %}
+                                                <li>
+                                                      <a href="{{ url_for('default.shortcuts') }}" target="_blank"><i class="glyphicon glyphicon-road"></i> Atalhos</a>
+                                                </li>
+                                                {% endif %}
                                           </ul>
                                     </li>
                               </ul>

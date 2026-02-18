@@ -31,6 +31,12 @@ def under_dev_page():
     user = get_user_info(userid)
     return render_template('under_dev.html', user=user)
 
+@bp.route('/shortcuts')
+def shortcuts():
+    userid = session.get('userid')
+    user = get_user_info(userid)
+    return render_template('shortcuts.html', user=user)
+
 @bp.route('/favicon.svg')
 def favicon_svg():
     return send_from_directory('static/images', 'favicon.svg')
