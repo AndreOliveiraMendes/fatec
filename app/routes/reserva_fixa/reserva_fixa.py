@@ -252,8 +252,7 @@ def efetuar_reserva(id_semestre):
     if not reservas:
         flash("voce não selecionou reserva alguma", "warning")
         return redirect(url_for('default.home'))
-    #if (not perm or perm.permissao & PERM_ADMIN == 0) and check_conflict(semestre, reservas):
-    if has_conflict(semestre, reservas, user):
+    if (not perm or perm.permissao & PERM_ADMIN == 0) and check_conflict(semestre, reservas):
         abort(409, description="so é possivel reservar 1 laboratorio por professor") 
     try:
         reservas_efetuadas = []
