@@ -25,21 +25,15 @@
             <div class="well well-sm">
                 <form method="get">
                     <div class="row">
-                        <!-- SEMESTRE -->
+                        <!-- FILTRO dia -->
                         <div class="col-sm-4 col-md-3">
                             <div class="form-group">
-                                <label>Semestre</label>
-                                <select name="semestre"
-                                        class="form-control input-sm"
-                                        onchange="this.form.submit()">
-                                    <option value="">Todos</option>
-                                    {% for s in semestres %}
-                                        <option value="{{ s.id_semestre }}"
-                                                {% if s.id_semestre == request.args.get('semestre')|int %}selected{% endif %}>
-                                            {{ s.nome_semestre }}
-                                        </option>
-                                    {% endfor %}
-                                </select>
+                                <label>Dia:</label>
+                                <input type="date"
+                                       name="dia"
+                                       class="form-control input-sm"
+                                       value="{{ request.args.get('dia', '') }}"
+                                       onchange="this.form.submit()">
                             </div>
                         </div>
                         <!-- FUTURO FILTRO LAB -->
