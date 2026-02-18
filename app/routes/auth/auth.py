@@ -149,7 +149,7 @@ def login():
             flash("falha ao realizar login", "danger")
             return render_template("auth/login_fail.html")
     else:
-        flash("Caro Usuario, esse sistema usa as mesma credenciais do academico", "info")
+        flash("Caro Usuario, esse sistema usa as mesma credenciais do <a href='https://academico.fatecourinhos.edu.br/'>academico</a>", "info")
         return render_template("auth/login.html")
     
 @bp.route("/logout")
