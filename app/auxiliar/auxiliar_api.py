@@ -350,15 +350,15 @@ def check_conflict_reservas_fixas(dia, id_aula, id_responsavel):
     
     reservas = db.session.execute(sel_reservas).scalars().all()
     if len(reservas) == 0:
-        return jsonify({
+        return {
             "conflict": False,
             "labs": []
-        })
+        }
     else:
         labs = []
         for reserva in reservas:
             labs.append({"id":reserva.id_reserva_local, "nome":reserva.local.nome_local})
-        return jsonify({
+        return {
             "conflict": True,
             "labs": labs
-        })
+        }

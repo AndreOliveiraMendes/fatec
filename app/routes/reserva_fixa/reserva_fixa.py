@@ -10,6 +10,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
                             InternalError, OperationalError, ProgrammingError)
 
+from app.auxiliar.auxiliar_api import check_conflict_reservas_fixas
 from app.auxiliar.auxiliar_routes import (builder_helper_fixa, check_local,
                                           get_user_info, none_if_empty,
                                           registrar_log_generico_usuario)
@@ -66,6 +67,20 @@ def check_semestre(semestre:Semestres, userid, perm:int):
         user = db.get_or_404(Usuarios, userid)
         if has_priority and prioridade is not None and user.pessoa.id_pessoa not in prioridade:
             abort(403, description="Usuário não se enquadra na regra de prioridade.")
+            
+def has_conflict(semestre:Semestres, reservas, user:Usuarios):
+    dia = semestre.data_inicio
+    visited = set()
+    cache = {}
+    for lab, aula in reservas:
+        if aula not in cache:
+            cache[aula] = check_conflict_reservas_fixas(dia, aula, user.id_pessoa)
+        if cache[aula]['conflict']:
+            return True
+        if aula in visited:
+            return True
+        visited.add(aula)
+    return False
 
 @bp.route('/')
 @reserva_fixa_required
@@ -237,7 +252,9 @@ def efetuar_reserva(id_semestre):
     if not reservas:
         flash("voce não selecionou reserva alguma", "warning")
         return redirect(url_for('default.home'))
-    # aqui (implementar o check)
+    #if (not perm or perm.permissao & PERM_ADMIN == 0) and check_conflict(semestre, reservas):
+    if has_conflict(semestre, reservas, user):
+        abort(409, description="so é possivel reservar 1 laboratorio por professor") 
     try:
         reservas_efetuadas = []
         for lab, aula in reservas:
