@@ -9,7 +9,7 @@ from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
                             InternalError, OperationalError, ProgrammingError)
 
 from app.auxiliar.auxiliar_routes import (builder_helper_temporaria,
-                                          check_local, get_user_info,
+                                          check_local, get_user,
                                           none_if_empty, parse_date_string,
                                           registrar_log_generico_usuario,
                                           time_range)
@@ -45,7 +45,7 @@ def agrupar_dias(dias:list[date]) -> List[List[date]]:
 @reserva_temp_required
 def main_page():
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     if request.method == 'POST':
         dia_inicial = parse_date_string(request.form.get("dia_inicio"))
         dia_final = parse_date_string(request.form.get("dia_fim"))
@@ -78,7 +78,7 @@ def main_page():
 @reserva_temp_required
 def dias(inicio, fim):
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     if fim < inicio:
         inicio, fim = fim, inicio
     extras = {'inicio':inicio, 'fim':fim}
@@ -141,7 +141,7 @@ def get_lab(inicio, fim, id_turno=None, id_lab=None):
 
 def get_lab_geral(inicio, fim, id_turno):
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     if not user:
         abort(404, description="usuario não encontrado")
     turno = db.get_or_404(Turnos, id_turno) if id_turno else None
@@ -174,7 +174,7 @@ def get_lab_geral(inicio, fim, id_turno):
 
 def get_lab_especifico(inicio, fim, id_turno, id_lab):
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     if not user:
         abort(404, description="usuario não encontrado")
     turno = db.get_or_404(Turnos, id_turno) if id_turno else None

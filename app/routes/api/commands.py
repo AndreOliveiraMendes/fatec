@@ -3,7 +3,7 @@ from datetime import datetime
 from flask import Blueprint, current_app, jsonify, request, session
 
 from app.auxiliar.auxiliar_api import run_remote_command
-from app.auxiliar.auxiliar_routes import get_user_info
+from app.auxiliar.auxiliar_routes import get_user
 from app.auxiliar.decorators import admin_required, cmd_config_required
 from config.json_related import load_commands, save_commands
 
@@ -148,7 +148,7 @@ def api_run_command():
 
     # 1️⃣ — Identifica o usuário atual (pra log)
     userid = session.get("userid")
-    user = get_user_info(userid)
+    user = get_user(userid)
     if not user:
         return jsonify({"success": False, "error": "Usuário não encontrado."}), 404
     

@@ -10,7 +10,7 @@ from sqlalchemy import between, func, or_, select
 from app.auxiliar.auxiliar_routes import (disable_action, formatar_valor,
                                           get_query_params,
                                           get_session_or_request,
-                                          get_user_info, include_action,
+                                          get_user, include_action,
                                           none_if_empty, parse_datetime_string,
                                           register_return)
 from app.auxiliar.dao import get_usuarios
@@ -86,7 +86,7 @@ def gerenciar_historicos():
     bloco = int(request.form.get('bloco', 0))
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     disabled = ['inserir', 'editar', 'excluir']
     include = [{'label':"Exportar", 'value':"exportar", 'icon':"glyphicon-download"}]
     extras: dict[str, Any] = {'url':url}

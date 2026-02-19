@@ -10,7 +10,7 @@ from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
 
 from app.auxiliar.auxiliar_api import check_conflict_reservas_fixas
 from app.auxiliar.auxiliar_routes import (builder_helper_fixa, check_local,
-                                          get_user_info, none_if_empty,
+                                          get_user, none_if_empty,
                                           registrar_log_generico_usuario)
 from app.auxiliar.constant import PERM_ADMIN
 from app.auxiliar.dao import (get_aulas_ativas_por_semestre, get_aulas_extras,
@@ -60,7 +60,7 @@ def has_conflict(semestre:Semestres, reservas, user:Usuarios):
 @reserva_fixa_required
 def main_page():
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     extras = {}
     sel_semestre = select(Semestres).order_by(Semestres.data_inicio)
     semestres = db.session.execute(sel_semestre).scalars().all()
@@ -92,7 +92,7 @@ def main_page():
 @reserva_fixa_required
 def get_semestre(id_semestre):
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     if not user:
         abort(403, description="Usuário não autenticado.")
     semestre = db.get_or_404(Semestres, id_semestre)
@@ -151,7 +151,7 @@ def get_lab(id_semestre, id_turno=None, id_lab=None):
 
 def get_lab_geral(id_semestre, id_turno=None):
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     if not user:
         abort(403, description="Usuário não autenticado.")
     semestre = db.get_or_404(Semestres, id_semestre)
@@ -179,7 +179,7 @@ def get_lab_geral(id_semestre, id_turno=None):
 
 def get_lab_especifico(id_semestre, id_turno, id_lab):
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     if not user:
         abort(403, description="Usuário não autenticado.")
     semestre = db.get_or_404(Semestres, id_semestre)

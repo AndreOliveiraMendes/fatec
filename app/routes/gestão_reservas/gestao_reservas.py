@@ -8,7 +8,7 @@ from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
                             InternalError, OperationalError, ProgrammingError)
 
 from app.auxiliar.auxiliar_routes import (get_responsavel_reserva,
-                                          get_unique_or_500, get_user_info,
+                                          get_unique_or_500, get_user,
                                           parse_date_string,
                                           registrar_log_generico_usuario)
 from app.auxiliar.dao import (check_first, get_exibicao_por_dia,
@@ -44,7 +44,7 @@ def verificar_merge_reserva(reserva_1, reserva_2, tolerancia=20):
 @admin_required
 def gerenciar_exibicao():
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     hoje = datetime.today()
     extras: dict[str, Any] = {'hoje':hoje}
     reserva_dia = parse_date_string(request.args.get('reserva-dia', default=hoje.date().strftime("%Y-%m-%d")))
@@ -215,7 +215,7 @@ def gerenciar_situacoes(tipo_reserva):
 
 def gerenciar_situacoes_reservas_fixas(extras):
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     turno = db.session.get(Turnos, extras['reserva_turno']) if extras['reserva_turno'] else None
     reservas_fixas = get_reservas_por_dia(
         extras['reserva_dia'], turno, TipoAulaEnum(extras['reserva_tipo_horario']),
@@ -243,7 +243,7 @@ def gerenciar_situacoes_reservas_fixas(extras):
 
 def gerenciar_situacoes_reservas_temporarias(extras):
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     turno = db.session.get(Turnos, extras['reserva_turno']) if extras['reserva_turno'] else None
     reservas_temporarias = get_reservas_por_dia(
         extras['reserva_dia'], turno, TipoAulaEnum(extras['reserva_tipo_horario']),
@@ -389,5 +389,5 @@ def atualizar_situacoes_temporaria(common):
 @admin_required
 def comandos_remotos():
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     return render_template("gestão_reservas/remote_commands.html", user=user)

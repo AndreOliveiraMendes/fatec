@@ -11,7 +11,7 @@ from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
                             InternalError, OperationalError, ProgrammingError)
 
 from app.auxiliar.auxiliar_routes import (check_ownership_or_admin,
-                                          check_periodo_fixa, get_user_info,
+                                          check_periodo_fixa, get_user,
                                           info_reserva_fixa,
                                           info_reserva_temporaria,
                                           none_if_empty,
@@ -105,7 +105,7 @@ def get_reservas(userid, params, page, tipo):
 @login_required
 def perfil():
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     if not user:
         abort(404, description="Usuário não encontrado.")
     extras: dict[str, Any] = {}
@@ -139,7 +139,7 @@ def perfil():
 @login_required
 def menu_reservas_usuario():
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     today = datetime.now(LOCAL_TIMEZONE)
     extras = {'datetime':today}
     return render_template("usuario/menu_reserva.html", user=user, **extras)
@@ -148,7 +148,7 @@ def menu_reservas_usuario():
 @login_required
 def gerenciar_reserva_fixa():
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     if not user:
         abort(404, description="Usuário não encontrado.")
     semestres = get_semestres()
@@ -176,7 +176,7 @@ def gerenciar_reserva_fixa():
 @login_required
 def gerenciar_reserva_temporaria():
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     if not user:
         abort(404, description="Usuário não encontrado.")
     today = datetime.now(LOCAL_TIMEZONE)

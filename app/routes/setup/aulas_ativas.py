@@ -5,7 +5,7 @@ from flask import (Blueprint, flash, redirect, render_template, request,
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
                             InternalError, OperationalError, ProgrammingError)
 
-from app.auxiliar.auxiliar_routes import (get_user_info, none_if_empty,
+from app.auxiliar.auxiliar_routes import (get_user, none_if_empty,
                                           parse_date_string,
                                           registrar_log_generico_usuario)
 from app.auxiliar.dao import get_aulas, get_dias_da_semana
@@ -19,7 +19,7 @@ bp = Blueprint('setup_aulas_ativas', __name__, url_prefix="/database/fast_setup/
 @admin_required
 def fast_setup_aulas_ativas():
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     stage = int(request.form.get('stage', request.args.get('stage', 0)))
     extras: dict[str, Any] = {'extras':SETUP_HEAD}
     if stage == 0:

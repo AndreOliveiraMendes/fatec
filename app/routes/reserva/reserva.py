@@ -3,7 +3,7 @@ from typing import Any
 
 from flask import Blueprint, render_template, request, session
 
-from app.auxiliar.auxiliar_routes import get_user_info, parse_date_string
+from app.auxiliar.auxiliar_routes import get_user, parse_date_string
 from app.auxiliar.dao import (get_aulas_ativas_por_dia, get_laboratorios,
                               get_turno_by_time, get_turnos)
 from app.models import TipoAulaEnum, Turnos, db
@@ -32,7 +32,7 @@ def divide(l, q):
 @bp.route('/')
 def main_page():
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     today = datetime.now(LOCAL_TIMEZONE)
     extras: dict[str, Any] = {'dia':today}
     reserva_dia = parse_date_string(request.args.get('reserva-dia', default=today.date().strftime("%Y-%m-%d")))
@@ -60,7 +60,7 @@ def main_page():
 @bp.route("/televisor")
 def tela_televisor():
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     extras: dict[str, Any] = {}
     painel_cfg = carregar_painel_config()
     tipo_horario = painel_cfg.get('tipo', TipoAulaEnum.AULA.value)

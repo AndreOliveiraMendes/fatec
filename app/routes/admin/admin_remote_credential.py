@@ -1,7 +1,7 @@
 from flask import Blueprint, flash, redirect, render_template, session, url_for
 
 from app.auxiliar.auxiliar_cryptograph import ensure_secret_file
-from app.auxiliar.auxiliar_routes import get_user_info
+from app.auxiliar.auxiliar_routes import get_user
 from app.auxiliar.decorators import admin_required
 
 bp = Blueprint('admin_remote_credential', __name__, url_prefix='/manage_ssh_cred')
@@ -20,5 +20,5 @@ def gerar_chave():
 @admin_required
 def manage_ssh():
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     return render_template("admin/ssh_managment.html", user=user)

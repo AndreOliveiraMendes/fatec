@@ -6,7 +6,7 @@ from markupsafe import Markup
 from sqlalchemy import between
 
 from app.auxiliar.auxiliar_routes import (get_responsavel_reserva,
-                                          get_unique_or_500, get_user_info)
+                                          get_unique_or_500, get_user)
 from app.auxiliar.constant import (DATA_ABREV, DATA_COMPLETA, DATA_FLAGS,
                                    DATA_NUMERICA, HORA, PERM_ADMIN,
                                    PERMISSIONS, SEMANA_ABREV, SEMANA_COMPLETA)
@@ -143,7 +143,7 @@ def register_filters(app:Flask):
 
     @app.template_global()
     def generate_reserva_head(locais:Sequence[Locais], tipo, turno: Turnos, current: Optional[Locais] = None, **kwargs) -> Markup:
-        user = get_user_info(session.get('userid'))
+        user = get_user(session.get('userid'))
         if not user:
             abort(403, description="Usuário não autenticado.")
 

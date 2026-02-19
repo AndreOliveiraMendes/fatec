@@ -5,7 +5,7 @@ from flask import (Blueprint, abort, current_app, flash, redirect,
                    render_template, request, session, url_for)
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
-from app.auxiliar.auxiliar_routes import (get_user_info, none_if_empty,
+from app.auxiliar.auxiliar_routes import (get_user, none_if_empty,
                                           registrar_log_generico_sistema)
 from app.auxiliar.constant import (PERM_ADMIN, PERM_RESERVA_AUDITORIO,
                                    PERM_RESERVA_FIXA, PERM_RESERVA_TEMPORARIA)
@@ -156,7 +156,7 @@ def login():
 @login_required
 def logout():
     userid = session.pop('userid') 
-    user = get_user_info(userid)
+    user = get_user(userid)
     if not user:
         abort(400, description="Usuário inválido.")
     current_app.logger.info(f"usuario {user.username} efetuou logout no sistema")

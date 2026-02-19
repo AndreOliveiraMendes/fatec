@@ -11,7 +11,7 @@ from flask import (Blueprint, abort, current_app, flash, redirect,
 from sqlalchemy import select
 
 from app.auxiliar.auxiliar_cryptograph import load_key
-from app.auxiliar.auxiliar_routes import get_user_info
+from app.auxiliar.auxiliar_routes import get_user
 from app.auxiliar.dao import get_locais
 from app.auxiliar.decorators import admin_required
 from app.models import Aulas, Dias_da_Semana, TipoAulaEnum, db
@@ -26,7 +26,7 @@ bp = Blueprint('admin', __name__, url_prefix='/admin')
 @admin_required
 def gerenciar_menu():
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     key = load_key()
     key_info = None
 
@@ -43,7 +43,7 @@ def gerenciar_menu():
 @admin_required
 def configurar_tela_televisor():
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     if not user:
         abort(403, description="Usuário não encontrado.")
     extras = {}
@@ -82,7 +82,7 @@ def configurar_tela_televisor():
 @admin_required
 def configuracao_geral():
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     if not user:
         abort(403, description="Usuário não encontrado.")
     extras = {}
@@ -120,7 +120,7 @@ def configuracao_geral():
 @admin_required
 def control_times():
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     hoje = datetime.now(LOCAL_TIMEZONE).date()
     extras: dict[str, Any] = {'hoje': hoje}
     extras['dias_da_semana'] = db.session.execute(

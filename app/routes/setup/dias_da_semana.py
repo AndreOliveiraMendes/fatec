@@ -5,7 +5,7 @@ from flask import (Blueprint, abort, flash, redirect, render_template, request,
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
                             InternalError, OperationalError, ProgrammingError)
 
-from app.auxiliar.auxiliar_routes import (get_user_info,
+from app.auxiliar.auxiliar_routes import (get_user,
                                           registrar_log_generico_usuario)
 from app.auxiliar.decorators import admin_required
 from app.models import Dias_da_Semana, db
@@ -18,7 +18,7 @@ bp = Blueprint('setup_dias_da_semana', __name__, url_prefix="/database/fast_setu
 @admin_required
 def fast_setup_dias_da_semana():
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     stage = int(request.form.get('stage', request.args.get('stage', 0)))
     extras: dict[str, Any] = {'extras':SETUP_HEAD}
 

@@ -1,7 +1,7 @@
 from flask import (Blueprint, redirect, render_template, send_from_directory,
                    session, url_for)
 
-from app.auxiliar.auxiliar_routes import get_user_info
+from app.auxiliar.auxiliar_routes import get_user
 from app.auxiliar.constant import REDIRECT_HOME, REDIRECT_TV
 from config.json_related import carregar_config_geral
 
@@ -21,20 +21,20 @@ def painel():
 @bp.route("/home")
 def home():
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     config = carregar_config_geral()
     return render_template("homepage.html", user=user, config=config)
 
 @bp.route('/under_dev')
 def under_dev_page():
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     return render_template('under_dev.html', user=user)
 
 @bp.route('/shortcuts')
 def shortcuts():
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     return render_template('shortcuts.html', user=user)
 
 @bp.route('/favicon.svg')

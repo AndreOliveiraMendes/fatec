@@ -10,7 +10,7 @@ from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
 from app.auxiliar.auxiliar_routes import (filtro_tipo_responsavel,
                                           get_query_params,
                                           get_session_or_request,
-                                          get_user_info, none_if_empty,
+                                          get_user, none_if_empty,
                                           register_return,
                                           registrar_log_generico_usuario)
 from app.auxiliar.dao import (get_aulas_ativas, get_locais, get_pessoas,
@@ -31,7 +31,7 @@ def gerenciar_reservas_fixas():
     bloco = int(request.form.get('bloco', 0))
     page = int(request.form.get('page', 1))
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     extras: dict[str, Any] = {'url':url}
     if request.method == 'POST':
         if acao == 'listar':

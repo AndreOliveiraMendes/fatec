@@ -3,7 +3,7 @@ from sqlalchemy import MetaData, Table, UniqueConstraint, inspect
 from sqlalchemy.dialects import mysql
 from sqlalchemy.schema import CreateTable
 
-from app.auxiliar.auxiliar_routes import get_user_info
+from app.auxiliar.auxiliar_routes import get_user
 from app.auxiliar.decorators import admin_required
 from app.models import db
 
@@ -62,7 +62,7 @@ def has_cycle(fks):
 @admin_required
 def menu():
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     extras = {}
     return render_template("database/menu.html", user=user, **extras)
 
@@ -70,7 +70,7 @@ def menu():
 @admin_required
 def database():
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     extras = {}
     inspector = inspect(db.engine)
     tables = inspector.get_table_names()
@@ -87,7 +87,7 @@ def database():
 @admin_required
 def wiki():
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     extras = {}
     inspector = inspect(db.engine)
     tables = inspector.get_table_names()
@@ -125,7 +125,7 @@ def wiki():
 @admin_required
 def schema():
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     extras = {}
     inspector = inspect(db.engine)
     tables = inspector.get_table_names()

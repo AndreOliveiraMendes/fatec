@@ -2,7 +2,7 @@ from flask import (Flask, abort, flash, jsonify, render_template, request,
                    session)
 from werkzeug.exceptions import HTTPException
 
-from app.auxiliar.auxiliar_routes import get_user_info
+from app.auxiliar.auxiliar_routes import get_user
 from config.general import SHOW_DEBUG_ERRORS
 from config.mapeamentos import ERRORS
 
@@ -20,7 +20,7 @@ def handle_http_error(e: HTTPException):
     mensagem = getattr(e, 'description', e.name)
 
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
 
     if wants_json_response():
         return jsonify({

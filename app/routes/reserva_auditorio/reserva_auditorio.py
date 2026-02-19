@@ -8,7 +8,7 @@ from sqlalchemy import func, select
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
                             InternalError, OperationalError, ProgrammingError)
 
-from app.auxiliar.auxiliar_routes import (get_user_info, none_if_empty,
+from app.auxiliar.auxiliar_routes import (get_user, none_if_empty,
                                           parse_date_string,
                                           registrar_log_generico_usuario)
 from app.auxiliar.constant import PERM_ADMIN, PERM_AUTORIZAR
@@ -24,7 +24,7 @@ bp = Blueprint('reservas_auditorios', __name__, url_prefix="/reserva_auditorio")
 @reserva_auditorio_required
 def main_page():
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     today = datetime.now(LOCAL_TIMEZONE)
     extras: dict[str, Any] = {'dia':today}
     auditorios = get_auditorios()
@@ -84,7 +84,7 @@ def atualizar_status(id_reserva):
     ("Aguardando", "Aprovada", "Reprovada") -> ("Aprovada", "Reprovada")
     """
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     if not user:
         abort(403, description="Usuário não encontrado.")
     reserva = db.get_or_404(Reservas_Auditorios, id_reserva)
@@ -133,7 +133,7 @@ def atualizar_status(id_reserva):
 @reserva_auditorio_required
 def get_info_reserva(id_reserva):
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     if not user:
         abort(403, description="Usuário não encontrado.")
     reserva = db.get_or_404(Reservas_Auditorios, id_reserva)
@@ -155,7 +155,7 @@ def get_info_reserva(id_reserva):
 @reserva_auditorio_required
 def editar_observacao(field, id_reserva):
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     if not user:
         abort(403, description="Usuário não encontrado.")
     reserva = db.get_or_404(Reservas_Auditorios, id_reserva)
@@ -183,7 +183,7 @@ def editar_observacao(field, id_reserva):
 @reserva_auditorio_required
 def adicionar():
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     if not user:
         abort(403, description="Usuário não encontrado.")
     auditorio = none_if_empty(request.form.get('auditorio'), int)

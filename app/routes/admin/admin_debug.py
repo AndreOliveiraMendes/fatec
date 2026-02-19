@@ -8,7 +8,7 @@ from datetime import datetime
 from flask import (Blueprint, current_app, flash, redirect, render_template,
                    session, url_for)
 
-from app.auxiliar.auxiliar_routes import get_user_info
+from app.auxiliar.auxiliar_routes import get_user
 from app.auxiliar.decorators import admin_required
 from config.general import LIST_ROUTES
 
@@ -100,7 +100,7 @@ def listar_rotas():
         return redirect(url_for("admin.gerenciar_menu"))
 
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
 
     routes = []
     blueprints = {}
@@ -202,7 +202,7 @@ def listar_rotas_detalhadas():
         return redirect(url_for("admin.gerenciar_menu"))
 
     userid = session.get('userid')
-    user = get_user_info(userid)
+    user = get_user(userid)
     rotas_detalhadas = coletar_detalhes_rotas()
 
     return render_template("admin/routes_detalhadas.html",
