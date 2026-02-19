@@ -42,33 +42,34 @@ def none_if_empty(value: Any, cast_type: Callable[[Any], V] = str) -> Optional[V
     except (ValueError, TypeError):
         return None
 
+def _parse_generic(value, format, extractor=None):
+    if not value:
+        return None
+    try:
+        dt = datetime.strptime(value, format)
+        return extractor(dt) if extractor else dt
+    except ValueError:
+        return None
 
 def parse_time_string(value, format=None):
-    if not value:
-        return None
-    try:
-        return datetime.strptime(value, format or "%H:%M").time()
-    except ValueError:
-        return None
-
+    return _parse_generic(
+        value,
+        format or "%H:%M",
+        extractor=lambda dt: dt.time()
+    )
 
 def parse_date_string(value, format=None):
-    if not value:
-        return None
-    try:
-        return datetime.strptime(value, format or "%Y-%m-%d").date()
-    except ValueError:
-        return None
-
+    return _parse_generic(
+        value,
+        format or "%Y-%m-%d",
+        extractor=lambda dt: dt.date()
+    )
 
 def parse_datetime_string(value, format=None):
-    if not value:
-        return None
-    try:
-        return datetime.strptime(value, format or "%Y-%m-%dT%H:%M")
-    except ValueError:
-        return None
-
+    return _parse_generic(
+        value,
+        format or "%Y-%m-%dT%H:%M"
+    )
 
 # =========================================================
 # REQUEST / SESSION HELPERS
@@ -116,8 +117,11 @@ def dict_format(dictionary):
 # =========================================================
 # LOGGING
 # =========================================================
-def registrar_log_generico_sistema(
-    acao: Literal['Login'],
+def _registrar_log_generico(
+    *,
+    usuario_id,
+    origem,
+    acao,
     objeto,
     antes=None,
     observacao=None,
@@ -147,15 +151,33 @@ def registrar_log_generico_sistema(
         campos.append("nenhuma alteração detectada")
 
     db.session.add(Historicos(
-        id_usuario=None,
+        id_usuario=usuario_id,
         tabela=nome_tabela,
         categoria=acao,
         data_hora=datetime.now(LOCAL_TIMEZONE),
         message="; ".join(campos),
         chave_primaria=dict_format(dados_chave),
-        origem=OrigemEnum('Sistema'),
+        origem=OrigemEnum(origem),
         observacao=observacao
     ))
+
+
+def registrar_log_generico_sistema(
+    acao: Literal['Login'],
+    objeto,
+    antes=None,
+    observacao=None,
+    skip_unchanged=False
+):
+    _registrar_log_generico(
+        usuario_id=None,
+        origem="Sistema",
+        acao=acao,
+        objeto=objeto,
+        antes=antes,
+        observacao=observacao,
+        skip_unchanged=skip_unchanged
+    )
 
 
 def registrar_log_generico_usuario(
@@ -166,40 +188,15 @@ def registrar_log_generico_usuario(
     observacao=None,
     skip_unchanged=False
 ):
-    nome_tabela = getattr(objeto, "__tablename__", objeto.__class__.__name__)
-    insp = inspect(objeto)
-
-    chaves_primarias = [key.name for key in insp.mapper.primary_key]
-    dados_chave = {chave: getattr(objeto, chave) for chave in chaves_primarias}
-
-    campos = []
-    for col in objeto.__table__.columns:
-        nome = col.name
-        valor_novo_fmt = formatar_valor(getattr(objeto, nome, None))
-
-        if antes:
-            valor_antigo_fmt = formatar_valor(getattr(antes, nome, None))
-            if valor_antigo_fmt != valor_novo_fmt:
-                campos.append(f"{nome}: {valor_antigo_fmt} → {valor_novo_fmt}")
-        else:
-            campos.append(f"{nome}: {valor_novo_fmt}")
-
-    if not campos:
-        if skip_unchanged:
-            return
-        campos.append("nenhuma alteração detectada")
-
-    db.session.add(Historicos(
-        id_usuario=userid,
-        tabela=nome_tabela,
-        categoria=acao,
-        data_hora=datetime.now(LOCAL_TIMEZONE),
-        message="; ".join(campos),
-        chave_primaria=dict_format(dados_chave),
-        origem=OrigemEnum('Usuario'),
-        observacao=observacao
-    ))
-
+    _registrar_log_generico(
+        usuario_id=userid,
+        origem="Usuario",
+        acao=acao,
+        objeto=objeto,
+        antes=antes,
+        observacao=observacao,
+        skip_unchanged=skip_unchanged
+    )
 
 # =========================================================
 # ACTION HELPERS
