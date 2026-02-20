@@ -4,14 +4,13 @@ from typing import Any
 from flask import Blueprint, abort, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
-from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
-                            InternalError, OperationalError, ProgrammingError)
 
-from app.auxiliar.auxiliar_routes import (disable_action,
+from app.auxiliar.auxiliar_routes import (_handle_db_error, disable_action,
                                           get_session_or_request, get_user,
                                           none_if_empty, parse_time_string,
                                           register_return,
                                           registrar_log_generico_usuario)
+from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.dao import get_turnos
 from app.auxiliar.decorators import admin_required
 from app.models import Turnos, db
@@ -59,9 +58,8 @@ def gerenciar_turnos():
 
                 db.session.commit()
                 flash("Turno cadastrado com sucesso", "success")
-            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-                db.session.rollback()
-                flash(f"Erro ao cadastrar turno:{str(e.orig)}", "danger")
+            except DB_ERRORS as e:
+                _handle_db_error(e, "Erro ao cadastrar turno")
 
             redirect_action, bloco = register_return(url, acao, extras)
 
@@ -92,9 +90,8 @@ def gerenciar_turnos():
 
                 db.session.commit()
                 flash("Turno editado com sucesso", "success")
-            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-                db.session.rollback()
-                flash(f"Erro ao editar turno:{str(e.orig)}", "danger")
+            except DB_ERRORS as e:
+                _handle_db_error(e, "Erro ao editar turno")
 
             redirect_action, bloco = register_return(url,
                 acao, extras, turnos=get_turnos())
@@ -108,9 +105,8 @@ def gerenciar_turnos():
 
                 db.session.commit()
                 flash("Turno excluido com sucesso", "success")
-            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-                db.session.rollback()
-                flash(f"Erro as excluir turno", "danger")
+            except DB_ERRORS as e:
+                _handle_db_error(e, "Erro ao excluir turno")
 
             redirect_action, bloco = register_return(url,
                 acao, extras, turnos=get_turnos())

@@ -5,14 +5,12 @@ from flask import (Blueprint, abort, current_app, flash, redirect,
                    render_template, request, session, url_for)
 from markupsafe import Markup
 from sqlalchemy import select
-from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
-                            InternalError, OperationalError, ProgrammingError)
 
 from app.auxiliar.auxiliar_api import check_conflict_reservas_fixas
 from app.auxiliar.auxiliar_routes import (builder_helper_fixa, check_local,
                                           get_user, none_if_empty,
                                           registrar_log_generico_usuario)
-from app.auxiliar.constant import PERM_ADMIN
+from app.auxiliar.constant import DB_ERRORS, PERM_ADMIN
 from app.auxiliar.dao import (get_aulas_ativas_por_semestre, get_aulas_extras,
                               get_laboratorios, get_pessoas,
                               get_usuarios_especiais)
@@ -301,7 +299,7 @@ def efetuar_reserva(id_semestre):
 
         flash("reserva efetuada com sucesso", "success")
 
-    except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
+    except DB_ERRORS as e:
         _handle_db_error(e, "Erro ao efetuar reserva")
     except ValueError as e:
         _handle_db_error(e, "Erro ao efetuar reserva")

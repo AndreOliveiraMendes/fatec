@@ -1,7 +1,7 @@
 import enum
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, time, timedelta
 from typing import (Any, Callable, Literal, MutableMapping, Optional, Type,
-                    TypeVar)
+                    TypeVar, overload)
 
 from flask import abort, current_app, flash, redirect, session, url_for
 from flask.typing import ResponseReturnValue
@@ -23,6 +23,7 @@ IGNORED_FORM_FIELDS = ['page', 'acao', 'bloco']
 
 T = TypeVar("T", bound=Base)
 V = TypeVar("V")
+S = TypeVar("S")
 
 
 # =========================================================
@@ -42,7 +43,24 @@ def none_if_empty(value: Any, cast_type: Callable[[Any], V] = str) -> Optional[V
     except (ValueError, TypeError):
         return None
 
-def _parse_generic(value, format, extractor=None):
+@overload
+def _parse_generic(
+    value: str | None,
+    format: str,
+    extractor: Callable[[datetime], S]
+) -> S | None: ...
+@overload
+def _parse_generic(
+    value: str | None,
+    format: str,
+    extractor: None = None
+) -> datetime | None: ...
+
+def _parse_generic(
+    value: str | None,
+    format: str,
+    extractor: Callable[[datetime], S] | None = None
+) -> Optional[S | datetime]:
     if not value:
         return None
     try:
@@ -51,21 +69,23 @@ def _parse_generic(value, format, extractor=None):
     except ValueError:
         return None
 
-def parse_time_string(value, format=None):
+def parse_time_string(value: str | None, format: str | None = None) -> Optional[time]:
     return _parse_generic(
         value,
         format or "%H:%M",
         extractor=lambda dt: dt.time()
     )
 
-def parse_date_string(value, format=None):
+
+def parse_date_string(value: str | None, format: str | None = None) -> Optional[date]:
     return _parse_generic(
         value,
         format or "%Y-%m-%d",
         extractor=lambda dt: dt.date()
     )
 
-def parse_datetime_string(value, format=None):
+
+def parse_datetime_string(value: str | None, format: str | None = None) -> Optional[datetime]:
     return _parse_generic(
         value,
         format or "%Y-%m-%dT%H:%M"

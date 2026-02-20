@@ -5,15 +5,14 @@ from urllib.parse import urlparse
 from flask import (Blueprint, abort, current_app, flash, redirect,
                    render_template, request, session, url_for)
 from sqlalchemy import select
-from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
-                            InternalError, OperationalError, ProgrammingError)
 
-from app.auxiliar.auxiliar_routes import (builder_helper_temporaria,
+from app.auxiliar.auxiliar_routes import (_handle_db_error,
+                                          builder_helper_temporaria,
                                           check_local, get_user, none_if_empty,
                                           parse_date_string,
                                           registrar_log_generico_usuario,
                                           time_range)
-from app.auxiliar.constant import PERM_ADMIN
+from app.auxiliar.constant import DB_ERRORS, PERM_ADMIN
 from app.auxiliar.dao import (check_reserva_temporaria,
                               get_aulas_ativas_por_lista_de_dias,
                               get_laboratorios, get_pessoas,
@@ -271,12 +270,8 @@ def efetuar_reserva(inicio, fim):
         flash("reserva efetuada com sucesso", "success")
         for reserva in reservas_efetuadas:
             current_app.logger.info(f"reserva efetuada com sucesso para {reserva}")
-    except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-        db.session.rollback()
-        flash(f"Erro ao efetuar reserva:{str(e.orig)}", "danger")
-        current_app.logger.error(f"falha ao realizar reserva:{e}")
-    except ValueError as ve:
-        db.session.rollback()
-        flash(f"Erro ao efetuar reserva:{str(ve)}", "danger")
-        current_app.logger.error(f"falha ao realizar reserva:{ve}")
+    except DB_ERRORS as e:
+        _handle_db_error(e, "Erro ao efetuar reserva")
+    except ValueError as e:
+        _handle_db_error(e, "Erro ao efetuar reserva")
     return redirect(url_for('default.home'))

@@ -4,13 +4,12 @@ from typing import Any
 from flask import Blueprint, abort, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
-from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
-                            InternalError, OperationalError, ProgrammingError)
 
-from app.auxiliar.auxiliar_routes import (disable_action,
+from app.auxiliar.auxiliar_routes import (_handle_db_error, disable_action,
                                           get_session_or_request, get_user,
                                           none_if_empty, register_return,
                                           registrar_log_generico_usuario)
+from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.dao import get_dias_da_semana
 from app.auxiliar.decorators import admin_required
 from app.models import Dias_da_Semana, db
@@ -56,9 +55,8 @@ def gerenciar_dias_da_semana():
 
                 db.session.commit()
                 flash("Semana cadastrada com sucesso", "success")
-            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-                db.session.rollback()
-                flash(f"Falah ao cadastrar semana:{str(e.orig)}", "danger")
+            except DB_ERRORS as e:
+                _handle_db_error(e, "Falha ao cadastrar semana")
 
             redirect_action, bloco = register_return(url, acao, extras)
 
@@ -83,9 +81,8 @@ def gerenciar_dias_da_semana():
 
                 db.session.commit()
                 flash("Dia da semana editado com sucesso", "success")
-            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-                db.session.rollback()
-                flash(f"Erro ao editar dia da semana:{str(e.orig)}", "danger")
+            except DB_ERRORS as e:
+                _handle_db_error(e, "Falha ao editar semana")
 
             redirect_action, bloco = register_return(url, acao, extras, dias_da_semana=get_dias_da_semana())
         elif acao == 'excluir' and bloco == 2:
@@ -99,9 +96,8 @@ def gerenciar_dias_da_semana():
 
                 db.session.commit()
                 flash("Dia da semana excluido com sucesso", "success")
-            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-                db.session.rollback()
-                flash(f"erro ao excluir dia da semana:{str(e.orig)}", "danger")
+            except DB_ERRORS as e:
+                _handle_db_error(e, "falha ao excluir semana")
 
             redirect_action, bloco = register_return(url, acao, extras, dias_da_semana=get_dias_da_semana())
     if redirect_action:

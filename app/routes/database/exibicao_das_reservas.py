@@ -4,14 +4,13 @@ from typing import Any
 from flask import Blueprint, abort, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
-from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
-                            InternalError, OperationalError, ProgrammingError)
 
-from app.auxiliar.auxiliar_routes import (get_query_params,
+from app.auxiliar.auxiliar_routes import (_handle_db_error, get_query_params,
                                           get_session_or_request, get_user,
                                           none_if_empty, parse_date_string,
                                           register_return,
                                           registrar_log_generico_usuario)
+from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.dao import get_aulas_ativas, get_exibicoes, get_locais
 from app.auxiliar.decorators import admin_required
 from app.models import Exibicao_Reservas, TipoReservaEnum, db
@@ -101,12 +100,10 @@ def gerenciar_exibicao_reservas():
 
                 db.session.commit()
                 flash("Exibicao configurada com sucesso", "success")
-            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-                db.session.rollback()
-                flash(f"Erro ao configurar exibicao:{str(e.orig)}", "danger")
-            except ValueError as ve:
-                db.session.rollback()
-                flash(f"Erro ao configurar exibicao:{ve}", "danger")
+            except DB_ERRORS as e:
+                _handle_db_error(e, "Erro ao configurar exibicao")
+            except ValueError as e:
+                _handle_db_error(e, "Erro ao configurar exibicao")
 
             redirect_action, bloco = register_return(
                 url, acao, extras,
@@ -144,12 +141,10 @@ def gerenciar_exibicao_reservas():
 
                 db.session.commit()
                 flash("Exibição atualizada com sucesso", "success")
-            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-                db.session.rollback()
-                flash(f"Erro ao editar exibição:{str(e.orig)}", "danger")
-            except ValueError as ve:
-                db.session.rollback()
-                flash(f"Erro ao editar exibição:{ve}", "danger")
+            except DB_ERRORS as e:
+                _handle_db_error(e, "Erro ao editar exibicao")
+            except ValueError as e:
+                _handle_db_error(e, "Erro ao editar exibicao")
 
             redirect_action, bloco = register_return(
                 url, acao, extras,
@@ -168,9 +163,8 @@ def gerenciar_exibicao_reservas():
 
                 db.session.commit()
                 flash("Configuração de exibição excluida com sucessor", "success")
-            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-                db.session.rollback()
-                flash(f"Erro ao excluir configuração de exibição:{str(e.orig)}", "danger")
+            except DB_ERRORS as e:
+                _handle_db_error(e, "Erro ao excluir exibicao")
 
             redirect_action, bloco = register_return(
                 url, acao, extras,
