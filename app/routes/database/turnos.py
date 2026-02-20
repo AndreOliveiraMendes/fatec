@@ -8,9 +8,9 @@ from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
                             InternalError, OperationalError, ProgrammingError)
 
 from app.auxiliar.auxiliar_routes import (disable_action,
-                                          get_session_or_request,
-                                          get_user, none_if_empty,
-                                          parse_time_string, register_return,
+                                          get_session_or_request, get_user,
+                                          none_if_empty, parse_time_string,
+                                          register_return,
                                           registrar_log_generico_usuario)
 from app.auxiliar.dao import get_turnos
 from app.auxiliar.decorators import admin_required

@@ -3,9 +3,9 @@ from datetime import date, datetime, timedelta
 from typing import (Any, Callable, Literal, MutableMapping, Optional, Type,
                     TypeVar)
 
-from flask import abort, current_app, redirect, session, url_for
+from flask import abort, current_app, flash, redirect, session, url_for
 from flask.typing import ResponseReturnValue
-from sqlalchemy import and_, select
+from sqlalchemy import select
 from sqlalchemy.exc import MultipleResultsFound
 from sqlalchemy.inspection import inspect
 from sqlalchemy.sql.elements import ColumnElement
@@ -259,6 +259,11 @@ def check_local(local: Locais, perm):
         return
     if local.disponibilidade.value == 'Indisponivel':
         abort(403, description="Local indisponível para reservas.")
+        
+def _handle_db_error(e, msg):
+    db.session.rollback()
+    flash(f"{msg}: {str(getattr(e, 'orig', e))}", "danger")
+    current_app.logger.error(f"{msg}: {e}")
 
 
 # =========================================================

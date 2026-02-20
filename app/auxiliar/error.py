@@ -15,6 +15,7 @@ def debug_message(e, code):
         flash(str(e), "danger")
     else:
         flash(ERRORS.get(code, {}).get("message", "Ocorreu um erro inesperado."), "danger")
+
 def handle_http_error(e: HTTPException):
     code = e.code or 500
     mensagem = getattr(e, 'description', e.name)

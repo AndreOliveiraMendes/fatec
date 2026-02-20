@@ -9,9 +9,9 @@ from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
 
 from app.auxiliar.auxiliar_routes import (filtro_tipo_responsavel,
                                           get_query_params,
-                                          get_session_or_request,
-                                          get_user, none_if_empty,
-                                          parse_date_string, register_return,
+                                          get_session_or_request, get_user,
+                                          none_if_empty, parse_date_string,
+                                          register_return,
                                           registrar_log_generico_usuario)
 from app.auxiliar.dao import (check_reserva_temporaria, get_aulas_ativas,
                               get_locais, get_pessoas,

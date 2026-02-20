@@ -10,9 +10,8 @@ from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
                             InternalError, OperationalError, ProgrammingError)
 
 from app.auxiliar.auxiliar_routes import (get_query_params,
-                                          get_session_or_request,
-                                          get_user, none_if_empty,
-                                          register_return,
+                                          get_session_or_request, get_user,
+                                          none_if_empty, register_return,
                                           registrar_log_generico_usuario)
 from app.auxiliar.constant import (PERM_ADMIN, PERM_AUTORIZAR, PERM_CMD_CONFIG,
                                    PERM_RESERVA_AUDITORIO, PERM_RESERVA_FIXA,

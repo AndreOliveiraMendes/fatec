@@ -9,9 +9,9 @@ from sqlalchemy import between, func, or_, select
 
 from app.auxiliar.auxiliar_routes import (disable_action, formatar_valor,
                                           get_query_params,
-                                          get_session_or_request,
-                                          get_user, include_action,
-                                          none_if_empty, parse_datetime_string,
+                                          get_session_or_request, get_user,
+                                          include_action, none_if_empty,
+                                          parse_datetime_string,
                                           register_return)
 from app.auxiliar.dao import get_usuarios
 from app.auxiliar.decorators import admin_required
