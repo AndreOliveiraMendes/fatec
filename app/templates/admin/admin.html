@@ -118,8 +118,10 @@
                     {% endif %}
                     <a href="{{ url_for('admin_remote_credential.manage_ssh') }}"
                        class="btn btn-warning btn-sm">Credenciais de SSH</a>
-                    <a href="{{ url_for('admin_remote_commands.manage_commands') }}"
-                       class="btn btn-warning btn-sm">Configurar Comandos Remotos</a>
+                    {% if user and user.perm|has_flag(CONFIGURAR_COMANDOS) %}
+                        <a href="{{ url_for('admin_remote_commands.manage_commands') }}"
+                           class="btn btn-warning btn-sm">Configurar Comandos Remotos</a>
+                    {% endif %}
                 </div>
             </div>
         </div>
