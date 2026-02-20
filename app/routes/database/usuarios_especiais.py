@@ -4,13 +4,12 @@ from typing import Any
 from flask import Blueprint, abort, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
-from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
-                            InternalError, OperationalError, ProgrammingError)
 
-from app.auxiliar.auxiliar_routes import (get_query_params,
+from app.auxiliar.auxiliar_routes import (_handle_db_error, get_query_params,
                                           get_session_or_request, get_user,
                                           none_if_empty, register_return,
                                           registrar_log_generico_usuario)
+from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.dao import get_usuarios_especiais
 from app.auxiliar.decorators import admin_required
 from app.models import Usuarios_Especiais, db
@@ -76,9 +75,8 @@ def gerenciar_usuarios_especiais():
                 registrar_log_generico_usuario(userid, "Inserção", novo_usuario_especial)
                 db.session.commit()
                 flash("Usuario Especial cadastrada com sucesso", "success")
-            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-                db.session.rollback()
-                flash(f"Erro ao inserir usuario especial: {str(e.orig)}", "danger")
+            except DB_ERRORS as e:
+                _handle_db_error(e, "Erro ao cadastrar usuario especial")
 
             redirect_action, bloco = register_return(url,
                 acao, extras)
@@ -106,9 +104,8 @@ def gerenciar_usuarios_especiais():
 
                 db.session.commit()
                 flash("Usuario especial editado com sucesso", "success")
-            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-                db.session.rollback()
-                flash(f"Erro ao editar usuario especial: {str(e.orig)}", "danger")
+            except DB_ERRORS as e:
+                _handle_db_error(e, "Erro ao editar usuario especial")
 
             redirect_action, bloco = register_return(url,
                 acao, extras, usuarios_especiais=get_usuarios_especiais())
@@ -124,9 +121,8 @@ def gerenciar_usuarios_especiais():
 
                 db.session.commit()
                 flash("Usuario especial excluido com sucesso", "success")
-            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-                db.session.rollback()
-                flash(f"Erro ao excluir usuario especial: {str(e.orig)}", "danger")
+            except DB_ERRORS as e:
+                _handle_db_error(e, "Erro ao excluir usuario especial")
 
             redirect_action, bloco = register_return(url,
                 acao, extras, usuarios_especiais=get_usuarios_especiais())

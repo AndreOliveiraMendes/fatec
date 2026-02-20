@@ -2,11 +2,10 @@ from typing import Any
 
 from flask import (Blueprint, abort, flash, redirect, render_template, request,
                    session, url_for)
-from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
-                            InternalError, OperationalError, ProgrammingError)
 
-from app.auxiliar.auxiliar_routes import (get_user,
+from app.auxiliar.auxiliar_routes import (_handle_db_error, get_user,
                                           registrar_log_generico_usuario)
+from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.decorators import admin_required
 from app.models import Dias_da_Semana, db
 from config.database_views import SETUP_HEAD
@@ -70,9 +69,8 @@ def fast_setup_dias_da_semana():
 
             db.session.commit()
             flash("Configuração de dias da semana executada com sucesso", "success")
-        except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-            db.session.rollback()
-            flash(f"Falha ao executar configuração rapida:{str(e.orig)}", "danger")
+        except DB_ERRORS as e:
+            _handle_db_error(e, "Erro ao executar configuração")
 
         return redirect(url_for('setup.fast_setup_menu'))
     return render_template('database/setup/dias_da_semana.html',

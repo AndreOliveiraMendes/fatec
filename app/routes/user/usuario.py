@@ -7,16 +7,15 @@ from flask import (Blueprint, abort, current_app, flash, redirect,
 from flask.typing import ResponseReturnValue
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import and_, select
-from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
-                            InternalError, OperationalError, ProgrammingError)
 
-from app.auxiliar.auxiliar_routes import (check_ownership_or_admin,
+from app.auxiliar.auxiliar_routes import (_handle_db_error,
+                                          check_ownership_or_admin,
                                           check_periodo_fixa, get_user,
                                           info_reserva_fixa,
                                           info_reserva_temporaria,
                                           none_if_empty,
                                           registrar_log_generico_usuario)
-from app.auxiliar.constant import PERM_ADMIN
+from app.auxiliar.constant import DB_ERRORS, PERM_ADMIN
 from app.auxiliar.dao import (get_dias_da_semana, get_laboratorios,
                               get_pessoas, get_semestres,
                               get_usuarios_especiais)
@@ -212,9 +211,8 @@ def cancelar_reserva_generico(modelo, id_reserva, redirect_url):
         registrar_log_generico_usuario(userid, 'Exclusão', reserva, observacao="atraves da listagem")
         db.session.commit()
         flash("Reserva cancelada com sucesso", "success")
-    except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-        db.session.rollback()
-        flash(f"erro ao excluir reserva:{str(e.orig)}", "danger")
+    except DB_ERRORS as e:
+        _handle_db_error(e, "Erro ao excluir reserva")
     return redirect(redirect_url)
 
 @bp.route("/cancelar_reserva/<tipo_reserva>/<int:id_reserva>", methods=['POST'])
@@ -256,12 +254,10 @@ def editar_reserva_generico(model, id_reserva: int, redirect_url: str) -> Respon
 
         db.session.commit()
         flash("sucesso ao editar reserva", "success")
-    except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-        db.session.rollback()
-        flash(f"erro ao editar reserva:{str(e.orig)}", "danger")
-    except ValueError as ve:
-        db.session.rollback()
-        flash(f"erro ao editar reserva:{ve}", "danger")
+    except DB_ERRORS as e:
+        _handle_db_error(e, "Erro ao editar reserva")
+    except ValueError as e:
+        _handle_db_error(e, "Erro ao editar reserva")
     return redirect(redirect_url)
 
 @bp.route("/editar_reservas/<tipo_reserva>/<int:id_reserva>", methods=['POST'])

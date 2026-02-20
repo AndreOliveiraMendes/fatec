@@ -1,3 +1,17 @@
+from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
+                            InternalError, OperationalError, ProgrammingError)
+
+# exceptions for database
+
+DB_ERRORS = (
+    DataError,
+    IntegrityError,
+    InterfaceError,
+    InternalError,
+    OperationalError,
+    ProgrammingError
+)
+
 #flags de permissão
 PERM_RESERVA_FIXA = 1
 PERM_RESERVA_TEMPORARIA = 2
@@ -18,6 +32,7 @@ SEMANA_COMPLETA = 0x20
 REDIRECT_HOME = "home"
 REDIRECT_TV = "tv"
 
+# permissoes
 PERMISSIONS = {
     'FIXA': PERM_RESERVA_FIXA,
     'TEMP': PERM_RESERVA_TEMPORARIA,
@@ -27,6 +42,7 @@ PERMISSIONS = {
     'CONFIGURAR_COMANDOS': PERM_CMD_CONFIG
 }
 
+# flags de formato
 DATA_FLAGS = {
     'DATA_NUMERICA': DATA_NUMERICA,
     'DATA_ABREV': DATA_ABREV,

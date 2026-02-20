@@ -4,16 +4,16 @@ from typing import Any
 from flask import Blueprint, abort, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
-from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
-                            InternalError, OperationalError, ProgrammingError)
 
-from app.auxiliar.auxiliar_routes import (disable_action, get_query_params,
+from app.auxiliar.auxiliar_routes import (_handle_db_error, disable_action,
+                                          get_query_params,
                                           get_session_or_request, get_user,
                                           none_if_empty, register_return,
                                           registrar_log_generico_usuario)
+from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.dao import get_pessoas
 from app.auxiliar.decorators import admin_required
-from app.models import Pessoas, Usuarios, db
+from app.models import Pessoas, db
 from config.general import PER_PAGE
 
 bp = Blueprint('database_pessoas', __name__, url_prefix="/database")
@@ -95,9 +95,8 @@ def gerenciar_pessoas():
                 registrar_log_generico_usuario(userid, "Inserção", nova_pessoa)
                 db.session.commit()
                 flash("Pessoa cadastrada com sucesso", "success")
-            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-                db.session.rollback()
-                flash(f"Erro ao inserir pessoa: {str(e.orig)}", "danger")
+            except DB_ERRORS as e:
+                _handle_db_error(e, "Erro ao cadastrar pessoa")
 
             redirect_action, bloco = register_return(url, acao, extras)
 
@@ -133,9 +132,8 @@ def gerenciar_pessoas():
                 db.session.commit()
                 flash("Pessoa atualizada com sucesso", "success")
 
-            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-                db.session.rollback()
-                flash(f"Erro ao atualizar pessoa: {str(e.orig)}", "danger")
+            except DB_ERRORS as e:
+                _handle_db_error(e, "Erro ao editar pessoa")
 
             redirect_action, bloco = register_return(url,
                 acao, extras, pessoas=get_pessoas(acao, userid))
@@ -156,9 +154,8 @@ def gerenciar_pessoas():
                     db.session.commit()
                     flash("Pessoa excluída com sucesso", "success")
 
-                except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-                    db.session.rollback()
-                    flash(f"Erro ao excluir pessoa: {str(e.orig)}", "danger")
+                except DB_ERRORS as e:
+                    _handle_db_error(e, "Erro ao excluir pessoa")
 
             redirect_action, bloco = register_return(url,
                 acao, extras, pessoas=get_pessoas(acao, userid))

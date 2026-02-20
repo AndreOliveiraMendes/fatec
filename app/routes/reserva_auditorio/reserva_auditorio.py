@@ -5,13 +5,11 @@ from typing import Any, Literal
 from flask import (Blueprint, abort, flash, redirect, render_template, request,
                    session, url_for)
 from sqlalchemy import func, select
-from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
-                            InternalError, OperationalError, ProgrammingError)
 
-from app.auxiliar.auxiliar_routes import (get_user, none_if_empty,
-                                          parse_date_string,
+from app.auxiliar.auxiliar_routes import (_handle_db_error, get_user,
+                                          none_if_empty, parse_date_string,
                                           registrar_log_generico_usuario)
-from app.auxiliar.constant import PERM_ADMIN, PERM_AUTORIZAR
+from app.auxiliar.constant import DB_ERRORS, PERM_ADMIN, PERM_AUTORIZAR
 from app.auxiliar.dao import get_auditorios, get_reservas_auditorios_filtrada
 from app.auxiliar.decorators import reserva_auditorio_required
 from app.models import (Reservas_Auditorios, StatusReservaAuditorioEnum,
@@ -102,12 +100,10 @@ def atualizar_status(id_reserva):
 
             db.session.commit()
             flash("Reserva Atualizada com sucesso", "success")
-        except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-            db.session.rollback()
-            flash(f"Erro ao Atualizar:{str(e.orig)}", "danger")
-        except ValueError as ve:
-            db.session.rollback()
-            flash(f"Erro ao Atualizar:{ve}", "danger")
+        except DB_ERRORS as e:
+            _handle_db_error(e, "Erro ao atualizar reserva")
+        except ValueError as e:
+            _handle_db_error(e, "Erro ao atualizar reserva")
     if old_status in ['Aguardando', 'Aprovada', 'Reprovada'] and new_status in ['Aprovada', 'Reprovada']:
         check_role(user, "AR")
         if new_status == 'Aprovada':
@@ -121,12 +117,10 @@ def atualizar_status(id_reserva):
 
             db.session.commit()
             flash("Reserva Atualizada com sucesso", "success")
-        except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-            db.session.rollback()
-            flash(f"Erro ao Atualizar:{str(e.orig)}", "danger")
-        except ValueError as ve:
-            db.session.rollback()
-            flash(f"Erro ao Atualizar:{ve}", "danger")
+        except DB_ERRORS as e:
+            _handle_db_error(e, "Erro ao atualizar reserva")
+        except ValueError as e:
+            _handle_db_error(e, "Erro ao atualizar reserva")
     return redirect(url_for('reservas_auditorios.main_page'))
 
 @bp.route('/get_info/<int:id_reserva>')
@@ -173,10 +167,8 @@ def editar_observacao(field, id_reserva):
 
         db.session.commit()
         flash(f"Comentario {field} realizado com sucesso", "success")
-    except (DataError, IntegrityError, InterfaceError,
-        InternalError, OperationalError, ProgrammingError) as e:
-        db.session.rollback()
-        flash(f"Erro ao comentar:{str(e.orig)}", "danger")
+    except DB_ERRORS as e:
+        _handle_db_error(e, "Erro ao comentar")
     return redirect(url_for('reservas_auditorios.main_page'))
 
 @bp.route('/adicionando_reserva_auditorio', methods=['POST'])
@@ -208,8 +200,6 @@ def adicionar():
 
         db.session.commit()
         flash("reserva adicionada com sucesso", "success")
-    except (DataError, IntegrityError, InterfaceError,
-        InternalError, OperationalError, ProgrammingError) as e:
-        db.session.rollback()
-        flash(f"Erro ao adicionar:{str(e.orig)}", "danger")
+    except DB_ERRORS as e:
+        _handle_db_error(e, "Erro ao adicionar reserva")
     return redirect(url_for('reservas_auditorios.main_page'))

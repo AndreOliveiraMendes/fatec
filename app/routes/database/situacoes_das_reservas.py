@@ -4,14 +4,13 @@ from typing import Any
 from flask import Blueprint, abort, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
-from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
-                            InternalError, OperationalError, ProgrammingError)
 
-from app.auxiliar.auxiliar_routes import (get_query_params,
+from app.auxiliar.auxiliar_routes import (_handle_db_error, get_query_params,
                                           get_session_or_request, get_user,
                                           none_if_empty, parse_date_string,
                                           register_return,
                                           registrar_log_generico_usuario)
+from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.dao import get_aulas_ativas, get_locais, get_situacoes
 from app.auxiliar.decorators import admin_required
 from app.models import (SituacaoChaveEnum, Situacoes_Das_Reserva,
@@ -107,12 +106,10 @@ def gerenciar_situacoes_das_reservas():
 
                 db.session.commit()
                 flash("Situação cadastrada com sucesso", "success")
-            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-                db.session.rollback()
-                flash(f"Erro ao cadastrar situação:{str(e.orig)}", "danger")
-            except ValueError as ve:
-                db.session.rollback()
-                flash(f"Erro ao cadastrar situação:{ve}", "danger")
+            except DB_ERRORS as e:
+                _handle_db_error(e, "Erro ao cadastrar situação")
+            except ValueError as e:
+                _handle_db_error(e, "Erro ao cadastrar situação")
 
             redirect_action, bloco = register_return(
                 url, acao, extras,
@@ -152,13 +149,10 @@ def gerenciar_situacoes_das_reservas():
 
                 db.session.commit()
                 flash("Situação Editada com sucesso", "success")
-            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-                db.session.rollback()
-                flash(f"Erro ao editar situação:{str(e.orig)}", "danger")
-            except ValueError as ve:
-                db.session.rollback()
-                flash(f"Erro ao editar situação:{ve}", "danger")
-
+            except DB_ERRORS as e:
+                _handle_db_error(e, "Erro ao editar situação")
+            except ValueError as e:
+                _handle_db_error(e, "Erro ao editar situação")
             redirect_action, bloco = register_return(
                 url, acao, extras,
                 situacoes_das_reservas=get_situacoes()
@@ -175,9 +169,8 @@ def gerenciar_situacoes_das_reservas():
 
                 db.session.commit()
                 flash("situação excluida com sucesso", "success")
-            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-                db.session.rollback()
-                flash(f"Erro ao excluir situação:{str(e.orig)}", "danger")
+            except DB_ERRORS as e:
+                _handle_db_error(e, "Erro ao excluir situação")
 
             redirect_action, bloco = register_return(
                 url, acao, extras,

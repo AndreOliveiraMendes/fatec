@@ -2,11 +2,10 @@ from typing import Any
 
 from flask import (Blueprint, flash, redirect, render_template, request,
                    session, url_for)
-from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
-                            InternalError, OperationalError, ProgrammingError)
 
-from app.auxiliar.auxiliar_routes import (get_user, none_if_empty,
+from app.auxiliar.auxiliar_routes import (_handle_db_error, get_user,
                                           registrar_log_generico_usuario)
+from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.decorators import admin_required
 from app.models import DisponibilidadeEnum, Locais, TipoLocalEnum, db
 from config.database_views import SETUP_HEAD
@@ -74,12 +73,10 @@ def fast_setup_locais():
 
             db.session.commit()
             flash("Configuração rapida de locais efetuada com sucesso", "success")
-        except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-            db.session.rollback()
-            flash(f"Erro ao efetuar a configuração rapida:{str(e.orig)}", "danger")
-        except ValueError as ve:
-            db.session.rollback()
-            flash(f"Erro ao efetuar configuração rapida:{ve}", "danger")
+        except DB_ERRORS as e:
+            _handle_db_error(e, "Erro ao executar configurações")
+        except ValueError as e:
+            _handle_db_error(e, "Erro ao executar configurações")
 
         return redirect(url_for('setup.fast_setup_menu'))
     return render_template('database/setup/locais.html',

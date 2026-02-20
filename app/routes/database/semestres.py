@@ -4,14 +4,13 @@ from typing import Any
 from flask import Blueprint, abort, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
-from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
-                            InternalError, OperationalError, ProgrammingError)
 
-from app.auxiliar.auxiliar_routes import (get_query_params,
+from app.auxiliar.auxiliar_routes import (_handle_db_error, get_query_params,
                                           get_session_or_request, get_user,
                                           none_if_empty, parse_date_string,
                                           register_return,
                                           registrar_log_generico_usuario)
+from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.dao import get_semestres
 from app.auxiliar.decorators import admin_required
 from app.models import Semestres, db
@@ -100,9 +99,8 @@ def gerenciar_semestres():
                 registrar_log_generico_usuario(userid, "Inserção", novo_semestre)
                 db.session.commit()
                 flash("Semestre cadastrado com sucesso", "success")
-            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-                db.session.rollback()
-                flash(f"Erro ao cadastrar semestre:{str(e.orig)}", "danger")
+            except DB_ERRORS as e:
+                _handle_db_error(e, "Erro ao cadastrar semestre")
 
             redirect_action, bloco = register_return(url, acao, extras)
 
@@ -138,9 +136,8 @@ def gerenciar_semestres():
 
                 db.session.commit()
                 flash("Semestre editado com sucesso", "success")
-            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-                db.session.rollback()
-                flash(f"Erro ao editar semestre:{str(e.orig)}", "danger")
+            except DB_ERRORS as e:
+                _handle_db_error(e, "Erro ao editar semestre")
 
             redirect_action, bloco = register_return(url,
                 acao, extras, semestres=get_semestres())
@@ -156,9 +153,8 @@ def gerenciar_semestres():
 
                 db.session.commit()
                 flash("Semestre excluido com sucesso", "success")
-            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-                db.session.rollback()
-                flash(f"Erro ao excluir semestre:{str(e.orig)}", "danger")
+            except DB_ERRORS as e:
+                _handle_db_error(e, "Erro ao excluir semestre")
 
             redirect_action, bloco = register_return(url,
                 acao, extras, semestres=get_semestres())

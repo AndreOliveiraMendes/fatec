@@ -4,14 +4,14 @@ from typing import Any
 from flask import Blueprint, abort, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
-from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
-                            InternalError, OperationalError, ProgrammingError)
 
-from app.auxiliar.auxiliar_routes import (filtro_tipo_responsavel,
+from app.auxiliar.auxiliar_routes import (_handle_db_error,
+                                          filtro_tipo_responsavel,
                                           get_query_params,
                                           get_session_or_request, get_user,
                                           none_if_empty, register_return,
                                           registrar_log_generico_usuario)
+from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.dao import (get_aulas_ativas, get_locais, get_pessoas,
                               get_reservas_fixas, get_semestres,
                               get_usuarios_especiais)
@@ -129,12 +129,10 @@ def gerenciar_reservas_fixas():
 
                 db.session.commit()
                 flash("Reserva Semanal cadastrada com sucesso", "success")
-            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-                db.session.rollback()
-                flash(f"erro ao cadastrar reserva:{str(e.orig)}", "danger")
-            except ValueError as ve:
-                db.session.rollback()
-                flash(f"Erro ao cadastrar reserva:{str(ve)}", "danger")
+            except DB_ERRORS as e:
+                _handle_db_error(e, "Erro ao cadastrar reserva")
+            except ValueError as e:
+                _handle_db_error(e, "Erro ao cadastrar reserva")
 
             redirect_action, bloco = register_return(url,
                 acao, extras, pessoas=get_pessoas(), usuarios_especiais=get_usuarios_especiais(),
@@ -183,12 +181,10 @@ def gerenciar_reservas_fixas():
 
                 db.session.commit()
                 flash("Reserva editada com sucesso", "success")
-            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-                db.session.rollback()
-                flash(f"Erro ao editar reserva:{str(e.orig)}", "danger")
-            except ValueError as ve:
-                db.session.rollback()
-                flash(f"Erro ao editar reserva:{str(ve)}", "danger")
+            except DB_ERRORS as e:
+                _handle_db_error(e, "Erro ao editar reserva")
+            except ValueError as e:
+                _handle_db_error(e, "Erro ao editar reserva")
 
             redirect_action, bloco = register_return(url,
                 acao, extras, reservas_fixas=get_reservas_fixas()
@@ -205,9 +201,8 @@ def gerenciar_reservas_fixas():
 
                 db.session.commit()
                 flash("Reserva excluidas com sucesso", "success")
-            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-                db.session.rollback()
-                flash(f"erro ao excluir reserva:{str(e.orig)}", "danger")
+            except DB_ERRORS as e:
+                _handle_db_error(e, "Erro ao excluir reserva")
 
             redirect_action, bloco = register_return(url,
                 acao, extras, reservas_fixas=get_reservas_fixas()

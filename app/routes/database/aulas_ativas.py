@@ -3,15 +3,14 @@ from typing import Any
 
 from flask import Blueprint, abort, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
-from sqlalchemy import and_, func, or_, select
-from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
-                            InternalError, OperationalError, ProgrammingError)
+from sqlalchemy import and_, or_, select
 
-from app.auxiliar.auxiliar_routes import (get_query_params,
+from app.auxiliar.auxiliar_routes import (_handle_db_error, get_query_params,
                                           get_session_or_request, get_user,
                                           none_if_empty, parse_date_string,
                                           register_return,
                                           registrar_log_generico_usuario)
+from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.dao import (check_aula_ativa, get_aulas, get_aulas_ativas,
                               get_dias_da_semana)
 from app.auxiliar.decorators import admin_required
@@ -132,12 +131,10 @@ def gerenciar_aulas_ativas():
 
                 db.session.commit()
                 flash("Aula ativa cadastrada com sucesso", "success")
-            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-                db.session.rollback()
-                flash(f"Erro ao cadastrar aula ativa:{str(e.orig)}", "danger")
-            except ValueError as ve:
-                db.session.rollback()
-                flash(f"Erro ao cadastrar:{str(ve)}", "danger")
+            except DB_ERRORS as e:
+                _handle_db_error(e, "Erro ao cadastrar aula ativa")
+            except ValueError as e:
+                _handle_db_error(e, "Erro ao cadastrar aula ativa")
             
             redirect_action, bloco = register_return(url, acao, extras,
                 aulas=get_aulas(), dias_da_semana=get_dias_da_semana())
@@ -176,12 +173,10 @@ def gerenciar_aulas_ativas():
 
                 db.session.commit()
                 flash("Aula ativa editada com sucesso", "success")
-            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-                db.session.rollback()
-                flash(f"Erro ao editar aula ativa:{str(e.orig)}", "danger")
-            except ValueError as ve:
-                db.session.rollback()
-                flash(f"Erro ao cadastrar:{str(ve)}", "danger")
+            except DB_ERRORS as e:
+                _handle_db_error(e, "Erro ao editar aula ativa")
+            except ValueError as e:
+                _handle_db_error(e, "Erro ao editar aula ativa")
 
             redirect_action, bloco = register_return(url, acao, extras,
                 aulas_ativas=get_aulas_ativas())
@@ -196,9 +191,8 @@ def gerenciar_aulas_ativas():
 
                 db.session.commit()
                 flash("Aula ativa excluida com sucesso", "success")
-            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-                db.session.rollback()
-                flash(f"Erro ao excluir aula ativa:{str(e.orig)}", "danger")
+            except DB_ERRORS as e:
+                _handle_db_error(e, "Erro ao excluir aula ativa")
 
             redirect_action, bloco = register_return(url, acao, extras,
                 aulas_ativas=get_aulas_ativas())

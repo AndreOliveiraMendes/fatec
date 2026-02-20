@@ -4,13 +4,13 @@ from typing import Any
 
 from flask import (Blueprint, abort, flash, redirect, render_template, request,
                    session, url_for)
-from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
-                            InternalError, OperationalError, ProgrammingError)
 
-from app.auxiliar.auxiliar_routes import (get_responsavel_reserva,
+from app.auxiliar.auxiliar_routes import (_handle_db_error,
+                                          get_responsavel_reserva,
                                           get_unique_or_500, get_user,
                                           parse_date_string,
                                           registrar_log_generico_usuario)
+from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.dao import (check_first, get_exibicao_por_dia,
                               get_reservas_por_dia, get_situacoes_por_dia,
                               get_turno_by_time, get_turnos)
@@ -153,12 +153,10 @@ def atualizar_exibicao(id_aula, id_lab, dia):
 
             db.session.commit()
             flash("dados atualizados com sucesso", "success")
-        except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-            db.session.rollback()
-            flash(f"Erro ao atualizar dados:{str(e.orig)}", "danger")
-        except ValueError as ve:
-            db.session.rollback()
-            flash(f"Erro ao atualizar dados:{ve}", "danger")
+        except DB_ERRORS as e:
+            _handle_db_error(e, "Erro ao atualizar dados")
+        except ValueError as e:
+            _handle_db_error(e, "Erro ao atualizar dados")
     else:
         if exibicao:
             try:
@@ -169,12 +167,10 @@ def atualizar_exibicao(id_aula, id_lab, dia):
 
                 db.session.commit()
                 flash("dados atualizados com sucesso", "success")
-            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-                db.session.rollback()
-                flash(f"Erro ao atualizar dados:{str(e.orig)}", "danger")
-            except ValueError as ve:
-                db.session.rollback()
-                flash(f"Erro ao atualizar dados:{ve}", "danger")
+            except DB_ERRORS as e:
+                _handle_db_error(e, "Erro ao atualizar dados")
+            except ValueError as e:
+                _handle_db_error(e, "Erro ao atualizar dados")
 
     return redirect(url_for("gestao_reserva.gerenciar_exibicao"))
 
@@ -323,12 +319,10 @@ def atualizar_situacoes_fixa(common):
 
             db.session.commit()
             sucess_messages.append(f"situação {i + 1} atualizada com sucesso")
-        except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-            db.session.rollback()
-            error_messages.append(f"erro ao executar ação:{str(e.orig)}")
-        except ValueError as ve:
-            db.session.rollback()
-            error_messages.append(f"erro ao executar ação:{ve}")
+        except DB_ERRORS as e:
+            _handle_db_error(e, "Erro ao executar ação")
+        except ValueError as e:
+            _handle_db_error(e, "Erro ao executar ação")
     if sucess_messages:
         flash('<br>'.join(sucess_messages), "success")
     if error_messages:
@@ -373,12 +367,10 @@ def atualizar_situacoes_temporaria(common):
 
             db.session.commit()
             sucess_messages.append(f"situação {i + 1} atualizada com sucesso")
-        except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-            db.session.rollback()
-            error_messages.append(f"erro ao executar ação:{str(e.orig)}")
-        except ValueError as ve:
-            db.session.rollback()
-            error_messages.append(f"erro ao executar ação:{ve}")
+        except DB_ERRORS as e:
+            _handle_db_error(e, "Erro ao executar ação")
+        except ValueError as e:
+            _handle_db_error(e, "Erro ao executar ação")
     if sucess_messages:
         flash('<br>'.join(sucess_messages), "success")
     if error_messages:

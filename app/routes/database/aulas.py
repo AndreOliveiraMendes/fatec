@@ -4,14 +4,13 @@ from typing import Any
 from flask import Blueprint, abort, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
-from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
-                            InternalError, OperationalError, ProgrammingError)
 
-from app.auxiliar.auxiliar_routes import (get_query_params,
+from app.auxiliar.auxiliar_routes import (_handle_db_error, get_query_params,
                                           get_session_or_request, get_user,
                                           none_if_empty, parse_time_string,
                                           register_return,
                                           registrar_log_generico_usuario)
+from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.dao import get_aulas
 from app.auxiliar.decorators import admin_required
 from app.models import Aulas, db
@@ -87,9 +86,8 @@ def gerenciar_aulas():
                 registrar_log_generico_usuario(userid, "Inserção", nova_aula)
                 db.session.commit()
                 flash("Aula cadastrada com sucesso", "success")
-            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-                db.session.rollback()
-                flash(f"Erro ao cadastrar aula: {str(e.orig)}", "danger")
+            except DB_ERRORS as e:
+                _handle_db_error(e, "Erro ao cadastrar aula")
             redirect_action, bloco = register_return(url, acao, extras)
 
         elif acao in ['editar', 'excluir'] and bloco == 0:
@@ -115,9 +113,8 @@ def gerenciar_aulas():
 
                 db.session.commit()
                 flash("Aula editada com sucesso", "success")
-            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-                db.session.rollback()
-                flash(f"Erro ao editar aula: {str(e.orig)}", "danger")
+            except DB_ERRORS as e:
+                _handle_db_error(e, "Erro ao editar aula")
 
             redirect_action, bloco = register_return(url, acao, extras, aulas=get_aulas())
         elif acao == 'excluir' and bloco == 2:
@@ -132,9 +129,8 @@ def gerenciar_aulas():
 
                 db.session.commit()
                 flash("Aula excluida com sucesso", "success")
-            except (DataError, IntegrityError, InterfaceError, InternalError, OperationalError, ProgrammingError) as e:
-                db.session.rollback()
-                flash(f"Erro ao excluir aula: {str(e.orig)}", "danger")
+            except DB_ERRORS as e:
+                _handle_db_error(e, "Erro ao excluir aula")
 
             redirect_action, bloco = register_return(url, acao, extras, aulas=get_aulas())
     if redirect_action:
