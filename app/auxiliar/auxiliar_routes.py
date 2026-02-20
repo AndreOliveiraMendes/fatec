@@ -304,12 +304,8 @@ def _handle_db_error(e, msg):
 
     flash(f"{msg}: {user_msg}", "danger")
 
-    current_app.logger.error(
-        "%s | erro=%s",
-        msg,
-        e,
-        exc_info=True
-    )
+    current_app.logger.error("%s | erro=%s", msg, e)
+    #current_app.logger.exception(msg)
 
 
 # =========================================================

@@ -48,7 +48,7 @@
                                     <a class="navbar-brand"
                                        title="ir a pagina inicial"
                                        href="{{ url_for('default.home') }}">
-                                          Sistema RLF
+                                          {{ app }}
                                           {{ perm_icon(FIXA, 'calendar', 'greenyellow', 'Permissão de Reserva Fixa') }}
                                           {{ perm_icon(TEMP, 'time', 'greenyellow', 'Permissão de Reserva Temporária') }}
                                           {{ perm_icon(AUDITORIO, 'bullhorn', 'greenyellow', 'Permissão de Reserva de Auditório') }}

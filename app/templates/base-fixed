@@ -28,7 +28,7 @@
                     <div class="col-xs-12 text-center">
                         {% block footer %}
                         {% endblock footer %}
-                        <p class="text-muted">© 2025 Sistema RLF. Todos os direitos reservados.</p>
+                        <p class="text-muted">© 2025 {{ app }}. Todos os direitos reservados.</p>
                     </div>
                 </div>
             </div>

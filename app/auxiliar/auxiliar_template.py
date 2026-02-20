@@ -7,8 +7,8 @@ from sqlalchemy import between
 
 from app.auxiliar.auxiliar_routes import (get_responsavel_reserva,
                                           get_unique_or_500, get_user)
-from app.auxiliar.constant import (DATA_ABREV, DATA_COMPLETA, DATA_FLAGS,
-                                   DATA_NUMERICA, HORA, PERM_ADMIN,
+from app.auxiliar.constant import (APP_TITLE, DATA_ABREV, DATA_COMPLETA,
+                                   DATA_FLAGS, DATA_NUMERICA, HORA, PERM_ADMIN,
                                    PERMISSIONS, SEMANA_ABREV, SEMANA_COMPLETA)
 from app.models import (Exibicao_Reservas, FinalidadeReservaEnum, Locais,
                         Reservas_Fixas, Reservas_Temporarias, Semestres,
@@ -372,3 +372,7 @@ def register_filters(app:Flask):
     @app.context_processor
     def inject_data_flags():
         return DATA_FLAGS
+    
+    @app.context_processor
+    def inject_title():
+        return {"app": APP_TITLE}
