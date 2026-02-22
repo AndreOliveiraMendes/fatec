@@ -5,16 +5,21 @@ from typing import (Any, Callable, Literal, MutableMapping, Optional, Type,
 
 from flask import abort, current_app, flash, redirect, session, url_for
 from flask.typing import ResponseReturnValue
+from markupsafe import Markup
 from sqlalchemy import select
 from sqlalchemy.exc import MultipleResultsFound
 from sqlalchemy.inspection import inspect
 from sqlalchemy.sql.elements import ColumnElement
 
 from app.auxiliar.constant import PERM_ADMIN
+from app.enums import FinalidadeReservaEnum, SituacaoChaveEnum
 from app.models import (Base, Historicos, Locais, OrigemEnum, Permissoes,
                         Pessoas, ReservaBase, Reservas_Fixas,
-                        Reservas_Temporarias, Usuarios, Usuarios_Especiais, db)
+                        Reservas_Temporarias, Situacoes_Das_Reserva, Usuarios,
+                        Usuarios_Especiais, db)
 from config.general import AFTER_ACTION, LOCAL_TIMEZONE
+from config.json_related import carregar_painel_config
+from config.mapeamentos import mapa_icones_status
 
 # =========================================================
 # CONSTANTES / TYPES
@@ -119,13 +124,12 @@ def get_user(userid):
 
 
 # =========================================================
-# FORMATADORES
+# DISPLAY HELPERS
 # =========================================================
 def formatar_valor(valor):
     if isinstance(valor, enum.Enum):
         return valor.value
     return valor
-
 
 def dict_format(dictionary):
     campos = []
@@ -133,6 +137,45 @@ def dict_format(dictionary):
         campos.append(f"{key}: {dictionary[key]}")
     return "; ".join(campos)
 
+def status_reserva(lab, aula, dia, tela_televisor=False):
+        painel_cfg = carregar_painel_config()
+        status = get_unique_or_500(
+            Situacoes_Das_Reserva,
+            Situacoes_Das_Reserva.id_situacao_local == lab,
+            Situacoes_Das_Reserva.id_situacao_aula == aula,
+            Situacoes_Das_Reserva.situacao_dia == dia
+        )
+        chave = status.situacao_chave.name if status else None
+        if chave is None and painel_cfg.get('status_indefinido') and tela_televisor:
+            chave = SituacaoChaveEnum.NAO_PEGOU_A_CHAVE.name
+        cor, base, overlay, tooltip = mapa_icones_status[chave]
+        icon = f"""
+        <span class="reserva-icon { cor }" title="{ tooltip }">
+            <i class="glyphicon { base } base-icon"></i>
+        """
+        if overlay:
+            icon += f"""<i class="glyphicon { overlay } icon-contrast overlay-icon"></i>"""
+        icon += "</span>"
+        return Markup(icon);
+
+def montar_partes_reserva(choose, *, mostrar_icone=False, lab=None, aula=None, dia=None, tela_televisor=False):
+    if not choose:
+        return ["Livre"]
+
+    if choose.finalidade_reserva == FinalidadeReservaEnum.CURSO:
+        partes = ["Curso"]
+        if choose.descricao:
+            partes.append(choose.descricao)
+
+    elif choose.finalidade_reserva == FinalidadeReservaEnum.USO_DOS_ALUNOS:
+        partes = ["Acadêmico", "Discente", "Reservado"]
+
+    else:
+        partes = [get_responsavel_reserva(choose)]
+        if mostrar_icone:
+            partes.append(status_reserva(lab, aula, dia, tela_televisor))
+
+    return partes
 
 # =========================================================
 # LOGGING

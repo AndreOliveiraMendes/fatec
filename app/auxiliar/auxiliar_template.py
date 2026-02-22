@@ -6,17 +6,15 @@ from markupsafe import Markup
 from sqlalchemy import between
 
 from app.auxiliar.auxiliar_routes import (get_responsavel_reserva,
-                                          get_unique_or_500, get_user)
+                                          get_unique_or_500, get_user,
+                                          montar_partes_reserva)
 from app.auxiliar.constant import (APP_TITLE, DATA_ABREV, DATA_COMPLETA,
                                    DATA_FLAGS, DATA_NUMERICA, HORA, PERM_ADMIN,
                                    PERMISSIONS, SEMANA_ABREV, SEMANA_COMPLETA)
-from app.models import (Exibicao_Reservas, FinalidadeReservaEnum, Locais,
-                        Reservas_Fixas, Reservas_Temporarias, Semestres,
-                        SituacaoChaveEnum, Situacoes_Das_Reserva, Turnos)
+from app.models import (Exibicao_Reservas, Locais, Reservas_Fixas,
+                        Reservas_Temporarias, Semestres, Turnos)
 from config.database_views import SECOES
-from config.json_related import carregar_painel_config
-from config.mapeamentos import (mapa_icones_status, meses_ingleses,
-                                semana_inglesa, situacoes_helper)
+from config.mapeamentos import meses_ingleses, semana_inglesa, situacoes_helper
 
 
 def register_filters(app:Flask):
@@ -260,39 +258,16 @@ def register_filters(app:Flask):
         if not choose:
             return Markup("Livre")
 
-        partes = []
-        if choose.finalidade_reserva == FinalidadeReservaEnum.CURSO:
-            partes.append("Curso")
-            if choose.descricao:
-                partes.append(f"{choose.descricao}")
-        else:
-            partes.append(get_responsavel_reserva(choose))
-            if mostrar_icone:
-                partes.append(status_reserva(lab, aula, dia, tela_televisor))
+        partes = montar_partes_reserva(
+            choose,
+            mostrar_icone=mostrar_icone,
+            lab=lab,
+            aula=aula,
+            dia=dia,
+            tela_televisor=tela_televisor
+        )
 
         return Markup("<br>".join(partes))
-
-    @app.template_global()
-    def status_reserva(lab, aula, dia, tela_televisor=False):
-        painel_cfg = carregar_painel_config()
-        status = get_unique_or_500(
-            Situacoes_Das_Reserva,
-            Situacoes_Das_Reserva.id_situacao_local == lab,
-            Situacoes_Das_Reserva.id_situacao_aula == aula,
-            Situacoes_Das_Reserva.situacao_dia == dia
-        )
-        chave = status.situacao_chave.name if status else None
-        if chave is None and painel_cfg.get('status_indefinido') and tela_televisor:
-            chave = SituacaoChaveEnum.NAO_PEGOU_A_CHAVE.name
-        cor, base, overlay, tooltip = mapa_icones_status[chave]
-        icon = f"""
-        <span class="reserva-icon { cor }" title="{ tooltip }">
-            <i class="glyphicon { base } base-icon"></i>
-        """
-        if overlay:
-            icon += f"""<i class="glyphicon { overlay } icon-contrast overlay-icon"></i>"""
-        icon += "</span>"
-        return Markup(icon);
 
     @app.template_filter('has_flag')
     def has_flag(value, flag, strict_mode=False):
