@@ -2,14 +2,12 @@
 {% block title %}
     integração
 {% endblock title %}
-
 {% block content %}
     <div class="mb-3">
         <a href="{{ url_for('integracao.home') }}" class="btn btn-default">
             <span class="glyphicon glyphicon-arrow-left"></span> Voltar para o menu
         </a>
     </div>
-
     {% if docentes %}
         <table class="table table-bordered table-striped">
             <thead class="table-header-custom">
@@ -38,12 +36,9 @@
             </tbody>
         </table>
     {% else %}
-        <div class="alert alert-danger">
-            {{ erro }}
-        </div>
+        <div class="alert alert-warning">Não foi possível carregar o academico.</div>
     {% endif %}
 {% endblock content %}
-
 {% block extra_css %}
     <style>
         .table-header-custom {
