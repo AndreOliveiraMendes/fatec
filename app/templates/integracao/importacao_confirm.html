@@ -1,0 +1,44 @@
+{% extends "base-fixed" %}
+{% block title %}
+    integração
+{% endblock title %}
+
+{% block content %}
+    {% set docentes_a_importar = docentes | selectattr("ja_no_interno", "equalto", False) | list %}
+
+    {% if docentes_a_importar %}
+        <form method="post" action="{{ url_for('integracao.importar_docentes') }}">
+            <table class="table table-bordered table-striped">
+                <thead class="table-header-custom">
+                    <tr>
+                        <th>Código</th>
+                        <th>Nome</th>
+                        <th>Email</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for docente in docentes_a_importar %}
+                        <tr>
+                            <td>{{ docente.codigo }}</td>
+                            <td>{{ docente.nome }}</td>
+                            <td>{{ docente.email }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <button type="submit" class="btn btn-success">
+                <span class="glyphicon glyphicon-ok"></span> Confirmar Importação
+            </button>
+            <a href="{{ url_for('integracao.home') }}" class="btn btn-default">
+                <span class="glyphicon glyphicon-arrow-left"></span> Voltar
+            </a>
+        </form>
+    {% else %}
+        <div class="alert alert-info">
+            Todos docentes disponíveis já foram importados.
+        </div>
+        <a href="{{ url_for('integracao.home') }}" class="btn btn-default">
+            <span class="glyphicon glyphicon-arrow-left"></span> Voltar
+        </a>
+    {% endif %}
+{% endblock content %}
