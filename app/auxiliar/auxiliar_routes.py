@@ -12,7 +12,7 @@ from sqlalchemy.inspection import inspect
 from sqlalchemy.sql.elements import ColumnElement
 
 from app.auxiliar.constant import PERM_ADMIN
-from app.enums import FinalidadeReservaEnum, SituacaoChaveEnum
+from app.enums import FinalidadeReservaEnum, SituacaoChaveEnum, TipoReservaEnum
 from app.models import (Base, Historicos, Locais, OrigemEnum, Permissoes,
                         Pessoas, ReservaBase, Reservas_Fixas,
                         Reservas_Temporarias, Situacoes_Das_Reserva, Usuarios,
@@ -137,13 +137,14 @@ def dict_format(dictionary):
         campos.append(f"{key}: {dictionary[key]}")
     return "; ".join(campos)
 
-def status_reserva(lab, aula, dia, tela_televisor=False):
+def status_reserva(lab, aula, dia, tipo, tela_televisor=False):
         painel_cfg = carregar_painel_config()
         status = get_unique_or_500(
             Situacoes_Das_Reserva,
             Situacoes_Das_Reserva.id_situacao_local == lab,
             Situacoes_Das_Reserva.id_situacao_aula == aula,
-            Situacoes_Das_Reserva.situacao_dia == dia
+            Situacoes_Das_Reserva.situacao_dia == dia,
+            Situacoes_Das_Reserva.tipo_reserva == TipoReservaEnum(tipo)
         )
         chave = status.situacao_chave.name if status else None
         if chave is None and painel_cfg.get('status_indefinido') and tela_televisor:
@@ -172,8 +173,9 @@ def montar_partes_reserva(choose, *, mostrar_icone=False, lab=None, aula=None, d
 
     else:
         partes = [get_responsavel_reserva(choose)]
+        tipo = 'fixa' if isinstance(choose, Reservas_Fixas) else 'temporaria'
         if mostrar_icone:
-            partes.append(status_reserva(lab, aula, dia, tela_televisor))
+            partes.append(status_reserva(lab, aula, dia, tipo, tela_televisor))
 
     return partes
 
