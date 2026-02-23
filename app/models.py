@@ -178,14 +178,9 @@ class ReservaBase(Base):  # herda de Base
         else:
             return 3
 
-#    @tipo_responsavel.expression
-#    def tipo_responsavel(cls: Type["ReservaBase"]):
-#        return case(
-#            (cls.id_responsavel.isnot(None) & cls.id_responsavel_especial.is_(None), 0),
-#            (cls.id_responsavel.is_(None) & cls.id_responsavel_especial.isnot(None), 1),
-#            (cls.id_responsavel.isnot(None) & cls.id_responsavel_especial.isnot(None), 2),
-#            else_=3  # Valor padrão se nenhuma condição for atendida
-#        )
+    @property
+    def tipo_reserva_str(self) -> TipoReservaEnum:
+        raise NotImplementedError
 
 class Reservas_Fixas(ReservaBase):
     __tablename__ = 'reservas_fixas'
@@ -215,6 +210,10 @@ class Reservas_Fixas(ReservaBase):
         aula = self.aula_ativa.selector_identification
         semestre = self.semestre.nome_semestre
         return f" {aula} em {local} no {semestre}"
+    
+    @property
+    def tipo_reserva_str(self):
+        return TipoReservaEnum.FIXA
     
     def __repr__(self):
         return (
@@ -251,6 +250,10 @@ class Reservas_Temporarias(ReservaBase):
         inicio = parse_date(self.inicio_reserva)
         fim = parse_date(self.fim_reserva)
         return f" {aula} em {local} de {inicio} ate {fim}"
+    
+    @property
+    def tipo_reserva_str(self):
+        return TipoReservaEnum.TEMPORARIA
 
     def __repr__(self):
         return (

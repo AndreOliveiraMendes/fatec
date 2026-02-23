@@ -144,7 +144,7 @@ def status_reserva(lab, aula, dia, tipo, tela_televisor=False):
             Situacoes_Das_Reserva.id_situacao_local == lab,
             Situacoes_Das_Reserva.id_situacao_aula == aula,
             Situacoes_Das_Reserva.situacao_dia == dia,
-            Situacoes_Das_Reserva.tipo_reserva == TipoReservaEnum(tipo)
+            Situacoes_Das_Reserva.tipo_reserva == tipo
         )
         chave = status.situacao_chave.name if status else None
         if chave is None and painel_cfg.get('status_indefinido') and tela_televisor:
@@ -173,7 +173,7 @@ def montar_partes_reserva(choose, *, mostrar_icone=False, lab=None, aula=None, d
 
     else:
         partes = [get_responsavel_reserva(choose)]
-        tipo = 'fixa' if isinstance(choose, Reservas_Fixas) else 'temporaria'
+        tipo = choose.tipo_reserva_str
         if mostrar_icone:
             partes.append(status_reserva(lab, aula, dia, tipo, tela_televisor))
 

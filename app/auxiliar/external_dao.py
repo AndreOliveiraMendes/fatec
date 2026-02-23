@@ -5,7 +5,8 @@ from mysql.connector import DatabaseError, OperationalError, connect
 
 from config import (DISPONIBILIDADE_DATABASE, DISPONIBILIDADE_HOST,
                     DISPONIBILIDADE_PASSWORD, DISPONIBILIDADE_USER)
-from config.general import ACADEMICO_DATABASE, ACADEMICO_HOST, ACADEMICO_PASSWORD, ACADEMICO_USER
+from config.general import (ACADEMICO_DATABASE, ACADEMICO_HOST,
+                            ACADEMICO_PASSWORD, ACADEMICO_USER)
 
 
 def get_grade_by_professor(

@@ -1,11 +1,13 @@
-from flask import Blueprint, flash, redirect, render_template, abort, request, session, url_for
-from app.auxiliar.auxiliar_routes import _handle_db_error, get_user
+from flask import (Blueprint, abort, flash, redirect, render_template, request,
+                   session, url_for)
+
+from app.auxiliar.auxiliar_routes import (_handle_db_error, get_user,
+                                          registrar_log_generico_usuario)
 from app.auxiliar.constant import DB_ERRORS
+from app.auxiliar.dao import get_pessoas_codigo
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.external_dao import get_docentes
-from app.auxiliar.dao import get_pessoas_codigo
 from app.models import Pessoas, db
-from app.auxiliar.auxiliar_routes import registrar_log_generico_usuario
 
 bp = Blueprint('integracao', __name__, url_prefix='/integração')
 
