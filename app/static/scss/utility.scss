@@ -1,4 +1,4 @@
-$sizes: 0 5 8 10 15 20 25 30;
+$sizes: 0, 5, 8, 10, 15, 20, 25, 30;
 
 @each $size in $sizes {
   .margin-left-#{$size}  { margin-left:   $size * 1px; }
