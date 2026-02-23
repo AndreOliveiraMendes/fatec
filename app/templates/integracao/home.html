@@ -1,0 +1,57 @@
+{% extends "base-fixed" %}
+{% block title %}
+    integração
+{% endblock title %}
+
+{% block content %}
+<div class="container margin-top-30">
+
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="page-header">
+                <span class="glyphicon glyphicon-transfer text-primary"></span>
+                Painel de Integração
+                <small>Área Acadêmica</small>
+            </h2>
+        </div>
+    </div>
+
+    <div class="row">
+
+        <!-- Painel Acadêmico -->
+        <div class="col-sm-6 col-md-4">
+            <div class="panel panel-primary">
+                
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <span class="glyphicon glyphicon-education"></span>
+                        Acadêmico
+                    </h3>
+                </div>
+
+                <div class="panel-body">
+                    Acesse as funcionalidades acadêmicas abaixo:
+                </div>
+
+                <div class="list-group">
+                    <a href="{{ url_for('integracao.check_pessoas') }}" 
+                       class="list-group-item">
+                        <span class="glyphicon glyphicon-search text-info"></span>
+                        Verificar Lista de Docentes
+                        <span class="pull-right glyphicon glyphicon-chevron-right"></span>
+                    </a>
+
+                    <a href="{{ url_for('integracao.importar_docentes') }}" 
+                       class="list-group-item">
+                        <span class="glyphicon glyphicon-import text-success"></span>
+                        Importar Docentes
+                        <span class="pull-right glyphicon glyphicon-chevron-right"></span>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock content %}

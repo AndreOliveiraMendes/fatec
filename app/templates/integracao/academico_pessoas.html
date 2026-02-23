@@ -1,0 +1,63 @@
+{% extends "base-fixed" %}
+{% block title %}
+    integração
+{% endblock title %}
+
+{% block content %}
+    <div class="mb-3">
+        <a href="{{ url_for('integracao.home') }}" class="btn btn-default">
+            <span class="glyphicon glyphicon-arrow-left"></span> Voltar para o menu
+        </a>
+    </div>
+
+    {% if docentes %}
+        <table class="table table-bordered table-striped">
+            <thead class="table-header-custom">
+                <tr>
+                    <th>Código</th>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Importado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for docente in docentes %}
+                    <tr>
+                        <td>{{ docente.codigo }}</td>
+                        <td>{{ docente.nome }}</td>
+                        <td>{{ docente.email }}</td>
+                        <td>
+                            {% if docente.ja_no_interno %}
+                                <span class="label label-success">Já no banco</span>
+                            {% else %}
+                                <span class="label label-danger">Não no banco</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="alert alert-danger">
+            {{ erro }}
+        </div>
+    {% endif %}
+{% endblock content %}
+
+{% block extra_css %}
+    <style>
+        .table-header-custom {
+            background-color: #337ab7; /* mesma cor do panel-primary */
+            color: #fff;
+        }
+
+        .table-header-custom th {
+            border-color: #2e6da4;
+        }
+
+        /* Espaçamento opcional entre botão e tabela */
+        .mb-3 {
+            margin-bottom: 15px;
+        }
+    </style>
+{% endblock extra_css %}

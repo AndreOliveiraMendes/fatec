@@ -29,6 +29,10 @@ def get_pessoas(acao = None, userid = None):
     sel_pessoas = sel_pessoas.order_by(Pessoas.nome_pessoa)
     return db.session.execute(sel_pessoas).all()
 
+def get_pessoas_codigo():
+    sel_pessoas = select(Pessoas.id_pessoa)
+    return db.session.execute(sel_pessoas).scalars().all()
+
 #usuarios
 def get_usuarios(acao = None, userid = None):
     sel_usuarios = select(Usuarios.id_usuario, Pessoas.nome_pessoa).join(Pessoas)
