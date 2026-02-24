@@ -232,7 +232,7 @@ def editar_reserva_generico(model, id_reserva: int, redirect_url: str) -> Respon
     check_ownership_or_admin(reserva)
     if model == Reservas_Fixas and not check_periodo_fixa(reserva):
         abort(403, description="Esta reserva não pode mais ser alterada fora do período permitido.")
-    observacao = request.form.get('observacao')
+    observacao = none_if_empty(request.form.get('observacao'))
     finalidade_reserva = request.form.get('finalidade_reserva')
     if not finalidade_reserva:
         finalidade_reserva = FinalidadeReservaEnum.GRADUACAO.value
