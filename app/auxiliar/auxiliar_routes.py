@@ -356,23 +356,27 @@ def _handle_db_error(e, msg):
 # =========================================================
 # RESERVA HELPERS
 # =========================================================
-def get_responsavel_reserva(reserva: Reservas_Fixas | Reservas_Temporarias, directly = False):
+def get_responsavel_reserva(
+    reserva: Reservas_Fixas | Reservas_Temporarias,
+    modo_template: bool = False
+):
     title = ""
+    tipo = reserva.tipo_responsavel
 
-    if reserva.tipo_responsavel in (0, 2):
-        responsavel = db.get_or_404(Pessoas, reserva.id_responsavel)
-        title += responsavel.alias or responsavel.nome_pessoa
+    if tipo in (0, 2):
+        r = db.get_or_404(Pessoas, reserva.id_responsavel)
+        title += r.alias or r.nome_pessoa
 
-    if reserva.tipo_responsavel in (1, 2):
-        responsavel = db.get_or_404(Usuarios_Especiais, reserva.id_responsavel_especial)
+    if tipo in (1, 2):
+        r = db.get_or_404(Usuarios_Especiais, reserva.id_responsavel_especial)
         title += (
-            responsavel.nome_usuario_especial
-            if reserva.tipo_responsavel == 1
-            else f" ({responsavel.nome_usuario_especial})"
+            r.nome_usuario_especial
+            if tipo == 1
+            else f" ({r.nome_usuario_especial})"
         )
-        
-    if directly and reserva.finalidade_reserva == FinalidadeReservaEnum.USO_DOS_ALUNOS:
-        title += "uso academico"
+
+    if modo_template and reserva.finalidade_reserva == FinalidadeReservaEnum.USO_DOS_ALUNOS:
+        title += " uso acadêmico"
 
     return title
 
