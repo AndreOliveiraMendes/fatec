@@ -9,14 +9,16 @@ from typing import Any
 from flask import (Blueprint, abort, current_app, flash, redirect,
                    render_template, request, session, url_for)
 from flask_sqlalchemy.pagination import SelectPagination
-from sqlalchemy import select
+from sqlalchemy import and_, func, select
 
 from app.auxiliar.auxiliar_cryptograph import load_key
-from app.auxiliar.auxiliar_routes import get_user, info_reserva_fixa, info_reserva_temporaria
-from app.auxiliar.constant import PERM_ADMIN
-from app.auxiliar.dao import get_dias_da_semana, get_laboratorios, get_locais, get_semestres
+from app.auxiliar.auxiliar_routes import (get_user, info_reserva_fixa,
+                                          info_reserva_temporaria)
+from app.auxiliar.dao import (get_dias_da_semana, get_laboratorios, get_locais,
+                              get_semestres)
 from app.auxiliar.decorators import admin_required
-from app.models import Aulas, Aulas_Ativas, Dias_da_Semana, TipoAulaEnum, db, Reservas_Fixas, Reservas_Temporarias
+from app.models import (Aulas, Aulas_Ativas, Dias_da_Semana, Reservas_Fixas,
+                        Reservas_Temporarias, TipoAulaEnum, db)
 from config.database_views import SECOES
 from config.general import LOCAL_TIMEZONE
 from config.json_related import carregar_config_geral, carregar_painel_config
@@ -41,7 +43,14 @@ FILTERS = {
     "fixa": {
         "semestre": (lambda s:Reservas_Fixas.id_reserva_semestre == s, int),
         "lab": (lambda l:Reservas_Fixas.id_reserva_local == l, int),
-        "semana": (lambda s:Aulas_Ativas.id_semana == s, int)
+        "semana": (lambda s:Aulas_Ativas.id_semana == s, int),
+        "obs": (
+            lambda _: and_(
+                Reservas_Fixas.observacoes.isnot(None),
+                func.trim(Reservas_Fixas.observacoes) != ''
+            ),
+            bool
+        )
     },
     "temporaria": {
     }
