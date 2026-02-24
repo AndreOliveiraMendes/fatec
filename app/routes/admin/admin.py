@@ -45,7 +45,7 @@ FILTERS = {
 }
 
 def make_params(request):
-    return {key:value for key, value in request.args.items() if key not in ['pagef', 'paget']}
+    return {key:value for key, value in request.args.items() if key not in ['page', 'pagef', 'paget']}
 
 def get_reservas(params, page, tipo):
     base = RESERVA_MAP.get(tipo, {})
@@ -193,7 +193,7 @@ def get_observações():
     if not semestres:
         flash("nenhum semestre definido", "danger")
         return redirect(url_for('default.home'))
-    pagef = int(request.args.get("pagef", 1))
+    pagef = int(request.args.get("page", 1))
     args_extras = make_params(request)
     reservas_fixas = get_reservas(args_extras, pagef, "fixa")
     extras = {}

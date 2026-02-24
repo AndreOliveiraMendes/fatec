@@ -1,4 +1,5 @@
 {% extends "base-fixed" %}
+{% from "macros/pagination.html" import render_pagination %}
 {% block title %}
     observações
 {% endblock title %}
@@ -79,6 +80,7 @@
                             {% endif %}
                         </tbody>
                     </table>
+                    {{ render_pagination(pagination, 'usuario.gerenciar_reserva_fixa', args_extras) }}
                 </div>
             </div>
         </div>
