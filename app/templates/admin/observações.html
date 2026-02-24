@@ -1,0 +1,99 @@
+{% extends "base-fixed" %}
+{% block title %}
+    observações
+{% endblock title %}
+{% block content %}
+    <!-- Título da Página -->
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="page-header">Reservas</h2>
+        </div>
+    </div>
+    <!-- Filtro por Semestre -->
+    <div class="row">
+        <div class="col-md-6">
+            <form method="get" action="{{ url_for('admin.get_observações') }}">
+                <div class="form-group">
+                    <label for="semestre">Semestre</label>
+                    <select class="form-control"
+                            id="semestre"
+                            name="semestre"
+                            onchange="this.form.submit()">
+                        <option value="">Selecione o semestre</option>
+                        {% for semestre in semestres %}
+                            <option value="{{ semestre.id_semestre }}"
+                                    {% if request.args.get('semestre') and request.args.get('semestre')|int == semestre.id_semestre %}selected{% endif %}>
+                                {{ semestre.nome_semestre }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+    <hr>
+    <!-- Panel com Tabela -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-primary panel-reservas">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                        Reservas Semestrais
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    <table class="table table-bordered table-striped table-hover">
+                        <thead>
+                            <tr class="info">
+                                <th>ID</th>
+                                <th>Responsável</th>
+                                <th>Local</th>
+                                <th>Horário</th>
+                                <th>Observação</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if reservas_fixas %}
+                                {% for r in reservas_fixas %}
+                                    <tr>
+                                        <td>{{ r.id_reserva_fixa }}</td>
+                                        <td title="{{ get_responsavel_reserva(r, true) }}">{{ get_responsavel_reserva(r, true) |truncate(12) }}</td>
+                                        <td>{{ r.local.nome_local }}</td>
+                                        <td>
+                                            {{ r.aula_ativa.dia_da_semana.nome_semana }}
+                                            <br>
+                                            <small class="text-muted">
+                                                {{ r.aula_ativa.aula.horario_inicio|hora }}
+                                                –
+                                                {{ r.aula_ativa.aula.horario_fim|hora }}
+                                            </small>
+                                        </td>
+                                        <td>{{ r.observacoes|safe }}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center">Nenhuma reserva encontrada para este semestre.</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+{% block extra_css %}
+    <style>
+        /* Remove padding do panel-body para encaixar a tabela */
+        .panel-reservas .panel-body {
+            padding: 0;
+        }
+
+        /* Remove margem inferior da tabela dentro do panel */
+        .panel-reservas .table {
+            margin-bottom: 0;
+        }
+    </style>
+{% endblock extra_css %}

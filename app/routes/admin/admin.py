@@ -8,19 +8,70 @@ from typing import Any
 
 from flask import (Blueprint, abort, current_app, flash, redirect,
                    render_template, request, session, url_for)
+from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
 from app.auxiliar.auxiliar_cryptograph import load_key
-from app.auxiliar.auxiliar_routes import get_user
-from app.auxiliar.dao import get_locais
+from app.auxiliar.auxiliar_routes import get_user, info_reserva_fixa, info_reserva_temporaria
+from app.auxiliar.dao import get_locais, get_semestres
 from app.auxiliar.decorators import admin_required
-from app.models import Aulas, Dias_da_Semana, TipoAulaEnum, db
+from app.models import Aulas, Aulas_Ativas, Dias_da_Semana, TipoAulaEnum, db, Reservas_Fixas, Reservas_Temporarias
 from config.database_views import SECOES
 from config.general import LOCAL_TIMEZONE
 from config.json_related import carregar_config_geral, carregar_painel_config
 from config.mapeamentos import SECRET_PATH
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
+
+RESERVA_MAP = {
+    "fixa": {
+        "model": Reservas_Fixas,
+        "order": Reservas_Fixas.id_reserva_semestre,
+        "info": info_reserva_fixa
+    },
+    "temporaria": {
+        "model": Reservas_Temporarias,
+        "order": Reservas_Temporarias.inicio_reserva,
+        "info": info_reserva_temporaria
+    }
+}
+
+FILTERS = {
+    "fixa": {
+        "semestre": (lambda s:Reservas_Fixas.id_reserva_semestre == s, int)
+    },
+    "temporaria": {
+    }
+}
+
+def make_params(request):
+    return {key:value for key, value in request.args.items() if key not in ['pagef', 'paget']}
+
+def get_reservas(params, page, tipo):
+    base = RESERVA_MAP.get(tipo, {})
+    if not base:
+        abort(404, description="Tipo invalido")
+    model = base.get('model')
+    org_column = base.get('order')
+    if not model:
+        abort(404, description="Usuário não encontrado.")
+    filtro = []
+    for key, (condition, cast) in FILTERS.get(tipo, {}).items():
+        raw = params.get(key)
+        if raw:
+            try:
+                filtro.append(condition(cast(raw)))
+            except (TypeError, ValueError) as e:
+                current_app.logger.warning(f"Filtro inválido {key}={raw}")
+    sel_reservas = select(model).join(Aulas_Ativas).join(Aulas).where(*filtro).order_by(
+        org_column,
+        Aulas_Ativas.id_semana,
+        Aulas.horario_inicio
+    )
+    pagination = SelectPagination(select=sel_reservas, session=db.session,
+        page=page, per_page=5, error_out=False
+    )
+    return pagination
 
 @bp.route("/")
 @admin_required
@@ -130,3 +181,24 @@ def control_times():
         select(Aulas).order_by(Aulas.horario_inicio, Aulas.horario_fim)
     ).scalars().all()
     return render_template("admin/times.html", user=user, **extras)
+
+@bp.route("/observações")
+@admin_required
+def get_observações():
+    userid = session.get('userid')
+    user = get_user(userid)
+    if not user:
+        abort(404, description="Usuário não encontrado.")
+    semestres = get_semestres()
+    if not semestres:
+        flash("nenhum semestre definido", "danger")
+        return redirect(url_for('default.home'))
+    pagef = int(request.args.get("pagef", 1))
+    args_extras = make_params(request)
+    reservas_fixas = get_reservas(args_extras, pagef, "fixa")
+    extras = {}
+    extras['semestres'] = semestres
+    # reserva
+    extras['reservas_fixas'] = reservas_fixas.items
+    extras['pagination'] = reservas_fixas
+    return render_template("admin/observações.html", user=user, **extras)
