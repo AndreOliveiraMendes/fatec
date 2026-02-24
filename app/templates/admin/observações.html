@@ -124,7 +124,7 @@
                                                 {{ r.aula_ativa.aula.horario_fim|hora }}
                                             </small>
                                         </td>
-                                        <td>{{ r.observacoes|safe }}</td>
+                                        <td>{{ r.observacoes if r.observacoes else ''|safe }}</td>
                                     </tr>
                                 {% endfor %}
                             {% else %}
