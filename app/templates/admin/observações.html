@@ -113,7 +113,7 @@
                                 {% for r in reservas_fixas %}
                                     <tr>
                                         <td>{{ r.id_reserva_fixa }}</td>
-                                        <td title="{{ get_responsavel_reserva(r, true) }}">{{ get_responsavel_reserva(r, true) |truncate(12) }}</td>
+                                        <td title="{{ get_responsavel_reserva(r, true) }}">{{ get_responsavel_reserva(r, true) |truncate(20) }}</td>
                                         <td>{{ r.local.nome_local }}</td>
                                         <td>
                                             {{ r.aula_ativa.dia_da_semana.nome_semana }}

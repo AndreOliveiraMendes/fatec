@@ -72,7 +72,7 @@ def get_reservas(params, page, tipo):
         Aulas.horario_inicio
     )
     pagination = SelectPagination(select=sel_reservas, session=db.session,
-        page=page, per_page=20, error_out=False
+        page=page, per_page=50, error_out=False
     )
     return pagination
 
