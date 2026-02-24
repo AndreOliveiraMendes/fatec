@@ -13,7 +13,8 @@ from sqlalchemy import select
 
 from app.auxiliar.auxiliar_cryptograph import load_key
 from app.auxiliar.auxiliar_routes import get_user, info_reserva_fixa, info_reserva_temporaria
-from app.auxiliar.dao import get_locais, get_semestres
+from app.auxiliar.constant import PERM_ADMIN
+from app.auxiliar.dao import get_dias_da_semana, get_laboratorios, get_locais, get_semestres
 from app.auxiliar.decorators import admin_required
 from app.models import Aulas, Aulas_Ativas, Dias_da_Semana, TipoAulaEnum, db, Reservas_Fixas, Reservas_Temporarias
 from config.database_views import SECOES
@@ -38,7 +39,9 @@ RESERVA_MAP = {
 
 FILTERS = {
     "fixa": {
-        "semestre": (lambda s:Reservas_Fixas.id_reserva_semestre == s, int)
+        "semestre": (lambda s:Reservas_Fixas.id_reserva_semestre == s, int),
+        "lab": (lambda l:Reservas_Fixas.id_reserva_local == l, int),
+        "semana": (lambda s:Aulas_Ativas.id_semana == s, int)
     },
     "temporaria": {
     }
@@ -197,7 +200,10 @@ def get_observações():
     args_extras = make_params(request)
     reservas_fixas = get_reservas(args_extras, pagef, "fixa")
     extras = {}
+    # filtro
     extras['semestres'] = semestres
+    extras['laboratorios'] = get_laboratorios(True)
+    extras['semanas'] = get_dias_da_semana()
     # reserva
     extras['reservas_fixas'] = reservas_fixas.items
     extras['pagination'] = reservas_fixas
