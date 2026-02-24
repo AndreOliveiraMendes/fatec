@@ -58,6 +58,7 @@ def main_page():
     return render_template("reserva/main.html", user=user, **extras)
 
 @bp.route("/televisor")
+@bp.route("/televisor1")
 def tela_televisor():
     userid = session.get('userid')
     user = get_user(userid)
