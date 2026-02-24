@@ -216,4 +216,6 @@ def get_observações():
     # reserva
     extras['reservas_fixas'] = reservas_fixas.items
     extras['pagination'] = reservas_fixas
+    # pra conservar os parametros
+    extras['args_extras'] = args_extras
     return render_template("admin/observações.html", user=user, **extras)
