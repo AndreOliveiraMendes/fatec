@@ -152,7 +152,7 @@
                                 <tr class="linha-click"
                                     data-info-url="{{ url_for('usuario.get_info_reserva', tipo_reserva='fixa', id_reserva=r.id_reserva_fixa) }}">
                                     {% if user and user.perm|has_flag(ADMIN) %}
-                                        <td title="{{ get_responsavel_reserva(r) }}">{{ get_responsavel_reserva(r) |truncate(12) }}</td>
+                                        <td title="{{ get_responsavel_reserva(r, true) }}">{{ get_responsavel_reserva(r, true) |truncate(12) }}</td>
                                     {% endif %}
                                     <td>{{ r.local.nome_local }}</td>
                                     <td>

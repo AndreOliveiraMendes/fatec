@@ -217,8 +217,8 @@ def register_filters(app:Flask):
         """)
 
     @app.template_global('get_responsavel_reserva')
-    def get_responsavel_reserva_template(reserva:Reservas_Fixas|Reservas_Temporarias):
-        return get_responsavel_reserva(reserva)
+    def get_responsavel_reserva_template(reserva:Reservas_Fixas|Reservas_Temporarias, directly = False):
+        return get_responsavel_reserva(reserva, directly)
 
     @app.template_global()
     def get_reserva(lab, aula, dia, mostrar_icone=False, tela_televisor=False):

@@ -356,7 +356,7 @@ def _handle_db_error(e, msg):
 # =========================================================
 # RESERVA HELPERS
 # =========================================================
-def get_responsavel_reserva(reserva: Reservas_Fixas | Reservas_Temporarias):
+def get_responsavel_reserva(reserva: Reservas_Fixas | Reservas_Temporarias, directly = False):
     title = ""
 
     if reserva.tipo_responsavel in (0, 2):
@@ -370,6 +370,9 @@ def get_responsavel_reserva(reserva: Reservas_Fixas | Reservas_Temporarias):
             if reserva.tipo_responsavel == 1
             else f" ({responsavel.nome_usuario_especial})"
         )
+        
+    if directly and reserva.finalidade_reserva == FinalidadeReservaEnum.USO_DOS_ALUNOS:
+        title += "uso academico"
 
     return title
 
