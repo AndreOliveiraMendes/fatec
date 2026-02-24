@@ -12,8 +12,7 @@ from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import and_, func, select
 
 from app.auxiliar.auxiliar_cryptograph import load_key
-from app.auxiliar.auxiliar_routes import (get_user, info_reserva_fixa,
-                                          info_reserva_temporaria)
+from app.auxiliar.auxiliar_routes import get_user
 from app.auxiliar.dao import (get_dias_da_semana, get_laboratorios, get_locais,
                               get_semestres)
 from app.auxiliar.decorators import admin_required
@@ -29,13 +28,11 @@ bp = Blueprint('admin', __name__, url_prefix='/admin')
 RESERVA_MAP = {
     "fixa": {
         "model": Reservas_Fixas,
-        "order": Reservas_Fixas.id_reserva_semestre,
-        "info": info_reserva_fixa
+        "order": Reservas_Fixas.id_reserva_semestre
     },
     "temporaria": {
         "model": Reservas_Temporarias,
-        "order": Reservas_Temporarias.inicio_reserva,
-        "info": info_reserva_temporaria
+        "order": Reservas_Temporarias.inicio_reserva
     }
 }
 
@@ -53,11 +50,22 @@ FILTERS = {
         )
     },
     "temporaria": {
+        "data_inicio": (lambda d:Reservas_Temporarias.inicio_reserva >= d, str),
+        "data_fim": (lambda d:Reservas_Temporarias.fim_reserva <= d, str),
+        "lab": (lambda l:Reservas_Temporarias.id_reserva_local == l, int),
+        "semana": (lambda s:Aulas_Ativas.id_semana == s, int),
+        "obs": (
+            lambda _: and_(
+                Reservas_Temporarias.observacoes.isnot(None),
+                func.trim(Reservas_Temporarias.observacoes) != ''
+            ),
+            bool
+        )
     }
 }
 
 def make_params(request):
-    return {key:value for key, value in request.args.items() if key not in ['page', 'pagef', 'paget']}
+    return {key:value for key, value in request.args.items() if key != 'page'}
 
 def get_reservas(params, page, tipo):
     base = RESERVA_MAP.get(tipo, {})
@@ -196,7 +204,16 @@ def control_times():
 
 @bp.route("/observações")
 @admin_required
-def get_observações():
+def menu_reservas():
+    userid = session.get('userid')
+    user = get_user(userid)
+    today = datetime.now(LOCAL_TIMEZONE)
+    extras = {'datetime':today}
+    return render_template("admin/menu_reserva.html", user=user, **extras)
+
+@bp.route("/observações/reservas_fixas")
+@admin_required
+def get_observações_fixa():
     userid = session.get('userid')
     user = get_user(userid)
     if not user:
@@ -205,9 +222,9 @@ def get_observações():
     if not semestres:
         flash("nenhum semestre definido", "danger")
         return redirect(url_for('default.home'))
-    pagef = int(request.args.get("page", 1))
+    page = int(request.args.get("page", 1))
     args_extras = make_params(request)
-    reservas_fixas = get_reservas(args_extras, pagef, "fixa")
+    reservas_fixas = get_reservas(args_extras, page, "fixa")
     extras = {}
     # filtro
     extras['semestres'] = semestres
@@ -218,4 +235,29 @@ def get_observações():
     extras['pagination'] = reservas_fixas
     # pra conservar os parametros
     extras['args_extras'] = args_extras
-    return render_template("admin/observações.html", user=user, **extras)
+    return render_template("admin/observações_fixa.html", user=user, **extras)
+
+@bp.route('/observações/reservas_temporarias')
+@admin_required
+def get_observações_temporaria():
+    userid = session.get('userid')
+    user = get_user(userid)
+    if not user:
+        abort(404, description="Usuário não encontrado.")
+    semestres = get_semestres()
+    if not semestres:
+        flash("nenhum semestre definido", "danger")
+        return redirect(url_for('default.home'))
+    page = int(request.args.get("page", 1))
+    args_extras = make_params(request)
+    reservas_temporaria = get_reservas(args_extras, page, "temporaria")
+    extras = {}
+    # filtro
+    extras['laboratorios'] = get_laboratorios(True)
+    extras['semanas'] = get_dias_da_semana()
+    # reserva
+    extras['reservas_temporarias'] = reservas_temporaria.items
+    extras['pagination'] = reservas_temporaria
+    # pra conservar os parametros
+    extras['args_extras'] = args_extras
+    return render_template("admin/observações_temporaria.html", user=user, **extras)

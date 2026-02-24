@@ -7,7 +7,19 @@
     <!-- Título da Página -->
     <div class="row">
         <div class="col-md-12">
-            <h2 class="page-header">Reservas</h2>
+            <div class="panel panel-default panel-nav">
+                <div class="panel-body text-center">
+                    <a href="{{ url_for('default.home') }}" class="btn btn-primary">
+                        <span class="glyphicon glyphicon-home"></span> Home
+                    </a>
+                    <a href="{{ url_for('admin.gerenciar_menu') }}" class="btn btn-info">
+                        <span class="glyphicon glyphicon-dashboard"></span> Painel Admin
+                    </a>
+                    <a href="{{ url_for('admin.menu_reservas') }}" class="btn btn-success">
+                        <span class="glyphicon glyphicon-list-alt"></span> Menu Observações
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
     <!-- Painel de Filtros -->
@@ -21,7 +33,7 @@
                     </strong>
                 </div>
                 <div class="panel-body">
-                    <form method="get" action="{{ url_for('admin.get_observações') }}">
+                    <form method="get" action="{{ url_for('admin.get_observações_fixa') }}">
                         <div class="row">
                             <!-- Semestre -->
                             <div class="col-sm-4 col-md-3">
@@ -89,7 +101,8 @@
                                 <div class="form-group btn-filtro-reset">
                                     <label>&nbsp;</label>
                                     <div>
-                                        <a href="{{ url_for('admin.get_observações') }}" class="btn btn-default">
+                                        <a href="{{ url_for('admin.get_observações_fixa') }}"
+                                           class="btn btn-default">
                                             <span class="glyphicon glyphicon-remove"></span>
                                             Limpar filtros
                                         </a>
@@ -150,7 +163,7 @@
                             {% endif %}
                         </tbody>
                     </table>
-                    {{ render_pagination(pagination, 'admin.get_observações', args_extras) }}
+                    {{ render_pagination(pagination, 'admin.get_observações_fixa', args_extras) }}
                 </div>
             </div>
         </div>
