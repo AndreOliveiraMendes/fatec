@@ -105,11 +105,7 @@
             <div class="panel-body">
                 <div class="well d-flex align-items-center gap-2 flex-wrap">
                     {% if key %}
-                        <span class="badge badge_fernet_key"
-                              data-toggle="tooltip"
-                              data-placement="top"
-                              data-html="true"
-                              title="📂 Arquivo: {{ key_info.path }}<br>🕒 Última modificação: {{ key_info.last_modified }}">
+                        <span class="badge badge_fernet_key">
                             🔒 Chave Configurada
                         </span>
                     {% else %}
