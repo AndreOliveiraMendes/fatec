@@ -137,7 +137,7 @@ def dict_format(dictionary):
         campos.append(f"{key}: {dictionary[key]}")
     return "; ".join(campos)
 
-def status_reserva(lab, aula, dia, tipo, tela_televisor=False):
+def status_reserva(lab, aula, dia, tipo, tela_televisor=False, tela = None):
         painel_cfg = carregar_painel_config()
         status = get_unique_or_500(
             Situacoes_Das_Reserva,
@@ -147,7 +147,7 @@ def status_reserva(lab, aula, dia, tipo, tela_televisor=False):
             Situacoes_Das_Reserva.tipo_reserva == tipo
         )
         chave = status.situacao_chave.name if status else None
-        if chave is None and painel_cfg.get('status_indefinido') and tela_televisor:
+        if chave is None and painel_cfg.get(f'estilo{tela}', {}).get('status_indefinido') and tela_televisor:
             chave = SituacaoChaveEnum.NAO_PEGOU_A_CHAVE.name
         cor, base, overlay, tooltip = mapa_icones_status[chave]
         icon = f"""
@@ -159,7 +159,7 @@ def status_reserva(lab, aula, dia, tipo, tela_televisor=False):
         icon += "</span>"
         return Markup(icon);
 
-def montar_partes_reserva(choose, *, mostrar_icone=False, lab=None, aula=None, dia=None, tela_televisor=False):
+def montar_partes_reserva(choose, *, mostrar_icone=False, lab=None, aula=None, dia=None, tela_televisor=False, tela=None):
     if not choose:
         return ["Livre"]
 
@@ -175,7 +175,7 @@ def montar_partes_reserva(choose, *, mostrar_icone=False, lab=None, aula=None, d
         partes = [get_responsavel_reserva(choose)]
         tipo = choose.tipo_reserva_str
         if mostrar_icone:
-            partes.append(status_reserva(lab, aula, dia, tipo, tela_televisor))
+            partes.append(status_reserva(lab, aula, dia, tipo, tela_televisor, tela))
 
     return partes
 

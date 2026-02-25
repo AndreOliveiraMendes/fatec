@@ -60,10 +60,23 @@ situacoes_helper = [
 ]
 
 DEFAULT_PAINEL_CFG = {
-    "tipo": "Aula",
-    "tempo": "15",
-    "laboratorios": "6",
-    "status_indefinido": True
+    "estilo1": {
+        "tipo": "Aula",
+        "tempo": "15",
+        "laboratorios": "6",
+        "status_indefinido": True
+    },
+    "estilo2": {
+        "tipo": "Aula",
+        "tempo": "5",
+        "laboratorios": "5",
+        "status_indefinido": False
+    },
+    "estilo3": {
+        "tipo": "Aula",
+        "tempo": "5",
+        "status_indefinido": False
+    }
 }
 
 DEFAULT_CONFIG_CFG = {

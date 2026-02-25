@@ -221,7 +221,7 @@ def register_filters(app:Flask):
         return get_responsavel_reserva(reserva, modo_template)
 
     @app.template_global()
-    def get_reserva(lab, aula, dia, mostrar_icone=False, tela_televisor=False):
+    def get_reserva(lab, aula, dia, mostrar_icone=False, tela_televisor=False, tela=None):
         fixa, temp, choose = None, None, None
         semestre = get_unique_or_500(
             Semestres,
@@ -264,7 +264,8 @@ def register_filters(app:Flask):
             lab=lab,
             aula=aula,
             dia=dia,
-            tela_televisor=tela_televisor
+            tela_televisor=tela_televisor,
+            tela=tela
         )
 
         return Markup("<br>".join(partes))

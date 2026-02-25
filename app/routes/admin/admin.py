@@ -113,41 +113,101 @@ def gerenciar_menu():
 @bp.route("/configurar_painel", methods=['GET', 'POST'])
 @admin_required
 def configurar_tela_televisor():
+
     userid = session.get('userid')
     user = get_user(userid)
     if not user:
         abort(403, description="Usuário não encontrado.")
+
     extras = {}
+
+    resource = resources.files("config").joinpath("painel.json")
+
+    # ---------- GET ----------
     if request.method == 'GET':
+
         extras['tipo_aula'] = TipoAulaEnum
         extras['lab'] = get_locais()
-        painel_cfg = carregar_painel_config()
-        extras['painel_cfg'] = painel_cfg
+
+        try:
+            painel_cfg = carregar_painel_config()
+        except:
+            painel_cfg = {}
+
+        # defaults seguros
+        painel_cfg.setdefault("estilo1", {})
+        painel_cfg.setdefault("estilo2", {})
+        painel_cfg.setdefault("estilo3", {})
+
+        painel_cfg["estilo1"].setdefault("tipo", "")
+        painel_cfg["estilo1"].setdefault("tempo", 15)
+        painel_cfg["estilo1"].setdefault("laboratorios", 1)
+        painel_cfg["estilo1"].setdefault("status_indefinido", False)
+
+        painel_cfg["estilo1"].setdefault("tipo", "")
+        painel_cfg["estilo2"].setdefault("tempo", 5)
+        painel_cfg["estilo1"].setdefault("laboratorios", 1)
+        painel_cfg["estilo2"].setdefault("status_indefinido", False)
+
+        painel_cfg["estilo1"].setdefault("tipo", "")
+        painel_cfg["estilo3"].setdefault("tempo", 5)
+        painel_cfg["estilo3"].setdefault("status_indefinido", False)
+
+        extras["painel_cfg"] = painel_cfg
+
+
+    # ---------- POST ----------
     else:
-        resource = resources.files("config").joinpath("painel.json")
-        tipo_horario = request.form.get('reserva_tipo_horario')
-        tempo = request.form.get('intervalo')
-        lab = request.form.get('qt_lab')
-        status_indefinido = "status_indefinido" in request.form
+
         PAINEL_CFG = {
-            "tipo": tipo_horario,
-            "tempo": tempo,
-            "laboratorios": lab,
-            "status_indefinido": status_indefinido
+
+            "estilo1": {
+                "tipo": request.form.get("e1_tipo"),
+                "tempo": request.form.get("e1_tempo"),
+                "laboratorios": request.form.get("e1_lab"),
+                "status_indefinido": "e1_status" in request.form
+            },
+
+            "estilo2": {
+                "tipo": request.form.get("e2_tipo"),
+                "tempo": request.form.get("e2_tempo"),
+                "laboratorios": request.form.get("e2_lab"),
+                "status_indefinido": "e2_status" in request.form
+            },
+
+            "estilo3": {
+                "tipo": request.form.get("e3_tipo"),
+                "tempo": request.form.get("e3_tempo"),
+                "status_indefinido": "e3_status" in request.form
+            }
         }
+
         try:
             with as_file(resource) as painel_path:
-                painel_file = Path(painel_path)
-                painel_file.write_text(json.dumps(PAINEL_CFG, indent=4, ensure_ascii=False), encoding="utf-8")
-            current_app.logger.info("Configuração do painel efetuada com sucesso pelo usuário (%s) %s", user.pessoa.id_pessoa, user.pessoa.nome_pessoa)
-            # loga as mudanças específicas para cada campo
-            current_app.logger.info(f"Configuração do painel - tipo: {tipo_horario}, tempo: {tempo}, laboratorios: {lab}, status_indefinido: {status_indefinido}")
-            flash("Configuração do painel salva com sucesso!", "success")
+                Path(painel_path).write_text(
+                    json.dumps(PAINEL_CFG, indent=4, ensure_ascii=False),
+                    encoding="utf-8"
+                )
+
+            current_app.logger.info(
+                "Configuração do painel atualizada por (%s) %s",
+                user.pessoa.id_pessoa,
+                user.pessoa.nome_pessoa
+            )
+
+            flash("Configuração salva com sucesso!", "success")
+
         except Exception as e:
-            current_app.logger.error(f"Erro ao salvar configuração do painel: {e}")
-            flash("Ocorreu um erro ao salvar a configuração do painel. Tente novamente.", "danger")
+            current_app.logger.error(f"Erro ao salvar: {e}")
+            flash("Erro ao salvar configuração.", "danger")
+
         return redirect(url_for('default.home'))
-    return render_template("reserva/televisor_control.html", user=user, **extras)
+
+    return render_template(
+        "reserva/televisor_control.html",
+        user=user,
+        **extras
+    )
 
 @bp.route("/configuracao_geral", methods=['GET', 'POST'])
 @admin_required
