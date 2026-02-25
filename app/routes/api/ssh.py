@@ -1,12 +1,15 @@
+import uuid
 from copy import deepcopy
+from datetime import datetime
 
 import paramiko
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, abort, current_app, jsonify, request, session
 from paramiko.ssh_exception import (AuthenticationException,
                                     NoValidConnectionsError, SSHException)
 
 from app.auxiliar.auxiliar_api import wrap_command
 from app.auxiliar.auxiliar_cryptograph import decrypt_field, encrypt_field
+from app.auxiliar.auxiliar_routes import get_user
 from app.auxiliar.decorators import admin_required
 from config.json_related import load_ssh_credentials, save_ssh_credentials
 
@@ -180,21 +183,40 @@ def api_ssh_test(cred_id):
     finally:
         client.close()
 
+import uuid
+from datetime import datetime
+
+
 @bp.route("/execute/<int:cred_id>", methods=["POST"])
 @admin_required
 def api_ssh_execute(cred_id):
-    data = request.get_json() or {}
+    current_user = get_user(session.get('userid'))
+    if not current_user:
+        abort(403, description="usuario não encontrado")
+    exec_id = uuid.uuid4().hex[:8]
 
+    data = request.get_json() or {}
     command = data.get("command", "").strip()
     stdin_data = data.get("stdin", "")
     full_path = bool(data.get("full_path", True))
 
     if not command:
+        current_app.logger.warning(
+            "[SSH#%s] Comando vazio enviado | User=%s",
+            exec_id,
+            current_user.id_usuario
+        )
         return jsonify({"stdout": "", "stderr": "Nenhum comando fornecido."}), 400
 
     creds = load_ssh_credentials()
     cred = next((c for c in creds if c["id"] == cred_id), None)
     if not cred:
+        current_app.logger.warning(
+            "[SSH#%s] Credencial não encontrada | CredID=%s | User=%s",
+            exec_id,
+            cred_id,
+            current_user.id_usuario
+        )
         return jsonify({"stdout": "", "stderr": "Credencial não encontrada."}), 404
 
     host = cred.get("host_ssh")
@@ -204,6 +226,20 @@ def api_ssh_execute(cred_id):
 
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+    wrapped_command = wrap_command(command, full_path)
+
+    current_app.logger.info(
+        "[SSH#%s] INICIO | User=%s | Host=%s | Port=%s | Auth=%s | Cmd=%r | Wrapped=%r | Hora=%s",
+        exec_id,
+        current_user.id_usuario,
+        host,
+        port,
+        auth_type,
+        command,
+        wrapped_command,
+        datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    )
 
     try:
         if auth_type == "key":
@@ -216,8 +252,6 @@ def api_ssh_execute(cred_id):
             password = decrypt_field(cred["password_ssh"])
             client.connect(host, port=port, username=user, password=password, timeout=5)
 
-        wrapped_command = wrap_command(command, full_path)
-
         stdin, stdout, stderr = client.exec_command(wrapped_command)
 
         if stdin_data:
@@ -225,12 +259,29 @@ def api_ssh_execute(cred_id):
             stdin.flush()
         stdin.close()
 
-        out = stdout.read().decode()
-        err = stderr.read().decode()
+        out = stdout.read().decode(errors="ignore")
+        err = stderr.read().decode(errors="ignore")
+        exit_code = stdout.channel.recv_exit_status()
+
+        current_app.logger.info(
+            "[SSH#%s] FIM | Exit=%s | Stdout=%r | Stderr=%r",
+            exec_id,
+            exit_code,
+            out,
+            err
+        )
 
         return jsonify({"stdout": out, "stderr": err})
 
     except Exception as e:
+        current_app.logger.exception(
+            "[SSH#%s] ERRO | Host=%s | Cmd=%r | Erro=%s",
+            exec_id,
+            host,
+            wrapped_command,
+            str(e)
+        )
         return jsonify({"stdout": "", "stderr": f"Erro: {e}"})
+
     finally:
         client.close()

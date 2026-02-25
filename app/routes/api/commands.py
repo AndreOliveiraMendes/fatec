@@ -1,7 +1,7 @@
+import uuid
 from datetime import datetime
 
 from flask import Blueprint, current_app, jsonify, request, session
-import uuid
 
 from app.auxiliar.auxiliar_api import run_remote_command, wrap_command
 from app.auxiliar.auxiliar_routes import get_user
