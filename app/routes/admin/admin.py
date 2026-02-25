@@ -233,6 +233,7 @@ def configuracao_geral():
         config_cfg['login'] = home_login
         config_cfg['status_indefinido'] = status_indefinido
         config_cfg['alertar'] = "alertar" in request.form
+        config_cfg['tela_padrao'] = request.form.get("tela_padrao", "1")
         try:
             with as_file(resource) as config_path:
                 config_file = Path(config_path)

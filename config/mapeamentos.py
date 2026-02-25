@@ -85,7 +85,8 @@ DEFAULT_CONFIG_CFG = {
     "navbar_redirect_target": "home",
     "login": False,
     "status_indefinido": True,
-    "alertar": False
+    "alertar": False,
+    "tela_padrao": 1
 }
 
 SECRET_PATH = "config/secret.json"
