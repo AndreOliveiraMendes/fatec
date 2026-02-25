@@ -133,6 +133,13 @@
                                 Ativo
                             </label>
                         </div>
+                        <!-- Checkbox complet path -->
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" id="cmdFullPath" name="active" checked>
+                                Ambiente completo
+                            </label>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <input type="hidden" id="cmdId" name="id">
@@ -312,6 +319,7 @@
             const cmdTemplateField = document.getElementById('cmdTemplate');
             const cmdCredField = document.getElementById('cmdCred');
             const cmdActiveField = document.getElementById('cmdActive');
+            const cmdFullPathField = document.getElementById('cmdFullPath');
 
             const container = document.getElementById('commandList');
             let commandList = [];
@@ -379,6 +387,7 @@
                     cmdTemplateField.value = command.template;
                     cmdCredField.value = command.cred_ssh;
                     cmdActiveField.checked = command.active;
+                    cmdFullPathField.checked = command.full_path;
                 } else {
                     document.getElementById('commandModalLabel').textContent = 'Novo Comando';
                     cmdIdField.value = '';
@@ -386,6 +395,7 @@
                     cmdTemplateField.value = '';
                     cmdCredField.selectedIndex = 0;
                     cmdActiveField.checked = true;
+                    cmdFullPathField.checked = true;
                 }
 
                 cmdModal.modal('show');
@@ -400,7 +410,8 @@
                     name: cmdNameField.value.trim(),
                     template: cmdTemplateField.value.trim(),
                     cred_ssh: cmdCredField.value,
-                    active: cmdActiveField.checked
+                    active: cmdActiveField.checked,
+                    full_path: cmdFullPathField.checked
                 };
 
                 if (!payload.name || !payload.template) {

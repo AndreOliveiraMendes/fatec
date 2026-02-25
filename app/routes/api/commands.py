@@ -1,8 +1,9 @@
 from datetime import datetime
 
 from flask import Blueprint, current_app, jsonify, request, session
+import uuid
 
-from app.auxiliar.auxiliar_api import run_remote_command
+from app.auxiliar.auxiliar_api import run_remote_command, wrap_command
 from app.auxiliar.auxiliar_routes import get_user
 from app.auxiliar.decorators import admin_required, cmd_config_required
 from config.json_related import load_commands, save_commands
@@ -164,17 +165,33 @@ def api_run_command():
         comando_final = cmd["template"].format(**parametros)
     except KeyError as e:
         return jsonify({"success": False, "error": f"Parâmetro ausente: {e.args[0]}"}), 400
+    
+    comando_final = wrap_command(comando_final, cmd["full_path"])
+    exec_id = uuid.uuid4().hex[:8]
 
     # 4️⃣ — Loga execução
     current_app.logger.info(
-        f"[COMANDO] User={user.pessoa.nome_pessoa} (ID {user.id_usuario}) | "
-        f"Cmd='{cmd['name']}' | Lab={lab_id or '-'} | "
-        f"Template='{cmd['template']}' | Exec='{comando_final}' | "
-        f"Hora={datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+        "[COMANDO#%s] User=%s (ID %s) | Cmd=%r | Lab=%s | Template=%r | Exec=%r | Hora=%s",
+        exec_id,
+        user.pessoa.nome_pessoa,
+        user.id_usuario,
+        cmd["name"],
+        lab_id or "-",
+        cmd["template"],
+        comando_final,
+        datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     )
 
     # 5️⃣ — Executa via SSH
     resultado = run_remote_command(cmd["cred_ssh"], comando_final)
+
+    current_app.logger.info(
+        "[RESULTADO#%s] Exit=%s | Stdout=%r | Stderr=%r",
+        exec_id,
+        resultado["exit_code"],
+        resultado["stdout"],
+        resultado["stderr"]
+    )
 
     # 6️⃣ — Retorna JSON pra o modal no front
     return jsonify({
