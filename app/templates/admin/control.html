@@ -5,7 +5,7 @@
 {% endblock title %}
 {% block content %}
     <form class="form-group"
-          action="{{ url_for("admin.configuracao_geral") }}"
+          action="{{ url_for('admin.configuracao_geral') }}"
           role="form"
           method="post">
         <div class="form-group">
@@ -30,7 +30,7 @@
             <input class="form-control"
                    id="toleranca"
                    name="toleranca"
-                   value="{{ config_cfg.get("toleranca") }}"
+                   value="{{ config_cfg.get('toleranca') }}"
                    required>
         </div>
         <div class="form-group">
@@ -86,9 +86,22 @@
                            name="alertar"
                            value="1"
                            {% if config_cfg.get('alertar') %}checked{% endif %}>
-                    Alertar se a reservva temporaria pode sobrescrever uma reserva existente
+                    Alertar se a reserva temporaria pode sobrescrever uma reserva existente
                 </label>
             </div>
+        </div>
+        <div class="form-group">
+            <label for="tela_padrao">Tela padrão (tela carregada ao acessar apenas "televisor"):
+            <small class="text-muted">Atual: {{ config_cfg.get("tela_padrao") }}</small>
+            </label>
+            <select class="form-control" id="tela_padrao" name="tela_padrao" required>
+                <option value="1"
+                        {% if config_cfg.get('tela_padrao', '1') == '1' %}selected{% endif %}>Tela 1</option>
+                <option value="2"
+                        {% if config_cfg.get('tela_padrao') == '2' %}selected{% endif %}>Tela 2</option>
+                <option value="3"
+                        {% if config_cfg.get('tela_padrao') == '3' %}selected{% endif %}>Tela 3</option>
+            </select>
         </div>
         {{ action_buttons('montar', show_voltar=False, label='') }}
     </form>

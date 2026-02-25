@@ -60,10 +60,23 @@ situacoes_helper = [
 ]
 
 DEFAULT_PAINEL_CFG = {
-    "tipo": "Aula",
-    "tempo": "15",
-    "laboratorios": "6",
-    "status_indefinido": True
+    "estilo1": {
+        "tipo": "Aula",
+        "tempo": "15",
+        "laboratorios": "6",
+        "status_indefinido": True
+    },
+    "estilo2": {
+        "tipo": "Aula",
+        "tempo": "5",
+        "laboratorios": "5",
+        "status_indefinido": False
+    },
+    "estilo3": {
+        "tipo": "Aula",
+        "tempo": "5",
+        "status_indefinido": False
+    }
 }
 
 DEFAULT_CONFIG_CFG = {
@@ -72,7 +85,8 @@ DEFAULT_CONFIG_CFG = {
     "navbar_redirect_target": "home",
     "login": False,
     "status_indefinido": True,
-    "alertar": False
+    "alertar": False,
+    "tela_padrao": 1
 }
 
 SECRET_PATH = "config/secret.json"

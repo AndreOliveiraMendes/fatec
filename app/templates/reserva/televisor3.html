@@ -48,9 +48,7 @@
             <thead>
                 <tr>
                     <th class="fixa">Horário:</th>
-                    {% for lab_group in locais %}
-                        {% for lab in lab_group %}<th>{{ lab.nome_local.upper().replace('LABORATORIO', 'LAB') }}</th>{% endfor %}
-                    {% endfor %}
+                    {% for lab in locais %}<th>{{ lab.nome_local.upper().replace('LABORATORIO', 'LAB') }}</th>{% endfor %}
                 </tr>
             </thead>
             <tbody>
@@ -60,10 +58,8 @@
                             <span class="glyphicon glyphicon-time"></span>
                             {{ aula[1].horario_inicio|hora }} - {{ aula[1].horario_fim|hora }}
                         </td>
-                        {% for lab_group in locais %}
-                            {% for lab in lab_group %}
-                                <td>{{ get_reserva(lab.id_local, aula[0].id_aula_ativa, hoje, true, true) }}</td>
-                            {% endfor %}
+                        {% for lab in locais %}
+                            <td>{{ get_reserva(lab.id_local, aula[0].id_aula_ativa, hoje, true, true, 3) }}</td>
                         {% endfor %}
                     </tr>
                 {% endfor %}
@@ -72,7 +68,10 @@
     </div>
 {% endblock content %}
 {% block extra_script %}
-    <script>setInterval(() => window.location.reload(), 5000);</script>
+    <script>
+        const intervalo = {{ intervalo|default(5000) }};  // ms
+        setInterval(() => window.location.reload(), intervalo);
+    </script>
 {% endblock extra_script %}
 {% block extra_css %}
     <style>

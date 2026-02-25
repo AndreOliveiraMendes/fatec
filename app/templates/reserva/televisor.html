@@ -67,7 +67,7 @@
                                     <td class="fixa text-{{ loop.cycle('info', 'success') }}">
                                         <span class="glyphicon glyphicon-time"></span> {{ aula[1].horario_inicio|hora }} - {{ aula[1].horario_fim|hora }}
                                     </td>
-                                    {% for lab in lab_group %}<td>{{ get_reserva(lab.id_local, aula[0].id_aula_ativa, hoje, true, true) }}</td>{% endfor %}
+                                    {% for lab in lab_group %}<td>{{ get_reserva(lab.id_local, aula[0].id_aula_ativa, hoje, true, true, 1) }}</td>{% endfor %}
                                 </tr>
                             {% endfor %}
                         </tbody>

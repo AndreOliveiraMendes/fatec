@@ -1,14 +1,16 @@
+import random
 from datetime import datetime
 from typing import Any
 
-from flask import Blueprint, render_template, request, session
+from flask import (Blueprint, current_app, redirect, render_template, request,
+                   session, url_for)
 
 from app.auxiliar.auxiliar_routes import get_user, parse_date_string
 from app.auxiliar.dao import (get_aulas_ativas_por_dia, get_laboratorios,
                               get_turno_by_time, get_turnos)
 from app.models import TipoAulaEnum, Turnos, db
 from config.general import LOCAL_TIMEZONE
-from config.json_related import carregar_painel_config
+from config.json_related import carregar_config_geral, carregar_painel_config
 
 bp = Blueprint('consultar_reservas', __name__, url_prefix="/consultar_reserva")
 
@@ -58,12 +60,30 @@ def main_page():
     return render_template("reserva/main.html", user=user, **extras)
 
 @bp.route("/televisor")
-@bp.route("/televisor1")
 def tela_televisor():
+    telas = [
+        url_for('consultar_reservas.tela_televisor1'),
+        url_for('consultar_reservas.tela_televisor2'),
+        url_for('consultar_reservas.tela_televisor3')
+    ]
+
+    cfg = carregar_config_geral()
+    tela = cfg.get('tela_padrao')
+
+    if tela and str(tela) in {"1", "2", "3"}:
+        return redirect(telas[int(tela) - 1])
+    else:
+        current_app.logger.warning(
+            "tela não configurada ou inválida, usando aleatória"
+        )
+        return redirect(random.choice(telas))
+
+@bp.route("/televisor1")
+def tela_televisor1():
     userid = session.get('userid')
     user = get_user(userid)
     extras: dict[str, Any] = {}
-    painel_cfg = carregar_painel_config()
+    painel_cfg = carregar_painel_config().get('estilo1')
     tipo_horario = painel_cfg.get('tipo', TipoAulaEnum.AULA.value)
     intervalo = int(painel_cfg.get('tempo', 15))
     qt_lab = int(painel_cfg.get('laboratorios', 6))
@@ -82,13 +102,15 @@ def tela_televisor2():
     userid = session.get('userid')
     user = get_user(userid)
     extras: dict[str, Any] = {}
-    painel_cfg = carregar_painel_config()
+    painel_cfg = carregar_painel_config().get('estilo2')
     tipo_horario = painel_cfg.get('tipo', TipoAulaEnum.AULA.value)
+    intervalo = int(painel_cfg.get('tempo', 5))
     qt_lab = int(painel_cfg.get('laboratorios', 6))
     locais = divide(get_laboratorios(True), qt_lab)
     today = datetime.now(LOCAL_TIMEZONE)
     turno = get_turno_by_time(today.time())
     aulas = get_aulas_ativas_por_dia(today.date(), turno, TipoAulaEnum(tipo_horario))
+    extras['intervalo'] = intervalo*1000
     extras['locais'] = locais
     extras['hoje'] = today
     extras['aulas'] = aulas
@@ -99,13 +121,14 @@ def tela_televisor3():
     userid = session.get('userid')
     user = get_user(userid)
     extras: dict[str, Any] = {}
-    painel_cfg = carregar_painel_config()
+    painel_cfg = carregar_painel_config().get('estilo3')
     tipo_horario = painel_cfg.get('tipo', TipoAulaEnum.AULA.value)
-    qt_lab = int(painel_cfg.get('laboratorios', 6))
-    locais = divide(get_laboratorios(True), qt_lab)
+    intervalo = int(painel_cfg.get('tempo', 5))
+    locais = get_laboratorios(True)
     today = datetime.now(LOCAL_TIMEZONE)
     turno = get_turno_by_time(today.time())
     aulas = get_aulas_ativas_por_dia(today.date(), turno, TipoAulaEnum(tipo_horario))
+    extras['intervalo'] = intervalo*1000
     extras['locais'] = locais
     extras['hoje'] = today
     extras['aulas'] = aulas
