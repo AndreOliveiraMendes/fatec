@@ -24,24 +24,31 @@
                 <!-- ===================== ABA 1: EXECUÇÃO LIVRE ===================== -->
                 <div class="tab-pane fade in active" id="tab-free">
                     <form id="formFreeCommand" class="margin-bottom-10">
-                        <div class="form-inline margin-bottom-5">
-                            <div class="form-group">
-                                <label for="credSelect">Credencial:</label>
+                        <div class="cmd-bar">
+                            <div class="cmd-group">
+                                <label for="credSelect">Credencial</label>
                                 <select id="credSelect" class="form-control" required></select>
                             </div>
-                            <div class="form-group wp60">
+                            <div class="cmd-group flex-grow">
                                 <label for="commandInput" class="sr-only">Comando</label>
                                 <input type="text"
                                        id="commandInput"
-                                       class="form-control full"
+                                       class="form-control"
                                        placeholder="Digite um comando SSH..."
                                        required>
                             </div>
-                            <button type="submit" class="btn btn-primary" id="executeBtn">
-                                <span class="glyphicon glyphicon-play"></span> Executar
-                            </button>
-                            <span id="spinner"
-                                  class="glyphicon glyphicon-refresh spinning margin-left-8 hide"></span>
+                            <div class="cmd-group checkbox-group">
+                                <label>
+                                    <input type="checkbox" id="fullPathCheck" checked>
+                                    Ambiente completo
+                                </label>
+                            </div>
+                            <div class="cmd-group btn-group">
+                                <button type="submit" class="btn btn-primary" id="executeBtn">
+                                    <span class="glyphicon glyphicon-play"></span> Executar
+                                </button>
+                                <span id="spinner" class="glyphicon glyphicon-refresh spinning hide"></span>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="stdinInput">Entrada (stdin) opcional:</label>
@@ -273,7 +280,11 @@
                 fetch(`{{ url_for("api_ssh.api_ssh_execute", cred_id=0) }}`.replace('0', credId), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ command: command, stdin: stdinData })
+                    body: JSON.stringify({
+                        command: command,
+                        stdin: stdinData,
+                        full_path: document.getElementById('fullPathCheck').checked
+                    })
                 })
                 .then(r => r.json())
                 .then(resp => {
@@ -314,7 +325,11 @@
                 fetch(`{{ url_for("api_ssh.api_ssh_execute", cred_id=0) }}`.replace('0', credId), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ command: cmd, stdin: stdinData })
+                    body: JSON.stringify({
+                        command: cmd,
+                        stdin: stdinData,
+                        full_path: document.getElementById('fullPathCheck').checked
+                    })
                 })
                 .then(r => r.json())
                 .then(resp => {
@@ -635,5 +650,38 @@
             overflow-x: auto;
         }
 
+        .cmd-bar{
+            display:flex;
+            flex-wrap:wrap;
+            gap:10px;
+            align-items:flex-end;
+        }
+
+        .cmd-group{
+            display:flex;
+            flex-direction:column;
+        }
+
+        .cmd-group label{
+            font-size:12px;
+            margin-bottom:2px;
+            color:#666;
+        }
+
+        .flex-grow{
+            flex:1;
+            min-width:250px;
+        }
+
+        .checkbox-group{
+            justify-content:flex-end;
+            padding-bottom:6px;
+        }
+
+        .btn-group{
+            flex-direction:row;
+            align-items:center;
+            gap:8px;
+        }
     </style>
 {% endblock extra_css %}

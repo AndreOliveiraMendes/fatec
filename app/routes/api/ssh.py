@@ -5,6 +5,7 @@ from flask import Blueprint, jsonify, request
 from paramiko.ssh_exception import (AuthenticationException,
                                     NoValidConnectionsError, SSHException)
 
+from app.auxiliar.auxiliar_api import wrap_command
 from app.auxiliar.auxiliar_cryptograph import decrypt_field, encrypt_field
 from app.auxiliar.decorators import admin_required
 from config.json_related import load_ssh_credentials, save_ssh_credentials
@@ -183,8 +184,11 @@ def api_ssh_test(cred_id):
 @admin_required
 def api_ssh_execute(cred_id):
     data = request.get_json() or {}
+
     command = data.get("command", "").strip()
     stdin_data = data.get("stdin", "")
+    full_path = bool(data.get("full_path", True))
+
     if not command:
         return jsonify({"stdout": "", "stderr": "Nenhum comando fornecido."}), 400
 
@@ -212,9 +216,10 @@ def api_ssh_execute(cred_id):
             password = decrypt_field(cred["password_ssh"])
             client.connect(host, port=port, username=user, password=password, timeout=5)
 
-        stdin, stdout, stderr = client.exec_command(command)
+        wrapped_command = wrap_command(command, full_path)
 
-        # 🔸 Envia dados para o stdin, se houver
+        stdin, stdout, stderr = client.exec_command(wrapped_command)
+
         if stdin_data:
             stdin.write(stdin_data)
             stdin.flush()
