@@ -119,8 +119,8 @@ def update_reserva_fixa(id_reserva):
     local = none_if_empty(data.get('id_local'), int)
     aula = none_if_empty(data.get('id_aula'), int)
     finalidade_reserva = data.get('finalidade')
-    observacoes = data.get('observacoes')
-    descricao = data.get('descricao')
+    observacoes = none_if_empty(data.get('observacoes'))
+    descricao = none_if_empty(data.get('descricao'))
     if local is None or aula is None:
         return Response(status=400)
     old_reserva = copy(reserva)
@@ -169,8 +169,8 @@ def update_reserva_temporaria(id_reserva):
     local = none_if_empty(data.get('id_local'), int)
     aula = none_if_empty(data.get('id_aula'), int)
     finalidade_reserva = data.get('finalidade')
-    observacoes = data.get('observacoes')
-    descricao = data.get('descricao')
+    observacoes = none_if_empty(data.get('observacoes'))
+    descricao = none_if_empty(data.get('descricao'))
     
     if local is None or aula is None or inicio is None or fim is None:
         return Response(status=400)

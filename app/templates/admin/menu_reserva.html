@@ -1,6 +1,7 @@
 {% extends "base-fixed" %}
+{% from "macros/pagination.html" import render_pagination %}
 {% block title %}
-    Reservas
+    Observações
 {% endblock title %}
 {% block extra_head %}
     {{ refresh_page(60) }}
@@ -9,9 +10,9 @@
     <h3>Agora: {{ datetime|datahora }}</h3>
     <p>Escolha o tipo de reserva a qual voce deseja consultar</p>
     <div class="btn-group-vertical">
-        <a href="{{ url_for('usuario.gerenciar_reserva_fixa') }}"
+        <a href="{{ url_for('admin.get_observações_fixa') }}"
            class="btn btn-primary">Reserva Semestral</a>
-        <a href="{{ url_for('usuario.gerenciar_reserva_temporaria') }}"
+        <a href="{{ url_for('admin.get_observações_temporaria') }}"
            class="btn btn-primary">Reserva Avulsa</a>
     </div>
 {% endblock content %}

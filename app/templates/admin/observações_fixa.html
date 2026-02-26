@@ -1,0 +1,184 @@
+{% extends "base-fixed" %}
+{% from "macros/pagination.html" import render_pagination %}
+{% block title %}
+    observações
+{% endblock title %}
+{% block content %}
+    <!-- Título da Página -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default panel-nav">
+                <div class="panel-body text-center">
+                    <a href="{{ url_for('default.home') }}" class="btn btn-primary">
+                        <span class="glyphicon glyphicon-home"></span> Home
+                    </a>
+                    <a href="{{ url_for('admin.gerenciar_menu') }}" class="btn btn-info">
+                        <span class="glyphicon glyphicon-dashboard"></span> Painel Admin
+                    </a>
+                    <a href="{{ url_for('admin.menu_reservas') }}" class="btn btn-success">
+                        <span class="glyphicon glyphicon-list-alt"></span> Menu Observações
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Painel de Filtros -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default panel-filtros">
+                <div class="panel-heading">
+                    <strong>
+                        <span class="glyphicon glyphicon-filter"></span>
+                        Filtros
+                    </strong>
+                </div>
+                <div class="panel-body">
+                    <form method="get" action="{{ url_for('admin.get_observações_fixa') }}">
+                        <div class="row">
+                            <!-- Semestre -->
+                            <div class="col-sm-4 col-md-3">
+                                <div class="form-group">
+                                    <label>Semestre</label>
+                                    <select class="form-control" name="semestre" onchange="this.form.submit()">
+                                        <option value="">Todos</option>
+                                        {% for semestre in semestres %}
+                                            <option value="{{ semestre.id_semestre }}"
+                                                    {% if request.args.get('semestre')|int == semestre.id_semestre %}selected{% endif %}>
+                                                {{ semestre.nome_semestre }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- Laboratório -->
+                            <div class="col-sm-4 col-md-3">
+                                <div class="form-group">
+                                    <label>Laboratório</label>
+                                    <select name="lab" class="form-control" onchange="this.form.submit()">
+                                        <option value="">Todos</option>
+                                        {% for lab in laboratorios %}
+                                            <option value="{{ lab.id_local }}"
+                                                    {% if request.args.get('lab')|int == lab.id_local %}selected{% endif %}>
+                                                {{ lab.nome_local }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- Dia da semana -->
+                            <div class="col-sm-4 col-md-3">
+                                <div class="form-group">
+                                    <label>Dia da Semana</label>
+                                    <select name="semana" class="form-control" onchange="this.form.submit()">
+                                        <option value="">Todos</option>
+                                        {% for semana in semanas %}
+                                            <option value="{{ semana.id_semana }}"
+                                                    {% if request.args.get('semana')|int == semana.id_semana %}selected{% endif %}>
+                                                {{ semana.nome_semana }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- Tem Observação -->
+                            <div class="col-sm-4 col-md-2">
+                                <div class="form-group filtro-checkbox">
+                                    <label>&nbsp;</label>
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox"
+                                                   name="obs"
+                                                   value="1"
+                                                   onchange="this.form.submit()"
+                                                   {% if request.args.get('obs') %}checked{% endif %}>
+                                            Tem Observação
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Botão limpar -->
+                            <div class="col-sm-12 col-md-2 text-right">
+                                <div class="form-group btn-filtro-reset">
+                                    <label>&nbsp;</label>
+                                    <div>
+                                        <a href="{{ url_for('admin.get_observações_fixa') }}"
+                                           class="btn btn-default">
+                                            <span class="glyphicon glyphicon-remove"></span>
+                                            Limpar filtros
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <!-- Panel com Tabela -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-primary panel-reservas">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                        Reservas Semestrais
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    <table class="table table-bordered table-striped table-hover">
+                        <thead>
+                            <tr class="info">
+                                <th>ID</th>
+                                <th>Responsável</th>
+                                <th>Local</th>
+                                <th>Horário</th>
+                                <th>Observação</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if reservas_fixas %}
+                                {% for r in reservas_fixas %}
+                                    <tr>
+                                        <td>{{ r.id_reserva_fixa }}</td>
+                                        <td title="{{ get_responsavel_reserva(r, true) }}">{{ get_responsavel_reserva(r, true) |truncate(20) }}</td>
+                                        <td>{{ r.local.nome_local }}</td>
+                                        <td>
+                                            {{ r.aula_ativa.dia_da_semana.nome_semana }}
+                                            <br>
+                                            <small class="text-muted">
+                                                {{ r.aula_ativa.aula.horario_inicio|hora }}
+                                                –
+                                                {{ r.aula_ativa.aula.horario_fim|hora }}
+                                            </small>
+                                        </td>
+                                        <td>{{ r.observacoes if r.observacoes else ''|safe }}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center">Nenhuma reserva encontrada para este semestre.</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                    {{ render_pagination(pagination, 'admin.get_observações_fixa', args_extras) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+{% block extra_css %}
+    <style>
+        /* Remove padding do panel-body para encaixar a tabela */
+        .panel-reservas .panel-body {
+            padding: 0;
+        }
+
+        /* Remove margem inferior da tabela dentro do panel */
+        .panel-reservas .table {
+            margin-bottom: 0;
+        }
+    </style>
+{% endblock extra_css %}
