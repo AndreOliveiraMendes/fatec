@@ -107,21 +107,23 @@
         </div>
         <div class="panel-body">
             <div class="well">
-                {% if key %}
-                    <span class="label label-success badge_fernet_key margin-right-8">🔒 Chave Configurada</span>
-                {% else %}
-                    <a href="{{ url_for("admin_remote_credential.gerar_chave") }}"
-                       class="btn btn-danger btn-sm margin-right-8"
-                       onclick="return confirm('Tem certeza que deseja gerar a chave de criptografia? Essa ação não pode ser desfeita.');">
-                        🔑 Gerar Chave
-                    </a>
-                {% endif %}
-                <a href="{{ url_for("admin_remote_credential.manage_ssh") }}"
-                   class="btn btn-warning btn-sm margin-right-8">Credenciais de SSH</a>
-                {% if user and user.perm|has_flag(CONFIGURAR_COMANDOS) %}
-                    <a href="{{ url_for("admin_remote_commands.manage_commands") }}"
-                       class="btn btn-warning btn-sm">Configurar Comandos Remotos</a>
-                {% endif %}
+                <div class="btn-group btn-group-sm" role="group">
+                    {% if key %}
+                        <button class="btn btn-success" disabled>🔒 Chave Configurada</button>
+                    {% else %}
+                        <a href="{{ url_for("admin_remote_credential.gerar_chave") }}"
+                           class="btn btn-danger"
+                           onclick="return confirm('Tem certeza que deseja gerar a chave de criptografia? Essa ação não pode ser desfeita.');">
+                            🔑 Gerar Chave
+                        </a>
+                    {% endif %}
+                    <a href="{{ url_for("admin_remote_credential.manage_ssh") }}"
+                       class="btn btn-warning">Credenciais de SSH</a>
+                    {% if user and user.perm|has_flag(CONFIGURAR_COMANDOS) %}
+                        <a href="{{ url_for("admin_remote_commands.manage_commands") }}"
+                           class="btn btn-warning">Configurar Comandos Remotos</a>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
@@ -131,21 +133,23 @@
         </div>
         <div class="panel-body">
             <div class="well">
-                <a href="{{ url_for("consultar_reservas.tela_televisor1") }}"
-                   class="btn btn-info btn-sm margin-right-5 margin-bottom-5">
-                    <span class="glyphicon glyphicon-eye-open"></span>
-                    Visualizar Tela do Televisor (estilo 1)
-                </a>
-                <a href="{{ url_for("consultar_reservas.tela_televisor2") }}"
-                   class="btn btn-info btn-sm margin-right-5 margin-bottom-5">
-                    <span class="glyphicon glyphicon-eye-open"></span>
-                    Visualizar Tela do Televisor (estilo 2)
-                </a>
-                <a href="{{ url_for("consultar_reservas.tela_televisor3") }}"
-                   class="btn btn-info btn-sm margin-bottom-5">
-                    <span class="glyphicon glyphicon-eye-open"></span>
-                    Visualizar Tela do Televisor (estilo 3)
-                </a>
+                <div class="btn-group btn-group-sm" role="group">
+                    <a href="{{ url_for("consultar_reservas.tela_televisor1") }}"
+                       class="btn btn-info btn-sm margin-bottom-5">
+                        <span class="glyphicon glyphicon-eye-open"></span>
+                        Visualizar Tela do Televisor (estilo 1)
+                    </a>
+                    <a href="{{ url_for("consultar_reservas.tela_televisor2") }}"
+                       class="btn btn-info btn-sm margin-bottom-5">
+                        <span class="glyphicon glyphicon-eye-open"></span>
+                        Visualizar Tela do Televisor (estilo 2)
+                    </a>
+                    <a href="{{ url_for("consultar_reservas.tela_televisor3") }}"
+                       class="btn btn-info btn-sm margin-bottom-5">
+                        <span class="glyphicon glyphicon-eye-open"></span>
+                        Visualizar Tela do Televisor (estilo 3)
+                    </a>
+                </div>
             </div>
         </div>
     </div>
