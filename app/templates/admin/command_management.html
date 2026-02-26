@@ -161,6 +161,7 @@
             const credSelect = document.getElementById('credSelect');
             const formFree = document.getElementById('formFreeCommand');
             const commandInput = document.getElementById('commandInput');
+            let currentController = null;
 
             // Carrega lista de credenciais
             fetch('{{ url_for("api_ssh.api_ssh_list") }}')
@@ -230,6 +231,14 @@
             function rerunCommand(command, stdinData) {
                 const credId = credSelect.value;
                 if (!credId) return;
+
+                // cancela requisição anterior se existir
+                if (currentController) {
+                    currentController.abort();
+                }
+
+                currentController = new AbortController();
+
                 spinner.classList.remove('hide');
                 executeBtn.disabled = true;
                 disableAllReruns();
@@ -237,6 +246,7 @@
                 fetch(`{{ url_for("api_ssh.api_ssh_execute", cred_id=0) }}`.replace('0', credId), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
+                    signal: currentController.signal,
                     body: JSON.stringify({
                         command: command,
                         stdin: stdinData,
@@ -248,13 +258,18 @@
                     addToHistory(command, resp.stdout || '', resp.stderr || '', stdinData);
                 })
                 .catch(err => {
-                    addToHistory(command, '', 'Erro inesperado: ' + err, stdinData);
+                    if (err.name === 'AbortError') {
+                        addToHistory(command, '', 'Comando abortado pelo usuário (Ctrl+C)', stdinData);
+                    } else {
+                        addToHistory(command, '', 'Erro inesperado: ' + err, stdinData);
+                    }
                 })
                 .finally(() => {
                     spinner.classList.add('hide');
                     executeBtn.disabled = false;
                     commandInput.value = '';
                     disableAllReruns(false);
+                    currentController = null;
                 });
             }
 
@@ -275,6 +290,14 @@
                 const cmd = commandInput.value.trim();
                 const stdinData = document.getElementById('stdinInput').value;
                 if (!cmd) return;
+
+                // cancela requisição anterior se existir
+                if (currentController) {
+                    currentController.abort();
+                }
+
+                currentController = new AbortController();
+
                 spinner.classList.remove('hide');
                 executeBtn.disabled = true;
                 disableAllReruns();
@@ -282,6 +305,7 @@
                 fetch(`{{ url_for("api_ssh.api_ssh_execute", cred_id=0) }}`.replace('0', credId), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
+                    signal: currentController.signal,
                     body: JSON.stringify({
                         command: cmd,
                         stdin: stdinData,
@@ -293,17 +317,30 @@
                     addToHistory(cmd, resp.stdout || '', resp.stderr || '', stdinData);
                 })
                 .catch(err => {
-                    addToHistory(cmd, '', 'Erro inesperado: ' + err);
+                    if (err.name === 'AbortError') {
+                        addToHistory(cmd, '', 'Comando abortado pelo usuário (Ctrl+C)', stdinData);
+                    } else {
+                        addToHistory(cmd, '', 'Erro inesperado: ' + err, stdinData);
+                    }
                 })
                 .finally(() => {
                     spinner.classList.add('hide');
                     executeBtn.disabled = false;
                     commandInput.value = '';
                     disableAllReruns(false);
+                    currentController = null;
                 });
 
                 commandInput.value = '';
                 document.getElementById('stdinInput').value = '';
+            });
+
+            // abortar
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.key === 'c' && currentController) {
+                    e.preventDefault();
+                    currentController.abort();
+                }
             });
         })();
     </script>
