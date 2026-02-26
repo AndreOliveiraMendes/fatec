@@ -163,11 +163,15 @@
 
                         // cria células para cada comando
                         cmdsLab4.forEach(cmd => {
+                            const badge = cmd.full_path
+                            ? `<span class="label label-success" title="Executa com ambiente shell completo">Shell</span>`
+                            : `<span class="label label-default" title="Executa direto sem shell">Direto</span>`;
                             const td = document.createElement('td');
                             td.innerHTML = `
                                 <button class="btn btn-sm btn-primary btn-run" data-cmd-id="${cmd.id}" data-lab-id="${lab.id}">
                                     ⚙️ ${cmd.name}
                                 </button>
+                                <div>${badge}</div>
                             `;
                             linha.appendChild(td);
                         });
@@ -194,15 +198,21 @@
                                                 <h4 class="modal-title">Comandos adicionais para ${lab.nome}</h4>
                                             </div>
                                             <div class="modal-body">
-                                                ${cmdsLab.slice(4).map(cmd => `
+                                            ${cmdsLab.slice(4).map(cmd => {
+                                                const badge = cmd.full_path
+                                                    ? `<span class="label label-success">Shell</span>`
+                                                    : `<span class="label label-default">Direto</span>`;
+
+                                                return `
                                                     <div class="margin-bottom-10">
-                                                        <strong>${cmd.name}</strong><br>
+                                                        <strong>${cmd.name}</strong> ${badge}<br>
                                                         <code>${cmd.template}</code><br>
                                                         <button class="btn btn-sm btn-primary btn-run" data-cmd-id="${cmd.id}" data-lab-id="${lab.id}">
                                                             ⚙️ Executar
                                                         </button>
                                                     </div>
-                                                `).join('')}
+                                                `;
+                                            }).join('')}
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
@@ -251,11 +261,16 @@
                 grid.className = 'row';
 
                 globais.forEach(cmd => {
+                    const badge = cmd.full_path
+                        ? `<span class="label label-success">Shell</span>`
+                        : `<span class="label label-default">Direto</span>`;
+
                     const col = document.createElement('div');
                     col.className = 'col-sm-6 col-md-3';
                     col.innerHTML = `
                         <div class="panel panel-default">
                             <div class="panel-body text-center">
+                                ${badge}
                                 <h5><strong>${cmd.name}</strong></h5>
                                 <code>${cmd.template}</code><br>
                                 <button class="btn btn-sm btn-primary btn-run-global margin-top-5" data-cmd-id="${cmd.id}">
