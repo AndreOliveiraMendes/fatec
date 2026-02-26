@@ -107,7 +107,7 @@
         </div>
         <div class="panel-body">
             <div class="well">
-                <div class="btn-group btn-group-sm" role="group">
+                <div class="btn-group" role="group">
                     {% if key %}
                         <button class="btn btn-success" disabled>🔒 Chave Configurada</button>
                     {% else %}
@@ -133,19 +133,19 @@
         </div>
         <div class="panel-body">
             <div class="well">
-                <div class="btn-group btn-group-sm" role="group">
+                <div class="btn-group" role="group">
                     <a href="{{ url_for("consultar_reservas.tela_televisor1") }}"
-                       class="btn btn-info btn-sm margin-bottom-5">
+                       class="btn btn-info margin-bottom-5">
                         <span class="glyphicon glyphicon-eye-open"></span>
                         Visualizar Tela do Televisor (estilo 1)
                     </a>
                     <a href="{{ url_for("consultar_reservas.tela_televisor2") }}"
-                       class="btn btn-info btn-sm margin-bottom-5">
+                       class="btn btn-info margin-bottom-5">
                         <span class="glyphicon glyphicon-eye-open"></span>
                         Visualizar Tela do Televisor (estilo 2)
                     </a>
                     <a href="{{ url_for("consultar_reservas.tela_televisor3") }}"
-                       class="btn btn-info btn-sm margin-bottom-5">
+                       class="btn btn-info margin-bottom-5">
                         <span class="glyphicon glyphicon-eye-open"></span>
                         Visualizar Tela do Televisor (estilo 3)
                     </a>
