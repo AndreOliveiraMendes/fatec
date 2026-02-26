@@ -150,7 +150,7 @@
                         <tbody>
                             {% for r in reservas_fixas %}
                                 <tr class="linha-click"
-                                    data-info-url="{{ url_for('usuario.get_info_reserva', tipo_reserva='fixa', id_reserva=r.id_reserva_fixa) }}">
+                                    data-info-url="{{ url_for('usuario_reservas.get_info_reserva', tipo_reserva='fixa', id_reserva=r.id_reserva_fixa) }}">
                                     {% if user and user.perm|has_flag(ADMIN) %}
                                         <td title="{{ get_responsavel_reserva(r, true) }}">{{ get_responsavel_reserva(r, true) |truncate(12) }}</td>
                                     {% endif %}
@@ -179,20 +179,20 @@
                                                     <a class="btn-detalhes"
                                                        data-toggle="modal"
                                                        data-target="#modalDetalhes"
-                                                       data-info-url="{{ url_for('usuario.get_info_reserva', tipo_reserva='fixa', id_reserva=r.id_reserva_fixa) }}">
+                                                       data-info-url="{{ url_for('usuario_reservas.get_info_reserva', tipo_reserva='fixa', id_reserva=r.id_reserva_fixa) }}">
                                                         Detalhes
                                                     </a>
                                                 </li>
                                                 <li class="{% if not pode_editar %}disabled{% endif %}">
                                                     <a class="btn-editar"
-                                                       {% if pode_editar %} data-toggle="modal" data-target="#modalEditar" data-info-url="{{ url_for('usuario.get_info_reserva', tipo_reserva='fixa', id_reserva=r.id_reserva_fixa) }}" {% else %} title="Fora do período permitido" {% endif %}>
+                                                       {% if pode_editar %} data-toggle="modal" data-target="#modalEditar" data-info-url="{{ url_for('usuario_reservas.get_info_reserva', tipo_reserva='fixa', id_reserva=r.id_reserva_fixa) }}" {% else %} title="Fora do período permitido" {% endif %}>
                                                         Editar
                                                     </a>
                                                 </li>
                                                 <li class="divider"></li>
                                                 <li class="{% if not pode_editar %}disabled{% endif %}">
                                                     <a class="btn-cancelar text-danger"
-                                                       {% if pode_editar %} data-toggle="modal" data-target="#modalCancelar" data-info-url="{{ url_for('usuario.get_info_reserva', tipo_reserva='fixa', id_reserva=r.id_reserva_fixa) }}" {% else %} title="Fora do período permitido" {% endif %}>
+                                                       {% if pode_editar %} data-toggle="modal" data-target="#modalCancelar" data-info-url="{{ url_for('usuario_reservas.get_info_reserva', tipo_reserva='fixa', id_reserva=r.id_reserva_fixa) }}" {% else %} title="Fora do período permitido" {% endif %}>
                                                         Cancelar
                                                     </a>
                                                 </li>
@@ -204,7 +204,7 @@
                         </tbody>
                     </table>
                 </div>
-                {{ render_pagination(pagination, 'usuario.gerenciar_reserva_fixa', args_extras) }}
+                {{ render_pagination(pagination, 'usuario_reservas.gerenciar_reserva_fixa', args_extras) }}
                 {% include "usuario/modal_cancelar.html" %}
                 {% include "usuario/modal_editar.html" %}
                 {% include "usuario/modal_detalhes.html" %}

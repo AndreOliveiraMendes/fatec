@@ -9,9 +9,9 @@
     <h3>Agora: {{ datetime|datahora }}</h3>
     <p>Escolha o tipo de reserva a qual voce deseja consultar</p>
     <div class="btn-group-vertical">
-        <a href="{{ url_for('usuario.gerenciar_reserva_fixa') }}"
+        <a href="{{ url_for('usuario_reservas.gerenciar_reserva_fixa') }}"
            class="btn btn-primary">Reserva Semestral</a>
-        <a href="{{ url_for('usuario.gerenciar_reserva_temporaria') }}"
+        <a href="{{ url_for('usuario_reservas.gerenciar_reserva_temporaria') }}"
            class="btn btn-primary">Reserva Avulsa</a>
     </div>
 {% endblock content %}

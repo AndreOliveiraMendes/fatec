@@ -148,7 +148,7 @@
                         <tbody>
                             {% for r in reservas_temporarias %}
                                 <tr class="linha-click"
-                                    data-info-url="{{ url_for('usuario.get_info_reserva', tipo_reserva='temporaria', id_reserva=r.id_reserva_temporaria) }}">
+                                    data-info-url="{{ url_for('usuario_reservas.get_info_reserva', tipo_reserva='temporaria', id_reserva=r.id_reserva_temporaria) }}">
                                     {% if user.perm|has_flag(ADMIN) %}
                                         <td title="{{ get_responsavel_reserva(r, true) }}">{{ get_responsavel_reserva(r, true) |truncate(12) }}</td>
                                     {% endif %}
@@ -181,7 +181,7 @@
                                                     <a class="btn-detalhes"
                                                        data-toggle="modal"
                                                        data-target="#modalDetalhes"
-                                                       data-info-url="{{ url_for('usuario.get_info_reserva', tipo_reserva='temporaria', id_reserva=r.id_reserva_temporaria) }}">
+                                                       data-info-url="{{ url_for('usuario_reservas.get_info_reserva', tipo_reserva='temporaria', id_reserva=r.id_reserva_temporaria) }}">
                                                         Detalhes
                                                     </a>
                                                 </li>
@@ -189,7 +189,7 @@
                                                     <a class="btn-editar"
                                                        data-toggle="modal"
                                                        data-target="#modalEditar"
-                                                       data-info-url="{{ url_for('usuario.get_info_reserva', tipo_reserva='temporaria', id_reserva=r.id_reserva_temporaria) }}">
+                                                       data-info-url="{{ url_for('usuario_reservas.get_info_reserva', tipo_reserva='temporaria', id_reserva=r.id_reserva_temporaria) }}">
                                                         Editar
                                                     </a>
                                                 </li>
@@ -198,7 +198,7 @@
                                                     <a class="btn-cancelar text-danger"
                                                        data-toggle="modal"
                                                        data-target="#modalCancelar"
-                                                       data-info-url="{{ url_for('usuario.get_info_reserva', tipo_reserva='temporaria', id_reserva=r.id_reserva_temporaria) }}">
+                                                       data-info-url="{{ url_for('usuario_reservas.get_info_reserva', tipo_reserva='temporaria', id_reserva=r.id_reserva_temporaria) }}">
                                                         Cancelar
                                                     </a>
                                                 </li>
@@ -210,7 +210,7 @@
                         </tbody>
                     </table>
                 </div>
-                {{ render_pagination(pagination, 'usuario.gerenciar_reserva_temporaria', args_extras) }}
+                {{ render_pagination(pagination, 'usuario_reservas.gerenciar_reserva_temporaria', args_extras) }}
                 {% include "usuario/modal_cancelar.html" %}
                 {% include "usuario/modal_editar.html" %}
                 {% include "usuario/modal_detalhes.html" %}

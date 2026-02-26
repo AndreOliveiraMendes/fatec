@@ -491,8 +491,8 @@ def info_reserva_fixa(id_reserva):
         "finalidadereserva": reserva.finalidade_reserva.value,
         "responsavel": reserva.id_responsavel,
         "responsavel_especial": reserva.id_responsavel_especial,
-        "cancel_url": url_for("usuario.cancelar_reserva", tipo_reserva="fixa", id_reserva=id_reserva),
-        "editar_url": url_for("usuario.editar_reserva", tipo_reserva="fixa", id_reserva=id_reserva)
+        "cancel_url": url_for("usuario_reservas.cancelar_reserva", tipo_reserva="fixa", id_reserva=id_reserva),
+        "editar_url": url_for("usuario_reservas.editar_reserva", tipo_reserva="fixa", id_reserva=id_reserva)
     }
 
 
@@ -509,6 +509,6 @@ def info_reserva_temporaria(id_reserva):
         "finalidadereserva": reserva.finalidade_reserva.value,
         "responsavel": reserva.id_responsavel,
         "responsavel_especial": reserva.id_responsavel_especial,
-        "cancel_url": url_for("usuario.cancelar_reserva", tipo_reserva="temporaria", id_reserva=id_reserva),
-        "editar_url": url_for("usuario.editar_reserva", tipo_reserva="temporaria", id_reserva=id_reserva)
+        "cancel_url": url_for("usuario_reservas.cancelar_reserva", tipo_reserva="temporaria", id_reserva=id_reserva),
+        "editar_url": url_for("usuario_reservas.editar_reserva", tipo_reserva="temporaria", id_reserva=id_reserva)
     }
