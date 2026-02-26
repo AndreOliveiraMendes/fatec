@@ -24,24 +24,31 @@
                 <!-- ===================== ABA 1: EXECUÇÃO LIVRE ===================== -->
                 <div class="tab-pane fade in active" id="tab-free">
                     <form id="formFreeCommand" class="margin-bottom-10">
-                        <div class="form-inline margin-bottom-5">
-                            <div class="form-group">
-                                <label for="credSelect">Credencial:</label>
+                        <div class="cmd-bar">
+                            <div class="cmd-group">
+                                <label for="credSelect">Credencial</label>
                                 <select id="credSelect" class="form-control" required></select>
                             </div>
-                            <div class="form-group wp60">
+                            <div class="cmd-group flex-grow">
                                 <label for="commandInput" class="sr-only">Comando</label>
                                 <input type="text"
                                        id="commandInput"
-                                       class="form-control full"
+                                       class="form-control"
                                        placeholder="Digite um comando SSH..."
                                        required>
                             </div>
-                            <button type="submit" class="btn btn-primary" id="executeBtn">
-                                <span class="glyphicon glyphicon-play"></span> Executar
-                            </button>
-                            <span id="spinner"
-                                  class="glyphicon glyphicon-refresh spinning margin-left-8 hide"></span>
+                            <div class="cmd-group checkbox-group">
+                                <label>
+                                    <input type="checkbox" id="fullPathCheck" checked>
+                                    Ambiente completo
+                                </label>
+                            </div>
+                            <div class="cmd-group btn-group">
+                                <button type="submit" class="btn btn-primary" id="executeBtn">
+                                    <span class="glyphicon glyphicon-play"></span> Executar
+                                </button>
+                                <span id="spinner" class="glyphicon glyphicon-refresh spinning hide"></span>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="stdinInput">Entrada (stdin) opcional:</label>
@@ -75,56 +82,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-    <!-- ===================== MODAL DE COMANDO ===================== -->
-    <div class="modal fade"
-         id="commandModal"
-         tabindex="-1"
-         role="dialog"
-         aria-labelledby="commandModalLabel">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <form id="formCommand">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
-                            <span aria-hidden="true">×</span>
-                        </button>
-                        <h4 class="modal-title" id="commandModalLabel">Novo Comando</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label for="cmdName">Nome do Comando</label>
-                            <input type="text" id="cmdName" name="nome" class="form-control" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="cmdTemplate">Template</label>
-                            <input type="text"
-                                   id="cmdTemplate"
-                                   name="template"
-                                   class="form-control"
-                                   placeholder="Ex: systemctl restart {service}"
-                                   required>
-                        </div>
-                        <div class="form-group">
-                            <label for="cmdCred">Credencial SSH</label>
-                            <select id="cmdCred" name="cred_ssh" class="form-control" required></select>
-                        </div>
-                        <div class="checkbox">
-                            <label>
-                                <input type="checkbox" id="cmdActive" name="active" checked>
-                                Ativo
-                            </label>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">
-                            <span class="glyphicon glyphicon-floppy-disk"></span> Salvar
-                        </button>
-                    </div>
-                </form>
             </div>
         </div>
     </div>
@@ -176,6 +133,13 @@
                                 Ativo
                             </label>
                         </div>
+                        <!-- Checkbox complet path -->
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" id="cmdFullPath" name="active" checked>
+                                Ambiente completo
+                            </label>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <input type="hidden" id="cmdId" name="id">
@@ -197,6 +161,7 @@
             const credSelect = document.getElementById('credSelect');
             const formFree = document.getElementById('formFreeCommand');
             const commandInput = document.getElementById('commandInput');
+            let currentController = null;
 
             // Carrega lista de credenciais
             fetch('{{ url_for("api_ssh.api_ssh_list") }}')
@@ -266,6 +231,14 @@
             function rerunCommand(command, stdinData) {
                 const credId = credSelect.value;
                 if (!credId) return;
+
+                // cancela requisição anterior se existir
+                if (currentController) {
+                    currentController.abort();
+                }
+
+                currentController = new AbortController();
+
                 spinner.classList.remove('hide');
                 executeBtn.disabled = true;
                 disableAllReruns();
@@ -273,20 +246,30 @@
                 fetch(`{{ url_for("api_ssh.api_ssh_execute", cred_id=0) }}`.replace('0', credId), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ command: command, stdin: stdinData })
+                    signal: currentController.signal,
+                    body: JSON.stringify({
+                        command: command,
+                        stdin: stdinData,
+                        full_path: document.getElementById('fullPathCheck').checked
+                    })
                 })
                 .then(r => r.json())
                 .then(resp => {
                     addToHistory(command, resp.stdout || '', resp.stderr || '', stdinData);
                 })
                 .catch(err => {
-                    addToHistory(command, '', 'Erro inesperado: ' + err, stdinData);
+                    if (err.name === 'AbortError') {
+                        addToHistory(command, '', 'Comando abortado pelo usuário (Ctrl+C)', stdinData);
+                    } else {
+                        addToHistory(command, '', 'Erro inesperado: ' + err, stdinData);
+                    }
                 })
                 .finally(() => {
                     spinner.classList.add('hide');
                     executeBtn.disabled = false;
                     commandInput.value = '';
                     disableAllReruns(false);
+                    currentController = null;
                 });
             }
 
@@ -307,6 +290,14 @@
                 const cmd = commandInput.value.trim();
                 const stdinData = document.getElementById('stdinInput').value;
                 if (!cmd) return;
+
+                // cancela requisição anterior se existir
+                if (currentController) {
+                    currentController.abort();
+                }
+
+                currentController = new AbortController();
+
                 spinner.classList.remove('hide');
                 executeBtn.disabled = true;
                 disableAllReruns();
@@ -314,24 +305,42 @@
                 fetch(`{{ url_for("api_ssh.api_ssh_execute", cred_id=0) }}`.replace('0', credId), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ command: cmd, stdin: stdinData })
+                    signal: currentController.signal,
+                    body: JSON.stringify({
+                        command: cmd,
+                        stdin: stdinData,
+                        full_path: document.getElementById('fullPathCheck').checked
+                    })
                 })
                 .then(r => r.json())
                 .then(resp => {
                     addToHistory(cmd, resp.stdout || '', resp.stderr || '', stdinData);
                 })
                 .catch(err => {
-                    addToHistory(cmd, '', 'Erro inesperado: ' + err);
+                    if (err.name === 'AbortError') {
+                        addToHistory(cmd, '', 'Comando abortado pelo usuário (Ctrl+C)', stdinData);
+                    } else {
+                        addToHistory(cmd, '', 'Erro inesperado: ' + err, stdinData);
+                    }
                 })
                 .finally(() => {
                     spinner.classList.add('hide');
                     executeBtn.disabled = false;
                     commandInput.value = '';
                     disableAllReruns(false);
+                    currentController = null;
                 });
 
                 commandInput.value = '';
                 document.getElementById('stdinInput').value = '';
+            });
+
+            // abortar
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.key === 'c' && currentController) {
+                    e.preventDefault();
+                    currentController.abort();
+                }
             });
         })();
     </script>
@@ -347,6 +356,7 @@
             const cmdTemplateField = document.getElementById('cmdTemplate');
             const cmdCredField = document.getElementById('cmdCred');
             const cmdActiveField = document.getElementById('cmdActive');
+            const cmdFullPathField = document.getElementById('cmdFullPath');
 
             const container = document.getElementById('commandList');
             let commandList = [];
@@ -414,6 +424,7 @@
                     cmdTemplateField.value = command.template;
                     cmdCredField.value = command.cred_ssh;
                     cmdActiveField.checked = command.active;
+                    cmdFullPathField.checked = command.full_path;
                 } else {
                     document.getElementById('commandModalLabel').textContent = 'Novo Comando';
                     cmdIdField.value = '';
@@ -421,6 +432,7 @@
                     cmdTemplateField.value = '';
                     cmdCredField.selectedIndex = 0;
                     cmdActiveField.checked = true;
+                    cmdFullPathField.checked = true;
                 }
 
                 cmdModal.modal('show');
@@ -435,7 +447,8 @@
                     name: cmdNameField.value.trim(),
                     template: cmdTemplateField.value.trim(),
                     cred_ssh: cmdCredField.value,
-                    active: cmdActiveField.checked
+                    active: cmdActiveField.checked,
+                    full_path: cmdFullPathField.checked
                 };
 
                 if (!payload.name || !payload.template) {
@@ -635,5 +648,38 @@
             overflow-x: auto;
         }
 
+        .cmd-bar{
+            display:flex;
+            flex-wrap:wrap;
+            gap:10px;
+            align-items:flex-end;
+        }
+
+        .cmd-group{
+            display:flex;
+            flex-direction:column;
+        }
+
+        .cmd-group label{
+            font-size:12px;
+            margin-bottom:2px;
+            color:#666;
+        }
+
+        .flex-grow{
+            flex:1;
+            min-width:250px;
+        }
+
+        .checkbox-group{
+            justify-content:flex-end;
+            padding-bottom:6px;
+        }
+
+        .btn-group{
+            flex-direction:row;
+            align-items:center;
+            gap:8px;
+        }
     </style>
 {% endblock extra_css %}

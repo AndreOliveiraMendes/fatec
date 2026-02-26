@@ -1,3 +1,4 @@
+import shlex
 from copy import copy
 
 from flask import Response, current_app, jsonify, request, session
@@ -16,6 +17,11 @@ from config.json_related import load_ssh_credentials
 
 
 # helper functions for command API routes
+def wrap_command(command: str, full_path: bool) -> str:
+    if full_path:
+        return f"bash -lc {shlex.quote(command)}"
+    return command
+
 def run_remote_command(cred_ssh, command):
     """Executa um comando remoto via SSH e retorna stdout/stderr separados."""
     import io
