@@ -5,7 +5,7 @@
 {% endblock title %}
 {% block content %}
     <div class="btn-group">
-        <a href="{{ url_for('default.home') }}" class="btn btn-default">
+        <a href="{{ url_for("default.home") }}" class="btn btn-default">
             <span class="glyphicon glyphicon-home"></span> Início
         </a>
     </div>
@@ -13,9 +13,16 @@
         <strong>Reserva Avulsa</strong> dia: {{ day|data }}
     </h3>
     <p>Escolha os dias a seren reservados</p>
+    <div class="alert alert-warning alert-dismissible" role="alert">
+        <button type="button" class="close" data-dismiss="alert">
+            <span>×</span>
+        </button>
+        <span class="glyphicon glyphicon-warning-sign"></span>
+        Se o segundo dia não for informado, será assumido que este é o mesmo do primeiro dia.
+    </div>
     <form class="form-group"
           role="form"
-          action="{{ url_for('reservas_temporarias.main_page') }}"
+          action="{{ url_for("reservas_temporarias.main_page") }}"
           method="post">
         <div class="form-group">
             <label for="dia_inicio">primeiro dia da reserva Avulsa:</label>
