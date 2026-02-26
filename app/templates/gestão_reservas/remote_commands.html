@@ -325,8 +325,16 @@
                 const paramsManuais = cmd.params.filter(p => p.selection_type === "manual");
 
                 if (!paramsManuais.length) {
-                    // sem parâmetros manuais → executar direto
-                    executarComandoFinal(cmd, labId, {});
+                    form.innerHTML = `<p class="text-center">Confirmar execução do comando <strong>${cmd.name}</strong>?</p>`;
+
+                    const btnExec = document.getElementById("btnExecutar");
+                    btnExec.textContent = "Confirmar";
+                    btnExec.onclick = () => {
+                        executarComandoFinal(cmd, labId, {});
+                        $("#paramModal").modal("hide");
+                    };
+
+                    $("#paramModal").modal("show");
                     return;
                 }
 
