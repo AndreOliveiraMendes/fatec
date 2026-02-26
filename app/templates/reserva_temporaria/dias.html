@@ -5,9 +5,9 @@
     dias
 {% endblock title %}
 {% block content %}
-    <div class="btn-group">
+    <div class="btn-group margin-bottom-10">
         {{ go_back() }}
-        <a href="{{ url_for('default.home') }}" class="btn btn-default">
+        <a href="{{ url_for("default.home") }}" class="btn btn-default">
             <span class="glyphicon glyphicon-home"></span> Início
         </a>
     </div>
@@ -19,10 +19,10 @@
     <p>Escolha os turnos e objetivo da reserva avulsa (temporaria)</p>
     <form method="get"
           action="{{ url_for('reservas_temporarias.get_lab', inicio=inicio, fim=fim) }}"
-          class="d-flex align-items-center mb-2">
-        <div class="me-3">
+          class="margin-bottom-15">
+        <div class="margin-bottom-5">
             <strong>geral</strong>
-            (das 0:00 às 23:59)
+            <small class="text-muted">(das 0:00 às 23:59)</small>
         </div>
         <div class="btn-group" role="group">
             {% for ta in tipo_aula %}
@@ -36,10 +36,10 @@
     {% for turno in turnos %}
         <form method="get"
               action="{{ url_for('reservas_temporarias.get_lab', inicio=inicio, fim=fim, id_turno=turno.id_turno) }}"
-              class="d-flex align-items-center mb-2">
-            <div class="me-3">
+              class="margin-bottom-15">
+            <div class="margin-bottom-5">
                 <strong>{{ turno.nome_turno }}</strong>
-                (das {{ turno.horario_inicio|hora }} às {{ turno.horario_fim|hora }})
+                <small class="text-muted">(das {{ turno.horario_inicio|hora }} às {{ turno.horario_fim|hora }})</small>
             </div>
             <div class="btn-group" role="group">
                 {% for ta in tipo_aula %}
