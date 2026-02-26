@@ -193,6 +193,7 @@ def api_ssh_execute(cred_id):
     current_user = get_user(session.get('userid'))
     if not current_user:
         abort(403, description="usuario não encontrado")
+
     exec_id = uuid.uuid4().hex[:8]
 
     data = request.get_json() or {}
@@ -200,16 +201,19 @@ def api_ssh_execute(cred_id):
     stdin_data = data.get("stdin", "")
     full_path = bool(data.get("full_path", True))
 
+    # -------- validação comando --------
     if not command:
         current_app.logger.warning(
-            "[SSH#%s] Comando vazio enviado | User=%s",
+            "[SSH#%s] Comando vazio | User=%s",
             exec_id,
             current_user.id_usuario
         )
         return jsonify({"stdout": "", "stderr": "Nenhum comando fornecido."}), 400
 
+    # -------- busca credencial --------
     creds = load_ssh_credentials()
     cred = next((c for c in creds if c["id"] == cred_id), None)
+
     if not cred:
         current_app.logger.warning(
             "[SSH#%s] Credencial não encontrada | CredID=%s | User=%s",
@@ -229,19 +233,29 @@ def api_ssh_execute(cred_id):
 
     wrapped_command = wrap_command(command, full_path)
 
+    # -------- log técnico (timeline) --------
     current_app.logger.info(
-        "[SSH#%s] INICIO | User=%s | Host=%s | Port=%s | Auth=%s | Cmd=%r | Wrapped=%r | Hora=%s",
+        "[SSH#%s] START User=%s Host=%s",
         exec_id,
+        current_user.id_usuario,
+        host
+    )
+
+    # -------- log auditoria --------
+    current_app.cmd_logger.info(
+        "[CMD#%s] User=%s (ID %s) | Host=%s | Port=%s | Auth=%s | Cmd=%r | Wrapped=%r",
+        exec_id,
+        getattr(current_user.pessoa, "nome_pessoa", "-"),
         current_user.id_usuario,
         host,
         port,
         auth_type,
         command,
-        wrapped_command,
-        datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        wrapped_command
     )
 
     try:
+        # -------- autenticação --------
         if auth_type == "key":
             import io
             key_str = decrypt_field(cred["key_ssh"])
@@ -252,6 +266,7 @@ def api_ssh_execute(cred_id):
             password = decrypt_field(cred["password_ssh"])
             client.connect(host, port=port, username=user, password=password, timeout=5)
 
+        # -------- execução --------
         stdin, stdout, stderr = client.exec_command(wrapped_command)
 
         if stdin_data:
@@ -263,8 +278,16 @@ def api_ssh_execute(cred_id):
         err = stderr.read().decode(errors="ignore")
         exit_code = stdout.channel.recv_exit_status()
 
+        # -------- log técnico --------
         current_app.logger.info(
-            "[SSH#%s] FIM | Exit=%s | Stdout=%r | Stderr=%r",
+            "[SSH#%s] END Exit=%s",
+            exec_id,
+            exit_code
+        )
+
+        # -------- log auditoria --------
+        current_app.cmd_logger.info(
+            "[RES#%s] Exit=%s | Stdout=%r | Stderr=%r",
             exec_id,
             exit_code,
             out,
@@ -274,13 +297,23 @@ def api_ssh_execute(cred_id):
         return jsonify({"stdout": out, "stderr": err})
 
     except Exception as e:
+
+        # técnico
         current_app.logger.exception(
-            "[SSH#%s] ERRO | Host=%s | Cmd=%r | Erro=%s",
+            "[SSH#%s] ERROR Host=%s",
+            exec_id,
+            host
+        )
+
+        # auditoria
+        current_app.cmd_logger.error(
+            "[ERR#%s] Host=%s | Cmd=%r | Error=%s",
             exec_id,
             host,
             wrapped_command,
             str(e)
         )
+
         return jsonify({"stdout": "", "stderr": f"Erro: {e}"})
 
     finally:

@@ -64,22 +64,48 @@ def create_app(name=None):
     return app
 
 def configure_logging(app):
-    if not os.path.exists('logs'):
-        os.makedirs('logs')
-    #handler = logging.FileHandler('logs/app.log')
-    handler = TimedRotatingFileHandler(
-        filename='logs/app.log',
-        when='midnight',   # gira o arquivo todo dia à meia-noite
-        interval=1,        # a cada 1 unidade do "when"
-        backupCount=90,  # mantém só X dias de log
-        encoding='utf-8'
-    )
-    handler.setLevel(logging.INFO)
+    if not os.path.exists("logs"):
+        os.makedirs("logs")
 
     formatter = logging.Formatter(
-        '%(asctime)s - %(levelname)s - %(name)s - %(message)s'
+        "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
     )
-    handler.setFormatter(formatter)
 
-    app.logger.addHandler(handler)
+    # -------------------------
+    # LOG PRINCIPAL DA APP
+    # -------------------------
+    app_handler = TimedRotatingFileHandler(
+        "logs/app.log",
+        when="midnight",
+        interval=1,
+        backupCount=90,
+        encoding="utf-8"
+    )
+    app_handler.setLevel(logging.INFO)
+    app_handler.setFormatter(formatter)
+
+    app.logger.addHandler(app_handler)
     app.logger.setLevel(logging.INFO)
+
+    # -------------------------
+    # LOG DE COMANDOS
+    # -------------------------
+    cmd_handler = TimedRotatingFileHandler(
+        "logs/commands.log",
+        when="midnight",
+        interval=1,
+        backupCount=180,  # auditoria normalmente precisa mais retenção
+        encoding="utf-8"
+    )
+    cmd_handler.setLevel(logging.INFO)
+    cmd_handler.setFormatter(formatter)
+
+    cmd_logger = logging.getLogger("commands")
+    cmd_logger.setLevel(logging.INFO)
+    cmd_logger.addHandler(cmd_handler)
+
+    # evita duplicação no console/root logger
+    cmd_logger.propagate = False
+
+    # deixa disponível globalmente
+    app.cmd_logger = cmd_logger

@@ -171,22 +171,35 @@ def api_run_command():
 
     # 4️⃣ — Loga execução
     current_app.logger.info(
-        "[COMANDO#%s] User=%s (ID %s) | Cmd=%r | Lab=%s | Template=%r | Exec=%r | Hora=%s",
+        "[EXEC#%s] Cmd=%r User=%s Lab=%s",
+        exec_id,
+        cmd["name"],
+        user.id_usuario,
+        lab_id or "-"
+    )
+
+    current_app.cmd_logger.info(
+        "[CMD#%s] User=%s (ID %s) | Cmd=%r | Lab=%s | Template=%r | Exec=%r",
         exec_id,
         user.pessoa.nome_pessoa,
         user.id_usuario,
         cmd["name"],
         lab_id or "-",
         cmd["template"],
-        comando_final,
-        datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        comando_final
     )
 
     # 5️⃣ — Executa via SSH
     resultado = run_remote_command(cmd["cred_ssh"], comando_final)
 
     current_app.logger.info(
-        "[RESULTADO#%s] Exit=%s | Stdout=%r | Stderr=%r",
+        "[EXEC#%s] Exit=%s",
+        exec_id,
+        resultado["exit_code"]
+    )
+
+    current_app.cmd_logger.info(
+        "[RES#%s] Exit=%s | Stdout=%r | Stderr=%r",
         exec_id,
         resultado["exit_code"],
         resultado["stdout"],
