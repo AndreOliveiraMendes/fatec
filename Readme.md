@@ -45,7 +45,7 @@ templates, static assets, and configuration files.
 │   │       ├── __init__.py
 │   │       ├── aulas.py
 │   │       ├── controle.py
-│   │       ├── dao.py
+│   │       ├── general.py
 │   │       ├── historicos.py
 │   │       ├── locais.py
 │   │       ├── reservas.py
