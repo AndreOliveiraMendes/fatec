@@ -5,8 +5,9 @@ from sqlalchemy import (CheckConstraint, Enum, ForeignKey, String,
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.auxiliar.auxiliar_model import parse_date, parse_time
-from app.enums import (TipoAulaEnum)
+from app.enums import TipoAulaEnum
 from app.extensions import Base
+
 
 class Aulas(Base):
     __tablename__ = 'aulas'

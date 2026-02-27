@@ -1,10 +1,10 @@
 
-from sqlalchemy import (TEXT, Enum, String,
-                        UniqueConstraint)
+from sqlalchemy import TEXT, Enum, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.enums import (DisponibilidadeEnum, TipoLocalEnum)
+from app.enums import DisponibilidadeEnum, TipoLocalEnum
 from app.extensions import Base
+
 
 class Locais(Base):
     __tablename__ = 'locais'

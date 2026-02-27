@@ -12,8 +12,8 @@ from app.auxiliar.auxiliar_dao import (formatar_valor, none_if_empty,
 from app.auxiliar.auxiliar_routes import (disable_action, get_query_params,
                                           get_session_or_request,
                                           include_action, register_return)
-from app.auxiliar.dao_usuarios import get_user, get_usuarios
-from app.auxiliar.decorators import admin_required
+from app.dao.dao_usuarios import get_user, get_usuarios
+from app.decorators.decorators import admin_required
 from app.enums import OrigemEnum
 from app.extensions import db
 from app.models.historicos import Historicos

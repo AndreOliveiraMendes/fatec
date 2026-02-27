@@ -4,6 +4,7 @@ from sqlalchemy import select
 from app.extensions import db
 from app.models.usuarios import Pessoas, Usuarios, Usuarios_Especiais
 
+
 def get_pessoas(acao = None, userid = None):
     sel_pessoas = select(Pessoas.id_pessoa, Pessoas.nome_pessoa)
     if acao == 'excluir' and userid is not None:

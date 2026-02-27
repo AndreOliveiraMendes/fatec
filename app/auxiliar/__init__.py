@@ -3,12 +3,3 @@ from .auxiliar_cryptograph import *
 from .auxiliar_routes import *
 from .auxiliar_template import *
 from .constant import *
-from .dao import *
-from .dao_aulas import *
-from .dao_controle import *
-from .dao_locais import *
-from .dao_reservas import *
-from .dao_usuarios import *
-from .decorators import *
-from .external_dao import *
-from .url_custom_types import *

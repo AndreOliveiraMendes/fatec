@@ -14,10 +14,10 @@ from app.auxiliar.auxiliar_routes import (get_query_params,
 from app.auxiliar.constant import (DB_ERRORS, PERM_ADMIN, PERM_AUTORIZAR,
                                    PERM_CMD_CONFIG, PERM_RESERVA_AUDITORIO,
                                    PERM_RESERVA_FIXA, PERM_RESERVA_TEMPORARIA)
-from app.auxiliar.dao import _handle_db_error
-from app.auxiliar.dao_historicos import registrar_log_generico_usuario
-from app.auxiliar.dao_usuarios import get_user, get_usuarios
-from app.auxiliar.decorators import admin_required
+from app.dao.dao import _handle_db_error
+from app.dao.dao_historicos import registrar_log_generico_usuario
+from app.dao.dao_usuarios import get_user, get_usuarios
+from app.decorators.decorators import admin_required
 from app.extensions import db
 from app.models.usuarios import Permissoes, Pessoas, Usuarios
 from config.general import PER_PAGE

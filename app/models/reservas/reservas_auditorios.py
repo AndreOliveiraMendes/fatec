@@ -1,10 +1,11 @@
 from datetime import date
 
-from sqlalchemy import (TEXT, Enum, ForeignKey, UniqueConstraint)
+from sqlalchemy import TEXT, Enum, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.enums import (StatusReservaAuditorioEnum)
+from app.enums import StatusReservaAuditorioEnum
 from app.extensions import Base
+
 
 class Reservas_Auditorios(Base):
     __tablename__ = "reservas_auditorios"

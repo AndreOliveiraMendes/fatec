@@ -10,14 +10,13 @@ from app.auxiliar.auxiliar_dao import none_if_empty, parse_date_string
 from app.auxiliar.auxiliar_routes import (builder_helper_temporaria,
                                           check_local, time_range)
 from app.auxiliar.constant import DB_ERRORS, PERM_ADMIN
-from app.auxiliar.dao import _handle_db_error
-from app.auxiliar.dao_aulas import get_aulas_ativas_por_lista_de_dias
-from app.auxiliar.dao_historicos import registrar_log_generico_usuario
-from app.auxiliar.dao_locais import get_laboratorios
-from app.auxiliar.dao_reservas import check_reserva_temporaria
-from app.auxiliar.dao_usuarios import (get_pessoas, get_user,
-                                       get_usuarios_especiais)
-from app.auxiliar.decorators import reserva_temp_required
+from app.dao.dao import _handle_db_error
+from app.dao.dao_aulas import get_aulas_ativas_por_lista_de_dias
+from app.dao.dao_historicos import registrar_log_generico_usuario
+from app.dao.dao_locais import get_laboratorios
+from app.dao.dao_reservas import check_reserva_temporaria
+from app.dao.dao_usuarios import get_pessoas, get_user, get_usuarios_especiais
+from app.decorators.decorators import reserva_temp_required
 from app.enums import FinalidadeReservaEnum, TipoAulaEnum
 from app.extensions import db
 from app.models.aulas import Turnos

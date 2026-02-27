@@ -2,7 +2,7 @@
 from flask import Blueprint, jsonify
 from sqlalchemy import select
 
-from app.auxiliar.decorators import admin_required
+from app.decorators.decorators import admin_required
 from app.enums import TipoLocalEnum
 from app.extensions import db
 from app.models.locais import Locais

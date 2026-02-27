@@ -9,13 +9,14 @@ from app.auxiliar.auxiliar_routes import montar_partes_reserva
 from app.auxiliar.constant import (APP_TITLE, DATA_ABREV, DATA_COMPLETA,
                                    DATA_FLAGS, DATA_NUMERICA, HORA, PERM_ADMIN,
                                    PERMISSIONS, SEMANA_ABREV, SEMANA_COMPLETA)
-from app.auxiliar.dao import get_unique_or_500
-from app.auxiliar.dao_reservas import get_responsavel_reserva
-from app.auxiliar.dao_usuarios import get_user
+from app.dao.dao import get_unique_or_500
+from app.dao.dao_reservas import get_responsavel_reserva
+from app.dao.dao_usuarios import get_user
 from app.models.aulas import Semestres, Turnos
 from app.models.controle import Exibicao_Reservas
 from app.models.locais import Locais
-from app.models.reservas.reservas_laboratorios import Reservas_Fixas, Reservas_Temporarias
+from app.models.reservas.reservas_laboratorios import (Reservas_Fixas,
+                                                       Reservas_Temporarias)
 from config.database_views import SECOES
 from config.mapeamentos import meses_ingleses, semana_inglesa, situacoes_helper
 

@@ -5,6 +5,7 @@ from app.enums import DisponibilidadeEnum, TipoLocalEnum
 from app.extensions import db
 from app.models.locais import Locais
 
+
 def get_locais():
     sel_locais = select(Locais)
     return db.session.execute(sel_locais).scalars().all()

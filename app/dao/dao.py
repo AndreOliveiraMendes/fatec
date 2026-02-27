@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import MultipleResultsFound
 
 from app.auxiliar.auxiliar_dao import _friendly_db_message
-from app.extensions import db, Base
+from app.extensions import Base, db
 
 T = TypeVar("T", bound=Base)
 

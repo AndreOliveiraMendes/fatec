@@ -11,15 +11,18 @@ from sqlalchemy.sql.elements import ColumnElement
 from app.auxiliar.auxiliar_dao import (get_aula_semana, get_aula_turno,
                                        none_if_empty, parse_date_string)
 from app.auxiliar.constant import DB_ERRORS, PERM_ADMIN
-from app.auxiliar.dao import _handle_db_error
-from app.auxiliar.dao_historicos import registrar_log_generico_usuario
+from app.dao.dao import _handle_db_error
+from app.dao.dao_historicos import registrar_log_generico_usuario
 from app.enums import FinalidadeReservaEnum, TipoAulaEnum
 from app.extensions import db
 from app.models.aulas import Aulas, Aulas_Ativas, Semestres, Turnos
 from app.models.locais import Locais
 from app.models.reservas.reservas_auditorios import Reservas_Auditorios
-from app.models.reservas.reservas_laboratorios import Reservas_Fixas, Reservas_Temporarias
-from app.models.usuarios import Permissoes, Pessoas, Usuarios, Usuarios_Especiais
+from app.models.reservas.reservas_laboratorios import (Reservas_Fixas,
+                                                       Reservas_Temporarias)
+from app.models.usuarios import (Permissoes, Pessoas, Usuarios,
+                                 Usuarios_Especiais)
+
 
 def get_reservas_auditorios_filtrada(id:int, all:bool = False, *args):
     sel_reservas_auditorios = select(Reservas_Auditorios)

@@ -10,10 +10,10 @@ from app.auxiliar.auxiliar_routes import (disable_action, get_query_params,
                                           get_session_or_request,
                                           register_return)
 from app.auxiliar.constant import DB_ERRORS
-from app.auxiliar.dao import _handle_db_error
-from app.auxiliar.dao_historicos import registrar_log_generico_usuario
-from app.auxiliar.dao_usuarios import get_pessoas, get_user, get_usuarios
-from app.auxiliar.decorators import admin_required
+from app.dao.dao import _handle_db_error
+from app.dao.dao_historicos import registrar_log_generico_usuario
+from app.dao.dao_usuarios import get_pessoas, get_user, get_usuarios
+from app.decorators.decorators import admin_required
 from app.extensions import db
 from app.models.usuarios import Usuarios
 from config.general import PER_PAGE

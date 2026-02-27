@@ -1,10 +1,11 @@
 from datetime import datetime
 
-from sqlalchemy import (TEXT, Enum, ForeignKey, String)
+from sqlalchemy import TEXT, Enum, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.enums import (OrigemEnum)
+from app.enums import OrigemEnum
 from app.extensions import Base
+
 
 class Historicos(Base):
     __tablename__ = 'historicos'

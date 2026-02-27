@@ -6,6 +6,7 @@ from flask import Flask
 
 from app.extensions import db
 from app.routes import register_blueprints
+from app.types import url_custom_types
 from config.general import AUTO_CREATE_MYSQL, get_config
 
 
@@ -42,7 +43,7 @@ def create_app(name=None):
         app.logger.debug("[SCSS] Compilado para produção")
 
     with app.app_context():
-        from app.auxiliar import auxiliar_template, error, url_custom_types
+        from app.auxiliar import auxiliar_template, error
         auxiliar_template.register_filters(app)
         error.register_error_handler(app)
         url_custom_types.registrar_custom_url_type(app)

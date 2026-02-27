@@ -10,14 +10,13 @@ from app.auxiliar.auxiliar_routes import (get_query_params,
                                           get_session_or_request,
                                           register_return)
 from app.auxiliar.constant import DB_ERRORS
-from app.auxiliar.dao import _handle_db_error
-from app.auxiliar.dao_aulas import get_aulas_ativas, get_semestres
-from app.auxiliar.dao_historicos import registrar_log_generico_usuario
-from app.auxiliar.dao_locais import get_locais
-from app.auxiliar.dao_reservas import get_reservas_fixas
-from app.auxiliar.dao_usuarios import (get_pessoas, get_user,
-                                       get_usuarios_especiais)
-from app.auxiliar.decorators import admin_required
+from app.dao.dao import _handle_db_error
+from app.dao.dao_aulas import get_aulas_ativas, get_semestres
+from app.dao.dao_historicos import registrar_log_generico_usuario
+from app.dao.dao_locais import get_locais
+from app.dao.dao_reservas import get_reservas_fixas
+from app.dao.dao_usuarios import get_pessoas, get_user, get_usuarios_especiais
+from app.decorators.decorators import admin_required
 from app.enums import FinalidadeReservaEnum
 from app.extensions import db
 from app.models.reservas.reservas_laboratorios import Reservas_Fixas

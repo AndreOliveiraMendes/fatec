@@ -8,9 +8,9 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from app.auxiliar.auxiliar_dao import none_if_empty
 from app.auxiliar.constant import (PERM_ADMIN, PERM_RESERVA_AUDITORIO,
                                    PERM_RESERVA_FIXA, PERM_RESERVA_TEMPORARIA)
-from app.auxiliar.dao_historicos import registrar_log_generico_sistema
-from app.auxiliar.dao_usuarios import get_user
-from app.auxiliar.decorators import login_required
+from app.dao.dao_historicos import registrar_log_generico_sistema
+from app.dao.dao_usuarios import get_user
+from app.decorators.decorators import login_required
 from app.extensions import db
 from app.models.usuarios import Permissoes, Pessoas, Usuarios
 from config.general import API_BASIC_PASS, API_BASIC_URL, API_BASIC_USER

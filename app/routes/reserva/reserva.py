@@ -6,10 +6,10 @@ from flask import (Blueprint, current_app, redirect, render_template, request,
                    session, url_for)
 
 from app.auxiliar.auxiliar_dao import parse_date_string
-from app.auxiliar.dao_aulas import (get_aulas_ativas_por_dia,
-                                    get_turno_by_time, get_turnos)
-from app.auxiliar.dao_locais import get_laboratorios
-from app.auxiliar.dao_usuarios import get_user
+from app.dao.dao_aulas import (get_aulas_ativas_por_dia, get_turno_by_time,
+                               get_turnos)
+from app.dao.dao_locais import get_laboratorios
+from app.dao.dao_usuarios import get_user
 from app.enums import TipoAulaEnum
 from app.extensions import db
 from app.models.aulas import Turnos

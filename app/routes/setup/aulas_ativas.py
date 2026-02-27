@@ -5,11 +5,11 @@ from flask import (Blueprint, flash, redirect, render_template, request,
 
 from app.auxiliar.auxiliar_dao import none_if_empty, parse_date_string
 from app.auxiliar.constant import DB_ERRORS
-from app.auxiliar.dao import _handle_db_error
-from app.auxiliar.dao_aulas import get_aulas, get_dias_da_semana
-from app.auxiliar.dao_historicos import registrar_log_generico_usuario
-from app.auxiliar.dao_usuarios import get_user
-from app.auxiliar.decorators import admin_required
+from app.dao.dao import _handle_db_error
+from app.dao.dao_aulas import get_aulas, get_dias_da_semana
+from app.dao.dao_historicos import registrar_log_generico_usuario
+from app.dao.dao_usuarios import get_user
+from app.decorators.decorators import admin_required
 from app.enums import TipoAulaEnum
 from app.extensions import db
 from app.models.aulas import Aulas_Ativas

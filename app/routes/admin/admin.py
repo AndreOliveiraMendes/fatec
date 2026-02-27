@@ -12,14 +12,15 @@ from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import and_, func, select
 
 from app.auxiliar.auxiliar_cryptograph import load_key
-from app.auxiliar.dao_aulas import get_dias_da_semana, get_semestres
-from app.auxiliar.dao_locais import get_laboratorios, get_locais
-from app.auxiliar.dao_usuarios import get_user
-from app.auxiliar.decorators import admin_required
+from app.dao.dao_aulas import get_dias_da_semana, get_semestres
+from app.dao.dao_locais import get_laboratorios, get_locais
+from app.dao.dao_usuarios import get_user
+from app.decorators.decorators import admin_required
 from app.enums import TipoAulaEnum
 from app.extensions import db
 from app.models.aulas import Aulas, Aulas_Ativas, Dias_da_Semana
-from app.models.reservas.reservas_laboratorios import Reservas_Fixas, Reservas_Temporarias
+from app.models.reservas.reservas_laboratorios import (Reservas_Fixas,
+                                                       Reservas_Temporarias)
 from config.database_views import SECOES
 from config.general import LOCAL_TIMEZONE
 from config.json_related import carregar_config_geral, carregar_painel_config

@@ -2,11 +2,11 @@ from flask import (Blueprint, abort, flash, redirect, render_template, request,
                    session, url_for)
 
 from app.auxiliar.constant import DB_ERRORS
-from app.auxiliar.dao import _handle_db_error
-from app.auxiliar.dao_historicos import registrar_log_generico_usuario
-from app.auxiliar.dao_usuarios import get_pessoas_codigo, get_user
-from app.auxiliar.decorators import admin_required
-from app.auxiliar.external_dao import get_docentes
+from app.dao.dao import _handle_db_error
+from app.dao.dao_historicos import registrar_log_generico_usuario
+from app.dao.dao_usuarios import get_pessoas_codigo, get_user
+from app.dao.external_dao import get_docentes
+from app.decorators.decorators import admin_required
 from app.extensions import db
 from app.models.usuarios import Pessoas
 

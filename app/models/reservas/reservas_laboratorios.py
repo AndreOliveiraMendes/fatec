@@ -6,8 +6,9 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.auxiliar.auxiliar_model import parse_date
-from app.enums import (FinalidadeReservaEnum, TipoReservaEnum)
+from app.enums import FinalidadeReservaEnum, TipoReservaEnum
 from app.extensions import Base
+
 
 class ReservaBase(Base):
     __abstract__ = True

@@ -1,7 +1,7 @@
 from flask import Blueprint, abort, render_template, session
 
-from app.auxiliar.dao_usuarios import get_user
-from app.auxiliar.decorators import cmd_config_required
+from app.dao.dao_usuarios import get_user
+from app.decorators.decorators import cmd_config_required
 from config.json_related import load_commands
 
 bp = Blueprint("admin_remote_commands", __name__, url_prefix="/manage_remote_commands")

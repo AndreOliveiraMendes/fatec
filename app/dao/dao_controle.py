@@ -1,7 +1,7 @@
 from datetime import date
 
 from flask import abort
-from sqlalchemy import (select)
+from sqlalchemy import select
 from sqlalchemy.exc import MultipleResultsFound
 
 from app.enums import TipoReservaEnum

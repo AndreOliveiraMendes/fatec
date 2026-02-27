@@ -9,15 +9,13 @@ from sqlalchemy import select
 from app.auxiliar.auxiliar_dao import none_if_empty
 from app.auxiliar.auxiliar_routes import builder_helper_fixa, check_local
 from app.auxiliar.constant import DB_ERRORS, PERM_ADMIN
-from app.auxiliar.dao_aulas import (get_aulas_ativas_por_semestre,
-                                    get_aulas_extras)
-from app.auxiliar.dao_historicos import registrar_log_generico_usuario
-from app.auxiliar.dao_locais import get_laboratorios
-from app.auxiliar.dao_reservas import check_conflict_reservas_fixas
-from app.auxiliar.dao_usuarios import (get_pessoas, get_user,
-                                       get_usuarios_especiais)
-from app.auxiliar.decorators import reserva_fixa_required
-from app.auxiliar.external_dao import get_prioridade
+from app.dao.dao_aulas import get_aulas_ativas_por_semestre, get_aulas_extras
+from app.dao.dao_historicos import registrar_log_generico_usuario
+from app.dao.dao_locais import get_laboratorios
+from app.dao.dao_reservas import check_conflict_reservas_fixas
+from app.dao.dao_usuarios import get_pessoas, get_user, get_usuarios_especiais
+from app.dao.external_dao import get_prioridade
+from app.decorators.decorators import reserva_fixa_required
 from app.enums import FinalidadeReservaEnum
 from app.extensions import db
 from app.models.aulas import Semestres, Turnos

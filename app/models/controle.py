@@ -1,11 +1,12 @@
 from datetime import date
 
-from sqlalchemy import (Enum, ForeignKey, UniqueConstraint)
+from sqlalchemy import Enum, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.auxiliar.auxiliar_model import parse_date
-from app.enums import (SituacaoChaveEnum, TipoReservaEnum)
+from app.enums import SituacaoChaveEnum, TipoReservaEnum
 from app.extensions import Base
+
 
 class Exibicao_Reservas(Base):
     __tablename__ = "exibicao_reservas"
