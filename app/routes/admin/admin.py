@@ -11,7 +11,6 @@ from flask import (Blueprint, abort, current_app, flash, redirect,
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import and_, func, select
 
-from app.security.auxiliar_cryptograph import load_key
 from app.dao.dao_aulas import get_dias_da_semana, get_semestres
 from app.dao.dao_locais import get_laboratorios, get_locais
 from app.dao.dao_usuarios import get_user
@@ -21,6 +20,7 @@ from app.extensions import db
 from app.models.aulas import Aulas, Aulas_Ativas, Dias_da_Semana
 from app.models.reservas.reservas_laboratorios import (Reservas_Fixas,
                                                        Reservas_Temporarias)
+from app.security.auxiliar_cryptograph import load_key
 from config.database_views import SECOES
 from config.general import LOCAL_TIMEZONE
 from config.json_related import carregar_config_geral, carregar_painel_config

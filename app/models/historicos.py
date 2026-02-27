@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import TEXT, Enum, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -6,6 +7,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.enums import OrigemEnum
 from app.extensions import Base
 
+if TYPE_CHECKING:
+    from app.models.usuarios import Usuarios
 
 class Historicos(Base):
     __tablename__ = 'historicos'

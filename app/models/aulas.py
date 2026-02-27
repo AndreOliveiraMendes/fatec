@@ -1,4 +1,5 @@
 from datetime import date, time
+from typing import TYPE_CHECKING
 
 from sqlalchemy import (CheckConstraint, Enum, ForeignKey, String,
                         UniqueConstraint)
@@ -8,6 +9,11 @@ from app.auxiliar.auxiliar_model import parse_date, parse_time
 from app.enums import TipoAulaEnum
 from app.extensions import Base
 
+if TYPE_CHECKING:
+    from app.models.controle import Exibicao_Reservas, Situacoes_Das_Reserva
+    from app.models.reservas.reservas_auditorios import Reservas_Auditorios
+    from app.models.reservas.reservas_laboratorios import (
+        Reservas_Fixas, Reservas_Temporarias)
 
 class Aulas(Base):
     __tablename__ = 'aulas'

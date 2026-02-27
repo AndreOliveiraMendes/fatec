@@ -1,9 +1,16 @@
 
+from typing import TYPE_CHECKING
+
 from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.extensions import Base
 
+if TYPE_CHECKING:
+    from app.models.historicos import Historicos
+    from app.models.reservas.reservas_auditorios import Reservas_Auditorios
+    from app.models.reservas.reservas_laboratorios import (
+        Reservas_Fixas, Reservas_Temporarias)
 
 class Pessoas(Base):
     __tablename__ = 'pessoas'

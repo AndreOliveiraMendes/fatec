@@ -1,10 +1,17 @@
 
+from typing import TYPE_CHECKING
+
 from sqlalchemy import TEXT, Enum, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.enums import DisponibilidadeEnum, TipoLocalEnum
 from app.extensions import Base
 
+if TYPE_CHECKING:
+    from app.models.controle import Exibicao_Reservas, Situacoes_Das_Reserva
+    from app.models.reservas.reservas_auditorios import Reservas_Auditorios
+    from app.models.reservas.reservas_laboratorios import (
+        Reservas_Fixas, Reservas_Temporarias)
 
 class Locais(Base):
     __tablename__ = 'locais'
