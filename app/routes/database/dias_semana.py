@@ -10,7 +10,7 @@ from app.auxiliar.dao import none_if_empty
 from app.auxiliar.routes import (disable_action, get_session_or_request,
                                  register_return)
 from app.dao.internal.aulas import get_dias_da_semana
-from app.dao.internal.dao import _handle_db_error
+from app.dao.internal.general import _handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import admin_required

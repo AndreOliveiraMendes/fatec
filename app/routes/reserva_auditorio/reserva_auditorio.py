@@ -8,7 +8,7 @@ from sqlalchemy import func, select
 
 from app.auxiliar.constant import DB_ERRORS, PERM_ADMIN, PERM_AUTORIZAR
 from app.auxiliar.dao import none_if_empty, parse_date_string
-from app.dao.internal.dao import _handle_db_error
+from app.dao.internal.general import _handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.locais import get_auditorios
 from app.dao.internal.reservas import get_reservas_auditorios_filtrada

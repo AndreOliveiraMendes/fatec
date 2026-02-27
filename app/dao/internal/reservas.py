@@ -11,7 +11,7 @@ from sqlalchemy.sql.elements import ColumnElement
 from app.auxiliar.constant import DB_ERRORS, PERM_ADMIN
 from app.auxiliar.dao import (get_aula_semana, get_aula_turno, none_if_empty,
                               parse_date_string)
-from app.dao.internal.dao import _handle_db_error
+from app.dao.internal.general import _handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.enums import FinalidadeReservaEnum, TipoAulaEnum
 from app.extensions import db

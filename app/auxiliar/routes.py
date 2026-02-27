@@ -6,7 +6,7 @@ from flask.typing import ResponseReturnValue
 from markupsafe import Markup
 
 from app.auxiliar.constant import PERM_ADMIN
-from app.dao.internal.dao import get_unique_or_500
+from app.dao.internal.general import get_unique_or_500
 from app.dao.internal.reservas import get_responsavel_reserva
 from app.enums import FinalidadeReservaEnum, SituacaoChaveEnum
 from app.extensions import Base

@@ -10,7 +10,7 @@ from app.auxiliar.dao import check_first, parse_date_string
 from app.dao.internal.aulas import get_turno_by_time, get_turnos
 from app.dao.internal.controle import (get_exibicao_por_dia,
                                        get_situacoes_por_dia)
-from app.dao.internal.dao import _handle_db_error, get_unique_or_500
+from app.dao.internal.general import _handle_db_error, get_unique_or_500
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.reservas import (get_reservas_por_dia,
                                        get_responsavel_reserva)

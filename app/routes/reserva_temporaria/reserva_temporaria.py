@@ -11,7 +11,7 @@ from app.auxiliar.dao import none_if_empty, parse_date_string
 from app.auxiliar.routes import (builder_helper_temporaria, check_local,
                                  time_range)
 from app.dao.internal.aulas import get_aulas_ativas_por_lista_de_dias
-from app.dao.internal.dao import _handle_db_error
+from app.dao.internal.general import _handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.locais import get_laboratorios
 from app.dao.internal.reservas import check_reserva_temporaria

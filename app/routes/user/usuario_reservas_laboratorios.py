@@ -11,7 +11,7 @@ from sqlalchemy import and_, select
 from app.auxiliar.constant import DB_ERRORS, PERM_ADMIN
 from app.auxiliar.dao import none_if_empty
 from app.dao.internal.aulas import get_dias_da_semana, get_semestres
-from app.dao.internal.dao import _handle_db_error
+from app.dao.internal.general import _handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.locais import get_laboratorios
 from app.dao.internal.reservas import (check_ownership_or_admin,

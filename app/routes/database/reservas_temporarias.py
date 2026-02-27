@@ -11,7 +11,7 @@ from app.auxiliar.dao import (filtro_tipo_responsavel, none_if_empty,
 from app.auxiliar.routes import (get_query_params, get_session_or_request,
                                  register_return)
 from app.dao.internal.aulas import get_aulas_ativas
-from app.dao.internal.dao import _handle_db_error
+from app.dao.internal.general import _handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.locais import get_locais
 from app.dao.internal.reservas import (check_reserva_temporaria,
