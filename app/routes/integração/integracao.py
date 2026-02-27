@@ -8,7 +8,7 @@ from app.auxiliar.dao_usuarios import get_pessoas_codigo, get_user
 from app.auxiliar.decorators import admin_required
 from app.auxiliar.external_dao import get_docentes
 from app.extensions import db
-from app.model.usuarios import Pessoas
+from app.models.usuarios import Pessoas
 
 bp = Blueprint('integracao', __name__, url_prefix='/integração')
 

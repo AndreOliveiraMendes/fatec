@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError, MultipleResultsFound
 from app.auxiliar.auxiliar_dao import (get_aula_intervalo, get_aula_semana,
                                        get_aula_turno)
 from app.extensions import db
-from app.model.aulas import (Aulas, Aulas_Ativas, Dias_da_Semana, Semestres,
+from app.models.aulas import (Aulas, Aulas_Ativas, Dias_da_Semana, Semestres,
                               TipoAulaEnum, Turnos)
 
 

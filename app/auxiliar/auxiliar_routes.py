@@ -10,8 +10,8 @@ from app.auxiliar.dao import get_unique_or_500
 from app.auxiliar.dao_reservas import get_responsavel_reserva
 from app.enums import FinalidadeReservaEnum, SituacaoChaveEnum
 from app.extensions import Base
-from app.model.controle import Situacoes_Das_Reserva
-from app.model.locais import Locais
+from app.models.controle import Situacoes_Das_Reserva
+from app.models.locais import Locais
 from config.general import AFTER_ACTION
 from config.json_related import carregar_painel_config
 from config.mapeamentos import mapa_icones_status

@@ -9,7 +9,7 @@ from app.auxiliar.dao_historicos import registrar_log_generico_usuario
 from app.auxiliar.dao_usuarios import get_user
 from app.auxiliar.decorators import admin_required
 from app.extensions import db
-from app.model.aulas import Dias_da_Semana
+from app.models.aulas import Dias_da_Semana
 from config.database_views import SETUP_HEAD
 from config.general import FIRST_DAY_OF_WEEK, INDEX_START
 

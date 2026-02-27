@@ -22,7 +22,7 @@ from app.auxiliar.dao_usuarios import (get_pessoas, get_user,
 from app.auxiliar.decorators import admin_required
 from app.enums import FinalidadeReservaEnum
 from app.extensions import db
-from app.model.reservas.reservas_laboratorios import Reservas_Temporarias
+from app.models.reservas.reservas_laboratorios import Reservas_Temporarias
 from config.general import PER_PAGE
 
 bp = Blueprint('database_reservas_temporarias', __name__, url_prefix="/database")

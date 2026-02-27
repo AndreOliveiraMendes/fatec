@@ -18,9 +18,9 @@ from app.auxiliar.dao_usuarios import get_user
 from app.auxiliar.decorators import admin_required
 from app.enums import SituacaoChaveEnum, TipoAulaEnum, TipoReservaEnum
 from app.extensions import db
-from app.model.aulas import Aulas_Ativas, Turnos
-from app.model.controle import Exibicao_Reservas, Situacoes_Das_Reserva
-from app.model.locais import Locais
+from app.models.aulas import Aulas_Ativas, Turnos
+from app.models.controle import Exibicao_Reservas, Situacoes_Das_Reserva
+from app.models.locais import Locais
 from config.json_related import carregar_config_geral
 
 bp = Blueprint('gestao_reserva', __name__, url_prefix="/gestao_reservas")

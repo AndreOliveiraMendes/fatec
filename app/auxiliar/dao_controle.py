@@ -6,9 +6,9 @@ from sqlalchemy.exc import MultipleResultsFound
 
 from app.enums import TipoReservaEnum
 from app.extensions import db
-from app.model.aulas import Aulas_Ativas
-from app.model.controle import Exibicao_Reservas, Situacoes_Das_Reserva
-from app.model.locais import Locais
+from app.models.aulas import Aulas_Ativas
+from app.models.controle import Exibicao_Reservas, Situacoes_Das_Reserva
+from app.models.locais import Locais
 
 
 def get_situacoes_por_dia(aula:Aulas_Ativas, local:Locais, dia:date, tipo_reserva):

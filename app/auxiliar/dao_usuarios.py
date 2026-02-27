@@ -2,7 +2,7 @@ from flask import current_app, session
 from sqlalchemy import select
 
 from app.extensions import db
-from app.model.usuarios import Pessoas, Usuarios, Usuarios_Especiais
+from app.models.usuarios import Pessoas, Usuarios, Usuarios_Especiais
 
 def get_pessoas(acao = None, userid = None):
     sel_pessoas = select(Pessoas.id_pessoa, Pessoas.nome_pessoa)

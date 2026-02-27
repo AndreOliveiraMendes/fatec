@@ -6,7 +6,7 @@ from sqlalchemy import inspect
 from app.auxiliar.auxiliar_dao import dict_format, formatar_valor
 from app.enums import OrigemEnum
 from app.extensions import db
-from app.model.historicos import Historicos
+from app.models.historicos import Historicos
 from config.general import LOCAL_TIMEZONE
 
 

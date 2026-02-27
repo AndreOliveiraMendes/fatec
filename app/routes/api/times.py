@@ -15,7 +15,7 @@ from app.auxiliar.dao_historicos import registrar_log_generico_usuario
 from app.auxiliar.decorators import admin_required
 from app.enums import TipoAulaEnum
 from app.extensions import db
-from app.model.aulas import Aulas, Aulas_Ativas, Turnos
+from app.models.aulas import Aulas, Aulas_Ativas, Turnos
 from config import LOCAL_TIMEZONE
 
 bp = Blueprint('api_times', __name__, url_prefix='/api/times')

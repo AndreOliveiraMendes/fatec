@@ -16,7 +16,7 @@ from app.auxiliar.dao_historicos import registrar_log_generico_usuario
 from app.auxiliar.dao_usuarios import get_user
 from app.auxiliar.decorators import admin_required
 from app.extensions import db
-from app.model.aulas import Turnos
+from app.models.aulas import Turnos
 from config.general import PER_PAGE
 
 bp = Blueprint('database_turnos', __name__, url_prefix="/database")

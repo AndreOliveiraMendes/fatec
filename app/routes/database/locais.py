@@ -17,7 +17,7 @@ from app.auxiliar.dao_usuarios import get_user
 from app.auxiliar.decorators import admin_required
 from app.enums import DisponibilidadeEnum, TipoLocalEnum
 from app.extensions import db
-from app.model.locais import Locais
+from app.models.locais import Locais
 from config.general import PER_PAGE
 
 bp = Blueprint('database_locais', __name__, url_prefix="/database")

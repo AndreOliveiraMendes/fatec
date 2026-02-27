@@ -15,7 +15,7 @@ from app.auxiliar.dao_historicos import registrar_log_generico_usuario
 from app.auxiliar.dao_usuarios import get_user, get_usuarios_especiais
 from app.auxiliar.decorators import admin_required
 from app.extensions import db
-from app.model.usuarios import Usuarios_Especiais
+from app.models.usuarios import Usuarios_Especiais
 from config.general import PER_PAGE
 
 bp = Blueprint('database_usuarios_especiais', __name__, url_prefix="/database")

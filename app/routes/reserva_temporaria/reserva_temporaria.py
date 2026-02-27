@@ -20,10 +20,10 @@ from app.auxiliar.dao_usuarios import (get_pessoas, get_user,
 from app.auxiliar.decorators import reserva_temp_required
 from app.enums import FinalidadeReservaEnum, TipoAulaEnum
 from app.extensions import db
-from app.model.aulas import Turnos
-from app.model.locais import Locais
-from app.model.reservas.reservas_laboratorios import Reservas_Temporarias
-from app.model.usuarios import Permissoes, Usuarios
+from app.models.aulas import Turnos
+from app.models.locais import Locais
+from app.models.reservas.reservas_laboratorios import Reservas_Temporarias
+from app.models.usuarios import Permissoes, Usuarios
 from config.json_related import carregar_config_geral
 
 bp = Blueprint(

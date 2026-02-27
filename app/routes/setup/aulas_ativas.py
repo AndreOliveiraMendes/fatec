@@ -12,7 +12,7 @@ from app.auxiliar.dao_usuarios import get_user
 from app.auxiliar.decorators import admin_required
 from app.enums import TipoAulaEnum
 from app.extensions import db
-from app.model.aulas import Aulas_Ativas
+from app.models.aulas import Aulas_Ativas
 from config.database_views import SETUP_HEAD
 
 bp = Blueprint('setup_aulas_ativas', __name__, url_prefix="/database/fast_setup/")

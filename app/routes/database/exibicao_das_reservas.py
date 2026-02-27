@@ -19,7 +19,7 @@ from app.auxiliar.dao_usuarios import get_user
 from app.auxiliar.decorators import admin_required
 from app.enums import TipoReservaEnum
 from app.extensions import db
-from app.model.controle import Exibicao_Reservas
+from app.models.controle import Exibicao_Reservas
 from config.general import PER_PAGE
 
 bp = Blueprint('database_exibicao_reservas', __name__, url_prefix="/database")

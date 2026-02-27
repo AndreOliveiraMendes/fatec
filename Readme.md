@@ -29,17 +29,37 @@ templates, static assets, and configuration files.
 │   ├── __main__.py
 │   ├── auxiliar
 │   │   ├── __init__.py
+│   │   ├── auxiliar_api.py
 │   │   ├── auxiliar_cryptograph.py
+│   │   ├── auxiliar_dao.py
+│   │   ├── auxiliar_model.py
 │   │   ├── auxiliar_routes.py
 │   │   ├── auxiliar_template.py
 │   │   ├── constant.py
 │   │   ├── dao.py
+│   │   ├── dao_aulas.py
+│   │   ├── dao_controle.py
+│   │   ├── dao_historicos.py
+│   │   ├── dao_locais.py
+│   │   ├── dao_reservas.py
+│   │   ├── dao_usuarios.py
 │   │   ├── decorators.py
 │   │   ├── error.py
+│   │   ├── external_dao.py
 │   │   └── url_custom_types.py
 │   ├── enums.py
 │   ├── extensions.py
-│   ├── models.py
+│   ├── model
+│   │   ├── __init__.py
+│   │   ├── aulas.py
+│   │   ├── controle.py
+│   │   ├── historicos.py
+│   │   ├── locais.py
+│   │   ├── reservas
+│   │   │   ├── __init__.py
+│   │   │   ├── reservas_auditorios.py
+│   │   │   └── reservas_laboratorios.py
+│   │   └── usuarios.py
 │   ├── routes
 │   │   ├── __init__.py
 │   │   ├── admin
@@ -50,7 +70,11 @@ templates, static assets, and configuration files.
 │   │   │   └── admin_remote_credential.py
 │   │   ├── api
 │   │   │   ├── __init__.py
-│   │   │   └── api.py
+│   │   │   ├── api.py
+│   │   │   ├── commands.py
+│   │   │   ├── reservas.py
+│   │   │   ├── ssh.py
+│   │   │   └── times.py
 │   │   ├── auth
 │   │   │   ├── __init__.py
 │   │   │   └── auth.py
@@ -79,6 +103,9 @@ templates, static assets, and configuration files.
 │   │   ├── gestão_reservas
 │   │   │   ├── __init__.py
 │   │   │   └── gestao_reservas.py
+│   │   ├── integração
+│   │   │   ├── __init__.py
+│   │   │   └── integracao.py
 │   │   ├── reserva
 │   │   │   ├── __init__.py
 │   │   │   └── reserva.py
@@ -101,7 +128,8 @@ templates, static assets, and configuration files.
 │   │   │   └── turnos.py
 │   │   └── user
 │   │       ├── __init__.py
-│   │       └── usuario.py
+│   │       ├── usuario.py
+│   │       └── usuario_reservas_laboratorios.py
 │   ├── static
 │   │   ├── css
 │   │   │   ├── bootstrap.min.css
@@ -123,7 +151,8 @@ templates, static assets, and configuration files.
 │   │   │   ├── admin_horarios.js
 │   │   │   ├── bootstrap.min.js
 │   │   │   ├── jquery.min.js
-│   │   │   └── reserva_fixa_modal.js
+│   │   │   ├── reserva_fixa_modal.js
+│   │   │   └── reserva_temporaria_modal.js
 │   │   └── scss
 │   │       └── utility.scss
 │   └── templates
@@ -133,6 +162,9 @@ templates, static assets, and configuration files.
 │       │   ├── admin.html
 │       │   ├── command_management.html
 │       │   ├── control.html
+│       │   ├── menu_reserva.html
+│       │   ├── observações_fixa.html
+│       │   ├── observações_temporaria.html
 │       │   ├── param_management.html
 │       │   ├── routes.html
 │       │   ├── routes_detalhadas.html
@@ -185,6 +217,10 @@ templates, static assets, and configuration files.
 │       ├── homepage.html
 │       ├── http
 │       │   └── http_error.html
+│       ├── integracao
+│       │   ├── academico_pessoas.html
+│       │   ├── home.html
+│       │   └── importacao_confirm.html
 │       ├── macros
 │       │   ├── form.html
 │       │   ├── navigation.html
@@ -192,6 +228,8 @@ templates, static assets, and configuration files.
 │       ├── reserva
 │       │   ├── main.html
 │       │   ├── televisor.html
+│       │   ├── televisor2.html
+│       │   ├── televisor3.html
 │       │   └── televisor_control.html
 │       ├── reserva_auditorio
 │       │   ├── main.html
@@ -209,7 +247,11 @@ templates, static assets, and configuration files.
 │       │   ├── dias.html
 │       │   ├── especifico.html
 │       │   ├── geral.html
-│       │   └── main.html
+│       │   ├── main.html
+│       │   ├── modal_reserva_editar.html
+│       │   ├── modal_reserva_excluir.html
+│       │   └── modal_reserva_fixa_info.html
+│       ├── shortcuts.html
 │       ├── under_dev.html
 │       └── usuario
 │           ├── menu_reserva.html

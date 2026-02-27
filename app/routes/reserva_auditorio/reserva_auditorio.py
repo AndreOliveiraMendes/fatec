@@ -16,8 +16,8 @@ from app.auxiliar.dao_usuarios import get_user
 from app.auxiliar.decorators import reserva_auditorio_required
 from app.enums import StatusReservaAuditorioEnum
 from app.extensions import db
-from app.model.reservas.reservas_auditorios import Reservas_Auditorios
-from app.model.usuarios import Usuarios
+from app.models.reservas.reservas_auditorios import Reservas_Auditorios
+from app.models.usuarios import Usuarios
 from config.general import LOCAL_TIMEZONE
 
 bp = Blueprint('reservas_auditorios', __name__, url_prefix="/reserva_auditorio")

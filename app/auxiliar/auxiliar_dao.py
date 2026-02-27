@@ -4,8 +4,8 @@ from typing import Any, Callable, Optional, Type, TypeVar, overload
 
 from sqlalchemy import ColumnElement, and_, between, case, desc, or_
 
-from app.model.aulas import Aulas, Aulas_Ativas, Turnos
-from app.model.reservas.reservas_laboratorios import ReservaBase, Reservas_Fixas, Reservas_Temporarias
+from app.models.aulas import Aulas, Aulas_Ativas, Turnos
+from app.models.reservas.reservas_laboratorios import ReservaBase, Reservas_Fixas, Reservas_Temporarias
 from config.general import FIRST_DAY_OF_WEEK, INDEX_START
 
 V = TypeVar("V")

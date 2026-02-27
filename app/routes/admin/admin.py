@@ -18,8 +18,8 @@ from app.auxiliar.dao_usuarios import get_user
 from app.auxiliar.decorators import admin_required
 from app.enums import TipoAulaEnum
 from app.extensions import db
-from app.model.aulas import Aulas, Aulas_Ativas, Dias_da_Semana
-from app.model.reservas.reservas_laboratorios import Reservas_Fixas, Reservas_Temporarias
+from app.models.aulas import Aulas, Aulas_Ativas, Dias_da_Semana
+from app.models.reservas.reservas_laboratorios import Reservas_Fixas, Reservas_Temporarias
 from config.database_views import SECOES
 from config.general import LOCAL_TIMEZONE
 from config.json_related import carregar_config_geral, carregar_painel_config

@@ -12,7 +12,7 @@ from app.auxiliar.dao_locais import get_laboratorios
 from app.auxiliar.dao_usuarios import get_user
 from app.enums import TipoAulaEnum
 from app.extensions import db
-from app.model.aulas import Turnos
+from app.models.aulas import Turnos
 from config.general import LOCAL_TIMEZONE
 from config.json_related import carregar_config_geral, carregar_painel_config
 

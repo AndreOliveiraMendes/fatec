@@ -12,7 +12,7 @@ from app.auxiliar.dao_historicos import registrar_log_generico_sistema
 from app.auxiliar.dao_usuarios import get_user
 from app.auxiliar.decorators import login_required
 from app.extensions import db
-from app.model.usuarios import Permissoes, Pessoas, Usuarios
+from app.models.usuarios import Permissoes, Pessoas, Usuarios
 from config.general import API_BASIC_PASS, API_BASIC_URL, API_BASIC_USER
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')

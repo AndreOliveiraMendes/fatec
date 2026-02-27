@@ -22,9 +22,9 @@ from app.auxiliar.dao_usuarios import (get_pessoas, get_user,
 from app.auxiliar.decorators import login_required
 from app.enums import FinalidadeReservaEnum
 from app.extensions import db
-from app.model.aulas import Aulas, Aulas_Ativas
-from app.model.reservas.reservas_laboratorios import Reservas_Fixas, Reservas_Temporarias
-from app.model.usuarios import Permissoes, Usuarios
+from app.models.aulas import Aulas, Aulas_Ativas
+from app.models.reservas.reservas_laboratorios import Reservas_Fixas, Reservas_Temporarias
+from app.models.usuarios import Permissoes, Usuarios
 from config.general import LOCAL_TIMEZONE
 
 bp = Blueprint('usuario_reservas', __name__, url_prefix='/usuario')

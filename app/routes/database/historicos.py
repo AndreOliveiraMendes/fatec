@@ -16,7 +16,7 @@ from app.auxiliar.dao_usuarios import get_user, get_usuarios
 from app.auxiliar.decorators import admin_required
 from app.enums import OrigemEnum
 from app.extensions import db
-from app.model.historicos import Historicos
+from app.models.historicos import Historicos
 from config.general import LOCAL_TIMEZONE, PER_PAGE
 
 bp = Blueprint('database_historicos', __name__, url_prefix="/database")

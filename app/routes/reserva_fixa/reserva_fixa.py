@@ -20,10 +20,10 @@ from app.auxiliar.decorators import reserva_fixa_required
 from app.auxiliar.external_dao import get_prioridade
 from app.enums import FinalidadeReservaEnum
 from app.extensions import db
-from app.model.aulas import Semestres, Turnos
-from app.model.locais import Locais
-from app.model.reservas.reservas_laboratorios import Reservas_Fixas
-from app.model.usuarios import Permissoes, Usuarios
+from app.models.aulas import Semestres, Turnos
+from app.models.locais import Locais
+from app.models.reservas.reservas_laboratorios import Reservas_Fixas
+from app.models.usuarios import Permissoes, Usuarios
 
 # ========= BLUEPRINT =========
 bp = Blueprint('reservas_semanais', __name__, url_prefix="/reserva_fixa")

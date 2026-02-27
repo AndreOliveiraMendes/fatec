@@ -19,7 +19,7 @@ from app.auxiliar.dao_usuarios import get_pessoas, get_user
 from app.auxiliar.decorators import admin_required
 from app.enums import StatusReservaAuditorioEnum
 from app.extensions import db
-from app.model.reservas.reservas_auditorios import Reservas_Auditorios
+from app.models.reservas.reservas_auditorios import Reservas_Auditorios
 from config.general import PER_PAGE
 
 bp = Blueprint('database_reservas_auditorios', __name__, url_prefix="/database")
