@@ -226,7 +226,7 @@ def gerenciar_situacoes_reservas_fixas(extras):
             reserva = {}
             reserva['horarios'] = [r.aula_ativa]
             reserva['local'] = r.local
-            reserva['responsavel'] = get_responsavel_reserva(r)
+            reserva['responsavel'] = get_responsavel_reserva(r, True)
             reserva['id_responsavel'] = (r.id_responsavel, r.id_responsavel_especial)
             modo = extras.get("config", {}).get("modo_gerenciacao", "multiplo")
             ultima = reservas[-1] if reservas else None
@@ -253,7 +253,7 @@ def gerenciar_situacoes_reservas_temporarias(extras):
         reserva = {}
         reserva['horarios'] = [r.aula_ativa]
         reserva['local'] = r.local
-        reserva['responsavel'] = get_responsavel_reserva(r)
+        reserva['responsavel'] = get_responsavel_reserva(r, True)
         reserva['id_responsavel'] = (r.id_responsavel, r.id_responsavel_especial)
         modo = extras.get("config", {}).get("modo_gerenciacao", "multiplo")
         ultima = reservas[-1] if reservas else None
