@@ -36,6 +36,9 @@ templates, static assets, and configuration files.
 │   │   ├── auxiliar_routes.py
 │   │   ├── auxiliar_template.py
 │   │   ├── constant.py
+│   │   └── error.py
+│   ├── dao
+│   │   ├── __init__.py
 │   │   ├── dao.py
 │   │   ├── dao_aulas.py
 │   │   ├── dao_controle.py
@@ -43,13 +46,13 @@ templates, static assets, and configuration files.
 │   │   ├── dao_locais.py
 │   │   ├── dao_reservas.py
 │   │   ├── dao_usuarios.py
-│   │   ├── decorators.py
-│   │   ├── error.py
-│   │   ├── external_dao.py
-│   │   └── url_custom_types.py
+│   │   └── external_dao.py
+│   ├── decorators
+│   │   ├── __init__.py
+│   │   └── decorators.py
 │   ├── enums.py
 │   ├── extensions.py
-│   ├── model
+│   ├── models
 │   │   ├── __init__.py
 │   │   ├── aulas.py
 │   │   ├── controle.py
@@ -155,112 +158,115 @@ templates, static assets, and configuration files.
 │   │   │   └── reserva_temporaria_modal.js
 │   │   └── scss
 │   │       └── utility.scss
-│   └── templates
-│       ├── admin
-│       │   ├── _modal_gerenciar.html
-│       │   ├── _modal_periodos.html
-│       │   ├── admin.html
-│       │   ├── command_management.html
-│       │   ├── control.html
-│       │   ├── menu_reserva.html
-│       │   ├── observações_fixa.html
-│       │   ├── observações_temporaria.html
-│       │   ├── param_management.html
-│       │   ├── routes.html
-│       │   ├── routes_detalhadas.html
-│       │   ├── ssh_managment.html
-│       │   └── times.html
-│       ├── auth
-│       │   ├── login.html
-│       │   ├── login_fail.html
-│       │   ├── login_success.html
-│       │   └── logout.html
-│       ├── base
-│       ├── base-fixed
-│       ├── base-fluid
-│       ├── database
-│       │   ├── menu.html
-│       │   ├── schema
-│       │   │   ├── database.html
-│       │   │   ├── schema.html
-│       │   │   └── wiki.html
-│       │   ├── setup
-│       │   │   ├── aulas.html
-│       │   │   ├── aulas_ativas.html
-│       │   │   ├── dias_da_semana.html
-│       │   │   ├── locais.html
-│       │   │   ├── menu.html
-│       │   │   └── turnos.html
-│       │   └── table
-│       │       ├── aulas.html
-│       │       ├── aulas_ativas.html
-│       │       ├── base_crude
-│       │       ├── dias_da_semana.html
-│       │       ├── exibicao_reservas.html
-│       │       ├── historicos.html
-│       │       ├── locais.html
-│       │       ├── permissoes.html
-│       │       ├── pessoas.html
-│       │       ├── reservas_auditorios.html
-│       │       ├── reservas_fixas.html
-│       │       ├── reservas_temporarias.html
-│       │       ├── semestres.html
-│       │       ├── situacoes_das_reservas.html
-│       │       ├── turnos.html
-│       │       ├── usuarios.html
-│       │       └── usuarios_especiais.html
-│       ├── gestão_reservas
-│       │   ├── exibicao_reserva.html
-│       │   ├── remote_commands.html
-│       │   ├── status_fixas.html
-│       │   └── status_temporarias.html
-│       ├── homepage.html
-│       ├── http
-│       │   └── http_error.html
-│       ├── integracao
-│       │   ├── academico_pessoas.html
-│       │   ├── home.html
-│       │   └── importacao_confirm.html
-│       ├── macros
-│       │   ├── form.html
-│       │   ├── navigation.html
-│       │   └── pagination.html
-│       ├── reserva
-│       │   ├── main.html
-│       │   ├── televisor.html
-│       │   ├── televisor2.html
-│       │   ├── televisor3.html
-│       │   └── televisor_control.html
-│       ├── reserva_auditorio
-│       │   ├── main.html
-│       │   ├── modal_detalhes.html
-│       │   ├── modal_editar.html
-│       │   └── modal_nova_reserva.html
-│       ├── reserva_fixa
-│       │   ├── especifico.html
-│       │   ├── geral.html
-│       │   ├── main.html
-│       │   ├── modal_reserva_editar.html
-│       │   ├── modal_reserva_excluir.html
-│       │   └── semestre.html
-│       ├── reserva_temporaria
-│       │   ├── dias.html
-│       │   ├── especifico.html
-│       │   ├── geral.html
-│       │   ├── main.html
-│       │   ├── modal_reserva_editar.html
-│       │   ├── modal_reserva_excluir.html
-│       │   └── modal_reserva_fixa_info.html
-│       ├── shortcuts.html
-│       ├── under_dev.html
-│       └── usuario
-│           ├── menu_reserva.html
-│           ├── modal_cancelar.html
-│           ├── modal_detalhes.html
-│           ├── modal_editar.html
-│           ├── perfil.html
-│           ├── reserva_fixa.html
-│           └── reserva_temporaria.html
+│   ├── templates
+│   │   ├── admin
+│   │   │   ├── _modal_gerenciar.html
+│   │   │   ├── _modal_periodos.html
+│   │   │   ├── admin.html
+│   │   │   ├── command_management.html
+│   │   │   ├── control.html
+│   │   │   ├── menu_reserva.html
+│   │   │   ├── observações_fixa.html
+│   │   │   ├── observações_temporaria.html
+│   │   │   ├── param_management.html
+│   │   │   ├── routes.html
+│   │   │   ├── routes_detalhadas.html
+│   │   │   ├── ssh_managment.html
+│   │   │   └── times.html
+│   │   ├── auth
+│   │   │   ├── login.html
+│   │   │   ├── login_fail.html
+│   │   │   ├── login_success.html
+│   │   │   └── logout.html
+│   │   ├── base
+│   │   ├── base-fixed
+│   │   ├── base-fluid
+│   │   ├── database
+│   │   │   ├── menu.html
+│   │   │   ├── schema
+│   │   │   │   ├── database.html
+│   │   │   │   ├── schema.html
+│   │   │   │   └── wiki.html
+│   │   │   ├── setup
+│   │   │   │   ├── aulas.html
+│   │   │   │   ├── aulas_ativas.html
+│   │   │   │   ├── dias_da_semana.html
+│   │   │   │   ├── locais.html
+│   │   │   │   ├── menu.html
+│   │   │   │   └── turnos.html
+│   │   │   └── table
+│   │   │       ├── aulas.html
+│   │   │       ├── aulas_ativas.html
+│   │   │       ├── base_crude
+│   │   │       ├── dias_da_semana.html
+│   │   │       ├── exibicao_reservas.html
+│   │   │       ├── historicos.html
+│   │   │       ├── locais.html
+│   │   │       ├── permissoes.html
+│   │   │       ├── pessoas.html
+│   │   │       ├── reservas_auditorios.html
+│   │   │       ├── reservas_fixas.html
+│   │   │       ├── reservas_temporarias.html
+│   │   │       ├── semestres.html
+│   │   │       ├── situacoes_das_reservas.html
+│   │   │       ├── turnos.html
+│   │   │       ├── usuarios.html
+│   │   │       └── usuarios_especiais.html
+│   │   ├── gestão_reservas
+│   │   │   ├── exibicao_reserva.html
+│   │   │   ├── remote_commands.html
+│   │   │   ├── status_fixas.html
+│   │   │   └── status_temporarias.html
+│   │   ├── homepage.html
+│   │   ├── http
+│   │   │   └── http_error.html
+│   │   ├── integracao
+│   │   │   ├── academico_pessoas.html
+│   │   │   ├── home.html
+│   │   │   └── importacao_confirm.html
+│   │   ├── macros
+│   │   │   ├── form.html
+│   │   │   ├── navigation.html
+│   │   │   └── pagination.html
+│   │   ├── reserva
+│   │   │   ├── main.html
+│   │   │   ├── televisor.html
+│   │   │   ├── televisor2.html
+│   │   │   ├── televisor3.html
+│   │   │   └── televisor_control.html
+│   │   ├── reserva_auditorio
+│   │   │   ├── main.html
+│   │   │   ├── modal_detalhes.html
+│   │   │   ├── modal_editar.html
+│   │   │   └── modal_nova_reserva.html
+│   │   ├── reserva_fixa
+│   │   │   ├── especifico.html
+│   │   │   ├── geral.html
+│   │   │   ├── main.html
+│   │   │   ├── modal_reserva_editar.html
+│   │   │   ├── modal_reserva_excluir.html
+│   │   │   └── semestre.html
+│   │   ├── reserva_temporaria
+│   │   │   ├── dias.html
+│   │   │   ├── especifico.html
+│   │   │   ├── geral.html
+│   │   │   ├── main.html
+│   │   │   ├── modal_reserva_editar.html
+│   │   │   ├── modal_reserva_excluir.html
+│   │   │   └── modal_reserva_fixa_info.html
+│   │   ├── shortcuts.html
+│   │   ├── under_dev.html
+│   │   └── usuario
+│   │       ├── menu_reserva.html
+│   │       ├── modal_cancelar.html
+│   │       ├── modal_detalhes.html
+│   │       ├── modal_editar.html
+│   │       ├── perfil.html
+│   │       ├── reserva_fixa.html
+│   │       └── reserva_temporaria.html
+│   └── types
+│       ├── __init__.py
+│       └── url_custom_types.py
 ├── config
 │   ├── __init__.py
 │   ├── database_views.py
@@ -284,18 +290,24 @@ user@machine:/path/to/project$ tree --gitignore -I '.venv|__pycache__|.git|.vsco
 
 # 📜 File Highlights
 
-✅ **.env** → define qual modo de ambiente está ativo.  
-✅ **.env.dev / .env.prod** → configurações específicas.  
-✅ **config/** → modulo centralizado de configuração do projeto.  
-✅ **wsgi.py** → entrada recomendada para Gunicorn.  
-✅ **app/__init__.py** → app factory com Blueprint registration.  
-✅ **app/__main__.py** → entrada para desenvolvimento local via python -m app.  
-✅ **app/extensions.py** → inicialização centralizada de extensões.  
-✅ **app/routes/** → Blueprints organizados por domínio.  
-✅ **app/auxiliar/** → utilitários, decoradores, helpers para rotas.  
-✅ **static/** → CSS e imagens.  
-✅ **templates/** → Base, CRUD, auth, erro, macros.  
-✅ **schema.sql** → para montar o banco rapidamente.
+✅ **.env.dev.example / .env.example** → modelos de variáveis de ambiente para configuração local e produção.
+✅ **config/** → módulo centralizado de configurações do projeto (geral, mapeamentos, JSON, views de banco).
+✅ **wsgi.py** → ponto de entrada recomendado para servidores WSGI como Gunicorn.
+✅ **app/**init**.py** → app factory responsável por criar a aplicação e registrar Blueprints.
+✅ **app/**main**.py** → entrada para execução local com `python -m app`.
+✅ **app/extensions.py** → inicialização centralizada das extensões (ex: banco, plugins).
+✅ **app/models/** → definição das entidades e estrutura ORM do banco.
+✅ **app/routes/** → Blueprints organizados por domínio funcional.
+✅ **app/dao/** → camada de acesso a dados e queries.
+✅ **app/decorators/** → decorators reutilizáveis (auth, validações, etc.).
+✅ **app/types/** → tipos customizados e helpers de tipagem.
+✅ **app/auxiliar/** → utilitários e helpers compartilhados entre módulos.
+✅ **app/static/** → arquivos estáticos (CSS, JS, imagens).
+✅ **app/templates/** → templates HTML organizados por feature.
+✅ **schema.sql** → script SQL para criação rápida do schema inicial.
+✅ **test/** → testes automatizados do projeto.
+✅ **Dockerfile** → definição da imagem containerizada da aplicação.
+✅ **requirements.txt** → dependências Python do projeto.
 
 ---
 
