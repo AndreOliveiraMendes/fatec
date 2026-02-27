@@ -1,22 +1,15 @@
 from datetime import date, datetime, time
-from typing import Type
 
 from sqlalchemy import (TEXT, CheckConstraint, Enum, ForeignKey, String,
-                        UniqueConstraint, case)
+                        UniqueConstraint)
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app import Base, db
+from app import Base
+from app.auxiliar.auxiliar_models import parse_date, parse_time
 from app.enums import (DisponibilidadeEnum, FinalidadeReservaEnum, OrigemEnum,
                        SituacaoChaveEnum, StatusReservaAuditorioEnum,
                        TipoAulaEnum, TipoLocalEnum, TipoReservaEnum)
-
-
-def parse_time(time):
-    return time.strftime('%H:%M') if time else None
-
-def parse_date(date):
-    return date.strftime('%d/%m/%Y') if date else None
 
 class Exibicao_Reservas(Base):
     __tablename__ = "exibicao_reservas"
