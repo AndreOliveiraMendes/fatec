@@ -5,7 +5,7 @@ from flask import abort, current_app, flash
 from sqlalchemy import select
 from sqlalchemy.exc import MultipleResultsFound
 
-from app.auxiliar.auxiliar_dao import _friendly_db_message
+from app.auxiliar.dao import _friendly_db_message
 from app.extensions import Base, db
 
 T = TypeVar("T", bound=Base)

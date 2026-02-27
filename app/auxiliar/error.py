@@ -1,7 +1,7 @@
 from flask import Flask, flash, jsonify, render_template, request, session
 from werkzeug.exceptions import HTTPException
 
-from app.dao.dao_usuarios import get_user
+from app.dao.internal.usuarios import get_user
 from config.general import SHOW_DEBUG_ERRORS
 from config.mapeamentos import ERRORS
 

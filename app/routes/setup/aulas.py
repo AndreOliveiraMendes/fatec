@@ -3,11 +3,11 @@ from typing import Any
 from flask import (Blueprint, flash, redirect, render_template, request,
                    session, url_for)
 
-from app.auxiliar.auxiliar_dao import parse_time_string
 from app.auxiliar.constant import DB_ERRORS
-from app.dao.dao import _handle_db_error
-from app.dao.dao_historicos import registrar_log_generico_usuario
-from app.dao.dao_usuarios import get_user
+from app.auxiliar.dao import parse_time_string
+from app.dao.internal.dao import _handle_db_error
+from app.dao.internal.historicos import registrar_log_generico_usuario
+from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import admin_required
 from app.extensions import db
 from app.models.aulas import Aulas

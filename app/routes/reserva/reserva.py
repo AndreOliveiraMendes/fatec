@@ -5,11 +5,11 @@ from typing import Any
 from flask import (Blueprint, current_app, redirect, render_template, request,
                    session, url_for)
 
-from app.auxiliar.auxiliar_dao import parse_date_string
-from app.dao.dao_aulas import (get_aulas_ativas_por_dia, get_turno_by_time,
-                               get_turnos)
-from app.dao.dao_locais import get_laboratorios
-from app.dao.dao_usuarios import get_user
+from app.auxiliar.dao import parse_date_string
+from app.dao.internal.aulas import (get_aulas_ativas_por_dia,
+                                    get_turno_by_time, get_turnos)
+from app.dao.internal.locais import get_laboratorios
+from app.dao.internal.usuarios import get_user
 from app.enums import TipoAulaEnum
 from app.extensions import db
 from app.models.aulas import Turnos
@@ -87,7 +87,7 @@ def tela_televisor1():
     userid = session.get('userid')
     user = get_user(userid)
     extras: dict[str, Any] = {}
-    painel_cfg = carregar_painel_config().get('estilo1')
+    painel_cfg = carregar_painel_config().get('estilo1', {})
     tipo_horario = painel_cfg.get('tipo', TipoAulaEnum.AULA.value)
     intervalo = int(painel_cfg.get('tempo', 15))
     qt_lab = int(painel_cfg.get('laboratorios', 6))
@@ -106,7 +106,7 @@ def tela_televisor2():
     userid = session.get('userid')
     user = get_user(userid)
     extras: dict[str, Any] = {}
-    painel_cfg = carregar_painel_config().get('estilo2')
+    painel_cfg = carregar_painel_config().get('estilo2', {})
     tipo_horario = painel_cfg.get('tipo', TipoAulaEnum.AULA.value)
     intervalo = int(painel_cfg.get('tempo', 5))
     qt_lab = int(painel_cfg.get('laboratorios', 6))
@@ -125,7 +125,7 @@ def tela_televisor3():
     userid = session.get('userid')
     user = get_user(userid)
     extras: dict[str, Any] = {}
-    painel_cfg = carregar_painel_config().get('estilo3')
+    painel_cfg = carregar_painel_config().get('estilo3', {})
     tipo_horario = painel_cfg.get('tipo', TipoAulaEnum.AULA.value)
     intervalo = int(painel_cfg.get('tempo', 5))
     locais = get_laboratorios(True)

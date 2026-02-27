@@ -5,19 +5,19 @@ from flask import Blueprint, abort, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import and_, select
 
-from app.auxiliar.auxiliar_dao import (filtro_tipo_responsavel, none_if_empty,
-                                       parse_date_string)
-from app.auxiliar.auxiliar_routes import (get_query_params,
-                                          get_session_or_request,
-                                          register_return)
 from app.auxiliar.constant import DB_ERRORS
-from app.dao.dao import _handle_db_error
-from app.dao.dao_aulas import get_aulas_ativas
-from app.dao.dao_historicos import registrar_log_generico_usuario
-from app.dao.dao_locais import get_locais
-from app.dao.dao_reservas import (check_reserva_temporaria,
-                                  get_reservas_temporarias)
-from app.dao.dao_usuarios import get_pessoas, get_user, get_usuarios_especiais
+from app.auxiliar.dao import (filtro_tipo_responsavel, none_if_empty,
+                              parse_date_string)
+from app.auxiliar.routes import (get_query_params, get_session_or_request,
+                                 register_return)
+from app.dao.internal.aulas import get_aulas_ativas
+from app.dao.internal.dao import _handle_db_error
+from app.dao.internal.historicos import registrar_log_generico_usuario
+from app.dao.internal.locais import get_locais
+from app.dao.internal.reservas import (check_reserva_temporaria,
+                                       get_reservas_temporarias)
+from app.dao.internal.usuarios import (get_pessoas, get_user,
+                                       get_usuarios_especiais)
 from app.decorators.decorators import admin_required
 from app.enums import FinalidadeReservaEnum
 from app.extensions import db

@@ -5,14 +5,16 @@ from typing import Any
 from flask import (Blueprint, abort, flash, redirect, render_template, request,
                    session, url_for)
 
-from app.auxiliar.auxiliar_dao import check_first, parse_date_string
 from app.auxiliar.constant import DB_ERRORS
-from app.dao.dao import _handle_db_error, get_unique_or_500
-from app.dao.dao_aulas import get_turno_by_time, get_turnos
-from app.dao.dao_controle import get_exibicao_por_dia, get_situacoes_por_dia
-from app.dao.dao_historicos import registrar_log_generico_usuario
-from app.dao.dao_reservas import get_reservas_por_dia, get_responsavel_reserva
-from app.dao.dao_usuarios import get_user
+from app.auxiliar.dao import check_first, parse_date_string
+from app.dao.internal.aulas import get_turno_by_time, get_turnos
+from app.dao.internal.controle import (get_exibicao_por_dia,
+                                       get_situacoes_por_dia)
+from app.dao.internal.dao import _handle_db_error, get_unique_or_500
+from app.dao.internal.historicos import registrar_log_generico_usuario
+from app.dao.internal.reservas import (get_reservas_por_dia,
+                                       get_responsavel_reserva)
+from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import admin_required
 from app.enums import SituacaoChaveEnum, TipoAulaEnum, TipoReservaEnum
 from app.extensions import db

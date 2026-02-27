@@ -3,7 +3,7 @@ from sqlalchemy import MetaData, Table, UniqueConstraint, inspect
 from sqlalchemy.dialects import mysql
 from sqlalchemy.schema import CreateTable
 
-from app.dao.dao_usuarios import get_user
+from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import admin_required
 from app.extensions import db
 

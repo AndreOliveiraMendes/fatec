@@ -1,6 +1,6 @@
 import shlex
 
-from app.security.auxiliar_cryptograph import decrypt_field
+from app.security.cryptograph import decrypt_field
 from config.json_related import load_ssh_credentials
 
 

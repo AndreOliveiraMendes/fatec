@@ -8,15 +8,17 @@ from flask.typing import ResponseReturnValue
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import and_, select
 
-from app.auxiliar.auxiliar_dao import none_if_empty
 from app.auxiliar.constant import DB_ERRORS, PERM_ADMIN
-from app.dao.dao import _handle_db_error
-from app.dao.dao_aulas import get_dias_da_semana, get_semestres
-from app.dao.dao_historicos import registrar_log_generico_usuario
-from app.dao.dao_locais import get_laboratorios
-from app.dao.dao_reservas import (check_ownership_or_admin, check_periodo_fixa,
-                                  info_reserva_fixa, info_reserva_temporaria)
-from app.dao.dao_usuarios import get_pessoas, get_user, get_usuarios_especiais
+from app.auxiliar.dao import none_if_empty
+from app.dao.internal.aulas import get_dias_da_semana, get_semestres
+from app.dao.internal.dao import _handle_db_error
+from app.dao.internal.historicos import registrar_log_generico_usuario
+from app.dao.internal.locais import get_laboratorios
+from app.dao.internal.reservas import (check_ownership_or_admin,
+                                       check_periodo_fixa, info_reserva_fixa,
+                                       info_reserva_temporaria)
+from app.dao.internal.usuarios import (get_pessoas, get_user,
+                                       get_usuarios_especiais)
 from app.decorators.decorators import login_required
 from app.enums import FinalidadeReservaEnum
 from app.extensions import db

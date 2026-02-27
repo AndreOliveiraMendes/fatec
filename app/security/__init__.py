@@ -1,1 +1,1 @@
-from .auxiliar_cryptograph import *
+from .cryptograph import *

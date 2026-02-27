@@ -5,7 +5,7 @@ from sqlalchemy import (CheckConstraint, Enum, ForeignKey, String,
                         UniqueConstraint)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.auxiliar.auxiliar_model import parse_date, parse_time
+from app.auxiliar.model import parse_date, parse_time
 from app.enums import TipoAulaEnum
 from app.extensions import Base
 

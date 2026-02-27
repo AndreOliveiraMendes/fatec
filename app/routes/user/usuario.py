@@ -3,8 +3,8 @@ from typing import Any
 
 from flask import Blueprint, abort, render_template, session
 
-from app.dao.dao_usuarios import get_user
-from app.dao.external_dao import get_grade_by_professor
+from app.dao.external.general import get_grade_by_professor
+from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import login_required
 from config.general import LOCAL_TIMEZONE
 

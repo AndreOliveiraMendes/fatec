@@ -5,17 +5,17 @@ from flask import Blueprint, abort, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
-from app.auxiliar.auxiliar_dao import filtro_tipo_responsavel, none_if_empty
-from app.auxiliar.auxiliar_routes import (get_query_params,
-                                          get_session_or_request,
-                                          register_return)
 from app.auxiliar.constant import DB_ERRORS
-from app.dao.dao import _handle_db_error
-from app.dao.dao_aulas import get_aulas_ativas, get_semestres
-from app.dao.dao_historicos import registrar_log_generico_usuario
-from app.dao.dao_locais import get_locais
-from app.dao.dao_reservas import get_reservas_fixas
-from app.dao.dao_usuarios import get_pessoas, get_user, get_usuarios_especiais
+from app.auxiliar.dao import filtro_tipo_responsavel, none_if_empty
+from app.auxiliar.routes import (get_query_params, get_session_or_request,
+                                 register_return)
+from app.dao.internal.aulas import get_aulas_ativas, get_semestres
+from app.dao.internal.dao import _handle_db_error
+from app.dao.internal.historicos import registrar_log_generico_usuario
+from app.dao.internal.locais import get_locais
+from app.dao.internal.reservas import get_reservas_fixas
+from app.dao.internal.usuarios import (get_pessoas, get_user,
+                                       get_usuarios_especiais)
 from app.decorators.decorators import admin_required
 from app.enums import FinalidadeReservaEnum
 from app.extensions import db

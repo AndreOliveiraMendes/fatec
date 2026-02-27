@@ -1,6 +1,6 @@
 from flask import Blueprint, abort, render_template, session
 
-from app.dao.dao_usuarios import get_user
+from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import cmd_config_required
 from config.json_related import load_commands
 

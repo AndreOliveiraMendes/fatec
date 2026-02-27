@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import Enum, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.auxiliar.auxiliar_model import parse_date
+from app.auxiliar.model import parse_date
 from app.enums import SituacaoChaveEnum, TipoReservaEnum
 from app.extensions import Base
 

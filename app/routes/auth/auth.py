@@ -5,11 +5,11 @@ from flask import (Blueprint, abort, current_app, flash, redirect,
                    render_template, request, session, url_for)
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
-from app.auxiliar.auxiliar_dao import none_if_empty
 from app.auxiliar.constant import (PERM_ADMIN, PERM_RESERVA_AUDITORIO,
                                    PERM_RESERVA_FIXA, PERM_RESERVA_TEMPORARIA)
-from app.dao.dao_historicos import registrar_log_generico_sistema
-from app.dao.dao_usuarios import get_user
+from app.auxiliar.dao import none_if_empty
+from app.dao.internal.historicos import registrar_log_generico_sistema
+from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import login_required
 from app.extensions import db
 from app.models.usuarios import Permissoes, Pessoas, Usuarios

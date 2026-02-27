@@ -29,24 +29,27 @@ templates, static assets, and configuration files.
 │   ├── __main__.py
 │   ├── auxiliar
 │   │   ├── __init__.py
-│   │   ├── auxiliar_api.py
-│   │   ├── auxiliar_cryptograph.py
-│   │   ├── auxiliar_dao.py
-│   │   ├── auxiliar_model.py
-│   │   ├── auxiliar_routes.py
-│   │   ├── auxiliar_template.py
+│   │   ├── api.py
 │   │   ├── constant.py
-│   │   └── error.py
+│   │   ├── dao.py
+│   │   ├── error.py
+│   │   ├── model.py
+│   │   ├── routes.py
+│   │   └── template.py
 │   ├── dao
 │   │   ├── __init__.py
-│   │   ├── dao.py
-│   │   ├── dao_aulas.py
-│   │   ├── dao_controle.py
-│   │   ├── dao_historicos.py
-│   │   ├── dao_locais.py
-│   │   ├── dao_reservas.py
-│   │   ├── dao_usuarios.py
-│   │   └── external_dao.py
+│   │   ├── external
+│   │   │   ├── __init__.py
+│   │   │   └── general.py
+│   │   └── internal
+│   │       ├── __init__.py
+│   │       ├── aulas.py
+│   │       ├── controle.py
+│   │       ├── dao.py
+│   │       ├── historicos.py
+│   │       ├── locais.py
+│   │       ├── reservas.py
+│   │       └── usuarios.py
 │   ├── decorators
 │   │   ├── __init__.py
 │   │   └── decorators.py
@@ -133,6 +136,9 @@ templates, static assets, and configuration files.
 │   │       ├── __init__.py
 │   │       ├── usuario.py
 │   │       └── usuario_reservas_laboratorios.py
+│   ├── security
+│   │   ├── __init__.py
+│   │   └── cryptograph.py
 │   ├── static
 │   │   ├── css
 │   │   │   ├── bootstrap.min.css
