@@ -11,7 +11,7 @@ from flask import (Blueprint, abort, current_app, flash, redirect,
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import and_, func, select
 
-from app.auxiliar.auxiliar_cryptograph import load_key
+from app.security.auxiliar_cryptograph import load_key
 from app.dao.dao_aulas import get_dias_da_semana, get_semestres
 from app.dao.dao_locais import get_laboratorios, get_locais
 from app.dao.dao_usuarios import get_user

@@ -297,25 +297,6 @@ def get_reserva_temporaria_info(id_reserva):
         "local": reserva.local.nome_local
     }
 
-def get_reserva_temporaria_info(id_reserva):
-    reserva = db.get_or_404(Reservas_Temporarias, id_reserva)
-    responsavel = get_responsavel_reserva(reserva)
-    return {
-        "id_reserva": reserva.id_reserva_temporaria,
-        "inicio": reserva.inicio_reserva.strftime("%Y-%m-%d") if reserva.inicio_reserva else None,
-        "fim": reserva.fim_reserva.strftime("%Y-%m-%d") if reserva.fim_reserva else None,
-        "id_responsavel": reserva.id_responsavel,
-        "id_responsavel_especial": reserva.id_responsavel_especial,
-        "id_local": reserva.id_reserva_local,
-        "id_aula_ativa": reserva.id_reserva_aula,
-        "finalidade": reserva.finalidade_reserva.value,
-        "observacoes": reserva.observacoes,
-        "descricao": reserva.descricao,
-        "responsavel": responsavel,
-        "horario": reserva.aula_ativa.selector_identification,
-        "local": reserva.local.nome_local
-    }
-
 def update_reserva_fixa(id_reserva):
     userid = session.get('userid')
     reserva = db.get_or_404(Reservas_Fixas, id_reserva)

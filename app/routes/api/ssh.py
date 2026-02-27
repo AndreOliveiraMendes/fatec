@@ -7,7 +7,7 @@ from paramiko.ssh_exception import (AuthenticationException,
                                     NoValidConnectionsError, SSHException)
 
 from app.auxiliar.auxiliar_api import wrap_command
-from app.auxiliar.auxiliar_cryptograph import decrypt_field, encrypt_field
+from app.security.auxiliar_cryptograph import decrypt_field, encrypt_field
 from app.dao.dao_usuarios import get_user
 from app.decorators.decorators import admin_required
 from config.json_related import load_ssh_credentials, save_ssh_credentials

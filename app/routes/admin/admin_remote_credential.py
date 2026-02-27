@@ -1,6 +1,6 @@
 from flask import Blueprint, flash, redirect, render_template, session, url_for
 
-from app.auxiliar.auxiliar_cryptograph import ensure_secret_file
+from app.security.auxiliar_cryptograph import ensure_secret_file
 from app.dao.dao_usuarios import get_user
 from app.decorators.decorators import admin_required
 
