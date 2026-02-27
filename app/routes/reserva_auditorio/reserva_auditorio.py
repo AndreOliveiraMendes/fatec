@@ -6,14 +6,18 @@ from flask import (Blueprint, abort, flash, redirect, render_template, request,
                    session, url_for)
 from sqlalchemy import func, select
 
-from app.auxiliar.auxiliar_routes import (_handle_db_error, get_user,
-                                          none_if_empty, parse_date_string,
-                                          registrar_log_generico_usuario)
+from app.auxiliar.auxiliar_dao import none_if_empty, parse_date_string
 from app.auxiliar.constant import DB_ERRORS, PERM_ADMIN, PERM_AUTORIZAR
-from app.auxiliar.dao import get_auditorios, get_reservas_auditorios_filtrada
+from app.auxiliar.dao import _handle_db_error
+from app.auxiliar.dao_historicos import registrar_log_generico_usuario
+from app.auxiliar.dao_locais import get_auditorios
+from app.auxiliar.dao_reservas import get_reservas_auditorios_filtrada
+from app.auxiliar.dao_usuarios import get_user
 from app.auxiliar.decorators import reserva_auditorio_required
-from app.models import (Reservas_Auditorios, StatusReservaAuditorioEnum,
-                        Usuarios, db)
+from app.enums import StatusReservaAuditorioEnum
+from app.extensions import db
+from app.model.reservas.reservas_auditorios import Reservas_Auditorios
+from app.model.usuarios import Usuarios
 from config.general import LOCAL_TIMEZONE
 
 bp = Blueprint('reservas_auditorios', __name__, url_prefix="/reserva_auditorio")

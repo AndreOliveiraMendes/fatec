@@ -1,104 +1,25 @@
-import enum
-from datetime import date, datetime, time, timedelta
-from typing import (Any, Callable, Literal, MutableMapping, Optional, Type,
-                    TypeVar, overload)
+from datetime import date, timedelta
+from typing import Any, MutableMapping, Optional, TypeVar
 
-from flask import abort, current_app, flash, redirect, session, url_for
+from flask import abort, redirect, session, url_for
 from flask.typing import ResponseReturnValue
 from markupsafe import Markup
-from sqlalchemy import select
-from sqlalchemy.exc import MultipleResultsFound
-from sqlalchemy.inspection import inspect
-from sqlalchemy.sql.elements import ColumnElement
 
 from app.auxiliar.constant import PERM_ADMIN
-from app.enums import FinalidadeReservaEnum, SituacaoChaveEnum, TipoReservaEnum
-from app.models import (Base, Historicos, Locais, OrigemEnum, Permissoes,
-                        Pessoas, ReservaBase, Reservas_Fixas,
-                        Reservas_Temporarias, Situacoes_Das_Reserva, Usuarios,
-                        Usuarios_Especiais, db)
-from config.general import AFTER_ACTION, LOCAL_TIMEZONE
+from app.auxiliar.dao import get_unique_or_500
+from app.auxiliar.dao_reservas import get_responsavel_reserva
+from app.enums import FinalidadeReservaEnum, SituacaoChaveEnum
+from app.extensions import Base
+from app.model.controle import Situacoes_Das_Reserva
+from app.model.locais import Locais
+from config.general import AFTER_ACTION
 from config.json_related import carregar_painel_config
 from config.mapeamentos import mapa_icones_status
 
-# =========================================================
-# CONSTANTES / TYPES
-# =========================================================
 IGNORED_FORM_FIELDS = ['page', 'acao', 'bloco']
 
 T = TypeVar("T", bound=Base)
-V = TypeVar("V")
-S = TypeVar("S")
 
-
-# =========================================================
-# PARSERS / CAST HELPERS
-# =========================================================
-def none_if_empty(value: Any, cast_type: Callable[[Any], V] = str) -> Optional[V]:
-    if value is None:
-        return None
-
-    if isinstance(value, str):
-        value = value.strip()
-        if not value:
-            return None
-
-    try:
-        return cast_type(value)
-    except (ValueError, TypeError):
-        return None
-
-@overload
-def _parse_generic(
-    value: str | None,
-    format: str,
-    extractor: Callable[[datetime], S]
-) -> S | None: ...
-@overload
-def _parse_generic(
-    value: str | None,
-    format: str,
-    extractor: None = None
-) -> datetime | None: ...
-
-def _parse_generic(
-    value: str | None,
-    format: str,
-    extractor: Callable[[datetime], S] | None = None
-) -> Optional[S | datetime]:
-    if not value:
-        return None
-    try:
-        dt = datetime.strptime(value, format)
-        return extractor(dt) if extractor else dt
-    except ValueError:
-        return None
-
-def parse_time_string(value: str | None, format: str | None = None) -> Optional[time]:
-    return _parse_generic(
-        value,
-        format or "%H:%M",
-        extractor=lambda dt: dt.time()
-    )
-
-
-def parse_date_string(value: str | None, format: str | None = None) -> Optional[date]:
-    return _parse_generic(
-        value,
-        format or "%Y-%m-%d",
-        extractor=lambda dt: dt.date()
-    )
-
-
-def parse_datetime_string(value: str | None, format: str | None = None) -> Optional[datetime]:
-    return _parse_generic(
-        value,
-        format or "%Y-%m-%dT%H:%M"
-    )
-
-# =========================================================
-# REQUEST / SESSION HELPERS
-# =========================================================
 def get_query_params(request):
     return {
         key: value
@@ -106,36 +27,8 @@ def get_query_params(request):
         if key not in IGNORED_FORM_FIELDS
     }
 
-
 def get_session_or_request(request, session, key, default=None):
     return session.pop(key, request.form.get(key, default))
-
-
-def get_user(userid):
-    if not userid:
-        return None
-
-    user = db.session.get(Usuarios, userid)
-    if user:
-        return user
-
-    current_app.logger.error(f"Usuário com ID {userid} não encontrado.")
-    session.pop('userid')
-
-
-# =========================================================
-# DISPLAY HELPERS
-# =========================================================
-def formatar_valor(valor):
-    if isinstance(valor, enum.Enum):
-        return valor.value
-    return valor
-
-def dict_format(dictionary):
-    campos = []
-    for key in sorted(dictionary.keys()):
-        campos.append(f"{key}: {dictionary[key]}")
-    return "; ".join(campos)
 
 def status_reserva(lab, aula, dia, tipo, tela_televisor=False, tela = None):
         painel_cfg = carregar_painel_config()
@@ -179,105 +72,16 @@ def montar_partes_reserva(choose, *, mostrar_icone=False, lab=None, aula=None, d
 
     return partes
 
-# =========================================================
-# LOGGING
-# =========================================================
-def _registrar_log_generico(
-    *,
-    usuario_id,
-    origem,
-    acao,
-    objeto,
-    antes=None,
-    observacao=None,
-    skip_unchanged=False
-):
-    nome_tabela = getattr(objeto, "__tablename__", objeto.__class__.__name__)
-    insp = inspect(objeto)
-
-    chaves_primarias = [key.name for key in insp.mapper.primary_key]
-    dados_chave = {chave: getattr(objeto, chave) for chave in chaves_primarias}
-
-    campos = []
-    for col in objeto.__table__.columns:
-        nome = col.name
-        valor_novo_fmt = formatar_valor(getattr(objeto, nome, None))
-
-        if antes:
-            valor_antigo_fmt = formatar_valor(getattr(antes, nome, None))
-            if valor_antigo_fmt != valor_novo_fmt:
-                campos.append(f"{nome}: {valor_antigo_fmt} → {valor_novo_fmt}")
-        else:
-            campos.append(f"{nome}: {valor_novo_fmt}")
-
-    if not campos:
-        if skip_unchanged:
-            return
-        campos.append("nenhuma alteração detectada")
-
-    db.session.add(Historicos(
-        id_usuario=usuario_id,
-        tabela=nome_tabela,
-        categoria=acao,
-        data_hora=datetime.now(LOCAL_TIMEZONE),
-        message="; ".join(campos),
-        chave_primaria=dict_format(dados_chave),
-        origem=OrigemEnum(origem),
-        observacao=observacao
-    ))
-
-
-def registrar_log_generico_sistema(
-    acao: Literal['Login'],
-    objeto,
-    antes=None,
-    observacao=None,
-    skip_unchanged=False
-):
-    _registrar_log_generico(
-        usuario_id=None,
-        origem="Sistema",
-        acao=acao,
-        objeto=objeto,
-        antes=antes,
-        observacao=observacao,
-        skip_unchanged=skip_unchanged
-    )
-
-
-def registrar_log_generico_usuario(
-    userid,
-    acao: Literal['Inserção', 'Edição', 'Exclusão', 'Quick-Setup'],
-    objeto,
-    antes=None,
-    observacao=None,
-    skip_unchanged=False
-):
-    _registrar_log_generico(
-        usuario_id=userid,
-        origem="Usuario",
-        acao=acao,
-        objeto=objeto,
-        antes=antes,
-        observacao=observacao,
-        skip_unchanged=skip_unchanged
-    )
-
-# =========================================================
-# ACTION HELPERS
-# =========================================================
 def disable_action(extras, disable):
     extras["disable"] = disable
     for action in disable:
         if action in ['editar', 'excluir']:
             extras[f"disable_{action}"] = True
 
-
 def include_action(extras, include):
     add = [a['value'] for a in include]
     extras["include"] = include
     extras["add"] = add
-
 
 def register_return(
     url: str,
@@ -299,25 +103,11 @@ def register_return(
 
     raise ValueError(f"Configuração AFTER_ACTION inválida: {AFTER_ACTION}")
 
-
-# =========================================================
-# UTILS GERAIS
-# =========================================================
 def time_range(start: date, end: date, step: int = 1):
     day = start
     while start <= day <= end:
         yield day
         day += timedelta(step)
-
-
-def get_unique_or_500(model: Type[T], *args, **kwargs):
-    try:
-        return db.session.execute(
-            select(model).where(*args, **kwargs)
-        ).scalar_one_or_none()
-    except MultipleResultsFound:
-        abort(500, description=f"Erro ao consultar {model.__name__}.")
-
 
 def check_local(local: Locais, perm):
     if perm & PERM_ADMIN > 0:
@@ -325,83 +115,6 @@ def check_local(local: Locais, perm):
     if local.disponibilidade.value == 'Indisponivel':
         abort(403, description="Local indisponível para reservas.")
         
-def _friendly_db_message(error):
-    raw = str(getattr(error, "orig", error)).lower()
-
-    if "duplicate entry" in raw or "unique constraint" in raw:
-        return "Registro já existe."
-
-    if "foreign key" in raw:
-        return "Registro relacionado não encontrado."
-
-    if "cannot be null" in raw or "not null constraint" in raw:
-        return "Campo obrigatório não preenchido."
-
-    if "data too long" in raw:
-        return "Valor maior que o permitido."
-
-    return "Erro ao salvar dados."
-        
-def _handle_db_error(e, msg):
-    db.session.rollback()
-
-    user_msg = _friendly_db_message(e)
-
-    flash(f"{msg}: {user_msg}", "danger")
-
-    current_app.logger.error("%s | erro=%s", msg, e)
-    #current_app.logger.exception(msg)
-
-
-# =========================================================
-# RESERVA HELPERS
-# =========================================================
-def get_responsavel_reserva(
-    reserva: Reservas_Fixas | Reservas_Temporarias,
-    modo_template: bool = False
-):
-    title = ""
-    tipo = reserva.tipo_responsavel
-
-    if tipo in (0, 2):
-        r = db.get_or_404(Pessoas, reserva.id_responsavel)
-        title += r.alias or r.nome_pessoa
-
-    if tipo in (1, 2):
-        r = db.get_or_404(Usuarios_Especiais, reserva.id_responsavel_especial)
-        title += (
-            r.nome_usuario_especial
-            if tipo == 1
-            else f" ({r.nome_usuario_especial})"
-        )
-
-    if modo_template and reserva.finalidade_reserva == FinalidadeReservaEnum.USO_DOS_ALUNOS:
-        title += " uso acadêmico"
-
-    return title
-
-
-def filtro_tipo_responsavel(
-    model: Type[ReservaBase],
-    tipo: int
-) -> ColumnElement[bool]:
-
-    match tipo:
-        case 0:
-            return model.id_responsavel.isnot(None) & model.id_responsavel_especial.is_(None)
-        case 1:
-            return model.id_responsavel.is_(None) & model.id_responsavel_especial.isnot(None)
-        case 2:
-            return model.id_responsavel.isnot(None) & model.id_responsavel_especial.isnot(None)
-        case 3:
-            return model.id_responsavel.is_(None) & model.id_responsavel_especial.is_(None)
-        case _:
-            raise ValueError("tipo_responsavel inválido")
-
-
-# =========================================================
-# BUILDERS DE TABELA
-# =========================================================
 def builder_helper_fixa(extras, info):
     aulas = set()
     semanas = set()
@@ -415,7 +128,6 @@ def builder_helper_fixa(extras, info):
     extras['head'] = sorted(semanas, key=lambda s: s.id_semana)
     extras['first_col'] = sorted(aulas, key=lambda a: a.horario_inicio)
     extras['row'] = row
-
 
 def builder_helper_temporaria(extras, aulas):
     table_aulas = []
@@ -448,67 +160,3 @@ def builder_helper_temporaria(extras, aulas):
 
     extras['head'] = table_aulas
     extras['dias'] = table_dias
-
-
-# =========================================================
-# PERMISSÕES / CHECKS
-# =========================================================
-def check_ownership_or_admin(reserva: Reservas_Fixas | Reservas_Temporarias):
-    userid = session.get('userid')
-    user = db.get_or_404(Usuarios, userid)
-    perm = db.session.get(Permissoes, userid)
-
-    if reserva.id_responsavel != user.pessoa.id_pessoa and (
-        not perm or perm.permissao & PERM_ADMIN == 0
-    ):
-        abort(403, description="Acesso negado à reserva de outro usuário.")
-
-
-def check_periodo_fixa(reserva: Reservas_Fixas):
-    userid = session.get('userid')
-    perm = db.session.get(Permissoes, userid)
-
-    if perm and perm.permissao & PERM_ADMIN:
-        return True
-
-    hoje = date.today()
-    return reserva.semestre.data_inicio_reserva <= hoje <= reserva.semestre.data_fim_reserva
-
-
-# =========================================================
-# INFO JSON RESERVAS
-# =========================================================
-def info_reserva_fixa(id_reserva):
-    reserva = db.get_or_404(Reservas_Fixas, id_reserva)
-    check_ownership_or_admin(reserva)
-
-    return {
-        "local": reserva.local.nome_local,
-        "semestre": reserva.semestre.nome_semestre,
-        "semana": reserva.aula_ativa.dia_da_semana.nome_semana,
-        "horario": f"{reserva.aula_ativa.aula.horario_inicio:%H:%M} às {reserva.aula_ativa.aula.horario_fim:%H:%M}",
-        "observacao": reserva.observacoes,
-        "finalidadereserva": reserva.finalidade_reserva.value,
-        "responsavel": reserva.id_responsavel,
-        "responsavel_especial": reserva.id_responsavel_especial,
-        "cancel_url": url_for("usuario_reservas.cancelar_reserva", tipo_reserva="fixa", id_reserva=id_reserva),
-        "editar_url": url_for("usuario_reservas.editar_reserva", tipo_reserva="fixa", id_reserva=id_reserva)
-    }
-
-
-def info_reserva_temporaria(id_reserva):
-    reserva = db.get_or_404(Reservas_Temporarias, id_reserva)
-    check_ownership_or_admin(reserva)
-
-    return {
-        "local": reserva.local.nome_local,
-        "periodo": f"{reserva.inicio_reserva} - {reserva.fim_reserva}",
-        "semana": reserva.aula_ativa.dia_da_semana.nome_semana,
-        "horario": f"{reserva.aula_ativa.aula.horario_inicio:%H:%M} às {reserva.aula_ativa.aula.horario_fim:%H:%M}",
-        "observacao": reserva.observacoes,
-        "finalidadereserva": reserva.finalidade_reserva.value,
-        "responsavel": reserva.id_responsavel,
-        "responsavel_especial": reserva.id_responsavel_especial,
-        "cancel_url": url_for("usuario_reservas.cancelar_reserva", tipo_reserva="temporaria", id_reserva=id_reserva),
-        "editar_url": url_for("usuario_reservas.editar_reserva", tipo_reserva="temporaria", id_reserva=id_reserva)
-    }

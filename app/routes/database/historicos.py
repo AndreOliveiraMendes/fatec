@@ -7,15 +7,16 @@ from flask import (Blueprint, Response, abort, flash, jsonify, render_template,
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import between, func, or_, select
 
-from app.auxiliar.auxiliar_routes import (disable_action, formatar_valor,
-                                          get_query_params,
-                                          get_session_or_request, get_user,
-                                          include_action, none_if_empty,
-                                          parse_datetime_string,
-                                          register_return)
-from app.auxiliar.dao import get_usuarios
+from app.auxiliar.auxiliar_dao import (formatar_valor, none_if_empty,
+                                       parse_datetime_string)
+from app.auxiliar.auxiliar_routes import (disable_action, get_query_params,
+                                          get_session_or_request,
+                                          include_action, register_return)
+from app.auxiliar.dao_usuarios import get_user, get_usuarios
 from app.auxiliar.decorators import admin_required
-from app.models import Historicos, OrigemEnum, db
+from app.enums import OrigemEnum
+from app.extensions import db
+from app.model.historicos import Historicos
 from config.general import LOCAL_TIMEZONE, PER_PAGE
 
 bp = Blueprint('database_historicos', __name__, url_prefix="/database")

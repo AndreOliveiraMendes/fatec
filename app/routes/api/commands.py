@@ -4,7 +4,7 @@ from datetime import datetime
 from flask import Blueprint, current_app, jsonify, request, session
 
 from app.auxiliar.auxiliar_api import run_remote_command, wrap_command
-from app.auxiliar.auxiliar_routes import get_user
+from app.auxiliar.dao_usuarios import get_user
 from app.auxiliar.decorators import admin_required, cmd_config_required
 from config.json_related import load_commands, save_commands
 

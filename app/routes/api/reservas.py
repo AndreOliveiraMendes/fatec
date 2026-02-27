@@ -1,10 +1,10 @@
 from flask import Blueprint, abort, jsonify
 
-from app.auxiliar.auxiliar_api import (check_conflict_reservas_fixas,
+from app.auxiliar.dao_reservas import (api_get_reserva_fixa_info,
+                                       check_conflict_reservas_fixas,
                                        delete_reserva_fixa,
                                        delete_reserva_temporaria,
                                        get_reserva_fixa_indirect,
-                                       get_reserva_fixa_info,
                                        get_reserva_temporaria_indirect,
                                        get_reserva_temporaria_info,
                                        update_reserva_fixa,
@@ -18,7 +18,7 @@ bp = Blueprint('api_reservas', __name__, url_prefix='/api/reservas')
 # -------------------------
 RESERVA_HANDLERS = {
     0: {
-        "info": get_reserva_fixa_info,
+        "info": api_get_reserva_fixa_info,
         "update": update_reserva_fixa,
         "delete": delete_reserva_fixa,
         "indirect": get_reserva_fixa_indirect,

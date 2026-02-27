@@ -3,7 +3,7 @@ import unittest
 from sqlalchemy import select
 
 from app import create_app, db
-from app.models import Usuarios
+from app.model.usuarios import Usuarios
 
 
 # see https://docs.python.org/3/library/unittest.html for reference

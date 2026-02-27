@@ -1,11 +1,10 @@
 import logging
 import os
-from datetime import timedelta
 from logging.handlers import TimedRotatingFileHandler
 
 from flask import Flask
 
-from app.extensions import Base, db
+from app.extensions import db
 from app.routes import register_blueprints
 from config.general import AUTO_CREATE_MYSQL, get_config
 

@@ -5,14 +5,17 @@ from flask import Flask, abort, session, url_for
 from markupsafe import Markup
 from sqlalchemy import between
 
-from app.auxiliar.auxiliar_routes import (get_responsavel_reserva,
-                                          get_unique_or_500, get_user,
-                                          montar_partes_reserva)
+from app.auxiliar.auxiliar_routes import montar_partes_reserva
 from app.auxiliar.constant import (APP_TITLE, DATA_ABREV, DATA_COMPLETA,
                                    DATA_FLAGS, DATA_NUMERICA, HORA, PERM_ADMIN,
                                    PERMISSIONS, SEMANA_ABREV, SEMANA_COMPLETA)
-from app.models import (Exibicao_Reservas, Locais, Reservas_Fixas,
-                        Reservas_Temporarias, Semestres, Turnos)
+from app.auxiliar.dao import get_unique_or_500
+from app.auxiliar.dao_reservas import get_responsavel_reserva
+from app.auxiliar.dao_usuarios import get_user
+from app.model.aulas import Semestres, Turnos
+from app.model.controle import Exibicao_Reservas
+from app.model.locais import Locais
+from app.model.reservas.reservas_laboratorios import Reservas_Fixas, Reservas_Temporarias
 from config.database_views import SECOES
 from config.mapeamentos import meses_ingleses, semana_inglesa, situacoes_helper
 

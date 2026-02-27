@@ -8,7 +8,7 @@ from datetime import datetime
 from flask import (Blueprint, current_app, flash, redirect, render_template,
                    session, url_for)
 
-from app.auxiliar.auxiliar_routes import get_user
+from app.auxiliar.dao_usuarios import get_user
 from app.auxiliar.decorators import admin_required
 from config.general import LIST_ROUTES
 

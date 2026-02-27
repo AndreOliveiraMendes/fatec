@@ -1,8 +1,7 @@
-from flask import (Flask, abort, flash, jsonify, render_template, request,
-                   session)
+from flask import Flask, flash, jsonify, render_template, request, session
 from werkzeug.exceptions import HTTPException
 
-from app.auxiliar.auxiliar_routes import get_user
+from app.auxiliar.dao_usuarios import get_user
 from config.general import SHOW_DEBUG_ERRORS
 from config.mapeamentos import ERRORS
 

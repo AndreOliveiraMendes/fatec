@@ -5,16 +5,20 @@ from flask import Blueprint, abort, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import and_, or_, select
 
-from app.auxiliar.auxiliar_routes import (_handle_db_error, get_query_params,
-                                          get_session_or_request, get_user,
-                                          none_if_empty, parse_date_string,
-                                          register_return,
-                                          registrar_log_generico_usuario)
+from app.auxiliar.auxiliar_dao import none_if_empty, parse_date_string
+from app.auxiliar.auxiliar_routes import (get_query_params,
+                                          get_session_or_request,
+                                          register_return)
 from app.auxiliar.constant import DB_ERRORS
-from app.auxiliar.dao import (check_aula_ativa, get_aulas, get_aulas_ativas,
-                              get_dias_da_semana)
+from app.auxiliar.dao import _handle_db_error
+from app.auxiliar.dao_aulas import (check_aula_ativa, get_aulas,
+                                    get_aulas_ativas, get_dias_da_semana)
+from app.auxiliar.dao_historicos import registrar_log_generico_usuario
+from app.auxiliar.dao_usuarios import get_user
 from app.auxiliar.decorators import admin_required
-from app.models import Aulas_Ativas, TipoAulaEnum, db
+from app.enums import TipoAulaEnum
+from app.extensions import db
+from app.model.aulas import Aulas_Ativas
 from config.general import PER_PAGE
 
 bp = Blueprint('database_aulas_ativas', __name__, url_prefix="/database")

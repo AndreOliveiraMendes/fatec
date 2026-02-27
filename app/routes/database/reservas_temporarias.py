@@ -5,19 +5,24 @@ from flask import Blueprint, abort, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import and_, select
 
-from app.auxiliar.auxiliar_routes import (_handle_db_error,
-                                          filtro_tipo_responsavel,
-                                          get_query_params,
-                                          get_session_or_request, get_user,
-                                          none_if_empty, parse_date_string,
-                                          register_return,
-                                          registrar_log_generico_usuario)
+from app.auxiliar.auxiliar_dao import (filtro_tipo_responsavel, none_if_empty,
+                                       parse_date_string)
+from app.auxiliar.auxiliar_routes import (get_query_params,
+                                          get_session_or_request,
+                                          register_return)
 from app.auxiliar.constant import DB_ERRORS
-from app.auxiliar.dao import (check_reserva_temporaria, get_aulas_ativas,
-                              get_locais, get_pessoas,
-                              get_reservas_temporarias, get_usuarios_especiais)
+from app.auxiliar.dao import _handle_db_error
+from app.auxiliar.dao_aulas import get_aulas_ativas
+from app.auxiliar.dao_historicos import registrar_log_generico_usuario
+from app.auxiliar.dao_locais import get_locais
+from app.auxiliar.dao_reservas import (check_reserva_temporaria,
+                                       get_reservas_temporarias)
+from app.auxiliar.dao_usuarios import (get_pessoas, get_user,
+                                       get_usuarios_especiais)
 from app.auxiliar.decorators import admin_required
-from app.models import FinalidadeReservaEnum, Reservas_Temporarias, db
+from app.enums import FinalidadeReservaEnum
+from app.extensions import db
+from app.model.reservas.reservas_laboratorios import Reservas_Temporarias
 from config.general import PER_PAGE
 
 bp = Blueprint('database_reservas_temporarias', __name__, url_prefix="/database")

@@ -5,15 +5,18 @@ from flask import Blueprint, abort, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
-from app.auxiliar.auxiliar_routes import (_handle_db_error, disable_action,
-                                          get_session_or_request, get_user,
-                                          none_if_empty, parse_time_string,
-                                          register_return,
-                                          registrar_log_generico_usuario)
+from app.auxiliar.auxiliar_dao import none_if_empty, parse_time_string
+from app.auxiliar.auxiliar_routes import (disable_action,
+                                          get_session_or_request,
+                                          register_return)
 from app.auxiliar.constant import DB_ERRORS
-from app.auxiliar.dao import get_turnos
+from app.auxiliar.dao import _handle_db_error
+from app.auxiliar.dao_aulas import get_turnos
+from app.auxiliar.dao_historicos import registrar_log_generico_usuario
+from app.auxiliar.dao_usuarios import get_user
 from app.auxiliar.decorators import admin_required
-from app.models import Turnos, db
+from app.extensions import db
+from app.model.aulas import Turnos
 from config.general import PER_PAGE
 
 bp = Blueprint('database_turnos', __name__, url_prefix="/database")

@@ -3,7 +3,7 @@ from typing import Any
 
 from flask import Blueprint, abort, render_template, session
 
-from app.auxiliar.auxiliar_routes import get_user
+from app.auxiliar.dao_usuarios import get_user
 from app.auxiliar.decorators import login_required
 from app.auxiliar.external_dao import get_grade_by_professor
 from config.general import LOCAL_TIMEZONE
