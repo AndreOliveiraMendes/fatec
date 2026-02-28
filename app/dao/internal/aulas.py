@@ -4,8 +4,7 @@ from flask import abort
 from sqlalchemy import and_, func, literal, or_, select, text, union_all
 from sqlalchemy.exc import IntegrityError, MultipleResultsFound
 
-from app.auxiliar.dao import (get_aula_intervalo, get_aula_semana,
-                              get_aula_turno)
+from app.auxiliar.dao_query import get_aula_intervalo, get_aula_semana, get_aula_turno
 from app.extensions import db
 from app.models.aulas import (Aulas, Aulas_Ativas, Dias_da_Semana, Semestres,
                               TipoAulaEnum, Turnos)

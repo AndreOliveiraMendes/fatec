@@ -6,8 +6,9 @@ from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import and_, select
 
 from app.auxiliar.constant import DB_ERRORS
-from app.auxiliar.dao import (filtro_tipo_responsavel, none_if_empty,
+from app.auxiliar.dao import (none_if_empty,
                               parse_date_string)
+from app.auxiliar.dao_query import filtro_tipo_responsavel
 from app.auxiliar.routes import (get_query_params, get_session_or_request,
                                  register_return)
 from app.dao.internal.aulas import get_aulas_ativas
