@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 
+IGNORED_FORM_FIELDS = ['page', 'acao', 'bloco']
+
 semana_inglesa = {
     '%a': {  # abreviada
         'Mon': 'Seg', 'Tue': 'Ter', 'Wed': 'Qua', 'Thu': 'Qui',

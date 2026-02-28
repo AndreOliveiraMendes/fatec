@@ -6,9 +6,9 @@ from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
 from app.auxiliar.constant import DB_ERRORS
-from app.auxiliar.dao import filtro_tipo_responsavel, none_if_empty
-from app.auxiliar.routes import (get_query_params, get_session_or_request,
-                                 register_return)
+from app.auxiliar.dao_query import filtro_tipo_responsavel
+from app.auxiliar.general import none_if_empty
+from app.auxiliar.navigation import register_return
 from app.dao.internal.aulas import get_aulas_ativas, get_semestres
 from app.dao.internal.general import _handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
@@ -20,6 +20,7 @@ from app.decorators.decorators import admin_required
 from app.enums import FinalidadeReservaEnum
 from app.extensions import db
 from app.models.reservas.reservas_laboratorios import Reservas_Fixas
+from app.routes_helper.request import get_query_params, get_session_or_request
 from config.general import PER_PAGE
 
 bp = Blueprint('database_reservas_fixas', __name__, url_prefix="/database")

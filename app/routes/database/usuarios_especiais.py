@@ -6,15 +6,15 @@ from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
 from app.auxiliar.constant import DB_ERRORS
-from app.auxiliar.dao import none_if_empty
-from app.auxiliar.routes import (get_query_params, get_session_or_request,
-                                 register_return)
+from app.auxiliar.general import none_if_empty
+from app.auxiliar.navigation import register_return
 from app.dao.internal.general import _handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.usuarios import get_user, get_usuarios_especiais
 from app.decorators.decorators import admin_required
 from app.extensions import db
 from app.models.usuarios import Usuarios_Especiais
+from app.routes_helper.request import get_query_params, get_session_or_request
 from config.general import PER_PAGE
 
 bp = Blueprint('database_usuarios_especiais', __name__, url_prefix="/database")

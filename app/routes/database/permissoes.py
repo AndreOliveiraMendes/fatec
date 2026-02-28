@@ -10,15 +10,15 @@ from sqlalchemy import select
 from app.auxiliar.constant import (DB_ERRORS, PERM_ADMIN, PERM_AUTORIZAR,
                                    PERM_CMD_CONFIG, PERM_RESERVA_AUDITORIO,
                                    PERM_RESERVA_FIXA, PERM_RESERVA_TEMPORARIA)
-from app.auxiliar.dao import none_if_empty
-from app.auxiliar.routes import (get_query_params, get_session_or_request,
-                                 register_return)
+from app.auxiliar.general import none_if_empty
+from app.auxiliar.navigation import register_return
 from app.dao.internal.general import _handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.usuarios import get_user, get_usuarios
 from app.decorators.decorators import admin_required
 from app.extensions import db
 from app.models.usuarios import Permissoes, Pessoas, Usuarios
+from app.routes_helper.request import get_query_params, get_session_or_request
 from config.general import PER_PAGE
 
 bp = Blueprint('database_permissoes', __name__, url_prefix="/database")

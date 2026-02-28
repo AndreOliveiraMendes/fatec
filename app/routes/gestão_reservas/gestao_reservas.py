@@ -6,7 +6,8 @@ from flask import (Blueprint, abort, flash, redirect, render_template, request,
                    session, url_for)
 
 from app.auxiliar.constant import DB_ERRORS
-from app.auxiliar.dao import check_first, parse_date_string
+from app.auxiliar.dao_logic import check_first
+from app.auxiliar.parsing import parse_date_string
 from app.dao.internal.aulas import get_turno_by_time, get_turnos
 from app.dao.internal.controle import (get_exibicao_por_dia,
                                        get_situacoes_por_dia)

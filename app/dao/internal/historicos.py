@@ -3,7 +3,7 @@ from typing import Literal
 
 from sqlalchemy import inspect
 
-from app.auxiliar.dao import dict_format, formatar_valor
+from app.auxiliar.general import dict_format, formatar_valor
 from app.enums import OrigemEnum
 from app.extensions import db
 from app.models.historicos import Historicos
