@@ -9,8 +9,8 @@ from sqlalchemy import select
 from app.auxiliar.constant import DB_ERRORS, PERM_ADMIN
 from app.auxiliar.general import none_if_empty
 from app.auxiliar.parsing import parse_date_string
-from app.auxiliar.routes import (builder_helper_temporaria,
-                                 time_range)
+from app.routes_helper.tables import (builder_helper_temporaria)
+from app.auxiliar.routes import time_range
 from app.dao.internal.aulas import get_aulas_ativas_por_lista_de_dias
 from app.dao.internal.general import _handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario

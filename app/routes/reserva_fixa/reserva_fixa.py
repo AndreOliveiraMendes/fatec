@@ -8,7 +8,7 @@ from sqlalchemy import select
 
 from app.auxiliar.constant import DB_ERRORS, PERM_ADMIN
 from app.auxiliar.general import none_if_empty
-from app.auxiliar.routes import builder_helper_fixa
+from app.routes_helper.tables import builder_helper_fixa
 from app.dao.external.general import get_prioridade
 from app.dao.internal.aulas import (get_aulas_ativas_por_semestre,
                                     get_aulas_extras)
