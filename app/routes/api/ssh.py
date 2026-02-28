@@ -6,7 +6,7 @@ from flask import Blueprint, abort, current_app, jsonify, request, session
 from paramiko.ssh_exception import (AuthenticationException,
                                     NoValidConnectionsError, SSHException)
 
-from app.auxiliar.api import wrap_command
+from app.auxiliar.api import run_remote_command, wrap_command
 from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import admin_required
 from app.security.cryptograph import decrypt_field, encrypt_field
@@ -219,16 +219,17 @@ def api_ssh_execute(cred_id):
         return jsonify({"stdout": "", "stderr": "Credencial não encontrada."}), 404
 
     host = cred.get("host_ssh")
-    user = cred.get("user_ssh")
     port = int(cred.get("port_ssh", 22))
     auth_type = cred.get("auth_type", "password")
 
-    client = paramiko.SSHClient()
-    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-
     wrapped_command = wrap_command(command, full_path)
 
-    # -------- log técnico (timeline) --------
+    # Se houver stdin → injeta via echo pipe
+    if stdin_data:
+        safe_input = stdin_data.replace('"', '\\"')
+        wrapped_command = f'echo "{safe_input}" | {wrapped_command}'
+
+    # -------- log técnico --------
     current_app.logger.info(
         "[SSH#%s] START User=%s Host=%s",
         exec_id,
@@ -250,28 +251,15 @@ def api_ssh_execute(cred_id):
     )
 
     try:
-        # -------- autenticação --------
-        if auth_type == "key":
-            import io
-            key_str = decrypt_field(cred["key_ssh"])
-            passphrase = decrypt_field(cred["key_passphrase"]) if cred.get("key_passphrase") else None
-            pkey = paramiko.RSAKey.from_private_key(io.StringIO(key_str), password=passphrase)
-            client.connect(host, port=port, username=user, pkey=pkey, timeout=5)
-        else:
-            password = decrypt_field(cred["password_ssh"])
-            client.connect(host, port=port, username=user, password=password, timeout=5)
+        result = run_remote_command(cred_id, wrapped_command)
 
-        # -------- execução --------
-        stdin, stdout, stderr = client.exec_command(wrapped_command)
+        # -------- erro interno --------
+        if not result["success"]:
+            raise Exception(result.get("error", "Erro desconhecido"))
 
-        if stdin_data:
-            stdin.write(stdin_data)
-            stdin.flush()
-        stdin.close()
-
-        out = stdout.read().decode(errors="ignore")
-        err = stderr.read().decode(errors="ignore")
-        exit_code = stdout.channel.recv_exit_status()
+        out = result["stdout"]
+        err = result["stderr"]
+        exit_code = result["exit_code"]
 
         # -------- log técnico --------
         current_app.logger.info(
@@ -310,6 +298,3 @@ def api_ssh_execute(cred_id):
         )
 
         return jsonify({"stdout": "", "stderr": f"Erro: {e}"})
-
-    finally:
-        client.close()

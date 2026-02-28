@@ -5,10 +5,8 @@ from config.json_related import load_ssh_credentials
 
 
 # helper functions for command API routes
-def wrap_command(command: str, full_path: bool) -> str:
-    if full_path:
-        return f"bash -lc {shlex.quote(command)}"
-    return command
+def wrap_command(cmd: str, full_path: bool) -> str:
+    return cmd if not full_path else f"bash -lc {shlex.quote(cmd)}"
 
 def run_remote_command(cred_ssh, command):
     """Executa um comando remoto via SSH e retorna stdout/stderr separados."""
