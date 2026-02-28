@@ -14,9 +14,9 @@ from app.models.controle import Situacoes_Das_Reserva
 from app.models.locais import Locais
 from config.general import AFTER_ACTION
 from config.json_related import carregar_painel_config
-from config.mapeamentos import mapa_icones_status
+from config.mapeamentos import IGNORED_FORM_FIELDS, mapa_icones_status
 
-IGNORED_FORM_FIELDS = ['page', 'acao', 'bloco']
+
 
 T = TypeVar("T", bound=Base)
 
@@ -27,8 +27,7 @@ def get_query_params(request):
         if key not in IGNORED_FORM_FIELDS
     }
 
-def get_session_or_request(request, session, key, default=None):
-    return session.pop(key, request.form.get(key, default))
+
 
 def status_reserva(lab, aula, dia, tipo, tela_televisor=False, tela = None):
         painel_cfg = carregar_painel_config()
@@ -108,12 +107,6 @@ def time_range(start: date, end: date, step: int = 1):
     while start <= day <= end:
         yield day
         day += timedelta(step)
-
-def check_local(local: Locais, perm):
-    if perm & PERM_ADMIN > 0:
-        return
-    if local.disponibilidade.value == 'Indisponivel':
-        abort(403, description="Local indisponível para reservas.")
         
 def builder_helper_fixa(extras, info):
     aulas = set()

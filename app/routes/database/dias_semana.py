@@ -7,7 +7,7 @@ from sqlalchemy import select
 
 from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.general import none_if_empty
-from app.auxiliar.routes import (disable_action, get_session_or_request,
+from app.auxiliar.routes import (disable_action,
                                  register_return)
 from app.dao.internal.aulas import get_dias_da_semana
 from app.dao.internal.general import _handle_db_error
@@ -16,6 +16,7 @@ from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import admin_required
 from app.extensions import db
 from app.models.aulas import Dias_da_Semana
+from app.routes_helper.request import get_session_or_request
 from config.general import PER_PAGE
 
 bp = Blueprint('database_dias_da_semana', __name__, url_prefix="/database")

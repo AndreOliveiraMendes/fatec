@@ -10,13 +10,14 @@ from sqlalchemy import between, func, or_, select
 from app.auxiliar.general import formatar_valor, none_if_empty
 from app.auxiliar.parsing import parse_datetime_string
 from app.auxiliar.routes import (disable_action, get_query_params,
-                                 get_session_or_request, include_action,
+                                 include_action,
                                  register_return)
 from app.dao.internal.usuarios import get_user, get_usuarios
 from app.decorators.decorators import admin_required
 from app.enums import OrigemEnum
 from app.extensions import db
 from app.models.historicos import Historicos
+from app.routes_helper.request import get_session_or_request
 from config.general import LOCAL_TIMEZONE, PER_PAGE
 
 bp = Blueprint('database_historicos', __name__, url_prefix="/database")
