@@ -3,9 +3,9 @@ from sqlalchemy import MetaData, Table, UniqueConstraint, inspect
 from sqlalchemy.dialects import mysql
 from sqlalchemy.schema import CreateTable
 
-from app.auxiliar.auxiliar_routes import get_user
-from app.auxiliar.decorators import admin_required
-from app.models import db
+from app.dao.internal.usuarios import get_user
+from app.decorators.decorators import admin_required
+from app.extensions import db
 
 bp = Blueprint('database_main', __name__, url_prefix="/database")
 

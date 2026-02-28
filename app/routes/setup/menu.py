@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, session
 
-from app.auxiliar.auxiliar_routes import get_user
-from app.auxiliar.decorators import admin_required
+from app.dao.internal.usuarios import get_user
+from app.decorators.decorators import admin_required
 
 bp = Blueprint('setup', __name__, url_prefix="/database/fast_setup/")
 

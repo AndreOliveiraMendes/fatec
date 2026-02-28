@@ -1,16 +1,15 @@
 import uuid
 from copy import deepcopy
-from datetime import datetime
 
 import paramiko
 from flask import Blueprint, abort, current_app, jsonify, request, session
 from paramiko.ssh_exception import (AuthenticationException,
                                     NoValidConnectionsError, SSHException)
 
-from app.auxiliar.auxiliar_api import wrap_command
-from app.auxiliar.auxiliar_cryptograph import decrypt_field, encrypt_field
-from app.auxiliar.auxiliar_routes import get_user
-from app.auxiliar.decorators import admin_required
+from app.auxiliar.api import wrap_command
+from app.dao.internal.usuarios import get_user
+from app.decorators.decorators import admin_required
+from app.security.cryptograph import decrypt_field, encrypt_field
 from config.json_related import load_ssh_credentials, save_ssh_credentials
 
 bp = Blueprint('api_ssh', __name__, url_prefix='/api/ssh')
@@ -182,10 +181,6 @@ def api_ssh_test(cred_id):
         return jsonify({"success": False, "error": f"Erro inesperado: {e}"})
     finally:
         client.close()
-
-import uuid
-from datetime import datetime
-
 
 @bp.route("/execute/<int:cred_id>", methods=["POST"])
 @admin_required

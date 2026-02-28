@@ -8,20 +8,24 @@ from flask.typing import ResponseReturnValue
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import and_, select
 
-from app.auxiliar.auxiliar_routes import (_handle_db_error,
-                                          check_ownership_or_admin,
-                                          check_periodo_fixa, get_user,
-                                          info_reserva_fixa,
-                                          info_reserva_temporaria,
-                                          none_if_empty,
-                                          registrar_log_generico_usuario)
 from app.auxiliar.constant import DB_ERRORS, PERM_ADMIN
-from app.auxiliar.dao import (get_dias_da_semana, get_laboratorios,
-                              get_pessoas, get_semestres,
-                              get_usuarios_especiais)
-from app.auxiliar.decorators import login_required
-from app.models import (Aulas, Aulas_Ativas, FinalidadeReservaEnum, Permissoes,
-                        Reservas_Fixas, Reservas_Temporarias, Usuarios, db)
+from app.auxiliar.dao import none_if_empty
+from app.dao.internal.aulas import get_dias_da_semana, get_semestres
+from app.dao.internal.general import _handle_db_error
+from app.dao.internal.historicos import registrar_log_generico_usuario
+from app.dao.internal.locais import get_laboratorios
+from app.dao.internal.reservas import (check_ownership_or_admin,
+                                       check_periodo_fixa, info_reserva_fixa,
+                                       info_reserva_temporaria)
+from app.dao.internal.usuarios import (get_pessoas, get_user,
+                                       get_usuarios_especiais)
+from app.decorators.decorators import login_required
+from app.enums import FinalidadeReservaEnum
+from app.extensions import db
+from app.models.aulas import Aulas, Aulas_Ativas
+from app.models.reservas.reservas_laboratorios import (Reservas_Fixas,
+                                                       Reservas_Temporarias)
+from app.models.usuarios import Permissoes, Usuarios
 from config.general import LOCAL_TIMEZONE
 
 bp = Blueprint('usuario_reservas', __name__, url_prefix='/usuario')

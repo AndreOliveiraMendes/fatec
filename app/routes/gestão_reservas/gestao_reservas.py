@@ -5,19 +5,22 @@ from typing import Any
 from flask import (Blueprint, abort, flash, redirect, render_template, request,
                    session, url_for)
 
-from app.auxiliar.auxiliar_routes import (_handle_db_error,
-                                          get_responsavel_reserva,
-                                          get_unique_or_500, get_user,
-                                          parse_date_string,
-                                          registrar_log_generico_usuario)
 from app.auxiliar.constant import DB_ERRORS
-from app.auxiliar.dao import (check_first, get_exibicao_por_dia,
-                              get_reservas_por_dia, get_situacoes_por_dia,
-                              get_turno_by_time, get_turnos)
-from app.auxiliar.decorators import admin_required
-from app.models import (Aulas_Ativas, Exibicao_Reservas, Locais,
-                        SituacaoChaveEnum, Situacoes_Das_Reserva, TipoAulaEnum,
-                        TipoReservaEnum, Turnos, db)
+from app.auxiliar.dao import check_first, parse_date_string
+from app.dao.internal.aulas import get_turno_by_time, get_turnos
+from app.dao.internal.controle import (get_exibicao_por_dia,
+                                       get_situacoes_por_dia)
+from app.dao.internal.general import _handle_db_error, get_unique_or_500
+from app.dao.internal.historicos import registrar_log_generico_usuario
+from app.dao.internal.reservas import (get_reservas_por_dia,
+                                       get_responsavel_reserva)
+from app.dao.internal.usuarios import get_user
+from app.decorators.decorators import admin_required
+from app.enums import SituacaoChaveEnum, TipoAulaEnum, TipoReservaEnum
+from app.extensions import db
+from app.models.aulas import Aulas_Ativas, Turnos
+from app.models.controle import Exibicao_Reservas, Situacoes_Das_Reserva
+from app.models.locais import Locais
 from config.json_related import carregar_config_geral
 
 bp = Blueprint('gestao_reserva', __name__, url_prefix="/gestao_reservas")
@@ -223,7 +226,7 @@ def gerenciar_situacoes_reservas_fixas(extras):
             reserva = {}
             reserva['horarios'] = [r.aula_ativa]
             reserva['local'] = r.local
-            reserva['responsavel'] = get_responsavel_reserva(r)
+            reserva['responsavel'] = get_responsavel_reserva(r, True)
             reserva['id_responsavel'] = (r.id_responsavel, r.id_responsavel_especial)
             modo = extras.get("config", {}).get("modo_gerenciacao", "multiplo")
             ultima = reservas[-1] if reservas else None
@@ -250,7 +253,7 @@ def gerenciar_situacoes_reservas_temporarias(extras):
         reserva = {}
         reserva['horarios'] = [r.aula_ativa]
         reserva['local'] = r.local
-        reserva['responsavel'] = get_responsavel_reserva(r)
+        reserva['responsavel'] = get_responsavel_reserva(r, True)
         reserva['id_responsavel'] = (r.id_responsavel, r.id_responsavel_especial)
         modo = extras.get("config", {}).get("modo_gerenciacao", "multiplo")
         ultima = reservas[-1] if reservas else None

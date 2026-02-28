@@ -7,16 +7,18 @@ from flask import Blueprint, Request, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
-from app.auxiliar.auxiliar_routes import (_handle_db_error, get_query_params,
-                                          get_session_or_request, get_user,
-                                          none_if_empty, register_return,
-                                          registrar_log_generico_usuario)
 from app.auxiliar.constant import (DB_ERRORS, PERM_ADMIN, PERM_AUTORIZAR,
                                    PERM_CMD_CONFIG, PERM_RESERVA_AUDITORIO,
                                    PERM_RESERVA_FIXA, PERM_RESERVA_TEMPORARIA)
-from app.auxiliar.dao import get_usuarios
-from app.auxiliar.decorators import admin_required
-from app.models import Permissoes, Pessoas, Usuarios, db
+from app.auxiliar.dao import none_if_empty
+from app.auxiliar.routes import (get_query_params, get_session_or_request,
+                                 register_return)
+from app.dao.internal.general import _handle_db_error
+from app.dao.internal.historicos import registrar_log_generico_usuario
+from app.dao.internal.usuarios import get_user, get_usuarios
+from app.decorators.decorators import admin_required
+from app.extensions import db
+from app.models.usuarios import Permissoes, Pessoas, Usuarios
 from config.general import PER_PAGE
 
 bp = Blueprint('database_permissoes', __name__, url_prefix="/database")

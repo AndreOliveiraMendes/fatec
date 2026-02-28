@@ -5,12 +5,14 @@ from flask import (Blueprint, abort, current_app, flash, redirect,
                    render_template, request, session, url_for)
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
-from app.auxiliar.auxiliar_routes import (get_user, none_if_empty,
-                                          registrar_log_generico_sistema)
 from app.auxiliar.constant import (PERM_ADMIN, PERM_RESERVA_AUDITORIO,
                                    PERM_RESERVA_FIXA, PERM_RESERVA_TEMPORARIA)
-from app.auxiliar.decorators import login_required
-from app.models import Permissoes, Pessoas, Usuarios, db
+from app.auxiliar.dao import none_if_empty
+from app.dao.internal.historicos import registrar_log_generico_sistema
+from app.dao.internal.usuarios import get_user
+from app.decorators.decorators import login_required
+from app.extensions import db
+from app.models.usuarios import Permissoes, Pessoas, Usuarios
 from config.general import API_BASIC_PASS, API_BASIC_URL, API_BASIC_USER
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')

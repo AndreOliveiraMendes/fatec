@@ -7,12 +7,15 @@ from sqlalchemy import between, or_, select
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
                             InternalError, OperationalError, ProgrammingError)
 
-from app.auxiliar.auxiliar_routes import (get_unique_or_500, parse_date_string,
-                                          registrar_log_generico_usuario)
-from app.auxiliar.dao import (check_aula_ativa, get_aula_intervalo,
-                              get_aulas_ativas_por_dia, sort_periodos)
-from app.auxiliar.decorators import admin_required
-from app.models import Aulas, Aulas_Ativas, TipoAulaEnum, Turnos, db
+from app.auxiliar.dao import (get_aula_intervalo, parse_date_string,
+                              sort_periodos)
+from app.dao.internal.aulas import check_aula_ativa, get_aulas_ativas_por_dia
+from app.dao.internal.general import get_unique_or_500
+from app.dao.internal.historicos import registrar_log_generico_usuario
+from app.decorators.decorators import admin_required
+from app.enums import TipoAulaEnum
+from app.extensions import db
+from app.models.aulas import Aulas, Aulas_Ativas, Turnos
 from config import LOCAL_TIMEZONE
 
 bp = Blueprint('api_times', __name__, url_prefix='/api/times')

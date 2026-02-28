@@ -2,8 +2,10 @@
 from flask import Blueprint, jsonify
 from sqlalchemy import select
 
-from app.auxiliar.decorators import admin_required
-from app.models import Locais, TipoLocalEnum, db
+from app.decorators.decorators import admin_required
+from app.enums import TipoLocalEnum
+from app.extensions import db
+from app.models.locais import Locais
 
 bp = Blueprint('api', __name__, url_prefix='/api')
 

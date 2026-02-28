@@ -3,13 +3,16 @@ from typing import Any
 from flask import (Blueprint, flash, redirect, render_template, request,
                    session, url_for)
 
-from app.auxiliar.auxiliar_routes import (_handle_db_error, get_user,
-                                          none_if_empty, parse_date_string,
-                                          registrar_log_generico_usuario)
 from app.auxiliar.constant import DB_ERRORS
-from app.auxiliar.dao import get_aulas, get_dias_da_semana
-from app.auxiliar.decorators import admin_required
-from app.models import Aulas_Ativas, TipoAulaEnum, db
+from app.auxiliar.dao import none_if_empty, parse_date_string
+from app.dao.internal.aulas import get_aulas, get_dias_da_semana
+from app.dao.internal.general import _handle_db_error
+from app.dao.internal.historicos import registrar_log_generico_usuario
+from app.dao.internal.usuarios import get_user
+from app.decorators.decorators import admin_required
+from app.enums import TipoAulaEnum
+from app.extensions import db
+from app.models.aulas import Aulas_Ativas
 from config.database_views import SETUP_HEAD
 
 bp = Blueprint('setup_aulas_ativas', __name__, url_prefix="/database/fast_setup/")

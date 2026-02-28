@@ -5,7 +5,8 @@ from flask import abort, session
 from app.auxiliar.constant import (PERM_ADMIN, PERM_CMD_CONFIG,
                                    PERM_RESERVA_AUDITORIO, PERM_RESERVA_FIXA,
                                    PERM_RESERVA_TEMPORARIA)
-from app.models import Permissoes, db
+from app.extensions import db
+from app.models.usuarios import Permissoes
 
 
 def require_login():
