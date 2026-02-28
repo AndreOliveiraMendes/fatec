@@ -165,15 +165,15 @@ pytest
 
 ------------------------------------------------------------------------
 
-## 🗺 Roadmap
+## 💡 Possible Improvements
 
-Planned improvements:
+These are ideas that could be implemented in the future if needed:
 
 -   WTForms integration
 -   Large-table pagination optimization
 -   Single-session login enforcement
 -   Performance tuning for heavy queries
--   Write more tests and automatize it to assure project is stable
+-   More automated tests to improve stability
 
 ------------------------------------------------------------------------
 
