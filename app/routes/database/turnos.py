@@ -8,7 +8,7 @@ from sqlalchemy import select
 from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.general import none_if_empty
 from app.auxiliar.parsing import parse_time_string
-from app.auxiliar.routes import (disable_action,
+from app.auxiliar.routes import (
                                  register_return)
 from app.dao.internal.aulas import get_turnos
 from app.dao.internal.general import _handle_db_error
@@ -18,6 +18,7 @@ from app.decorators.decorators import admin_required
 from app.extensions import db
 from app.models.aulas import Turnos
 from app.routes_helper.request import get_session_or_request
+from app.routes_helper.ui import disable_action
 from config.general import PER_PAGE
 
 bp = Blueprint('database_turnos', __name__, url_prefix="/database")
