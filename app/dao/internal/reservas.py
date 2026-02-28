@@ -9,10 +9,9 @@ from sqlalchemy.exc import IntegrityError, MultipleResultsFound
 from sqlalchemy.sql.elements import ColumnElement
 
 from app.auxiliar.constant import DB_ERRORS, PERM_ADMIN
-from app.auxiliar.parsing import (
-                              parse_date_string)
 from app.auxiliar.dao_query import get_aula_semana, get_aula_turno
 from app.auxiliar.general import none_if_empty
+from app.auxiliar.parsing import parse_date_string
 from app.dao.internal.general import _handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.enums import FinalidadeReservaEnum, TipoAulaEnum

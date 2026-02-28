@@ -7,8 +7,8 @@ from flask import (Blueprint, Response, abort, flash, jsonify, render_template,
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import between, func, or_, select
 
-from app.auxiliar.parsing import (parse_datetime_string)
 from app.auxiliar.general import formatar_valor, none_if_empty
+from app.auxiliar.parsing import parse_datetime_string
 from app.auxiliar.routes import (disable_action, get_query_params,
                                  get_session_or_request, include_action,
                                  register_return)

@@ -7,7 +7,6 @@ from app.models.aulas import Aulas, Aulas_Ativas, Turnos
 from app.models.reservas.reservas_laboratorios import ReservaBase
 from config.general import FIRST_DAY_OF_WEEK, INDEX_START
 
-
 Factor_Correcao = {"domingo":1, "segunda":0, "terça":6, "quarta":5, "quinta":4, "sexta":3, "sabado":2}
 
 def get_aula_turno(turno:Turnos):

@@ -1,4 +1,5 @@
-from app.models.reservas.reservas_laboratorios import Reservas_Fixas, Reservas_Temporarias
+from app.models.reservas.reservas_laboratorios import (Reservas_Fixas,
+                                                       Reservas_Temporarias)
 
 
 def check_first(reserva_fixa:Reservas_Fixas, reserva_temporaria:Reservas_Temporarias):
