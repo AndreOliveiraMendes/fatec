@@ -7,7 +7,7 @@ from sqlalchemy import between, or_, select
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
                             InternalError, OperationalError, ProgrammingError)
 
-from app.auxiliar.dao import (parse_date_string
+from app.auxiliar.parsing import (parse_date_string
                               )
 from app.auxiliar.dao_query import get_aula_intervalo, sort_periodos
 from app.dao.internal.aulas import check_aula_ativa, get_aulas_ativas_por_dia

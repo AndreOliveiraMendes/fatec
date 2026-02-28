@@ -5,7 +5,7 @@ from typing import Any
 from flask import (Blueprint, current_app, redirect, render_template, request,
                    session, url_for)
 
-from app.auxiliar.dao import parse_date_string
+from app.auxiliar.parsing import parse_date_string
 from app.dao.internal.aulas import (get_aulas_ativas_por_dia,
                                     get_turno_by_time, get_turnos)
 from app.dao.internal.locais import get_laboratorios

@@ -4,7 +4,7 @@ from flask import (Blueprint, flash, redirect, render_template, request,
                    session, url_for)
 
 from app.auxiliar.constant import DB_ERRORS
-from app.auxiliar.dao import parse_date_string
+from app.auxiliar.parsing import parse_date_string
 from app.auxiliar.general import none_if_empty
 from app.dao.internal.aulas import get_aulas, get_dias_da_semana
 from app.dao.internal.general import _handle_db_error
