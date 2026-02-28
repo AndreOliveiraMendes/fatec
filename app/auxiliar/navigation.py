@@ -1,24 +1,9 @@
-from datetime import date, timedelta
-from typing import Any, MutableMapping, Optional, TypeVar
+from typing import Any, MutableMapping, Optional
 
 from flask import redirect, session, url_for
 from flask.typing import ResponseReturnValue
 
-from app.extensions import Base
 from config.general import AFTER_ACTION
-
-
-
-T = TypeVar("T", bound=Base)
-
-
-
-
-
-
-
-
-
 
 
 def register_return(
@@ -41,8 +26,4 @@ def register_return(
 
     raise ValueError(f"Configuração AFTER_ACTION inválida: {AFTER_ACTION}")
 
-def time_range(start: date, end: date, step: int = 1):
-    day = start
-    while start <= day <= end:
-        yield day
-        day += timedelta(step)
+

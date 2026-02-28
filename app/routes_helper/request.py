@@ -5,6 +5,7 @@ from app.auxiliar.constant import PERM_ADMIN
 from app.models.locais import Locais
 from config.mapeamentos import IGNORED_FORM_FIELDS
 
+
 def get_query_params(request):
     return {
         key: value

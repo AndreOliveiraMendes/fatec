@@ -7,9 +7,8 @@ from sqlalchemy import select
 
 from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.general import none_if_empty
+from app.auxiliar.navigation import register_return
 from app.auxiliar.parsing import parse_date_string
-from app.auxiliar.routes import (
-                                 register_return)
 from app.dao.internal.aulas import get_semestres
 from app.dao.internal.general import _handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario

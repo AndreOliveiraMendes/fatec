@@ -8,7 +8,6 @@ from sqlalchemy import select
 
 from app.auxiliar.constant import DB_ERRORS, PERM_ADMIN
 from app.auxiliar.general import none_if_empty
-from app.routes_helper.tables import builder_helper_fixa
 from app.dao.external.general import get_prioridade
 from app.dao.internal.aulas import (get_aulas_ativas_por_semestre,
                                     get_aulas_extras)
@@ -25,6 +24,7 @@ from app.models.locais import Locais
 from app.models.reservas.reservas_laboratorios import Reservas_Fixas
 from app.models.usuarios import Permissoes, Usuarios
 from app.routes_helper.request import check_local
+from app.routes_helper.tables import builder_helper_fixa
 
 # ========= BLUEPRINT =========
 bp = Blueprint('reservas_semanais', __name__, url_prefix="/reserva_fixa")

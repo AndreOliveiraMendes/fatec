@@ -11,8 +11,7 @@ from app.auxiliar.constant import (DB_ERRORS, PERM_ADMIN, PERM_AUTORIZAR,
                                    PERM_CMD_CONFIG, PERM_RESERVA_AUDITORIO,
                                    PERM_RESERVA_FIXA, PERM_RESERVA_TEMPORARIA)
 from app.auxiliar.general import none_if_empty
-from app.auxiliar.routes import (
-                                 register_return)
+from app.auxiliar.navigation import register_return
 from app.dao.internal.general import _handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.usuarios import get_user, get_usuarios
