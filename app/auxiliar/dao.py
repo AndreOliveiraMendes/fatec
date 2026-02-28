@@ -4,19 +4,10 @@ from typing import Any, Callable, Optional, TypeVar, overload
 
 
 
-V = TypeVar("V")
+
 S = TypeVar("S")
 
-def formatar_valor(valor):
-    if isinstance(valor, enum.Enum):
-        return valor.value
-    return valor
 
-def dict_format(dictionary):
-    campos = []
-    for key in sorted(dictionary.keys()):
-        campos.append(f"{key}: {dictionary[key]}")
-    return "; ".join(campos)
         
 def _friendly_db_message(error):
     raw = str(getattr(error, "orig", error)).lower()
@@ -34,20 +25,6 @@ def _friendly_db_message(error):
         return "Valor maior que o permitido."
 
     return "Erro ao salvar dados."
-
-def none_if_empty(value: Any, cast_type: Callable[[Any], V] = str) -> Optional[V]:
-    if value is None:
-        return None
-
-    if isinstance(value, str):
-        value = value.strip()
-        if not value:
-            return None
-
-    try:
-        return cast_type(value)
-    except (ValueError, TypeError):
-        return None
     
 @overload
 def _parse_generic(

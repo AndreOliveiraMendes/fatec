@@ -7,7 +7,8 @@ from flask import (Blueprint, abort, current_app, flash, redirect,
 from sqlalchemy import select
 
 from app.auxiliar.constant import DB_ERRORS, PERM_ADMIN
-from app.auxiliar.dao import none_if_empty, parse_date_string
+from app.auxiliar.dao import parse_date_string
+from app.auxiliar.general import none_if_empty
 from app.auxiliar.routes import (builder_helper_temporaria, check_local,
                                  time_range)
 from app.dao.internal.aulas import get_aulas_ativas_por_lista_de_dias

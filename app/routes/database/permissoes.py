@@ -10,7 +10,7 @@ from sqlalchemy import select
 from app.auxiliar.constant import (DB_ERRORS, PERM_ADMIN, PERM_AUTORIZAR,
                                    PERM_CMD_CONFIG, PERM_RESERVA_AUDITORIO,
                                    PERM_RESERVA_FIXA, PERM_RESERVA_TEMPORARIA)
-from app.auxiliar.dao import none_if_empty
+from app.auxiliar.general import none_if_empty
 from app.auxiliar.routes import (get_query_params, get_session_or_request,
                                  register_return)
 from app.dao.internal.general import _handle_db_error

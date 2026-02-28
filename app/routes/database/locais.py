@@ -6,7 +6,7 @@ from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
 from app.auxiliar.constant import DB_ERRORS
-from app.auxiliar.dao import none_if_empty
+from app.auxiliar.general import none_if_empty
 from app.auxiliar.routes import (get_query_params, get_session_or_request,
                                  register_return)
 from app.dao.internal.general import _handle_db_error
