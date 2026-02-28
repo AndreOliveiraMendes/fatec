@@ -8,8 +8,7 @@ from sqlalchemy import and_, or_, select
 from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.general import none_if_empty
 from app.auxiliar.parsing import parse_date_string
-from app.auxiliar.routes import (get_query_params,
-                                 register_return)
+from app.auxiliar.routes import (register_return)
 from app.dao.internal.aulas import (check_aula_ativa, get_aulas,
                                     get_aulas_ativas, get_dias_da_semana)
 from app.dao.internal.general import _handle_db_error
@@ -19,7 +18,7 @@ from app.decorators.decorators import admin_required
 from app.enums import TipoAulaEnum
 from app.extensions import db
 from app.models.aulas import Aulas_Ativas
-from app.routes_helper.request import get_session_or_request
+from app.routes_helper.request import get_query_params, get_session_or_request
 from config.general import PER_PAGE
 
 bp = Blueprint('database_aulas_ativas', __name__, url_prefix="/database")

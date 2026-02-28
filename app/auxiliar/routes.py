@@ -6,18 +6,12 @@ from flask.typing import ResponseReturnValue
 
 from app.extensions import Base
 from config.general import AFTER_ACTION
-from config.mapeamentos import IGNORED_FORM_FIELDS
 
 
 
 T = TypeVar("T", bound=Base)
 
-def get_query_params(request):
-    return {
-        key: value
-        for key, value in request.form.items()
-        if key not in IGNORED_FORM_FIELDS
-    }
+
 
 
 

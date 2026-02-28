@@ -9,7 +9,7 @@ from sqlalchemy import between, func, or_, select
 
 from app.auxiliar.general import formatar_valor, none_if_empty
 from app.auxiliar.parsing import parse_datetime_string
-from app.auxiliar.routes import (get_query_params,
+from app.auxiliar.routes import (
                                  
                                  register_return)
 from app.dao.internal.usuarios import get_user, get_usuarios
@@ -17,7 +17,7 @@ from app.decorators.decorators import admin_required
 from app.enums import OrigemEnum
 from app.extensions import db
 from app.models.historicos import Historicos
-from app.routes_helper.request import get_session_or_request
+from app.routes_helper.request import get_query_params, get_session_or_request
 from app.routes_helper.ui import disable_action, include_action
 from config.general import LOCAL_TIMEZONE, PER_PAGE
 

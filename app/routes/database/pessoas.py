@@ -7,7 +7,7 @@ from sqlalchemy import select
 
 from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.general import none_if_empty
-from app.auxiliar.routes import (get_query_params,
+from app.auxiliar.routes import (
                                  register_return)
 from app.dao.internal.general import _handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
@@ -15,7 +15,7 @@ from app.dao.internal.usuarios import get_pessoas, get_user
 from app.decorators.decorators import admin_required
 from app.extensions import db
 from app.models.usuarios import Pessoas
-from app.routes_helper.request import get_session_or_request
+from app.routes_helper.request import get_query_params, get_session_or_request
 from app.routes_helper.ui import disable_action
 from config.general import PER_PAGE
 
