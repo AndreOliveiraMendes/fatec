@@ -173,6 +173,7 @@ Planned improvements:
 -   Large-table pagination optimization
 -   Single-session login enforcement
 -   Performance tuning for heavy queries
+-   Write more tests and automatize it to assure project is stable
 
 ------------------------------------------------------------------------
 

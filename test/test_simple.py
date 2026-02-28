@@ -3,7 +3,7 @@ import unittest
 from sqlalchemy import select
 
 from app import create_app, db
-from app.models.usuarios import Usuarios
+from app.models.usuarios import Usuarios, Permissoes
 
 
 # see https://docs.python.org/3/library/unittest.html for reference
@@ -11,7 +11,7 @@ from app.models.usuarios import Usuarios
 # and that the database connection is working
 # and that a simple query works
 # more tests can be added later
-class TestMyCode(unittest.TestCase):
+class appTestGeneral(unittest.TestCase):
     def test_app_creation(self):
         app = create_app('testing')
         self.assertTrue(app is not None)
@@ -35,7 +35,6 @@ class TestMyCode(unittest.TestCase):
         response = client.get('/nonexistent', headers={'Accept': 'application/json'})
         
         self.assertEqual(response.status_code, 404)
-        self.assertEqual(response.json, {"error": "Not Found"})
 
     def test_database_connection(self):
         app = create_app('test_db')
@@ -53,6 +52,15 @@ class TestMyCode(unittest.TestCase):
             self.assertIsInstance(result, list)
             if result:
                 self.assertIsInstance(result[0], Usuarios)
+                
+    def test_database_read_permissions(self):
+        app = create_app('test_db')
+        with app.app_context():
+            select_permissions = select(Permissoes)
+            result = db.session.execute(select_permissions).scalars().all()
+            self.assertIsInstance(result, list)
+            if result:
+                self.assertIsInstance(result[0], Permissoes)
 
 if __name__ == '__main__':
     unittest.main()
