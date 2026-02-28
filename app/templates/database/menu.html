@@ -4,16 +4,32 @@
     Painel de Controle
 {% endblock title %}
 {% block content %}
+    {% set roll = range(1, 101) | random %}
     <center>
         {{ generate_navigation_database() }}
     </center>
     <div class="btn-group-vertical" role="group">
-        <a href="{{ url_for('database_main.database') }}"
+        <a href="{{ url_for("database_main.database") }}"
            class="btn btn-success">
             <span class="glyphicon glyphicon-book"></span> Visualizar Banco de Dados
         </a>
-        <a href="{{ url_for('database_main.schema') }}" class="btn btn-info">
+        <a href="{{ url_for("database_main.schema") }}" class="btn btn-info">
             <span class="glyphicon glyphicon-level-up"></span> Schema (Experimental)
         </a>
+        {% if roll <= 1 %}
+            <!-- 1% chance -->
+            <a href="{{ url_for("database_main.wiki") }}"
+               class="btn btn-info"
+               title="Você achou o botão secreto 👀">
+                <span class="glyphicon glyphicon-book"></span> Wiki
+            </a>
+        {% elif roll <= 20 %}
+            <!-- 19% chance -->
+            <span class="btn btn-info disabled" title="nada para ver aqui">
+                <span class="glyphicon glyphicon-book"></span> {{ roll }}
+            </span>
+        {% else %}
+            <!-- 80% chance → nada aparece -->
+        {% endif %}
     </div>
 {% endblock content %}
