@@ -68,7 +68,7 @@ input[disabled] {
     border-collapse: collapse;
     width: 100%;
     overflow-x: auto;
-    font-size: large;
+    font-size: 14px;
 }
 
 .tabela-reserva-tv th,
