@@ -13,6 +13,7 @@ from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import login_required
 from app.extensions import db
 from app.models.usuarios import Permissoes, Pessoas, Usuarios
+from app.routes_helper.pessoas import gerar_alias_inicial
 from config.general import API_BASIC_PASS, API_BASIC_URL, API_BASIC_USER
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
@@ -56,9 +57,7 @@ def check_login(id, password) -> LoginResult:
                 old_pessoa = None
                 if not pessoa:
                     pessoa = Pessoas(id_pessoa=id_pessoa)
-                    aux = nome_pessoa.split()
-                    if len(aux) > 1:
-                        pessoa.alias = f"{aux[0]} {aux[-1]}"
+                    pessoa.alias = gerar_alias_inicial(nome_pessoa)
                 else:
                     old_pessoa = copy.copy(pessoa)
                 pessoa.nome_pessoa = nome_pessoa
