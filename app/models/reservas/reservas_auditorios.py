@@ -1,4 +1,5 @@
 from datetime import date
+from typing import TYPE_CHECKING
 
 from sqlalchemy import TEXT, Enum, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -6,6 +7,10 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.enums import StatusReservaAuditorioEnum
 from app.extensions import Base
 
+if TYPE_CHECKING:
+    from app.models.aulas import Aulas_Ativas
+    from app.models.locais import Locais
+    from app.models.usuarios import Pessoas
 
 class Reservas_Auditorios(Base):
     __tablename__ = "reservas_auditorios"
