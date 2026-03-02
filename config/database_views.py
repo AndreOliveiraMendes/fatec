@@ -13,6 +13,7 @@ SECOES = {
             ('Usuários Especiais', 'database_usuarios_especiais.gerenciar_usuarios_especiais', 'success', 'crud'),
             ('Aulas', 'database_aulas.gerenciar_aulas', 'success', 'crud'),
             ('Locais', 'database_locais.gerenciar_locais', 'success', 'crud'),
+            ('Equipamento', 'default.under_dev_page', 'success', 'crud'),
             ('Semestres', 'database_semestres.gerenciar_semestres', 'success', 'crud'),
             ('Dias da Semana', 'database_dias_da_semana.gerenciar_dias_da_semana', 'success', 'crud'),
             ('Turnos', 'database_turnos.gerenciar_turnos', 'success', 'crud')
@@ -24,20 +25,24 @@ SECOES = {
             ('Aulas Ativas', 'database_aulas_ativas.gerenciar_aulas_ativas', 'warning', 'crud'),
             ('Reservas Fixas', 'database_reservas_fixas.gerenciar_reservas_fixas', 'warning', 'crud'),
             ('Reservas Temporarias', 'database_reservas_temporarias.gerenciar_reservas_temporarias', 'warning', 'crud'),
-            ('Reserva Auditorio', 'database_reservas_auditorios.gerenciar_reservas_auditorios', 'warning', 'crud')
+            ('Reserva Auditorio', 'database_reservas_auditorios.gerenciar_reservas_auditorios', 'warning', 'crud'),
+            ('Reserva Equipamento', 'default.under_dev_page', 'warning', 'crud')
         ]
     },
     'Operacional / Configuração':{
         'icon': 'glyphicon glyphicon-cog',
         'secoes': [
             ('Situacoes das reservas', 'database_situacoes_das_reservas.gerenciar_situacoes_das_reservas', 'warning', 'crud'),
-            ('Exibicao das reservas', 'database_exibicao_reservas.gerenciar_exibicao_reservas', 'warning', 'crud')
+            ('Exibicao das reservas', 'database_exibicao_reservas.gerenciar_exibicao_reservas', 'warning', 'crud'),
+            ('Item da reserva de equipamento', 'default.under_dev_page', 'warning', 'crud')
         ]
     },
     'Logs / Histórico': {
         'icon': 'glyphicon glyphicon-list-alt',
         'secoes': [
-            ('Histórico', 'database_historicos.gerenciar_historicos', 'danger', 're')
+            ('Histórico', 'database_historicos.gerenciar_historicos', 'danger', 're'),
+            ('Movimentação equipamento', 'default.under_dev_page', 'danger', 'crud'),
+            ('Quantidade Equipamento', 'default.under_dev_page', 'danger', 'crud')
         ]
     }
 }
