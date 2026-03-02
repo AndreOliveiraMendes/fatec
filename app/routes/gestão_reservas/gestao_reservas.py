@@ -179,6 +179,7 @@ def atualizar_exibicao(id_aula, id_lab, dia):
     return redirect(url_for("gestao_reserva.gerenciar_exibicao"))
 
 @bp.route('/<tipo_reserva>')
+@admin_required
 def gerenciar_situacoes(tipo_reserva):
     if not tipo_reserva in ['fixa', 'temporaria']:
         abort(404, description="Tipo de reserva inválido.")
@@ -269,6 +270,7 @@ def gerenciar_situacoes_reservas_temporarias(extras):
     return render_template("gestão_reservas/status_temporarias.html", user=user, **extras)
 
 @bp.route('/<tipo_reserva>/<int:lab>/<data:dia>', methods=['POST'])
+@admin_required
 def atualizar_situacoes(tipo_reserva, lab, dia):
     userid = session.get('userid')
     common = {}
