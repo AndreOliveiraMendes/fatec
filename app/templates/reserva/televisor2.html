@@ -45,8 +45,8 @@
          aria-label="Grupo de Laboratórios"
          aria-live="polite">
         {% for lab_group in locais %}
-            <div class="grupo-tabela">
-                <table class="table table-striped table-bordered tabela-reserva-tv table-sm">
+            <div>
+                <table class="table table-striped table-bordered tabela-reserva-tv">
                     <thead>
                         <tr>
                             <th class="fixa">Horário:</th>
@@ -77,18 +77,6 @@
         setInterval(() => window.location.reload(), intervalo);
     </script>
 {% endblock extra_script %}
-{% block extra_css %}
-    <style>
-        .tabela-reserva-tv th,
-        .tabela-reserva-tv td {
-            padding: 4px 6px;
-        }
-
-        .grupo-tabela {
-            margin-bottom: 10px;
-        }
-    </style>
-{% endblock extra_css %}
 {% block footer %}
     <div>
         <strong>Legenda dos ícones:</strong>
