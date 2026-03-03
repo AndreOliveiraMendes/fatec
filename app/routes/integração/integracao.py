@@ -9,7 +9,7 @@ from app.dao.internal.usuarios import get_pessoas_codigo, get_user
 from app.decorators.decorators import admin_required
 from app.extensions import db
 from app.models.usuarios import Pessoas
-from app.routes_helper.pessoas import gerar_alias_inicial
+from app.routes_helper.pessoas import apply_alias
 
 bp = Blueprint('integracao', __name__, url_prefix='/integração')
 
@@ -54,13 +54,12 @@ def importar_docentes():
 
         try:
             for d in novos_docentes:
-                nome = d['nome']
                 pessoa = Pessoas(
                     id_pessoa = d['codigo'],
-                    nome_pessoa = nome,
+                    nome_pessoa = d['nome'],
                     email_pessoa = d['email'],
-                    alias = gerar_alias_inicial(nome)
                 )
+                apply_alias(pessoa)
 
                 db.session.add(pessoa)
                 registrar_log_generico_usuario(userid, 'Inserção', pessoa, observacao="importado")

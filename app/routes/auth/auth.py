@@ -57,7 +57,9 @@ def check_login(id, password) -> LoginResult:
                 old_pessoa = None
                 if not pessoa:
                     pessoa = Pessoas(id_pessoa=id_pessoa)
-                    pessoa.alias = gerar_alias_inicial(nome_pessoa)
+                    alias = gerar_alias_inicial(nome_pessoa)
+                    if alias:
+                        pessoa.alias = alias
                 else:
                     old_pessoa = copy.copy(pessoa)
                 pessoa.nome_pessoa = nome_pessoa
