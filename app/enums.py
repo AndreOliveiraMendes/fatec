@@ -45,7 +45,7 @@ class StatusReservaAuditorioEnum(enum.Enum):
     REPROVADA = "Reprovada"
 
 class TipoMovimentacao(enum.Enum):
-    Inicial = "inicial"
+    INICIAL = "inicial"
     EMPRESTIMO = "emprestimo"
     DEVOLUCAO = "devolucao"
     REPOSICAO = "reposicao"
