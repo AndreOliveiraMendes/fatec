@@ -8,6 +8,14 @@ CREATE TABLE
     ) ENGINE = InnoDB COLLATE utf8mb4_0900_ai_ci DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE
+    IF NOT EXISTS categorias_de_equipamentos (
+        id_categoria INTEGER NOT NULL AUTO_INCREMENT,
+        nome_categoria VARCHAR(100) NOT NULL,
+        PRIMARY KEY (id_categoria),
+        CONSTRAINT uq_nome_categoria UNIQUE (nome_categoria)
+    ) ENGINE = InnoDB COLLATE utf8mb4_0900_ai_ci DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE
     IF NOT EXISTS dias_da_semana (
         id_semana INTEGER NOT NULL,
         nome_semana VARCHAR(15) NOT NULL,
@@ -90,6 +98,17 @@ CREATE TABLE
     ) ENGINE = InnoDB COLLATE utf8mb4_0900_ai_ci DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE
+    IF NOT EXISTS equipamentos (
+        id_equipamento INTEGER NOT NULL AUTO_INCREMENT,
+        nome_equipamento VARCHAR(120) NOT NULL,
+        descricao TEXT,
+        id_categoria INTEGER NOT NULL,
+        PRIMARY KEY (id_equipamento),
+        CONSTRAINT equipamentos_ibfk_1 FOREIGN KEY (id_categoria) REFERENCES categorias_de_equipamentos (id_categoria),
+        CONSTRAINT uq_nome_equipamento UNIQUE (nome_equipamento)
+    ) ENGINE = InnoDB COLLATE utf8mb4_0900_ai_ci DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE
     IF NOT EXISTS usuarios (
         id_usuario INTEGER NOT NULL AUTO_INCREMENT,
         id_pessoa INTEGER NOT NULL,
@@ -98,6 +117,19 @@ CREATE TABLE
         grupo_pessoa VARCHAR(50),
         PRIMARY KEY (id_usuario),
         CONSTRAINT usuarios_ibfk_1 FOREIGN KEY (id_pessoa) REFERENCES pessoas (id_pessoa)
+    ) ENGINE = InnoDB COLLATE utf8mb4_0900_ai_ci DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE
+    IF NOT EXISTS equipamentos_disponibilidade (
+        id_disponibilidade INTEGER NOT NULL AUTO_INCREMENT,
+        id_equipamento INTEGER NOT NULL,
+        data DATE NOT NULL,
+        quantidade_disponivel INTEGER NOT NULL,
+        quantidade_reservada INTEGER NOT NULL,
+        gerado_em DATETIME NOT NULL,
+        atualizado_em DATETIME NOT NULL,
+        PRIMARY KEY (id_disponibilidade),
+        CONSTRAINT equipamentos_disponibilidade_ibfk_1 FOREIGN KEY (id_equipamento) REFERENCES equipamentos (id_equipamento)
     ) ENGINE = InnoDB COLLATE utf8mb4_0900_ai_ci DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE
@@ -126,6 +158,28 @@ CREATE TABLE
         origem ENUM ('SISTEMA', 'USUARIO') NOT NULL DEFAULT 'SISTEMA',
         PRIMARY KEY (id_historico),
         CONSTRAINT historicos_ibfk_1 FOREIGN KEY (id_usuario) REFERENCES usuarios (id_usuario)
+    ) ENGINE = InnoDB COLLATE utf8mb4_0900_ai_ci DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE
+    IF NOT EXISTS movimentacoes_equipamento (
+        id_movimentacao INTEGER NOT NULL AUTO_INCREMENT,
+        id_equipamento INTEGER NOT NULL,
+        tipo ENUM (
+            'Inicial',
+            'EMPRESTIMO',
+            'DEVOLUCAO',
+            'REPOSICAO',
+            'AJUSTE'
+        ) NOT NULL,
+        quantidade INTEGER NOT NULL,
+        data_registro DATETIME NOT NULL,
+        id_funcionario INTEGER NOT NULL,
+        id_responsavel INTEGER,
+        observacao TEXT,
+        PRIMARY KEY (id_movimentacao),
+        CONSTRAINT movimentacoes_equipamento_ibfk_1 FOREIGN KEY (id_equipamento) REFERENCES equipamentos (id_equipamento),
+        CONSTRAINT movimentacoes_equipamento_ibfk_2 FOREIGN KEY (id_funcionario) REFERENCES pessoas (id_pessoa),
+        CONSTRAINT movimentacoes_equipamento_ibfk_3 FOREIGN KEY (id_responsavel) REFERENCES pessoas (id_pessoa)
     ) ENGINE = InnoDB COLLATE utf8mb4_0900_ai_ci DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE
@@ -163,6 +217,18 @@ CREATE TABLE
             id_reserva_aula,
             dia_reserva
         )
+    ) ENGINE = InnoDB COLLATE utf8mb4_0900_ai_ci DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE
+    IF NOT EXISTS reservas_equipamentos (
+        id_reserva INTEGER NOT NULL AUTO_INCREMENT,
+        id_reserva_aula INTEGER NOT NULL,
+        id_reserva_responsavel INTEGER NOT NULL,
+        data_reserva DATE NOT NULL,
+        criado_em DATETIME NOT NULL,
+        PRIMARY KEY (id_reserva),
+        CONSTRAINT reservas_equipamentos_ibfk_1 FOREIGN KEY (id_reserva_aula) REFERENCES aulas_ativas (id_aula_ativa),
+        CONSTRAINT reservas_equipamentos_ibfk_2 FOREIGN KEY (id_reserva_responsavel) REFERENCES pessoas (id_pessoa)
     ) ENGINE = InnoDB COLLATE utf8mb4_0900_ai_ci DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE
@@ -246,4 +312,16 @@ CREATE TABLE
             situacao_dia,
             tipo_reserva
         )
+    ) ENGINE = InnoDB COLLATE utf8mb4_0900_ai_ci DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE
+    IF NOT EXISTS reservas_equipamentos_items (
+        id_item INTEGER NOT NULL AUTO_INCREMENT,
+        id_reserva INTEGER NOT NULL,
+        id_equipamento INTEGER NOT NULL,
+        quantidade INTEGER NOT NULL,
+        PRIMARY KEY (id_item),
+        CONSTRAINT reservas_equipamentos_items_ibfk_1 FOREIGN KEY (id_reserva) REFERENCES reservas_equipamentos (id_reserva),
+        CONSTRAINT reservas_equipamentos_items_ibfk_2 FOREIGN KEY (id_equipamento) REFERENCES equipamentos (id_equipamento),
+        CONSTRAINT uq_reserva_equipamento UNIQUE (id_reserva, id_equipamento)
     ) ENGINE = InnoDB COLLATE utf8mb4_0900_ai_ci DEFAULT CHARSET = utf8mb4;
