@@ -12,6 +12,7 @@ from app.extensions import Base
 if TYPE_CHECKING:
     from app.models.controle import Exibicao_Reservas, Situacoes_Das_Reserva
     from app.models.reservas.reservas_auditorios import Reservas_Auditorios
+    from app.models.reservas.reservas_equipamentos import Reservas_Equipamentos
     from app.models.reservas.reservas_laboratorios import (
         Reservas_Fixas, Reservas_Temporarias)
 
@@ -97,6 +98,9 @@ class Aulas_Ativas(Base):
     situacoes_das_reservas: Mapped[list["Situacoes_Das_Reserva"]] = relationship(back_populates='aula_ativa')
     exibicao_reservas: Mapped[list["Exibicao_Reservas"]] = relationship(back_populates='aula_ativa')
     dia_da_semana: Mapped["Dias_da_Semana"] = relationship(back_populates='aulas_ativas')
+    reservas_equipamentos: Mapped[list["Reservas_Equipamentos"]] = relationship(
+        back_populates="aula_ativa"
+    )
 
     def __repr__(self) -> str:
         return (
