@@ -1,4 +1,5 @@
 from datetime import date
+from typing import TYPE_CHECKING
 
 from sqlalchemy import TEXT, Enum, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -6,6 +7,10 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.enums import StatusReservaAuditorioEnum
 from app.extensions import Base
 
+if TYPE_CHECKING:
+    from app.models.locais import Locais
+    from app.models.aulas import Aulas_Ativas
+    from app.models.usuarios import Pessoas
 
 class Reservas_Auditorios(Base):
     __tablename__ = "reservas_auditorios"
@@ -37,8 +42,8 @@ class Reservas_Auditorios(Base):
 
     local: Mapped["Locais"] = relationship("Locais", back_populates="reservas_auditorios")
     aula_ativa: Mapped["Aulas_Ativas"] = relationship("Aulas_Ativas", back_populates="reservas_auditorios")
-    responsavel: Mapped["Pessoas"] = relationship("Pessoas", back_populates="reservas_responsavel", foreign_keys=[id_responsavel])
-    autorizador: Mapped["Pessoas"] = relationship("Pessoas", back_populates="reservas_autorizador", foreign_keys=[id_autorizador])
+    responsavel: Mapped["Pessoas"] = relationship("Pessoas", back_populates="reservas_auditorio_responsavel", foreign_keys=[id_responsavel])
+    autorizador: Mapped["Pessoas"] = relationship("Pessoas", back_populates="reservas_auditorio_autorizador", foreign_keys=[id_autorizador])
 
     @property
     def selector_identification(self):

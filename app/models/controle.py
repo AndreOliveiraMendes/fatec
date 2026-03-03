@@ -1,11 +1,11 @@
-from datetime import date
-from typing import TYPE_CHECKING
+from datetime import date, datetime
+from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import Enum, ForeignKey, UniqueConstraint
+from sqlalchemy import Date, Enum, ForeignKey, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.auxiliar.model import parse_date
-from app.enums import SituacaoChaveEnum, TipoReservaEnum
+from app.enums import SituacaoChaveEnum, TipoMovimentacao, TipoReservaEnum
 from app.extensions import Base
 
 if TYPE_CHECKING:
@@ -94,3 +94,43 @@ class Situacoes_Das_Reserva(Base):
             f"id_situacao_aula={self.id_situacao_aula}, situacao_dia={self.situacao_dia} "
             f"situacao_chave={self.situacao_chave.value})>"
         )
+
+class MovimentacaoEquipamento(Base):
+    __tablename__ = "movimentacoes_equipamento"
+
+    id_movimentacao: Mapped[int] = mapped_column(primary_key=True)
+    id_equipamento: Mapped[int] = mapped_column(
+        ForeignKey("equipamentos.id_equipamento"),
+        nullable=False
+    )
+    tipo: Mapped[TipoMovimentacao] = mapped_column(
+        Enum(TipoMovimentacao),
+        nullable=False
+    )
+    quantidade: Mapped[int] = mapped_column(nullable=False)
+    data_registro: Mapped[datetime] = mapped_column(
+        default=datetime.now(),
+        nullable=False
+    )
+    id_funcionario: Mapped[int] = mapped_column(ForeignKey('pessoas.id_pessoa'), nullable=False)
+    id_responsavel: Mapped[int | None] = mapped_column(ForeignKey('pessoas.id_pessoa'), nullable=True)
+    observacao: Mapped[Optional[str]] = mapped_column(Text)
+
+class EquipamentoDisponibilidade(Base):
+    __tablename__ = "equipamentos_disponibilidade"
+
+    id_disponibilidade: Mapped[int] = mapped_column(primary_key=True)
+    id_equipamento: Mapped[int] = mapped_column(
+        ForeignKey("equipamentos.id_equipamento"),
+        nullable=False
+    )
+    data: Mapped[date] = mapped_column(Date, nullable=False)
+    quantidade_disponivel: Mapped[int] = mapped_column(nullable=False)
+    quantidade_reservada: Mapped[int] = mapped_column(nullable=False)
+    gerado_em: Mapped[datetime] = mapped_column(
+        default=datetime.now()
+    )
+    atualizado_em: Mapped[datetime] = mapped_column(
+        default=datetime.now(),
+        onupdate=datetime.now()
+    )

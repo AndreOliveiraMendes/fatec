@@ -23,11 +23,11 @@ class Pessoas(Base):
     reservas_fixas: Mapped[list["Reservas_Fixas"]] = relationship(back_populates='pessoa')
     reservas_temporarias: Mapped[list["Reservas_Temporarias"]] = relationship(back_populates='pessoa')
     usuarios: Mapped[list["Usuarios"]] = relationship(back_populates='pessoa')
-    reservas_responsavel: Mapped[list["Reservas_Auditorios"]] = relationship(
+    reservas_auditorio_responsavel: Mapped[list["Reservas_Auditorios"]] = relationship(
         back_populates="responsavel",
         foreign_keys="Reservas_Auditorios.id_responsavel"
     )
-    reservas_autorizador: Mapped[list["Reservas_Auditorios"]] = relationship(
+    reservas_auditorio_autorizador: Mapped[list["Reservas_Auditorios"]] = relationship(
         back_populates="autorizador",
         foreign_keys="Reservas_Auditorios.id_autorizador"
     )
