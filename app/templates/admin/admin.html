@@ -7,7 +7,7 @@
     <p>Escolha uma seção para gerenciar:</p>
     <div class="panel panel-primary">
         <div class="panel-body">
-            <a href="{{ url_for("default.home") }}" class="btn btn-primary">
+            <a href="{{ url_for('default.home') }}" class="btn btn-primary">
                 <span class="glyphicon glyphicon-home"></span> Página Inicial
             </a>
         </div>
@@ -28,16 +28,16 @@
                         aria-controls="collapseDatabase">
                     <span class="glyphicon glyphicon-cog"></span> Manipular Banco de Dados
                 </button>
-                <a href="{{ url_for("setup.fast_setup_menu") }}" class="btn btn-warning">
+                <a href="{{ url_for('setup.fast_setup_menu') }}" class="btn btn-warning">
                     <span class="glyphicon glyphicon-flash"></span> Setup Rapido
                 </a>
-                <a href="{{ url_for("database_main.menu") }}" class="btn btn-info">
+                <a href="{{ url_for('database_main.menu') }}" class="btn btn-info">
                     <span class="glyphicon glyphicon-book"></span> Visualizar Banco de Dados
                 </a>
-                <a href="{{ url_for("admin.control_times") }}" class="btn btn-warning">
+                <a href="{{ url_for('admin.control_times') }}" class="btn btn-warning">
                     <span class="glyphicon glyphicon-time"></span> Horarios
                 </a>
-                <a href="{{ url_for("integracao.home") }}" class="btn btn-warning">
+                <a href="{{ url_for('integracao.home') }}" class="btn btn-warning">
                     <span class="glyphicon glyphicon-transfer"></span> Integração
                 </a>
             </div>
@@ -51,7 +51,8 @@
                                 data-target="#collapse{{ loop.index }}"
                                 aria-expanded="false"
                                 aria-controls="collapse{{ loop.index }}">
-                            <span class="{{ grupo_metadate.icon }}"></span> <strong>{{ grupo }}</strong>
+                            <span class="{{ grupo_metadate.icon }}"></span>
+                            <strong>{{ grupo }}</strong>
                         </button>
                         <div class="collapse mb-3" id="collapse{{ loop.index }}">
                             {% for secao, url, color, meta in grupo_metadate.secoes %}
@@ -60,6 +61,10 @@
                                     <span class="glyphicon glyphicon-chevron-right"></span>
                                     {{ secao }}
                                     <span class="glyphicon glyphicon-chevron-left"></span>
+                                    {% if url == "default.under_dev_page" %}
+                                        <span class="glyphicon glyphicon-exclamation-sign icon-warning"
+                                              title="Página em desenvolvimento"></span>
+                                    {% endif %}
                                     {% if 'c' in meta %}<span class="glyphicon glyphicon-plus" title="Criar"></span>{% endif %}
                                     {% if 'r' in meta %}<span class="glyphicon glyphicon-book" title="Listar"></span>{% endif %}
                                     {% if 'u' in meta %}<span class="glyphicon glyphicon-edit" title="Editar"></span>{% endif %}
@@ -84,16 +89,16 @@
                        class="btn btn-success">
                         <span class="glyphicon glyphicon-cog"></span> Status e Exibição das Reservas
                     </a>
-                    <a href="{{ url_for("admin.configurar_tela_televisor") }}"
+                    <a href="{{ url_for('admin.configurar_tela_televisor') }}"
                        class="btn btn-warning">
                         <span class="glyphicon glyphicon-wrench"></span> Configuração Painel
                     </a>
-                    <a href="{{ url_for("admin.configuracao_geral") }}"
+                    <a href="{{ url_for('admin.configuracao_geral') }}"
                        class="btn btn-warning">
                         <span class="glyphicon glyphicon-pushpin"></span>
                         Configuração gerais
                     </a>
-                    <a href="{{ url_for("admin.menu_reservas") }}" class="btn btn-success">
+                    <a href="{{ url_for('admin.menu_reservas') }}" class="btn btn-success">
                         <span class="glyphicon glyphicon-book"></span>
                         Observações
                     </a>
@@ -111,16 +116,16 @@
                     {% if key %}
                         <button class="btn btn-success" disabled>🔒 Chave Configurada</button>
                     {% else %}
-                        <a href="{{ url_for("admin_remote_credential.gerar_chave") }}"
+                        <a href="{{ url_for('admin_remote_credential.gerar_chave') }}"
                            class="btn btn-danger"
                            onclick="return confirm('Tem certeza que deseja gerar a chave de criptografia? Essa ação não pode ser desfeita.');">
                             🔑 Gerar Chave
                         </a>
                     {% endif %}
-                    <a href="{{ url_for("admin_remote_credential.manage_ssh") }}"
+                    <a href="{{ url_for('admin_remote_credential.manage_ssh') }}"
                        class="btn btn-warning">Credenciais de SSH</a>
                     {% if user and user.perm|has_flag(CONFIGURAR_COMANDOS) %}
-                        <a href="{{ url_for("admin_remote_commands.manage_commands") }}"
+                        <a href="{{ url_for('admin_remote_commands.manage_commands') }}"
                            class="btn btn-warning">Configurar Comandos Remotos</a>
                     {% endif %}
                 </div>
@@ -134,13 +139,13 @@
         <div class="panel-body">
             <div class="well">
                 <div class="btn-group" role="group">
-                    <a href="{{ url_for("consultar_reservas.tela_televisor1") }}"
+                    <a href="{{ url_for('consultar_reservas.tela_televisor1') }}"
                        class="btn btn-info margin-bottom-5"
                        target="_blank">
                         <span class="glyphicon glyphicon-eye-open"></span>
                         Visualizar Tela do Televisor (estilo 1)
                     </a>
-                    <a href="{{ url_for("consultar_reservas.tela_televisor2") }}"
+                    <a href="{{ url_for('consultar_reservas.tela_televisor2') }}"
                        class="btn btn-info margin-bottom-5"
                        target="_blank">
                         <span class="glyphicon glyphicon-eye-open"></span>

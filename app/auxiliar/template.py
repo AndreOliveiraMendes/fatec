@@ -131,7 +131,7 @@ def register_filters(app:Flask):
 
             warning_icon = ''
             if url == "default.under_dev_page":
-                warning_icon = ' <span class="glyphicon glyphicon-exclamation-sign" style="margin-left:4px; opacity:0.7;"></span>'
+                warning_icon = ' <span class="glyphicon glyphicon-exclamation-sign icon-warning" title="pagina em desenvolvimento"></span>'
 
             html_parts.append(f'<a href="{url_for(url)}">{nome}{warning_icon}</a>')
             html_parts.append('</li>')
