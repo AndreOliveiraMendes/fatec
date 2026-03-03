@@ -8,8 +8,8 @@ from app.enums import StatusReservaAuditorioEnum
 from app.extensions import Base
 
 if TYPE_CHECKING:
-    from app.models.locais import Locais
     from app.models.aulas import Aulas_Ativas
+    from app.models.locais import Locais
     from app.models.usuarios import Pessoas
 
 class Reservas_Auditorios(Base):

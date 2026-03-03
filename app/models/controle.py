@@ -10,7 +10,9 @@ from app.extensions import Base
 
 if TYPE_CHECKING:
     from app.models.aulas import Aulas_Ativas
+    from app.models.equipamentos import Equipamentos
     from app.models.locais import Locais
+    from app.models.usuarios import Pessoas
 
 class Exibicao_Reservas(Base):
     __tablename__ = "exibicao_reservas"
@@ -116,6 +118,31 @@ class MovimentacaoEquipamento(Base):
     id_responsavel: Mapped[int | None] = mapped_column(ForeignKey('pessoas.id_pessoa'), nullable=True)
     observacao: Mapped[Optional[str]] = mapped_column(Text)
 
+    equipamento: Mapped["Equipamentos"] = relationship(
+        back_populates="movimentacoes"
+    )
+    funcionario: Mapped["Pessoas"] = relationship(
+        back_populates="movimentacoes_funcionario",
+        foreign_keys=[id_funcionario]
+    )
+    responsavel: Mapped["Pessoas"] = relationship(
+        back_populates="movimentacoes_responsavel",
+        foreign_keys=[id_responsavel]
+    )
+
+    def __repr__(self) -> str:
+        return (
+            f"<MovimentacaoEquipamento("
+            f"id_movimentacao={self.id_movimentacao}, "
+            f"id_equipamento={self.id_equipamento}, "
+            f"tipo={self.tipo}, "
+            f"quantidade={self.quantidade}, "
+            f"id_funcionario={self.id_funcionario}, "
+            f"id_responsavel={self.id_responsavel}, "
+            f"data_registro={self.data_registro}"
+            f")>"
+        )
+
 class EquipamentoDisponibilidade(Base):
     __tablename__ = "equipamentos_disponibilidade"
 
@@ -134,3 +161,18 @@ class EquipamentoDisponibilidade(Base):
         default=datetime.now(),
         onupdate=datetime.now()
     )
+
+    equipamento: Mapped["Equipamentos"] = relationship(
+        back_populates="disponibilidades"
+    )
+
+    def __repr__(self) -> str:
+        return (
+            f"<EquipamentoDisponibilidade("
+            f"id_disponibilidade={self.id_disponibilidade}, "
+            f"id_equipamento={self.id_equipamento}, "
+            f"data={self.data}, "
+            f"quantidade_disponivel={self.quantidade_disponivel}, "
+            f"quantidade_reservada={self.quantidade_reservada}"
+            f")>"
+        )

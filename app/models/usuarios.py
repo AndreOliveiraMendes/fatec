@@ -7,8 +7,10 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.extensions import Base
 
 if TYPE_CHECKING:
+    from app.models.controle import MovimentacaoEquipamento
     from app.models.historicos import Historicos
     from app.models.reservas.reservas_auditorios import Reservas_Auditorios
+    from app.models.reservas.reservas_equipamentos import Reservas_Equipamentos
     from app.models.reservas.reservas_laboratorios import (
         Reservas_Fixas, Reservas_Temporarias)
 
@@ -30,6 +32,18 @@ class Pessoas(Base):
     reservas_auditorio_autorizador: Mapped[list["Reservas_Auditorios"]] = relationship(
         back_populates="autorizador",
         foreign_keys="Reservas_Auditorios.id_autorizador"
+    )
+    reservas_equipamentos: Mapped[list["Reservas_Equipamentos"]] = relationship(
+        back_populates="responsavel",
+        foreign_keys="Reservas_Equipamentos.id_reserva_responsavel"
+    )
+    movimentacoes_funcionario: Mapped[list["MovimentacaoEquipamento"]] = relationship(
+        back_populates="funcionario",
+        foreign_keys="MovimentacaoEquipamento.id_funcionario"
+    )
+    movimentacoes_responsavel: Mapped[list["MovimentacaoEquipamento"]] = relationship(
+        back_populates="responsavel",
+        foreign_keys="MovimentacaoEquipamento.id_responsavel"
     )
 
     def __repr__(self) -> str:
