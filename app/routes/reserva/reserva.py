@@ -119,21 +119,3 @@ def tela_televisor2():
     extras['hoje'] = today
     extras['aulas'] = aulas
     return render_template("reserva/televisor2.html", user=user, **extras)
-
-@bp.route("/televisor3")
-def tela_televisor3():
-    userid = session.get('userid')
-    user = get_user(userid)
-    extras: dict[str, Any] = {}
-    painel_cfg = carregar_painel_config().get('estilo3', {})
-    tipo_horario = painel_cfg.get('tipo', TipoAulaEnum.AULA.value)
-    intervalo = int(painel_cfg.get('tempo', 5))
-    locais = get_laboratorios(True)
-    today = datetime.now(LOCAL_TIMEZONE)
-    turno = get_turno_by_time(today.time())
-    aulas = get_aulas_ativas_por_dia(today.date(), turno, TipoAulaEnum(tipo_horario))
-    extras['intervalo'] = intervalo*1000
-    extras['locais'] = locais
-    extras['hoje'] = today
-    extras['aulas'] = aulas
-    return render_template("reserva/televisor3.html", user=user, **extras)

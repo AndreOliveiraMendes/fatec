@@ -152,10 +152,6 @@ def configurar_tela_televisor():
         painel_cfg["estilo1"].setdefault("laboratorios", 1)
         painel_cfg["estilo2"].setdefault("status_indefinido", False)
 
-        painel_cfg["estilo1"].setdefault("tipo", "")
-        painel_cfg["estilo3"].setdefault("tempo", 5)
-        painel_cfg["estilo3"].setdefault("status_indefinido", False)
-
         extras["painel_cfg"] = painel_cfg
 
 
@@ -176,12 +172,6 @@ def configurar_tela_televisor():
                 "tempo": request.form.get("e2_tempo"),
                 "laboratorios": request.form.get("e2_lab"),
                 "status_indefinido": "e2_status" in request.form
-            },
-
-            "estilo3": {
-                "tipo": request.form.get("e3_tipo"),
-                "tempo": request.form.get("e3_tempo"),
-                "status_indefinido": "e3_status" in request.form
             }
         }
 

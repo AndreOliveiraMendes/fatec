@@ -208,10 +208,6 @@ body {
     font-weight: bold;
 }
 
-.navbar {
-    margin-bottom: 0;
-}
-
 .nav>li.nav-centered {
     display: flex;
     align-items: center;

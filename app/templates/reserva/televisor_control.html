@@ -97,41 +97,6 @@
                 </div>
             </div>
         </div>
-        <!-- ================= ESTILO 3 ================= -->
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <strong>Televisor Estilo 3</strong>
-            </div>
-            <div class="panel-body">
-                <div class="form-group">
-                    <label>Destino:</label>
-                    <select class="form-control" name="e3_tipo">
-                        {% for aula in tipo_aula %}
-                            <option value="{{ aula.value }}"
-                                    {% if painel_cfg.estilo3.tipo == aula.value %}selected{% endif %}>
-                                {{ aula.value }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Tempo de Reload (em segundos):</label>
-                    <input type="number"
-                           class="form-control"
-                           name="e3_tempo"
-                           min="0"
-                           value="{{ painel_cfg.estilo3.tempo }}">
-                </div>
-                <div class="checkbox">
-                    <label>
-                        <input type="checkbox"
-                               name="e3_status"
-                               {% if painel_cfg.estilo3.status_indefinido %}checked{% endif %}>
-                        Mostrar status indefinido como não pegou chave
-                    </label>
-                </div>
-            </div>
-        </div>
         {{ action_buttons('montar', show_voltar=False, label='') }}
     </form>
 {% endblock content %}

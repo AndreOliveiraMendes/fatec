@@ -99,8 +99,6 @@
                         {% if config_cfg.get('tela_padrao', '1') == '1' %}selected{% endif %}>Tela 1</option>
                 <option value="2"
                         {% if config_cfg.get('tela_padrao') == '2' %}selected{% endif %}>Tela 2</option>
-                <option value="3"
-                        {% if config_cfg.get('tela_padrao') == '3' %}selected{% endif %}>Tela 3</option>
             </select>
         </div>
         {{ action_buttons('montar', show_voltar=False, label='') }}

@@ -73,11 +73,6 @@ DEFAULT_PAINEL_CFG = {
         "tempo": "5",
         "laboratorios": "5",
         "status_indefinido": False
-    },
-    "estilo3": {
-        "tipo": "Aula",
-        "tempo": "5",
-        "status_indefinido": False
     }
 }
 
