@@ -360,7 +360,7 @@ O sistema segue uma arquitetura em camadas com separação clara entre:
 ├── schema.sql
 ├── test
 │   └── test_simple.py
-└── wsgi.p
+└── wsgi.py
 ```
 
 </details>
