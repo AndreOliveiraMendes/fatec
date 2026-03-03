@@ -16,7 +16,8 @@ SECOES = {
             ('Equipamento', 'default.under_dev_page', 'success', 'crud'),
             ('Semestres', 'database_semestres.gerenciar_semestres', 'success', 'crud'),
             ('Dias da Semana', 'database_dias_da_semana.gerenciar_dias_da_semana', 'success', 'crud'),
-            ('Turnos', 'database_turnos.gerenciar_turnos', 'success', 'crud')
+            ('Turnos', 'database_turnos.gerenciar_turnos', 'success', 'crud'),
+            ('Categoria de Equipamento', 'default.under_dev_page', 'success', 'crud')
         ]
     },
     'Operacional': {

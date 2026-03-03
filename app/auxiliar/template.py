@@ -122,11 +122,18 @@ def register_filters(app:Flask):
             for t in sec['secoes']
         ]
 
+        tables_info.sort(key = lambda e: e[2])
+
         html_parts = ['<div class="pills-group">','<ul class="nav nav-pills">']
         for table, url, nome in tables_info:
             active_class = ' class="active"' if table == current_table else ''
             html_parts.append(f'<li role="presentation"{active_class}>')
-            html_parts.append(f'<a href="{url_for(url)}">{nome}</a>')
+
+            warning_icon = ''
+            if url == "default.under_dev_page":
+                warning_icon = ' <span class="glyphicon glyphicon-exclamation-sign" style="margin-left:4px; opacity:0.7;"></span>'
+
+            html_parts.append(f'<a href="{url_for(url)}">{nome}{warning_icon}</a>')
             html_parts.append('</li>')
 
         html_parts.extend(['</ul>','</div>'])
