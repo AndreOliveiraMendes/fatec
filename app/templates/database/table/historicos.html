@@ -1,11 +1,76 @@
 {% extends "database/table/base_crude" %}
+{% from "macros/table_base.html" import table_base %}
+{% macro result_table(message) %}
+    {% call(h) table_base(
+        historicos,
+        [
+        'ID',
+        'Usuário',
+        'Tabela',
+        'Categoria',
+        'Data/Hora',
+        'Mensagem',
+        'Chave Primária',
+        'Origem',
+        'Observação'
+        ],
+        id_field='id_historico',
+        message=message,
+        alert_class='alert-warning',
+        show_actions=False,
+        pagination=pagination,
+        acao=acao,
+        bloco=bloco,
+        query_params=query_params
+        ) %}
+        <td class="visible-md visible-lg">{{ h.id_historico }}</td>
+        {% if h.id_usuario %}
+            <td class="visible-md visible-lg">
+                ({{ h.id_usuario }}, {{ h.usuario.pessoa.id_pessoa }}) {{ h.usuario.pessoa.nome_pessoa }}
+            </td>
+        {% else %}
+            <td class="visible-md visible-lg">-</td>
+        {% endif %}
+        <td>
+            {% if is_mobile %}
+                <button data-toggle="collapse" data-target="#detalhes{{ h.id_historico }}">{{ h.tabela or '-' }}</button>
+            {% else %}
+                {{ h.tabela or '-' }}
+            {% endif %}
+        </td>
+        <td>{{ h.categoria or '-' }}</td>
+        <td>{{ h.data_hora|datahora if h.data_hora else '-' }}</td>
+        <td>{{ h.message }}</td>
+        <td class="visible-md visible-lg">{{ h.chave_primaria }}</td>
+        <td class="visible-md visible-lg">{{ h.origem.value }}</td>
+        <td class="visible-md visible-lg">{{ h.observacao or '-' }}</td>
+    {% endcall %}
+    {# ---- BLOCO MOBILE CONTINUA FORA DA MACRO BASE ---- #}
+    {% if historicos and is_mobile %}
+        {% for h in historicos %}
+            <div id="detalhes{{ h.id_historico }}" class="collapse">
+                <p>origem: {{ h.origem.value }}</p>
+                <p>dia: {{ h.data_hora|datahora if h.data_hora else '-' }}</p>
+                {% if h.id_usuario %}
+                    <p>
+                        usuario:
+                        ({{ h.id_usuario }}, {{ h.usuario.pessoa.id_pessoa }})
+                        {{ h.usuario.pessoa.nome_pessoa }}
+                    </p>
+                {% else %}
+                    <p>usuario: (-) SISTEMA</p>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endmacro %}
 {% block title %}
     Historicos
 {% endblock title %}
 {% block content_head %}
     <div class="panel panel-default">
         <div class="panel-heading">{{ generate_database_head("database_historicos") }}</div>
-        <div class="panel-body">{{ generate_head(url_for(url), acao, disable=disable, include=include) }}</div>
+        <div class="panel-body">{{ generate_head(url_for(url) , acao, disable=disable, include=include) }}</div>
     </div>
 {% endblock content_head %}
 {% block abertura %}
@@ -180,72 +245,4 @@
         </div>
         {{ action_buttons(acao, 1, False, 0) }}
     </form>
-{% endmacro %}
-{% macro result_table(message) %}
-    {% if historicos %}
-        <div class="table-responsive">
-            <table class="table table-striped table-bordered table-hover">
-                <thead>
-                    <tr class="information">
-                        <th class="visible-md visible-lg">ID</th>
-                        <th class="visible-md visible-lg">Usuário</th>
-                        <th>Tabela</th>
-                        <th>Categoria</th>
-                        <th>Data/Hora</th>
-                        <th>Mensagem</th>
-                        <th class="visible-md visible-lg">Chave Primária</th>
-                        <th class="visible-md visible-lg">Origem</th>
-                        <th class="visible-md visible-lg">Observação</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for h in historicos %}
-                        <tr>
-                            <td class="visible-md visible-lg">{{ h.id_historico }}</td>
-                            {% if h.id_usuario %}
-                                <td class="visible-md visible-lg">
-                                    ({{ h.id_usuario }}, {{ h.usuario.pessoa.id_pessoa }}) {{ h.usuario.pessoa.nome_pessoa }}
-                                </td>
-                            {% else %}
-                                <td class="visible-md visible-lg">-</td>
-                            {% endif %}
-                            <td>
-                                {% if is_mobile %}
-                                    <button data-toggle="collapse" data-target="#detalhes{{ h.id_historico }}">{{ h.tabela or '-' }}</button>
-                                {% else %}
-                                    {{ h.tabela or '-' }}
-                                {% endif %}
-                            </td>
-                            <td>{{ h.categoria or '-' }}</td>
-                            <td>{{ h.data_hora|datahora if h.data_hora else '-' }}</td>
-                            <td>{{ h.message }}</td>
-                            <td class="visible-md visible-lg">{{ h.chave_primaria }}</td>
-                            <td class="visible-md visible-lg">{{ h.origem.value }}</td>
-                            <td class="visible-md visible-lg">{{ h.observacao or '-' }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% if is_mobile %}
-            {% for h in historicos %}
-                <div id="detalhes{{ h.id_historico }}" class="collapse">
-                    <p>origem: {{ h.origem.value }}</p>
-                    <p>dia: {{ h.data_hora|datahora if h.data_hora else '-' }}</p>
-                    {% if h.id_usuario %}
-                        <p>usuario: ({{ h.id_usuario }}, {{ h.usuario.pessoa.id_pessoa }}) {{ h.usuario.pessoa.nome_pessoa }}</p>
-                    {% else %}
-                        <p>usuario: (-) SISTEMA</p>
-                    {% endif %}
-                </div>
-            {% endfor %}
-        {% endif %}
-        {% if query_params %}
-            {{ paginacao(pagination, acao, bloco, query_params) }}
-        {% else %}
-            {{ paginacao(pagination, acao, bloco) }}
-        {% endif %}
-    {% else %}
-        <div class="alert alert-warning" role="alert">{{ message }}</div>
-    {% endif %}
 {% endmacro %}

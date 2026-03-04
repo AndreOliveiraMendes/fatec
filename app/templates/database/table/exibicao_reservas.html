@@ -1,11 +1,29 @@
 {% extends "database/table/base_crude" %}
+{% macro result_table(message) %}
+    {% call(edr) table_base(
+        exibicao_reservas,
+        ['Codigo', 'Local', 'Aula', 'Dia', 'Tipo'],
+        id_field='id_exibicao',
+        message=message,
+        pagination=pagination,
+        acao=acao,
+        bloco=bloco,
+        query_params=query_params
+        ) %}
+        <td>{{ edr.id_exibicao }}</td>
+        <td>{{ edr.local.nome_local }}</td>
+        <td>{{ edr.aula_ativa.selector_identification }}</td>
+        <td>{{ edr.exibicao_dia|data }}</td>
+        <td>{{ edr.tipo_reserva.value }}</td>
+    {% endcall %}
+{% endmacro %}
 {% block title %}
     Exibicao das Reservas
 {% endblock title %}
 {% block content_head %}
     <div class="panel panel-default">
         <div class="panel-heading">{{ generate_database_head("database_exibicao_reservas") }}</div>
-        <div class="panel-body">{{ generate_head(url_for(url), acao, disable=disable) }}</div>
+        <div class="panel-body">{{ generate_head(url_for(url) , acao, disable=disable) }}</div>
     </div>
 {% endblock content_head %}
 {% block abertura %}
@@ -247,61 +265,3 @@
         </form>
     {% endif %}
 {% endblock excluir %}
-{% macro result_table(message) %}
-    {% if exibicao_reservas %}
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped table-hover">
-                <thead>
-                    <tr class="information">
-                        <td>Codigo</td>
-                        <td>Local</td>
-                        <td>Aula</td>
-                        <td>Dia</td>
-                        <td>Tipo</td>
-                        <td>Ação</td>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for edr in exibicao_reservas %}
-                        <tr>
-                            <td>{{ edr.id_exibicao }}</td>
-                            <td>{{ edr.local.nome_local }}</td>
-                            <td>{{ edr.aula_ativa.selector_identification }}</td>
-                            <td>{{ edr.exibicao_dia|data }}</td>
-                            <td>{{ edr.tipo_reserva.value }}</td>
-                            <td>
-                                <form method="post" class="form-inline">
-                                    <input type="hidden" name="bloco" value="1">
-                                    <input type="hidden" name="id_exibicao" value="{{ edr.id_exibicao }}">
-                                    <div class="btn-group">
-                                        <button type="submit"
-                                                name="acao"
-                                                value="editar"
-                                                class="btn btn-warning btn-sm"
-                                                title="Editar">
-                                            <i class="glyphicon glyphicon-pencil"></i>
-                                        </button>
-                                        <button type="submit"
-                                                name="acao"
-                                                value="excluir"
-                                                class="btn btn-danger btn-sm"
-                                                title="Excluir">
-                                            <i class="glyphicon glyphicon-trash"></i>
-                                        </button>
-                                    </div>
-                                </form>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% if query_params %}
-            {{ paginacao(pagination, acao, bloco, query_params) }}
-        {% else %}
-            {{ paginacao(pagination, acao, bloco) }}
-        {% endif %}
-    {% else %}
-        <div class="alert alert-info" role="alert">{{ message }}</div>
-    {% endif %}
-{% endmacro %}

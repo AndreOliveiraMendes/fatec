@@ -1,11 +1,31 @@
 {% extends "database/table/base_crude" %}
+{% macro result_table(message) %}
+    {% call(item) table_base(
+        locais,
+        ['ID','Nome','Descrição','Disponibilidade','Tipo'],
+        id_field='id_local',
+        vertical_actions=True,
+        table_class='tabela-crude',
+        message=message,
+        pagination=pagination,
+        acao=acao,
+        bloco=bloco,
+        query_params=query_params
+        ) %}
+        <td>{{ item.id_local }}</td>
+        <td>{{ item.nome_local }}</td>
+        <td>{{ item.descricao|format }}</td>
+        <td>{{ item.disponibilidade.value }}</td>
+        <td>{{ item.tipo.value }}</td>
+    {% endcall %}
+{% endmacro %}
 {% block title %}
     Locais
 {% endblock title %}
 {% block content_head %}
     <div class="panel panel-default">
         <div class="panel-heading">{{ generate_database_head("database_locais") }}</div>
-        <div class="panel-body">{{ generate_head(url_for(url), acao, disable=disable) }}</div>
+        <div class="panel-body">{{ generate_head(url_for(url) , acao, disable=disable) }}</div>
     </div>
 {% endblock content_head %}
 {% block abertura %}
@@ -379,59 +399,3 @@
         </form>
     {% endif %}
 {% endblock excluir %}
-{% macro result_table(message) %}
-    {% if locais %}
-        <div class="table-responsive">
-            <table class="table table-striped table-bordered table-hover tabela-crude">
-                <thead class="information">
-                    <th>ID do local</th>
-                    <th>Nome do local</th>
-                    <th>Descrição</th>
-                    <th>Disponibilidade</th>
-                    <th>Tipo de local</th>
-                    <th>ação</th>
-                </thead>
-                <tbody>
-                    {% for l in locais %}
-                        <tr>
-                            <td>{{ l.id_local }}</td>
-                            <td>{{ l.nome_local }}</td>
-                            <td>{{ l.descrição|format }}</td>
-                            <td>{{ l.disponibilidade.value }}</td>
-                            <td>{{ l.tipo.value }}</td>
-                            <td>
-                                <form method="post" class="form-inline">
-                                    <input type="hidden" name="bloco" value="1">
-                                    <input type="hidden" name="id_local" value="{{ l.id_local }}">
-                                    <div class="btn-group-vertical">
-                                        <button type="submit"
-                                                name="acao"
-                                                value="editar"
-                                                class="btn btn-warning btn-sm"
-                                                title="Editar">
-                                            <i class="glyphicon glyphicon-pencil"></i>
-                                        </button>
-                                        <button type="submit"
-                                                name="acao"
-                                                value="excluir"
-                                                class="btn btn-danger btn-sm"
-                                                title="Excluir">
-                                            <i class="glyphicon glyphicon-trash"></i>
-                                        </button>
-                                    </div>
-                                </form>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% if query_params %}
-            {{ paginacao(pagination, acao, bloco, query_params) }}
-        {% else %}
-            {{ paginacao(pagination, acao, bloco) }}
-        {% endif %}
-    {% else %}
-        <div class="alert alert-info" role="alert">{{ message }}</div>
-    {% endif %}
-{% endmacro %}

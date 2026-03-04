@@ -1,11 +1,29 @@
 {% extends "database/table/base_crude" %}
+{% macro result_table(message) %}
+    {% call(ue) table_base(
+        usuarios_especiais,
+        [
+        'Id Usuario Especial',
+        'Nome Usuario Especial'
+        ],
+        id_field='id_usuario_especial',
+        message=message,
+        pagination=pagination,
+        acao=acao,
+        bloco=bloco,
+        query_params=query_params
+        ) %}
+        <td>{{ ue.id_usuario_especial }}</td>
+        <td>{{ ue.nome_usuario_especial }}</td>
+    {% endcall %}
+{% endmacro %}
 {% block title %}
     Usuarios Especiais
 {% endblock title %}
 {% block content_head %}
     <div class="panel panel-default">
         <div class="panel-heading">{{ generate_database_head("database_usuarios_especiais") }}</div>
-        <div class="panel-body">{{ generate_head(url_for(url), acao, disable=disable) }}</div>
+        <div class="panel-body">{{ generate_head(url_for(url) , acao, disable=disable) }}</div>
     </div>
 {% endblock content_head %}
 {% block abertura %}
@@ -194,57 +212,3 @@
         </form>
     {% endif %}
 {% endblock excluir %}
-{% macro result_table(message) %}
-    {% if usuarios_especiais %}
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped table-hover">
-                <thead>
-                    <tr class="information">
-                        <th>Id Usuario Especial</th>
-                        <th>Nome Usuario Especial</th>
-                        <th>Ação</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for ue in usuarios_especiais %}
-                        <tr>
-                            <td>{{ ue.id_usuario_especial }}</td>
-                            <td>{{ ue.nome_usuario_especial }}</td>
-                            <td>
-                                <form method="post" class="form-inline">
-                                    <input type="hidden" name="bloco" value="1">
-                                    <input type="hidden"
-                                           name="id_usuario_especial"
-                                           value="{{ ue.id_usuario_especial }}">
-                                    <div class="btn-group">
-                                        <button type="submit"
-                                                name="acao"
-                                                value="editar"
-                                                class="btn btn-warning btn-sm"
-                                                title="Editar">
-                                            <i class="glyphicon glyphicon-pencil"></i>
-                                        </button>
-                                        <button type="submit"
-                                                name="acao"
-                                                value="excluir"
-                                                class="btn btn-danger btn-sm"
-                                                title="Excluir">
-                                            <i class="glyphicon glyphicon-trash"></i>
-                                        </button>
-                                    </div>
-                                </form>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% if query_params %}
-            {{ paginacao(pagination, acao, bloco, query_params) }}
-        {% else %}
-            {{ paginacao(pagination, acao, bloco) }}
-        {% endif %}
-    {% else %}
-        <div class="alert alert-info" role="alert">{{ message }}</div>
-    {% endif %}
-{% endmacro %}

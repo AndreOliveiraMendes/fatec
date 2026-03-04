@@ -1,11 +1,46 @@
 {% extends "database/table/base_crude" %}
+{% macro result_table(message) %}
+    {% call(rt) table_base(
+        reservas_temporarias,
+        [
+        'Codigo',
+        'Responsável',
+        'Responsável Especial',
+        'Tipo de Responsável',
+        'Local',
+        'Horario',
+        'Inicio da Reserva',
+        'Termino da Reserva',
+        'Finalidade',
+        'observações'
+        ],
+        id_field='id_reserva_temporaria',
+        message=message,
+        vertical_actions=True,
+        pagination=pagination,
+        acao=acao,
+        bloco=bloco,
+        query_params=query_params
+        ) %}
+        <td>{{ rt.id_reserva_temporaria }}</td>
+        <td>{{ rt.pessoa.nome_pessoa if rt.id_responsavel else '-' }}</td>
+        <td>{{ rt.usuario_especial.nome_usuario_especial if rt.id_responsavel_especial else '-' }}</td>
+        <td>{{ rt.tipo_responsavel|tipo_responsavel_label }}</td>
+        <td>{{ rt.local.nome_local }}</td>
+        <td>{{ rt.aula_ativa.selector_identification }}</td>
+        <td>{{ rt.inicio_reserva|data }}</td>
+        <td>{{ rt.fim_reserva|data }}</td>
+        <td>{{ rt.finalidade_reserva.value }}</td>
+        <td>{{ rt.observacoes if rt.observacoes else '-' }}</td>
+    {% endcall %}
+{% endmacro %}
 {% block title %}
     Reservas TEMPORARIAS
 {% endblock title %}
 {% block content_head %}
     <div class="panel panel-default">
         <div class="panel-heading">{{ generate_database_head("database_reservas_temporarias") }}</div>
-        <div class="panel-body">{{ generate_head(url_for(url), acao, disable=disable) }}</div>
+        <div class="panel-body">{{ generate_head(url_for(url) , acao, disable=disable) }}</div>
     </div>
 {% endblock content_head %}
 {% block abertura %}
@@ -533,73 +568,3 @@
         </form>
     {% endif %}
 {% endblock excluir %}
-{% macro result_table(message) %}
-    {% if reservas_temporarias %}
-        <div class="table-responsive">
-            <table class="table table-striped table-bordered table-hover">
-                <thead>
-                    <tr class="information">
-                        <td>Codigo</td>
-                        <td>Responsável</td>
-                        <td>Responsável Especial</td>
-                        <td>Tipo de Responsável</td>
-                        <td>Local</td>
-                        <td>Horario</td>
-                        <td>Inicio da Reserva</td>
-                        <td>Termino da Reserva</td>
-                        <td>Finalidade</td>
-                        <td>observações</td>
-                        <td>Ação</td>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for rt in reservas_temporarias %}
-                        <tr>
-                            <td>{{ rt.id_reserva_temporaria }}</td>
-                            <td>{{ rt.pessoa.nome_pessoa if rt.id_responsavel else '-' }}</td>
-                            <td>{{ rt.usuario_especial.nome_usuario_especial if rt.id_responsavel_especial else '-' }}</td>
-                            <td>{{ rt.tipo_responsavel|tipo_responsavel_label }}</td>
-                            <td>{{ rt.local.nome_local }}</td>
-                            <td>{{ rt.aula_ativa.selector_identification }}</td>
-                            <td>{{ rt.inicio_reserva|data }}</td>
-                            <td>{{ rt.fim_reserva|data }}</td>
-                            <td>{{ rt.finalidade_reserva.value }}</td>
-                            <td>{{ rt.observacoes if rt.observacoes else '-' }}</td>
-                            <td>
-                                <form method="post" class="form-inline">
-                                    <input type="hidden" name="bloco" value="1">
-                                    <input type="hidden"
-                                           name="id_reserva_temporaria"
-                                           value="{{ rt.id_reserva_temporaria }}">
-                                    <div class="btn-group-vertical">
-                                        <button type="submit"
-                                                name="acao"
-                                                value="editar"
-                                                class="btn btn-warning"
-                                                title="Editar">
-                                            <i class="glyphicon glyphicon-pencil"></i>
-                                        </button>
-                                        <button type="submit"
-                                                name="acao"
-                                                value="excluir"
-                                                class="btn btn-danger"
-                                                title="Excluir">
-                                            <i class="glyphicon glyphicon-trash"></i>
-                                        </button>
-                                    </div>
-                                </form>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% if query_params %}
-            {{ paginacao(pagination, acao, bloco, query_params) }}
-        {% else %}
-            {{ paginacao(pagination, acao, bloco) }}
-        {% endif %}
-    {% else %}
-        <div class="alert alert-info" role="alert">{{ message }}</div>
-    {% endif %}
-{% endmacro %}

@@ -1,6 +1,7 @@
 {% extends "base-fluid" %}
-{% from "macros/pagination.html" import paginacao, paginacao_header, paginacao_button, paginacao_footer %}
 {% from "macros/form.html" import generate_navigation_database, gerar_select, action_buttons, manter_parametros %}
+{% from "macros/table_base.html" import table_base %}
+{% from "macros/pagination.html" import paginacao, paginacao_header, paginacao_button, paginacao_footer %}
 {% block title %}
     table
 {% endblock title %}

@@ -1,11 +1,38 @@
 {% extends "database/table/base_crude" %}
+{% macro result_table(message) %}
+    {% call(sdr) table_base(
+        situacoes_das_reservas,
+        [
+        'Codigo',
+        'Local',
+        'Aula',
+        'Dia',
+        'Situacao',
+        'Tipo'
+        ],
+        id_field='id_situacao',
+        message=message,
+        alert_class='alert-danger',
+        pagination=pagination,
+        acao=acao,
+        bloco=bloco,
+        query_params=query_params
+        ) %}
+        <td>{{ sdr.id_situacao }}</td>
+        <td>{{ sdr.local.nome_local }}</td>
+        <td>{{ sdr.aula_ativa.selector_identification }}</td>
+        <td>{{ sdr.situacao_dia|data }}</td>
+        <td>{{ sdr.situacao_chave.value }}</td>
+        <td>{{ sdr.tipo_reserva.value }}</td>
+    {% endcall %}
+{% endmacro %}
 {% block title %}
     Situações das Reservas
 {% endblock title %}
 {% block content_head %}
     <div class="panel panel-default">
         <div class="panel-heading">{{ generate_database_head("database_situacoes_das_reservas") }}</div>
-        <div class="panel-body">{{ generate_head(url_for(url), acao, disable=disable) }}</div>
+        <div class="panel-body">{{ generate_head(url_for(url) , acao, disable=disable) }}</div>
     </div>
 {% endblock content_head %}
 {% block abertura %}
@@ -318,61 +345,3 @@
         </form>
     {% endif %}
 {% endblock excluir %}
-{% macro result_table(message) %}
-    {% if situacoes_das_reservas %}
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped table-hover">
-                <thead>
-                    <tr class="information">
-                        <td>Codigo</td>
-                        <td>Local</td>
-                        <td>Aula</td>
-                        <td>Dia</td>
-                        <td>Situacao</td>
-                        <td>Tipo</td>
-                        <td>Ação</td>
-                    </tr>
-                </thead>
-                {% for sdr in situacoes_das_reservas %}
-                    <tr>
-                        <td>{{ sdr.id_situacao }}</td>
-                        <td>{{ sdr.local.nome_local }}</td>
-                        <td>{{ sdr.aula_ativa.selector_identification }}</td>
-                        <td>{{ sdr.situacao_dia|data }}</td>
-                        <td>{{ sdr.situacao_chave.value }}</td>
-                        <td>{{ sdr.tipo_reserva.value }}</td>
-                        <td>
-                            <form method="post" class="form-inline">
-                                <input type="hidden" name="bloco" value="1">
-                                <input type="hidden" name="id_situacao" value="{{ sdr.id_situacao }}">
-                                <div class="btn-group">
-                                    <button type="submit"
-                                            name="acao"
-                                            value="editar"
-                                            class="btn btn-warning btn-sm"
-                                            title="Editar">
-                                        <i class="glyphicon glyphicon-pencil"></i>
-                                    </button>
-                                    <button type="submit"
-                                            name="acao"
-                                            value="excluir"
-                                            class="btn btn-danger btn-sm"
-                                            title="Excluir">
-                                        <i class="glyphicon glyphicon-trash"></i>
-                                    </button>
-                                </div>
-                            </form>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </table>
-        </div>
-        {% if query_params %}
-            {{ paginacao(pagination, acao, bloco, query_params) }}
-        {% else %}
-            {{ paginacao(pagination, acao, bloco) }}
-        {% endif %}
-    {% else %}
-        <div class="alert alert-info" role="alert">{{ message }}</div>
-    {% endif %}
-{% endmacro %}

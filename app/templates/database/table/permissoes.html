@@ -1,4 +1,87 @@
 {% extends "database/table/base_crude" %}
+{% from "macros/table_base.html" import table_base %}
+{% macro result_table(message) %}
+    {% call(p) table_base(
+        permissoes,
+        [
+        'Usuario',
+        'permissao',
+        'FIXA',
+        'TEMP',
+        'AUDITORIO',
+        'ADMIN',
+        'AUTORIZAR',
+        'COMANDOS REMOTOS',
+        'Ação'
+        ],
+        id_field='id_permissao_usuario',
+        message=message,
+        alert_class='alert-warning',
+        show_actions=False,
+        pagination=pagination,
+        acao=acao,
+        bloco=bloco,
+        query_params=query_params
+        ) %}
+        <td>({{ p.id_permissao_usuario }}) {{ p.usuario.pessoa.nome_pessoa }}</td>
+        <td>{{ p.permissao }}</td>
+        <td>
+            <i title="Permissão de reserva fixa"
+               class="{% if p.permissao|has_flag(FIXA) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}">
+            </i>
+        </td>
+        <td>
+            <i title="Permissão de reserva temporária"
+               class="{% if p.permissao|has_flag(TEMP) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}">
+            </i>
+        </td>
+        <td>
+            <i title="Permissão de reserva de auditorio"
+               class="{% if p.permissao|has_flag(AUDITORIO) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}">
+            </i>
+        </td>
+        <td>
+            <i title="Permissão de administrador"
+               class="{% if p.permissao|has_flag(ADMIN) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}">
+            </i>
+        </td>
+        <td>
+            <i title="Permissão de autorizar reservas"
+               class="{% if p.permissao|has_flag(AUTORIZAR) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}">
+            </i>
+        </td>
+        <td>
+            <i title="Permissão de configurar comandos remotos"
+               class="{% if p.permissao|has_flag(CONFIGURAR_COMANDOS) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}">
+            </i>
+        </td>
+        {# AÇÃO CUSTOMIZADA #}
+        <td>
+            <form method="post" class="form-inline">
+                <input type="hidden" name="bloco" value="1">
+                <input type="hidden" name="id_usuario" value="{{ p.id_permissao_usuario }}">
+                <div class="btn-group">
+                    <button type="submit"
+                            name="acao"
+                            value="editar"
+                            class="btn btn-warning btn-sm"
+                            title="Editar">
+                        <i class="glyphicon glyphicon-pencil"></i>
+                    </button>
+                    {% if p.id_permissao_usuario != userid %}
+                        <button type="submit"
+                                name="acao"
+                                value="excluir"
+                                class="btn btn-danger btn-sm"
+                                title="Excluir">
+                            <i class="glyphicon glyphicon-trash"></i>
+                        </button>
+                    {% endif %}
+                </div>
+            </form>
+        </td>
+    {% endcall %}
+{% endmacro %}
 {% block title %}
     Permissoes
 {% endblock title %}
@@ -373,87 +456,3 @@
         </form>
     {% endif %}
 {% endblock excluir %}
-{% macro result_table(message) %}
-    {% if permissoes %}
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped table-hover">
-                <thead>
-                    <tr class="information">
-                        <th>Usuario</th>
-                        <th>permissao</th>
-                        <th>FIXA</th>
-                        <th>TEMP</th>
-                        <th>AUDITORIO</th>
-                        <th>ADMIN</th>
-                        <th>AUTORIZAR</th>
-                        <th>COMANDOS REMOTOS</th>
-                        <th>Ação</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for p in permissoes %}
-                        <tr>
-                            <td>({{ p.id_permissao_usuario }}) {{ p.usuario.pessoa.nome_pessoa }}</td>
-                            <td>{{ p.permissao }}</td>
-                            <td>
-                                <i title="Permissão de reserva fixa"
-                                   class="{% if p.permissao|has_flag(FIXA) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}"></i>
-                            </td>
-                            <td>
-                                <i title="Permissão de reserva temporária"
-                                   class="{% if p.permissao|has_flag(TEMP) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}"></i>
-                            </td>
-                            <td>
-                                <i title="Permissão de reserva de auditorio"
-                                   class="{% if p.permissao|has_flag(AUDITORIO) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}"></i>
-                            </td>
-                            <td>
-                                <i title="Permissão de administrador"
-                                   class="{% if p.permissao|has_flag(ADMIN) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}"></i>
-                            </td>
-                            <td>
-                                <i title="Permissão de autorizar reservas"
-                                   class="{% if p.permissao|has_flag(AUTORIZAR) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}"></i>
-                            </td>
-                            <td>
-                                <i title="Permissão de configurar comandos remotos"
-                                   class="{% if p.permissao|has_flag(CONFIGURAR_COMANDOS) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}"></i>
-                            </td>
-                            <td>
-                                <form method="post" class="form-inline">
-                                    <input type="hidden" name="bloco" value="1">
-                                    <input type="hidden" name="id_usuario" value="{{ p.id_permissao_usuario }}">
-                                    <div class="btn-group">
-                                        <button type="submit"
-                                                name="acao"
-                                                value="editar"
-                                                class="btn btn-warning btn-sm"
-                                                title="Editar">
-                                            <i class="glyphicon glyphicon-pencil"></i>
-                                        </button>
-                                        {% if p.id_permissao_usuario != userid %}
-                                            <button type="submit"
-                                                    name="acao"
-                                                    value="excluir"
-                                                    class="btn btn-danger btn-sm"
-                                                    title="Excluir">
-                                                <i class="glyphicon glyphicon-trash"></i>
-                                            </button>
-                                        {% endif %}
-                                    </div>
-                                </form>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% if query_params %}
-            {{ paginacao(pagination, acao, bloco, query_params) }}
-        {% else %}
-            {{ paginacao(pagination, acao, bloco) }}
-        {% endif %}
-    {% else %}
-        <div class="alert alert-warning" role="alert">{{ message }}</div>
-    {% endif %}
-{% endmacro %}

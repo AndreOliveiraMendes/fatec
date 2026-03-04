@@ -2,6 +2,8 @@ from typing import Any
 
 from flask import (Blueprint, flash, redirect, render_template,
                    request, session, url_for)
+from flask_sqlalchemy.pagination import SelectPagination
+from sqlalchemy import select
 
 from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.general import none_if_empty
@@ -13,6 +15,7 @@ from app.decorators.decorators import admin_required
 from app.models.equipamentos import Categorias_de_Equipamentos
 from app.routes_helper.request import get_session_or_request
 from app.extensions import db
+from config.general import PER_PAGE
 
 bp = Blueprint('database_categorias_de_equipamentos', __name__, url_prefix="/database")
 
@@ -29,7 +32,13 @@ def gerenciar_categorias_de_equipamentos():
     extras: dict[str, Any] = {'url':url}
     if request.method == 'POST':
         if acao == "listar":
-            pass
+            sel_categorias = select(Categorias_de_Equipamentos)
+            categorias_paginas = SelectPagination(
+                select=sel_categorias, session=db.session,
+                page=page, per_page=PER_PAGE, error_out=False
+            )
+            extras['categorias'] = categorias_paginas.items
+            extras['pagination']
         
         elif acao == "inserir" and bloco == 1:
             nome_categoria = none_if_empty(request.form.get('nome_categoria'))

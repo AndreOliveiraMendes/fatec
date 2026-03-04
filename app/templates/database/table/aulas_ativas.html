@@ -1,11 +1,37 @@
 {% extends "database/table/base_crude" %}
+{% macro result_table(message) %}
+    {% call(at) table_base(
+        aulas_ativas,
+        [
+        'id_aula_ativa',
+        'aula',
+        'inicio_ativacao',
+        'fim_ativacao',
+        'dia da semana',
+        'tipo'
+        ],
+        id_field='id_aula_ativa',
+        message=message,
+        pagination=pagination,
+        acao=acao,
+        bloco=bloco,
+        query_params=query_params
+        ) %}
+        <td>{{ at.id_aula_ativa }}</td>
+        <td>{{ at.aula.selector_identification }}</td>
+        <td>{{ at.inicio_ativacao|data if at.inicio_ativacao else '-' }}</td>
+        <td>{{ at.fim_ativacao|data if at.fim_ativacao else '-' }}</td>
+        <td>{{ at.dia_da_semana.nome_semana.capitalize() }}</td>
+        <td>{{ at.tipo_aula.value }}</td>
+    {% endcall %}
+{% endmacro %}
 {% block title %}
     Aulas Ativas
 {% endblock title %}
 {% block content_head %}
     <div class="panel panel-default">
         <div class="panel-heading">{{ generate_database_head("database_aulas_ativas") }}</div>
-        <div class="panel-body">{{ generate_head(url_for(url), acao, disable=disable) }}</div>
+        <div class="panel-body">{{ generate_head(url_for(url) , acao, disable=disable) }}</div>
     </div>
 {% endblock content_head %}
 {% block abertura %}
@@ -315,63 +341,3 @@
         </form>
     {% endif %}
 {% endblock excluir %}
-{% macro result_table(message) %}
-    {% if aulas_ativas %}
-        <div class="table-responsive">
-            <table class="table table-striped table-bordered table-hover">
-                <thead>
-                    <tr class="information">
-                        <th>id_aula_ativa</th>
-                        <th>aula</th>
-                        <th>inicio_ativacao</th>
-                        <th>fim_ativacao</th>
-                        <th>dia da semana</th>
-                        <th>tipo</th>
-                        <th>ação</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for at in aulas_ativas %}
-                        <tr>
-                            <td>{{ at.id_aula_ativa }}</td>
-                            <td>{{ at.aula.selector_identification }}</td>
-                            <td>{{ at.inicio_ativacao|data if at.inicio_ativacao else '-' }}</td>
-                            <td>{{ at.fim_ativacao|data if at.fim_ativacao else '-' }}</td>
-                            <td>{{ at.dia_da_semana.nome_semana.capitalize() }}</td>
-                            <td>{{ at.tipo_aula.value }}</td>
-                            <td>
-                                <form method="post" class="form-inline">
-                                    <input type="hidden" name="bloco" value="1">
-                                    <input type="hidden" name="id_aula_ativa" value="{{ at.id_aula_ativa }}">
-                                    <div class="btn-group">
-                                        <button type="submit"
-                                                name="acao"
-                                                value="editar"
-                                                class="btn btn-warning btn-sm"
-                                                title="Editar">
-                                            <i class="glyphicon glyphicon-pencil"></i>
-                                        </button>
-                                        <button type="submit"
-                                                name="acao"
-                                                value="excluir"
-                                                class="btn btn-danger btn-sm"
-                                                title="Excluir">
-                                            <i class="glyphicon glyphicon-trash"></i>
-                                        </button>
-                                    </div>
-                                </form>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% if query_params %}
-            {{ paginacao(pagination, acao, bloco, query_params) }}
-        {% else %}
-            {{ paginacao(pagination, acao, bloco) }}
-        {% endif %}
-    {% else %}
-        <div class="alert alert-info" role="alert">{{ message }}</div>
-    {% endif %}
-{% endmacro %}
