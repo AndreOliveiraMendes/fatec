@@ -1,4 +1,22 @@
 {% extends "database/table/base_crude" %}
+{% macro result_table(message) %}
+    {% call(item) table_base(
+        categorias,
+        ['ID','Nome','Descrição'],
+        id_field='id_local',
+        vertical_actions=False,
+        table_class='tabela-crude',
+        message=message,
+        pagination=pagination,
+        acao=acao,
+        bloco=bloco,
+        query_params=query_params
+        ) %}
+        <td>{{ item.id_categoria }}</td>
+        <td>{{ item.nome_categoria }}</td>
+        <td>{{ item.descricao|format }}</td>
+    {% endcall %}
+{% endmacro %}
 {% block title %}
     Categorias de Equipamentos
 {% endblock title %}
@@ -54,12 +72,56 @@
         </table>
     </div>
 {% endblock abertura %}
+{% block listar %}
+    <h3>Lista de categorias</h3>
+    {{ result_table("Nenhuma categoria cadastrado.") }}
+{% endblock listar %}
+{% block procurar %}
+    {% if bloco == 0 %}
+        <h3>Procurar categorias</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label for="id_categoria">ID da Categoria:</label>
+                <input type="number"
+                       class="form-control"
+                       name="id_categoria"
+                       id="id_categoria"
+                       placeholder="Digite o ID da categoria">
+            </div>
+            <div class="form-group">
+                <label for="nome_categoria">Nome da Categoria:</label>
+                <input type="text"
+                       maxlength="100"
+                       class="form-control"
+                       name="nome_categoria"
+                       id="nome_categoria"
+                       placeholder="Digite o nome da categoria">
+            </div>
+            <div class="form-group">
+                <label for="descricao">Descrição:</label>
+                <textarea class="form-control"
+                          id="descricao"
+                          name="descricao"
+                          rows="3"
+                          placeholder="Digite parte da descrição"></textarea>
+            </div>
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <h3>Resultado da busca</h3>
+        {{ result_table("Nenhuma resultado encontrado") }}
+    {% endif %}
+{% endblock procurar %}
 {% block inserir %}
     <h3>Inserir categoria</h3>
     <form class="form-group"
-        role="form"
-        {#action="{{ url_for(url) }}"#}
-        method="post">
+          role="form"
+          action="{{ url_for(url) }}"
+          method="post">
         <input type="hidden" name="acao" value="{{ acao }}">
         <div class="form-group">
             <label for="nome_categoria">Nome da Categoria:</label>
@@ -82,3 +144,17 @@
         {{ action_buttons(acao, 1, False, 0) }}
     </form>
 {% endblock inserir %}
+{% block editar %}
+    {% if bloco == 0 %}
+        <h3>Procurando categorias</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            {{ gerar_select("id_categoria", "Selecione a categoria", categorias, "id_categoria", "nome_categoria") }}
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+    {% endif %}
+{% endblock editar %}

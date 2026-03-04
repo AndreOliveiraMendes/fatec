@@ -1,20 +1,20 @@
 from typing import Any
 
-from flask import (Blueprint, flash, redirect, render_template,
-                   request, session, url_for)
+from flask import Blueprint, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
 from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.general import none_if_empty
 from app.auxiliar.navigation import register_return
+from app.dao.internal.equipamentos import get_categorias
 from app.dao.internal.general import _handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import admin_required
-from app.models.equipamentos import Categorias_de_Equipamentos
-from app.routes_helper.request import get_session_or_request
 from app.extensions import db
+from app.models.equipamentos import Categorias_de_Equipamentos
+from app.routes_helper.request import get_query_params, get_session_or_request
 from config.general import PER_PAGE
 
 bp = Blueprint('database_categorias_de_equipamentos', __name__, url_prefix="/database")
@@ -38,7 +38,36 @@ def gerenciar_categorias_de_equipamentos():
                 page=page, per_page=PER_PAGE, error_out=False
             )
             extras['categorias'] = categorias_paginas.items
-            extras['pagination']
+            extras['pagination'] = categorias_paginas
+
+        elif acao == "procurar" and bloco == 1:
+            id_categoria = none_if_empty(request.form.get('id_categoria'))
+            nome_categoria = none_if_empty(request.form.get('nome_categoria'))
+            descricao = none_if_empty(request.form.get('descricao'))
+            filter = []
+            query_params = get_query_params(request)
+            if id_categoria is not None:
+                filter.append(Categorias_de_Equipamentos.id_categoria == id_categoria)
+            if nome_categoria:
+                filter.append(Categorias_de_Equipamentos.nome_categoria.ilike(f"%{nome_categoria}%"))
+            if descricao:
+                filter.append(Categorias_de_Equipamentos.descricao.ilike(f"%{descricao}%"))
+            if filter:
+                sel_categorias = select(Categorias_de_Equipamentos).where(
+                    *filter
+                )
+                categorias_paginas = SelectPagination(
+                    select=sel_categorias, session=db.session,
+                    page=page, per_page=PER_PAGE, error_out=False
+                )
+                extras['categorias'] = categorias_paginas.items
+                extras['pagination'] = categorias_paginas
+                extras['query_params'] = query_params
+            else:
+                flash("especifique pelo menos um campo de busca", "danger")
+                redirect_action, bloco = register_return(
+                    url, acao, extras
+                )
         
         elif acao == "inserir" and bloco == 1:
             nome_categoria = none_if_empty(request.form.get('nome_categoria'))
@@ -59,6 +88,9 @@ def gerenciar_categorias_de_equipamentos():
             redirect_action, bloco = register_return(
                 url, acao, extras
             )
+
+        elif acao in ['editar', 'excluir'] and bloco == 0:
+            extras['categorias'] = get_categorias()
     if redirect_action:
         return redirect_action
     return render_template("database/table/categorias_de_equipamento.html",
