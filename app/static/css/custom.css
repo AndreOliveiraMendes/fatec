@@ -513,3 +513,17 @@ table>tbody>tr>td.reservado-fixo {
 .text-devolveu-chave {
     color: #17a2b8;
 }
+
+/* database header */
+.section-badge {
+    font-size: 7px;
+    background: transparent;
+    border: 1px solid #810feb;
+    color: #999;
+    margin-right: 2px;
+    padding: 2px 4px;
+}
+
+.nav-pills > li.active .section-badge {
+    border-color:#d64242;
+}

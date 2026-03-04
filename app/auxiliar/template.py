@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 from typing import List, Literal, Optional, Sequence, Tuple
 
@@ -116,16 +117,17 @@ def register_filters(app:Flask):
     
     @app.template_global()
     def generate_database_head(current_table: str) -> Markup:
-        tables_info: List[Tuple[str, str, str]] = [
-            (t[1].split('.')[0], t[1], t[0])
-            for sec in SECOES.values()
+        tables_info: List[Tuple[str, str, str, str]] = [
+            (t[1].split('.')[0], t[1], t[0], key)
+            for key, sec in SECOES.items()
             for t in sec['secoes']
         ]
 
-        tables_info.sort(key = lambda e: e[2])
+        tables_info.sort(key = lambda e: (e[3], e[2]))
 
         html_parts = ['<div class="pills-group">','<ul class="nav nav-pills">']
-        for table, url, nome in tables_info:
+        for table, url, nome, secao in tables_info:
+            sigla = ''.join(p[0] for p in re.findall(r'\w+', secao))
             active_class = ' class="active"' if table == current_table else ''
             html_parts.append(f'<li role="presentation"{active_class}>')
 
@@ -133,7 +135,9 @@ def register_filters(app:Flask):
             if url == "default.under_dev_page":
                 warning_icon = ' <span class="glyphicon glyphicon-exclamation-sign icon-warning" title="pagina em desenvolvimento"></span>'
 
-            html_parts.append(f'<a href="{url_for(url)}">{nome}{warning_icon}</a>')
+            html_parts.append(
+                f'<a href="{url_for(url)}"><span class="badge section-badge">{sigla}</span>{nome}{warning_icon}</a>'
+            )
             html_parts.append('</li>')
 
         html_parts.extend(['</ul>','</div>'])
