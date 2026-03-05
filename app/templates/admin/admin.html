@@ -4,7 +4,7 @@
 {% endblock title %}
 {% block content %}
     <h2>Painel de Administração</h2>
-    <p>Escolha uma seção para gerenciar:</p>
+    <p>Clique no título de uma seção para expandir e visualizar as opções disponíveis.</p>
     <div class="panel panel-primary">
         <div class="panel-body">
             <a href="{{ url_for('default.home') }}" class="btn btn-primary">
@@ -18,9 +18,8 @@
             <h3 class="panel-title">
                 <a role="button"
                    data-toggle="collapse"
-                   data-parent="#adminAccordion"
                    href="#collapseLogsPanel"
-                   aria-expanded="true"
+                   aria-expanded="false"
                    aria-controls="collapseLogsPanel">
                     <span class="glyphicon glyphicon-folder-open"></span>
                     Logs do Sistema
@@ -33,7 +32,7 @@
             </h3>
         </div>
         <div id="collapseLogsPanel"
-             class="panel-collapse collapse in"
+             class="panel-collapse collapse"
              role="tabpanel"
              aria-labelledby="headingLogs">
             <div class="panel-body">
@@ -72,7 +71,6 @@
             <h3 class="panel-title">
                 <a role="button"
                    data-toggle="collapse"
-                   data-parent="#adminAccordion"
                    href="#collapseDatabasePanel"
                    aria-expanded="false"
                    aria-controls="collapseDatabasePanel">
@@ -153,7 +151,6 @@
             <h3 class="panel-title">
                 <a role="button"
                    data-toggle="collapse"
-                   data-parent="#adminAccordion"
                    href="#collapseReservasPanel"
                    aria-expanded="false"
                    aria-controls="collapseReservasPanel">
@@ -199,7 +196,6 @@
             <h3 class="panel-title">
                 <a role="button"
                    data-toggle="collapse"
-                   data-parent="#adminAccordion"
                    href="#collapseSSHPanel"
                    aria-expanded="false"
                    aria-controls="collapseSSHPanel">
@@ -241,7 +237,6 @@
             <h3 class="panel-title">
                 <a role="button"
                    data-toggle="collapse"
-                   data-parent="#adminAccordion"
                    href="#collapseOutrosPanel"
                    aria-expanded="false"
                    aria-controls="collapseOutrosPanel">
@@ -280,5 +275,47 @@
         $(function () {
             $('[data-toggle="tooltip"]').tooltip()
         })
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            var storageKey = "adminPanelsOpen";
+
+            function getOpenPanels() {
+                return JSON.parse(localStorage.getItem(storageKey) || "[]");
+            }
+
+            function saveOpenPanels(panels) {
+                localStorage.setItem(storageKey, JSON.stringify(panels));
+            }
+
+            // Eventos
+            $('.panel-collapse').on('shown.bs.collapse', function () {
+                var openPanels = getOpenPanels();
+                if (openPanels.indexOf(this.id) === -1) {
+                    openPanels.push(this.id);
+                    saveOpenPanels(openPanels);
+                }
+            });
+
+            $('.panel-collapse').on('hidden.bs.collapse', function () {
+                var openPanels = getOpenPanels().filter(id => id !== this.id);
+                saveOpenPanels(openPanels);
+            });
+
+            // Ao carregar
+            var openPanels = getOpenPanels();
+
+            if (openPanels.length > 0) {
+                // Restaurar os salvos
+                openPanels.forEach(function(id) {
+                    $('#' + id).collapse('show');
+                });
+            } else {
+                // Se nada salvo, abre o primeiro painel
+                $('.panel-collapse').first().collapse('show');
+            }
+
+        });
     </script>
 {% endblock extra_script %}
