@@ -114,6 +114,7 @@ def logs_db():
     tabela_selecionada = request.args.get("tabela")
     categoria_selecionada = request.args.get("categoria")
     q = request.args.get("q")
+    chave_primaria = request.args.get("chave_primaria")
     origem = request.args.get("origem")
     data_inicio = request.args.get("data_inicio")
     data_fim = request.args.get("data_fim")
@@ -145,6 +146,8 @@ def logs_db():
         stmt = stmt.where(Historicos.tabela == tabela_selecionada)
     if categoria_selecionada:
         stmt = stmt.where(Historicos.categoria == categoria_selecionada)
+    if chave_primaria:
+        stmt = stmt.where(Historicos.chave_primaria.ilike(f"%{chave_primaria}%"))
     if q:
         stmt = stmt.where(Historicos.message.ilike(f"%{q}%"))
     if origem:
