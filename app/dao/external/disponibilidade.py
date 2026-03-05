@@ -3,10 +3,8 @@ from typing import Any, Sequence, cast
 from flask import current_app
 from mysql.connector import DatabaseError, OperationalError, connect
 
-from config import (DISPONIBILIDADE_DATABASE, DISPONIBILIDADE_HOST,
-                    DISPONIBILIDADE_PASSWORD, DISPONIBILIDADE_USER)
-from config.general import (ACADEMICO_DATABASE, ACADEMICO_HOST,
-                            ACADEMICO_PASSWORD, ACADEMICO_USER)
+from config.general import (DISPONIBILIDADE_DATABASE, DISPONIBILIDADE_HOST,
+                            DISPONIBILIDADE_PASSWORD, DISPONIBILIDADE_USER)
 
 
 def get_grade_by_professor(
@@ -66,48 +64,7 @@ def get_grade_by_professor(
         current_app.logger.error(f"Erro ao buscar grade: {e}")
         return [], True
 
-def get_docentes(id_docente: int | None = None) -> tuple[list[dict[str, Any]] | list[Any], bool]:
-    """
-    Retorna (dados, erro)
-    erro = True se houve falha técnica
-    """
 
-    try:
-        with connect(
-            host=ACADEMICO_HOST,
-            user=ACADEMICO_USER,
-            password=ACADEMICO_PASSWORD,
-            database=ACADEMICO_DATABASE
-        ) as conn:
-
-            with conn.cursor(dictionary=True) as cursor:
-
-                # Query base
-                query = """
-                    SELECT 
-                        pessoa.codigo,
-                        pessoa.nome,
-                        pessoa.email
-                    FROM usuario
-                    INNER JOIN pessoa 
-                        ON usuario.pessoa_codigo = pessoa.codigo
-                    WHERE usuario.grupo = 'DOCENTE'
-                """
-
-                params = []
-
-                # Filtro opcional
-                if id_docente is not None:
-                    query += " AND pessoa.codigo = %s"
-                    params.append(id_docente)
-                query += " order by pessoa.nome"
-
-                cursor.execute(query, tuple(params))
-                return cursor.fetchall(), False
-
-    except Exception as e:
-        current_app.logger.error(f"Erro ao buscar docentes: {e}")
-        return [], True
 
 # revisar depois
 def get_prioridade():

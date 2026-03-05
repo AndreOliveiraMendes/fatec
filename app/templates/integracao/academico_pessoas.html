@@ -4,7 +4,7 @@
 {% endblock title %}
 {% block content %}
     <div class="mb-3">
-        <a href="{{ url_for('integracao.home') }}" class="btn btn-default">
+        <a href="{{ url_for("integracao.home") }}" class="btn btn-default">
             <span class="glyphicon glyphicon-arrow-left"></span> Voltar para o menu
         </a>
     </div>
@@ -16,6 +16,7 @@
                     <th>Nome</th>
                     <th>Email</th>
                     <th>Importado</th>
+                    <th>Ação</th>
                 </tr>
             </thead>
             <tbody>
@@ -29,6 +30,20 @@
                                 <span class="label label-success">Já no banco</span>
                             {% else %}
                                 <span class="label label-danger">Não no banco</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if not docente.ja_no_interno %}
+                                <form method="post" action="{{ docente.url }}">
+                                    <button type="submit"
+                                            class="btn btn-xs btn-primary"
+                                            onclick="return confirm('Deseja importar esta pessoa?')">
+                                        <span class="glyphicon glyphicon-import"></span>
+                                        Importar
+                                    </button>
+                                </form>
+                            {% else %}
+                                —
                             {% endif %}
                         </td>
                     </tr>
