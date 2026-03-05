@@ -7,7 +7,7 @@ from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.general import none_if_empty
 from app.auxiliar.parsing import parse_date_string
 from app.dao.internal.aulas import get_aulas, get_dias_da_semana
-from app.dao.internal.general import _handle_db_error
+from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import admin_required
@@ -62,9 +62,9 @@ def fast_setup_aulas_ativas():
             db.session.commit()
             flash("Configuração rapida de aulas ativas efetuada com sucesso", "success")
         except DB_ERRORS as e:
-            _handle_db_error(e, "Erro ao executar a configuração")
+            handle_db_error(e, "Erro ao executar a configuração")
         except ValueError as e:
-            _handle_db_error(e, "Erro ao executar a configuração")
+            handle_db_error(e, "Erro ao executar a configuração")
 
         return redirect(url_for('setup.fast_setup_menu'))
     return render_template('database/setup/aulas_ativas.html',

@@ -4,7 +4,7 @@ from flask import (Blueprint, flash, redirect, render_template, request,
                    session, url_for)
 
 from app.auxiliar.constant import DB_ERRORS
-from app.dao.internal.general import _handle_db_error
+from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import admin_required
@@ -77,9 +77,9 @@ def fast_setup_locais():
             db.session.commit()
             flash("Configuração rapida de locais efetuada com sucesso", "success")
         except DB_ERRORS as e:
-            _handle_db_error(e, "Erro ao executar configurações")
+            handle_db_error(e, "Erro ao executar configurações")
         except ValueError as e:
-            _handle_db_error(e, "Erro ao executar configurações")
+            handle_db_error(e, "Erro ao executar configurações")
 
         return redirect(url_for('setup.fast_setup_menu'))
     return render_template('database/setup/locais.html',

@@ -8,7 +8,7 @@ from sqlalchemy import select
 from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.general import none_if_empty
 from app.auxiliar.navigation import register_return
-from app.dao.internal.general import _handle_db_error
+from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.usuarios import get_user, get_usuarios_especiais
 from app.decorators.decorators import admin_required
@@ -78,7 +78,7 @@ def gerenciar_usuarios_especiais():
                 db.session.commit()
                 flash("Usuario Especial cadastrada com sucesso", "success")
             except DB_ERRORS as e:
-                _handle_db_error(e, "Erro ao cadastrar usuario especial")
+                handle_db_error(e, "Erro ao cadastrar usuario especial")
 
             redirect_action, bloco = register_return(url,
                 acao, extras)
@@ -107,7 +107,7 @@ def gerenciar_usuarios_especiais():
                 db.session.commit()
                 flash("Usuario especial editado com sucesso", "success")
             except DB_ERRORS as e:
-                _handle_db_error(e, "Erro ao editar usuario especial")
+                handle_db_error(e, "Erro ao editar usuario especial")
 
             redirect_action, bloco = register_return(url,
                 acao, extras, usuarios_especiais=get_usuarios_especiais())
@@ -124,7 +124,7 @@ def gerenciar_usuarios_especiais():
                 db.session.commit()
                 flash("Usuario especial excluido com sucesso", "success")
             except DB_ERRORS as e:
-                _handle_db_error(e, "Erro ao excluir usuario especial")
+                handle_db_error(e, "Erro ao excluir usuario especial")
 
             redirect_action, bloco = register_return(url,
                 acao, extras, usuarios_especiais=get_usuarios_especiais())

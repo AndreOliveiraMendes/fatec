@@ -9,7 +9,7 @@ from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.general import none_if_empty
 from app.auxiliar.navigation import register_return
 from app.dao.internal.aulas import get_dias_da_semana
-from app.dao.internal.general import _handle_db_error
+from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import admin_required
@@ -60,7 +60,7 @@ def gerenciar_dias_da_semana():
                 db.session.commit()
                 flash("Semana cadastrada com sucesso", "success")
             except DB_ERRORS as e:
-                _handle_db_error(e, "Falha ao cadastrar semana")
+                handle_db_error(e, "Falha ao cadastrar semana")
 
             redirect_action, bloco = register_return(url, acao, extras)
 
@@ -86,7 +86,7 @@ def gerenciar_dias_da_semana():
                 db.session.commit()
                 flash("Dia da semana editado com sucesso", "success")
             except DB_ERRORS as e:
-                _handle_db_error(e, "Falha ao editar semana")
+                handle_db_error(e, "Falha ao editar semana")
 
             redirect_action, bloco = register_return(url, acao, extras, dias_da_semana=get_dias_da_semana())
         elif acao == 'excluir' and bloco == 2:
@@ -101,7 +101,7 @@ def gerenciar_dias_da_semana():
                 db.session.commit()
                 flash("Dia da semana excluido com sucesso", "success")
             except DB_ERRORS as e:
-                _handle_db_error(e, "falha ao excluir semana")
+                handle_db_error(e, "falha ao excluir semana")
 
             redirect_action, bloco = register_return(url, acao, extras, dias_da_semana=get_dias_da_semana())
     if redirect_action:

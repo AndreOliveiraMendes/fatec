@@ -9,7 +9,7 @@ from sqlalchemy import func, select
 from app.auxiliar.constant import DB_ERRORS, PERM_ADMIN, PERM_AUTORIZAR
 from app.auxiliar.general import none_if_empty
 from app.auxiliar.parsing import parse_date_string
-from app.dao.internal.general import _handle_db_error
+from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.locais import get_auditorios
 from app.dao.internal.reservas import get_reservas_auditorios_filtrada
@@ -106,9 +106,9 @@ def atualizar_status(id_reserva):
             db.session.commit()
             flash("Reserva Atualizada com sucesso", "success")
         except DB_ERRORS as e:
-            _handle_db_error(e, "Erro ao atualizar reserva")
+            handle_db_error(e, "Erro ao atualizar reserva")
         except ValueError as e:
-            _handle_db_error(e, "Erro ao atualizar reserva")
+            handle_db_error(e, "Erro ao atualizar reserva")
     if old_status in ['Aguardando', 'Aprovada', 'Reprovada'] and new_status in ['Aprovada', 'Reprovada']:
         check_role(user, "AR")
         if new_status == 'Aprovada':
@@ -123,9 +123,9 @@ def atualizar_status(id_reserva):
             db.session.commit()
             flash("Reserva Atualizada com sucesso", "success")
         except DB_ERRORS as e:
-            _handle_db_error(e, "Erro ao atualizar reserva")
+            handle_db_error(e, "Erro ao atualizar reserva")
         except ValueError as e:
-            _handle_db_error(e, "Erro ao atualizar reserva")
+            handle_db_error(e, "Erro ao atualizar reserva")
     return redirect(url_for('reservas_auditorios.main_page'))
 
 @bp.route('/get_info/<int:id_reserva>')
@@ -173,7 +173,7 @@ def editar_observacao(field, id_reserva):
         db.session.commit()
         flash(f"Comentario {field} realizado com sucesso", "success")
     except DB_ERRORS as e:
-        _handle_db_error(e, "Erro ao comentar")
+        handle_db_error(e, "Erro ao comentar")
     return redirect(url_for('reservas_auditorios.main_page'))
 
 @bp.route('/adicionando_reserva_auditorio', methods=['POST'])
@@ -206,5 +206,5 @@ def adicionar():
         db.session.commit()
         flash("reserva adicionada com sucesso", "success")
     except DB_ERRORS as e:
-        _handle_db_error(e, "Erro ao adicionar reserva")
+        handle_db_error(e, "Erro ao adicionar reserva")
     return redirect(url_for('reservas_auditorios.main_page'))

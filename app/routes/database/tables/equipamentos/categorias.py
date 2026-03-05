@@ -8,7 +8,7 @@ from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.general import none_if_empty
 from app.auxiliar.navigation import register_return
 from app.dao.internal.equipamentos import get_categorias
-from app.dao.internal.general import _handle_db_error
+from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import admin_required
@@ -84,7 +84,7 @@ def gerenciar_categorias_de_equipamentos():
                 db.session.commit()
                 flash("categoria cadastrada com sucesso", "success")
             except DB_ERRORS as e:
-                _handle_db_error(e, "erro ao cadastrar categoria")
+                handle_db_error(e, "erro ao cadastrar categoria")
             redirect_action, bloco = register_return(
                 url, acao, extras
             )

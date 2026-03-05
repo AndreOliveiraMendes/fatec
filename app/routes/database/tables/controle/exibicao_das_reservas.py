@@ -11,7 +11,7 @@ from app.auxiliar.navigation import register_return
 from app.auxiliar.parsing import parse_date_string
 from app.dao.internal.aulas import get_aulas_ativas
 from app.dao.internal.controle import get_exibicoes
-from app.dao.internal.general import _handle_db_error
+from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.locais import get_locais
 from app.dao.internal.usuarios import get_user
@@ -107,9 +107,9 @@ def gerenciar_exibicao_reservas():
                 db.session.commit()
                 flash("Exibicao configurada com sucesso", "success")
             except DB_ERRORS as e:
-                _handle_db_error(e, "Erro ao configurar exibicao")
+                handle_db_error(e, "Erro ao configurar exibicao")
             except ValueError as e:
-                _handle_db_error(e, "Erro ao configurar exibicao")
+                handle_db_error(e, "Erro ao configurar exibicao")
 
             redirect_action, bloco = register_return(
                 url, acao, extras,
@@ -148,9 +148,9 @@ def gerenciar_exibicao_reservas():
                 db.session.commit()
                 flash("Exibição atualizada com sucesso", "success")
             except DB_ERRORS as e:
-                _handle_db_error(e, "Erro ao editar exibicao")
+                handle_db_error(e, "Erro ao editar exibicao")
             except ValueError as e:
-                _handle_db_error(e, "Erro ao editar exibicao")
+                handle_db_error(e, "Erro ao editar exibicao")
 
             redirect_action, bloco = register_return(
                 url, acao, extras,
@@ -170,7 +170,7 @@ def gerenciar_exibicao_reservas():
                 db.session.commit()
                 flash("Configuração de exibição excluida com sucessor", "success")
             except DB_ERRORS as e:
-                _handle_db_error(e, "Erro ao excluir exibicao")
+                handle_db_error(e, "Erro ao excluir exibicao")
 
             redirect_action, bloco = register_return(
                 url, acao, extras,

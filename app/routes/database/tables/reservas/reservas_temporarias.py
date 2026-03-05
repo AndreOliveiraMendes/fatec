@@ -11,7 +11,7 @@ from app.auxiliar.general import none_if_empty
 from app.auxiliar.navigation import register_return
 from app.auxiliar.parsing import parse_date_string
 from app.dao.internal.aulas import get_aulas_ativas
-from app.dao.internal.general import _handle_db_error
+from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.locais import get_locais
 from app.dao.internal.reservas import (check_reserva_temporaria,
@@ -149,9 +149,9 @@ def gerenciar_reservas_temporarias():
                 db.session.commit()
                 flash("reserva temporaria cadastrada com sucesso", "success")
             except DB_ERRORS as e:
-                _handle_db_error(e, "Erro ao cadastrar reserva")
+                handle_db_error(e, "Erro ao cadastrar reserva")
             except ValueError as e:
-                _handle_db_error(e, "Erro ao cadastrar reserva")
+                handle_db_error(e, "Erro ao cadastrar reserva")
 
             redirect_action, bloco = register_return(url,
                 acao, extras, pessoas=get_pessoas(), usuarios_especiais=get_usuarios_especiais(),
@@ -207,9 +207,9 @@ def gerenciar_reservas_temporarias():
                 db.session.commit()
                 flash("Reserva editada com sucesso", "success")
             except DB_ERRORS as e:
-                _handle_db_error(e, "Erro ao editar reserva")
+                handle_db_error(e, "Erro ao editar reserva")
             except ValueError as e:
-                _handle_db_error(e, "Erro ao editar reserva")
+                handle_db_error(e, "Erro ao editar reserva")
 
             redirect_action, bloco = register_return(url,
                 acao, extras, reservas_temporarias=get_reservas_temporarias())
@@ -226,7 +226,7 @@ def gerenciar_reservas_temporarias():
                 db.session.commit()
                 flash("Reserva excluida com sucesso", "success")
             except DB_ERRORS as e:
-                _handle_db_error(e, "Erro ao excluir reserva")
+                handle_db_error(e, "Erro ao excluir reserva")
 
             redirect_action, bloco = register_return(url,
                 acao, extras, reservas_temporarias=get_reservas_temporarias())

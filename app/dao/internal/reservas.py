@@ -12,7 +12,7 @@ from app.auxiliar.constant import DB_ERRORS, PERM_ADMIN
 from app.auxiliar.dao_query import get_aula_semana, get_aula_turno
 from app.auxiliar.general import none_if_empty
 from app.auxiliar.parsing import parse_date_string
-from app.dao.internal.general import _handle_db_error
+from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.enums import FinalidadeReservaEnum, TipoAulaEnum
 from app.extensions import db
@@ -337,10 +337,10 @@ def update_reserva_fixa(id_reserva):
         return Response(status=204)
 
     except DB_ERRORS as e:
-        _handle_db_error(e, "falha ao atualizar a reserva")
+        handle_db_error(e, "falha ao atualizar a reserva")
         return Response(status=500)
     except ValueError as e:
-        _handle_db_error(e, "falha ao atualizar a reserva")
+        handle_db_error(e, "falha ao atualizar a reserva")
         return Response(status=500)
     
 def update_reserva_temporaria(id_reserva):
@@ -389,10 +389,10 @@ def update_reserva_temporaria(id_reserva):
         return Response(status=204)
 
     except DB_ERRORS as e:
-        _handle_db_error(e, "falha ao atualizar a reserva")
+        handle_db_error(e, "falha ao atualizar a reserva")
         return Response(status=500)
     except ValueError as e:
-        _handle_db_error(e, "falha ao atualizar a reserva")
+        handle_db_error(e, "falha ao atualizar a reserva")
         return Response(status=500)
     
 def delete_reserva_fixa(id_reserva):
@@ -415,7 +415,7 @@ def delete_reserva_fixa(id_reserva):
         return Response(status=204)
 
     except DB_ERRORS as e:
-        _handle_db_error(e, "falha ao remover reserva")
+        handle_db_error(e, "falha ao remover reserva")
         return Response(status=500)
 
 def delete_reserva_temporaria(id_reserva):
@@ -438,7 +438,7 @@ def delete_reserva_temporaria(id_reserva):
         return Response(status=204)
 
     except DB_ERRORS as e:
-        _handle_db_error(e, "falha ao remover reserva")
+        handle_db_error(e, "falha ao remover reserva")
         return Response(status=500)
     
 def get_reserva_fixa_indirect(dia, id_local, id_aula):

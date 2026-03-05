@@ -11,7 +11,7 @@ from app.auxiliar.parsing import parse_date_string
 from app.dao.internal.aulas import get_turno_by_time, get_turnos
 from app.dao.internal.controle import (get_exibicao_por_dia,
                                        get_situacoes_por_dia)
-from app.dao.internal.general import _handle_db_error, get_unique_or_500
+from app.dao.internal.general import get_unique_or_500, handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.reservas import (get_reservas_por_dia,
                                        get_responsavel_reserva)
@@ -158,9 +158,9 @@ def atualizar_exibicao(id_aula, id_lab, dia):
             db.session.commit()
             flash("dados atualizados com sucesso", "success")
         except DB_ERRORS as e:
-            _handle_db_error(e, "Erro ao atualizar dados")
+            handle_db_error(e, "Erro ao atualizar dados")
         except ValueError as e:
-            _handle_db_error(e, "Erro ao atualizar dados")
+            handle_db_error(e, "Erro ao atualizar dados")
     else:
         if exibicao:
             try:
@@ -172,9 +172,9 @@ def atualizar_exibicao(id_aula, id_lab, dia):
                 db.session.commit()
                 flash("dados atualizados com sucesso", "success")
             except DB_ERRORS as e:
-                _handle_db_error(e, "Erro ao atualizar dados")
+                handle_db_error(e, "Erro ao atualizar dados")
             except ValueError as e:
-                _handle_db_error(e, "Erro ao atualizar dados")
+                handle_db_error(e, "Erro ao atualizar dados")
 
     return redirect(url_for("gestao_reserva.gerenciar_exibicao"))
 
@@ -326,9 +326,9 @@ def atualizar_situacoes_fixa(common):
             db.session.commit()
             sucess_messages.append(f"situação {i + 1} atualizada com sucesso")
         except DB_ERRORS as e:
-            _handle_db_error(e, "Erro ao executar ação")
+            handle_db_error(e, "Erro ao executar ação")
         except ValueError as e:
-            _handle_db_error(e, "Erro ao executar ação")
+            handle_db_error(e, "Erro ao executar ação")
     if sucess_messages:
         flash('<br>'.join(sucess_messages), "success")
     if error_messages:
@@ -374,9 +374,9 @@ def atualizar_situacoes_temporaria(common):
             db.session.commit()
             sucess_messages.append(f"situação {i + 1} atualizada com sucesso")
         except DB_ERRORS as e:
-            _handle_db_error(e, "Erro ao executar ação")
+            handle_db_error(e, "Erro ao executar ação")
         except ValueError as e:
-            _handle_db_error(e, "Erro ao executar ação")
+            handle_db_error(e, "Erro ao executar ação")
     if sucess_messages:
         flash('<br>'.join(sucess_messages), "success")
     if error_messages:

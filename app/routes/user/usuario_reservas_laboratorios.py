@@ -11,7 +11,7 @@ from sqlalchemy import and_, select
 from app.auxiliar.constant import DB_ERRORS, PERM_ADMIN
 from app.auxiliar.general import none_if_empty
 from app.dao.internal.aulas import get_dias_da_semana, get_semestres
-from app.dao.internal.general import _handle_db_error
+from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.locais import get_laboratorios
 from app.dao.internal.reservas import (check_ownership_or_admin,
@@ -172,7 +172,7 @@ def cancelar_reserva_generico(modelo, id_reserva, redirect_url):
         db.session.commit()
         flash("Reserva cancelada com sucesso", "success")
     except DB_ERRORS as e:
-        _handle_db_error(e, "Erro ao excluir reserva")
+        handle_db_error(e, "Erro ao excluir reserva")
     return redirect(redirect_url)
 
 @bp.route("/cancelar_reserva/<tipo_reserva>/<int:id_reserva>", methods=['POST'])
@@ -215,9 +215,9 @@ def editar_reserva_generico(model, id_reserva: int, redirect_url: str) -> Respon
         db.session.commit()
         flash("sucesso ao editar reserva", "success")
     except DB_ERRORS as e:
-        _handle_db_error(e, "Erro ao editar reserva")
+        handle_db_error(e, "Erro ao editar reserva")
     except ValueError as e:
-        _handle_db_error(e, "Erro ao editar reserva")
+        handle_db_error(e, "Erro ao editar reserva")
     return redirect(redirect_url)
 
 @bp.route("/editar_reservas/<tipo_reserva>/<int:id_reserva>", methods=['POST'])

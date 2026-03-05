@@ -34,7 +34,7 @@ def _friendly_db_message(error):
 
     return "Erro ao salvar dados."
 
-def _handle_db_error(e, msg):
+def handle_db_error(e, msg):
     db.session.rollback()
 
     user_msg = _friendly_db_message(e)

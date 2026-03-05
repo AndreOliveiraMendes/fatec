@@ -11,7 +11,7 @@ from app.auxiliar.navigation import register_return
 from app.auxiliar.parsing import parse_date_string
 from app.dao.internal.aulas import (check_aula_ativa, get_aulas,
                                     get_aulas_ativas, get_dias_da_semana)
-from app.dao.internal.general import _handle_db_error
+from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import admin_required
@@ -136,9 +136,9 @@ def gerenciar_aulas_ativas():
                 db.session.commit()
                 flash("Aula ativa cadastrada com sucesso", "success")
             except DB_ERRORS as e:
-                _handle_db_error(e, "Erro ao cadastrar aula ativa")
+                handle_db_error(e, "Erro ao cadastrar aula ativa")
             except ValueError as e:
-                _handle_db_error(e, "Erro ao cadastrar aula ativa")
+                handle_db_error(e, "Erro ao cadastrar aula ativa")
             
             redirect_action, bloco = register_return(url, acao, extras,
                 aulas=get_aulas(), dias_da_semana=get_dias_da_semana())
@@ -178,9 +178,9 @@ def gerenciar_aulas_ativas():
                 db.session.commit()
                 flash("Aula ativa editada com sucesso", "success")
             except DB_ERRORS as e:
-                _handle_db_error(e, "Erro ao editar aula ativa")
+                handle_db_error(e, "Erro ao editar aula ativa")
             except ValueError as e:
-                _handle_db_error(e, "Erro ao editar aula ativa")
+                handle_db_error(e, "Erro ao editar aula ativa")
 
             redirect_action, bloco = register_return(url, acao, extras,
                 aulas_ativas=get_aulas_ativas())
@@ -196,7 +196,7 @@ def gerenciar_aulas_ativas():
                 db.session.commit()
                 flash("Aula ativa excluida com sucesso", "success")
             except DB_ERRORS as e:
-                _handle_db_error(e, "Erro ao excluir aula ativa")
+                handle_db_error(e, "Erro ao excluir aula ativa")
 
             redirect_action, bloco = register_return(url, acao, extras,
                 aulas_ativas=get_aulas_ativas())

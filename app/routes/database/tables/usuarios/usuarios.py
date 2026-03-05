@@ -8,7 +8,7 @@ from sqlalchemy import select
 from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.general import none_if_empty
 from app.auxiliar.navigation import register_return
-from app.dao.internal.general import _handle_db_error
+from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.usuarios import get_pessoas, get_user, get_usuarios
 from app.decorators.decorators import admin_required
@@ -100,7 +100,7 @@ def gerenciar_usuarios():
                 db.session.commit()
                 flash("Usuario cadastrado com sucesso", "success")
             except DB_ERRORS as e:
-                _handle_db_error(e, "Erro ao cadastrar usuario")
+                handle_db_error(e, "Erro ao cadastrar usuario")
 
             redirect_action, bloco = register_return(url,
                 acao, extras, pessoas=get_pessoas())
@@ -142,7 +142,7 @@ def gerenciar_usuarios():
                 db.session.commit()
                 flash("Usuario atualizado com sucesso", "success")
             except DB_ERRORS as e:
-                _handle_db_error(e, "Erro ao editar usuario")
+                handle_db_error(e, "Erro ao editar usuario")
 
             redirect_action, bloco = register_return(url,
                 acao, extras, usuarios=get_usuarios(acao, userid))
@@ -163,7 +163,7 @@ def gerenciar_usuarios():
                     flash("Usuario excluído com sucesso", "success")
 
                 except DB_ERRORS as e:
-                    _handle_db_error(e, "Erro ao excluir usuario")
+                    handle_db_error(e, "Erro ao excluir usuario")
 
             redirect_action, bloco = register_return(url,
                 acao, extras, usuarios=get_usuarios(acao, userid))

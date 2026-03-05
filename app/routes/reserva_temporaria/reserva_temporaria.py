@@ -11,7 +11,7 @@ from app.auxiliar.dates import time_range
 from app.auxiliar.general import none_if_empty
 from app.auxiliar.parsing import parse_date_string
 from app.dao.internal.aulas import get_aulas_ativas_por_lista_de_dias
-from app.dao.internal.general import _handle_db_error
+from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.locais import get_laboratorios
 from app.dao.internal.reservas import check_reserva_temporaria
@@ -348,6 +348,6 @@ def efetuar_reserva(inicio, fim):
             current_app.logger.info(f"reserva efetuada com sucesso para {r}")
 
     except (*DB_ERRORS, ValueError) as e:
-        _handle_db_error(e, "Erro ao efetuar reserva")
+        handle_db_error(e, "Erro ao efetuar reserva")
 
     return redirect(url_for("default.home"))

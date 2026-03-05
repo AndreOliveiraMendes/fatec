@@ -11,7 +11,7 @@ from app.auxiliar.navigation import register_return
 from app.auxiliar.parsing import parse_date_string
 from app.dao.internal.aulas import get_aulas_ativas
 from app.dao.internal.controle import get_situacoes
-from app.dao.internal.general import _handle_db_error
+from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.locais import get_locais
 from app.dao.internal.usuarios import get_user
@@ -112,9 +112,9 @@ def gerenciar_situacoes_das_reservas():
                 db.session.commit()
                 flash("Situação cadastrada com sucesso", "success")
             except DB_ERRORS as e:
-                _handle_db_error(e, "Erro ao cadastrar situação")
+                handle_db_error(e, "Erro ao cadastrar situação")
             except ValueError as e:
-                _handle_db_error(e, "Erro ao cadastrar situação")
+                handle_db_error(e, "Erro ao cadastrar situação")
 
             redirect_action, bloco = register_return(
                 url, acao, extras,
@@ -155,9 +155,9 @@ def gerenciar_situacoes_das_reservas():
                 db.session.commit()
                 flash("Situação Editada com sucesso", "success")
             except DB_ERRORS as e:
-                _handle_db_error(e, "Erro ao editar situação")
+                handle_db_error(e, "Erro ao editar situação")
             except ValueError as e:
-                _handle_db_error(e, "Erro ao editar situação")
+                handle_db_error(e, "Erro ao editar situação")
             redirect_action, bloco = register_return(
                 url, acao, extras,
                 situacoes_das_reservas=get_situacoes()
@@ -175,7 +175,7 @@ def gerenciar_situacoes_das_reservas():
                 db.session.commit()
                 flash("situação excluida com sucesso", "success")
             except DB_ERRORS as e:
-                _handle_db_error(e, "Erro ao excluir situação")
+                handle_db_error(e, "Erro ao excluir situação")
 
             redirect_action, bloco = register_return(
                 url, acao, extras,

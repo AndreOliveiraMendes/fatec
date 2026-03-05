@@ -10,7 +10,7 @@ from app.auxiliar.general import none_if_empty
 from app.auxiliar.navigation import register_return
 from app.auxiliar.parsing import parse_time_string
 from app.dao.internal.aulas import get_turnos
-from app.dao.internal.general import _handle_db_error
+from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import admin_required
@@ -63,7 +63,7 @@ def gerenciar_turnos():
                 db.session.commit()
                 flash("Turno cadastrado com sucesso", "success")
             except DB_ERRORS as e:
-                _handle_db_error(e, "Erro ao cadastrar turno")
+                handle_db_error(e, "Erro ao cadastrar turno")
 
             redirect_action, bloco = register_return(url, acao, extras)
 
@@ -95,7 +95,7 @@ def gerenciar_turnos():
                 db.session.commit()
                 flash("Turno editado com sucesso", "success")
             except DB_ERRORS as e:
-                _handle_db_error(e, "Erro ao editar turno")
+                handle_db_error(e, "Erro ao editar turno")
 
             redirect_action, bloco = register_return(url,
                 acao, extras, turnos=get_turnos())
@@ -110,7 +110,7 @@ def gerenciar_turnos():
                 db.session.commit()
                 flash("Turno excluido com sucesso", "success")
             except DB_ERRORS as e:
-                _handle_db_error(e, "Erro ao excluir turno")
+                handle_db_error(e, "Erro ao excluir turno")
 
             redirect_action, bloco = register_return(url,
                 acao, extras, turnos=get_turnos())

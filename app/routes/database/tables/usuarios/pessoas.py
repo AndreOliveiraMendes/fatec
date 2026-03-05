@@ -8,7 +8,7 @@ from sqlalchemy import select
 from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.general import none_if_empty
 from app.auxiliar.navigation import register_return
-from app.dao.internal.general import _handle_db_error
+from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.usuarios import get_pessoas, get_user
 from app.decorators.decorators import admin_required
@@ -98,7 +98,7 @@ def gerenciar_pessoas():
                 db.session.commit()
                 flash("Pessoa cadastrada com sucesso", "success")
             except DB_ERRORS as e:
-                _handle_db_error(e, "Erro ao cadastrar pessoa")
+                handle_db_error(e, "Erro ao cadastrar pessoa")
 
             redirect_action, bloco = register_return(url, acao, extras)
 
@@ -135,7 +135,7 @@ def gerenciar_pessoas():
                 flash("Pessoa atualizada com sucesso", "success")
 
             except DB_ERRORS as e:
-                _handle_db_error(e, "Erro ao editar pessoa")
+                handle_db_error(e, "Erro ao editar pessoa")
 
             redirect_action, bloco = register_return(url,
                 acao, extras, pessoas=get_pessoas(acao, userid))
@@ -157,7 +157,7 @@ def gerenciar_pessoas():
                     flash("Pessoa excluída com sucesso", "success")
 
                 except DB_ERRORS as e:
-                    _handle_db_error(e, "Erro ao excluir pessoa")
+                    handle_db_error(e, "Erro ao excluir pessoa")
 
             redirect_action, bloco = register_return(url,
                 acao, extras, pessoas=get_pessoas(acao, userid))

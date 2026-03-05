@@ -12,7 +12,7 @@ from app.auxiliar.constant import (DB_ERRORS, PERM_ADMIN, PERM_AUTORIZAR,
                                    PERM_RESERVA_FIXA, PERM_RESERVA_TEMPORARIA)
 from app.auxiliar.general import none_if_empty
 from app.auxiliar.navigation import register_return
-from app.dao.internal.general import _handle_db_error
+from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.usuarios import get_user, get_usuarios
 from app.decorators.decorators import admin_required
@@ -116,7 +116,7 @@ def gerenciar_permissoes():
                 db.session.commit()
                 flash("Permissao cadastrada com sucesso", "success")
             except DB_ERRORS as e:
-                _handle_db_error(e, "Erro ao cadastrar permissão")
+                handle_db_error(e, "Erro ao cadastrar permissão")
 
             redirect_action, bloco = register_return(
                 url, acao, extras, users=get_no_perm_users()
@@ -147,7 +147,7 @@ def gerenciar_permissoes():
                     db.session.commit()
                     flash("Permissao atualizada com sucesso", "success")
                 except DB_ERRORS as e:
-                    _handle_db_error(e, "Erro ao editar permissão")
+                    handle_db_error(e, "Erro ao editar permissão")
 
             redirect_action, bloco = register_return(
                 url, acao, extras, permissoes=get_perm(acao, userid))
@@ -169,7 +169,7 @@ def gerenciar_permissoes():
                     flash("Permissao excluída com sucesso", "success")
 
                 except DB_ERRORS as e:
-                    _handle_db_error(e, "Erro ao excluir permissão")
+                    handle_db_error(e, "Erro ao excluir permissão")
 
             redirect_action, bloco = register_return(
                 url, acao, extras, permissoes=get_perm(acao, userid))

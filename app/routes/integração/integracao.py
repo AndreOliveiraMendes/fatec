@@ -3,7 +3,7 @@ from flask import (Blueprint, abort, flash, redirect, render_template, request,
 
 from app.auxiliar.constant import DB_ERRORS
 from app.dao.external.general import get_docentes
-from app.dao.internal.general import _handle_db_error
+from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.usuarios import get_pessoas_codigo, get_user
 from app.decorators.decorators import admin_required
@@ -68,7 +68,7 @@ def importar_docentes():
 
             flash(f"{len(novos_docentes)} docentes importados com sucesso!", "success")
         except DB_ERRORS as e:
-            _handle_db_error(e, "erro ao importar")
+            handle_db_error(e, "erro ao importar")
 
         return redirect(url_for("integracao.home"))
     for docente in docentes:

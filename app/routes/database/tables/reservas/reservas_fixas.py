@@ -10,7 +10,7 @@ from app.auxiliar.dao_query import filtro_tipo_responsavel
 from app.auxiliar.general import none_if_empty
 from app.auxiliar.navigation import register_return
 from app.dao.internal.aulas import get_aulas_ativas, get_semestres
-from app.dao.internal.general import _handle_db_error
+from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.locais import get_locais
 from app.dao.internal.reservas import get_reservas_fixas
@@ -134,9 +134,9 @@ def gerenciar_reservas_fixas():
                 db.session.commit()
                 flash("Reserva Semanal cadastrada com sucesso", "success")
             except DB_ERRORS as e:
-                _handle_db_error(e, "Erro ao cadastrar reserva")
+                handle_db_error(e, "Erro ao cadastrar reserva")
             except ValueError as e:
-                _handle_db_error(e, "Erro ao cadastrar reserva")
+                handle_db_error(e, "Erro ao cadastrar reserva")
 
             redirect_action, bloco = register_return(url,
                 acao, extras, pessoas=get_pessoas(), usuarios_especiais=get_usuarios_especiais(),
@@ -186,9 +186,9 @@ def gerenciar_reservas_fixas():
                 db.session.commit()
                 flash("Reserva editada com sucesso", "success")
             except DB_ERRORS as e:
-                _handle_db_error(e, "Erro ao editar reserva")
+                handle_db_error(e, "Erro ao editar reserva")
             except ValueError as e:
-                _handle_db_error(e, "Erro ao editar reserva")
+                handle_db_error(e, "Erro ao editar reserva")
 
             redirect_action, bloco = register_return(url,
                 acao, extras, reservas_fixas=get_reservas_fixas()
@@ -206,7 +206,7 @@ def gerenciar_reservas_fixas():
                 db.session.commit()
                 flash("Reserva excluidas com sucesso", "success")
             except DB_ERRORS as e:
-                _handle_db_error(e, "Erro ao excluir reserva")
+                handle_db_error(e, "Erro ao excluir reserva")
 
             redirect_action, bloco = register_return(url,
                 acao, extras, reservas_fixas=get_reservas_fixas()

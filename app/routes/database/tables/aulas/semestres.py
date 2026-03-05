@@ -10,7 +10,7 @@ from app.auxiliar.general import none_if_empty
 from app.auxiliar.navigation import register_return
 from app.auxiliar.parsing import parse_date_string
 from app.dao.internal.aulas import get_semestres
-from app.dao.internal.general import _handle_db_error
+from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import admin_required
@@ -103,7 +103,7 @@ def gerenciar_semestres():
                 db.session.commit()
                 flash("Semestre cadastrado com sucesso", "success")
             except DB_ERRORS as e:
-                _handle_db_error(e, "Erro ao cadastrar semestre")
+                handle_db_error(e, "Erro ao cadastrar semestre")
 
             redirect_action, bloco = register_return(url, acao, extras)
 
@@ -140,7 +140,7 @@ def gerenciar_semestres():
                 db.session.commit()
                 flash("Semestre editado com sucesso", "success")
             except DB_ERRORS as e:
-                _handle_db_error(e, "Erro ao editar semestre")
+                handle_db_error(e, "Erro ao editar semestre")
 
             redirect_action, bloco = register_return(url,
                 acao, extras, semestres=get_semestres())
@@ -157,7 +157,7 @@ def gerenciar_semestres():
                 db.session.commit()
                 flash("Semestre excluido com sucesso", "success")
             except DB_ERRORS as e:
-                _handle_db_error(e, "Erro ao excluir semestre")
+                handle_db_error(e, "Erro ao excluir semestre")
 
             redirect_action, bloco = register_return(url,
                 acao, extras, semestres=get_semestres())
