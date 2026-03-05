@@ -103,3 +103,7 @@ ERRORS = {
     422: {"message": "Entidade não processável.", "title": "Entidade não processável"},
     500: {"message": "Erro Interno do Servidor", "title": "Erro Interno do Servidor"}
 }
+
+LOG_DIR = os.path.join(os.getcwd(), "logs")
+LOG_FILE = os.path.join(LOG_DIR, "app.log")
+MAX_RESULTS = 200

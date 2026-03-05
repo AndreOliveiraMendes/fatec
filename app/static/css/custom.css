@@ -535,3 +535,41 @@ table>tbody>tr>td.reservado-fixo {
     margin-top: 0;
     margin-bottom: 0;
 }
+
+/* ===== LOG PANEL ===== */
+
+.log-container {
+    margin-top: 15px;
+    max-height: 400px;
+    overflow: auto;
+    font-family: monospace;
+    background: #1e1e1e;
+    color: #dcdcdc;
+    border-radius: 4px;
+}
+
+/* Cada linha */
+.log-line {
+    white-space: pre-wrap;
+}
+
+/* ERROR */
+.log-error {
+    color: #ff6b6b;
+    font-weight: bold;
+}
+
+/* WARNING */
+.log-warning {
+    color: #f0ad4e;
+}
+
+/* Badge quando tem erro */
+.badge-error {
+    background-color: #d9534f;
+}
+
+/* Badge OK */
+.badge-ok {
+    background-color: #5cb85c;
+}

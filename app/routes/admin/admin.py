@@ -20,6 +20,7 @@ from app.extensions import db
 from app.models.aulas import Aulas, Aulas_Ativas, Dias_da_Semana
 from app.models.reservas.reservas_laboratorios import (Reservas_Fixas,
                                                        Reservas_Temporarias)
+from app.routes_helper.ui import get_log_summary
 from app.security.cryptograph import load_key
 from config.database_views import SECOES
 from config.general import LOCAL_TIMEZONE
@@ -110,8 +111,10 @@ def gerenciar_menu():
             "path": os.path.abspath(SECRET_PATH),
             "last_modified": datetime.fromtimestamp(mtime).strftime("%d/%m/%Y %H:%M:%S")
         }
+    error_count, last_lines = get_log_summary()
     return render_template("admin/admin.html", user=user,
-        secoes=SECOES, key=key, key_info=key_info)
+        secoes=SECOES, key=key, key_info=key_info, error_count=error_count,
+    last_lines=last_lines)
 
 @bp.route("/configurar_painel", methods=['GET', 'POST'])
 @admin_required

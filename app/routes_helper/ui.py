@@ -1,3 +1,6 @@
+from datetime import datetime
+import os
+
 from markupsafe import Markup
 
 from app.dao.internal.general import get_unique_or_500
@@ -5,8 +8,26 @@ from app.dao.internal.reservas import get_responsavel_reserva
 from app.enums import FinalidadeReservaEnum, SituacaoChaveEnum
 from app.models.controle import Situacoes_Das_Reserva
 from config.json_related import carregar_painel_config
-from config.mapeamentos import mapa_icones_status
+from config.mapeamentos import LOG_FILE, mapa_icones_status
 
+def get_log_summary():
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    error_count = 0
+    last_lines = []
+
+    if os.path.exists(LOG_FILE):
+        with open(LOG_FILE, "r", encoding="utf-8", errors="ignore") as f:
+            lines = f.readlines()
+
+            # Últimas 50 linhas
+            last_lines = lines[-50:]
+
+            # Conta erros de hoje
+            for line in lines:
+                if today_str in line and "ERROR" in line.upper():
+                    error_count += 1
+
+    return error_count, last_lines
 
 def status_reserva(lab, aula, dia, tipo, tela_televisor=False, tela = None):
         painel_cfg = carregar_painel_config()

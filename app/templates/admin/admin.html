@@ -12,6 +12,47 @@
             </a>
         </div>
     </div>
+    <!-- LOGS -->
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                Logs do Sistema
+                {% if error_count > 0 %}
+                    <span class="badge badge-error">{{ error_count }} ERROR hoje</span>
+                {% else %}
+                    <span class="badge badge-ok">OK</span>
+                {% endif %}
+            </h3>
+        </div>
+        <div class="panel-body">
+            <div class="btn-group" role="group">
+                <button class="btn btn-info"
+                        type="button"
+                        data-toggle="collapse"
+                        data-target="#collapseLogs">
+                    <span class="glyphicon glyphicon-list"></span>
+                    Últimas 50 linhas
+                </button>
+                <a href="{{ url_for('logs.logs_view') }}" class="btn btn-primary">
+                    <span class="glyphicon glyphicon-search"></span>
+                    Buscar Completo
+                </a>
+            </div>
+            <div class="collapse" id="collapseLogs">
+                <div class="well log-container">
+                    {% for line in last_lines %}
+                        {% if "ERROR" in line %}
+                            <div class="log-line log-error">{{ line }}</div>
+                        {% elif "WARNING" in line %}
+                            <div class="log-line log-warning">{{ line }}</div>
+                        {% else %}
+                            <div class="log-line">{{ line }}</div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- database -->
     <div class="panel panel-danger">
         <div class="panel-heading">
