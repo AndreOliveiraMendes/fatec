@@ -4,7 +4,7 @@ config.ini
 !.env*.example
 .venv
 .vscode/settings.json
-logs
+logs/*
 config/*.json
 data/*
 app/static/css/utility.css

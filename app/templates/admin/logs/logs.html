@@ -1,0 +1,133 @@
+{% extends "base-fixed" %}
+{% block content %}
+    <div class="container">
+        <h2>Logs do Sistema</h2>
+        <div class="alert alert-info" role="alert">
+            <strong>Como funciona:</strong>
+            <ul class="classe1">
+                <li>
+                    <strong>Sem filtros</strong> → Exibe um resumo geral dos arquivos de log.
+                </li>
+                <li>
+                    <strong>Buscar preenchido</strong> → Realiza a pesquisa nos logs.
+                </li>
+                <li>
+                    O campo <strong>Arquivo</strong> funciona apenas como filtro complementar à busca.
+                </li>
+            </ul>
+        </div>
+        <hr>
+        <form method="get" class="form-inline">
+            <div class="form-group">
+                <label>Arquivo:</label>
+                <select name="file" id="fileSelect" class="form-control" disabled>
+                    <option value="">Selecione</option>
+                    {% for file in files %}
+                        <option value="{{ file }}" {% if file == selected_file %}selected{% endif %}>{{ file }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Buscar:</label>
+                <input type="text"
+                       name="q"
+                       id="searchInput"
+                       value="{{ query }}"
+                       class="form-control"
+                       placeholder="Ex: ERROR ou 500">
+            </div>
+            <button type="submit" class="btn btn-primary">Buscar</button>
+        </form>
+        <hr>
+        {% if results %}
+            <div class="panel panel-default">
+                <div class="panel-heading">Resultados (máx 200)</div>
+                <div class="panel-body classe">
+                    {% for r in results %}
+                        <div>
+                            <strong>{{ r.file }} — Linha {{ r.line_number }}:</strong>
+                            {{ r.content }}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% elif query %}
+            <div class="alert alert-warning">Nenhum resultado encontrado.</div>
+        {% else %}
+            <div class="panel panel-info">
+                <div class="panel-heading">Resumo dos Logs</div>
+                <div class="panel-body">
+                    <table class="table table-striped table-condensed">
+                        <thead>
+                            <tr>
+                                <th>Arquivo</th>
+                                <th>Total Linhas</th>
+                                <th>INFO</th>
+                                <th>WARNING</th>
+                                <th>ERROR</th>
+                                <th>Tamanho (KB)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in summaries %}
+                                <tr>
+                                    <td>{{ s.file }}</td>
+                                    <td>{{ s.total }}</td>
+                                    <td>{{ s.info }}</td>
+                                    <td>{{ s.warning }}</td>
+                                    <td>
+                                        {% if s.error > 0 %}
+                                            <span class="text-danger"><strong>{{ s.error }}</strong></span>
+                                        {% else %}
+                                            {{ s.error }}
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ s.size_kb }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock content %}
+{% block extra_css %}
+    <style>
+        .classe {
+            max-height:500px;
+            overflow:auto;
+            font-family: monospace;
+        }
+
+        .classe1 {
+            margin-bottom:0;
+            padding-left:20px;
+        }
+    </style>
+{% endblock extra_css %}
+{% block extra_script %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            var searchInput = document.getElementById("searchInput");
+            var fileSelect = document.getElementById("fileSelect");
+
+            function toggleFileSelect() {
+                if (searchInput.value.trim().length > 0) {
+                    fileSelect.disabled = false;
+                } else {
+                    fileSelect.disabled = true;
+                    fileSelect.value = "";
+                }
+            }
+
+            // Executa ao carregar (caso já tenha query)
+            toggleFileSelect();
+
+            // Executa ao digitar
+            searchInput.addEventListener("input", toggleFileSelect);
+
+        });
+    </script>
+{% endblock extra_script %}

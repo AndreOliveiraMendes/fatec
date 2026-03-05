@@ -11,7 +11,7 @@ bp = Blueprint("admin_remote_commands", __name__, url_prefix="/manage_remote_com
 def manage_commands():
     userid = session.get('userid')
     user = get_user(userid)
-    return render_template("admin/command_management.html", user=user)
+    return render_template("admin/ssh/command_management.html", user=user)
 
 @bp.route("/<int:cmd_id>/params", methods=["GET"])
 @cmd_config_required
@@ -26,7 +26,7 @@ def manage_params(cmd_id):
         abort(404, "Comando não encontrado")
 
     return render_template(
-        "admin/param_management.html",
+        "admin/ssh/param_management.html",
         user=user,
         cmd_id=cmd_id
     )

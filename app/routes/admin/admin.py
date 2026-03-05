@@ -112,9 +112,8 @@ def gerenciar_menu():
             "last_modified": datetime.fromtimestamp(mtime).strftime("%d/%m/%Y %H:%M:%S")
         }
     error_count, last_lines = get_log_summary()
-    return render_template("admin/admin.html", user=user,
-        secoes=SECOES, key=key, key_info=key_info, error_count=error_count,
-    last_lines=last_lines)
+    return render_template("admin/painel/admin.html", user=user,
+        secoes=SECOES, key=key, error_count=error_count, last_lines=last_lines)
 
 @bp.route("/configurar_painel", methods=['GET', 'POST'])
 @admin_required
@@ -266,7 +265,7 @@ def menu_reservas():
     user = get_user(userid)
     today = datetime.now(LOCAL_TIMEZONE)
     extras = {'datetime':today}
-    return render_template("admin/menu_reserva.html", user=user, **extras)
+    return render_template("admin/observacoes/menu_reserva.html", user=user, **extras)
 
 @bp.route("/observações/reservas_fixas")
 @admin_required
@@ -292,7 +291,7 @@ def get_observações_fixa():
     extras['pagination'] = reservas_fixas
     # pra conservar os parametros
     extras['args_extras'] = args_extras
-    return render_template("admin/observações_fixa.html", user=user, **extras)
+    return render_template("admin/observacoes/observações_fixa.html", user=user, **extras)
 
 @bp.route('/observações/reservas_temporarias')
 @admin_required
@@ -317,4 +316,4 @@ def get_observações_temporaria():
     extras['pagination'] = reservas_temporaria
     # pra conservar os parametros
     extras['args_extras'] = args_extras
-    return render_template("admin/observações_temporaria.html", user=user, **extras)
+    return render_template("admin/observacoes/observações_temporaria.html", user=user, **extras)
