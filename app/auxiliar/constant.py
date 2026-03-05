@@ -53,4 +53,4 @@ DATA_FLAGS = {
 }
 
 # app title
-APP_TITLE = "Sistema RLF"
+APP_TITLE = "SGR"

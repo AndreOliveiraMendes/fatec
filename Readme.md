@@ -1,4 +1,4 @@
-# Lab Reservation System
+# Sistema de Gestão e Reserva de Recursos
 
 Flask-based system for managing laboratory reservations.
 
