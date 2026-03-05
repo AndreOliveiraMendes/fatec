@@ -3,7 +3,7 @@
     {% call(item) table_base(
         categorias,
         ['ID','Nome','Descrição'],
-        id_field='id_local',
+        id_field='id_categoria',
         vertical_actions=False,
         table_class='tabela-crude',
         message=message,
@@ -146,7 +146,7 @@
 {% endblock inserir %}
 {% block editar %}
     {% if bloco == 0 %}
-        <h3>Procurando categorias</h3>
+        <h3>Editando categorias</h3>
         <form class="form-group"
               role="form"
               action="{{ url_for(url) }}"
@@ -156,5 +156,89 @@
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
+        <h3>Editar categoria</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <!-- ID Categoria (somente leitura) -->
+            <div class="form-group">
+                <label for="id_categoria">ID da Categoria:</label>
+                <input type="text"
+                       class="form-control"
+                       name="id_categoria"
+                       id="id_categoria"
+                       value="{{ categoria.id_categoria }}"
+                       readonly>
+            </div>
+            <!-- Nome Categoria -->
+            <div class="form-group">
+                <label for="nome_categoria">Nome da Categoria:</label>
+                <input type="text"
+                       maxlength="100"
+                       class="form-control"
+                       name="nome_categoria"
+                       id="nome_categoria"
+                       value="{{ categoria.nome_categoria }}"
+                       placeholder="Digite o nome da categoria"
+                       required>
+            </div>
+            <!-- Descrição -->
+            <div class="form-group">
+                <label for="descricao">Descrição:</label>
+                <textarea class="form-control"
+                          id="descricao"
+                          name="descricao"
+                          rows="3"
+                          placeholder="Digite a descrição da categoria">{{ categoria.descricao if categoria.descricao else '' }}</textarea>
+            </div>
+            {{ action_buttons(acao, 2, True, 0) }}
+        </form>
     {% endif %}
 {% endblock editar %}
+{% block excluir %}
+    {% if bloco == 0 %}
+        <h3>Excluir categorias</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            {{ gerar_select("id_categoria", "Selecione a categoria", categorias, "id_categoria", "nome_categoria") }}
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <!-- ID Categoria (somente leitura) -->
+            <div class="form-group">
+                <label for="id_categoria">ID da Categoria:</label>
+                <input type="text"
+                       class="form-control"
+                       name="id_categoria"
+                       id="id_categoria"
+                       value="{{ categoria.id_categoria }}"
+                       readonly>
+            </div>
+            <!-- Nome Categoria (desabilitado) -->
+            <div class="form-group">
+                <label for="nome_categoria">Nome da Categoria:</label>
+                <input type="text"
+                       class="form-control"
+                       id="nome_categoria"
+                       value="{{ categoria.nome_categoria }}"
+                       disabled>
+            </div>
+            <!-- Descrição (desabilitado) -->
+            <div class="form-group">
+                <label for="descricao">Descrição:</label>
+                <textarea class="form-control" id="descricao" rows="3" disabled>{{ categoria.descricao if categoria.descricao else '' }}</textarea>
+            </div>
+            {{ action_buttons(acao, 2, True, 0, False) }}
+        </form>
+    {% endif %}
+{% endblock excluir %}

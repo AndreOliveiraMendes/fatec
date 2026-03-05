@@ -1,5 +1,6 @@
 import os
 import re
+
 from flask import Blueprint, render_template, request
 
 from app.decorators.decorators import admin_required

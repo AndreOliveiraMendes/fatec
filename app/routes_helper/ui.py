@@ -1,5 +1,5 @@
-from datetime import datetime
 import os
+from datetime import datetime
 
 from markupsafe import Markup
 
@@ -9,6 +9,7 @@ from app.enums import FinalidadeReservaEnum, SituacaoChaveEnum
 from app.models.controle import Situacoes_Das_Reserva
 from config.json_related import carregar_painel_config
 from config.mapeamentos import LOG_FILE, mapa_icones_status
+
 
 def get_log_summary():
     today_str = datetime.now().strftime("%Y-%m-%d")

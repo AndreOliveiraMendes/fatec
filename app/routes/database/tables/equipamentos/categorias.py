@@ -1,3 +1,4 @@
+import copy
 from typing import Any
 
 from flask import Blueprint, flash, render_template, request, session
@@ -91,6 +92,51 @@ def gerenciar_categorias_de_equipamentos():
 
         elif acao in ['editar', 'excluir'] and bloco == 0:
             extras['categorias'] = get_categorias()
+        elif acao in ['editar', 'excluir'] and bloco == 1:
+            id_categoria = none_if_empty(request.form.get('id_categoria'))
+            categoria = db.get_or_404(Categorias_de_Equipamentos, id_categoria)
+            extras['categoria'] = categoria
+        elif acao == 'editar' and bloco == 2:
+            id_categoria = none_if_empty(request.form.get('id_categoria'))
+            nome_categoria = none_if_empty(request.form.get('nome_categoria'))
+            descricao = none_if_empty(request.form.get('descricao'))
+
+            categoria = db.get_or_404(Categorias_de_Equipamentos, id_categoria)
+            try:
+                dados_anteriores = copy.copy(categoria)
+
+                categoria.nome_categoria = nome_categoria
+                categoria.descricao = descricao
+
+                db.session.flush()
+                registrar_log_generico_usuario(userid, 'Edição', categoria, dados_anteriores)
+
+                db.session.commit()
+                flash("Categoria editada com sucesso", "success")
+            except DB_ERRORS as e:
+                handle_db_error(e, "Erro ao editar categoria")
+            redirect_action, bloco = register_return(
+                url, acao, extras, categorias=get_categorias()
+            )
+        
+        elif acao == 'excluir' and bloco == 2:
+            id_categoria = none_if_empty(request.form.get('id_categoria'))
+
+            categoria = db.get_or_404(Categorias_de_Equipamentos, id_categoria)
+            try:
+                db.session.delete(categoria)
+
+                db.session.flush()
+                registrar_log_generico_usuario(userid, 'Exclusão', categoria)
+
+                db.session.commit()
+                flash("Categoria excluida com sucesso", "success")
+            except DB_ERRORS as e:
+                handle_db_error(e, "Erro ao excluir categoria")
+            redirect_action, bloco = register_return(
+                url, acao, extras, categorias=get_categorias()
+            )
+
     if redirect_action:
         return redirect_action
     return render_template("database/table/categorias_de_equipamento.html",
