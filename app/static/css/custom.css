@@ -527,3 +527,11 @@ table>tbody>tr>td.reservado-fixo {
 .nav-pills > li.active .section-badge {
     border-color:#d64242;
 }
+
+.navbar-date {
+    display: flex;
+    align-items: center;   /* alinha verticalmente */
+    gap: 10px;             /* espaço entre texto e ícone */
+    margin-top: 0;
+    margin-bottom: 0;
+}
