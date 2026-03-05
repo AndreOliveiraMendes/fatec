@@ -38,10 +38,15 @@
           method="post">
         <div class="form-group">
             <label for="filtroHorario">Filtrar horário/dia:</label>
-            <input type="text"
-                   id="filtroHorario"
-                   class="form-control"
-                   placeholder="Ex: 15:30 ou domingo">
+            <div class="input-group">
+                <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-search"></span>
+                </span>
+                <input type="text"
+                       id="filtroHorario"
+                       class="form-control"
+                       placeholder="Ex: 15:30 ou domingo">
+            </div>
         </div>
         <div class="table-responsive tabela-wrapper">
             <table class="table table-bordered table-striped table-hover tabela-reserva">
