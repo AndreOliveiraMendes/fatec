@@ -8,7 +8,7 @@
     {{ generate_reserva_head(locais, 'fixo', turno, semestre=semestre) }}
     <div class="btn-group">
         {{ go_back(contador_fixa) }}
-        <a href="{{ url_for('default.home') }}" class="btn btn-default">
+        <a href="{{ url_for("default.home") }}" class="btn btn-default">
             <span class="glyphicon glyphicon-home"></span> Início
         </a>
     </div>
@@ -36,6 +36,13 @@
           action="{{ url_for('reservas_semanais.efetuar_reserva', id_semestre=semestre.id_semestre) }}"
           id="reserva"
           method="post">
+        <div class="form-group">
+            <label for="filtroHorario">Filtrar horário/dia:</label>
+            <input type="text"
+                   id="filtroHorario"
+                   class="form-control"
+                   placeholder="Ex: 15:30 ou domingo">
+        </div>
         <div class="table-responsive tabela-wrapper">
             <table class="table table-bordered table-striped table-hover tabela-reserva">
                 <thead>
@@ -393,4 +400,29 @@
     {% if user and user.perm|has_flag(ADMIN) %}
         <script src="{{ url_for('static', filename='js/reserva_fixa_modal.js') }}"></script>
     {% endif %}
+    <!-- filtro tabela -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const filtroInput = document.getElementById('filtroHorario');
+            const tabela = document.querySelector('.tabela-reserva tbody');
+
+            filtroInput.addEventListener('input', function () {
+                const termo = filtroInput.value.toLowerCase();
+
+                tabela.querySelectorAll('tr').forEach(tr => {
+                    const horarioTd = tr.querySelector('td.col-fixa');
+                    if (!horarioTd) return;
+
+                    const texto = horarioTd.textContent.toLowerCase();
+                    if (texto.includes(termo)) {
+                        tr.style.display = '';
+                    } else {
+                        tr.style.display = 'none';
+                    }
+                });
+            });
+
+        });
+    </script>
 {% endblock extra_script %}
