@@ -524,14 +524,16 @@ table>tbody>tr>td.reservado-fixo {
     padding: 2px 4px;
 }
 
-.nav-pills > li.active .section-badge {
-    border-color:#d64242;
+.nav-pills>li.active .section-badge {
+    border-color: #d64242;
 }
 
 .navbar-date {
     display: flex;
-    align-items: center;   /* alinha verticalmente */
-    gap: 10px;             /* espaço entre texto e ícone */
+    align-items: center;
+    /* alinha verticalmente */
+    gap: 10px;
+    /* espaço entre texto e ícone */
     margin-top: 0;
     margin-bottom: 0;
 }
@@ -572,4 +574,9 @@ table>tbody>tr>td.reservado-fixo {
 /* Badge OK */
 .badge-ok {
     background-color: #5cb85c;
+}
+
+/* utils */
+.pre-wrap {
+    white-space: pre-wrap;
 }
