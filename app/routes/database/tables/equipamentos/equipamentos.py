@@ -14,7 +14,7 @@ from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import admin_required
 from app.extensions import db
 from app.models.equipamentos import Equipamentos
-from app.routes_helper.request import get_session_or_request
+from app.routes_helper.request import get_query_params, get_session_or_request
 from config.database_views import get_url
 from config.general import PER_PAGE
 
@@ -40,6 +40,40 @@ def gerenciar_equipamentos():
             )
             extras["equipamentos"] = equipamentos_paginados.items
             extras["pagination"] = equipamentos_paginados
+
+        elif acao == "procurar" and bloco == 0:
+            extras["categorias"] = get_categorias()
+        elif acao == "procurar" and bloco == 1:
+            id_equipamento = none_if_empty(request.form.get('id_equipamento'), int)
+            nome_equipamento = none_if_empty(request.form.get('nome_equipamento'))
+            descricao = none_if_empty(request.form.get('descricao'))
+            id_categoria = none_if_empty(request.form.get('id_categoria'), int)
+            filter = []
+            query_params = get_query_params(request)
+            if id_equipamento is not None:
+                filter.append(Equipamentos.id_equipamento == id_equipamento)
+            if nome_equipamento:
+                filter.append(Equipamentos.nome_equipamento.ilike(f"%{nome_equipamento}%"))
+            if descricao:
+                filter.append(Equipamentos.descricao.ilike(f"%{descricao}%"))
+            if id_categoria is not None:
+                filter.append(Equipamentos.id_categoria == id_categoria)
+            if filter:
+                sel_equipamentos = select(Equipamentos).where(
+                    *filter
+                )
+                equipamentos_paginados = SelectPagination(
+                    select=sel_equipamentos, session=db.session,
+                    page=page, per_page=PER_PAGE, error_out=False
+                )
+                extras['equipamentos'] = equipamentos_paginados.items
+                extras['pagination'] = equipamentos_paginados
+                extras['query_params'] = query_params
+            else:
+                flash("especifique pelo menos um campo de busca", "danger")
+                redirect_action, bloco = register_return(
+                    url, acao, extras, categorias=get_categorias()
+                )
 
         elif acao == "inserir" and bloco == 0:
             extras["categorias"] = get_categorias()

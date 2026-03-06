@@ -23,7 +23,7 @@
 {% endblock title %}
 {% block content_head %}
     <div class="panel panel-default">
-        <div class="panel-heading">{{ generate_database_head("database_equipamentos") }}</div>
+        <div class="panel-heading">{{ generate_database_head(url.split('.',1)[0]) }}</div>
         <div class="panel-body">{{ generate_head(url_for(url) , acao, disable=disable) }}</div>
     </div>
 {% endblock content_head %}
@@ -85,8 +85,8 @@
     </div>
 {% endblock abertura %}
 {% block listar %}
-<h3>Lista de equipamentos</h3>
-{{ result_table("Nenhum equipamento cadastrado") }}
+    <h3>Lista de equipamentos</h3>
+    {{ result_table("Nenhum equipamento cadastrado") }}
 {% endblock listar %}
 {% block inserir %}
     <h3>Inserir equipamentos</h3>
@@ -117,3 +117,44 @@
         {{ action_buttons(acao, 1, False, 0) }}
     </form>
 {% endblock inserir %}
+{% block procurar %}
+    {% if bloco == 0 %}
+        <h3>Procurar equipamentos</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label for="id_equipamento">ID do Equipamento:</label>
+                <input type="number"
+                       class="form-control"
+                       name="id_equipamento"
+                       id="id_equipamento"
+                       placeholder="Digite o ID do equipamento">
+            </div>
+            <div class="form-group">
+                <label for="nome_equipamento">Nome do Equipamento:</label>
+                <input type="text"
+                       maxlength="120"
+                       class="form-control"
+                       name="nome_equipamento"
+                       id="nome_equipamento"
+                       placeholder="Digite o nome do equipamento">
+            </div>
+            <div class="form-group">
+                <label for="descricao">Descrição:</label>
+                <textarea class="form-control"
+                          id="descricao"
+                          name="descricao"
+                          rows="3"
+                          placeholder="Digite parte da descrição"></textarea>
+            </div>
+            {{ gerar_select("id_categoria", "Selecione a categoria", categorias, "id_categoria", "nome_categoria", optional=True) }}
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <h3>Resultado da busca</h3>
+        {{ result_table("Nenhum resultado encontrado") }}
+    {% endif %}
+{% endblock procurar %}
