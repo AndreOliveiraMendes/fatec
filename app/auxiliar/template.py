@@ -123,9 +123,24 @@ def register_filters(app:Flask):
             for t in sec['secoes']
         ]
 
-        tables_info.sort(key = lambda e: (e[3], e[2]))
+        tables_info.sort(key=lambda e: (e[3], e[2]))
 
-        html_parts = ['<div class="pills-group">','<ul class="nav nav-pills">']
+        html_parts = [
+            '<div class="pills-group">',
+            # Row com dois filtros
+            '<div class="form-inline" style="margin-bottom:10px;">',
+            '  <div class="form-group" style="margin-right:10px;">',
+            '    <label for="filter-sigla">Sigla:</label>',
+            '    <input type="text" id="filter-sigla" class="form-control" placeholder="Filtrar sigla">',
+            '  </div>',
+            '  <div class="form-group">',
+            '    <label for="filter-tabela">Tabela:</label>',
+            '    <input type="text" id="filter-tabela" class="form-control" placeholder="Filtrar tabela">',
+            '  </div>',
+            '</div>',
+            '<ul class="nav nav-pills" id="pills-list">'
+        ]
+
         for table, url, nome, secao in tables_info:
             sigla = ''.join(p[0] for p in re.findall(r'\w+', secao))
             active_class = ' class="active"' if table == current_table else ''
@@ -133,14 +148,38 @@ def register_filters(app:Flask):
 
             warning_icon = ''
             if url == "default.under_dev_page":
-                warning_icon = ' <span class="glyphicon glyphicon-exclamation-sign icon-warning" title="pagina em desenvolvimento"></span>'
+                warning_icon = ' <span class="glyphicon glyphicon-exclamation-sign icon-warning" title="página em desenvolvimento"></span>'
 
             html_parts.append(
                 f'<a href="{url_for(url)}"><span class="badge section-badge">{sigla}</span>{nome}{warning_icon}</a>'
             )
             html_parts.append('</li>')
 
-        html_parts.extend(['</ul>','</div>'])
+        html_parts.extend(['</ul>', '</div>'])
+
+        # Script para filtrar pelos dois campos
+        html_parts.append('''
+    <script>
+        function filterPills() {
+            var filterSigla = document.getElementById('filter-sigla').value.toUpperCase();
+            var filterTabela = document.getElementById('filter-tabela').value.toUpperCase();
+            var lis = document.querySelectorAll('#pills-list li');
+            lis.forEach(function(li) {
+                var badge = li.querySelector('.section-badge').textContent.toUpperCase();
+                var nome = li.textContent.toUpperCase();
+                if ((badge.includes(filterSigla) && nome.includes(filterTabela)) || li.classList.contains('active')) {
+                    li.style.display = '';
+                } else {
+                    li.style.display = 'none';
+                }
+            });
+        }
+
+        document.getElementById('filter-sigla').addEventListener('keyup', filterPills);
+        document.getElementById('filter-tabela').addEventListener('keyup', filterPills);
+    </script>
+    ''')
+        
         return Markup('\n'.join(html_parts))
 
     def lab_url(tipo, turno:Turnos|None, local:Locais|None, **kwargs):
