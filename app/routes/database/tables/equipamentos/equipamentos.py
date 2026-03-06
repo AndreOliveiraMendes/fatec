@@ -1,3 +1,4 @@
+import copy
 from typing import Any
 
 from flask import Blueprint, flash, render_template, request, session
@@ -7,7 +8,7 @@ from sqlalchemy import select
 from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.general import none_if_empty
 from app.auxiliar.navigation import register_return
-from app.dao.internal.equipamentos import get_categorias
+from app.dao.internal.equipamentos import get_categorias, get_equipamentos
 from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.usuarios import get_user
@@ -99,6 +100,56 @@ def gerenciar_equipamentos():
                 handle_db_error(e, "Erro ao cadastrar equipamento")
             redirect_action, bloco = register_return(
                 url, acao, extras, categorias=get_categorias()
+            )
+
+        elif acao in ['editar', 'excluir'] and bloco == 0:
+            extras["equipamentos"] = get_equipamentos()
+        elif acao in ['editar', 'excluir'] and bloco == 1:
+            id_equipamento = none_if_empty(request.form.get('id_equipamento'), int)
+            equipamento = db.get_or_404(Equipamentos, id_equipamento)
+            extras['equipamento'] = equipamento
+            extras['categorias'] = get_categorias()
+
+        elif acao == 'editar' and bloco == 2:
+            id_equipamento = none_if_empty(request.form.get('id_equipamento'), int)
+            nome_equipamento = none_if_empty(request.form.get('nome_equipamento'))
+            descricao = none_if_empty(request.form.get('descricao'))
+            id_categoria = none_if_empty(request.form.get('id_categoria'), int)
+
+            equipamento = db.get_or_404(Equipamentos, id_equipamento)
+            dados_anteriores = copy.copy(equipamento)
+            try:
+                equipamento.nome_equipamento = nome_equipamento
+                equipamento.descricao = descricao
+                equipamento.id_categoria = id_categoria
+
+                db.session.flush()
+                registrar_log_generico_usuario(userid, 'Edição', equipamento, dados_anteriores)
+
+                db.session.commit()
+                flash("Equipamento editado com sucesso", "success")
+            except DB_ERRORS as e:
+                handle_db_error(e, "Erro ao editar equipamento")
+            redirect_action, bloco = register_return(
+                url, acao, extras, equipamentos=get_equipamentos()
+            )
+
+        elif acao == 'excluir' and bloco == 2:
+            id_equipamento = none_if_empty(request.form.get('id_equipamento'), int)
+
+            equipamento = db.get_or_404(Equipamentos, id_equipamento)
+            try:
+                db.session.delete(equipamento)
+
+                db.session.flush()
+                registrar_log_generico_usuario(userid, 'Exclusão', equipamento)
+
+                db.session.commit()
+                flash("Equipamento deletado com sucesso", "success")
+            except DB_ERRORS as e:
+                handle_db_error(e, "Erro ao deletar equipamento")
+            redirect_action, bloco = register_return(
+                url, acao, extras, equipamentos=get_equipamentos()
             )
 
     if redirect_action:

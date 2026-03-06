@@ -88,35 +88,6 @@
     <h3>Lista de equipamentos</h3>
     {{ result_table("Nenhum equipamento cadastrado") }}
 {% endblock listar %}
-{% block inserir %}
-    <h3>Inserir equipamentos</h3>
-    <form class="form-group"
-          role="form"
-          action="{{ url_for(url) }}"
-          method="post">
-        <input type="hidden" name="acao" value="{{ acao }}">
-        <div class="form-group">
-            <label for="nome_equipamento">Nome do Equipamento:</label>
-            <input type="text"
-                   maxlength="120"
-                   class="form-control"
-                   name="nome_equipamento"
-                   id="nome_equipamento"
-                   placeholder="Digite o nome do equipamento"
-                   required>
-        </div>
-        <div class="form-group">
-            <label for="descricao">Descrição:</label>
-            <textarea class="form-control"
-                      id="descricao"
-                      name="descricao"
-                      rows="3"
-                      placeholder="Digite a descrição do equipamento"></textarea>
-        </div>
-        {{ gerar_select("id_categoria", "Selecione a categoria", categorias, "id_categoria", "nome_categoria") }}
-        {{ action_buttons(acao, 1, False, 0) }}
-    </form>
-{% endblock inserir %}
 {% block procurar %}
     {% if bloco == 0 %}
         <h3>Procurar equipamentos</h3>
@@ -158,3 +129,140 @@
         {{ result_table("Nenhum resultado encontrado") }}
     {% endif %}
 {% endblock procurar %}
+{% block inserir %}
+    <h3>Inserir equipamentos</h3>
+    <form class="form-group"
+          role="form"
+          action="{{ url_for(url) }}"
+          method="post">
+        <input type="hidden" name="acao" value="{{ acao }}">
+        <div class="form-group">
+            <label for="nome_equipamento">Nome do Equipamento:</label>
+            <input type="text"
+                   maxlength="120"
+                   class="form-control"
+                   name="nome_equipamento"
+                   id="nome_equipamento"
+                   placeholder="Digite o nome do equipamento"
+                   required>
+        </div>
+        <div class="form-group">
+            <label for="descricao">Descrição:</label>
+            <textarea class="form-control"
+                      id="descricao"
+                      name="descricao"
+                      rows="3"
+                      placeholder="Digite a descrição do equipamento"></textarea>
+        </div>
+        {{ gerar_select("id_categoria", "Selecione a categoria", categorias, "id_categoria", "nome_categoria") }}
+        {{ action_buttons(acao, 1, False, 0) }}
+    </form>
+{% endblock inserir %}
+{% block editar %}
+    {% if bloco == 0 %}
+        <h3>Editando equipamentos</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            {{ gerar_select("id_equipamento", "Selecione o equipamento", equipamentos, "id_equipamento", "nome_equipamento") }}
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <h3>Editar equipamento</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <!-- ID Equipamento (somente leitura) -->
+            <div class="form-group">
+                <label for="id_equipamento">ID do Equipamento:</label>
+                <input type="text"
+                       class="form-control"
+                       name="id_equipamento"
+                       id="id_equipamento"
+                       value="{{ equipamento.id_equipamento }}"
+                       readonly>
+            </div>
+            <!-- Nome Equipamento -->
+            <div class="form-group">
+                <label for="nome_equipamento">Nome do Equipamento:</label>
+                <input type="text"
+                       maxlength="120"
+                       class="form-control"
+                       name="nome_equipamento"
+                       id="nome_equipamento"
+                       value="{{ equipamento.nome_equipamento }}"
+                       placeholder="Digite o nome do equipamento"
+                       required>
+            </div>
+            <!-- Descrição -->
+            <div class="form-group">
+                <label for="descricao">Descrição:</label>
+                <textarea class="form-control"
+                          id="descricao"
+                          name="descricao"
+                          rows="3"
+                          placeholder="Digite a descrição do equipamento">{{ equipamento.descricao if equipamento.descricao else '' }}</textarea>
+            </div>
+            {{ gerar_select("id_categoria", "Selecione a categoria", categorias, "id_categoria", "nome_categoria", selected=equipamento.id_categoria) }}
+            {{ action_buttons(acao, 2, True, 0) }}
+        </form>
+    {% endif %}
+{% endblock editar %}
+{% block excluir %}
+    {% if bloco == 0 %}
+        <h3>Excluir equipamentos</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            {{ gerar_select("id_equipamento", "Selecione o equipamento", equipamentos, "id_equipamento", "nome_equipamento") }}
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <!-- ID Equipamento -->
+            <div class="form-group">
+                <label for="id_equipamento">ID do Equipamento:</label>
+                <input type="text"
+                       class="form-control"
+                       name="id_equipamento"
+                       id="id_equipamento"
+                       value="{{ equipamento.id_equipamento }}"
+                       readonly>
+            </div>
+            <!-- Nome Equipamento -->
+            <div class="form-group">
+                <label for="nome_equipamento">Nome do Equipamento:</label>
+                <input type="text"
+                       class="form-control"
+                       id="nome_equipamento"
+                       value="{{ equipamento.nome_equipamento }}"
+                       disabled>
+            </div>
+            <!-- Descrição -->
+            <div class="form-group">
+                <label for="descricao">Descrição:</label>
+                <textarea class="form-control" id="descricao" rows="3" disabled>{{ equipamento.descricao if equipamento.descricao else '' }}</textarea>
+            </div>
+            <!-- Categoria -->
+            <div class="form-group">
+                <label for="categoria">Categoria:</label>
+                <input type="text"
+                       class="form-control"
+                       id="categoria"
+                       value="{{ equipamento.categoria.nome_categoria }}"
+                       disabled>
+            </div>
+            {{ action_buttons(acao, 2, True, 0, False) }}
+        </form>
+    {% endif %}
+{% endblock excluir %}
