@@ -1,0 +1,57 @@
+{% extends "base-fixed" %}
+{% block title %}
+    Admin • Meta
+{% endblock title %}
+{% block content %}
+    <div class="container">
+        <h3>Painel do Sistema</h3>
+        <div class="panel panel-default">
+            <div class="panel-heading">Status do Git</div>
+            <table class="table table-bordered">
+                <tr>
+                    <th>Commit local</th>
+                    <td>{{ status.local_commit }}</td>
+                </tr>
+                <tr>
+                    <th>Commit remoto</th>
+                    <td>{{ status.remote_commit }}</td>
+                </tr>
+                <tr>
+                    <th>Commits pendentes</th>
+                    <td>
+                        {% if status.behind == 0 %}
+                            <span class="label label-success">Atualizado</span>
+                        {% else %}
+                            <span class="label label-warning">{{ status.behind }} pendentes</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Alterações locais</th>
+                    <td>
+                        {% if status.local_changes %}
+                            <span class="label label-danger">Sim</span>
+                        {% else %}
+                            <span class="label label-success">Não</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">Ações</div>
+            <div class="panel-body">
+                {% if status.local_changes %}
+                    <div class="alert alert-danger">Existem alterações locais no repositório. O update foi bloqueado.</div>
+                {% elif status.behind > 0 %}
+                    <a href="{{ url_for('admin_meta.update') }}" class="btn btn-success">
+                        <span class="glyphicon glyphicon-refresh"></span>
+                        Atualizar sistema
+                    </a>
+                {% else %}
+                    <div class="alert alert-success">Sistema já está atualizado.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock content %}
