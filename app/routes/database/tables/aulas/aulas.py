@@ -17,6 +17,7 @@ from app.decorators.decorators import admin_required
 from app.extensions import db
 from app.models.aulas import Aulas
 from app.routes_helper.request import get_query_params, get_session_or_request
+from config.database_views import get_url
 from config.general import PER_PAGE
 
 bp = Blueprint('database_aulas', __name__, url_prefix="/database")
@@ -24,7 +25,7 @@ bp = Blueprint('database_aulas', __name__, url_prefix="/database")
 @bp.route("/aulas", methods=["GET", "POST"])
 @admin_required
 def gerenciar_aulas():
-    url = 'database_aulas.gerenciar_aulas'
+    url = get_url('database_aulas')
     redirect_action = None
     acao = get_session_or_request(request, session, 'acao', 'abertura')
     bloco = int(request.form.get('bloco', 0))

@@ -16,6 +16,7 @@ from app.extensions import db
 from app.models.usuarios import Pessoas
 from app.routes_helper.request import get_query_params, get_session_or_request
 from app.routes_helper.ui import disable_action
+from config.database_views import get_url
 from config.general import PER_PAGE
 
 bp = Blueprint('database_pessoas', __name__, url_prefix="/database")
@@ -23,7 +24,7 @@ bp = Blueprint('database_pessoas', __name__, url_prefix="/database")
 @bp.route("/pessoas", methods=["GET", "POST"])
 @admin_required
 def gerenciar_pessoas():
-    url = 'database_pessoas.gerenciar_pessoas'
+    url = get_url('database_pessoas')
     redirect_action = None
     acao = get_session_or_request(request, session, 'acao', 'abertura')
     bloco = int(request.form.get('bloco', 0))

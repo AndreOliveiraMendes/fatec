@@ -21,6 +21,7 @@ from app.enums import FinalidadeReservaEnum
 from app.extensions import db
 from app.models.reservas.reservas_laboratorios import Reservas_Fixas
 from app.routes_helper.request import get_query_params, get_session_or_request
+from config.database_views import get_url
 from config.general import PER_PAGE
 
 bp = Blueprint('database_reservas_fixas', __name__, url_prefix="/database")
@@ -28,7 +29,7 @@ bp = Blueprint('database_reservas_fixas', __name__, url_prefix="/database")
 @bp.route("/reservas_fixa", methods=['GET', 'POST'])
 @admin_required
 def gerenciar_reservas_fixas():
-    url = 'database_reservas_fixas.gerenciar_reservas_fixas'
+    url = get_url('database_reservas_fixas')
     redirect_action = None
     acao = get_session_or_request(request, session, 'acao', 'abertura')
     bloco = int(request.form.get('bloco', 0))

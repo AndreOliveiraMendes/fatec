@@ -20,6 +20,7 @@ from app.enums import TipoReservaEnum
 from app.extensions import db
 from app.models.controle import Exibicao_Reservas
 from app.routes_helper.request import get_query_params, get_session_or_request
+from config.database_views import get_url
 from config.general import PER_PAGE
 
 bp = Blueprint('database_exibicao_reservas', __name__, url_prefix="/database")
@@ -27,7 +28,7 @@ bp = Blueprint('database_exibicao_reservas', __name__, url_prefix="/database")
 @bp.route("/exibicao_reservas", methods=["GET", "POST"])
 @admin_required
 def gerenciar_exibicao_reservas():
-    url = 'database_exibicao_reservas.gerenciar_exibicao_reservas'
+    url = get_url('database_exibicao_reservas')
     redirect_action = None
     acao = get_session_or_request(request, session, 'acao', 'abertura')
     bloco = int(request.form.get('bloco', 0))

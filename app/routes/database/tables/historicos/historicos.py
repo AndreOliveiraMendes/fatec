@@ -17,6 +17,7 @@ from app.extensions import db
 from app.models.historicos import Historicos
 from app.routes_helper.request import get_query_params, get_session_or_request
 from app.routes_helper.ui import disable_action, include_action
+from config.database_views import get_url
 from config.general import LOCAL_TIMEZONE, PER_PAGE
 
 bp = Blueprint('database_historicos', __name__, url_prefix="/database")
@@ -81,7 +82,7 @@ def get_data():
 @bp.route("/historicos", methods=["GET", "POST"])
 @admin_required
 def gerenciar_historicos():
-    url = 'database_historicos.gerenciar_historicos'
+    url = get_url('database_historicos')
     redirect_action = None
     acao = get_session_or_request(request, session, 'acao', 'abertura')
     bloco = int(request.form.get('bloco', 0))

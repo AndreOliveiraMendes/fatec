@@ -19,6 +19,7 @@ from app.enums import TipoAulaEnum
 from app.extensions import db
 from app.models.aulas import Aulas_Ativas
 from app.routes_helper.request import get_query_params, get_session_or_request
+from config.database_views import get_url
 from config.general import PER_PAGE
 
 bp = Blueprint('database_aulas_ativas', __name__, url_prefix="/database")
@@ -60,7 +61,7 @@ def filtro_intervalo(inicio_procura, fim_procura):
 @bp.route("/aulas_ativas", methods=["GET", "POST"])
 @admin_required
 def gerenciar_aulas_ativas():
-    url = 'database_aulas_ativas.gerenciar_aulas_ativas'
+    url = get_url('database_aulas_ativas')
     redirect_action = None
     acao = get_session_or_request(request, session, 'acao', 'abertura')
     bloco = int(request.form.get('bloco', 0))

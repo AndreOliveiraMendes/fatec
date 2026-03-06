@@ -20,6 +20,7 @@ from app.enums import SituacaoChaveEnum, TipoReservaEnum
 from app.extensions import db
 from app.models.controle import Situacoes_Das_Reserva
 from app.routes_helper.request import get_query_params, get_session_or_request
+from config.database_views import get_url
 from config.general import PER_PAGE
 
 bp = Blueprint('database_situacoes_das_reservas', __name__, url_prefix="/database")
@@ -27,7 +28,7 @@ bp = Blueprint('database_situacoes_das_reservas', __name__, url_prefix="/databas
 @bp.route("/situacoes_das_reservas", methods=["GET", "POST"])
 @admin_required
 def gerenciar_situacoes_das_reservas():
-    url = 'database_situacoes_das_reservas.gerenciar_situacoes_das_reservas'
+    url = get_url('database_situacoes_das_reservas')
     redirect_action = None
     acao = get_session_or_request(request, session, 'acao', 'abertura')
     bloco = int(request.form.get('bloco', 0))

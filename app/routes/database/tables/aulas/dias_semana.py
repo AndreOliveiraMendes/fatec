@@ -17,6 +17,7 @@ from app.extensions import db
 from app.models.aulas import Dias_da_Semana
 from app.routes_helper.request import get_session_or_request
 from app.routes_helper.ui import disable_action
+from config.database_views import get_url
 from config.general import PER_PAGE
 
 bp = Blueprint('database_dias_da_semana', __name__, url_prefix="/database")
@@ -24,7 +25,7 @@ bp = Blueprint('database_dias_da_semana', __name__, url_prefix="/database")
 @bp.route("/dias_da_semana", methods=["GET", "POST"])
 @admin_required
 def gerenciar_dias_da_semana():
-    url = 'database_dias_da_semana.gerenciar_dias_da_semana'
+    url = get_url('database_dias_da_semana')
     redirect_action = None
     acao = get_session_or_request(request, session, 'acao', 'abertura')
     bloco = int(request.form.get('bloco', 0))

@@ -19,6 +19,7 @@ from app.decorators.decorators import admin_required
 from app.extensions import db
 from app.models.usuarios import Permissoes, Pessoas, Usuarios
 from app.routes_helper.request import get_query_params, get_session_or_request
+from config.database_views import get_url
 from config.general import PER_PAGE
 
 bp = Blueprint('database_permissoes', __name__, url_prefix="/database")
@@ -52,7 +53,7 @@ def get_flag(req: Request) -> int:
 @bp.route("/permissoes", methods=["GET", "POST"])
 @admin_required
 def gerenciar_permissoes():
-    url = 'database_permissoes.gerenciar_permissoes'
+    url = get_url('database_permissoes')
     redirect_action = None
     acao = get_session_or_request(request, session, 'acao', 'abertura')
     bloco = int(request.form.get('bloco', 0))

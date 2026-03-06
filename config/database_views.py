@@ -55,3 +55,10 @@ SETUP_HEAD = [
         "category":"danger"
     }
 ]
+URL_INDEX = {
+    endpoint.split('.',1)[0]: endpoint
+    for secao in SECOES.values()
+    for _, endpoint, _, _ in secao["secoes"]
+}
+def get_url(blueprint_name):
+    return URL_INDEX.get(blueprint_name)

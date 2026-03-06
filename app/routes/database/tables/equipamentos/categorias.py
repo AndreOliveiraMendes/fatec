@@ -16,6 +16,7 @@ from app.decorators.decorators import admin_required
 from app.extensions import db
 from app.models.equipamentos import Categorias_de_Equipamentos
 from app.routes_helper.request import get_query_params, get_session_or_request
+from config.database_views import get_url
 from config.general import PER_PAGE
 
 bp = Blueprint('database_categorias_de_equipamentos', __name__, url_prefix="/database")
@@ -23,7 +24,7 @@ bp = Blueprint('database_categorias_de_equipamentos', __name__, url_prefix="/dat
 @bp.route("/categorias_de_equipamentos", methods=["GET", "POST"])
 @admin_required
 def gerenciar_categorias_de_equipamentos():
-    url = 'database_categorias_de_equipamentos.gerenciar_categorias_de_equipamentos'
+    url = get_url('database_categorias_de_equipamentos')
     redirect_action = None
     acao = get_session_or_request(request, session, 'acao', 'abertura')
     bloco = int(request.form.get('bloco', 0))

@@ -15,6 +15,7 @@ from app.decorators.decorators import admin_required
 from app.extensions import db
 from app.models.usuarios import Usuarios_Especiais
 from app.routes_helper.request import get_query_params, get_session_or_request
+from config.database_views import get_url
 from config.general import PER_PAGE
 
 bp = Blueprint('database_usuarios_especiais', __name__, url_prefix="/database")
@@ -22,7 +23,7 @@ bp = Blueprint('database_usuarios_especiais', __name__, url_prefix="/database")
 @bp.route("/usuarios_especiais", methods=["GET", "POST"])
 @admin_required
 def gerenciar_usuarios_especiais():
-    url = 'database_usuarios_especiais.gerenciar_usuarios_especiais'
+    url = get_url('database_usuarios_especiais')
     redirect_action = None
     acao = get_session_or_request(request, session, 'acao', 'abertura')
     bloco = int(request.form.get('bloco', 0))
