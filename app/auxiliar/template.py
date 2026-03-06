@@ -160,14 +160,29 @@ def register_filters(app:Flask):
         # Script para filtrar pelos dois campos
         html_parts.append('''
     <script>
+        function patern_match(str, pattern) {
+            if (pattern.startsWith("^") && pattern.endsWith("$")) {
+                return str === pattern.slice(1, -1)
+            }
+
+            if (pattern.startsWith("^")) {
+                return str.startsWith(pattern.slice(1))
+            }
+
+            if (pattern.endsWith("$")) {
+                return str.endsWith(pattern.slice(0, -1))
+            }
+
+            return str.includes(pattern)
+        }
         function filterPills() {
             var filterSigla = document.getElementById('filter-sigla').value.toUpperCase();
             var filterTabela = document.getElementById('filter-tabela').value.toUpperCase();
             var lis = document.querySelectorAll('#pills-list li');
             lis.forEach(function(li) {
                 var badge = li.querySelector('.section-badge').textContent.toUpperCase();
-                var nome = li.textContent.toUpperCase();
-                if ((badge.includes(filterSigla) && nome.includes(filterTabela)) || li.classList.contains('active')) {
+                var nome = li.textContent.toUpperCase().replace(badge, '').trim();
+                if ((patern_match(badge, filterSigla) && patern_match(nome, filterTabela)) || li.classList.contains('active')) {
                     li.style.display = '';
                 } else {
                     li.style.display = 'none';
