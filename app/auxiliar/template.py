@@ -339,6 +339,10 @@ def register_filters(app:Flask):
 
         return Markup("<br>".join(partes))
 
+    @app.template_filter('blueprint')
+    def get_blueprint(endpoint):
+        return endpoint.split('.', 1)[0]
+
     @app.template_filter('has_flag')
     def has_flag(value, flag, strict_mode=False):
         if strict_mode:
