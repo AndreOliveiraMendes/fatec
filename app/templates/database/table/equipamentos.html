@@ -1,4 +1,23 @@
 {% extends "database/table/base_crude" %}
+{% macro result_table(message) %}
+    {% call(item) table_base(
+        equipamentos,
+        ['ID','Nome','Descrição', 'Categoria'],
+        id_field='id_equipamento',
+        vertical_actions=False,
+        table_class='tabela-crude',
+        message=message,
+        pagination=pagination,
+        acao=acao,
+        bloco=bloco,
+        query_params=query_params
+        ) %}
+        <td>{{ item.id_equipamento }}</td>
+        <td>{{ item.nome_equipamento }}</td>
+        <td>{{ item.descricao|format }}</td>
+        <td>{{ item.categoria.nome_categoria }}</td>
+    {% endcall %}
+{% endmacro %}
 {% block title %}
     Equipamentos
 {% endblock title %}
@@ -65,3 +84,36 @@
         </table>
     </div>
 {% endblock abertura %}
+{% block listar %}
+<h3>Lista de equipamentos</h3>
+{{ result_table("Nenhum equipamento cadastrado") }}
+{% endblock listar %}
+{% block inserir %}
+    <h3>Inserir equipamentos</h3>
+    <form class="form-group"
+          role="form"
+          action="{{ url_for(url) }}"
+          method="post">
+        <input type="hidden" name="acao" value="{{ acao }}">
+        <div class="form-group">
+            <label for="nome_equipamento">Nome do Equipamento:</label>
+            <input type="text"
+                   maxlength="120"
+                   class="form-control"
+                   name="nome_equipamento"
+                   id="nome_equipamento"
+                   placeholder="Digite o nome do equipamento"
+                   required>
+        </div>
+        <div class="form-group">
+            <label for="descricao">Descrição:</label>
+            <textarea class="form-control"
+                      id="descricao"
+                      name="descricao"
+                      rows="3"
+                      placeholder="Digite a descrição do equipamento"></textarea>
+        </div>
+        {{ gerar_select("id_categoria", "Selecione a categoria", categorias, "id_categoria", "nome_categoria") }}
+        {{ action_buttons(acao, 1, False, 0) }}
+    </form>
+{% endblock inserir %}

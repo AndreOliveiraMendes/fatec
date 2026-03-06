@@ -1,10 +1,21 @@
 from typing import Any
 
-from flask import Blueprint, render_template, request, session
+from flask import Blueprint, flash, render_template, request, session
+from flask_sqlalchemy.pagination import SelectPagination
+from sqlalchemy import select
 
+from app.auxiliar.constant import DB_ERRORS
+from app.auxiliar.general import none_if_empty
+from app.auxiliar.navigation import register_return
+from app.dao.internal.equipamentos import get_categorias
+from app.dao.internal.general import handle_db_error
+from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import admin_required
+from app.extensions import db
+from app.models.equipamentos import Equipamentos
 from app.routes_helper.request import get_session_or_request
+from config.general import PER_PAGE
 
 
 bp = Blueprint('database_equipamentos', __name__, url_prefix="/database")
@@ -21,7 +32,41 @@ def gerenciar_equipamentos():
     user = get_user(userid)
     extras: dict[str, Any] = {'url':url}
     if request.method == "POST":
-        pass
+        if acao == "listar":
+            sel_equipamentos = select(Equipamentos)
+            equipamentos_paginados = SelectPagination(
+                select=sel_equipamentos, session=db.session,
+                page=page, per_page=PER_PAGE, error_out=False
+            )
+            extras["equipamentos"] = equipamentos_paginados.items
+            extras["pagination"] = equipamentos_paginados
+
+        elif acao == "inserir" and bloco == 0:
+            extras["categorias"] = get_categorias()
+        elif acao == "inserir" and bloco == 1:
+            nome_equipamento = none_if_empty(request.form.get('nome_equipamento'))
+            descricao = none_if_empty(request.form.get('descricao'))
+            id_categoria = none_if_empty(request.form.get('id_categoria'), int)
+
+            try:
+                novo_equipamento = Equipamentos(
+                    nome_equipamento = nome_equipamento,
+                    descricao = descricao,
+                    id_categoria = id_categoria
+                )
+                db.session.add(novo_equipamento)
+
+                db.session.flush()
+                registrar_log_generico_usuario(userid, 'Inserção', novo_equipamento)
+
+                db.session.commit()
+                flash("Equipamento cadastrado com sucesso", "success")
+            except DB_ERRORS as e:
+                handle_db_error(e, "Erro ao cadastrar equipamento")
+            redirect_action, bloco = register_return(
+                url, acao, extras, categorias=get_categorias()
+            )
+
     if redirect_action:
         return redirect_action
     return render_template("database/table/equipamentos.html",
