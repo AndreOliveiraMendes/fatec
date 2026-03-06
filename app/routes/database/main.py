@@ -133,10 +133,78 @@ def schema():
     if not has_cycle(fks):
         topologic_tables = [table_info + (get_create_table(table_info[0]),) for table_info in get_topologic_sorted(fks)]
         extras['topologic_tables'] = topologic_tables
+
+        levels = {}
+        for table, depth, _ in topologic_tables:
+            levels.setdefault(depth, []).append(table)
+
+        # ordenar nível 0 alfabeticamente
+        levels[0].sort()
+
+        for depth in range(1, max(levels.keys()) + 1):
+
+            def fk_position(table):
+                refs = fks.get(table, [])
+
+                if not refs:
+                    return 999
+
+                pos = []
+                for r in refs:
+                    for d in range(depth):
+                        if r in levels.get(d, []):
+                            pos.append(levels[d].index(r))
+
+                if not pos:
+                    return 999
+
+                return sum(pos) / len(pos)
+
+            levels[depth].sort(key=fk_position)
+
+        extras['fks'] = fks
+        extras['levels'] = levels
     else:
         extras['tables_sql'] = [(table, get_create_table(table)) for table in tables]
-
     return render_template("database/schema/schema.html", user=user, **extras)
+
+@bp.route("/schema/diagram")
+@admin_required
+def schema_diagram():
+    userid = session.get('userid')
+    user = get_user(userid)
+
+    inspector = inspect(db.engine)
+    tables = inspector.get_table_names()
+
+    fks = {table:[fk['referred_table'] for fk in inspector.get_foreign_keys(table)] for table in tables}
+    columns = {}
+    pks = {table: inspector.get_pk_constraint(table)['constrained_columns'] for table in tables}
+
+    for table in tables:
+
+        fk_columns = set()
+
+        for fk in inspector.get_foreign_keys(table):
+            for col in fk['constrained_columns']:
+                fk_columns.add(col)
+
+        columns[table] = []
+
+        for col in inspector.get_columns(table):
+
+            columns[table].append({
+                "name": col["name"],
+                "type": str(col["type"]),
+                "pk": col["name"] in pks.get(table, []),
+                "fk": col["name"] in fk_columns
+            })
+
+    extras = {}
+    extras['fks'] = fks
+    extras['columns'] = columns
+
+    return render_template("database/schema/diagram.html", user=user, **extras)
 
 @bp.route("/schema/sql")
 @admin_required
