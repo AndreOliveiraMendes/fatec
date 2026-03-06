@@ -13,7 +13,7 @@ SECOES = {
             ('Usuários Especiais', 'database_usuarios_especiais.gerenciar_usuarios_especiais', 'success', 'crud'),
             ('Aulas', 'database_aulas.gerenciar_aulas', 'success', 'crud'),
             ('Locais', 'database_locais.gerenciar_locais', 'success', 'crud'),
-            ('Equipamento', 'default.under_dev_page', 'success', 'crud'),
+            ('Equipamento', 'database_equipamentos.gerenciar_equipamentos', 'success', 'crud'),
             ('Semestres', 'database_semestres.gerenciar_semestres', 'success', 'crud'),
             ('Dias da Semana', 'database_dias_da_semana.gerenciar_dias_da_semana', 'success', 'crud'),
             ('Turnos', 'database_turnos.gerenciar_turnos', 'success', 'crud'),

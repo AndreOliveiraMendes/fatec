@@ -1,0 +1,67 @@
+{% extends "database/table/base_crude" %}
+{% block title %}
+    Equipamentos
+{% endblock title %}
+{% block content_head %}
+    <div class="panel panel-default">
+        <div class="panel-heading">{{ generate_database_head("database_equipamentos") }}</div>
+        <div class="panel-body">{{ generate_head(url_for(url) , acao, disable=disable) }}</div>
+    </div>
+{% endblock content_head %}
+{% block abertura %}
+    <h3>
+        Gerenciamento da Tabela <strong>Equipamentos</strong>
+    </h3>
+    <p>
+        A tabela <code>equipamentos</code> possui os seguintes campos:
+    </p>
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover">
+            <thead>
+                <tr class="information">
+                    <th>Campo</th>
+                    <th>Tipo</th>
+                    <th>Descrição</th>
+                    <th>Valores Possíveis</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <code>id_equipamento</code>
+                    </td>
+                    <td>INT (auto_increment, PK)</td>
+                    <td>Identificador único do equipamento no sistema.</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>nome_equipamento</code>
+                    </td>
+                    <td>VARCHAR(120) (NOT NULL, UNIQUE)</td>
+                    <td>Nome do equipamento. Deve ser único.</td>
+                    <td>Texto livre (máx. 120 caracteres)</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>descricao</code>
+                    </td>
+                    <td>TEXT</td>
+                    <td>Descrição detalhada do equipamento.</td>
+                    <td>Texto livre</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>id_categoria</code>
+                    </td>
+                    <td>INT (NOT NULL, FK)</td>
+                    <td>Referência à categoria do equipamento.</td>
+                    <td>
+                        Valores de <code>id_categoria</code> existentes na tabela
+                        <code>categorias_de_equipamentos</code>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+{% endblock abertura %}
