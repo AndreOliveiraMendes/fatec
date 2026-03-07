@@ -2,7 +2,7 @@ import re
 from datetime import datetime
 from typing import List, Literal, Optional, Sequence, Tuple
 
-from flask import Flask, abort, session, url_for
+from flask import Flask, abort, current_app, session, url_for
 from markupsafe import Markup
 from sqlalchemy import between
 
@@ -145,6 +145,9 @@ def register_filters(app:Flask):
             sigla = ''.join(p[0] for p in re.findall(r'\w+', secao))
             active_class = ' class="active"' if table == current_table else ''
             html_parts.append(f'<li role="presentation"{active_class}>')
+            
+            if not url in current_app.view_functions:
+                url = 'default.under_dev_page'
 
             warning_icon = ''
             if url == "default.under_dev_page":
@@ -338,6 +341,34 @@ def register_filters(app:Flask):
         )
 
         return Markup("<br>".join(partes))
+    
+    def resolve_endpoint(endpoint):
+        if endpoint not in current_app.view_functions:
+            return 'default.under_dev_page'
+        return endpoint
+    
+    @app.template_global()
+    def safe_url(endpoint, **values):
+
+        return url_for(resolve_endpoint(endpoint), **values)
+    
+    @app.template_global()
+    def is_under_dev_url(endpoint):
+        return resolve_endpoint(endpoint) == 'default.under_dev_page'
+    
+    @app.template_global()
+    def endpoint_status(endpoint):
+
+        exists = endpoint in current_app.view_functions
+
+        if not exists:
+            endpoint = 'default.under_dev_page'
+
+        return {
+            "endpoint": endpoint,
+            "exists": exists,
+            "url": url_for(endpoint)
+        }
 
     @app.template_filter('blueprint')
     def get_blueprint(endpoint):

@@ -1,0 +1,66 @@
+{% extends "base-fluid" %}
+{% block title %}
+    Progresso CRUD
+{% endblock title %}
+{% block content %}
+    <h3>Progresso de Implementação</h3>
+    <p>Endpoints definidos: {{ defined }} / {{ total }}</p>
+    <div class="progress">
+        <div class="progress-bar progress-bar-info"
+             role="progressbar"
+             style="width: {{ percent_defined }}%">{{ percent_defined }}%</div>
+    </div>
+    <p>CRUDs ativos: {{ active }} / {{ total }}</p>
+    <div class="progress">
+        <div class="progress-bar progress-bar-success"
+             role="progressbar"
+             style="width: {{ percent_active }}%">{{ percent_active }}%</div>
+    </div>
+    <p>Progresso geral: {{ [active, defined]|max }} / {{ total }}</p>
+    <div class="progress">
+        <div class="progress-bar progress-bar-success"
+             style="width: {{ percent_active }}%"></div>
+        <div class="progress-bar progress-bar-info"
+             style="width: {{ percent_defined - percent_active }}%"></div>
+        <div class="progress-bar progress-bar-danger"
+             style="width: {{ 100 - percent_defined }}%"></div>
+    </div>
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Tabela</th>
+                <th>Nível FK</th>
+                <th>Endpoint</th>
+                <th>Definido</th>
+                <th>Ativo</th>
+                <th>Endpoint Esperado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for table, item in progress.items() %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ table }}</td>
+                    <td>{{ item.depth }}</td>
+                    <td>
+                        {% if item.defined %}
+                            <span class="label label-success">Definido</span>
+                        {% else %}
+                            <span class="label label-warning">Placeholder</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if item.active %}
+                            <span class="label label-success">Ativo</span>
+                        {% else %}
+                            <span class="label label-danger">Desativo</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ item.endpoint }}</td>
+                    <td>{{ item.expected_endpoint }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock content %}

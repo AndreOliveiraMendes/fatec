@@ -129,12 +129,13 @@
                             </button>
                             <div class="collapse mb-3" id="collapse{{ loop.index }}">
                                 {% for secao, url, color, meta in grupo_metadate.secoes %}
-                                    <a href="{{ url_for(url) }}"
+                                    {% set ep = endpoint_status(url) %}
+                                    <a href="{{ ep.url }}"
                                        class="btn btn-{{ color }} btn-block text-capitalize">
                                         <span class="glyphicon glyphicon-chevron-right"></span>
                                         {{ secao }}
                                         <span class="glyphicon glyphicon-chevron-left"></span>
-                                        {% if url == "default.under_dev_page" %}
+                                        {% if not ep.exists %}
                                             <span class="glyphicon glyphicon-exclamation-sign icon-warning"
                                                   title="Página em desenvolvimento"></span>
                                         {% endif %}

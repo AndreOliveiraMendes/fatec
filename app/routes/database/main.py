@@ -1,62 +1,13 @@
 from flask import Blueprint, Response, abort, render_template, session
-from sqlalchemy import MetaData, Table, UniqueConstraint, inspect
-from sqlalchemy.dialects import mysql
-from sqlalchemy.schema import CreateTable
+from sqlalchemy import inspect
 
 from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import admin_required
 from app.extensions import db
+from app.routes_helper.database import (get_create_table, get_crud_progress,
+                                        get_topologic_sorted, has_cycle)
 
 bp = Blueprint('database_main', __name__, url_prefix="/database")
-
-def get_topologic_sorted(fks):
-    result, sorted_tables = [], []
-    to_be_sorted = [table for table in fks.keys()]
-    interaction = 0
-    while len(to_be_sorted) > 0:
-        sorted_this_interaction = []
-        for table in to_be_sorted:
-            dependencies = fks[table]
-            if not dependencies or all(dep in sorted_tables for dep in dependencies):
-                sorted_this_interaction.append(table)
-        to_be_sorted = [table for table in to_be_sorted if table not in sorted_this_interaction]
-        for table in sorted_this_interaction:
-            sorted_tables.append(table)
-            result.append((table, interaction))
-        interaction += 1
-    return result
-
-def get_create_table(table_name):
-    metadata = MetaData()
-    inspector = inspect(db.engine)
-    uks = inspector.get_unique_constraints(table_name)
-    tabela = Table(table_name, metadata, autoload_with=db.engine)
-    for uk in uks:
-        tabela.append_constraint(UniqueConstraint(*uk['column_names'], name=uk['name']))
-    ddl = CreateTable(tabela, if_not_exists=True).compile(db.engine, dialect=mysql.dialect())
-    return str(ddl)
-
-def dfs(table, fks, visited):
-    if table in visited:
-        return visited[table] == 0
-    else:
-        visited[table] = 0
-        for dep_table in fks[table]:
-            cycles = dfs(dep_table, fks,visited)
-            if cycles:
-                return True
-        visited[table] = 1
-        return False
-
-def has_cycle(fks):
-    cycles = False
-    visited = {}
-    for table in fks.keys():
-        if not table in visited:
-            cycles = dfs(table, fks, visited)
-        if cycles:
-            return True
-    return cycles
 
 @bp.route("/")
 @admin_required
@@ -64,7 +15,39 @@ def menu():
     userid = session.get('userid')
     user = get_user(userid)
     extras = {}
+
     return render_template("database/menu.html", user=user, **extras)
+
+@bp.route("/crud-progress")
+@admin_required
+def crud_progress():
+
+    userid = session.get('userid')
+    user = get_user(userid)
+
+    progress = get_crud_progress()
+
+    total = len(progress)
+    defined = sum(1 for item in progress.values() if item.get("defined"))
+    active = sum(1 for item in progress.values() if item.get("active"))
+
+    percent_defined = int((defined / total) * 100) if total else 0
+    percent_active = int((active / total) * 100) if total else 0
+
+    extras = {
+        "progress": progress,
+        "total": total,
+        "defined": defined,
+        "active": active,
+        "percent_defined": percent_defined,
+        "percent_active": percent_active,
+    }
+
+    return render_template(
+        "database/schema/crud_progress.html",
+        user=user,
+        **extras
+    )
 
 @bp.route("/view")
 @admin_required

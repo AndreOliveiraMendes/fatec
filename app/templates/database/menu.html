@@ -16,8 +16,14 @@
         <a href="{{ url_for("database_main.schema") }}" class="btn btn-info">
             <span class="glyphicon glyphicon-level-up"></span> Schema (Experimental)
         </a>
-        <a href="{{ url_for("database_main.schema_diagram") }}" class="btn btn-info">
+        <a href="{{ url_for("database_main.schema_diagram") }}"
+           class="btn btn-info">
             <span class="glyphicon glyphicon-random"></span> Diagrama (Experimental)
+        </a>
+        <a href="{{ url_for("database_main.crud_progress") }}"
+           class="btn btn-warning">
+            <span class="glyphicon glyphicon-tasks"></span>
+            Progresso CRUD
         </a>
         {% if roll <= 1 %}
             <!-- 1% chance -->
