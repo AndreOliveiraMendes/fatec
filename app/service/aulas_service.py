@@ -1,6 +1,6 @@
-from sqlalchemy import and_, or_, select, func
-from sqlalchemy.exc import IntegrityError
 from flask import abort
+from sqlalchemy import and_, func, or_, select
+from sqlalchemy.exc import IntegrityError
 
 from app.extensions import db
 from app.models.aulas import Aulas_Ativas
