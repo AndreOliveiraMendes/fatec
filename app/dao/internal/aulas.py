@@ -1,8 +1,7 @@
 from datetime import date, time
 
-from flask import abort
-from sqlalchemy import and_, func, literal, or_, select, text, union_all
-from sqlalchemy.exc import IntegrityError, MultipleResultsFound
+from sqlalchemy import and_, literal, or_, select, text, union_all
+from sqlalchemy.exc import MultipleResultsFound
 
 from app.auxiliar.dao_query import (get_aula_intervalo, get_aula_semana,
                                     get_aula_turno)
@@ -163,34 +162,3 @@ def get_dias_da_semana():
 def get_turnos():
     sel_turnos = select(Turnos.id_turno, Turnos.nome_turno).order_by(Turnos.id_turno)
     return db.session.execute(sel_turnos).all()
-
-def check_aula_ativa(inicio, fim, aula, semana, tipo, id = None):
-    base_filter = [Aulas_Ativas.id_aula == aula, Aulas_Ativas.id_semana == semana,
-                   Aulas_Ativas.tipo_aula == tipo]
-    if id is not None:
-        base_filter.append(Aulas_Ativas.id_aula_ativa != id)
-    if inicio and fim:
-        base_filter.append(
-            and_(
-                or_(Aulas_Ativas.fim_ativacao.is_(None), Aulas_Ativas.fim_ativacao >= inicio),
-                or_(Aulas_Ativas.inicio_ativacao.is_(None), Aulas_Ativas.inicio_ativacao <= fim)
-                )
-            )
-    elif inicio and not fim:
-        base_filter.append(
-            or_(Aulas_Ativas.fim_ativacao.is_(None), Aulas_Ativas.fim_ativacao >= inicio)
-            )
-    elif not inicio and fim:
-        base_filter.append(
-            or_(Aulas_Ativas.inicio_ativacao.is_(None), Aulas_Ativas.inicio_ativacao <= fim)
-            )
-    countl_sel_aulas_ativas = select(func.count()).select_from(Aulas_Ativas).where(*base_filter)
-    res = db.session.scalar(countl_sel_aulas_ativas)
-    if res is None:
-        abort(500, description="Erro ao verificar conflito de aula ativa.")
-    if res > 0:
-        raise IntegrityError(
-            statement=None,
-            params=None,
-            orig=Exception("Já existe uma aula ativa com os mesmos dados (aula, semana e tipo).")
-        )

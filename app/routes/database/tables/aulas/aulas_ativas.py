@@ -9,8 +9,8 @@ from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.general import none_if_empty
 from app.auxiliar.navigation import register_return
 from app.auxiliar.parsing import parse_date_string
-from app.dao.internal.aulas import (check_aula_ativa, get_aulas,
-                                    get_aulas_ativas, get_dias_da_semana)
+from app.dao.internal.aulas import (get_aulas, get_aulas_ativas,
+                                    get_dias_da_semana)
 from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.usuarios import get_user
@@ -19,6 +19,7 @@ from app.enums import TipoAulaEnum
 from app.extensions import db
 from app.models.aulas import Aulas_Ativas
 from app.routes_helper.request import get_query_params, get_session_or_request
+from app.service.aulas_service import check_aula_ativa
 from config.database_views import get_url
 from config.general import PER_PAGE
 
