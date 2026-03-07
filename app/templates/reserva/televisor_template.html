@@ -1,5 +1,6 @@
 {% extends "base-fluid" %}
 {% from "macros/form.html" import action_buttons %}
+{% from "macros/footer.html" import legenda_icones_reserva %}
 {% block title %}
     Tela Televisor
 {% endblock title %}
@@ -49,36 +50,5 @@
     </style>
 {% endblock extra_css %}
 {% block footer %}
-    <div>
-        <strong>Legenda dos ícones:</strong>
-        <ul class="list-inline">
-            <li>
-                <span class="reserva-icon text-indefinido">
-                    <i class="glyphicon glyphicon-user base-icon"></i>
-                </span>
-                — indefinido
-            </li>
-            <li>
-                <span class="reserva-icon text-nao-pegou-chave">
-                    <i class="glyphicon glyphicon-user base-icon"></i>
-                    <i class="glyphicon glyphicon-remove icon-contrast overlay-icon"></i>
-                </span>
-                — não pegou a chave
-            </li>
-            <li>
-                <span class="reserva-icon text-pegou-chave">
-                    <i class="glyphicon glyphicon-user base-icon"></i>
-                    <i class="glyphicon glyphicon-ok icon-contrast overlay-icon"></i>
-                </span>
-                — está em sala
-            </li>
-            <li>
-                <span class="reserva-icon text-devolveu-chave">
-                    <i class="glyphicon glyphicon-user base-icon"></i>
-                    <i class="glyphicon glyphicon-log-out icon-contrast overlay-icon"></i>
-                </span>
-                — reserva efetuada
-            </li>
-        </ul>
-    </div>
+    {{ legenda_icones_reserva() }}
 {% endblock footer %}

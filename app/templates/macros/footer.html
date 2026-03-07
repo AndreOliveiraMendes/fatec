@@ -1,0 +1,34 @@
+{% macro legenda_icones_reserva() %}
+    <div>
+        <strong>Legenda:</strong>
+        <ul class="list-inline">
+            <li>
+                <span class="reserva-icon text-indefinido">
+                    <i class="glyphicon glyphicon-user base-icon"></i>
+                </span>
+                — indefinido
+            </li>
+            <li>
+                <span class="reserva-icon text-nao-pegou-chave">
+                    <i class="glyphicon glyphicon-user base-icon"></i>
+                    <i class="glyphicon glyphicon-remove icon-contrast overlay-icon"></i>
+                </span>
+                — chave não retirada
+            </li>
+            <li>
+                <span class="reserva-icon text-pegou-chave">
+                    <i class="glyphicon glyphicon-user base-icon"></i>
+                    <i class="glyphicon glyphicon-ok icon-contrast overlay-icon"></i>
+                </span>
+                — chave retirada
+            </li>
+            <li>
+                <span class="reserva-icon text-devolveu-chave">
+                    <i class="glyphicon glyphicon-user base-icon"></i>
+                    <i class="glyphicon glyphicon-log-out icon-contrast overlay-icon"></i>
+                </span>
+                — chave devolvida
+            </li>
+        </ul>
+    </div>
+{% endmacro %}
