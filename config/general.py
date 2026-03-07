@@ -1,4 +1,5 @@
 import os
+from typing import Callable, Optional, TypeVar, overload
 
 from dotenv import load_dotenv
 from tzlocal import get_localzone
@@ -7,15 +8,28 @@ from tzlocal import get_localzone
 # Helpers
 # --------------------------------------------------
 
+T = TypeVar("T")
+
 def str_to_bool(s):
     return str(s).lower() in ("true", "1", "yes", "on")
 
+@overload
+def env(key: str) -> str | None: ...
+
+@overload
+def env(key: str, default: T) -> str | T: ...
+
+@overload
+def env(key: str, default: T, cast: Callable[[str], T]) -> T: ...
 
 def env(key, default=None, cast=None):
-    value = os.getenv(key, default)
+    value = os.getenv(key)
 
-    if cast and value is not None:
-        value = cast(value)
+    if value is None:
+        return default
+
+    if cast:
+        return cast(value)
 
     return value
 
