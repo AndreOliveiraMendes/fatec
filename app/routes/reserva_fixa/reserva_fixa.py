@@ -6,7 +6,7 @@ from flask import (Blueprint, abort, current_app, flash, redirect,
 from markupsafe import Markup
 from sqlalchemy import select
 
-from app.auxiliar.constant import DB_ERRORS, PERM_ADMIN
+from app.auxiliar.constant import DB_ERRORS, Permission
 from app.auxiliar.general import none_if_empty
 from app.dao.external.disponibilidade import get_prioridade
 from app.dao.internal.aulas import (get_aulas_ativas_por_semestre,
@@ -47,7 +47,7 @@ def _get_semestre_or_403(id_semestre, userid, perm):
 
 
 def _check_semestre(semestre, userid, perm):
-    if perm & PERM_ADMIN:
+    if perm & Permission.ADMIN:
         return
 
     today = date.today()
@@ -151,7 +151,7 @@ def main_page():
 
         icon = ""
         if not (s.data_inicio_reserva <= today <= s.data_fim_reserva):
-            if not (user and user.perm & PERM_ADMIN):
+            if not (user and user.perm & Permission.ADMIN):
                 state += " disabled"
             icon = Markup("<span class='glyphicon glyphicon-lock'></span>")
         elif (today - s.data_inicio_reserva).days < s.dias_de_prioridade:
@@ -210,7 +210,7 @@ def _get_lab_geral(id_semestre, id_turno):
 
     turno = db.get_or_404(Turnos, id_turno) if id_turno else None
     aulas = get_aulas_ativas_por_semestre(semestre, turno)
-    locais = get_laboratorios(bool(user.perm & PERM_ADMIN))
+    locais = get_laboratorios(bool(user.perm & Permission.ADMIN))
 
     if not aulas or not locais:
         flash("não há recursos disponíveis", "danger")
@@ -244,7 +244,7 @@ def _get_lab_especifico(id_semestre, id_turno, id_lab):
 
     extras.update(
         aulas=aulas,
-        locais=get_laboratorios(bool(user.perm & PERM_ADMIN)),
+        locais=get_laboratorios(bool(user.perm & Permission.ADMIN)),
         aulas_extras=get_aulas_extras(semestre, turno)
     )
 
@@ -263,7 +263,7 @@ def efetuar_reserva(id_semestre):
     responsavel = none_if_empty(request.form.get("responsavel"))
     responsavel_especial = none_if_empty(request.form.get("responsavel_especial"))
 
-    if not perm or not (perm.permissao & PERM_ADMIN):
+    if not perm or not (perm.permissao & Permission.ADMIN):
         responsavel = user.id_pessoa
         responsavel_especial = None
 
@@ -277,7 +277,7 @@ def efetuar_reserva(id_semestre):
         flash("voce não selecionou reserva alguma", "warning")
         return redirect(url_for("default.home"))
 
-    if (not perm or not (perm.permissao & PERM_ADMIN)) and _has_conflict(semestre, reservas, user):
+    if (not perm or not (perm.permissao & Permission.ADMIN)) and _has_conflict(semestre, reservas, user):
         abort(409, description="so é possivel reservar 1 laboratorio por professor")
 
     try:

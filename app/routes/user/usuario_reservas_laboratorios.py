@@ -8,7 +8,7 @@ from flask.typing import ResponseReturnValue
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import and_, select
 
-from app.auxiliar.constant import DB_ERRORS, PERM_ADMIN
+from app.auxiliar.constant import DB_ERRORS, Permission
 from app.auxiliar.general import none_if_empty
 from app.dao.internal.aulas import get_dias_da_semana, get_semestres
 from app.dao.internal.general import handle_db_error
@@ -83,7 +83,7 @@ def get_reservas(userid, params, page, tipo):
     if not user or not model:
         abort(404, description="Usuário não encontrado.")
     filtro = []
-    if not user.perm & PERM_ADMIN:
+    if not user.perm & Permission.ADMIN:
         filtro.append(model.id_responsavel == user.id_pessoa)
     for key, (condition, cast) in FILTERS.get(tipo, {}).items():
         raw = params.get(key)
@@ -127,7 +127,7 @@ def gerenciar_reserva_fixa():
     extras['TipoReserva'] = FinalidadeReservaEnum
     extras['pessoas'] = get_pessoas()
     extras['usuarios_especiais'] = get_usuarios_especiais()
-    extras['laboratorios'] = get_laboratorios(user.perm & PERM_ADMIN > 0)
+    extras['laboratorios'] = get_laboratorios(user.perm & Permission.ADMIN > 0)
     extras['semanas'] = get_dias_da_semana()
     return render_template("usuario/reserva_fixa.html", user=user, **extras)
 
@@ -149,7 +149,7 @@ def gerenciar_reserva_temporaria():
     extras['TipoReserva'] = FinalidadeReservaEnum
     extras['pessoas'] = get_pessoas()
     extras['usuarios_especiais'] = get_usuarios_especiais()
-    extras['laboratorios'] = get_laboratorios(user.perm & PERM_ADMIN > 0)
+    extras['laboratorios'] = get_laboratorios(user.perm & Permission.ADMIN > 0)
     extras['semanas'] = get_dias_da_semana()
     return render_template("usuario/reserva_temporaria.html", user=user, **extras)
 
@@ -199,7 +199,7 @@ def editar_reserva_generico(model, id_reserva: int, redirect_url: str) -> Respon
     responsavel = none_if_empty(request.form.get('responsavel'))
     responsavel_especial = none_if_empty(request.form.get('responsavel_especial'))
     perm = db.session.get(Permissoes, userid)
-    if not perm or perm.permissao&PERM_ADMIN == 0:
+    if not perm or perm.permissao&Permission.ADMIN == 0:
         responsavel = reserva.id_responsavel
         responsavel_especial = reserva.id_responsavel_especial
     try:

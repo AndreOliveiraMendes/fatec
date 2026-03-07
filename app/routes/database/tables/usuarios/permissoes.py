@@ -7,9 +7,7 @@ from flask import Blueprint, Request, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
-from app.auxiliar.constant import (DB_ERRORS, PERM_ADMIN, PERM_AUTORIZAR,
-                                   PERM_CMD_CONFIG, PERM_RESERVA_AUDITORIO,
-                                   PERM_RESERVA_FIXA, PERM_RESERVA_TEMPORARIA)
+from app.auxiliar.constant import DB_ERRORS, Permission
 from app.auxiliar.general import none_if_empty
 from app.auxiliar.navigation import register_return
 from app.dao.internal.general import handle_db_error
@@ -41,12 +39,12 @@ def get_perm(acao, userid):
 
 def get_flag(req: Request) -> int:
     flags = {
-        "flag_fixa": PERM_RESERVA_FIXA,
-        "flag_temp": PERM_RESERVA_TEMPORARIA,
-        "flag_auditorio": PERM_RESERVA_AUDITORIO,
-        "flag_admin": PERM_ADMIN,
-        "flag_autorizar": PERM_AUTORIZAR,
-        "flag_cmd_config": PERM_CMD_CONFIG,
+        "flag_fixa": Permission.RESERVA_FIXA,
+        "flag_temp": Permission.RESERVA_TEMPORARIA,
+        "flag_auditorio": Permission.RESERVA_AUDITORIO,
+        "flag_admin": Permission.ADMIN,
+        "flag_autorizar": Permission.AUTORIZAR,
+        "flag_cmd_config": Permission.CMD_CONFIG,
     }
     return reduce(operator.or_, (v for k, v in flags.items() if k in req.form), 0)
 
@@ -135,7 +133,7 @@ def gerenciar_permissoes():
             flag = get_flag(request)
             
             permissao = db.get_or_404(Permissoes, id_permissao_usuario)
-            if id_permissao_usuario == userid and flag&PERM_ADMIN == 0:
+            if id_permissao_usuario == userid and flag&Permission.ADMIN == 0:
                 flash("voce não pode remover seu proprio poder de administrador", "danger")
             else:
                 try:

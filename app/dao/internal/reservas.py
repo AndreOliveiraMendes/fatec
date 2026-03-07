@@ -8,7 +8,7 @@ from sqlalchemy import and_, between, func, select
 from sqlalchemy.exc import IntegrityError, MultipleResultsFound
 from sqlalchemy.sql.elements import ColumnElement
 
-from app.auxiliar.constant import DB_ERRORS, PERM_ADMIN
+from app.auxiliar.constant import DB_ERRORS, Permission
 from app.auxiliar.dao_query import get_aula_semana, get_aula_turno
 from app.auxiliar.general import none_if_empty
 from app.auxiliar.parsing import parse_date_string
@@ -231,7 +231,7 @@ def check_ownership_or_admin(reserva: Reservas_Fixas | Reservas_Temporarias):
     perm = db.session.get(Permissoes, userid)
 
     if reserva.id_responsavel != user.pessoa.id_pessoa and (
-        not perm or perm.permissao & PERM_ADMIN == 0
+        not perm or perm.permissao & Permission.ADMIN == 0
     ):
         abort(403, description="Acesso negado à reserva de outro usuário.")
 
@@ -239,7 +239,7 @@ def check_periodo_fixa(reserva: Reservas_Fixas):
     userid = session.get('userid')
     perm = db.session.get(Permissoes, userid)
 
-    if perm and perm.permissao & PERM_ADMIN:
+    if perm and perm.permissao & Permission.ADMIN:
         return True
 
     hoje = date.today()

@@ -6,7 +6,7 @@ from flask import (Blueprint, abort, flash, redirect, render_template, request,
                    session, url_for)
 from sqlalchemy import func, select
 
-from app.auxiliar.constant import DB_ERRORS, PERM_ADMIN, PERM_AUTORIZAR
+from app.auxiliar.constant import DB_ERRORS, Permission
 from app.auxiliar.general import none_if_empty
 from app.auxiliar.parsing import parse_date_string
 from app.dao.internal.general import handle_db_error
@@ -51,17 +51,17 @@ def main_page():
             conditions.append(Reservas_Auditorios.dia_reserva >= reserva_dia_inicio)
         if reserva_dia_fim:
             conditions.append(Reservas_Auditorios.dia_reserva <= reserva_dia_fim)
-    extras['reservas_auditorios'] = get_reservas_auditorios_filtrada(user.pessoa.id_pessoa, user.perm&(PERM_ADMIN+PERM_AUTORIZAR) > 0, *conditions)
+    extras['reservas_auditorios'] = get_reservas_auditorios_filtrada(user.pessoa.id_pessoa, user.perm&(Permission.ADMIN+Permission.AUTORIZAR) > 0, *conditions)
     return render_template('reserva_auditorio/main.html', user=user, **extras)
 
 def check_own_reserva(reserva:Reservas_Auditorios, user:Usuarios):
-    if user.id_pessoa != reserva.id_responsavel and user.perm & (PERM_ADMIN+PERM_AUTORIZAR) == 0:
+    if user.id_pessoa != reserva.id_responsavel and user.perm & (Permission.ADMIN+Permission.AUTORIZAR) == 0:
         abort(403, description="Acesso negado à reserva de outro usuário.")
 
 def check_role(user:Usuarios, action:Literal['CR', 'AR']):
-    if action == 'CR' and user.perm & PERM_ADMIN == 0:
+    if action == 'CR' and user.perm & Permission.ADMIN == 0:
         abort(403, description="Acesso negado à atualização de reservas.")
-    elif action == 'AR' and user.perm & (PERM_ADMIN+PERM_AUTORIZAR) == 0:
+    elif action == 'AR' and user.perm & (Permission.ADMIN+Permission.AUTORIZAR) == 0:
         abort(403, description="Acesso negado à autorização de reservas.")
 
 def check_unique_aprovada(reserva:Reservas_Auditorios):

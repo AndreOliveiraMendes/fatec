@@ -1,7 +1,11 @@
+from enum import IntFlag
+
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
                             InternalError, OperationalError, ProgrammingError)
 
-# exceptions for database
+# --------------------------------------------------
+# Database exceptions
+# --------------------------------------------------
 
 DB_ERRORS = (
     DataError,
@@ -9,18 +13,37 @@ DB_ERRORS = (
     InterfaceError,
     InternalError,
     OperationalError,
-    ProgrammingError
+    ProgrammingError,
 )
 
-#flags de permissão
-PERM_RESERVA_FIXA = 1
-PERM_RESERVA_TEMPORARIA = 2
-PERM_RESERVA_AUDITORIO = 4
-PERM_ADMIN = 8
-PERM_AUTORIZAR = 16
-PERM_CMD_CONFIG = 32
 
-#flags de formatação de data
+# --------------------------------------------------
+# Permission flags (bitmask)
+# --------------------------------------------------
+
+class Permission(IntFlag):
+    RESERVA_FIXA = 1
+    RESERVA_TEMPORARIA = 2
+    RESERVA_AUDITORIO = 4
+    ADMIN = 8
+    AUTORIZAR = 16
+    CMD_CONFIG = 32
+
+
+PERMISSIONS = {
+    "FIXA": Permission.RESERVA_FIXA,
+    "TEMP": Permission.RESERVA_TEMPORARIA,
+    "AUDITORIO": Permission.RESERVA_AUDITORIO,
+    "ADMIN": Permission.ADMIN,
+    "AUTORIZAR": Permission.AUTORIZAR,
+    "CONFIGURAR_COMANDOS": Permission.CMD_CONFIG,
+}
+
+
+# --------------------------------------------------
+# Date formatting flags (bitmask)
+# --------------------------------------------------
+
 DATA_NUMERICA = 0x1
 DATA_ABREV = 0x2
 DATA_COMPLETA = 0x4
@@ -28,29 +51,27 @@ HORA = 0x8
 SEMANA_ABREV = 0x10
 SEMANA_COMPLETA = 0x20
 
-#flags de redirect
+
+DATA_FLAGS = {
+    "DATA_NUMERICA": DATA_NUMERICA,
+    "DATA_ABREV": DATA_ABREV,
+    "DATA_COMPLETA": DATA_COMPLETA,
+    "HORA": HORA,
+    "SEMANA_ABREV": SEMANA_ABREV,
+    "SEMANA_COMPLETA": SEMANA_COMPLETA,
+}
+
+
+# --------------------------------------------------
+# Redirect targets
+# --------------------------------------------------
+
 REDIRECT_HOME = "home"
 REDIRECT_TV = "tv"
 
-# permissoes
-PERMISSIONS = {
-    'FIXA': PERM_RESERVA_FIXA,
-    'TEMP': PERM_RESERVA_TEMPORARIA,
-    'AUDITORIO': PERM_RESERVA_AUDITORIO,
-    'ADMIN': PERM_ADMIN,
-    'AUTORIZAR': PERM_AUTORIZAR,
-    'CONFIGURAR_COMANDOS': PERM_CMD_CONFIG
-}
 
-# flags de formato
-DATA_FLAGS = {
-    'DATA_NUMERICA': DATA_NUMERICA,
-    'DATA_ABREV': DATA_ABREV,
-    'DATA_COMPLETA': DATA_COMPLETA,
-    'HORA': HORA,
-    'SEMANA_ABREV': SEMANA_ABREV,
-    'SEMANA_COMPLETA': SEMANA_COMPLETA
-}
+# --------------------------------------------------
+# App info
+# --------------------------------------------------
 
-# app title
 APP_TITLE = "SGR"

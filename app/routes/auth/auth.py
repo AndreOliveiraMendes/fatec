@@ -5,8 +5,7 @@ from flask import (Blueprint, abort, current_app, flash, redirect,
                    render_template, request, session, url_for)
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
-from app.auxiliar.constant import (PERM_ADMIN, PERM_RESERVA_AUDITORIO,
-                                   PERM_RESERVA_FIXA, PERM_RESERVA_TEMPORARIA)
+from app.auxiliar.constant import Permission
 from app.auxiliar.general import none_if_empty
 from app.dao.internal.historicos import registrar_log_generico_sistema
 from app.dao.internal.usuarios import get_user
@@ -84,9 +83,9 @@ def check_login(id, password) -> LoginResult:
                 old_perm = None
                 if not perm:
                     if user.grupo_pessoa in ['ADMINISTRADOR', 'REDE']:
-                        permission = PERM_RESERVA_FIXA | PERM_RESERVA_TEMPORARIA | PERM_RESERVA_AUDITORIO | PERM_ADMIN
+                        permission = Permission.RESERVA_FIXA | Permission.RESERVA_TEMPORARIA | Permission.RESERVA_AUDITORIO | Permission.ADMIN
                     elif user.grupo_pessoa in ['DOCENTE']:
-                        permission = PERM_RESERVA_FIXA | PERM_RESERVA_AUDITORIO
+                        permission = Permission.RESERVA_FIXA | Permission.RESERVA_AUDITORIO
                     else:
                         permission = 0
                     perm=Permissoes(id_permissao_usuario = id_usuario, permissao = permission)

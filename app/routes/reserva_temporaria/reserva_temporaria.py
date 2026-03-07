@@ -6,7 +6,7 @@ from flask import (Blueprint, abort, current_app, flash, redirect,
                    render_template, request, session, url_for)
 from sqlalchemy import select
 
-from app.auxiliar.constant import DB_ERRORS, PERM_ADMIN
+from app.auxiliar.constant import DB_ERRORS, Permission
 from app.auxiliar.dates import time_range
 from app.auxiliar.general import none_if_empty
 from app.auxiliar.parsing import parse_date_string
@@ -209,7 +209,7 @@ def get_lab_geral(inicio, fim, id_turno):
     turno = db.get_or_404(Turnos, id_turno) if id_turno else None
     tipo = _obter_tipo_horario()
 
-    locais = get_laboratorios(user.perm & PERM_ADMIN > 0)
+    locais = get_laboratorios(user.perm & Permission.ADMIN > 0)
     dias = [(dia, turno) for dia in time_range(inicio, fim)]
     aulas = get_aulas_ativas_por_lista_de_dias(dias, tipo)
 
@@ -254,7 +254,7 @@ def get_lab_especifico(inicio, fim, id_turno, id_lab):
     ctx.update({
         "local": local,
         "aulas": aulas,
-        "locais": get_laboratorios(user.perm & PERM_ADMIN > 0),
+        "locais": get_laboratorios(user.perm & Permission.ADMIN > 0),
         "day": date.today()
     })
 
@@ -282,7 +282,7 @@ def efetuar_reserva(inicio, fim):
     resp_especial = none_if_empty(request.form.get("responsavel_especial"))
 
     perm = db.session.get(Permissoes, userid)
-    if not perm or perm.permissao & PERM_ADMIN == 0:
+    if not perm or perm.permissao & Permission.ADMIN == 0:
         responsavel = user.id_pessoa
         resp_especial = None
 

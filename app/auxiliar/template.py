@@ -7,8 +7,9 @@ from markupsafe import Markup
 from sqlalchemy import between
 
 from app.auxiliar.constant import (APP_TITLE, DATA_ABREV, DATA_COMPLETA,
-                                   DATA_FLAGS, DATA_NUMERICA, HORA, PERM_ADMIN,
-                                   PERMISSIONS, SEMANA_ABREV, SEMANA_COMPLETA)
+                                   DATA_FLAGS, DATA_NUMERICA, HORA,
+                                   PERMISSIONS, SEMANA_ABREV, SEMANA_COMPLETA,
+                                   Permission)
 from app.dao.internal.general import get_unique_or_500
 from app.dao.internal.reservas import get_responsavel_reserva
 from app.dao.internal.usuarios import get_user
@@ -229,7 +230,7 @@ def register_filters(app:Flask):
                 active_link = lab_url(tipo, turno, None, **kwargs)
             
             if lab.disponibilidade.value == 'Indisponivel':
-                if user.perm & PERM_ADMIN == 0:
+                if user.perm & Permission.ADMIN == 0:
                     active_class = 'disabled'
                     active_link = ""
                 else:
