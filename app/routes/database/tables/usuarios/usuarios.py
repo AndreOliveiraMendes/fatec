@@ -56,20 +56,20 @@ def gerenciar_usuarios():
             tipo_pessoa = none_if_empty(request.form.get('tipo_pessoa', None))
             situacao_pessoa = none_if_empty(request.form.get('situacao_pessoa', None))
             grupo_pessoa = none_if_empty(request.form.get('grupo_pessoa', None))
-            filter = []
+            filters = []
             query_params = get_query_params(request)
             if id_usuario is not None:
-                filter.append(Usuarios.id_usuario == id_usuario)
+                filters.append(Usuarios.id_usuario == id_usuario)
             if id_pessoa is not None:
-                filter.append(Usuarios.id_pessoa == id_pessoa)
+                filters.append(Usuarios.id_pessoa == id_pessoa)
             if tipo_pessoa:
-                filter.append(Usuarios.tipo_pessoa == tipo_pessoa)
+                filters.append(Usuarios.tipo_pessoa == tipo_pessoa)
             if situacao_pessoa:
-                filter.append(Usuarios.situacao_pessoa == situacao_pessoa)
+                filters.append(Usuarios.situacao_pessoa == situacao_pessoa)
             if grupo_pessoa:
-                filter.append(Usuarios.grupo_pessoa == grupo_pessoa)
-            if filter:
-                sel_users = select(Usuarios).where(*filter)
+                filters.append(Usuarios.grupo_pessoa == grupo_pessoa)
+            if filters:
+                sel_users = select(Usuarios).where(*filters)
                 usuarios_paginados = SelectPagination(
                     select=sel_users, session=db.session,
                     page=page, per_page=PER_PAGE, error_out=False

@@ -61,28 +61,28 @@ def gerenciar_reservas_auditorios():
             id_autorizador = none_if_empty(request.form.get('id_autorizador'), int)
             observação_responsavel = none_if_empty(request.form.get('observação_responsavel'))
             observação_autorizador = none_if_empty(request.form.get('observação_autorizador'))
-            filter = []
+            filters = []
             query_params = get_query_params(request)
             if id_reserva_auditorio is not None:
-                filter.append(Reservas_Auditorios.id_reserva_auditorio == id_reserva_auditorio)
+                filters.append(Reservas_Auditorios.id_reserva_auditorio == id_reserva_auditorio)
             if id_responsavel is not None:
-                filter.append(Reservas_Auditorios.id_responsavel == id_responsavel)
+                filters.append(Reservas_Auditorios.id_responsavel == id_responsavel)
             if id_reserva_local is not None:
-                filter.append(Reservas_Auditorios.id_reserva_local == id_reserva_local)
+                filters.append(Reservas_Auditorios.id_reserva_local == id_reserva_local)
             if id_reserva_aula is not None:
-                filter.append(Reservas_Auditorios.id_reserva_aula == id_reserva_aula)
+                filters.append(Reservas_Auditorios.id_reserva_aula == id_reserva_aula)
             if dia_reserva:
-                filter.append(Reservas_Auditorios.dia_reserva == dia_reserva)
+                filters.append(Reservas_Auditorios.dia_reserva == dia_reserva)
             if status_reserva:
-                filter.append(Reservas_Auditorios.status_reserva == StatusReservaAuditorioEnum(status_reserva))
+                filters.append(Reservas_Auditorios.status_reserva == StatusReservaAuditorioEnum(status_reserva))
             if id_autorizador is not None:
-                filter.append(Reservas_Auditorios.id_autorizador == id_autorizador)
+                filters.append(Reservas_Auditorios.id_autorizador == id_autorizador)
             if observação_responsavel:
-                filter.append(Reservas_Auditorios.observação_responsavel.ilike(f"%{observação_responsavel}%"))
+                filters.append(Reservas_Auditorios.observação_responsavel.ilike(f"%{observação_responsavel}%"))
             if observação_autorizador:
-                filter.append(Reservas_Auditorios.observação_autorizador.ilike(f"%{observação_autorizador}"))
-            if filter:
-                sel_reservas = select(Reservas_Auditorios).where(*filter)
+                filters.append(Reservas_Auditorios.observação_autorizador.ilike(f"%{observação_autorizador}"))
+            if filters:
+                sel_reservas = select(Reservas_Auditorios).where(*filters)
                 reservas_auditorios_paginadas = SelectPagination(
                 select=sel_reservas, session=db.session,
                 page=page, per_page=PER_PAGE, error_out=False

@@ -55,20 +55,20 @@ def gerenciar_exibicao_reservas():
             id_exibicao_aula = none_if_empty(request.form.get('id_exibicao_aula'), int)
             exibicao_dia = parse_date_string(request.form.get('exibicao_dia'))
             tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
-            filter = []
+            filters = []
             query_params = get_query_params(request)
             if id_exibicao is not None:
-                filter.append(Exibicao_Reservas.id_exibicao == id_exibicao)
+                filters.append(Exibicao_Reservas.id_exibicao == id_exibicao)
             if id_exibicao_local is not None:
-                filter.append(Exibicao_Reservas.id_exibicao_local == id_exibicao_local)
+                filters.append(Exibicao_Reservas.id_exibicao_local == id_exibicao_local)
             if id_exibicao_aula is not None:
-                filter.append(Exibicao_Reservas.id_exibicao_aula == id_exibicao_aula)
+                filters.append(Exibicao_Reservas.id_exibicao_aula == id_exibicao_aula)
             if exibicao_dia:
-                filter.append(Exibicao_Reservas.exibicao_dia == exibicao_dia)
+                filters.append(Exibicao_Reservas.exibicao_dia == exibicao_dia)
             if tipo_reserva:
-                filter.append(Exibicao_Reservas.tipo_reserva == TipoReservaEnum(tipo_reserva))
-            if filter:
-                sel_exibicao = select(Exibicao_Reservas).where(*filter)
+                filters.append(Exibicao_Reservas.tipo_reserva == TipoReservaEnum(tipo_reserva))
+            if filters:
+                sel_exibicao = select(Exibicao_Reservas).where(*filters)
                 exibicao_reservas_paginadas = SelectPagination(
                     select=sel_exibicao, session=db.session,
                     page=page, per_page=PER_PAGE, error_out=False

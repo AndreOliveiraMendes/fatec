@@ -45,18 +45,18 @@ def gerenciar_usuarios_especiais():
             id_usuario_especial = none_if_empty(request.form.get('id_usuario_especial'), int)
             nome_usuario_especial = none_if_empty(request.form.get('nome_usuario_especial'))
             exact_name_match = 'emnome' in request.form
-            filter = []
+            filters = []
             query_params = get_query_params(request)
             if id_usuario_especial is not None:
-                filter.append(Usuarios_Especiais.id_usuario_especial == id_usuario_especial)
+                filters.append(Usuarios_Especiais.id_usuario_especial == id_usuario_especial)
             if nome_usuario_especial:
                 if exact_name_match:
-                    filter.append(Usuarios_Especiais.nome_usuario_especial == nome_usuario_especial)
+                    filters.append(Usuarios_Especiais.nome_usuario_especial == nome_usuario_especial)
                 else:
-                    filter.append(
+                    filters.append(
                         Usuarios_Especiais.nome_usuario_especial.ilike(f"%{nome_usuario_especial}%"))
-            if filter:
-                sel_users = select(Usuarios_Especiais).where(*filter)
+            if filters:
+                sel_users = select(Usuarios_Especiais).where(*filters)
                 usuarios_especiais_paginados = SelectPagination(
                     select=sel_users, session=db.session,
                     page=page, per_page=PER_PAGE, error_out=False

@@ -55,27 +55,27 @@ def gerenciar_pessoas():
             exact_alias_match = 'emalias' in request.form
             email = none_if_empty(request.form.get('email', None))
             exact_email_match = 'ememail' in request.form
-            filter = []
+            filters = []
             query_params = get_query_params(request)
             if id is not None:
-                filter.append(Pessoas.id_pessoa == id)
+                filters.append(Pessoas.id_pessoa == id)
             if nome:
                 if exact_name_match:
-                    filter.append(Pessoas.nome_pessoa == nome)
+                    filters.append(Pessoas.nome_pessoa == nome)
                 else:
-                    filter.append(Pessoas.nome_pessoa.ilike(f"%{nome}%"))
+                    filters.append(Pessoas.nome_pessoa.ilike(f"%{nome}%"))
             if alias:
                 if exact_alias_match:
-                    filter.append(Pessoas.alias == alias)
+                    filters.append(Pessoas.alias == alias)
                 else:
-                    filter.append(Pessoas.alias.ilike(f"%{alias}%"))
+                    filters.append(Pessoas.alias.ilike(f"%{alias}%"))
             if email:
                 if exact_email_match:
-                    filter.append(Pessoas.email_pessoa == email)
+                    filters.append(Pessoas.email_pessoa == email)
                 else:
-                    filter.append(Pessoas.email_pessoa.ilike(f"%{email}%"))
-            if filter:
-                sel_pessoas = select(Pessoas).where(*filter)
+                    filters.append(Pessoas.email_pessoa.ilike(f"%{email}%"))
+            if filters:
+                sel_pessoas = select(Pessoas).where(*filters)
                 pessoas_paginadas = SelectPagination(
                     select=sel_pessoas, session=db.session,
                     page=page, per_page=PER_PAGE, error_out=False

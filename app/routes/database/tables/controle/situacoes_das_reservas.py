@@ -56,22 +56,22 @@ def gerenciar_situacoes_das_reservas():
             situacao_dia = parse_date_string(request.form.get('situacao_dia'))
             situacao_chave = none_if_empty(request.form.get('situacao_chave'))
             tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
-            filter = []
+            filters = []
             query_params = get_query_params(request)
             if id_situacao is not None:
-                filter.append(Situacoes_Das_Reserva.id_situacao == id_situacao)
+                filters.append(Situacoes_Das_Reserva.id_situacao == id_situacao)
             if id_situacao_local is not None:
-                filter.append(Situacoes_Das_Reserva.id_situacao_local == id_situacao_local)
+                filters.append(Situacoes_Das_Reserva.id_situacao_local == id_situacao_local)
             if id_situacao_aula is not None:
-                filter.append(Situacoes_Das_Reserva.id_situacao_aula == id_situacao_aula)
+                filters.append(Situacoes_Das_Reserva.id_situacao_aula == id_situacao_aula)
             if situacao_dia:
-                filter.append(Situacoes_Das_Reserva.situacao_dia == situacao_dia)
+                filters.append(Situacoes_Das_Reserva.situacao_dia == situacao_dia)
             if situacao_chave:
-                filter.append(Situacoes_Das_Reserva.situacao_chave == SituacaoChaveEnum(situacao_chave))
+                filters.append(Situacoes_Das_Reserva.situacao_chave == SituacaoChaveEnum(situacao_chave))
             if tipo_reserva:
-                filter.append(Situacoes_Das_Reserva.tipo_reserva == TipoReservaEnum(tipo_reserva))
-            if filter:
-                sel_situacoes = select(Situacoes_Das_Reserva).where(*filter)
+                filters.append(Situacoes_Das_Reserva.tipo_reserva == TipoReservaEnum(tipo_reserva))
+            if filters:
+                sel_situacoes = select(Situacoes_Das_Reserva).where(*filters)
                 situacoes_das_reservas_paginadas = SelectPagination(
                     select=sel_situacoes, session=db.session,
                     page=page, per_page=PER_PAGE, error_out=False

@@ -49,26 +49,26 @@ def gerenciar_aulas():
             horario_inicio_end = parse_time_string(request.form.get('horario_inicio_end'))
             horario_fim_start = parse_time_string(request.form.get('horario_fim_start'))
             horario_fim_end = parse_time_string(request.form.get('horario_fim_end'))
-            filter = []
+            filters = []
             query_params = get_query_params(request)
             if id_aula is not None:
-                filter.append(Aulas.id_aula == id_aula)
+                filters.append(Aulas.id_aula == id_aula)
             if horario_inicio_start or horario_inicio_end:
                 if horario_inicio_start and horario_inicio_end:
-                    filter.append(Aulas.horario_inicio.between(horario_inicio_start, horario_inicio_end))
+                    filters.append(Aulas.horario_inicio.between(horario_inicio_start, horario_inicio_end))
                 elif horario_inicio_start:
-                    filter.append(Aulas.horario_inicio >= horario_inicio_start)
+                    filters.append(Aulas.horario_inicio >= horario_inicio_start)
                 else:
-                    filter.append(Aulas.horario_inicio <= horario_inicio_end)
+                    filters.append(Aulas.horario_inicio <= horario_inicio_end)
             if horario_fim_start or horario_fim_end:
                 if horario_fim_start and horario_fim_end:
-                    filter.append(Aulas.horario_fim.between(horario_fim_start, horario_fim_end))
+                    filters.append(Aulas.horario_fim.between(horario_fim_start, horario_fim_end))
                 elif horario_fim_start:
-                    filter.append(Aulas.horario_fim >= horario_fim_start)
+                    filters.append(Aulas.horario_fim >= horario_fim_start)
                 else:
-                    filter.append(Aulas.horario_fim <= horario_fim_end)
-            if filter:
-                sel_aulas = select(Aulas).where(*filter)
+                    filters.append(Aulas.horario_fim <= horario_fim_end)
+            if filters:
+                sel_aulas = select(Aulas).where(*filters)
                 aulas_paginadas = SelectPagination(
                     select=sel_aulas, session=db.session,
                     page=page, per_page=PER_PAGE, error_out=False

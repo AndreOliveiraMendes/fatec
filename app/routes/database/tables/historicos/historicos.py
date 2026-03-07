@@ -60,24 +60,24 @@ def get_data():
     fim_procura = parse_datetime_string(request.form.get('fim_procura'))
     origem = none_if_empty(request.form.get('origem'))
     conteudo = none_if_empty(request.form.get('conteudo'))
-    filter = []
+    filters = []
     query_params = get_query_params(request)
     if id_historico is not None:
-        filter.append(Historicos.id_historico == id_historico)
+        filters.append(Historicos.id_historico == id_historico)
     if id_usuario is not None:
-        filter.append(Historicos.id_usuario == id_usuario)
+        filters.append(Historicos.id_usuario == id_usuario)
     if tabela:
-        filter.append(Historicos.tabela == tabela)
+        filters.append(Historicos.tabela == tabela)
     if categoria:
-        filter.append(Historicos.categoria == categoria)
+        filters.append(Historicos.categoria == categoria)
     if inicio_procura or fim_procura:
-        filter.append(filtro_intervalo(inicio_procura, fim_procura))
+        filters.append(filtro_intervalo(inicio_procura, fim_procura))
     if origem:
-        filter.append(Historicos.origem == OrigemEnum(origem))
+        filters.append(Historicos.origem == OrigemEnum(origem))
     if conteudo:
-        filter.append(get_conteudo(conteudo))
+        filters.append(get_conteudo(conteudo))
     sel_historicos = select(Historicos)
-    return filter, sel_historicos, query_params
+    return filters, sel_historicos, query_params
 
 @bp.route("/historicos", methods=["GET", "POST"])
 @admin_required

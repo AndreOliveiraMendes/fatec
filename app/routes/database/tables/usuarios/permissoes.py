@@ -76,17 +76,17 @@ def gerenciar_permissoes():
             id_permissao_usuario = none_if_empty(request.form.get('id_permissao_usuario'), int)
             flag = get_flag(request)
             modobusca = none_if_empty(request.form.get('modobusca')) 
-            filter = []
+            filters = []
             query_params = get_query_params(request)
             if id_permissao_usuario is not None:
-                filter.append(Permissoes.id_permissao_usuario==id_permissao_usuario)
+                filters.append(Permissoes.id_permissao_usuario==id_permissao_usuario)
             if flag > 0:
                 if modobusca == 'ou':
-                    filter.append(Permissoes.permissao.bitwise_and(flag) > 0)
+                    filters.append(Permissoes.permissao.bitwise_and(flag) > 0)
                 else:
-                    filter.append(Permissoes.permissao.bitwise_and(flag) == flag)
-            if filter:
-                sel_permissoes = select(Permissoes).where(*filter)
+                    filters.append(Permissoes.permissao.bitwise_and(flag) == flag)
+            if filters:
+                sel_permissoes = select(Permissoes).where(*filters)
                 permissoes_paginadas = SelectPagination(
                     select=sel_permissoes, session=db.session,
                     page=page, per_page=PER_PAGE, error_out=False

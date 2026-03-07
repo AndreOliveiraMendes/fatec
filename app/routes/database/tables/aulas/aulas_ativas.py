@@ -90,20 +90,20 @@ def gerenciar_aulas_ativas():
             fim_procura = parse_date_string(request.form.get('fim_procura'))
             id_semana = none_if_empty(request.form.get('id_semana'), int)
             tipo_aula = none_if_empty(request.form.get('tipo_aula'))
-            filter = []
+            filters = []
             query_params = get_query_params(request)
             if id_aula_ativa is not None:
-                filter.append(Aulas_Ativas.id_aula_ativa == id_aula_ativa)
+                filters.append(Aulas_Ativas.id_aula_ativa == id_aula_ativa)
             if id_aula is not None:
-                filter.append(Aulas_Ativas.id_aula == id_aula)
+                filters.append(Aulas_Ativas.id_aula == id_aula)
             if inicio_procura or fim_procura:
-                filter.append(filtro_intervalo(inicio_procura, fim_procura))
+                filters.append(filtro_intervalo(inicio_procura, fim_procura))
             if id_semana is not None:
-                filter.append(Aulas_Ativas.id_semana == id_semana)
+                filters.append(Aulas_Ativas.id_semana == id_semana)
             if tipo_aula:
-                filter.append(Aulas_Ativas.tipo_aula == TipoAulaEnum(tipo_aula))
-            if filter:
-                sel_aulas_ativas = select(Aulas_Ativas).where(*filter)
+                filters.append(Aulas_Ativas.tipo_aula == TipoAulaEnum(tipo_aula))
+            if filters:
+                sel_aulas_ativas = select(Aulas_Ativas).where(*filters)
                 aulas_ativas_paginadas = SelectPagination(
                     select=sel_aulas_ativas, session=db.session,
                     page=page, per_page=PER_PAGE, error_out=False

@@ -52,27 +52,27 @@ def gerenciar_semestres():
             data_inicio_reserva = parse_date_string(request.form.get('data_inicio_reserva'))
             data_fim_reserva = parse_date_string(request.form.get('data_fim_reserva'))
             dias_de_prioridade = none_if_empty(request.form.get('prioridade'), int)
-            filter = []
+            filters = []
             query_params = get_query_params(request)
             if id_semestre is not None:
-                filter.append(Semestres.id_semestre == id_semestre)
+                filters.append(Semestres.id_semestre == id_semestre)
             if nome_semestre:
                 if emnome_semestre:
-                    filter.append(Semestres.nome_semestre == nome_semestre)
+                    filters.append(Semestres.nome_semestre == nome_semestre)
                 else:
-                    filter.append(Semestres.nome_semestre.ilike(f"%{nome_semestre}%"))
+                    filters.append(Semestres.nome_semestre.ilike(f"%{nome_semestre}%"))
             if data_inicio:
-                filter.append(Semestres.data_inicio == data_inicio)
+                filters.append(Semestres.data_inicio == data_inicio)
             if data_fim:
-                filter.append(Semestres.data_fim == data_fim)
+                filters.append(Semestres.data_fim == data_fim)
             if data_inicio_reserva:
-                filter.append(Semestres.data_inicio_reserva == data_inicio_reserva)
+                filters.append(Semestres.data_inicio_reserva == data_inicio_reserva)
             if data_fim_reserva:
-                filter.append(Semestres.data_fim_reserva == data_fim_reserva)
+                filters.append(Semestres.data_fim_reserva == data_fim_reserva)
             if dias_de_prioridade is not None:
-                filter.append(Semestres.dias_de_prioridade == dias_de_prioridade)
-            if filter:
-                sel_semestres = select(Semestres).where(*filter)
+                filters.append(Semestres.dias_de_prioridade == dias_de_prioridade)
+            if filters:
+                sel_semestres = select(Semestres).where(*filters)
                 semestres_paginados = semestres_paginados = SelectPagination(
                     select=sel_semestres, session=db.session,
                     page=page, per_page=PER_PAGE, error_out=False

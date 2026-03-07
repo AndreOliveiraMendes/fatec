@@ -50,23 +50,23 @@ def gerenciar_locais():
             descrição = none_if_empty(request.form.get('descrição'))
             disponibilidade = none_if_empty(request.form.get('disponibilidade'))
             tipo = none_if_empty(request.form.get('tipo'))
-            filter = []
+            filters = []
             query_params = get_query_params(request)
             if id_local is not None:
-                filter.append(Locais.id_local == id_local)
+                filters.append(Locais.id_local == id_local)
             if nome_local:
                 if exact_name_match:
-                    filter.append(Locais.nome_local == nome_local)
+                    filters.append(Locais.nome_local == nome_local)
                 else:
-                    filter.append(Locais.nome_local.ilike(f"%{nome_local}%"))
+                    filters.append(Locais.nome_local.ilike(f"%{nome_local}%"))
             if descrição:
-                filter.append(Locais.descrição.ilike(f"%{descrição}%"))
+                filters.append(Locais.descrição.ilike(f"%{descrição}%"))
             if disponibilidade:
-                filter.append(Locais.disponibilidade == DisponibilidadeEnum(disponibilidade))
+                filters.append(Locais.disponibilidade == DisponibilidadeEnum(disponibilidade))
             if tipo:
-                filter.append(Locais.tipo == TipoLocalEnum(tipo))
-            if filter:
-                sel_locais = select(Locais).where(*filter)
+                filters.append(Locais.tipo == TipoLocalEnum(tipo))
+            if filters:
+                sel_locais = select(Locais).where(*filters)
                 locais_paginados = SelectPagination(
                     select=sel_locais, session=db.session,
                     page=page, per_page=PER_PAGE, error_out=False

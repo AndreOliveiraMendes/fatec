@@ -46,17 +46,17 @@ def gerenciar_categorias_de_equipamentos():
             id_categoria = none_if_empty(request.form.get('id_categoria'))
             nome_categoria = none_if_empty(request.form.get('nome_categoria'))
             descricao = none_if_empty(request.form.get('descricao'))
-            filter = []
+            filters = []
             query_params = get_query_params(request)
             if id_categoria is not None:
-                filter.append(Categorias_de_Equipamentos.id_categoria == id_categoria)
+                filters.append(Categorias_de_Equipamentos.id_categoria == id_categoria)
             if nome_categoria:
-                filter.append(Categorias_de_Equipamentos.nome_categoria.ilike(f"%{nome_categoria}%"))
+                filters.append(Categorias_de_Equipamentos.nome_categoria.ilike(f"%{nome_categoria}%"))
             if descricao:
-                filter.append(Categorias_de_Equipamentos.descricao.ilike(f"%{descricao}%"))
-            if filter:
+                filters.append(Categorias_de_Equipamentos.descricao.ilike(f"%{descricao}%"))
+            if filters:
                 sel_categorias = select(Categorias_de_Equipamentos).where(
-                    *filter
+                    *filters
                 )
                 categorias_paginas = SelectPagination(
                     select=sel_categorias, session=db.session,

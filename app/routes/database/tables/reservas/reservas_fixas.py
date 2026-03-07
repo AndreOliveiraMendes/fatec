@@ -64,30 +64,30 @@ def gerenciar_reservas_fixas():
             finalidade_reserva = none_if_empty(request.form.get('finalidade_reserva'))
             observacoes = none_if_empty(request.form.get('observacoes'))
             descricao = none_if_empty(request.form.get('descricao'))
-            filter = []
+            filters = []
             query_params = get_query_params(request)
             if id_reserva_fixa is not None:
-                filter.append(Reservas_Fixas.id_reserva_fixa == id_reserva_fixa)
+                filters.append(Reservas_Fixas.id_reserva_fixa == id_reserva_fixa)
             if id_responsavel is not None:
-                filter.append(Reservas_Fixas.id_responsavel == id_responsavel)
+                filters.append(Reservas_Fixas.id_responsavel == id_responsavel)
             if id_responsavel_especial is not None:
-                filter.append(Reservas_Fixas.id_responsavel_especial == id_responsavel_especial)
+                filters.append(Reservas_Fixas.id_responsavel_especial == id_responsavel_especial)
             if tipo_responsavel is not None:
-                filter.append(filtro_tipo_responsavel(Reservas_Fixas, tipo_responsavel))
+                filters.append(filtro_tipo_responsavel(Reservas_Fixas, tipo_responsavel))
             if id_reserva_local is not None:
-                filter.append(Reservas_Fixas.id_reserva_local == id_reserva_local)
+                filters.append(Reservas_Fixas.id_reserva_local == id_reserva_local)
             if id_reserva_aula is not None:
-                filter.append(Reservas_Fixas.id_reserva_aula == id_reserva_aula)
+                filters.append(Reservas_Fixas.id_reserva_aula == id_reserva_aula)
             if id_reserva_semestre is not None:
-                filter.append(Reservas_Fixas.id_reserva_semestre == id_reserva_semestre)
+                filters.append(Reservas_Fixas.id_reserva_semestre == id_reserva_semestre)
             if finalidade_reserva:
-                filter.append(Reservas_Fixas.finalidade_reserva == FinalidadeReservaEnum(finalidade_reserva))
+                filters.append(Reservas_Fixas.finalidade_reserva == FinalidadeReservaEnum(finalidade_reserva))
             if observacoes:
-                filter.append(Reservas_Fixas.observacoes.ilike(f"%{observacoes}%"))
+                filters.append(Reservas_Fixas.observacoes.ilike(f"%{observacoes}%"))
             if descricao:
-                filter.append(Reservas_Fixas.descricao.ilike(f"%{descricao}%"))
-            if filter:
-                sel_reservas = select(Reservas_Fixas).where(*filter)
+                filters.append(Reservas_Fixas.descricao.ilike(f"%{descricao}%"))
+            if filters:
+                sel_reservas = select(Reservas_Fixas).where(*filters)
                 reservas_fixas_paginada = SelectPagination(
                     select=sel_reservas, session=db.session,
                     page=page, per_page=PER_PAGE, error_out=False
