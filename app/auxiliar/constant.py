@@ -7,6 +7,35 @@ from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
 # Database exceptions
 # --------------------------------------------------
 
+class IntervalConflictError(Exception):
+    def __init__(self, message, table=None, fields=None, values=None, interval=None):
+        self.message = message
+        self.table = table
+        self.fields = fields
+        self.values = values
+        self.interval = interval
+        super().__init__(message)
+
+    def __str__(self):
+        context = []
+
+        if self.table:
+            context.append(f"table={self.table!r}")
+
+        if self.fields:
+            context.append(f"fields={self.fields!r}")
+
+        if self.values:
+            context.append(f"values={self.values!r}")
+            
+        if self.interval:
+            context.append(f"interval={self.interval!r}")
+
+        if context:
+            return f"{self.message} | " + " ".join(context)
+
+        return self.message
+
 DB_ERRORS = (
     DataError,
     IntegrityError,
@@ -14,6 +43,7 @@ DB_ERRORS = (
     InternalError,
     OperationalError,
     ProgrammingError,
+    IntervalConflictError
 )
 
 

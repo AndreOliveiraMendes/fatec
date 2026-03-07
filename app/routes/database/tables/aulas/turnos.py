@@ -18,6 +18,7 @@ from app.extensions import db
 from app.models.aulas import Turnos
 from app.routes_helper.request import get_session_or_request
 from app.routes_helper.ui import disable_action
+from app.service.aulas_service import check_turno
 from config.database_views import get_url
 from config.general import PER_PAGE
 
@@ -54,6 +55,7 @@ def gerenciar_turnos():
             horario_inicio = parse_time_string(request.form.get('horario_inicio'))
             horario_fim = parse_time_string(request.form.get('horario_fim'))
             try:
+                check_turno(horario_inicio, horario_fim)
                 novo_turno = Turnos(
                     nome_turno = nome_turno, horario_inicio = horario_inicio, horario_fim = horario_fim)
                 db.session.add(novo_turno)
@@ -86,6 +88,7 @@ def gerenciar_turnos():
             if horario_inicio is None or horario_fim is None:
                 abort(400, description="O horário de início e fim devem ser válidos.")
             try:
+                check_turno(horario_inicio, horario_fim, id_turno)
                 dados_anteriores = copy.copy(turno)
                 turno.nome_turno = nome_turno
                 turno.horario_inicio = horario_inicio

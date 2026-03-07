@@ -17,6 +17,7 @@ from app.decorators.decorators import admin_required
 from app.extensions import db
 from app.models.aulas import Semestres
 from app.routes_helper.request import get_query_params, get_session_or_request
+from app.service.aulas_service import check_semestre
 from config.database_views import get_url
 from config.general import PER_PAGE
 
@@ -92,6 +93,7 @@ def gerenciar_semestres():
             data_fim_reserva = parse_date_string(request.form.get('data_fim_reserva'))
             dias_de_prioridade = none_if_empty(request.form.get('prioridade'), int)
             try:
+                check_semestre(data_inicio, data_fim)
                 novo_semestre = Semestres(
                     nome_semestre = nome_semestre,
                     data_inicio = data_inicio, data_fim = data_fim,
@@ -127,6 +129,7 @@ def gerenciar_semestres():
             if nome_semestre is None or data_inicio is None or data_fim is None or data_inicio_reserva is None or data_fim_reserva is None or dias_de_prioridade is None:
                 abort(400, description="Dados incompletos para edição de semestre.")
             try:
+                check_semestre(data_inicio, data_fim, id_semestre)
                 dados_anteriores = copy.copy(semestre)
                 semestre.nome_semestre = nome_semestre
                 semestre.data_inicio = data_inicio
