@@ -1,7 +1,16 @@
 import os
 from pathlib import Path
 
+# --------------------------------------------------
+# Form / request
+# --------------------------------------------------
+
 IGNORED_FORM_FIELDS = ['page', 'acao', 'bloco']
+
+
+# --------------------------------------------------
+# Datas (tradução EN → PT)
+# --------------------------------------------------
 
 semana_inglesa = {
     '%a': {  # abreviada
@@ -9,8 +18,13 @@ semana_inglesa = {
         'Fri': 'Sex', 'Sat': 'Sáb', 'Sun': 'Dom'
     },
     '%A': {  # completa
-        'Monday': 'segunda-feira', 'Tuesday': 'terça-feira', 'Wednesday': 'quarta-feira',
-        'Thursday': 'quinta-feira', 'Friday': 'sexta-feira', 'Saturday': 'sábado', 'Sunday': 'domingo'
+        'Monday': 'segunda-feira',
+        'Tuesday': 'terça-feira',
+        'Wednesday': 'quarta-feira',
+        'Thursday': 'quinta-feira',
+        'Friday': 'sexta-feira',
+        'Saturday': 'sábado',
+        'Sunday': 'domingo'
     }
 }
 
@@ -21,12 +35,25 @@ meses_ingleses = {
         'Sep': 'Set', 'Oct': 'Out', 'Nov': 'Nov', 'Dec': 'Dez'
     },
     '%B': {  # completa
-        'January': 'janeiro', 'February': 'fevereiro', 'March': 'março',
-        'April': 'abril', 'May': 'maio', 'June': 'junho',
-        'July': 'julho', 'August': 'agosto', 'September': 'setembro',
-        'October': 'outubro', 'November': 'novembro', 'December': 'dezembro'
+        'January': 'janeiro',
+        'February': 'fevereiro',
+        'March': 'março',
+        'April': 'abril',
+        'May': 'maio',
+        'June': 'junho',
+        'July': 'julho',
+        'August': 'agosto',
+        'September': 'setembro',
+        'October': 'outubro',
+        'November': 'novembro',
+        'December': 'dezembro'
     }
 }
+
+
+# --------------------------------------------------
+# Status / UI
+# --------------------------------------------------
 
 mapa_icones_status = {
     None: ("text-default", "glyphicon-user", None, "indefinido"),
@@ -37,29 +64,37 @@ mapa_icones_status = {
 
 situacoes_helper = [
     {
-        "state":"exibicao",
-        "url_path":'gestao_reserva.gerenciar_exibicao',
+        "state": "exibicao",
+        "url_path": "gestao_reserva.gerenciar_exibicao",
         "label": "controle de exibição"
-    },{
-        "state":"fixa",
-        "url_path":'gestao_reserva.gerenciar_situacoes',
-        "param":{
-            "tipo_reserva":"fixa"
+    },
+    {
+        "state": "fixa",
+        "url_path": "gestao_reserva.gerenciar_situacoes",
+        "param": {
+            "tipo_reserva": "fixa"
         },
-        "label":"situação reserva fixa"
-    },{
-        "state":"temporaria",
-        "url_path":'gestao_reserva.gerenciar_situacoes',
-        "param":{
-            "tipo_reserva":"temporaria"
+        "label": "situação reserva fixa"
+    },
+    {
+        "state": "temporaria",
+        "url_path": "gestao_reserva.gerenciar_situacoes",
+        "param": {
+            "tipo_reserva": "temporaria"
         },
-        "label":"situação reserva temporaria"
-    },{
-        "state":"comandos",
-        "url_path":'gestao_reserva.comandos_remotos',
-        "label":"comandos remotos"
+        "label": "situação reserva temporaria"
+    },
+    {
+        "state": "comandos",
+        "url_path": "gestao_reserva.comandos_remotos",
+        "label": "comandos remotos"
     }
 ]
+
+
+# --------------------------------------------------
+# Configuração padrão do painel
+# --------------------------------------------------
 
 DEFAULT_PAINEL_CFG = {
     "estilo1": {
@@ -86,13 +121,25 @@ DEFAULT_CONFIG_CFG = {
     "tela_padrao": 1
 }
 
+
+# --------------------------------------------------
+# Paths / arquivos
+# --------------------------------------------------
+
 SECRET_PATH = "config/secret.json"
 
 DATA_BASE = "data"
-SSH_CRED_PATH = os.path.join("data", "ssh_credentials.json")
+
+SSH_CRED_PATH = os.path.join(DATA_BASE, "ssh_credentials.json")
 SSH_CRED_FILE = Path(SSH_CRED_PATH)
-COMMANDS_PATH = os.path.join("data", "comandos.json")
+
+COMMANDS_PATH = os.path.join(DATA_BASE, "comandos.json")
 COMMANDS_FILE = Path(COMMANDS_PATH)
+
+
+# --------------------------------------------------
+# Erros HTTP
+# --------------------------------------------------
 
 ERRORS = {
     400: {"message": "Requisição inválida", "title": "Requisição inválida"},
@@ -104,6 +151,17 @@ ERRORS = {
     500: {"message": "Erro Interno do Servidor", "title": "Erro Interno do Servidor"}
 }
 
+
+# --------------------------------------------------
+# Logs
+# --------------------------------------------------
+
 LOG_DIR = os.path.join(os.getcwd(), "logs")
 LOG_FILE = os.path.join(LOG_DIR, "app.log")
+
+
+# --------------------------------------------------
+# Limites
+# --------------------------------------------------
+
 MAX_RESULTS = 200
