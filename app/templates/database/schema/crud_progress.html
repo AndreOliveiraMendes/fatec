@@ -18,13 +18,14 @@
     </div>
     <p>Progresso geral: {{ [active, defined]|max }} / {{ total }}</p>
     <div class="progress">
-        <div class="progress-bar progress-bar-success"
-             style="width: {{ percent_active }}%"></div>
-        <div class="progress-bar progress-bar-info"
-             style="width: {{ percent_defined - percent_active }}%"></div>
+        {% set p1 = [percent_active, percent_defined]|min %}
+        {% set p2 = [percent_active, percent_defined]|max %}
+        <div class="progress-bar progress-bar-success" style="width: {{ p1 }}%"></div>
+        <div class="progress-bar progress-bar-info" style="width: {{ p2-p1 }}%"></div>
         <div class="progress-bar progress-bar-danger"
-             style="width: {{ 100 - percent_defined }}%"></div>
+             style="width: {{ 100 - p2 }}%"></div>
     </div>
+    {% if next_table %}<p>Próxima tabela: {{ next_table }}</p>{% endif %}
     <table class="table table-striped table-bordered">
         <thead>
             <tr>

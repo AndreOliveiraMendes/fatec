@@ -46,6 +46,12 @@ DB_ERRORS = (
     IntervalConflictError
 )
 
+# --------------------------------------------------
+# Schema exception
+# --------------------------------------------------
+
+class CircularDependencyError(Exception):
+    pass
 
 # --------------------------------------------------
 # Permission flags (bitmask)

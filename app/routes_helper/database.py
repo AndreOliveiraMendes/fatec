@@ -3,6 +3,7 @@ from sqlalchemy import MetaData, Table, UniqueConstraint, inspect
 from sqlalchemy.dialects import mysql
 from sqlalchemy.schema import CreateTable
 
+from app.auxiliar.constant import CircularDependencyError
 from app.extensions import db
 from config.database_views import SECOES
 
@@ -18,6 +19,8 @@ def get_topologic_sorted(fks):
             if not dependencies or all(dep in sorted_tables for dep in dependencies):
                 sorted_this_interaction.append(table)
         to_be_sorted = [table for table in to_be_sorted if table not in sorted_this_interaction]
+        if not sorted_this_interaction:
+            raise CircularDependencyError("Circular dependency detected")
         for table in sorted_this_interaction:
             sorted_tables.append(table)
             result.append((table, interaction))
@@ -72,7 +75,7 @@ def get_routes_status():
 
     for secao in SECOES.values():
 
-        for nome, endpoint, _, _ in secao["secoes"]:
+        for nome, endpoint, *_ in secao["secoes"]:
             routes.append({
                 "nome": nome,
                 "endpoint": endpoint,
@@ -118,8 +121,8 @@ def get_crud_progress():
         _, endpoint, defined = items.values()
         table = endpoint_table(endpoint)
         if table:
-            result[table] = result[table] if table in result else {}
+            result.setdefault(table, {})
             result[table]['endpoint'] = endpoint
             result[table]['defined'] = defined
 
-    return result
+    return {k: v for k, v in result.items() if v.get('depth') is not None}
