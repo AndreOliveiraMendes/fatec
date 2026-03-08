@@ -6,7 +6,7 @@ from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
 from app.auxiliar.constant import DB_ERRORS
-from app.auxiliar.general import none_if_empty
+from app.auxiliar.general import get_value_or_abort, none_if_empty
 from app.auxiliar.navigation import register_return
 from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
@@ -110,14 +110,12 @@ def gerenciar_pessoas():
             extras['pessoa'] = db.get_or_404(Pessoas, id_pessoa)
         elif acao == 'editar' and bloco == 2:
             id_pessoa = none_if_empty(request.form.get('id_pessoa'), int)
-            nome = none_if_empty(request.form.get('nome', None))
+            nome = get_value_or_abort(request.form.get('nome', None), 400, "nome da pessoa é obrigatorio")
             alias = none_if_empty(request.form.get('alias', None))
             email = none_if_empty(request.form.get('email', None))
 
             pessoa = db.get_or_404(Pessoas, id_pessoa)
 
-            if nome is None or nome.strip() == "":
-                abort(400, description="O nome da pessoa não pode ser vazio ou nulo.")
             try:
                 # Cria uma cópia dos dados antigos antes de editar
                 dados_anteriores = copy.copy(pessoa)

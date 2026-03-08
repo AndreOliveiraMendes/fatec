@@ -1,14 +1,14 @@
 import copy
 from typing import Any
 
-from flask import Blueprint, abort, flash, render_template, request, session
+from flask import Blueprint, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
 from app.auxiliar.constant import DB_ERRORS
-from app.auxiliar.general import none_if_empty
+from app.auxiliar.general import get_value_or_abort, none_if_empty
 from app.auxiliar.navigation import register_return
-from app.auxiliar.parsing import parse_date_string
+from app.auxiliar.parsing import parse_date_string, parse_date_string_or_abort
 from app.dao.internal.aulas import get_aulas_ativas
 from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
@@ -147,19 +147,16 @@ def gerenciar_reservas_auditorios():
             extras['aulas_ativas'] = get_aulas_ativas()
         elif acao == 'editar' and bloco == 2:
             id_reserva_auditorio = none_if_empty(request.form.get('id_reserva_auditorio'), int)
-            id_responsavel = none_if_empty(request.form.get('id_responsavel'), int)
-            id_reserva_local = none_if_empty(request.form.get('id_reserva_local'), int)
-            id_reserva_aula = none_if_empty(request.form.get('id_reserva_aula'), int)
-            dia_reserva = parse_date_string(request.form.get('dia_reserva'))
+            id_responsavel = get_value_or_abort(request.form.get('id_responsavel'), 400, "id do responsavel é obrigatorio", int)
+            id_reserva_local = get_value_or_abort(request.form.get('id_reserva_local'), 400, "id do local é obrigatorio", int)
+            id_reserva_aula = get_value_or_abort(request.form.get('id_reserva_aula'), 400, "id da aula é obritagorio", int)
+            dia_reserva = parse_date_string_or_abort(request.form.get('dia_reserva'), 400, "dia da reserva é obritagorio")
             status_reserva = none_if_empty(request.form.get('status_reserva'),)
             id_autorizador = none_if_empty(request.form.get('id_autorizador'), int)
             observação_responsavel = none_if_empty(request.form.get('observação_responsavel'))
             observação_autorizador = none_if_empty(request.form.get('observação_autorizador'))
             reserva_auditorio = db.get_or_404(Reservas_Auditorios, id_reserva_auditorio)
             
-            if id_responsavel is None or id_reserva_local is None or id_reserva_aula is None or \
-               dia_reserva is None or status_reserva is None:
-                abort(400, description="Campos obrigatórios não foram preenchidos.")
             try:
                 dados_anteriores = copy.copy(reserva_auditorio)
                 reserva_auditorio.id_responsavel = id_responsavel

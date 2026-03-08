@@ -6,7 +6,7 @@ from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
 from app.auxiliar.constant import DB_ERRORS
-from app.auxiliar.general import none_if_empty
+from app.auxiliar.general import get_value_or_abort, none_if_empty
 from app.auxiliar.navigation import register_return
 from app.dao.internal.aulas import get_dias_da_semana
 from app.dao.internal.general import handle_db_error
@@ -73,10 +73,8 @@ def gerenciar_dias_da_semana():
             extras['dia_semana'] = dia_da_semana
         elif acao == 'editar' and bloco == 2:
             id_semana = none_if_empty(request.form.get('id_semana'), int)
-            nome_semana = none_if_empty(request.form.get('nome_semana'))
+            nome_semana = get_value_or_abort(request.form.get('nome_semana'), 400, "Nome do dia da semana é obrigatório.")
             dia_da_semana = db.get_or_404(Dias_da_Semana, id_semana)
-            if not nome_semana:
-                abort(400, description="Nome do dia da semana é obrigatório.")
             try:
                 dados_anteriores = copy.copy(dia_da_semana)
                 dia_da_semana.nome_semana = nome_semana

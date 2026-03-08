@@ -1,14 +1,14 @@
 import copy
 from typing import Any
 
-from flask import Blueprint, abort, flash, render_template, request, session
+from flask import Blueprint, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
 from app.auxiliar.constant import DB_ERRORS
-from app.auxiliar.general import none_if_empty
+from app.auxiliar.general import get_value_or_abort, none_if_empty
 from app.auxiliar.navigation import register_return
-from app.auxiliar.parsing import parse_date_string
+from app.auxiliar.parsing import parse_date_string, parse_date_string_or_abort
 from app.dao.internal.aulas import get_semestres
 from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
@@ -118,16 +118,14 @@ def gerenciar_semestres():
             extras['semestre'] = semestre
         elif acao == 'editar' and bloco == 2:
             id_semestre = none_if_empty(request.form.get('id_semestre'), int)
-            nome_semestre = none_if_empty(request.form.get('nome_semestre'))
-            data_inicio = parse_date_string(request.form.get('data_inicio'))
-            data_fim = parse_date_string(request.form.get('data_fim'))
-            data_inicio_reserva = parse_date_string(request.form.get('data_inicio_reserva'))
-            data_fim_reserva = parse_date_string(request.form.get('data_fim_reserva'))
-            dias_de_prioridade = none_if_empty(request.form.get('prioridade'), int)
+            nome_semestre = get_value_or_abort(request.form.get('nome_semestre'), 400, "nome do semestre é obrigatorio")
+            data_inicio = parse_date_string_or_abort(request.form.get('data_inicio'), 400, "data de inicio obrigatoria")
+            data_fim = parse_date_string_or_abort(request.form.get('data_fim'), 400, "data de termino obrigatoria")
+            data_inicio_reserva = parse_date_string_or_abort(request.form.get('data_inicio_reserva'), 400, "data de inicio de cadastro obrigatoria")
+            data_fim_reserva = parse_date_string_or_abort(request.form.get('data_fim_reserva'), 400, "data de fim de cadastro obrigatoria")
+            dias_de_prioridade = get_value_or_abort(request.form.get('prioridade'), 400, "dias de prioridade obrigatorio", int)
             semestre = db.get_or_404(Semestres, id_semestre)
             
-            if nome_semestre is None or data_inicio is None or data_fim is None or data_inicio_reserva is None or data_fim_reserva is None or dias_de_prioridade is None:
-                abort(400, description="Dados incompletos para edição de semestre.")
             try:
                 check_semestre(data_inicio, data_fim, id_semestre)
                 dados_anteriores = copy.copy(semestre)

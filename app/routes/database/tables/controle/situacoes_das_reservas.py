@@ -1,14 +1,14 @@
 import copy
 from typing import Any
 
-from flask import Blueprint, abort, flash, render_template, request, session
+from flask import Blueprint, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
 from app.auxiliar.constant import DB_ERRORS
-from app.auxiliar.general import none_if_empty
+from app.auxiliar.general import get_value_or_abort, none_if_empty
 from app.auxiliar.navigation import register_return
-from app.auxiliar.parsing import parse_date_string
+from app.auxiliar.parsing import parse_date_string, parse_date_string_or_abort
 from app.dao.internal.aulas import get_aulas_ativas
 from app.dao.internal.controle import get_situacoes
 from app.dao.internal.general import handle_db_error
@@ -132,15 +132,13 @@ def gerenciar_situacoes_das_reservas():
             extras['aulas_ativas'] = get_aulas_ativas()
         elif acao == 'editar' and bloco == 2:
             id_situacao = none_if_empty(request.form.get('id_situacao'), int)
-            id_situacao_local = none_if_empty(request.form.get('id_situacao_local'), int)
-            id_situacao_aula = none_if_empty(request.form.get('id_situacao_aula'), int)
-            situacao_dia = parse_date_string(request.form.get('situacao_dia'))
+            id_situacao_local = get_value_or_abort(request.form.get('id_situacao_local'), 400, "id do local obrigatorio", int)
+            id_situacao_aula = get_value_or_abort(request.form.get('id_situacao_aula'), 400, "id da aula é obrigatorio", int)
+            situacao_dia = parse_date_string_or_abort(request.form.get('situacao_dia'), 400, "dia é obrigatorio")
             situacao_chave = none_if_empty(request.form.get('situacao_chave'))
             tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
 
             situacao_da_reserva = db.get_or_404(Situacoes_Das_Reserva, id_situacao)
-            if id_situacao_local is None or id_situacao_aula is None or situacao_dia is None or situacao_chave is None:
-                abort(400, description="Campos obrigatórios não preenchidos.")
             try:
                 dados_anteriores = copy.copy(situacao_da_reserva)
                 situacao_da_reserva.id_situacao_local = id_situacao_local

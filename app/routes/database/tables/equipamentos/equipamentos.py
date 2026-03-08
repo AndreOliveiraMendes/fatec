@@ -6,7 +6,7 @@ from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
 from app.auxiliar.constant import DB_ERRORS
-from app.auxiliar.general import none_if_empty
+from app.auxiliar.general import get_value_or_abort, none_if_empty
 from app.auxiliar.navigation import register_return
 from app.dao.internal.equipamentos import get_categorias, get_equipamentos
 from app.dao.internal.general import handle_db_error
@@ -112,9 +112,9 @@ def gerenciar_equipamentos():
 
         elif acao == 'editar' and bloco == 2:
             id_equipamento = none_if_empty(request.form.get('id_equipamento'), int)
-            nome_equipamento = none_if_empty(request.form.get('nome_equipamento'))
+            nome_equipamento = get_value_or_abort(request.form.get('nome_equipamento'), 400, "nome da categoria é obrigatorio")
             descricao = none_if_empty(request.form.get('descricao'))
-            id_categoria = none_if_empty(request.form.get('id_categoria'), int)
+            id_categoria = get_value_or_abort(request.form.get('id_categoria'), 400, "id da categoria é obrigatorio", int)
 
             equipamento = db.get_or_404(Equipamentos, id_equipamento)
             dados_anteriores = copy.copy(equipamento)

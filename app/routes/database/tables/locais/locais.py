@@ -1,12 +1,12 @@
 import copy
 from typing import Any
 
-from flask import Blueprint, abort, flash, render_template, request, session
+from flask import Blueprint, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
 from app.auxiliar.constant import DB_ERRORS
-from app.auxiliar.general import none_if_empty
+from app.auxiliar.general import get_value_or_abort, none_if_empty
 from app.auxiliar.navigation import register_return
 from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
@@ -114,14 +114,12 @@ def gerenciar_locais():
             extras['local'] = local
         elif acao == 'editar' and bloco == 2:
             id_local = none_if_empty(request.form.get('id_local'), int)
-            nome_local = none_if_empty(request.form.get('nome_local'))
+            nome_local = get_value_or_abort(request.form.get('nome_local'), 400, "nome do local é obrigatorio")
             descrição = none_if_empty(request.form.get('descrição'))
             disponibilidade = none_if_empty(request.form.get('disponibilidade'))
             tipo = none_if_empty(request.form.get('tipo'))
 
             local = db.get_or_404(Locais, id_local)
-            if nome_local is None:
-                abort(400, description="Nome do local é obrigatório.")
             try:
                 dados_anteriores = copy.copy(local)
 

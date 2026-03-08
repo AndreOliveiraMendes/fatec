@@ -6,7 +6,7 @@ from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
 from app.auxiliar.constant import DB_ERRORS
-from app.auxiliar.general import none_if_empty
+from app.auxiliar.general import get_value_or_abort, none_if_empty
 from app.auxiliar.navigation import register_return
 from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
@@ -115,19 +115,13 @@ def gerenciar_usuarios():
             extras['pessoas'] = get_pessoas()
         elif acao == 'editar' and bloco == 2:
             id_usuario = none_if_empty(request.form.get('id_usuario', None), int)
-            id_pessoa = none_if_empty(request.form.get('id_pessoa', None), int)
-            tipo_pessoa = none_if_empty(request.form.get('tipo_pessoa', None))
-            situacao_pessoa = none_if_empty(request.form.get('situacao_pessoa', None))
+            id_pessoa = get_value_or_abort(request.form.get('id_pessoa', None), 400, "O campo 'id_pessoa' é obrigatório.", int)
+            tipo_pessoa = get_value_or_abort(request.form.get('tipo_pessoa', None), 400, "O campo 'tipo_pessoa' é obrigatório.")
+            situacao_pessoa = get_value_or_abort(request.form.get('situacao_pessoa', None), 400, "O campo 'situacao_pessoa' é obrigatório.")
             grupo_pessoa = none_if_empty(request.form.get('grupo_pessoa', None))
 
             usuario = db.get_or_404(Usuarios, id_usuario)
 
-            if id_pessoa is None:
-                abort(400, description="O campo 'id_pessoa' é obrigatório.")
-            if tipo_pessoa is None:
-                abort(400, description="O campo 'tipo_pessoa' é obrigatório.")
-            if situacao_pessoa is None:
-                abort(400, description="O campo 'situacao_pessoa' é obrigatório.")
             try:
                 dados_anteriores = copy.copy(usuario)
 

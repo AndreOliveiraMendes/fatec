@@ -1,12 +1,12 @@
 import copy
 from typing import Any
 
-from flask import Blueprint, abort, flash, render_template, request, session
+from flask import Blueprint, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
 from app.auxiliar.constant import DB_ERRORS
-from app.auxiliar.general import none_if_empty
+from app.auxiliar.general import get_value_or_abort, none_if_empty
 from app.auxiliar.navigation import register_return
 from app.auxiliar.parsing import parse_date_string
 from app.dao.internal.aulas import get_aulas_ativas
@@ -127,14 +127,12 @@ def gerenciar_exibicao_reservas():
             extras['aulas_ativas'] = get_aulas_ativas()
         elif acao == 'editar' and bloco == 2:
             id_exibicao = none_if_empty(request.form.get('id_exibicao'), int)
-            id_exibicao_local = none_if_empty(request.form.get('id_exibicao_local'), int)
-            id_exibicao_aula = none_if_empty(request.form.get('id_exibicao_aula'), int)
+            id_exibicao_local = get_value_or_abort(request.form.get('id_exibicao_local'), 400, "id do local obrigatorio", int)
+            id_exibicao_aula = get_value_or_abort(request.form.get('id_exibicao_aula'), 400, "id da aula obritagorio", int)
             exibicao_dia = parse_date_string(request.form.get('exibicao_dia'))
             tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
 
             exibicao_da_reserva = db.get_or_404(Exibicao_Reservas, id_exibicao)
-            if id_exibicao_local is None or id_exibicao_aula is None or exibicao_dia is None:
-                abort(400, description="Campos obrigatórios não preenchidos")
             try:
                 dados_anteriores = copy.copy(exibicao_da_reserva)
                 exibicao_da_reserva.id_exibicao_local = id_exibicao_local

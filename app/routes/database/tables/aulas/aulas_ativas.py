@@ -1,12 +1,12 @@
 import copy
 from typing import Any
 
-from flask import Blueprint, abort, flash, render_template, request, session
+from flask import Blueprint, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import and_, or_, select
 
 from app.auxiliar.constant import DB_ERRORS
-from app.auxiliar.general import none_if_empty
+from app.auxiliar.general import get_value_or_abort, none_if_empty
 from app.auxiliar.navigation import register_return
 from app.auxiliar.parsing import parse_date_string
 from app.dao.internal.aulas import (get_aulas, get_aulas_ativas,
@@ -155,16 +155,12 @@ def gerenciar_aulas_ativas():
             extras['dias_da_semana'] = get_dias_da_semana()
         elif acao == 'editar' and bloco == 2:
             id_aula_ativa = none_if_empty(request.form.get('id_aula_ativa'), int)
-            id_aula = none_if_empty(request.form.get('id_aula'), int)
+            id_aula = get_value_or_abort(request.form.get('id_aula'), 400, "id_aula é obrigatório", int)
             inicio_ativacao = parse_date_string(request.form.get('inicio_ativacao'))
             fim_ativacao = parse_date_string(request.form.get('fim_ativacao'))
-            id_semana = none_if_empty(request.form.get('id_semana'), int)
+            id_semana = get_value_or_abort(request.form.get('id_semana'), 400, "id_semana é obrigatorio", int)
             tipo_aula = none_if_empty(request.form.get('tipo_aula'))
             aula_ativa = db.get_or_404(Aulas_Ativas, id_aula_ativa)
-            if id_aula is None:
-                abort(400, description="id_aula é obrigatório")
-            if id_semana is None:
-                abort(400, description="id_semana é obrigatório")
             try:
                 check_aula_ativa(inicio_ativacao, fim_ativacao, id_aula, id_semana, tipo_aula, id_aula_ativa)
                 dados_anteriores = copy.copy(aula_ativa)

@@ -1,14 +1,14 @@
 import copy
 from typing import Any
 
-from flask import Blueprint, abort, flash, render_template, request, session
+from flask import Blueprint, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
 from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.general import none_if_empty
 from app.auxiliar.navigation import register_return
-from app.auxiliar.parsing import parse_time_string
+from app.auxiliar.parsing import parse_time_string, parse_time_string_or_abort
 from app.dao.internal.aulas import get_aulas
 from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
@@ -102,11 +102,9 @@ def gerenciar_aulas():
             extras['aula'] = aula
         elif acao == 'editar' and bloco == 2:
             id_aula = none_if_empty(request.form.get('id_aula'), int)
-            horario_inicio = parse_time_string(request.form.get('horario_inicio'))
-            horario_fim = parse_time_string(request.form.get('horario_fim'))
+            horario_inicio = parse_time_string_or_abort(request.form.get('horario_inicio'), 400, "horario de inicio é obrigatorio")
+            horario_fim = parse_time_string_or_abort(request.form.get('horario_fim'), 400, "horario de fim é obrigatorio")
             aula = db.get_or_404(Aulas, id_aula)
-            if horario_inicio is None or horario_fim is None:
-                abort(400, description="Horário de início e fim são obrigatórios.")
             try:
                 dados_anteriores = copy.copy(aula)
                 aula.horario_inicio = horario_inicio

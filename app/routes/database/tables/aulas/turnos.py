@@ -6,9 +6,9 @@ from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
 from app.auxiliar.constant import DB_ERRORS
-from app.auxiliar.general import none_if_empty
+from app.auxiliar.general import get_value_or_abort, none_if_empty
 from app.auxiliar.navigation import register_return
-from app.auxiliar.parsing import parse_time_string
+from app.auxiliar.parsing import parse_time_string, parse_time_string_or_abort
 from app.dao.internal.aulas import get_turnos
 from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
@@ -78,15 +78,11 @@ def gerenciar_turnos():
             extras['turno'] = turno
         elif acao == 'editar' and bloco == 2:
             id_turno = none_if_empty(request.form.get('id_turno'), int)
-            nome_turno = none_if_empty(request.form.get('nome_turno'))
-            horario_inicio = parse_time_string(request.form.get('horario_inicio'))
-            horario_fim = parse_time_string(request.form.get('horario_fim'))
+            nome_turno = get_value_or_abort(request.form.get('nome_turno'), 400, "nome de turno obrigatorio")
+            horario_inicio = parse_time_string_or_abort(request.form.get('horario_inicio'), 400, "horario de inicio obrigatorio")
+            horario_fim = parse_time_string_or_abort(request.form.get('horario_fim'), 400, "horario de fim obrigatorio")
             turno = db.get_or_404(Turnos, id_turno)
             
-            if nome_turno is None:
-                abort(400, description="O nome do turno não pode ser vazio.")
-            if horario_inicio is None or horario_fim is None:
-                abort(400, description="O horário de início e fim devem ser válidos.")
             try:
                 check_turno(horario_inicio, horario_fim, id_turno)
                 dados_anteriores = copy.copy(turno)

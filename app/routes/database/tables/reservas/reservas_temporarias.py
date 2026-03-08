@@ -1,15 +1,15 @@
 import copy
 from typing import Any
 
-from flask import Blueprint, abort, flash, render_template, request, session
+from flask import Blueprint, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import and_, select
 
 from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.dao_query import filtro_tipo_responsavel
-from app.auxiliar.general import none_if_empty
+from app.auxiliar.general import get_value_or_abort, none_if_empty
 from app.auxiliar.navigation import register_return
-from app.auxiliar.parsing import parse_date_string
+from app.auxiliar.parsing import parse_date_string, parse_date_string_or_abort
 from app.dao.internal.aulas import get_aulas_ativas
 from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
@@ -172,21 +172,14 @@ def gerenciar_reservas_temporarias():
             id_reserva_temporaria = none_if_empty(request.form.get('id_reserva_temporaria'), int)
             id_responsavel = none_if_empty(request.form.get('id_responsavel'), int)
             id_responsavel_especial = none_if_empty(request.form.get('id_responsavel_especial'), int)
-            id_reserva_local = none_if_empty(request.form.get('id_reserva_local'), int)
-            id_reserva_aula = none_if_empty(request.form.get('id_reserva_aula'), int)
-            inicio_reserva = parse_date_string(request.form.get('inicio_reserva'))
-            fim_reserva = parse_date_string(request.form.get('fim_reserva'))
+            id_reserva_local = get_value_or_abort(request.form.get('id_reserva_local'), 400, "id do local é obrigatorio", int)
+            id_reserva_aula = get_value_or_abort(request.form.get('id_reserva_aula'), 400, "id da aula é obrigatorio", int)
+            inicio_reserva = parse_date_string_or_abort(request.form.get('inicio_reserva'), 400, "data de inicio é obrigatoria")
+            fim_reserva = parse_date_string_or_abort(request.form.get('fim_reserva'), 400, "data de termino é obrigatorio")
             finalidade_reserva = none_if_empty(request.form.get('finalidade_reserva'))
             observacoes = none_if_empty(request.form.get('observacoes'))
             descricao = none_if_empty(request.form.get('descricao'))
             reserva_temporaria = db.get_or_404(Reservas_Temporarias, id_reserva_temporaria)
-            
-            if id_reserva_local is None or id_reserva_aula is None or finalidade_reserva is None:
-                abort(400, description="Dados de reserva incompletos.")
-            if finalidade_reserva is None:
-                abort(400, description="Finalidade da reserva não especificada.")
-            if inicio_reserva is None or fim_reserva is None:
-                abort(400, description="Intervalo de reserva incompleto.")
                 
             dados_anteriores = copy.copy(reserva_temporaria)
             try:

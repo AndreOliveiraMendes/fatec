@@ -7,8 +7,8 @@ from flask import (Blueprint, abort, flash, redirect, render_template, request,
 from sqlalchemy import func, select
 
 from app.auxiliar.constant import DB_ERRORS, Permission
-from app.auxiliar.general import none_if_empty
-from app.auxiliar.parsing import parse_date_string
+from app.auxiliar.general import get_value_or_abort, none_if_empty
+from app.auxiliar.parsing import parse_date_string, parse_date_string_or_abort
 from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.locais import get_auditorios
@@ -183,12 +183,10 @@ def adicionar():
     user = get_user(userid)
     if not user:
         abort(403, description="Usuário não encontrado.")
-    auditorio = none_if_empty(request.form.get('auditorio'), int)
-    dia = parse_date_string(request.form.get('dia'))
-    hora = none_if_empty(request.form.get('hora'), int)
+    auditorio = get_value_or_abort(request.form.get('auditorio'), 400, "id do auditorio é obritagorio", int)
+    dia = parse_date_string_or_abort(request.form.get('dia'), 400, "dia é obrigatorio")
+    hora = get_value_or_abort(request.form.get('hora'), 400, "id do horario é obrigatorio", int)
     observacao = request.form.get('observacao')
-    if auditorio is None or dia is None or hora is None:
-        abort(400, description="Parâmetros inválidos para criação de reserva.")
     try:
         nova_reserva = Reservas_Auditorios()
         nova_reserva.id_reserva_local = auditorio

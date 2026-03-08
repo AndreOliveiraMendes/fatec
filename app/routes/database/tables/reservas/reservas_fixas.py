@@ -1,13 +1,13 @@
 import copy
 from typing import Any
 
-from flask import Blueprint, abort, flash, render_template, request, session
+from flask import Blueprint, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
 from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.dao_query import filtro_tipo_responsavel
-from app.auxiliar.general import none_if_empty
+from app.auxiliar.general import get_value_or_abort, none_if_empty
 from app.auxiliar.navigation import register_return
 from app.dao.internal.aulas import get_aulas_ativas, get_semestres
 from app.dao.internal.general import handle_db_error
@@ -160,16 +160,14 @@ def gerenciar_reservas_fixas():
             id_reserva_fixa = none_if_empty(request.form.get('id_reserva_fixa'), int)
             id_responsavel = none_if_empty(request.form.get('id_responsavel'), int)
             id_responsavel_especial = none_if_empty(request.form.get('id_responsavel_especial'), int)
-            id_reserva_local = none_if_empty(request.form.get('id_reserva_local'), int)
-            id_reserva_aula = none_if_empty(request.form.get('id_reserva_aula'), int)
-            id_reserva_semestre = none_if_empty(request.form.get('id_reserva_semestre'), int)
+            id_reserva_local = get_value_or_abort(request.form.get('id_reserva_local'), 400, "id do local é obritagorio", int)
+            id_reserva_aula = get_value_or_abort(request.form.get('id_reserva_aula'), 400, "id da aula é obrigatorio", int)
+            id_reserva_semestre = get_value_or_abort(request.form.get('id_reserva_semestre'), 400, "id do semestre é obrigatorio", int)
             finalidade_reserva = none_if_empty(request.form.get('finalidade_reserva'))
             observacoes = none_if_empty(request.form.get('observacoes'))
             descricao = none_if_empty(request.form.get('descricao'))
             reserva_fixa = db.get_or_404(Reservas_Fixas, id_reserva_fixa)
             
-            if id_reserva_local is None or id_reserva_aula is None or id_reserva_semestre is None or finalidade_reserva is None:
-                abort(400, description="Dados de reserva incompletos.")
             try:
                 dados_anteriores = copy.copy(reserva_fixa)
                 reserva_fixa.id_responsavel = id_responsavel

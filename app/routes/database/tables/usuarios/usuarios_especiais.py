@@ -1,12 +1,12 @@
 import copy
 from typing import Any
 
-from flask import Blueprint, abort, flash, render_template, request, session
+from flask import Blueprint, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
 from app.auxiliar.constant import DB_ERRORS
-from app.auxiliar.general import none_if_empty
+from app.auxiliar.general import get_value_or_abort, none_if_empty
 from app.auxiliar.navigation import register_return
 from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
@@ -92,11 +92,9 @@ def gerenciar_usuarios_especiais():
             extras['usuario_especial'] = usuario_especial
         elif acao == 'editar' and bloco == 2:
             id_usuario_especial = none_if_empty(request.form.get('id_usuario_especial'), int)
-            nome_usuario_especial = none_if_empty(request.form.get('nome_usuario_especial'))
+            nome_usuario_especial = get_value_or_abort(request.form.get('nome_usuario_especial'), 400, "nome do usuario especial é obrigatorio")
 
             usuario_especial = db.get_or_404(Usuarios_Especiais, id_usuario_especial)
-            if nome_usuario_especial is None:
-                abort(400, description="Nome do usuario especial é obrigatório.")
             try:
                 dados_anteriores = copy.copy(usuario_especial)
 
