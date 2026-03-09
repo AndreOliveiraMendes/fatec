@@ -57,7 +57,7 @@ SECOES: dict[str, SecaoGrupo] = {
         'secoes': [
             Secao('Histórico', 'database_historicos.gerenciar_historicos', 'danger', 're'),
             Secao('Movimentação equipamento', 'default.under_dev_page', 'danger', 'crud'),
-            Secao('Quantidade Equipamento', 'default.under_dev_page', 'danger', 'crud')
+            Secao('Quantidade Equipamento', 'database_equipamentos_disponibilidade.gerenciar_equipamentos_disponibilidade', 'danger', 'crud')
         ]
     }
 }
