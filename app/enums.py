@@ -51,7 +51,6 @@ class StatusReservaEquipamentoEnum(enum.Enum):
     CONCLUIDA = "concluida"
 
 class TipoMovimentacao(enum.Enum):
-    INICIAL = "inicial"
     EMPRESTIMO = "emprestimo"
     DEVOLUCAO = "devolucao"
     REPOSICAO = "reposicao"

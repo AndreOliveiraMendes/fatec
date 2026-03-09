@@ -41,21 +41,22 @@ def gerenciar_equipamentos_disponibilidade():
             )
             extras['disponibilidades'] = disponibilidade_paginada.items
             extras['pagination'] = disponibilidade_paginada
-        elif acao == "procurar":
-            pass
+
+        elif acao == "procurar" and bloco == 0:
+            extras["equipamentos"] = get_equipamentos()
 
         elif acao == "inserir" and bloco == 0:
             extras["equipamentos"] = get_equipamentos()
         elif acao == "inserir" and bloco == 1:
             id_equipamento = none_if_empty(request.form.get('id_equipamento'))
             data = parse_date_string(request.form.get('data'))
-            quantidade_disponivel = none_if_empty(request.form.get('quantidade_disponivel'))
+            quantidade_total = none_if_empty(request.form.get('quantidade_total'))
 
             try:
                 novo_registro_disponibilidade = EquipamentoDisponibilidade(
                     id_equipamento = id_equipamento,
                     data = data,
-                    quantidade_disponivel = quantidade_disponivel
+                    quantidade_total = quantidade_total
                 )
                 db.session.add(novo_registro_disponibilidade)
 

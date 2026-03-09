@@ -13,7 +13,7 @@
         <td>{{ item.id_disponibilidade }}</td>
         <td>{{ item.equipamento.nome_equipamento }}</td>
         <td>{{ item.data }}</td>
-        <td>{{ item.quantidade_disponivel }}</td>
+        <td>{{ item.quantidade_total }}</td>
         <td>{{ item.gerado_em|datahora }}</td>
         <td>{{ item.atualizado_em|datahora }}</td>
     {% endcall %}
@@ -70,7 +70,7 @@
                 </tr>
                 <tr>
                     <td>
-                        <code>quantidade_disponivel</code>
+                        <code>quantidade_total</code>
                     </td>
                     <td>INT (NOT NULL)</td>
                     <td>Quantidade total de unidades disponíveis nesta data.</td>
@@ -118,9 +118,68 @@
     </div>
 {% endblock abertura %}
 {% block listar %}
-<h3>Lista de disponibilidades</h3>
-{{ result_table("Nenhuma disponibilidade cadastrada") }}
+    <h3>Lista de disponibilidades</h3>
+    {{ result_table("Nenhuma disponibilidade cadastrada") }}
 {% endblock listar %}
+{% block procurar %}
+    {% if bloco == 0 %}
+        <h3>Procurar Disponibilidade de Equipamentos</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label for="codigo">ID do Registro:</label>
+                <input type="number"
+                       class="form-control"
+                       name="id_disponibilidade"
+                       id="codigo"
+                       placeholder="Digite o ID">
+            </div>
+            {{ gerar_select('equipamento',
+                        'Equipamento',
+                        equipamentos,
+                        'id_equipamento',
+                        'nome_equipamento',
+                        optional=True) }}
+            <h4>Faixa de Data</h4>
+            <div class="form-group">
+                <label>De:</label>
+                <input type="date"
+                       class="form-control"
+                       name="data_start"
+                       placeholder="Início do período">
+            </div>
+            <div class="form-group">
+                <label>Até:</label>
+                <input type="date"
+                       class="form-control"
+                       name="data_end"
+                       placeholder="Fim do período">
+            </div>
+            <h4>Faixa de Quantidade Total</h4>
+            <div class="form-group">
+                <label>Mínimo:</label>
+                <input type="number"
+                       class="form-control"
+                       name="quantidade_min"
+                       placeholder="Quantidade mínima">
+            </div>
+            <div class="form-group">
+                <label>Máximo:</label>
+                <input type="number"
+                       class="form-control"
+                       name="quantidade_max"
+                       placeholder="Quantidade máxima">
+            </div>
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <h3>Resultados da Busca:</h3>
+        {{ result_table("Nenhum resultado encontrado.") }}
+    {% endif %}
+{% endblock procurar %}
 {% block inserir %}
     <h3>Inserir Disponibilidade de Equipamento</h3>
     <form class="form-group"
@@ -141,7 +200,7 @@
             <label>Quantidade Disponível:</label>
             <input type="number"
                    class="form-control"
-                   name="quantidade_disponivel"
+                   name="quantidade_total"
                    min="0"
                    placeholder="Quantidade total disponível"
                    required>
