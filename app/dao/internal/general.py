@@ -32,7 +32,7 @@ def _friendly_db_message(error):
     if "data too long" in raw:
         return "Valor maior que o permitido."
 
-    return "Erro ao salvar dados."
+    return "Não foi possível concluir a operação."
 
 def handle_db_error(e, msg):
     db.session.rollback()
