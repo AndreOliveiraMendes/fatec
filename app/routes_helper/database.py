@@ -64,10 +64,7 @@ def route_exists(endpoint):
 
 def route_defined(endpoint):
 
-    if endpoint == 'default.under_dev_page':
-        return False
-
-    return endpoint in current_app.view_functions
+    return endpoint != 'default.under_dev_page'
 
 def get_routes_status():
 
@@ -120,9 +117,9 @@ def get_crud_progress():
     for items in status:
         _, endpoint, defined = items.values()
         table = endpoint_table(endpoint)
-        if table:
+        if table in result:
             result.setdefault(table, {})
             result[table]['endpoint'] = endpoint
             result[table]['defined'] = defined
 
-    return {k: v for k, v in result.items() if v.get('depth') is not None}
+    return result
