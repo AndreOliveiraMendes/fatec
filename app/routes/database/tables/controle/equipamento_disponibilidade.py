@@ -2,7 +2,7 @@ from typing import Any
 
 from flask import Blueprint, flash, render_template, request, session
 from flask_sqlalchemy.pagination import SelectPagination
-from sqlalchemy import or_, select
+from sqlalchemy import select
 
 from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.general import none_if_empty
@@ -59,17 +59,9 @@ def gerenciar_equipamentos_disponibilidade():
             if equipamento is not None:
                 filters.append(EquipamentoDisponibilidade.id_equipamento == equipamento)
             if data_start:
-                filters.append(
-                    or_(
-                        EquipamentoDisponibilidade.data >= data_start
-                    )
-                )
+                filters.append(EquipamentoDisponibilidade.data >= data_start)
             if data_end:
-                filters.append(
-                    or_(
-                        EquipamentoDisponibilidade.data <= data_end
-                    )
-                )
+                filters.append(EquipamentoDisponibilidade.data <= data_end)
             if quantidade_min:
                 filters.append(EquipamentoDisponibilidade.quantidade_total >= quantidade_min)
             if quantidade_max:
