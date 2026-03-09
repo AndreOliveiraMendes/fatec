@@ -44,6 +44,12 @@ class StatusReservaAuditorioEnum(enum.Enum):
     APROVADA = "Aprovada"
     REPROVADA = "Reprovada"
 
+class StatusReservaEquipamentoEnum(enum.Enum):
+    PENDENTE = "pendente"
+    ATIVA = "ativa"
+    CANCELADA = "cancelada"
+    CONCLUIDA = "concluida"
+
 class TipoMovimentacao(enum.Enum):
     INICIAL = "inicial"
     EMPRESTIMO = "emprestimo"

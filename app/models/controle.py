@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import Date, Enum, ForeignKey, Text, UniqueConstraint
+from sqlalchemy import Date, Enum, ForeignKey, Text, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.auxiliar.model import parse_date
@@ -111,7 +111,7 @@ class MovimentacaoEquipamento(Base):
     )
     quantidade: Mapped[int] = mapped_column(nullable=False)
     data_registro: Mapped[datetime] = mapped_column(
-        default=datetime.now(),
+        default=func.now(),
         nullable=False
     )
     id_funcionario: Mapped[int] = mapped_column(ForeignKey('pessoas.id_pessoa'), nullable=False)
@@ -153,13 +153,20 @@ class EquipamentoDisponibilidade(Base):
     )
     data: Mapped[date] = mapped_column(Date, nullable=False)
     quantidade_disponivel: Mapped[int] = mapped_column(nullable=False)
-    quantidade_reservada: Mapped[int] = mapped_column(nullable=False)
     gerado_em: Mapped[datetime] = mapped_column(
-        default=datetime.now()
+        default=func.now()
     )
     atualizado_em: Mapped[datetime] = mapped_column(
-        default=datetime.now(),
-        onupdate=datetime.now()
+        default=func.now(),
+        onupdate=func.now()
+    )
+
+    __table_args__ = (
+        UniqueConstraint(
+            "id_equipamento",
+            "data",
+            name="uq_equipamento_data"
+        ),
     )
 
     equipamento: Mapped["Equipamentos"] = relationship(
@@ -173,6 +180,7 @@ class EquipamentoDisponibilidade(Base):
             f"id_equipamento={self.id_equipamento}, "
             f"data={self.data}, "
             f"quantidade_disponivel={self.quantidade_disponivel}, "
-            f"quantidade_reservada={self.quantidade_reservada}"
+            f"gerado_em={self.gerado_em}, "
+            f"atualizado_em={self.atualizado_em}"
             f")>"
         )

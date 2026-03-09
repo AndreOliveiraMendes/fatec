@@ -49,15 +49,15 @@ SECOES: dict[str, SecaoGrupo] = {
         'secoes': [
             Secao('Situacoes das reservas', 'database_situacoes_das_reservas.gerenciar_situacoes_das_reservas', 'warning', 'crud'),
             Secao('Exibicao das reservas', 'database_exibicao_reservas.gerenciar_exibicao_reservas', 'warning', 'crud'),
-            Secao('Item da reserva de equipamento', 'default.under_dev_page', 'warning', 'crud')
+            Secao('Item da reserva de equipamento', 'default.under_dev_page', 'warning', 'crud'),
+            Secao('Movimentação equipamento', 'default.under_dev_page', 'danger', 'crud'),
+            Secao('Quantidade Equipamento', 'database_equipamentos_disponibilidade.gerenciar_equipamentos_disponibilidade', 'danger', 'crud')
         ]
     },
     'Logs / Histórico': {
         'icon': 'glyphicon glyphicon-list-alt',
         'secoes': [
-            Secao('Histórico', 'database_historicos.gerenciar_historicos', 'danger', 're'),
-            Secao('Movimentação equipamento', 'default.under_dev_page', 'danger', 'crud'),
-            Secao('Quantidade Equipamento', 'database_equipamentos_disponibilidade.gerenciar_equipamentos_disponibilidade', 'danger', 'crud')
+            Secao('Histórico', 'database_historicos.gerenciar_historicos', 'danger', 're')
         ]
     }
 }

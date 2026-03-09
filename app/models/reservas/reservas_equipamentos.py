@@ -1,9 +1,10 @@
 from datetime import date, datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, UniqueConstraint
+from sqlalchemy import Enum, ForeignKey, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.enums import StatusReservaEquipamentoEnum
 from app.extensions import Base
 
 if TYPE_CHECKING:
@@ -18,7 +19,14 @@ class Reservas_Equipamentos(Base):
     id_reserva_aula: Mapped[int] = mapped_column(ForeignKey('aulas_ativas.id_aula_ativa'), nullable=False)
     id_reserva_responsavel: Mapped[int] = mapped_column(ForeignKey('pessoas.id_pessoa'))
     data_reserva: Mapped[date] = mapped_column(nullable=False)
-    criado_em: Mapped[datetime] = mapped_column(default=datetime.now())
+    criado_em: Mapped[datetime] = mapped_column(default=func.now())
+    cancelado_em: Mapped[datetime | None] = mapped_column(nullable=True)
+    cancelado_por_id: Mapped[int | None] = mapped_column(ForeignKey('pessoas.id_pessoa'), nullable=True)
+    estado: Mapped[StatusReservaEquipamentoEnum] = mapped_column(
+        Enum(StatusReservaEquipamentoEnum),
+        default=StatusReservaEquipamentoEnum.PENDENTE.name,
+        nullable=False
+    )
 
     aula_ativa: Mapped["Aulas_Ativas"] = relationship(
         back_populates="reservas_equipamentos"
@@ -26,6 +34,10 @@ class Reservas_Equipamentos(Base):
     responsavel: Mapped["Pessoas"] = relationship(
         back_populates="reservas_equipamentos",
         foreign_keys=[id_reserva_responsavel]
+    )
+    cancelado_por: Mapped["Pessoas"] = relationship(
+        foreign_keys=[cancelado_por_id],
+        back_populates="reservas_canceladas"
     )
     itens: Mapped[list["Reserva_Equipamento_Item"]] = relationship(
         back_populates="reserva"
@@ -53,6 +65,7 @@ class Reserva_Equipamento_Item(Base):
         ForeignKey("equipamentos.id_equipamento"), nullable=False
     )
     quantidade: Mapped[int] = mapped_column(nullable=False, default=1)
+    devolvido: Mapped[int] = mapped_column(nullable=False, default=0)
 
     __table_args__ = (
         UniqueConstraint(

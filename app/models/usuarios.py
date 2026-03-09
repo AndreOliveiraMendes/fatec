@@ -37,6 +37,10 @@ class Pessoas(Base):
         back_populates="responsavel",
         foreign_keys="Reservas_Equipamentos.id_reserva_responsavel"
     )
+    reservas_canceladas: Mapped[list["Reservas_Equipamentos"]] = relationship(
+        back_populates="cancelado_por",
+        foreign_keys="Reservas_Equipamentos.cancelado_por_id"
+    )
     movimentacoes_funcionario: Mapped[list["MovimentacaoEquipamento"]] = relationship(
         back_populates="funcionario",
         foreign_keys="MovimentacaoEquipamento.id_funcionario"
