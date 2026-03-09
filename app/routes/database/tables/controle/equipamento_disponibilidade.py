@@ -61,15 +61,13 @@ def gerenciar_equipamentos_disponibilidade():
             if data_start:
                 filters.append(
                     or_(
-                        EquipamentoDisponibilidade.gerado_em >= data_start,
-                        EquipamentoDisponibilidade.atualizado_em >= data_start
+                        EquipamentoDisponibilidade.data >= data_start
                     )
                 )
             if data_end:
                 filters.append(
                     or_(
-                        EquipamentoDisponibilidade.gerado_em <= data_end,
-                        EquipamentoDisponibilidade.atualizado_em <= data_end
+                        EquipamentoDisponibilidade.data <= data_end
                     )
                 )
             if quantidade_min:
