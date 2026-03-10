@@ -1,4 +1,6 @@
 
+import copy
+
 from flask import Blueprint, flash, g, render_template, request
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
@@ -7,6 +9,7 @@ from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.general import none_if_empty
 from app.auxiliar.navigation import register_return
 from app.auxiliar.parsing import parse_date_string
+from app.dao.internal.controle import get_equipamento_disponibilidades
 from app.dao.internal.equipamentos import get_equipamentos
 from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
@@ -98,6 +101,56 @@ def gerenciar_equipamentos_disponibilidade():
                 handle_db_error(e, "Erro ao criar disponibilidade")
             g.redirect_action, g.bloco = register_return(
                 g.url, g.acao, g.extras, equipamentos=get_equipamentos()
+            )
+
+        elif g.acao in ["editar", "excluir"] and g.bloco == 0:
+            g.extras['disponibilidades'] = get_equipamento_disponibilidades()
+        elif g.acao in ["editar", "excluir"] and g.bloco == 1:
+            id_disponibilidade = none_if_empty(request.form.get('id_disponibilidade'), int)
+            disponibilidade = db.get_or_404(EquipamentoDisponibilidade, id_disponibilidade)
+            g.extras['disponibilidade'] = disponibilidade
+            g.extras['equipamentos'] = get_equipamentos()
+
+        elif g.acao == "editar" and g.bloco == 2:
+            id_disponibilidade = none_if_empty(request.form.get('id_disponibilidade'), int)
+            equipamento = none_if_empty(request.form.get('id_equipamento'), int)
+            data = parse_date_string(request.form.get('data'))
+            quantidade_total = none_if_empty(request.form.get('quantidade_total'), int)
+
+            disponibilidade = db.get_or_404(EquipamentoDisponibilidade, id_disponibilidade)
+            try:
+                dados_anteriores = copy.copy(disponibilidade)
+                disponibilidade.id_equipamento = equipamento
+                disponibilidade.data = data
+                disponibilidade.quantidade_total = quantidade_total
+
+                db.session.flush()
+                registrar_log_generico_usuario(g.userid, 'Edição', disponibilidade, dados_anteriores)
+
+                db.session.commit()
+                flash("Disponibilidade editada com sucesso", "success")
+            except DB_ERRORS as e:
+                handle_db_error(e, "Erro ao editar disponilidade")
+            g.redirect_action, g.bloco = register_return(
+                g.url, g.acao, g.extras, disponibilidades = get_equipamento_disponibilidades()
+            )
+
+        elif g.acao == "excluir" and g.bloco == 2:
+            id_disponibilidade = none_if_empty(request.form.get('id_disponibilidade'), int)
+
+            disponibilidade = db.get_or_404(EquipamentoDisponibilidade, id_disponibilidade)
+            try:
+                db.session.delete(disponibilidade)
+
+                db.session.flush()
+                registrar_log_generico_usuario(g.userid, 'Exclusão', disponibilidade)
+
+                db.session.commit()
+                flash("Disponibilidade excluida com sucesso", "success")
+            except DB_ERRORS as e:
+                handle_db_error(e, "Erro ao excluir disponibilidade")
+            g.redirect_action, g.bloco = register_return(
+                g.url, g.acao, g.extras, disponibilidades = get_equipamento_disponibilidades()
             )
     if g.redirect_action:
         return g.redirect_action

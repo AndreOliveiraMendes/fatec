@@ -3,7 +3,7 @@
     {% call(item) table_base(
         disponibilidades,
         ['ID Disponibilidade', 'Equipamento', 'Dia', 'Quantidade', 'Gerado em', 'Atualizado em'],
-        id_field='id_aula',
+        id_field='id_disponibilidade',
         message=message,
         pagination=pagination,
         acao=acao,
@@ -208,3 +208,117 @@
         {{ action_buttons(acao, 1, False, 0) }}
     </form>
 {% endblock inserir %}
+{% block editar %}
+    {% if bloco == 0 %}
+        <h3>Editando disponibilidade de equipamentos</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            {{ gerar_select("id_disponibilidade", "Selecione o registro", disponibilidades, "id_disponibilidade", "selector_identification") }}
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <h3>Editar disponibilidade</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <!-- ID Disponibilidade (somente leitura) -->
+            <div class="form-group">
+                <label for="id_disponibilidade">ID da Disponibilidade:</label>
+                <input type="text"
+                       class="form-control"
+                       name="id_disponibilidade"
+                       id="id_disponibilidade"
+                       value="{{ disponibilidade.id_disponibilidade }}"
+                       readonly>
+            </div>
+            {{ gerar_select("id_equipamento",
+                        "Selecione o equipamento",
+                        equipamentos,
+                        "id_equipamento",
+                        "nome_equipamento",
+                        selected=disponibilidade.id_equipamento) }}
+            <!-- Data -->
+            <div class="form-group">
+                <label for="data">Data:</label>
+                <input type="date"
+                       class="form-control"
+                       name="data"
+                       id="data"
+                       value="{{ disponibilidade.data }}"
+                       required>
+            </div>
+            <!-- Quantidade total -->
+            <div class="form-group">
+                <label for="quantidade_total">Quantidade Total:</label>
+                <input type="number"
+                       class="form-control"
+                       name="quantidade_total"
+                       id="quantidade_total"
+                       min="0"
+                       value="{{ disponibilidade.quantidade_total }}"
+                       required>
+            </div>
+            {{ action_buttons(acao, 2, True, 0) }}
+        </form>
+    {% endif %}
+{% endblock editar %}
+{% block excluir %}
+    {% if bloco == 0 %}
+        <h3>Excluir disponibilidade de equipamentos</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            {{ gerar_select("id_disponibilidade", "Selecione o registro", disponibilidades, "id_disponibilidade", "selector_identification") }}
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <!-- ID -->
+            <div class="form-group">
+                <label for="id_disponibilidade">ID da Disponibilidade:</label>
+                <input type="text"
+                       class="form-control"
+                       name="id_disponibilidade"
+                       id="id_disponibilidade"
+                       value="{{ disponibilidade.id_disponibilidade }}"
+                       readonly>
+            </div>
+            <!-- Equipamento -->
+            <div class="form-group">
+                <label for="equipamento">Equipamento:</label>
+                <input type="text"
+                       class="form-control"
+                       value="{{ disponibilidade.equipamento.nome_equipamento }}"
+                       disabled>
+            </div>
+            <!-- Data -->
+            <div class="form-group">
+                <label for="data">Data:</label>
+                <input type="text"
+                       class="form-control"
+                       value="{{ disponibilidade.data }}"
+                       disabled>
+            </div>
+            <!-- Quantidade -->
+            <div class="form-group">
+                <label for="quantidade_total">Quantidade Total:</label>
+                <input type="number"
+                       class="form-control"
+                       value="{{ disponibilidade.quantidade_total }}"
+                       disabled>
+            </div>
+            {{ action_buttons(acao, 2, True, 0, False) }}
+        </form>
+    {% endif %}
+{% endblock excluir %}
