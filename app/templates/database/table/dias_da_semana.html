@@ -1,5 +1,5 @@
 {% extends "database/table/base_crude" %}
-{% macro result_table() %}
+{% macro result_table(message) %}
     {% call(ds) table_base(
         dias_da_semana,
         ['Codigo', 'Nome'],
