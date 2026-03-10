@@ -28,20 +28,10 @@ class Reservas_Equipamentos(Base):
         nullable=False
     )
 
-    aula_ativa: Mapped["Aulas_Ativas"] = relationship(
-        back_populates="reservas_equipamentos"
-    )
-    responsavel: Mapped["Pessoas"] = relationship(
-        back_populates="reservas_equipamentos",
-        foreign_keys=[id_reserva_responsavel]
-    )
-    cancelado_por: Mapped["Pessoas"] = relationship(
-        foreign_keys=[cancelado_por_id],
-        back_populates="reservas_canceladas"
-    )
-    itens: Mapped[list["Reserva_Equipamento_Item"]] = relationship(
-        back_populates="reserva"
-    )
+    aula_ativa: Mapped["Aulas_Ativas"] = relationship(back_populates="reservas_equipamentos", passive_deletes=True)
+    responsavel: Mapped["Pessoas"] = relationship(back_populates="reservas_equipamentos", foreign_keys=[id_reserva_responsavel], passive_deletes=True)
+    cancelado_por: Mapped["Pessoas"] = relationship(foreign_keys=[cancelado_por_id], back_populates="reservas_canceladas", passive_deletes=True)
+    itens: Mapped[list["Reserva_Equipamento_Item"]] = relationship(back_populates="reserva", passive_deletes=True)
 
     def __repr__(self) -> str:
         return (
@@ -75,12 +65,8 @@ class Reserva_Equipamento_Item(Base):
         ),
     )
 
-    reserva: Mapped["Reservas_Equipamentos"] = relationship(
-        back_populates="itens"
-    )
-    equipamento: Mapped["Equipamentos"] = relationship(
-        back_populates="itens_reserva"
-    )
+    reserva: Mapped["Reservas_Equipamentos"] = relationship(back_populates="itens", passive_deletes=True)
+    equipamento: Mapped["Equipamentos"] = relationship(back_populates="itens_reserva", passive_deletes=True)
 
     def __repr__(self) -> str:
         return (

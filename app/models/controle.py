@@ -35,8 +35,8 @@ class Exibicao_Reservas(Base):
         ),
     )
 
-    local: Mapped["Locais"] = relationship(back_populates='exibicao_reservas')
-    aula_ativa: Mapped["Aulas_Ativas"] = relationship(back_populates='exibicao_reservas')
+    local: Mapped["Locais"] = relationship(back_populates='exibicao_reservas', passive_deletes=True)
+    aula_ativa: Mapped["Aulas_Ativas"] = relationship(back_populates='exibicao_reservas', passive_deletes=True)
 
     @property
     def selector_identification(self):
@@ -80,8 +80,8 @@ class Situacoes_Das_Reserva(Base):
         ),
     )
 
-    local: Mapped["Locais"] = relationship(back_populates='situacoes_das_reservas')
-    aula_ativa: Mapped["Aulas_Ativas"] = relationship(back_populates='situacoes_das_reservas')
+    local: Mapped["Locais"] = relationship(back_populates='situacoes_das_reservas', passive_deletes=True)
+    aula_ativa: Mapped["Aulas_Ativas"] = relationship(back_populates='situacoes_das_reservas', passive_deletes=True)
 
     @property
     def selector_identification(self):
@@ -118,17 +118,9 @@ class MovimentacaoEquipamento(Base):
     id_responsavel: Mapped[int | None] = mapped_column(ForeignKey('pessoas.id_pessoa'), nullable=True)
     observacao: Mapped[Optional[str]] = mapped_column(Text)
 
-    equipamento: Mapped["Equipamentos"] = relationship(
-        back_populates="movimentacoes"
-    )
-    funcionario: Mapped["Pessoas"] = relationship(
-        back_populates="movimentacoes_funcionario",
-        foreign_keys=[id_funcionario]
-    )
-    responsavel: Mapped["Pessoas"] = relationship(
-        back_populates="movimentacoes_responsavel",
-        foreign_keys=[id_responsavel]
-    )
+    equipamento: Mapped["Equipamentos"] = relationship(back_populates="movimentacoes", passive_deletes=True)
+    funcionario: Mapped["Pessoas"] = relationship(back_populates="movimentacoes_funcionario", foreign_keys=[id_funcionario], passive_deletes=True)
+    responsavel: Mapped["Pessoas"] = relationship(back_populates="movimentacoes_responsavel", foreign_keys=[id_responsavel], passive_deletes=True)
 
     def __repr__(self) -> str:
         return (
@@ -169,9 +161,7 @@ class EquipamentoDisponibilidade(Base):
         ),
     )
 
-    equipamento: Mapped["Equipamentos"] = relationship(
-        back_populates="disponibilidades"
-    )
+    equipamento: Mapped["Equipamentos"] = relationship(back_populates="disponibilidades", passive_deletes=True)
 
     def __repr__(self) -> str:
         return (

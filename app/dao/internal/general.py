@@ -23,7 +23,10 @@ def _friendly_db_message(error):
     if "duplicate entry" in raw or "unique constraint" in raw:
         return "Registro já existe."
 
-    if "foreign key" in raw:
+    if "cannot delete or update a parent row" in raw:
+        return "Registro não pode ser excluído pois está sendo utilizado."
+
+    if "cannot add or update a child row" in raw:
         return "Registro relacionado não encontrado."
 
     if "cannot be null" in raw or "not null constraint" in raw:
@@ -31,6 +34,9 @@ def _friendly_db_message(error):
 
     if "data too long" in raw:
         return "Valor maior que o permitido."
+
+    if "check constraint" in raw:
+        return "Valor inválido para os campos informados."
 
     return "Não foi possível concluir a operação."
 

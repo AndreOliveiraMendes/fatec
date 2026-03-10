@@ -27,7 +27,7 @@ class Historicos(Base):
         server_default=OrigemEnum.SISTEMA.name
     )
 
-    usuario: Mapped["Usuarios"] = relationship(back_populates='historicos')
+    usuario: Mapped["Usuarios"] = relationship(back_populates='historicos', passive_deletes=True)
 
     def __repr__(self) -> str:
         return (

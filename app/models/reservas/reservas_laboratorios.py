@@ -49,7 +49,7 @@ class Reservas_Fixas(ReservaBase):
     id_reserva_fixa: Mapped[int] = mapped_column(primary_key=True)
     id_reserva_semestre: Mapped[int] = mapped_column(ForeignKey('semestres.id_semestre'), nullable=False)
 
-    semestre: Mapped["Semestres"] = relationship(back_populates='reservas_fixas')
+    semestre: Mapped["Semestres"] = relationship(back_populates='reservas_fixas', passive_deletes=True)
 
     __table_args__ = (
         UniqueConstraint(
@@ -60,10 +60,10 @@ class Reservas_Fixas(ReservaBase):
         ),
     )
 
-    pessoa: Mapped["Pessoas"] = relationship("Pessoas", back_populates="reservas_fixas")
-    usuario_especial: Mapped["Usuarios_Especiais"] = relationship("Usuarios_Especiais", back_populates="reservas_fixas")
-    local: Mapped["Locais"] = relationship("Locais", back_populates="reservas_fixas")
-    aula_ativa: Mapped["Aulas_Ativas"] = relationship("Aulas_Ativas", back_populates="reservas_fixas")
+    pessoa: Mapped["Pessoas"] = relationship("Pessoas", back_populates="reservas_fixas", passive_deletes=True)
+    usuario_especial: Mapped["Usuarios_Especiais"] = relationship("Usuarios_Especiais", back_populates="reservas_fixas", passive_deletes=True)
+    local: Mapped["Locais"] = relationship("Locais", back_populates="reservas_fixas", passive_deletes=True)
+    aula_ativa: Mapped["Aulas_Ativas"] = relationship("Aulas_Ativas", back_populates="reservas_fixas", passive_deletes=True)
 
     @property
     def selector_identification(self):
@@ -99,10 +99,10 @@ class Reservas_Temporarias(ReservaBase):
         ),
     )
 
-    pessoa: Mapped["Pessoas"] = relationship("Pessoas", back_populates="reservas_temporarias")
-    usuario_especial: Mapped["Usuarios_Especiais"] = relationship("Usuarios_Especiais", back_populates="reservas_temporarias")
-    local: Mapped["Locais"] = relationship("Locais", back_populates="reservas_temporarias")
-    aula_ativa: Mapped["Aulas_Ativas"] = relationship("Aulas_Ativas", back_populates="reservas_temporarias")
+    pessoa: Mapped["Pessoas"] = relationship("Pessoas", back_populates="reservas_temporarias", passive_deletes=True)
+    usuario_especial: Mapped["Usuarios_Especiais"] = relationship("Usuarios_Especiais", back_populates="reservas_temporarias", passive_deletes=True)
+    local: Mapped["Locais"] = relationship("Locais", back_populates="reservas_temporarias", passive_deletes=True)
+    aula_ativa: Mapped["Aulas_Ativas"] = relationship("Aulas_Ativas", back_populates="reservas_temporarias", passive_deletes=True)
 
     @property
     def selector_identification(self):
