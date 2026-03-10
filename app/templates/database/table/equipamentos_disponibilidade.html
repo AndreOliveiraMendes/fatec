@@ -12,7 +12,7 @@
         ) %}
         <td>{{ item.id_disponibilidade }}</td>
         <td>{{ item.equipamento.nome_equipamento }}</td>
-        <td>{{ item.data }}</td>
+        <td>{{ item.data|data }}</td>
         <td>{{ item.quantidade_total }}</td>
         <td>{{ item.gerado_em|datahora }}</td>
         <td>{{ item.atualizado_em|datahora }}</td>
