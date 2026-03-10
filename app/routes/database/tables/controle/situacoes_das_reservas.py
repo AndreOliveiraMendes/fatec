@@ -1,7 +1,6 @@
 import copy
-from typing import Any
 
-from flask import Blueprint, flash, render_template, request, session
+from flask import Blueprint, flash, g, render_template, request
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
@@ -14,42 +13,33 @@ from app.dao.internal.controle import get_situacoes
 from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.locais import get_locais
-from app.dao.internal.usuarios import get_user
-from app.decorators.decorators import admin_required
+from app.decorators.decorators import admin_required, crud_route
 from app.enums import SituacaoChaveEnum, TipoReservaEnum
 from app.extensions import db
 from app.models.controle import Situacoes_Das_Reserva
-from app.routes_helper.request import get_query_params, get_session_or_request
-from config.database_views import get_url
+from app.routes_helper.request import get_query_params
 from config.general import PER_PAGE
 
 bp = Blueprint('database_situacoes_das_reservas', __name__, url_prefix="/database")
 
 @bp.route("/situacoes_das_reservas", methods=["GET", "POST"])
 @admin_required
+@crud_route()
 def gerenciar_situacoes_das_reservas():
-    url = get_url('database_situacoes_das_reservas')
-    redirect_action = None
-    acao = get_session_or_request(request, session, 'acao', 'abertura')
-    bloco = int(request.form.get('bloco', 0))
-    page = int(request.form.get('page', 1))
-    userid = session.get('userid')
-    user = get_user(userid)
-    extras: dict[str, Any] = {'url':url}
     if request.method == 'POST':
-        if acao == 'listar':
+        if g.acao == 'listar':
             sel_situacoes = select(Situacoes_Das_Reserva)
             situacoes_das_reservas_paginadas = SelectPagination(
                 select=sel_situacoes, session=db.session,
-                page=page, per_page=PER_PAGE, error_out=False
+                page=g.page, per_page=PER_PAGE, error_out=False
             )
-            extras['situacoes_das_reservas'] = situacoes_das_reservas_paginadas.items
-            extras['pagination'] = situacoes_das_reservas_paginadas
+            g.extras['situacoes_das_reservas'] = situacoes_das_reservas_paginadas.items
+            g.extras['pagination'] = situacoes_das_reservas_paginadas
 
-        elif acao == 'procurar' and bloco == 0:
-            extras['locais'] = get_locais()
-            extras['aulas_ativas'] = get_aulas_ativas()
-        elif acao == 'procurar' and bloco == 1:
+        elif g.acao == 'procurar' and g.bloco == 0:
+            g.extras['locais'] = get_locais()
+            g.extras['aulas_ativas'] = get_aulas_ativas()
+        elif g.acao == 'procurar' and g.bloco == 1:
             id_situacao = none_if_empty(request.form.get('id_situacao'), int)
             id_situacao_local = none_if_empty(request.form.get('id_situacao_local'), int)
             id_situacao_aula = none_if_empty(request.form.get('id_situacao_aula'), int)
@@ -74,22 +64,22 @@ def gerenciar_situacoes_das_reservas():
                 sel_situacoes = select(Situacoes_Das_Reserva).where(*filters)
                 situacoes_das_reservas_paginadas = SelectPagination(
                     select=sel_situacoes, session=db.session,
-                    page=page, per_page=PER_PAGE, error_out=False
+                    page=g.page, per_page=PER_PAGE, error_out=False
                 )
-                extras['situacoes_das_reservas'] = situacoes_das_reservas_paginadas.items
-                extras['pagination'] = situacoes_das_reservas_paginadas
-                extras['query_params'] = query_params
+                g.extras['situacoes_das_reservas'] = situacoes_das_reservas_paginadas.items
+                g.extras['pagination'] = situacoes_das_reservas_paginadas
+                g.extras['query_params'] = query_params
             else:
                 flash("especifique ao menos um campo", "danger")
-                redirect_action, bloco = register_return(
-                    url, acao, extras,
+                g.redirect_action, g.bloco = register_return(
+                    g.url, g.acao, g.extras,
                     locais=get_locais(), aulas_ativas=get_aulas_ativas()
                 )
 
-        elif acao == 'inserir' and bloco == 0:
-            extras['locais'] = get_locais()
-            extras['aulas_ativas'] = get_aulas_ativas()
-        elif acao == 'inserir' and bloco == 1:
+        elif g.acao == 'inserir' and g.bloco == 0:
+            g.extras['locais'] = get_locais()
+            g.extras['aulas_ativas'] = get_aulas_ativas()
+        elif g.acao == 'inserir' and g.bloco == 1:
             id_situacao_local = none_if_empty(request.form.get('id_situacao_local'), int)
             id_situacao_aula = none_if_empty(request.form.get('id_situacao_aula'), int)
             situacao_dia = parse_date_string(request.form.get('situacao_dia'))
@@ -108,7 +98,7 @@ def gerenciar_situacoes_das_reservas():
                 db.session.add(nova_situacao)
 
                 db.session.flush()
-                registrar_log_generico_usuario(userid, 'Inserção', nova_situacao)
+                registrar_log_generico_usuario(g.userid, 'Inserção', nova_situacao)
 
                 db.session.commit()
                 flash("Situação cadastrada com sucesso", "success")
@@ -117,20 +107,20 @@ def gerenciar_situacoes_das_reservas():
             except ValueError as e:
                 handle_db_error(e, "Erro ao cadastrar situação")
 
-            redirect_action, bloco = register_return(
-                url, acao, extras,
+            g.redirect_action, g.bloco = register_return(
+                g.url, g.acao, g.extras,
                 locais=get_locais(), aulas_ativas=get_aulas_ativas()
             )
 
-        elif acao in ['editar', 'excluir'] and bloco == 0:
-            extras['situacoes_das_reservas'] = get_situacoes()
-        elif acao in ['editar', 'excluir'] and bloco == 1:
+        elif g.acao in ['editar', 'excluir'] and g.bloco == 0:
+            g.extras['situacoes_das_reservas'] = get_situacoes()
+        elif g.acao in ['editar', 'excluir'] and g.bloco == 1:
             id_situacao = none_if_empty(request.form.get('id_situacao'), int)
             situacao_da_reserva = db.get_or_404(Situacoes_Das_Reserva, id_situacao)
-            extras['situacao_da_reserva'] = situacao_da_reserva
-            extras['locais'] = get_locais()
-            extras['aulas_ativas'] = get_aulas_ativas()
-        elif acao == 'editar' and bloco == 2:
+            g.extras['situacao_da_reserva'] = situacao_da_reserva
+            g.extras['locais'] = get_locais()
+            g.extras['aulas_ativas'] = get_aulas_ativas()
+        elif g.acao == 'editar' and g.bloco == 2:
             id_situacao = none_if_empty(request.form.get('id_situacao'), int)
             id_situacao_local = get_value_or_abort(request.form.get('id_situacao_local'), 400, "id do local obrigatorio", int)
             id_situacao_aula = get_value_or_abort(request.form.get('id_situacao_aula'), 400, "id da aula é obrigatorio", int)
@@ -149,7 +139,7 @@ def gerenciar_situacoes_das_reservas():
                     situacao_da_reserva.tipo_reserva = TipoReservaEnum(tipo_reserva)
 
                 db.session.flush()
-                registrar_log_generico_usuario(userid, 'Edição', situacao_da_reserva, dados_anteriores)
+                registrar_log_generico_usuario(g.userid, 'Edição', situacao_da_reserva, dados_anteriores)
 
                 db.session.commit()
                 flash("Situação Editada com sucesso", "success")
@@ -157,11 +147,11 @@ def gerenciar_situacoes_das_reservas():
                 handle_db_error(e, "Erro ao editar situação")
             except ValueError as e:
                 handle_db_error(e, "Erro ao editar situação")
-            redirect_action, bloco = register_return(
-                url, acao, extras,
+            g.redirect_action, g.bloco = register_return(
+                g.url, g.acao, g.extras,
                 situacoes_das_reservas=get_situacoes()
             )
-        elif acao == 'excluir' and bloco == 2:
+        elif g.acao == 'excluir' and g.bloco == 2:
             id_situacao = none_if_empty(request.form.get('id_situacao'), int)
 
             situacao_da_reserva = db.get_or_404(Situacoes_Das_Reserva, id_situacao)
@@ -169,18 +159,18 @@ def gerenciar_situacoes_das_reservas():
                 db.session.delete(situacao_da_reserva)
 
                 db.session.flush()
-                registrar_log_generico_usuario(userid, 'Exclusão', situacao_da_reserva)
+                registrar_log_generico_usuario(g.userid, 'Exclusão', situacao_da_reserva)
 
                 db.session.commit()
                 flash("situação excluida com sucesso", "success")
             except DB_ERRORS as e:
                 handle_db_error(e, "Erro ao excluir situação")
 
-            redirect_action, bloco = register_return(
-                url, acao, extras,
+            g.redirect_action, g.bloco = register_return(
+                g.url, g.acao, g.extras,
                 situacoes_das_reservas=get_situacoes()
             )
-    if redirect_action:
-        return redirect_action
+    if g.redirect_action:
+        return g.redirect_action
     return render_template("database/table/situacoes_das_reservas.html",
-        user=user, acao=acao, bloco=bloco, **extras)
+        user=g.user, acao=g.acao, bloco=g.bloco, **g.extras)

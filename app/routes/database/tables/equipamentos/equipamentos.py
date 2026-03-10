@@ -1,7 +1,6 @@
 import copy
-from typing import Any
 
-from flask import Blueprint, flash, render_template, request, session
+from flask import Blueprint, flash, g, render_template, request
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
@@ -11,40 +10,31 @@ from app.auxiliar.navigation import register_return
 from app.dao.internal.equipamentos import get_categorias, get_equipamentos
 from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
-from app.dao.internal.usuarios import get_user
-from app.decorators.decorators import admin_required
+from app.decorators.decorators import admin_required, crud_route
 from app.extensions import db
 from app.models.equipamentos import Equipamentos
-from app.routes_helper.request import get_query_params, get_session_or_request
-from config.database_views import get_url
+from app.routes_helper.request import get_query_params
 from config.general import PER_PAGE
 
 bp = Blueprint('database_equipamentos', __name__, url_prefix="/database")
 
 @bp.route("/equipamentos", methods=["GET", "POST"])
 @admin_required
+@crud_route()
 def gerenciar_equipamentos():
-    url = get_url('database_equipamentos')
-    redirect_action = None
-    acao = get_session_or_request(request, session, 'acao', 'abertura')
-    bloco = int(request.form.get('bloco', 0))
-    page = int(request.form.get('page', 1))
-    userid = session.get('userid')
-    user = get_user(userid)
-    extras: dict[str, Any] = {'url':url}
     if request.method == "POST":
-        if acao == "listar":
+        if g.acao == "listar":
             sel_equipamentos = select(Equipamentos)
             equipamentos_paginados = SelectPagination(
                 select=sel_equipamentos, session=db.session,
-                page=page, per_page=PER_PAGE, error_out=False
+                page=g.page, per_page=PER_PAGE, error_out=False
             )
-            extras["equipamentos"] = equipamentos_paginados.items
-            extras["pagination"] = equipamentos_paginados
+            g.extras["equipamentos"] = equipamentos_paginados.items
+            g.extras["pagination"] = equipamentos_paginados
 
-        elif acao == "procurar" and bloco == 0:
-            extras["categorias"] = get_categorias()
-        elif acao == "procurar" and bloco == 1:
+        elif g.acao == "procurar" and g.bloco == 0:
+            g.extras["categorias"] = get_categorias()
+        elif g.acao == "procurar" and g.bloco == 1:
             id_equipamento = none_if_empty(request.form.get('id_equipamento'), int)
             nome_equipamento = none_if_empty(request.form.get('nome_equipamento'))
             descricao = none_if_empty(request.form.get('descricao'))
@@ -65,20 +55,20 @@ def gerenciar_equipamentos():
                 )
                 equipamentos_paginados = SelectPagination(
                     select=sel_equipamentos, session=db.session,
-                    page=page, per_page=PER_PAGE, error_out=False
+                    page=g.page, per_page=PER_PAGE, error_out=False
                 )
-                extras['equipamentos'] = equipamentos_paginados.items
-                extras['pagination'] = equipamentos_paginados
-                extras['query_params'] = query_params
+                g.extras['equipamentos'] = equipamentos_paginados.items
+                g.extras['pagination'] = equipamentos_paginados
+                g.extras['query_params'] = query_params
             else:
                 flash("especifique pelo menos um campo de busca", "danger")
-                redirect_action, bloco = register_return(
-                    url, acao, extras, categorias=get_categorias()
+                g.redirect_action, g.bloco = register_return(
+                    g.url, g.acao, g.extras, categorias=get_categorias()
                 )
 
-        elif acao == "inserir" and bloco == 0:
-            extras["categorias"] = get_categorias()
-        elif acao == "inserir" and bloco == 1:
+        elif g.acao == "inserir" and g.bloco == 0:
+            g.extras["categorias"] = get_categorias()
+        elif g.acao == "inserir" and g.bloco == 1:
             nome_equipamento = none_if_empty(request.form.get('nome_equipamento'))
             descricao = none_if_empty(request.form.get('descricao'))
             id_categoria = none_if_empty(request.form.get('id_categoria'), int)
@@ -92,25 +82,25 @@ def gerenciar_equipamentos():
                 db.session.add(novo_equipamento)
 
                 db.session.flush()
-                registrar_log_generico_usuario(userid, 'Inserção', novo_equipamento)
+                registrar_log_generico_usuario(g.userid, 'Inserção', novo_equipamento)
 
                 db.session.commit()
                 flash("Equipamento cadastrado com sucesso", "success")
             except DB_ERRORS as e:
                 handle_db_error(e, "Erro ao cadastrar equipamento")
-            redirect_action, bloco = register_return(
-                url, acao, extras, categorias=get_categorias()
+            g.redirect_action, g.bloco = register_return(
+                g.url, g.acao, g.extras, categorias=get_categorias()
             )
 
-        elif acao in ['editar', 'excluir'] and bloco == 0:
-            extras["equipamentos"] = get_equipamentos()
-        elif acao in ['editar', 'excluir'] and bloco == 1:
+        elif g.acao in ['editar', 'excluir'] and g.bloco == 0:
+            g.extras["equipamentos"] = get_equipamentos()
+        elif g.acao in ['editar', 'excluir'] and g.bloco == 1:
             id_equipamento = none_if_empty(request.form.get('id_equipamento'), int)
             equipamento = db.get_or_404(Equipamentos, id_equipamento)
-            extras['equipamento'] = equipamento
-            extras['categorias'] = get_categorias()
+            g.extras['equipamento'] = equipamento
+            g.extras['categorias'] = get_categorias()
 
-        elif acao == 'editar' and bloco == 2:
+        elif g.acao == 'editar' and g.bloco == 2:
             id_equipamento = none_if_empty(request.form.get('id_equipamento'), int)
             nome_equipamento = get_value_or_abort(request.form.get('nome_equipamento'), 400, "nome da categoria é obrigatorio")
             descricao = none_if_empty(request.form.get('descricao'))
@@ -124,17 +114,17 @@ def gerenciar_equipamentos():
                 equipamento.id_categoria = id_categoria
 
                 db.session.flush()
-                registrar_log_generico_usuario(userid, 'Edição', equipamento, dados_anteriores)
+                registrar_log_generico_usuario(g.userid, 'Edição', equipamento, dados_anteriores)
 
                 db.session.commit()
                 flash("Equipamento editado com sucesso", "success")
             except DB_ERRORS as e:
                 handle_db_error(e, "Erro ao editar equipamento")
-            redirect_action, bloco = register_return(
-                url, acao, extras, equipamentos=get_equipamentos()
+            g.redirect_action, g.bloco = register_return(
+                g.url, g.acao, g.extras, equipamentos=get_equipamentos()
             )
 
-        elif acao == 'excluir' and bloco == 2:
+        elif g.acao == 'excluir' and g.bloco == 2:
             id_equipamento = none_if_empty(request.form.get('id_equipamento'), int)
 
             equipamento = db.get_or_404(Equipamentos, id_equipamento)
@@ -142,17 +132,17 @@ def gerenciar_equipamentos():
                 db.session.delete(equipamento)
 
                 db.session.flush()
-                registrar_log_generico_usuario(userid, 'Exclusão', equipamento)
+                registrar_log_generico_usuario(g.userid, 'Exclusão', equipamento)
 
                 db.session.commit()
                 flash("Equipamento deletado com sucesso", "success")
             except DB_ERRORS as e:
                 handle_db_error(e, "Erro ao deletar equipamento")
-            redirect_action, bloco = register_return(
-                url, acao, extras, equipamentos=get_equipamentos()
+            g.redirect_action, g.bloco = register_return(
+                g.url, g.acao, g.extras, equipamentos=get_equipamentos()
             )
 
-    if redirect_action:
-        return redirect_action
+    if g.redirect_action:
+        return g.redirect_action
     return render_template("database/table/equipamentos.html",
-        user=user, acao=acao, bloco=bloco, **extras)
+        user=g.user, acao=g.acao, bloco=g.bloco, **g.extras)

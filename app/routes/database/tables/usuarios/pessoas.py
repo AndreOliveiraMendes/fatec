@@ -1,7 +1,6 @@
 import copy
-from typing import Any
 
-from flask import Blueprint, abort, flash, render_template, request, session
+from flask import Blueprint, abort, flash, g, render_template, request
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
@@ -10,44 +9,36 @@ from app.auxiliar.general import get_value_or_abort, none_if_empty
 from app.auxiliar.navigation import register_return
 from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
-from app.dao.internal.usuarios import get_pessoas, get_user
-from app.decorators.decorators import admin_required
+from app.dao.internal.usuarios import get_pessoas
+from app.decorators.decorators import admin_required, crud_route
 from app.extensions import db
 from app.models.usuarios import Pessoas
-from app.routes_helper.request import get_query_params, get_session_or_request
+from app.routes_helper.request import get_query_params
 from app.routes_helper.ui import disable_action
-from config.database_views import get_url
 from config.general import PER_PAGE
 
 bp = Blueprint('database_pessoas', __name__, url_prefix="/database")
 
 @bp.route("/pessoas", methods=["GET", "POST"])
 @admin_required
+@crud_route()
 def gerenciar_pessoas():
-    url = get_url('database_pessoas')
-    redirect_action = None
-    acao = get_session_or_request(request, session, 'acao', 'abertura')
-    bloco = int(request.form.get('bloco', 0))
-    page = int(request.form.get('page', 1))
-    userid = session.get('userid')
-    user = get_user(userid)
     disabled = ['inserir', 'excluir']
-    extras: dict[str, Any] = {'url':url}
-    disable_action(extras, disabled)
+    disable_action(g.extras, disabled)
     if request.method == 'POST':
-        if acao in disabled:
+        if g.acao in disabled:
             abort(403, description="Esta funcionalidade está desabilitada no momento.")
 
-        if acao == 'listar':
+        if g.acao == 'listar':
             sel_pessoas = select(Pessoas)
             pessoas_paginadas = SelectPagination(
                 select=sel_pessoas, session=db.session,
-                page=page, per_page=PER_PAGE, error_out=False
+                page=g.page, per_page=PER_PAGE, error_out=False
             )
-            extras['pessoas'] = pessoas_paginadas.items
-            extras['pagination'] = pessoas_paginadas
+            g.extras['pessoas'] = pessoas_paginadas.items
+            g.extras['pagination'] = pessoas_paginadas
 
-        elif acao == 'procurar' and bloco == 1:
+        elif g.acao == 'procurar' and g.bloco == 1:
             id = none_if_empty(request.form.get('id_pessoa', None))
             nome = none_if_empty(request.form.get('nome', None))
             exact_name_match = 'emnome' in request.form
@@ -78,16 +69,16 @@ def gerenciar_pessoas():
                 sel_pessoas = select(Pessoas).where(*filters)
                 pessoas_paginadas = SelectPagination(
                     select=sel_pessoas, session=db.session,
-                    page=page, per_page=PER_PAGE, error_out=False
+                    page=g.page, per_page=PER_PAGE, error_out=False
                 )
-                extras['pessoas'] = pessoas_paginadas.items
-                extras['pagination'] = pessoas_paginadas
-                extras['query_params'] = query_params
+                g.extras['pessoas'] = pessoas_paginadas.items
+                g.extras['pagination'] = pessoas_paginadas
+                g.extras['query_params'] = query_params
             else:
                 flash("especifique pelo menos um campo de busca", "danger")
-                redirect_action, bloco = register_return(url, acao, extras)
+                g.redirect_action, g.bloco = register_return(g.url, g.acao, g.extras)
 
-        elif acao == 'inserir' and bloco == 1:
+        elif g.acao == 'inserir' and g.bloco == 1:
             nome = none_if_empty(request.form.get('nome', None))
             alias = none_if_empty(request.form.get('alias', None))
             email = none_if_empty(request.form.get('email', None))
@@ -95,20 +86,20 @@ def gerenciar_pessoas():
                 nova_pessoa = Pessoas(nome_pessoa=nome, alias=alias, email_pessoa=email)
                 db.session.add(nova_pessoa)
                 db.session.flush()  # garante ID
-                registrar_log_generico_usuario(userid, "Inserção", nova_pessoa)
+                registrar_log_generico_usuario(g.userid, "Inserção", nova_pessoa)
                 db.session.commit()
                 flash("Pessoa cadastrada com sucesso", "success")
             except DB_ERRORS as e:
                 handle_db_error(e, "Erro ao cadastrar pessoa")
 
-            redirect_action, bloco = register_return(url, acao, extras)
+            g.redirect_action, g.bloco = register_return(g.url, g.acao, g.extras)
 
-        elif acao in ['editar', 'excluir'] and bloco == 0:
-            extras['pessoas'] = get_pessoas(acao, userid)
-        elif acao in ['editar', 'excluir'] and bloco == 1:
+        elif g.acao in ['editar', 'excluir'] and g.bloco == 0:
+            g.extras['pessoas'] = get_pessoas(g.acao, g.userid)
+        elif g.acao in ['editar', 'excluir'] and g.bloco == 1:
             id_pessoa = request.form.get('id_pessoa', None)
-            extras['pessoa'] = db.get_or_404(Pessoas, id_pessoa)
-        elif acao == 'editar' and bloco == 2:
+            g.extras['pessoa'] = db.get_or_404(Pessoas, id_pessoa)
+        elif g.acao == 'editar' and g.bloco == 2:
             id_pessoa = none_if_empty(request.form.get('id_pessoa'), int)
             nome = get_value_or_abort(request.form.get('nome', None), 400, "nome da pessoa é obrigatorio")
             alias = none_if_empty(request.form.get('alias', None))
@@ -128,7 +119,7 @@ def gerenciar_pessoas():
                 db.session.flush()  # Garante que o ID esteja atribuído
 
                 # Loga com os dados antigos + novos
-                registrar_log_generico_usuario(userid, "Edição", pessoa, dados_anteriores)
+                registrar_log_generico_usuario(g.userid, "Edição", pessoa, dados_anteriores)
 
                 db.session.commit()
                 flash("Pessoa atualizada com sucesso", "success")
@@ -136,21 +127,21 @@ def gerenciar_pessoas():
             except DB_ERRORS as e:
                 handle_db_error(e, "Erro ao editar pessoa")
 
-            redirect_action, bloco = register_return(url,
-                acao, extras, pessoas=get_pessoas(acao, userid))
-        elif acao == 'excluir' and bloco == 2:
+            g.redirect_action, g.bloco = register_return(g.url,
+                g.acao, g.extras, pessoas=get_pessoas(g.acao, g.userid))
+        elif g.acao == 'excluir' and g.bloco == 2:
             id_pessoa = none_if_empty(request.form.get('id_pessoa'), int)
 
             pessoa = db.get_or_404(Pessoas, id_pessoa)
 
-            if user and user.id_pessoa == id_pessoa:
+            if g.user and g.user.id_pessoa == id_pessoa:
                 flash("Voce não pode se excluir", "danger")
             else:
                 try:
                     db.session.delete(pessoa)
                     
                     db.session.flush()  # garante ID
-                    registrar_log_generico_usuario(userid, "Exclusão", pessoa)
+                    registrar_log_generico_usuario(g.userid, "Exclusão", pessoa)
 
                     db.session.commit()
                     flash("Pessoa excluída com sucesso", "success")
@@ -158,9 +149,9 @@ def gerenciar_pessoas():
                 except DB_ERRORS as e:
                     handle_db_error(e, "Erro ao excluir pessoa")
 
-            redirect_action, bloco = register_return(url,
-                acao, extras, pessoas=get_pessoas(acao, userid))
-    if redirect_action:
-        return redirect_action
+            g.redirect_action, g.bloco = register_return(g.url,
+                g.acao, g.extras, pessoas=get_pessoas(g.acao, g.userid))
+    if g.redirect_action:
+        return g.redirect_action
     return render_template("database/table/pessoas.html",
-        user=user, acao=acao, bloco=bloco, **extras)
+        user=g.user, acao=g.acao, bloco=g.bloco, **g.extras)

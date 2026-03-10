@@ -1,7 +1,6 @@
 import copy
-from typing import Any
 
-from flask import Blueprint, flash, render_template, request, session
+from flask import Blueprint, flash, g, render_template, request
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
@@ -10,38 +9,30 @@ from app.auxiliar.general import get_value_or_abort, none_if_empty
 from app.auxiliar.navigation import register_return
 from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
-from app.dao.internal.usuarios import get_user, get_usuarios_especiais
-from app.decorators.decorators import admin_required
+from app.dao.internal.usuarios import get_usuarios_especiais
+from app.decorators.decorators import admin_required, crud_route
 from app.extensions import db
 from app.models.usuarios import Usuarios_Especiais
-from app.routes_helper.request import get_query_params, get_session_or_request
-from config.database_views import get_url
+from app.routes_helper.request import get_query_params
 from config.general import PER_PAGE
 
 bp = Blueprint('database_usuarios_especiais', __name__, url_prefix="/database")
 
 @bp.route("/usuarios_especiais", methods=["GET", "POST"])
 @admin_required
+@crud_route()
 def gerenciar_usuarios_especiais():
-    url = get_url('database_usuarios_especiais')
-    redirect_action = None
-    acao = get_session_or_request(request, session, 'acao', 'abertura')
-    bloco = int(request.form.get('bloco', 0))
-    page = int(request.form.get('page', 1))
-    userid = session.get('userid')
-    user = get_user(userid)
-    extras: dict[str, Any] = {'url':url}
     if request.method == 'POST':
-        if acao == "listar":
+        if g.acao == "listar":
             sel_users = select(Usuarios_Especiais)
             usuarios_especiais_paginados = SelectPagination(
                 select=sel_users, session=db.session,
-                page=page, per_page=PER_PAGE, error_out=False
+                page=g.page, per_page=PER_PAGE, error_out=False
             )
-            extras['usuarios_especiais'] = usuarios_especiais_paginados.items
-            extras['pagination'] = usuarios_especiais_paginados
+            g.extras['usuarios_especiais'] = usuarios_especiais_paginados.items
+            g.extras['pagination'] = usuarios_especiais_paginados
 
-        elif acao == 'procurar' and bloco == 1:
+        elif g.acao == 'procurar' and g.bloco == 1:
             id_usuario_especial = none_if_empty(request.form.get('id_usuario_especial'), int)
             nome_usuario_especial = none_if_empty(request.form.get('nome_usuario_especial'))
             exact_name_match = 'emnome' in request.form
@@ -59,38 +50,38 @@ def gerenciar_usuarios_especiais():
                 sel_users = select(Usuarios_Especiais).where(*filters)
                 usuarios_especiais_paginados = SelectPagination(
                     select=sel_users, session=db.session,
-                    page=page, per_page=PER_PAGE, error_out=False
+                    page=g.page, per_page=PER_PAGE, error_out=False
                 )
-                extras['usuarios_especiais'] = usuarios_especiais_paginados.items
-                extras['pagination'] = usuarios_especiais_paginados
-                extras['query_params'] = query_params
+                g.extras['usuarios_especiais'] = usuarios_especiais_paginados.items
+                g.extras['pagination'] = usuarios_especiais_paginados
+                g.extras['query_params'] = query_params
             else:
                 flash("especifique pelo menos um campo de busca", "danger")
-                redirect_action, bloco = register_return(
-                    url, acao, extras)
+                g.redirect_action, g.bloco = register_return(
+                    g.url, g.acao, g.extras)
 
-        elif acao == 'inserir' and bloco == 1:
+        elif g.acao == 'inserir' and g.bloco == 1:
             nome_usuario_especial = none_if_empty(request.form.get('nome_usuario_especial'))
             try:
                 novo_usuario_especial = Usuarios_Especiais(nome_usuario_especial=nome_usuario_especial)
                 db.session.add(novo_usuario_especial)
                 db.session.flush()
-                registrar_log_generico_usuario(userid, "Inserção", novo_usuario_especial)
+                registrar_log_generico_usuario(g.userid, "Inserção", novo_usuario_especial)
                 db.session.commit()
                 flash("Usuario Especial cadastrada com sucesso", "success")
             except DB_ERRORS as e:
                 handle_db_error(e, "Erro ao cadastrar usuario especial")
 
-            redirect_action, bloco = register_return(url,
-                acao, extras)
+            g.redirect_action, g.bloco = register_return(g.url,
+                g.acao, g.extras)
 
-        elif acao in ['editar', 'excluir'] and bloco == 0:
-            extras['usuarios_especiais'] = get_usuarios_especiais()
-        elif acao in ['editar', 'excluir'] and bloco == 1:
+        elif g.acao in ['editar', 'excluir'] and g.bloco == 0:
+            g.extras['usuarios_especiais'] = get_usuarios_especiais()
+        elif g.acao in ['editar', 'excluir'] and g.bloco == 1:
             id_usuario_especial = none_if_empty(request.form.get('id_usuario_especial'), int)
             usuario_especial = db.get_or_404(Usuarios_Especiais, id_usuario_especial)
-            extras['usuario_especial'] = usuario_especial
-        elif acao == 'editar' and bloco == 2:
+            g.extras['usuario_especial'] = usuario_especial
+        elif g.acao == 'editar' and g.bloco == 2:
             id_usuario_especial = none_if_empty(request.form.get('id_usuario_especial'), int)
             nome_usuario_especial = get_value_or_abort(request.form.get('nome_usuario_especial'), 400, "nome do usuario especial é obrigatorio")
 
@@ -101,16 +92,16 @@ def gerenciar_usuarios_especiais():
                 usuario_especial.nome_usuario_especial = nome_usuario_especial
 
                 db.session.flush()  # garante ID
-                registrar_log_generico_usuario(userid, "Edição", usuario_especial, dados_anteriores)
+                registrar_log_generico_usuario(g.userid, "Edição", usuario_especial, dados_anteriores)
 
                 db.session.commit()
                 flash("Usuario especial editado com sucesso", "success")
             except DB_ERRORS as e:
                 handle_db_error(e, "Erro ao editar usuario especial")
 
-            redirect_action, bloco = register_return(url,
-                acao, extras, usuarios_especiais=get_usuarios_especiais())
-        elif acao == 'excluir' and bloco == 2:
+            g.redirect_action, g.bloco = register_return(g.url,
+                g.acao, g.extras, usuarios_especiais=get_usuarios_especiais())
+        elif g.acao == 'excluir' and g.bloco == 2:
             id_usuario_especial = none_if_empty(request.form.get('id_usuario_especial'), int)
 
             usuario_especial = db.get_or_404(Usuarios_Especiais, id_usuario_especial)
@@ -118,16 +109,16 @@ def gerenciar_usuarios_especiais():
                 db.session.delete(usuario_especial)
 
                 db.session.flush()  # garante ID
-                registrar_log_generico_usuario(userid, "Exclusão", usuario_especial)
+                registrar_log_generico_usuario(g.userid, "Exclusão", usuario_especial)
 
                 db.session.commit()
                 flash("Usuario especial excluido com sucesso", "success")
             except DB_ERRORS as e:
                 handle_db_error(e, "Erro ao excluir usuario especial")
 
-            redirect_action, bloco = register_return(url,
-                acao, extras, usuarios_especiais=get_usuarios_especiais())
-    if redirect_action:
-        return redirect_action
+            g.redirect_action, g.bloco = register_return(g.url,
+                g.acao, g.extras, usuarios_especiais=get_usuarios_especiais())
+    if g.redirect_action:
+        return g.redirect_action
     return render_template("database/table/usuarios_especiais.html",
-        user=user, acao=acao, bloco=bloco, **extras)
+        user=g.user, acao=g.acao, bloco=g.bloco, **g.extras)

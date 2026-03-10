@@ -1,9 +1,8 @@
 import copy
 import operator
 from functools import reduce
-from typing import Any
 
-from flask import Blueprint, Request, flash, render_template, request, session
+from flask import Blueprint, Request, flash, g, render_template, request
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
@@ -12,12 +11,11 @@ from app.auxiliar.general import none_if_empty
 from app.auxiliar.navigation import register_return
 from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
-from app.dao.internal.usuarios import get_user, get_usuarios
-from app.decorators.decorators import admin_required
+from app.dao.internal.usuarios import get_usuarios
+from app.decorators.decorators import admin_required, crud_route
 from app.extensions import db
 from app.models.usuarios import Permissoes, Pessoas, Usuarios
-from app.routes_helper.request import get_query_params, get_session_or_request
-from config.database_views import get_url
+from app.routes_helper.request import get_query_params
 from config.general import PER_PAGE
 
 bp = Blueprint('database_permissoes', __name__, url_prefix="/database")
@@ -50,29 +48,22 @@ def get_flag(req: Request) -> int:
 
 @bp.route("/permissoes", methods=["GET", "POST"])
 @admin_required
+@crud_route()
 def gerenciar_permissoes():
-    url = get_url('database_permissoes')
-    redirect_action = None
-    acao = get_session_or_request(request, session, 'acao', 'abertura')
-    bloco = int(request.form.get('bloco', 0))
-    page = int(request.form.get('page', 1))
-    userid = session.get('userid')
-    user = get_user(userid)
-    extras: dict[str, Any] = {'url':url}
     if request.method == 'POST':
-        if acao == 'listar':
+        if g.acao == 'listar':
             sel_permissoes = select(Permissoes)
             permissoes_paginadas = SelectPagination(
                 select=sel_permissoes, session=db.session,
-                page=page, per_page=PER_PAGE, error_out=False
+                page=g.page, per_page=PER_PAGE, error_out=False
             )
-            extras['permissoes'] = permissoes_paginadas.items
-            extras['pagination'] = permissoes_paginadas
-            extras['userid'] = userid
+            g.extras['permissoes'] = permissoes_paginadas.items
+            g.extras['pagination'] = permissoes_paginadas
+            g.extras['userid'] = g.userid
 
-        elif acao == 'procurar' and bloco == 0:
-            extras['users'] = get_usuarios()
-        elif acao == 'procurar' and bloco == 1:
+        elif g.acao == 'procurar' and g.bloco == 0:
+            g.extras['users'] = get_usuarios()
+        elif g.acao == 'procurar' and g.bloco == 1:
             id_permissao_usuario = none_if_empty(request.form.get('id_permissao_usuario'), int)
             flag = get_flag(request)
             modobusca = none_if_empty(request.form.get('modobusca')) 
@@ -89,51 +80,51 @@ def gerenciar_permissoes():
                 sel_permissoes = select(Permissoes).where(*filters)
                 permissoes_paginadas = SelectPagination(
                     select=sel_permissoes, session=db.session,
-                    page=page, per_page=PER_PAGE, error_out=False
+                    page=g.page, per_page=PER_PAGE, error_out=False
                 )
-                extras['permissoes'] = permissoes_paginadas.items
-                extras['pagination'] = permissoes_paginadas
-                extras['userid'] = userid
-                extras['query_params'] = query_params
+                g.extras['permissoes'] = permissoes_paginadas.items
+                g.extras['pagination'] = permissoes_paginadas
+                g.extras['userid'] = g.userid
+                g.extras['query_params'] = query_params
             else:
                 flash("especifique pelo menos um campo", "danger")
-                redirect_action, bloco = register_return(
-                    url, acao, extras, users=get_usuarios()
+                g.redirect_action, g.bloco = register_return(
+                    g.url, g.acao, g.extras, users=get_usuarios()
                 )
 
-        elif acao == 'inserir' and bloco == 0:
-            extras['users'] = get_no_perm_users()
-        elif acao == 'inserir' and bloco == 1:
+        elif g.acao == 'inserir' and g.bloco == 0:
+            g.extras['users'] = get_no_perm_users()
+        elif g.acao == 'inserir' and g.bloco == 1:
             id_permissao_usuario = none_if_empty(request.form.get('id_permissao_usuario'), int)
             flag = get_flag(request)
             try:
                 nova_permissao = Permissoes(id_permissao_usuario=id_permissao_usuario, permissao=flag)
                 db.session.add(nova_permissao)
                 db.session.flush()  # garante ID
-                registrar_log_generico_usuario(userid, "Inserção", nova_permissao,
+                registrar_log_generico_usuario(g.userid, "Inserção", nova_permissao,
                     observacao=f"0b{flag:03b}")
                 db.session.commit()
                 flash("Permissao cadastrada com sucesso", "success")
             except DB_ERRORS as e:
                 handle_db_error(e, "Erro ao cadastrar permissão")
 
-            redirect_action, bloco = register_return(
-                url, acao, extras, users=get_no_perm_users()
+            g.redirect_action, g.bloco = register_return(
+                g.url, g.acao, g.extras, users=get_no_perm_users()
             )
 
-        elif acao in ['editar', 'excluir'] and bloco == 0:
-            extras['permissoes'] = get_perm(acao, userid)
-        elif acao in ['editar', 'excluir'] and bloco == 1:
+        elif g.acao in ['editar', 'excluir'] and g.bloco == 0:
+            g.extras['permissoes'] = get_perm(g.acao, g.userid)
+        elif g.acao in ['editar', 'excluir'] and g.bloco == 1:
             usuario = none_if_empty(request.form.get('id_usuario'))
             permissao = db.get_or_404(Permissoes, usuario)
-            extras['permissao'] = permissao
-            extras['userid'] = userid
-        elif acao == 'editar' and bloco == 2:
+            g.extras['permissao'] = permissao
+            g.extras['userid'] = g.userid
+        elif g.acao == 'editar' and g.bloco == 2:
             id_permissao_usuario = none_if_empty(request.form.get('id_permissao_usuario'), int)
             flag = get_flag(request)
             
             permissao = db.get_or_404(Permissoes, id_permissao_usuario)
-            if id_permissao_usuario == userid and flag&Permission.ADMIN == 0:
+            if id_permissao_usuario == g.userid and flag&Permission.ADMIN == 0:
                 flash("voce não pode remover seu proprio poder de administrador", "danger")
             else:
                 try:
@@ -141,26 +132,26 @@ def gerenciar_permissoes():
                     permissao.permissao = flag
                     db.session.flush()  # Garante que o ID esteja atribuído
                     observacao = f"0b{dados_anteriores.permissao:03b} → 0b{flag:03b}"
-                    registrar_log_generico_usuario(userid, "Edição", permissao, dados_anteriores,
+                    registrar_log_generico_usuario(g.userid, "Edição", permissao, dados_anteriores,
                         observacao=observacao) # Loga com os dados antigos + novos
                     db.session.commit()
                     flash("Permissao atualizada com sucesso", "success")
                 except DB_ERRORS as e:
                     handle_db_error(e, "Erro ao editar permissão")
 
-            redirect_action, bloco = register_return(
-                url, acao, extras, permissoes=get_perm(acao, userid))
+            g.redirect_action, g.bloco = register_return(
+                g.url, g.acao, g.extras, permissoes=get_perm(g.acao, g.userid))
 
-        elif acao == 'excluir' and bloco == 2:
+        elif g.acao == 'excluir' and g.bloco == 2:
             id_permissao_usuario = none_if_empty(request.form.get('id_permissao_usuario'), int)
 
             permissao = db.get_or_404(Permissoes, id_permissao_usuario)
-            if id_permissao_usuario == userid:
+            if id_permissao_usuario == g.userid:
                 flash("voce não pode remover sua propria permissão", "danger")
             else:
                 try:
                     db.session.flush()  # garante ID
-                    registrar_log_generico_usuario(userid, "Exclusão", permissao,
+                    registrar_log_generico_usuario(g.userid, "Exclusão", permissao,
                         observacao=f"0b{permissao.permissao:03b}")
 
                     db.session.delete(permissao)
@@ -170,9 +161,9 @@ def gerenciar_permissoes():
                 except DB_ERRORS as e:
                     handle_db_error(e, "Erro ao excluir permissão")
 
-            redirect_action, bloco = register_return(
-                url, acao, extras, permissoes=get_perm(acao, userid))
-    if redirect_action:
-        return redirect_action
+            g.redirect_action, g.bloco = register_return(
+                g.url, g.acao, g.extras, permissoes=get_perm(g.acao, g.userid))
+    if g.redirect_action:
+        return g.redirect_action
     return render_template("database/table/permissoes.html",
-        user=user, acao=acao, bloco=bloco, **extras)
+        user=g.user, acao=g.acao, bloco=g.bloco, **g.extras)

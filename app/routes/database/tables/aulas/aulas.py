@@ -1,7 +1,6 @@
 import copy
-from typing import Any
 
-from flask import Blueprint, flash, render_template, request, session
+from flask import Blueprint, flash, g, render_template, request
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
@@ -12,38 +11,29 @@ from app.auxiliar.parsing import parse_time_string, parse_time_string_or_abort
 from app.dao.internal.aulas import get_aulas
 from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
-from app.dao.internal.usuarios import get_user
-from app.decorators.decorators import admin_required
+from app.decorators.decorators import admin_required, crud_route
 from app.extensions import db
 from app.models.aulas import Aulas
-from app.routes_helper.request import get_query_params, get_session_or_request
-from config.database_views import get_url
+from app.routes_helper.request import get_query_params
 from config.general import PER_PAGE
 
 bp = Blueprint('database_aulas', __name__, url_prefix="/database")
 
 @bp.route("/aulas", methods=["GET", "POST"])
 @admin_required
+@crud_route()
 def gerenciar_aulas():
-    url = get_url('database_aulas')
-    redirect_action = None
-    acao = get_session_or_request(request, session, 'acao', 'abertura')
-    bloco = int(request.form.get('bloco', 0))
-    page = int(request.form.get('page', 1))
-    userid = session.get('userid')
-    user = get_user(userid)
-    extras: dict[str, Any] = {'url':url}
     if request.method == 'POST':
-        if acao == 'listar':
+        if g.acao == 'listar':
             sel_aulas = select(Aulas)
             aulas_paginadas = SelectPagination(
                 select=sel_aulas, session=db.session,
-                page=page, per_page=PER_PAGE, error_out=False
+                page=g.page, per_page=PER_PAGE, error_out=False
             )
-            extras['aulas'] = aulas_paginadas.items
-            extras['pagination'] = aulas_paginadas
+            g.extras['aulas'] = aulas_paginadas.items
+            g.extras['pagination'] = aulas_paginadas
 
-        elif acao == 'procurar' and bloco == 1:
+        elif g.acao == 'procurar' and g.bloco == 1:
             id_aula = none_if_empty(request.form.get('id_aula'), int)
             horario_inicio_start = parse_time_string(request.form.get('horario_inicio_start'))
             horario_inicio_end = parse_time_string(request.form.get('horario_inicio_end'))
@@ -71,36 +61,36 @@ def gerenciar_aulas():
                 sel_aulas = select(Aulas).where(*filters)
                 aulas_paginadas = SelectPagination(
                     select=sel_aulas, session=db.session,
-                    page=page, per_page=PER_PAGE, error_out=False
+                    page=g.page, per_page=PER_PAGE, error_out=False
                 )
-                extras['aulas'] = aulas_paginadas.items
-                extras['pagination'] = aulas_paginadas
-                extras['query_params'] = query_params
+                g.extras['aulas'] = aulas_paginadas.items
+                g.extras['pagination'] = aulas_paginadas
+                g.extras['query_params'] = query_params
             else:
                 flash("especifique pelo menos um campo de busca", "danger")
-                redirect_action, bloco = register_return(url, acao, extras)
+                g.redirect_action, g.bloco = register_return(g.url, g.acao, g.extras)
 
-        elif acao == 'inserir' and bloco == 1:
+        elif g.acao == 'inserir' and g.bloco == 1:
             horario_inicio = parse_time_string(request.form.get('horario_inicio'))
             horario_fim = parse_time_string(request.form.get('horario_fim'))
             try:
                 nova_aula = Aulas(horario_inicio=horario_inicio, horario_fim=horario_fim)
                 db.session.add(nova_aula)
                 db.session.flush()
-                registrar_log_generico_usuario(userid, "Inserção", nova_aula)
+                registrar_log_generico_usuario(g.userid, "Inserção", nova_aula)
                 db.session.commit()
                 flash("Aula cadastrada com sucesso", "success")
             except DB_ERRORS as e:
                 handle_db_error(e, "Erro ao cadastrar aula")
-            redirect_action, bloco = register_return(url, acao, extras)
+            g.redirect_action, g.bloco = register_return(g.url, g.acao, g.extras)
 
-        elif acao in ['editar', 'excluir'] and bloco == 0:
-            extras['aulas'] = get_aulas()
-        elif acao in ['editar', 'excluir'] and bloco == 1:
+        elif g.acao in ['editar', 'excluir'] and g.bloco == 0:
+            g.extras['aulas'] = get_aulas()
+        elif g.acao in ['editar', 'excluir'] and g.bloco == 1:
             id_aula = none_if_empty(request.form.get('id_aula'), int)
             aula = db.get_or_404(Aulas, id_aula)
-            extras['aula'] = aula
-        elif acao == 'editar' and bloco == 2:
+            g.extras['aula'] = aula
+        elif g.acao == 'editar' and g.bloco == 2:
             id_aula = none_if_empty(request.form.get('id_aula'), int)
             horario_inicio = parse_time_string_or_abort(request.form.get('horario_inicio'), 400, "horario de inicio é obrigatorio")
             horario_fim = parse_time_string_or_abort(request.form.get('horario_fim'), 400, "horario de fim é obrigatorio")
@@ -111,15 +101,15 @@ def gerenciar_aulas():
                 aula.horario_fim = horario_fim
 
                 db.session.flush()
-                registrar_log_generico_usuario(userid, "Edição", aula, dados_anteriores)
+                registrar_log_generico_usuario(g.userid, "Edição", aula, dados_anteriores)
 
                 db.session.commit()
                 flash("Aula editada com sucesso", "success")
             except DB_ERRORS as e:
                 handle_db_error(e, "Erro ao editar aula")
 
-            redirect_action, bloco = register_return(url, acao, extras, aulas=get_aulas())
-        elif acao == 'excluir' and bloco == 2:
+            g.redirect_action, g.bloco = register_return(g.url, g.acao, g.extras, aulas=get_aulas())
+        elif g.acao == 'excluir' and g.bloco == 2:
             id_aula = none_if_empty(request.form.get('id_aula'), int)
 
             aula = db.get_or_404(Aulas, id_aula)
@@ -127,14 +117,14 @@ def gerenciar_aulas():
                 db.session.delete(aula)
 
                 db.session.flush()
-                registrar_log_generico_usuario(userid, "Exclusão", aula)
+                registrar_log_generico_usuario(g.userid, "Exclusão", aula)
 
                 db.session.commit()
                 flash("Aula excluida com sucesso", "success")
             except DB_ERRORS as e:
                 handle_db_error(e, "Erro ao excluir aula")
 
-            redirect_action, bloco = register_return(url, acao, extras, aulas=get_aulas())
-    if redirect_action:
-        return redirect_action
-    return render_template("database/table/aulas.html", user=user, acao=acao, bloco=bloco, **extras)
+            g.redirect_action, g.bloco = register_return(g.url, g.acao, g.extras, aulas=get_aulas())
+    if g.redirect_action:
+        return g.redirect_action
+    return render_template("database/table/aulas.html", user=g.user, acao=g.acao, bloco=g.bloco, **g.extras)

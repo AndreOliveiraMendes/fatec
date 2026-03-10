@@ -1,6 +1,5 @@
-from typing import Any
 
-from flask import Blueprint, flash, render_template, request, session
+from flask import Blueprint, flash, g, render_template, request
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
@@ -11,40 +10,31 @@ from app.auxiliar.parsing import parse_date_string
 from app.dao.internal.equipamentos import get_equipamentos
 from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
-from app.dao.internal.usuarios import get_user
-from app.decorators.decorators import admin_required
+from app.decorators.decorators import admin_required, crud_route
 from app.extensions import db
 from app.models.controle import EquipamentoDisponibilidade
-from app.routes_helper.request import get_query_params, get_session_or_request
-from config.database_views import get_url
+from app.routes_helper.request import get_query_params
 from config.general import PER_PAGE
 
 bp = Blueprint('database_equipamentos_disponibilidade', __name__, url_prefix="/database")
 
 @bp.route('/equipamentos_disponibilidade', methods=['GET', 'POST'])
 @admin_required
+@crud_route()
 def gerenciar_equipamentos_disponibilidade():
-    url = get_url('database_equipamentos_disponibilidade')
-    redirect_action = None
-    acao = get_session_or_request(request, session, 'acao', 'abertura')
-    bloco = int(request.form.get('bloco', 0))
-    page = int(request.form.get('page', 1))
-    userid = session.get('userid')
-    user = get_user(userid)
-    extras: dict[str, Any] = {'url':url}
     if request.method == 'POST':
-        if acao == "listar":
+        if g.acao == "listar":
             sel_disponibilidade = select(EquipamentoDisponibilidade)
             disponibilidade_paginada = SelectPagination(
                 select=sel_disponibilidade, session=db.session,
-                page=page, per_page=PER_PAGE, error_out=False
+                page=g.page, per_page=PER_PAGE, error_out=False
             )
-            extras['disponibilidades'] = disponibilidade_paginada.items
-            extras['pagination'] = disponibilidade_paginada
+            g.extras['disponibilidades'] = disponibilidade_paginada.items
+            g.extras['pagination'] = disponibilidade_paginada
 
-        elif acao == "procurar" and bloco == 0:
-            extras["equipamentos"] = get_equipamentos()
-        elif acao == "procurar" and bloco == 1:
+        elif g.acao == "procurar" and g.bloco == 0:
+            g.extras["equipamentos"] = get_equipamentos()
+        elif g.acao == "procurar" and g.bloco == 1:
             id_disponibilidade = none_if_empty(request.form.get('id_disponibilidade'), int)
             equipamento = none_if_empty(request.form.get('id_equipamento'), int)
             data_start = parse_date_string(request.form.get('data_start'))
@@ -72,21 +62,21 @@ def gerenciar_equipamentos_disponibilidade():
                 )
                 disponibilidade_paginada = SelectPagination(
                     select=sel_disponibilidade, session=db.session,
-                    page=page, per_page=PER_PAGE, error_out=False
+                    page=g.page, per_page=PER_PAGE, error_out=False
                 )
-                extras['disponibilidades'] = disponibilidade_paginada.items
-                extras['pagination'] = disponibilidade_paginada
-                extras['query_params'] = query_params
+                g.extras['disponibilidades'] = disponibilidade_paginada.items
+                g.extras['pagination'] = disponibilidade_paginada
+                g.extras['query_params'] = query_params
             else:
                 flash("especifique ao menos um campo", "danger")
-                redirect_action, bloco = register_return(
-                    url, acao, extras,
+                g.redirect_action, g.bloco = register_return(
+                    g.url, g.acao, g.extras,
                     equipamentos = get_equipamentos()
                 )
 
-        elif acao == "inserir" and bloco == 0:
-            extras["equipamentos"] = get_equipamentos()
-        elif acao == "inserir" and bloco == 1:
+        elif g.acao == "inserir" and g.bloco == 0:
+            g.extras["equipamentos"] = get_equipamentos()
+        elif g.acao == "inserir" and g.bloco == 1:
             id_equipamento = none_if_empty(request.form.get('id_equipamento'), int)
             data = parse_date_string(request.form.get('data'))
             quantidade_total = none_if_empty(request.form.get('quantidade_total'), int)
@@ -100,15 +90,15 @@ def gerenciar_equipamentos_disponibilidade():
                 db.session.add(novo_registro_disponibilidade)
 
                 db.session.flush()
-                registrar_log_generico_usuario(userid, 'Inserção', novo_registro_disponibilidade)
+                registrar_log_generico_usuario(g.userid, 'Inserção', novo_registro_disponibilidade)
 
                 db.session.commit()
                 flash("Disponibilidade criada com sucesso", "success")
             except DB_ERRORS as e:
                 handle_db_error(e, "Erro ao criar disponibilidade")
-            redirect_action, bloco = register_return(
-                url, acao, extras, equipamentos=get_equipamentos()
+            g.redirect_action, g.bloco = register_return(
+                g.url, g.acao, g.extras, equipamentos=get_equipamentos()
             )
-    if redirect_action:
-        return redirect_action
-    return render_template("database/table/equipamentos_disponibilidade.html", user=user, acao=acao, bloco=bloco, **extras)
+    if g.redirect_action:
+        return g.redirect_action
+    return render_template("database/table/equipamentos_disponibilidade.html", user=g.user, acao=g.acao, bloco=g.bloco, **g.extras)

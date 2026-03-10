@@ -1,10 +1,13 @@
 from functools import wraps
 
-from flask import abort, session
+from flask import abort, g, request, session
 
 from app.auxiliar.constant import Permission
+from app.dao.internal.usuarios import get_user
 from app.extensions import db
 from app.models.usuarios import Permissoes
+from app.routes_helper.request import get_session_or_request
+from config.database_views import get_url
 
 
 def require_login():
@@ -60,3 +63,31 @@ def cmd_config_required(f):
         require_permission(Permission.CMD_CONFIG)
         return f(*args, **kwargs)
     return decorated_function
+
+def crud_route(default_acao="abertura"):
+    def decorator(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            if not request.endpoint:
+                raise ValueError("hello world")
+
+            g.url = get_url(request.endpoint.split('.')[0])
+            
+            g.redirect_action = None
+
+            g.acao = get_session_or_request(
+                request, session, 'acao', default_acao
+            )
+
+            g.bloco = int(request.form.get('bloco', 0))
+            g.page = int(request.form.get('page', 1))
+
+            g.userid = session.get('userid')
+            g.user = get_user(g.userid)
+
+            g.extras = {'url': g.url}
+
+            return f(*args, **kwargs)
+
+        return wrapper
+    return decorator

@@ -1,7 +1,6 @@
 import copy
-from typing import Any
 
-from flask import Blueprint, abort, flash, render_template, request, session
+from flask import Blueprint, abort, flash, g, render_template, request
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
@@ -12,45 +11,35 @@ from app.auxiliar.parsing import parse_time_string, parse_time_string_or_abort
 from app.dao.internal.aulas import get_turnos
 from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
-from app.dao.internal.usuarios import get_user
-from app.decorators.decorators import admin_required
+from app.decorators.decorators import admin_required, crud_route
 from app.extensions import db
 from app.models.aulas import Turnos
-from app.routes_helper.request import get_session_or_request
 from app.routes_helper.ui import disable_action
 from app.service.aulas_service import check_turno
-from config.database_views import get_url
 from config.general import PER_PAGE
 
 bp = Blueprint('database_turnos', __name__, url_prefix="/database")
 
 @bp.route("/turnos", methods=["GET", "POST"])
 @admin_required
+@crud_route()
 def gerenciar_turnos():
-    url = get_url('database_turnos')
-    redirect_action = None
-    acao = get_session_or_request(request, session, 'acao', 'abertura')
-    bloco = int(request.form.get('bloco', 0))
-    page = int(request.form.get('page', 1))
-    userid = session.get('userid')
-    user = get_user(userid)
     disabled = ['procurar']
-    extras: dict[str, Any] = {'url':url}
-    disable_action(extras, disabled)
+    disable_action(g.extras, disabled)
     if request.method == 'POST':
-        if acao in disabled:
+        if g.acao in disabled:
             abort(403, description="Esta funcionalidade não foi implementada.")
 
-        if acao == 'listar':
+        if g.acao == 'listar':
             sel_situacoes = select(Turnos).order_by(Turnos.id_turno)
             turnos_paginados = SelectPagination(
                 select=sel_situacoes, session=db.session,
-                page=page, per_page=PER_PAGE, error_out=False
+                page=g.page, per_page=PER_PAGE, error_out=False
             )
-            extras['turnos'] = turnos_paginados.items
-            extras['pagination'] = turnos_paginados
+            g.extras['turnos'] = turnos_paginados.items
+            g.extras['pagination'] = turnos_paginados
 
-        elif acao == 'inserir' and bloco == 1:
+        elif g.acao == 'inserir' and g.bloco == 1:
             nome_turno = none_if_empty(request.form.get('nome_turno'))
             horario_inicio = parse_time_string(request.form.get('horario_inicio'))
             horario_fim = parse_time_string(request.form.get('horario_fim'))
@@ -61,22 +50,22 @@ def gerenciar_turnos():
                 db.session.add(novo_turno)
 
                 db.session.flush()
-                registrar_log_generico_usuario(userid, 'Inserção', novo_turno)
+                registrar_log_generico_usuario(g.userid, 'Inserção', novo_turno)
 
                 db.session.commit()
                 flash("Turno cadastrado com sucesso", "success")
             except DB_ERRORS as e:
                 handle_db_error(e, "Erro ao cadastrar turno")
 
-            redirect_action, bloco = register_return(url, acao, extras)
+            g.redirect_action, g.bloco = register_return(g.url, g.acao, g.extras)
 
-        elif acao in ['editar', 'excluir'] and bloco == 0:
-            extras['turnos'] = get_turnos()
-        elif acao in ['editar', 'excluir'] and bloco == 1:
+        elif g.acao in ['editar', 'excluir'] and g.bloco == 0:
+            g.extras['turnos'] = get_turnos()
+        elif g.acao in ['editar', 'excluir'] and g.bloco == 1:
             id_turno = none_if_empty(request.form.get('id_turno'), int)
             turno = db.get_or_404(Turnos, id_turno)
-            extras['turno'] = turno
-        elif acao == 'editar' and bloco == 2:
+            g.extras['turno'] = turno
+        elif g.acao == 'editar' and g.bloco == 2:
             id_turno = none_if_empty(request.form.get('id_turno'), int)
             nome_turno = get_value_or_abort(request.form.get('nome_turno'), 400, "nome de turno obrigatorio")
             horario_inicio = parse_time_string_or_abort(request.form.get('horario_inicio'), 400, "horario de inicio obrigatorio")
@@ -90,32 +79,32 @@ def gerenciar_turnos():
                 turno.horario_inicio = horario_inicio
                 turno.horario_fim = horario_fim
                 db.session.flush
-                registrar_log_generico_usuario(userid, 'Edição', turno, dados_anteriores)
+                registrar_log_generico_usuario(g.userid, 'Edição', turno, dados_anteriores)
 
                 db.session.commit()
                 flash("Turno editado com sucesso", "success")
             except DB_ERRORS as e:
                 handle_db_error(e, "Erro ao editar turno")
 
-            redirect_action, bloco = register_return(url,
-                acao, extras, turnos=get_turnos())
-        elif acao == 'excluir' and bloco == 2:
+            g.redirect_action, g.bloco = register_return(g.url,
+                g.acao, g.extras, turnos=get_turnos())
+        elif g.acao == 'excluir' and g.bloco == 2:
             id_turno = none_if_empty(request.form.get('id_turno'), int)
             turno = db.get_or_404(Turnos, id_turno)
             try:
                 db.session.delete(turno)
                 db.session.flush()
-                registrar_log_generico_usuario(userid, 'Exclusão', turno)
+                registrar_log_generico_usuario(g.userid, 'Exclusão', turno)
 
                 db.session.commit()
                 flash("Turno excluido com sucesso", "success")
             except DB_ERRORS as e:
                 handle_db_error(e, "Erro ao excluir turno")
 
-            redirect_action, bloco = register_return(url,
-                acao, extras, turnos=get_turnos())
+            g.redirect_action, g.bloco = register_return(g.url,
+                g.acao, g.extras, turnos=get_turnos())
 
-    if redirect_action:
-        return redirect_action
+    if g.redirect_action:
+        return g.redirect_action
     return render_template("database/table/turnos.html",
-        user=user, acao=acao, bloco=bloco, **extras)
+        user=g.user, acao=g.acao, bloco=g.bloco, **g.extras)

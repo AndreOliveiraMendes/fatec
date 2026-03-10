@@ -1,23 +1,21 @@
 import csv
 from io import StringIO
-from typing import Any
 
-from flask import (Blueprint, Response, abort, flash, jsonify, render_template,
-                   request, session)
+from flask import (Blueprint, Response, abort, flash, g, jsonify,
+                   render_template, request)
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import between, func, or_, select
 
 from app.auxiliar.general import formatar_valor, none_if_empty
 from app.auxiliar.navigation import register_return
 from app.auxiliar.parsing import parse_datetime_string
-from app.dao.internal.usuarios import get_user, get_usuarios
-from app.decorators.decorators import admin_required
+from app.dao.internal.usuarios import get_usuarios
+from app.decorators.decorators import admin_required, crud_route
 from app.enums import OrigemEnum
 from app.extensions import db
 from app.models.historicos import Historicos
-from app.routes_helper.request import get_query_params, get_session_or_request
+from app.routes_helper.request import get_query_params
 from app.routes_helper.ui import disable_action, include_action
-from config.database_views import get_url
 from config.general import LOCAL_TIMEZONE, PER_PAGE
 
 bp = Blueprint('database_historicos', __name__, url_prefix="/database")
@@ -81,57 +79,50 @@ def get_data():
 
 @bp.route("/historicos", methods=["GET", "POST"])
 @admin_required
+@crud_route()
 def gerenciar_historicos():
-    url = get_url('database_historicos')
-    redirect_action = None
-    acao = get_session_or_request(request, session, 'acao', 'abertura')
-    bloco = int(request.form.get('bloco', 0))
-    page = int(request.form.get('page', 1))
-    userid = session.get('userid')
-    user = get_user(userid)
     disabled = ['inserir', 'editar', 'excluir']
     include = [{'label':"Exportar", 'value':"exportar", 'icon':"glyphicon-download"}]
-    extras: dict[str, Any] = {'url':url}
-    disable_action(extras, disabled)
-    include_action(extras, include)
+    disable_action(g.extras, disabled)
+    include_action(g.extras, include)
     user_agent = request.headers.get('User-Agent')
     is_mobile = 'Mobile' in user_agent if user_agent else False
-    extras['is_mobile'] = is_mobile
+    g.extras['is_mobile'] = is_mobile
     if request.method == 'POST':
-        if acao in disabled:
+        if g.acao in disabled:
             abort(403, description="Esta funcionalidade não foi implementada.")
-        if acao == 'listar':
+        if g.acao == 'listar':
             sel_historicos = select(Historicos)
             historicos_paginados = SelectPagination(
-                select=sel_historicos, session=db.session, page=page, per_page=PER_PAGE, error_out=False
+                select=sel_historicos, session=db.session, page=g.page, per_page=PER_PAGE, error_out=False
             )
-            extras['historicos'] = historicos_paginados.items
-            extras['pagination'] = historicos_paginados
+            g.extras['historicos'] = historicos_paginados.items
+            g.extras['pagination'] = historicos_paginados
 
-        if acao in ['procurar', 'exportar'] and bloco == 0:
-            extras['usuarios'] = get_usuarios()
-            extras['tabelas'] = get_tabelas()
-            extras['categorias'] = get_categorias()
-            extras['origens'] = get_origens()
-        elif acao == 'procurar' and bloco == 1:
+        if g.acao in ['procurar', 'exportar'] and g.bloco == 0:
+            g.extras['usuarios'] = get_usuarios()
+            g.extras['tabelas'] = get_tabelas()
+            g.extras['categorias'] = get_categorias()
+            g.extras['origens'] = get_origens()
+        elif g.acao == 'procurar' and g.bloco == 1:
             data_filter, sel_historicos, query_params = get_data()
             if data_filter:
                 sel_historicos = sel_historicos.where(*data_filter)
                 historicos_paginados = SelectPagination(
                     select=sel_historicos, session=db.session,
-                    page=page, per_page=PER_PAGE, error_out=False
+                    page=g.page, per_page=PER_PAGE, error_out=False
                 )
-                extras['historicos'] = historicos_paginados.items
-                extras['pagination'] = historicos_paginados
-                extras['query_params'] = query_params
+                g.extras['historicos'] = historicos_paginados.items
+                g.extras['pagination'] = historicos_paginados
+                g.extras['query_params'] = query_params
             else:
                 flash("especifique ao menos um campo:", "danger")
-                redirect_action, bloco = register_return(
-                    url, acao, extras,
+                g.redirect_action, g.bloco = register_return(
+                    g.url, g.acao, g.extras,
                     usuarios=get_usuarios(), tabelas=get_tabelas(), categorias=get_categorias(),
                     origens=get_origens()
                 )
-        elif acao == 'exportar' and bloco == 1:
+        elif g.acao == 'exportar' and g.bloco == 1:
             data_filter, sel_historicos, query_params = get_data()
             if data_filter:
                 sel_historicos = sel_historicos.where(*data_filter)
@@ -139,12 +130,12 @@ def gerenciar_historicos():
                 select(func.count())
                 .select_from(sel_historicos.subquery())
             )
-            extras['count'] = db.session.execute(sel_count_historicos).scalar()
-            extras['query_params'] = query_params
-    if redirect_action:
-        return redirect_action
+            g.extras['count'] = db.session.execute(sel_count_historicos).scalar()
+            g.extras['query_params'] = query_params
+    if g.redirect_action:
+        return g.redirect_action
     return render_template("database/table/historicos.html",
-        user=user, acao=acao, bloco=bloco, **extras)
+        user=g.user, acao=g.acao, bloco=g.bloco, **g.extras)
 
 @bp.route("/historicos/exportar", methods=['POST'])
 def exportar_historicos():

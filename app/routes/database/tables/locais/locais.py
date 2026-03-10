@@ -1,7 +1,6 @@
 import copy
-from typing import Any
 
-from flask import Blueprint, flash, render_template, request, session
+from flask import Blueprint, flash, g, render_template, request
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
@@ -11,39 +10,30 @@ from app.auxiliar.navigation import register_return
 from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.locais import get_locais
-from app.dao.internal.usuarios import get_user
-from app.decorators.decorators import admin_required
+from app.decorators.decorators import admin_required, crud_route
 from app.enums import DisponibilidadeEnum, TipoLocalEnum
 from app.extensions import db
 from app.models.locais import Locais
-from app.routes_helper.request import get_query_params, get_session_or_request
-from config.database_views import get_url
+from app.routes_helper.request import get_query_params
 from config.general import PER_PAGE
 
 bp = Blueprint('database_locais', __name__, url_prefix="/database")
 
 @bp.route("/locais", methods=["GET", "POST"])
 @admin_required
+@crud_route()
 def gerenciar_locais():
-    url = get_url('database_locais')
-    redirect_action = None
-    acao = get_session_or_request(request, session, 'acao', 'abertura')
-    bloco = int(request.form.get('bloco', 0))
-    page = int(request.form.get('page', 1))
-    userid = session.get('userid')
-    user = get_user(userid)
-    extras: dict[str, Any] = {'url':url}
     if request.method == 'POST':
-        if acao == 'listar':
+        if g.acao == 'listar':
             sel_locais = select(Locais)
             locais_paginados = SelectPagination(
                 select=sel_locais, session=db.session,
-                page=page, per_page=PER_PAGE, error_out=False
+                page=g.page, per_page=PER_PAGE, error_out=False
             )
-            extras['locais'] = locais_paginados.items
-            extras['pagination'] = locais_paginados
+            g.extras['locais'] = locais_paginados.items
+            g.extras['pagination'] = locais_paginados
 
-        elif acao == 'procurar' and bloco == 1:
+        elif g.acao == 'procurar' and g.bloco == 1:
             id_local = none_if_empty(request.form.get('id_local'), int)
             nome_local = none_if_empty(request.form.get('nome_local'))
             exact_name_match = 'emnome' in request.form
@@ -69,18 +59,18 @@ def gerenciar_locais():
                 sel_locais = select(Locais).where(*filters)
                 locais_paginados = SelectPagination(
                     select=sel_locais, session=db.session,
-                    page=page, per_page=PER_PAGE, error_out=False
+                    page=g.page, per_page=PER_PAGE, error_out=False
                 )
-                extras['locais'] = locais_paginados.items
-                extras['pagination'] = locais_paginados
-                extras['query_params'] = query_params
+                g.extras['locais'] = locais_paginados.items
+                g.extras['pagination'] = locais_paginados
+                g.extras['query_params'] = query_params
             else:
                 flash("especifique pelo menos um campo de busca", "danger")
-                redirect_action, bloco = register_return(
-                    url, acao, extras
+                g.redirect_action, g.bloco = register_return(
+                    g.url, g.acao, g.extras
                 )
 
-        elif acao == 'inserir' and bloco == 1:
+        elif g.acao == 'inserir' and g.bloco == 1:
             nome_local = none_if_empty(request.form.get('nome_local'))
             descrição = none_if_empty(request.form.get('descrição'))
             disponibilidade = none_if_empty(request.form.get('disponibilidade'))
@@ -94,7 +84,7 @@ def gerenciar_locais():
                 )
                 db.session.add(novo_local)
                 db.session.flush()
-                registrar_log_generico_usuario(userid, "Inserção", novo_local)
+                registrar_log_generico_usuario(g.userid, "Inserção", novo_local)
                 db.session.commit()
                 flash("Local cadastrado com succeso", "success")
             except DB_ERRORS as e:
@@ -102,17 +92,17 @@ def gerenciar_locais():
             except ValueError as e:
                 handle_db_error(e, "Erro ao cadastrar local")
 
-            redirect_action, bloco = register_return(
-                url, acao, extras
+            g.redirect_action, g.bloco = register_return(
+                g.url, g.acao, g.extras
             )
 
-        elif acao in ['editar', 'excluir'] and bloco == 0:
-            extras['locais'] = get_locais()
-        elif acao in ['editar', 'excluir'] and bloco == 1:
+        elif g.acao in ['editar', 'excluir'] and g.bloco == 0:
+            g.extras['locais'] = get_locais()
+        elif g.acao in ['editar', 'excluir'] and g.bloco == 1:
             id_local = none_if_empty(request.form.get('id_local'), int)
             local = db.get_or_404(Locais, id_local)
-            extras['local'] = local
-        elif acao == 'editar' and bloco == 2:
+            g.extras['local'] = local
+        elif g.acao == 'editar' and g.bloco == 2:
             id_local = none_if_empty(request.form.get('id_local'), int)
             nome_local = get_value_or_abort(request.form.get('nome_local'), 400, "nome do local é obrigatorio")
             descrição = none_if_empty(request.form.get('descrição'))
@@ -129,7 +119,7 @@ def gerenciar_locais():
                 local.tipo = TipoLocalEnum(tipo)
 
                 db.session.flush()
-                registrar_log_generico_usuario(userid, "Edição", local, dados_anteriores)
+                registrar_log_generico_usuario(g.userid, "Edição", local, dados_anteriores)
 
                 db.session.commit()
                 flash("local editado com sucesso", "success")
@@ -138,10 +128,10 @@ def gerenciar_locais():
             except ValueError as e:
                 handle_db_error(e, "Erro ao editar local")
 
-            redirect_action, bloco = register_return(
-                url, acao, extras, locais=get_locais()
+            g.redirect_action, g.bloco = register_return(
+                g.url, g.acao, g.extras, locais=get_locais()
             )
-        elif acao == 'excluir' and bloco == 2:
+        elif g.acao == 'excluir' and g.bloco == 2:
             id_local = none_if_empty(request.form.get('id_local'), int)
 
             local = db.get_or_404(Locais, id_local)
@@ -149,17 +139,17 @@ def gerenciar_locais():
                 db.session.delete(local)
 
                 db.session.flush()
-                registrar_log_generico_usuario(userid, "Exclusão", local)
+                registrar_log_generico_usuario(g.userid, "Exclusão", local)
 
                 db.session.commit()
                 flash("local excluido com sucesso", "success")
             except DB_ERRORS as e:
                 handle_db_error(e, "Erro ao excluir local")
 
-            redirect_action, bloco = register_return(
-                url, acao, extras, locais=get_locais()
+            g.redirect_action, g.bloco = register_return(
+                g.url, g.acao, g.extras, locais=get_locais()
             )
-    if redirect_action:
-        return redirect_action
+    if g.redirect_action:
+        return g.redirect_action
     return render_template("database/table/locais.html",
-        user=user, acao=acao, bloco=bloco, **extras)
+        user=g.user, acao=g.acao, bloco=g.bloco, **g.extras)

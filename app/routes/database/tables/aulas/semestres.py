@@ -1,7 +1,6 @@
 import copy
-from typing import Any
 
-from flask import Blueprint, flash, render_template, request, session
+from flask import Blueprint, flash, g, render_template, request
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
@@ -12,39 +11,30 @@ from app.auxiliar.parsing import parse_date_string, parse_date_string_or_abort
 from app.dao.internal.aulas import get_semestres
 from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
-from app.dao.internal.usuarios import get_user
-from app.decorators.decorators import admin_required
+from app.decorators.decorators import admin_required, crud_route
 from app.extensions import db
 from app.models.aulas import Semestres
-from app.routes_helper.request import get_query_params, get_session_or_request
+from app.routes_helper.request import get_query_params
 from app.service.aulas_service import check_semestre
-from config.database_views import get_url
 from config.general import PER_PAGE
 
 bp = Blueprint('database_semestres', __name__, url_prefix="/database")
 
 @bp.route("/semestres", methods=["GET", "POST"])
 @admin_required
+@crud_route()
 def gerenciar_semestres():
-    url = get_url('database_semestres')
-    redirect_action = None
-    acao = get_session_or_request(request, session, 'acao', 'abertura')
-    bloco = int(request.form.get('bloco', 0))
-    page = int(request.form.get('page', 1))
-    userid = session.get('userid')
-    user = get_user(userid)
-    extras: dict[str, Any] = {'url':url}
     if request.method == 'POST':
-        if acao == 'listar':
+        if g.acao == 'listar':
             sel_semestres = select(Semestres)
             semestres_paginados = SelectPagination(
                 select=sel_semestres, session=db.session,
-                page=page, per_page=PER_PAGE, error_out=False
+                page=g.page, per_page=PER_PAGE, error_out=False
             )
-            extras['semestres'] = semestres_paginados.items
-            extras['pagination'] = semestres_paginados
+            g.extras['semestres'] = semestres_paginados.items
+            g.extras['pagination'] = semestres_paginados
 
-        elif acao == 'procurar' and bloco == 1:
+        elif g.acao == 'procurar' and g.bloco == 1:
             id_semestre = none_if_empty(request.form.get('id_semestre'), int)
             nome_semestre = none_if_empty(request.form.get('nome_semestre'))
             emnome_semestre = 'emnome_semestre' in request.form
@@ -76,16 +66,16 @@ def gerenciar_semestres():
                 sel_semestres = select(Semestres).where(*filters)
                 semestres_paginados = semestres_paginados = SelectPagination(
                     select=sel_semestres, session=db.session,
-                    page=page, per_page=PER_PAGE, error_out=False
+                    page=g.page, per_page=PER_PAGE, error_out=False
                 )
-                extras['semestres'] = semestres_paginados.items
-                extras['pagination'] = semestres_paginados
-                extras['query_params'] = query_params
+                g.extras['semestres'] = semestres_paginados.items
+                g.extras['pagination'] = semestres_paginados
+                g.extras['query_params'] = query_params
             else:
                 flash("especifique pelo menos um campo de busca", "danger")
-                redirect_action, bloco = register_return(url, acao, extras)
+                g.redirect_action, g.bloco = register_return(g.url, g.acao, g.extras)
 
-        elif acao == 'inserir' and bloco == 1:
+        elif g.acao == 'inserir' and g.bloco == 1:
             nome_semestre = none_if_empty(request.form.get('nome_semestre'))
             data_inicio = parse_date_string(request.form.get('data_inicio'))
             data_fim = parse_date_string(request.form.get('data_fim'))
@@ -102,21 +92,21 @@ def gerenciar_semestres():
                 )
                 db.session.add(novo_semestre)
                 db.session.flush()
-                registrar_log_generico_usuario(userid, "Inserção", novo_semestre)
+                registrar_log_generico_usuario(g.userid, "Inserção", novo_semestre)
                 db.session.commit()
                 flash("Semestre cadastrado com sucesso", "success")
             except DB_ERRORS as e:
                 handle_db_error(e, "Erro ao cadastrar semestre")
 
-            redirect_action, bloco = register_return(url, acao, extras)
+            g.redirect_action, g.bloco = register_return(g.url, g.acao, g.extras)
 
-        elif acao in ['editar', 'excluir'] and bloco == 0:
-            extras['semestres'] = get_semestres()
-        elif acao in ['editar', 'excluir'] and bloco == 1:
+        elif g.acao in ['editar', 'excluir'] and g.bloco == 0:
+            g.extras['semestres'] = get_semestres()
+        elif g.acao in ['editar', 'excluir'] and g.bloco == 1:
             id_semestre = none_if_empty(request.form.get('id_semestre'), int)
             semestre = db.get_or_404(Semestres, id_semestre)
-            extras['semestre'] = semestre
-        elif acao == 'editar' and bloco == 2:
+            g.extras['semestre'] = semestre
+        elif g.acao == 'editar' and g.bloco == 2:
             id_semestre = none_if_empty(request.form.get('id_semestre'), int)
             nome_semestre = get_value_or_abort(request.form.get('nome_semestre'), 400, "nome do semestre é obrigatorio")
             data_inicio = parse_date_string_or_abort(request.form.get('data_inicio'), 400, "data de inicio obrigatoria")
@@ -137,16 +127,16 @@ def gerenciar_semestres():
                 semestre.dias_de_prioridade = dias_de_prioridade
 
                 db.session.flush()
-                registrar_log_generico_usuario(userid, "Edição", semestre, dados_anteriores)
+                registrar_log_generico_usuario(g.userid, "Edição", semestre, dados_anteriores)
 
                 db.session.commit()
                 flash("Semestre editado com sucesso", "success")
             except DB_ERRORS as e:
                 handle_db_error(e, "Erro ao editar semestre")
 
-            redirect_action, bloco = register_return(url,
-                acao, extras, semestres=get_semestres())
-        elif acao == 'excluir' and bloco == 2:
+            g.redirect_action, g.bloco = register_return(g.url,
+                g.acao, g.extras, semestres=get_semestres())
+        elif g.acao == 'excluir' and g.bloco == 2:
             id_semestre = none_if_empty(request.form.get('id_semestre'), int)
 
             semestre = db.get_or_404(Semestres, id_semestre)
@@ -154,16 +144,16 @@ def gerenciar_semestres():
                 db.session.delete(semestre)
 
                 db.session.flush()
-                registrar_log_generico_usuario(userid, "Exclusão", semestre)
+                registrar_log_generico_usuario(g.userid, "Exclusão", semestre)
 
                 db.session.commit()
                 flash("Semestre excluido com sucesso", "success")
             except DB_ERRORS as e:
                 handle_db_error(e, "Erro ao excluir semestre")
 
-            redirect_action, bloco = register_return(url,
-                acao, extras, semestres=get_semestres())
-    if redirect_action:
-        return redirect_action
+            g.redirect_action, g.bloco = register_return(g.url,
+                g.acao, g.extras, semestres=get_semestres())
+    if g.redirect_action:
+        return g.redirect_action
     return render_template("database/table/semestres.html",
-        user=user, acao=acao, bloco=bloco, **extras)
+        user=g.user, acao=g.acao, bloco=g.bloco, **g.extras)

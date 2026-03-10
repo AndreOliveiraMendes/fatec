@@ -1,7 +1,6 @@
 import copy
-from typing import Any
 
-from flask import Blueprint, flash, render_template, request, session
+from flask import Blueprint, flash, g, render_template, request
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
@@ -14,42 +13,33 @@ from app.dao.internal.controle import get_exibicoes
 from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.locais import get_locais
-from app.dao.internal.usuarios import get_user
-from app.decorators.decorators import admin_required
+from app.decorators.decorators import admin_required, crud_route
 from app.enums import TipoReservaEnum
 from app.extensions import db
 from app.models.controle import Exibicao_Reservas
-from app.routes_helper.request import get_query_params, get_session_or_request
-from config.database_views import get_url
+from app.routes_helper.request import get_query_params
 from config.general import PER_PAGE
 
 bp = Blueprint('database_exibicao_reservas', __name__, url_prefix="/database")
 
 @bp.route("/exibicao_reservas", methods=["GET", "POST"])
 @admin_required
+@crud_route()
 def gerenciar_exibicao_reservas():
-    url = get_url('database_exibicao_reservas')
-    redirect_action = None
-    acao = get_session_or_request(request, session, 'acao', 'abertura')
-    bloco = int(request.form.get('bloco', 0))
-    page = int(request.form.get('page', 1))
-    userid = session.get('userid')
-    user = get_user(userid)
-    extras: dict[str, Any] = {'url':url}
     if request.method == 'POST':
-        if acao == 'listar':
+        if g.acao == 'listar':
             sel_exibicao = select(Exibicao_Reservas)
             exibicao_reservas_paginadas = SelectPagination(
                 select=sel_exibicao, session=db.session,
-                page=page, per_page=PER_PAGE, error_out=False
+                page=g.page, per_page=PER_PAGE, error_out=False
             )
-            extras['exibicao_reservas'] = exibicao_reservas_paginadas.items
-            extras['pagination'] = exibicao_reservas_paginadas
+            g.extras['exibicao_reservas'] = exibicao_reservas_paginadas.items
+            g.extras['pagination'] = exibicao_reservas_paginadas
 
-        elif acao == 'procurar' and bloco == 0:
-            extras['locais'] = get_locais()
-            extras['aulas_ativas'] = get_aulas_ativas()
-        elif acao == 'procurar' and bloco == 1:
+        elif g.acao == 'procurar' and g.bloco == 0:
+            g.extras['locais'] = get_locais()
+            g.extras['aulas_ativas'] = get_aulas_ativas()
+        elif g.acao == 'procurar' and g.bloco == 1:
             id_exibicao = none_if_empty(request.form.get('id_exibicao'), int)
             id_exibicao_local = none_if_empty(request.form.get('id_exibicao_local'), int)
             id_exibicao_aula = none_if_empty(request.form.get('id_exibicao_aula'), int)
@@ -71,22 +61,22 @@ def gerenciar_exibicao_reservas():
                 sel_exibicao = select(Exibicao_Reservas).where(*filters)
                 exibicao_reservas_paginadas = SelectPagination(
                     select=sel_exibicao, session=db.session,
-                    page=page, per_page=PER_PAGE, error_out=False
+                    page=g.page, per_page=PER_PAGE, error_out=False
                 )
-                extras['exibicao_reservas'] = exibicao_reservas_paginadas.items
-                extras['pagination'] = exibicao_reservas_paginadas
-                extras['query_params'] = query_params
+                g.extras['exibicao_reservas'] = exibicao_reservas_paginadas.items
+                g.extras['pagination'] = exibicao_reservas_paginadas
+                g.extras['query_params'] = query_params
             else:
                 flash("especifique ao menos um campo", "danger")
-                redirect_action, bloco = register_return(
-                    url, acao, extras,
+                g.redirect_action, g.bloco = register_return(
+                    g.url, g.acao, g.extras,
                     locais=get_locais(), aulas_ativas=get_aulas_ativas()
                 )
 
-        elif acao == 'inserir' and bloco == 0:
-            extras['locais'] = get_locais()
-            extras['aulas_ativas'] = get_aulas_ativas()
-        elif acao == 'inserir' and bloco == 1:
+        elif g.acao == 'inserir' and g.bloco == 0:
+            g.extras['locais'] = get_locais()
+            g.extras['aulas_ativas'] = get_aulas_ativas()
+        elif g.acao == 'inserir' and g.bloco == 1:
             id_exibicao_local = none_if_empty(request.form.get('id_exibicao_local'), int)
             id_exibicao_aula = none_if_empty(request.form.get('id_exibicao_aula'), int)
             exibicao_dia = parse_date_string(request.form.get('exibicao_dia'))
@@ -103,7 +93,7 @@ def gerenciar_exibicao_reservas():
                 db.session.add(nova_exibicao)
 
                 db.session.flush()
-                registrar_log_generico_usuario(userid, 'Inserção', nova_exibicao)
+                registrar_log_generico_usuario(g.userid, 'Inserção', nova_exibicao)
 
                 db.session.commit()
                 flash("Exibicao configurada com sucesso", "success")
@@ -112,20 +102,20 @@ def gerenciar_exibicao_reservas():
             except ValueError as e:
                 handle_db_error(e, "Erro ao configurar exibicao")
 
-            redirect_action, bloco = register_return(
-                url, acao, extras,
+            g.redirect_action, g.bloco = register_return(
+                g.url, g.acao, g.extras,
                 locais=get_locais(), aulas_ativas=get_aulas_ativas()
             )
 
-        elif acao in ['editar', 'excluir'] and bloco == 0:
-            extras['exibicao_reservas'] = get_exibicoes()
-        elif acao in ['editar', 'excluir'] and bloco == 1:
+        elif g.acao in ['editar', 'excluir'] and g.bloco == 0:
+            g.extras['exibicao_reservas'] = get_exibicoes()
+        elif g.acao in ['editar', 'excluir'] and g.bloco == 1:
             id_exibicao = none_if_empty(request.form.get('id_exibicao'), int)
             exibicao_da_reserva = db.get_or_404(Exibicao_Reservas, id_exibicao)
-            extras['exibicao_da_reserva'] = exibicao_da_reserva
-            extras['locais'] = get_locais()
-            extras['aulas_ativas'] = get_aulas_ativas()
-        elif acao == 'editar' and bloco == 2:
+            g.extras['exibicao_da_reserva'] = exibicao_da_reserva
+            g.extras['locais'] = get_locais()
+            g.extras['aulas_ativas'] = get_aulas_ativas()
+        elif g.acao == 'editar' and g.bloco == 2:
             id_exibicao = none_if_empty(request.form.get('id_exibicao'), int)
             id_exibicao_local = get_value_or_abort(request.form.get('id_exibicao_local'), 400, "id do local obrigatorio", int)
             id_exibicao_aula = get_value_or_abort(request.form.get('id_exibicao_aula'), 400, "id da aula obritagorio", int)
@@ -142,7 +132,7 @@ def gerenciar_exibicao_reservas():
                     exibicao_da_reserva.tipo_reserva = TipoReservaEnum(tipo_reserva)
 
                 db.session.flush()
-                registrar_log_generico_usuario(userid, 'Edição', exibicao_da_reserva, dados_anteriores)
+                registrar_log_generico_usuario(g.userid, 'Edição', exibicao_da_reserva, dados_anteriores)
 
                 db.session.commit()
                 flash("Exibição atualizada com sucesso", "success")
@@ -151,12 +141,12 @@ def gerenciar_exibicao_reservas():
             except ValueError as e:
                 handle_db_error(e, "Erro ao editar exibicao")
 
-            redirect_action, bloco = register_return(
-                url, acao, extras,
+            g.redirect_action, g.bloco = register_return(
+                g.url, g.acao, g.extras,
                 exibicao_reservas = get_exibicoes()
             )
 
-        elif acao == 'excluir' and bloco == 2:
+        elif g.acao == 'excluir' and g.bloco == 2:
             id_exibicao = none_if_empty(request.form.get('id_exibicao'), int)
 
             exibicao_da_reserva = db.get_or_404(Exibicao_Reservas, id_exibicao)
@@ -164,17 +154,17 @@ def gerenciar_exibicao_reservas():
                 db.session.delete(exibicao_da_reserva)
 
                 db.session.flush()
-                registrar_log_generico_usuario(userid, 'Exclusão', exibicao_da_reserva)
+                registrar_log_generico_usuario(g.userid, 'Exclusão', exibicao_da_reserva)
 
                 db.session.commit()
                 flash("Configuração de exibição excluida com sucessor", "success")
             except DB_ERRORS as e:
                 handle_db_error(e, "Erro ao excluir exibicao")
 
-            redirect_action, bloco = register_return(
-                url, acao, extras,
+            g.redirect_action, g.bloco = register_return(
+                g.url, g.acao, g.extras,
                 exibicao_reservas = get_exibicoes()
             )
-    if redirect_action:
-        return redirect_action
-    return render_template("database/table/exibicao_reservas.html", user=user, acao=acao, bloco=bloco, **extras)
+    if g.redirect_action:
+        return g.redirect_action
+    return render_template("database/table/exibicao_reservas.html", user=g.user, acao=g.acao, bloco=g.bloco, **g.extras)
