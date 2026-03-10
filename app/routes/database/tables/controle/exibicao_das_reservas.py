@@ -127,7 +127,7 @@ def gerenciar_exibicao_reservas():
                 dados_anteriores = copy.copy(exibicao_da_reserva)
                 exibicao_da_reserva.id_exibicao_local = id_exibicao_local
                 exibicao_da_reserva.id_exibicao_aula = id_exibicao_aula
-                exibicao_dia = exibicao_dia
+                exibicao_da_reserva.exibicao_dia = exibicao_dia
                 if tipo_reserva:
                     exibicao_da_reserva.tipo_reserva = TipoReservaEnum(tipo_reserva)
 
