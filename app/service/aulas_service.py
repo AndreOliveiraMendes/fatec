@@ -2,11 +2,17 @@ from flask import abort
 from sqlalchemy import and_, func, or_, select
 
 from app.auxiliar.constant import IntervalConflictError
+from app.enums import TipoAulaEnum
 from app.extensions import db
 from app.models.aulas import Aulas_Ativas, Semestres, Turnos
 
 
 def check_aula_ativa(inicio, fim, aula, semana, tipo, id=None):
+    try:
+        if not isinstance(tipo, TipoAulaEnum):
+            tipo = TipoAulaEnum(tipo)
+    except ValueError:
+        raise ValueError("Tipo de aula inválido")
     base_filter = [
         Aulas_Ativas.id_aula == aula,
         Aulas_Ativas.id_semana == semana,
