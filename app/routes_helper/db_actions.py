@@ -1,0 +1,27 @@
+from flask import flash, g
+
+from app.auxiliar.constant import DB_ERRORS
+from app.dao.internal.general import handle_db_error
+from app.dao.internal.historicos import registrar_log_generico_usuario
+from app.extensions import db
+
+
+def db_action(action_type, success_msg, error_msg, obj=None, old_obj=None, action=None, *args, **kwargs):
+    try:
+        if action:
+            action(*args, **kwargs)
+
+        db.session.flush()
+
+        if obj is not None:
+            registrar_log_generico_usuario(
+                g.userid, action_type, obj, old_obj
+            )
+
+        db.session.commit()
+        flash(success_msg, "success")
+
+    except DB_ERRORS as e:
+        handle_db_error(e, error_msg)
+    except ValueError as e:
+        handle_db_error(e, error_msg)
