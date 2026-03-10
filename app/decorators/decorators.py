@@ -68,10 +68,10 @@ def crud_route(default_acao="abertura"):
     def decorator(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
-            if not request.endpoint:
-                raise ValueError("hello world")
+            blueprint = request.blueprint
+            assert blueprint is not None
 
-            g.url = get_url(request.endpoint.split('.')[0])
+            g.url = get_url(blueprint)
             
             g.redirect_action = None
 
