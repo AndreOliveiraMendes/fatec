@@ -1,10 +1,11 @@
 
-from flask import Blueprint, abort, g, render_template, request
+from flask import Blueprint, g, render_template, request
 
 from app.decorators.decorators import admin_required, crud_route
-from app.enums import ActionEnum, StepEnum
-from .states import VALID_STATES
+from app.routes_helper.controller import get_controler
+
 from .handlers import dispatcher
+from .states import VALID_STATES
 
 bp = Blueprint('database_aulas', __name__, url_prefix="/database")
 
@@ -13,18 +14,7 @@ bp = Blueprint('database_aulas', __name__, url_prefix="/database")
 @crud_route()
 def gerenciar_aulas():
     if request.method == 'POST':
-        try:
-            state = (ActionEnum(g.acao), StepEnum(g.bloco))
-        except ValueError as e:
-            abort(400, "Estado invalido")
-
-        if state not in VALID_STATES:
-            abort(400)
-
-        handler = dispatcher.get(state)
-
-        if handler:
-            handler()
+        get_controler(VALID_STATES, dispatcher, g.acao, g.bloco)
         
     if g.redirect_action:
         return g.redirect_action
