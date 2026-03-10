@@ -4,16 +4,14 @@ from flask import Blueprint, flash, g, render_template, request
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
-from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.general import none_if_empty
 from app.auxiliar.navigation import register_return
 from app.auxiliar.parsing import parse_time_string, parse_time_string_or_abort
 from app.dao.internal.aulas import get_aulas
-from app.dao.internal.general import handle_db_error
-from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.decorators.decorators import admin_required, crud_route
 from app.extensions import db
 from app.models.aulas import Aulas
+from app.routes_helper.db_actions import db_action
 from app.routes_helper.request import get_query_params
 from config.general import PER_PAGE
 
@@ -73,15 +71,20 @@ def gerenciar_aulas():
         elif g.acao == 'inserir' and g.bloco == 1:
             horario_inicio = parse_time_string(request.form.get('horario_inicio'))
             horario_fim = parse_time_string(request.form.get('horario_fim'))
-            try:
-                nova_aula = Aulas(horario_inicio=horario_inicio, horario_fim=horario_fim)
-                db.session.add(nova_aula)
-                db.session.flush()
-                registrar_log_generico_usuario(g.userid, "Inserção", nova_aula)
-                db.session.commit()
-                flash("Aula cadastrada com sucesso", "success")
-            except DB_ERRORS as e:
-                handle_db_error(e, "Erro ao cadastrar aula")
+
+            nova_aula = Aulas(
+                horario_inicio=horario_inicio,
+                horario_fim=horario_fim
+            )
+
+            db_action(
+                "Inserção",
+                "Aula cadastrada com sucesso",
+                "Erro ao cadastrar aula",
+                obj=nova_aula,
+                action=lambda: db.session.add(nova_aula)
+            )
+
             g.redirect_action, g.bloco = register_return(g.url, g.acao, g.extras)
 
         elif g.acao in ['editar', 'excluir'] and g.bloco == 0:
@@ -90,41 +93,61 @@ def gerenciar_aulas():
             id_aula = none_if_empty(request.form.get('id_aula'), int)
             aula = db.get_or_404(Aulas, id_aula)
             g.extras['aula'] = aula
+
         elif g.acao == 'editar' and g.bloco == 2:
             id_aula = none_if_empty(request.form.get('id_aula'), int)
-            horario_inicio = parse_time_string_or_abort(request.form.get('horario_inicio'), 400, "horario de inicio é obrigatorio")
-            horario_fim = parse_time_string_or_abort(request.form.get('horario_fim'), 400, "horario de fim é obrigatorio")
+
+            horario_inicio = parse_time_string_or_abort(
+                request.form.get('horario_inicio'),
+                400,
+                "horario de inicio é obrigatorio"
+            )
+
+            horario_fim = parse_time_string_or_abort(
+                request.form.get('horario_fim'),
+                400,
+                "horario de fim é obrigatorio"
+            )
+
             aula = db.get_or_404(Aulas, id_aula)
-            try:
-                dados_anteriores = copy.copy(aula)
+
+            dados_anteriores = copy.copy(aula)
+
+            def action():
                 aula.horario_inicio = horario_inicio
                 aula.horario_fim = horario_fim
 
-                db.session.flush()
-                registrar_log_generico_usuario(g.userid, "Edição", aula, dados_anteriores)
+            db_action(
+                "Edição",
+                "Aula editada com sucesso",
+                "Erro ao editar aula",
+                obj=aula,
+                old_obj=dados_anteriores,
+                action=action
+            )
 
-                db.session.commit()
-                flash("Aula editada com sucesso", "success")
-            except DB_ERRORS as e:
-                handle_db_error(e, "Erro ao editar aula")
+            g.redirect_action, g.bloco = register_return(
+                g.url, g.acao, g.extras,
+                aulas=get_aulas()
+            )
 
-            g.redirect_action, g.bloco = register_return(g.url, g.acao, g.extras, aulas=get_aulas())
         elif g.acao == 'excluir' and g.bloco == 2:
             id_aula = none_if_empty(request.form.get('id_aula'), int)
 
             aula = db.get_or_404(Aulas, id_aula)
-            try:
-                db.session.delete(aula)
 
-                db.session.flush()
-                registrar_log_generico_usuario(g.userid, "Exclusão", aula)
+            db_action(
+                "Exclusão",
+                "Aula excluida com sucesso",
+                "Erro ao excluir aula",
+                obj=aula,
+                action=lambda: db.session.delete(aula)
+            )
 
-                db.session.commit()
-                flash("Aula excluida com sucesso", "success")
-            except DB_ERRORS as e:
-                handle_db_error(e, "Erro ao excluir aula")
-
-            g.redirect_action, g.bloco = register_return(g.url, g.acao, g.extras, aulas=get_aulas())
+            g.redirect_action, g.bloco = register_return(
+                g.url, g.acao, g.extras,
+                aulas=get_aulas()
+            )
     if g.redirect_action:
         return g.redirect_action
     return render_template("database/table/aulas.html", user=g.user, acao=g.acao, bloco=g.bloco, **g.extras)

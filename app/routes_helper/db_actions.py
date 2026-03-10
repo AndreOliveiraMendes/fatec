@@ -6,7 +6,7 @@ from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.extensions import db
 
 
-def db_action(action_type, success_msg, error_msg, obj=None, old_obj=None, action=None, *args, **kwargs):
+def db_action(action_type, success_msg, error_msg, obj=None, old_obj=None, action=None, observacao=None, *args, **kwargs):
     try:
         if action:
             action(*args, **kwargs)
@@ -15,7 +15,7 @@ def db_action(action_type, success_msg, error_msg, obj=None, old_obj=None, actio
 
         if obj is not None:
             registrar_log_generico_usuario(
-                g.userid, action_type, obj, old_obj
+                g.userid, action_type, obj, old_obj, observacao
             )
 
         db.session.commit()

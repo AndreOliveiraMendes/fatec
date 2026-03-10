@@ -4,13 +4,10 @@ from flask import Blueprint, flash, g, render_template, request
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
-from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.general import get_value_or_abort, none_if_empty
 from app.auxiliar.navigation import register_return
 from app.auxiliar.parsing import parse_date_string, parse_date_string_or_abort
 from app.dao.internal.aulas import get_aulas_ativas
-from app.dao.internal.general import handle_db_error
-from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.locais import get_locais
 from app.dao.internal.reservas import get_reservas_auditorios_database
 from app.dao.internal.usuarios import get_pessoas
@@ -18,6 +15,7 @@ from app.decorators.decorators import admin_required, crud_route
 from app.enums import StatusReservaAuditorioEnum
 from app.extensions import db
 from app.models.reservas.reservas_auditorios import Reservas_Auditorios
+from app.routes_helper.db_actions import db_action
 from app.routes_helper.request import get_query_params
 from config.general import PER_PAGE
 
@@ -91,41 +89,45 @@ def gerenciar_reservas_auditorios():
             g.extras['pessoas'] = get_pessoas()
             g.extras['locais'] = get_locais()
             g.extras['aulas_ativas'] = get_aulas_ativas()
+
         elif g.acao == 'inserir' and g.bloco == 1:
             id_responsavel = none_if_empty(request.form.get('id_responsavel'), int)
             id_reserva_local = none_if_empty(request.form.get('id_reserva_local'), int)
             id_reserva_aula = none_if_empty(request.form.get('id_reserva_aula'), int)
             dia_reserva = parse_date_string(request.form.get('dia_reserva'))
-            status_reserva = none_if_empty(request.form.get('status_reserva'),)
+            status_reserva = none_if_empty(request.form.get('status_reserva'))
             id_autorizador = none_if_empty(request.form.get('id_autorizador'), int)
-            observação_responsavel = none_if_empty(request.form.get('observação_responsavel'))
-            observação_autorizador = none_if_empty(request.form.get('observação_autorizador'))
+            observacao_responsavel = none_if_empty(request.form.get('observação_responsavel'))
+            observacao_autorizador = none_if_empty(request.form.get('observação_autorizador'))
 
-            try:
-                nova_reserva = Reservas_Auditorios(
-                    id_responsavel=id_responsavel,
-                    id_reserva_local=id_reserva_local,
-                    id_reserva_aula=id_reserva_aula,
-                    dia_reserva=dia_reserva,
-                    status_reserva=StatusReservaAuditorioEnum(status_reserva),
-                    id_autorizador=id_autorizador,
-                    observação_responsavel=observação_responsavel,
-                    observação_autorizador=observação_autorizador
-                )
+            nova_reserva = Reservas_Auditorios(
+                id_responsavel=id_responsavel,
+                id_reserva_local=id_reserva_local,
+                id_reserva_aula=id_reserva_aula,
+                dia_reserva=dia_reserva,
+                status_reserva=StatusReservaAuditorioEnum(status_reserva),
+                id_autorizador=id_autorizador,
+                observação_responsavel=observacao_responsavel,
+                observação_autorizador=observacao_autorizador
+            )
+
+            def insert():
                 db.session.add(nova_reserva)
 
-                db.session.flush()
-                registrar_log_generico_usuario(g.userid, 'Inserção', nova_reserva)
+            db_action(
+                "Inserção",
+                "Reserva cadastrada com sucesso",
+                "Erro ao cadastrar reserva",
+                obj=nova_reserva,
+                action=insert
+            )
 
-                db.session.commit()
-                flash("Reserva cadastrada com sucesso", "success")
-            except DB_ERRORS as e:
-                handle_db_error(e, "Erro ao cadastrar reserva")
-            except ValueError as e:
-                handle_db_error(e, "Erro ao cadastrar reserva")
-
-            g.redirect_action, g.bloco = register_return(g.url, g.acao, g.extras,
-                pessoas=get_pessoas(), locais=get_locais(), aulas_ativas=get_aulas_ativas())
+            g.redirect_action, g.bloco = register_return(
+                g.url, g.acao, g.extras,
+                pessoas=get_pessoas(),
+                locais=get_locais(),
+                aulas_ativas=get_aulas_ativas()
+            )
 
         elif g.acao in ['editar', 'excluir'] and g.bloco == 0:
             g.extras['reservas_auditorios'] = get_reservas_auditorios_database()
@@ -136,56 +138,66 @@ def gerenciar_reservas_auditorios():
             g.extras['pessoas'] = get_pessoas()
             g.extras['locais'] = get_locais()
             g.extras['aulas_ativas'] = get_aulas_ativas()
+
         elif g.acao == 'editar' and g.bloco == 2:
             id_reserva_auditorio = none_if_empty(request.form.get('id_reserva_auditorio'), int)
             id_responsavel = get_value_or_abort(request.form.get('id_responsavel'), 400, "id do responsavel é obrigatorio", int)
             id_reserva_local = get_value_or_abort(request.form.get('id_reserva_local'), 400, "id do local é obrigatorio", int)
-            id_reserva_aula = get_value_or_abort(request.form.get('id_reserva_aula'), 400, "id da aula é obritagorio", int)
-            dia_reserva = parse_date_string_or_abort(request.form.get('dia_reserva'), 400, "dia da reserva é obritagorio")
-            status_reserva = none_if_empty(request.form.get('status_reserva'),)
+            id_reserva_aula = get_value_or_abort(request.form.get('id_reserva_aula'), 400, "id da aula é obrigatorio", int)
+            dia_reserva = parse_date_string_or_abort(request.form.get('dia_reserva'), 400, "dia da reserva é obrigatorio")
+            status_reserva = none_if_empty(request.form.get('status_reserva'))
             id_autorizador = none_if_empty(request.form.get('id_autorizador'), int)
-            observação_responsavel = none_if_empty(request.form.get('observação_responsavel'))
-            observação_autorizador = none_if_empty(request.form.get('observação_autorizador'))
+            observacao_responsavel = none_if_empty(request.form.get('observação_responsavel'))
+            observacao_autorizador = none_if_empty(request.form.get('observação_autorizador'))
+
             reserva_auditorio = db.get_or_404(Reservas_Auditorios, id_reserva_auditorio)
-            
-            try:
-                dados_anteriores = copy.copy(reserva_auditorio)
+            dados_anteriores = copy.copy(reserva_auditorio)
+
+            def update():
                 reserva_auditorio.id_responsavel = id_responsavel
                 reserva_auditorio.id_reserva_local = id_reserva_local
                 reserva_auditorio.id_reserva_aula = id_reserva_aula
                 reserva_auditorio.dia_reserva = dia_reserva
                 reserva_auditorio.status_reserva = StatusReservaAuditorioEnum(status_reserva)
                 reserva_auditorio.id_autorizador = id_autorizador
-                reserva_auditorio.observação_responsavel = observação_responsavel
-                reserva_auditorio.observação_autorizador = observação_autorizador
+                reserva_auditorio.observação_responsavel = observacao_responsavel
+                reserva_auditorio.observação_autorizador = observacao_autorizador
 
-                db.session.flush()
-                registrar_log_generico_usuario(g.userid, 'Edição', reserva_auditorio, dados_anteriores)
+            db_action(
+                "Edição",
+                "Reserva editada com sucesso",
+                "Erro ao editar reserva",
+                obj=reserva_auditorio,
+                old_obj=dados_anteriores,
+                action=update
+            )
 
-                db.session.commit()
-                flash("Reserva editada com sucesso", "success")
-            except DB_ERRORS as e:
-                handle_db_error(e, "Erro ao editar reserva")
-            except ValueError as e:
-                handle_db_error(e, "Erro ao editar reserva")
+            g.redirect_action, g.bloco = register_return(
+                g.url, g.acao, g.extras,
+                reservas_auditorios=get_reservas_auditorios_database()
+            )
 
-            g.redirect_action, g.bloco = register_return(g.url, g.acao, g.extras,
-                reservas_auditorios=get_reservas_auditorios_database())
         elif g.acao == 'excluir' and g.bloco == 2:
             id_reserva_auditorio = none_if_empty(request.form.get('id_reserva_auditorio'), int)
+
             reserva_auditorio = db.get_or_404(Reservas_Auditorios, id_reserva_auditorio)
-            try:
+
+            def delete():
                 db.session.delete(reserva_auditorio)
 
-                db.session.flush()
-                registrar_log_generico_usuario(g.userid, 'Exclusão', reserva_auditorio)
+            db_action(
+                "Exclusão",
+                "Reserva excluida com sucesso",
+                "Erro ao excluir reserva",
+                obj=reserva_auditorio,
+                action=delete
+            )
 
-                db.session.commit()
-                flash("Reserva excluida com sucesso", "success")
-            except DB_ERRORS as e:
-                handle_db_error(e, "Erro ao excluir reserva")
-            g.redirect_action, g.bloco = register_return(g.url, g.acao, g.extras,
-                reservas_auditorios=get_reservas_auditorios_database())
+            g.redirect_action, g.bloco = register_return(
+                g.url, g.acao, g.extras,
+                reservas_auditorios=get_reservas_auditorios_database()
+            )
+
     if g.redirect_action:
         return g.redirect_action
     return render_template("database/table/reservas_auditorios.html",

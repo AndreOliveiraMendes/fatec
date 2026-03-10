@@ -4,15 +4,13 @@ from flask import Blueprint, flash, g, render_template, request
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
-from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.general import get_value_or_abort, none_if_empty
 from app.auxiliar.navigation import register_return
-from app.dao.internal.general import handle_db_error
-from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.usuarios import get_usuarios_especiais
 from app.decorators.decorators import admin_required, crud_route
 from app.extensions import db
 from app.models.usuarios import Usuarios_Especiais
+from app.routes_helper.db_actions import db_action
 from app.routes_helper.request import get_query_params
 from config.general import PER_PAGE
 
@@ -62,18 +60,27 @@ def gerenciar_usuarios_especiais():
 
         elif g.acao == 'inserir' and g.bloco == 1:
             nome_usuario_especial = none_if_empty(request.form.get('nome_usuario_especial'))
-            try:
-                novo_usuario_especial = Usuarios_Especiais(nome_usuario_especial=nome_usuario_especial)
-                db.session.add(novo_usuario_especial)
-                db.session.flush()
-                registrar_log_generico_usuario(g.userid, "Inserção", novo_usuario_especial)
-                db.session.commit()
-                flash("Usuario Especial cadastrada com sucesso", "success")
-            except DB_ERRORS as e:
-                handle_db_error(e, "Erro ao cadastrar usuario especial")
 
-            g.redirect_action, g.bloco = register_return(g.url,
-                g.acao, g.extras)
+            novo_usuario_especial = Usuarios_Especiais(
+                nome_usuario_especial=nome_usuario_especial
+            )
+
+            def insert():
+                db.session.add(novo_usuario_especial)
+
+            db_action(
+                "Inserção",
+                "Usuario Especial cadastrada com sucesso",
+                "Erro ao cadastrar usuario especial",
+                obj=novo_usuario_especial,
+                action=insert
+            )
+
+            g.redirect_action, g.bloco = register_return(
+                g.url,
+                g.acao,
+                g.extras
+            )
 
         elif g.acao in ['editar', 'excluir'] and g.bloco == 0:
             g.extras['usuarios_especiais'] = get_usuarios_especiais()
@@ -81,43 +88,61 @@ def gerenciar_usuarios_especiais():
             id_usuario_especial = none_if_empty(request.form.get('id_usuario_especial'), int)
             usuario_especial = db.get_or_404(Usuarios_Especiais, id_usuario_especial)
             g.extras['usuario_especial'] = usuario_especial
+
         elif g.acao == 'editar' and g.bloco == 2:
             id_usuario_especial = none_if_empty(request.form.get('id_usuario_especial'), int)
-            nome_usuario_especial = get_value_or_abort(request.form.get('nome_usuario_especial'), 400, "nome do usuario especial é obrigatorio")
+
+            nome_usuario_especial = get_value_or_abort(
+                request.form.get('nome_usuario_especial'),
+                400,
+                "nome do usuario especial é obrigatorio"
+            )
 
             usuario_especial = db.get_or_404(Usuarios_Especiais, id_usuario_especial)
-            try:
-                dados_anteriores = copy.copy(usuario_especial)
+            dados_anteriores = copy.copy(usuario_especial)
 
+            def update():
                 usuario_especial.nome_usuario_especial = nome_usuario_especial
 
-                db.session.flush()  # garante ID
-                registrar_log_generico_usuario(g.userid, "Edição", usuario_especial, dados_anteriores)
+            db_action(
+                "Edição",
+                "Usuario especial editado com sucesso",
+                "Erro ao editar usuario especial",
+                obj=usuario_especial,
+                old_obj=dados_anteriores,
+                action=update
+            )
 
-                db.session.commit()
-                flash("Usuario especial editado com sucesso", "success")
-            except DB_ERRORS as e:
-                handle_db_error(e, "Erro ao editar usuario especial")
+            g.redirect_action, g.bloco = register_return(
+                g.url,
+                g.acao,
+                g.extras,
+                usuarios_especiais=get_usuarios_especiais()
+            )
 
-            g.redirect_action, g.bloco = register_return(g.url,
-                g.acao, g.extras, usuarios_especiais=get_usuarios_especiais())
         elif g.acao == 'excluir' and g.bloco == 2:
             id_usuario_especial = none_if_empty(request.form.get('id_usuario_especial'), int)
 
             usuario_especial = db.get_or_404(Usuarios_Especiais, id_usuario_especial)
-            try:
+
+            def delete():
                 db.session.delete(usuario_especial)
 
-                db.session.flush()  # garante ID
-                registrar_log_generico_usuario(g.userid, "Exclusão", usuario_especial)
+            db_action(
+                "Exclusão",
+                "Usuario especial excluido com sucesso",
+                "Erro ao excluir usuario especial",
+                obj=usuario_especial,
+                action=delete
+            )
 
-                db.session.commit()
-                flash("Usuario especial excluido com sucesso", "success")
-            except DB_ERRORS as e:
-                handle_db_error(e, "Erro ao excluir usuario especial")
+            g.redirect_action, g.bloco = register_return(
+                g.url,
+                g.acao,
+                g.extras,
+                usuarios_especiais=get_usuarios_especiais()
+            )
 
-            g.redirect_action, g.bloco = register_return(g.url,
-                g.acao, g.extras, usuarios_especiais=get_usuarios_especiais())
     if g.redirect_action:
         return g.redirect_action
     return render_template("database/table/usuarios_especiais.html",

@@ -4,16 +4,14 @@ from flask import Blueprint, flash, g, render_template, request
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
-from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.general import get_value_or_abort, none_if_empty
 from app.auxiliar.navigation import register_return
 from app.auxiliar.parsing import parse_date_string, parse_date_string_or_abort
 from app.dao.internal.aulas import get_semestres
-from app.dao.internal.general import handle_db_error
-from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.decorators.decorators import admin_required, crud_route
 from app.extensions import db
 from app.models.aulas import Semestres
+from app.routes_helper.db_actions import db_action
 from app.routes_helper.request import get_query_params
 from app.service.aulas_service import check_semestre
 from config.general import PER_PAGE
@@ -82,21 +80,27 @@ def gerenciar_semestres():
             data_inicio_reserva = parse_date_string(request.form.get('data_inicio_reserva'))
             data_fim_reserva = parse_date_string(request.form.get('data_fim_reserva'))
             dias_de_prioridade = none_if_empty(request.form.get('prioridade'), int)
-            try:
+
+            novo_semestre = Semestres(
+                nome_semestre=nome_semestre,
+                data_inicio=data_inicio,
+                data_fim=data_fim,
+                data_inicio_reserva=data_inicio_reserva,
+                data_fim_reserva=data_fim_reserva,
+                dias_de_prioridade=dias_de_prioridade
+            )
+
+            def insert():
                 check_semestre(data_inicio, data_fim)
-                novo_semestre = Semestres(
-                    nome_semestre = nome_semestre,
-                    data_inicio = data_inicio, data_fim = data_fim,
-                    data_inicio_reserva = data_inicio_reserva, data_fim_reserva = data_fim_reserva,
-                    dias_de_prioridade = dias_de_prioridade
-                )
                 db.session.add(novo_semestre)
-                db.session.flush()
-                registrar_log_generico_usuario(g.userid, "Inserção", novo_semestre)
-                db.session.commit()
-                flash("Semestre cadastrado com sucesso", "success")
-            except DB_ERRORS as e:
-                handle_db_error(e, "Erro ao cadastrar semestre")
+
+            db_action(
+                "Inserção",
+                "Semestre cadastrado com sucesso",
+                "Erro ao cadastrar semestre",
+                obj=novo_semestre,
+                action=insert
+            )
 
             g.redirect_action, g.bloco = register_return(g.url, g.acao, g.extras)
 
@@ -106,6 +110,7 @@ def gerenciar_semestres():
             id_semestre = none_if_empty(request.form.get('id_semestre'), int)
             semestre = db.get_or_404(Semestres, id_semestre)
             g.extras['semestre'] = semestre
+
         elif g.acao == 'editar' and g.bloco == 2:
             id_semestre = none_if_empty(request.form.get('id_semestre'), int)
             nome_semestre = get_value_or_abort(request.form.get('nome_semestre'), 400, "nome do semestre é obrigatorio")
@@ -114,11 +119,13 @@ def gerenciar_semestres():
             data_inicio_reserva = parse_date_string_or_abort(request.form.get('data_inicio_reserva'), 400, "data de inicio de cadastro obrigatoria")
             data_fim_reserva = parse_date_string_or_abort(request.form.get('data_fim_reserva'), 400, "data de fim de cadastro obrigatoria")
             dias_de_prioridade = get_value_or_abort(request.form.get('prioridade'), 400, "dias de prioridade obrigatorio", int)
+
             semestre = db.get_or_404(Semestres, id_semestre)
-            
-            try:
+            dados_anteriores = copy.copy(semestre)
+
+            def update():
                 check_semestre(data_inicio, data_fim, id_semestre)
-                dados_anteriores = copy.copy(semestre)
+
                 semestre.nome_semestre = nome_semestre
                 semestre.data_inicio = data_inicio
                 semestre.data_fim = data_fim
@@ -126,33 +133,41 @@ def gerenciar_semestres():
                 semestre.data_fim_reserva = data_fim_reserva
                 semestre.dias_de_prioridade = dias_de_prioridade
 
-                db.session.flush()
-                registrar_log_generico_usuario(g.userid, "Edição", semestre, dados_anteriores)
+            db_action(
+                "Edição",
+                "Semestre editado com sucesso",
+                "Erro ao editar semestre",
+                obj=semestre,
+                old_obj=dados_anteriores,
+                action=update
+            )
 
-                db.session.commit()
-                flash("Semestre editado com sucesso", "success")
-            except DB_ERRORS as e:
-                handle_db_error(e, "Erro ao editar semestre")
+            g.redirect_action, g.bloco = register_return(
+                g.url, g.acao, g.extras,
+                semestres=get_semestres()
+            )
 
-            g.redirect_action, g.bloco = register_return(g.url,
-                g.acao, g.extras, semestres=get_semestres())
         elif g.acao == 'excluir' and g.bloco == 2:
             id_semestre = none_if_empty(request.form.get('id_semestre'), int)
 
             semestre = db.get_or_404(Semestres, id_semestre)
-            try:
+
+            def delete():
                 db.session.delete(semestre)
 
-                db.session.flush()
-                registrar_log_generico_usuario(g.userid, "Exclusão", semestre)
+            db_action(
+                "Exclusão",
+                "Semestre excluido com sucesso",
+                "Erro ao excluir semestre",
+                obj=semestre,
+                action=delete
+            )
 
-                db.session.commit()
-                flash("Semestre excluido com sucesso", "success")
-            except DB_ERRORS as e:
-                handle_db_error(e, "Erro ao excluir semestre")
+            g.redirect_action, g.bloco = register_return(
+                g.url, g.acao, g.extras,
+                semestres=get_semestres()
+            )
 
-            g.redirect_action, g.bloco = register_return(g.url,
-                g.acao, g.extras, semestres=get_semestres())
     if g.redirect_action:
         return g.redirect_action
     return render_template("database/table/semestres.html",

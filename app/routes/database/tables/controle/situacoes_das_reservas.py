@@ -4,19 +4,17 @@ from flask import Blueprint, flash, g, render_template, request
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
-from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.general import get_value_or_abort, none_if_empty
 from app.auxiliar.navigation import register_return
 from app.auxiliar.parsing import parse_date_string, parse_date_string_or_abort
 from app.dao.internal.aulas import get_aulas_ativas
 from app.dao.internal.controle import get_situacoes
-from app.dao.internal.general import handle_db_error
-from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.locais import get_locais
 from app.decorators.decorators import admin_required, crud_route
 from app.enums import SituacaoChaveEnum, TipoReservaEnum
 from app.extensions import db
 from app.models.controle import Situacoes_Das_Reserva
+from app.routes_helper.db_actions import db_action
 from app.routes_helper.request import get_query_params
 from config.general import PER_PAGE
 
@@ -79,6 +77,7 @@ def gerenciar_situacoes_das_reservas():
         elif g.acao == 'inserir' and g.bloco == 0:
             g.extras['locais'] = get_locais()
             g.extras['aulas_ativas'] = get_aulas_ativas()
+
         elif g.acao == 'inserir' and g.bloco == 1:
             id_situacao_local = none_if_empty(request.form.get('id_situacao_local'), int)
             id_situacao_aula = none_if_empty(request.form.get('id_situacao_aula'), int)
@@ -86,30 +85,31 @@ def gerenciar_situacoes_das_reservas():
             situacao_chave = none_if_empty(request.form.get('situacao_chave'))
             tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
 
-            try:
-                nova_situacao = Situacoes_Das_Reserva(
-                    id_situacao_local = id_situacao_local,
-                    id_situacao_aula = id_situacao_aula,
-                    situacao_dia = situacao_dia,
-                    situacao_chave = SituacaoChaveEnum(situacao_chave)
-                )
+            nova_situacao = Situacoes_Das_Reserva(
+                id_situacao_local=id_situacao_local,
+                id_situacao_aula=id_situacao_aula,
+                situacao_dia=situacao_dia,
+                situacao_chave=SituacaoChaveEnum(situacao_chave)
+            )
+
+            def insert():
                 if tipo_reserva:
                     nova_situacao.tipo_reserva = TipoReservaEnum(tipo_reserva)
+
                 db.session.add(nova_situacao)
 
-                db.session.flush()
-                registrar_log_generico_usuario(g.userid, 'Inserção', nova_situacao)
-
-                db.session.commit()
-                flash("Situação cadastrada com sucesso", "success")
-            except DB_ERRORS as e:
-                handle_db_error(e, "Erro ao cadastrar situação")
-            except ValueError as e:
-                handle_db_error(e, "Erro ao cadastrar situação")
+            db_action(
+                "Inserção",
+                "Situação cadastrada com sucesso",
+                "Erro ao cadastrar situação",
+                obj=nova_situacao,
+                action=insert
+            )
 
             g.redirect_action, g.bloco = register_return(
                 g.url, g.acao, g.extras,
-                locais=get_locais(), aulas_ativas=get_aulas_ativas()
+                locais=get_locais(),
+                aulas_ativas=get_aulas_ativas()
             )
 
         elif g.acao in ['editar', 'excluir'] and g.bloco == 0:
@@ -120,6 +120,7 @@ def gerenciar_situacoes_das_reservas():
             g.extras['situacao_da_reserva'] = situacao_da_reserva
             g.extras['locais'] = get_locais()
             g.extras['aulas_ativas'] = get_aulas_ativas()
+
         elif g.acao == 'editar' and g.bloco == 2:
             id_situacao = none_if_empty(request.form.get('id_situacao'), int)
             id_situacao_local = get_value_or_abort(request.form.get('id_situacao_local'), 400, "id do local obrigatorio", int)
@@ -129,47 +130,52 @@ def gerenciar_situacoes_das_reservas():
             tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
 
             situacao_da_reserva = db.get_or_404(Situacoes_Das_Reserva, id_situacao)
-            try:
-                dados_anteriores = copy.copy(situacao_da_reserva)
+            dados_anteriores = copy.copy(situacao_da_reserva)
+
+            def update():
                 situacao_da_reserva.id_situacao_local = id_situacao_local
                 situacao_da_reserva.id_situacao_aula = id_situacao_aula
                 situacao_da_reserva.situacao_dia = situacao_dia
                 situacao_da_reserva.situacao_chave = SituacaoChaveEnum(situacao_chave)
+
                 if tipo_reserva:
                     situacao_da_reserva.tipo_reserva = TipoReservaEnum(tipo_reserva)
 
-                db.session.flush()
-                registrar_log_generico_usuario(g.userid, 'Edição', situacao_da_reserva, dados_anteriores)
+            db_action(
+                "Edição",
+                "Situação editada com sucesso",
+                "Erro ao editar situação",
+                obj=situacao_da_reserva,
+                old_obj=dados_anteriores,
+                action=update
+            )
 
-                db.session.commit()
-                flash("Situação Editada com sucesso", "success")
-            except DB_ERRORS as e:
-                handle_db_error(e, "Erro ao editar situação")
-            except ValueError as e:
-                handle_db_error(e, "Erro ao editar situação")
             g.redirect_action, g.bloco = register_return(
                 g.url, g.acao, g.extras,
                 situacoes_das_reservas=get_situacoes()
             )
+
         elif g.acao == 'excluir' and g.bloco == 2:
             id_situacao = none_if_empty(request.form.get('id_situacao'), int)
 
             situacao_da_reserva = db.get_or_404(Situacoes_Das_Reserva, id_situacao)
-            try:
+
+            def delete():
                 db.session.delete(situacao_da_reserva)
 
-                db.session.flush()
-                registrar_log_generico_usuario(g.userid, 'Exclusão', situacao_da_reserva)
-
-                db.session.commit()
-                flash("situação excluida com sucesso", "success")
-            except DB_ERRORS as e:
-                handle_db_error(e, "Erro ao excluir situação")
+            db_action(
+                "Exclusão",
+                "Situação excluida com sucesso",
+                "Erro ao excluir situação",
+                obj=situacao_da_reserva,
+                action=delete
+            )
 
             g.redirect_action, g.bloco = register_return(
                 g.url, g.acao, g.extras,
                 situacoes_das_reservas=get_situacoes()
             )
+
     if g.redirect_action:
         return g.redirect_action
     return render_template("database/table/situacoes_das_reservas.html",

@@ -1,18 +1,16 @@
 import copy
 
-from flask import Blueprint, abort, flash, g, render_template, request
+from flask import Blueprint, abort, g, render_template, request
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
-from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.general import get_value_or_abort, none_if_empty
 from app.auxiliar.navigation import register_return
 from app.dao.internal.aulas import get_dias_da_semana
-from app.dao.internal.general import handle_db_error
-from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.decorators.decorators import admin_required, crud_route
 from app.extensions import db
 from app.models.aulas import Dias_da_Semana
+from app.routes_helper.db_actions import db_action
 from app.routes_helper.ui import disable_action
 from config.general import PER_PAGE
 
@@ -40,17 +38,22 @@ def gerenciar_dias_da_semana():
         elif g.acao == 'inserir' and g.bloco == 1:
             id_semana = none_if_empty(request.form.get('id_semana'), int)
             nome_semana = none_if_empty(request.form.get('nome_semana', None))
-            try:
-                nova_semana = Dias_da_Semana(id_semana = id_semana, nome_semana = nome_semana)
+
+            nova_semana = Dias_da_Semana(
+                id_semana=id_semana,
+                nome_semana=nome_semana
+            )
+
+            def insert():
                 db.session.add(nova_semana)
 
-                db.session.flush()
-                registrar_log_generico_usuario(g.userid, 'Inserção', nova_semana)
-
-                db.session.commit()
-                flash("Semana cadastrada com sucesso", "success")
-            except DB_ERRORS as e:
-                handle_db_error(e, "Falha ao cadastrar semana")
+            db_action(
+                "Inserção",
+                "Semana cadastrada com sucesso",
+                "Falha ao cadastrar semana",
+                obj=nova_semana,
+                action=insert
+            )
 
             g.redirect_action, g.bloco = register_return(g.url, g.acao, g.extras)
 
@@ -64,32 +67,36 @@ def gerenciar_dias_da_semana():
             id_semana = none_if_empty(request.form.get('id_semana'), int)
             nome_semana = get_value_or_abort(request.form.get('nome_semana'), 400, "Nome do dia da semana é obrigatório.")
             dia_da_semana = db.get_or_404(Dias_da_Semana, id_semana)
-            try:
-                dados_anteriores = copy.copy(dia_da_semana)
+
+            dados_anteriores = copy.copy(dia_da_semana)
+
+            def update():
                 dia_da_semana.nome_semana = nome_semana
 
-                db.session.flush()
-                registrar_log_generico_usuario(g.userid, 'Edição', dia_da_semana, dados_anteriores)
-
-                db.session.commit()
-                flash("Dia da semana editado com sucesso", "success")
-            except DB_ERRORS as e:
-                handle_db_error(e, "Falha ao editar semana")
+            db_action(
+                "Edição",
+                "Dia da semana editado com sucesso",
+                "Falha ao editar semana",
+                obj=dia_da_semana,
+                old_obj=dados_anteriores,
+                action=update
+            )
 
             g.redirect_action, g.bloco = register_return(g.url, g.acao, g.extras, dias_da_semana=get_dias_da_semana())
         elif g.acao == 'excluir' and g.bloco == 2:
             id_semana = none_if_empty(request.form.get('id_semana'), int)
             dia_da_semana = db.get_or_404(Dias_da_Semana, id_semana)
-            try:
+
+            def delete():
                 db.session.delete(dia_da_semana)
 
-                db.session.flush()
-                registrar_log_generico_usuario(g.userid, 'Exclusão', dia_da_semana)
-
-                db.session.commit()
-                flash("Dia da semana excluido com sucesso", "success")
-            except DB_ERRORS as e:
-                handle_db_error(e, "falha ao excluir semana")
+            db_action(
+                "Exclusão",
+                "Dia da semana excluido com sucesso",
+                "falha ao excluir semana",
+                obj=dia_da_semana,
+                action=delete
+            )
 
             g.redirect_action, g.bloco = register_return(g.url, g.acao, g.extras, dias_da_semana=get_dias_da_semana())
     if g.redirect_action:

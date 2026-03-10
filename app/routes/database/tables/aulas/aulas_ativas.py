@@ -4,18 +4,16 @@ from flask import Blueprint, flash, g, render_template, request
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import and_, or_, select
 
-from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.general import get_value_or_abort, none_if_empty
 from app.auxiliar.navigation import register_return
 from app.auxiliar.parsing import parse_date_string
 from app.dao.internal.aulas import (get_aulas, get_aulas_ativas,
                                     get_dias_da_semana)
-from app.dao.internal.general import handle_db_error
-from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.decorators.decorators import admin_required, crud_route
 from app.enums import TipoAulaEnum
 from app.extensions import db
 from app.models.aulas import Aulas_Ativas
+from app.routes_helper.db_actions import db_action
 from app.routes_helper.request import get_query_params
 from app.service.aulas_service import check_aula_ativa
 from config.general import PER_PAGE
@@ -115,23 +113,23 @@ def gerenciar_aulas_ativas():
             fim_ativacao = parse_date_string(request.form.get('fim_ativacao'))
             id_semana = none_if_empty(request.form.get('id_semana'), int)
             tipo_aula = none_if_empty(request.form.get('tipo_aula'))
-            try:
-                check_aula_ativa(inicio_ativacao, fim_ativacao, id_aula, id_semana, tipo_aula)
-                nova_aula_ativa = Aulas_Ativas(
+
+            nova_aula_ativa = Aulas_Ativas(
                     id_aula = id_aula, inicio_ativacao = inicio_ativacao, fim_ativacao = fim_ativacao,
                     id_semana = id_semana, tipo_aula = TipoAulaEnum(tipo_aula))
+
+            def action():
+                check_aula_ativa(inicio_ativacao, fim_ativacao, id_aula, id_semana, tipo_aula)
                 db.session.add(nova_aula_ativa)
 
-                db.session.flush()
-                registrar_log_generico_usuario(g.userid, 'Inserção', nova_aula_ativa)
+            db_action(
+                "Inserção",
+                "Aula ativa cadastrada com sucesso",
+                "Erro ao cadastrar aula ativa",
+                obj=nova_aula_ativa,
+                action=action
+            )
 
-                db.session.commit()
-                flash("Aula ativa cadastrada com sucesso", "success")
-            except DB_ERRORS as e:
-                handle_db_error(e, "Erro ao cadastrar aula ativa")
-            except ValueError as e:
-                handle_db_error(e, "Erro ao cadastrar aula ativa")
-            
             g.redirect_action, g.bloco = register_return(g.url, g.acao, g.extras,
                 aulas=get_aulas(), dias_da_semana=get_dias_da_semana())
 
@@ -151,40 +149,47 @@ def gerenciar_aulas_ativas():
             id_semana = get_value_or_abort(request.form.get('id_semana'), 400, "id_semana é obrigatorio", int)
             tipo_aula = none_if_empty(request.form.get('tipo_aula'))
             aula_ativa = db.get_or_404(Aulas_Ativas, id_aula_ativa)
-            try:
-                check_aula_ativa(inicio_ativacao, fim_ativacao, id_aula, id_semana, tipo_aula, id_aula_ativa)
-                dados_anteriores = copy.copy(aula_ativa)
+
+            dados_anteriores = copy.copy(aula_ativa)
+
+            def action():
+                check_aula_ativa(
+                    inicio_ativacao,
+                    fim_ativacao,
+                    id_aula,
+                    id_semana,
+                    tipo_aula,
+                    id_aula_ativa
+                )
+
                 aula_ativa.id_aula = id_aula
                 aula_ativa.inicio_ativacao = inicio_ativacao
                 aula_ativa.fim_ativacao = fim_ativacao
                 aula_ativa.id_semana = id_semana
                 aula_ativa.tipo_aula = TipoAulaEnum(tipo_aula)
 
-                db.session.flush()
-                registrar_log_generico_usuario(g.userid, 'Edição', aula_ativa, dados_anteriores)
-
-                db.session.commit()
-                flash("Aula ativa editada com sucesso", "success")
-            except DB_ERRORS as e:
-                handle_db_error(e, "Erro ao editar aula ativa")
-            except ValueError as e:
-                handle_db_error(e, "Erro ao editar aula ativa")
+            db_action(
+                "Edição",
+                "Aula ativa editada com sucesso",
+                "Erro ao editar aula ativa",
+                obj=aula_ativa,
+                old_obj=dados_anteriores,
+                action=action
+            )
 
             g.redirect_action, g.bloco = register_return(g.url, g.acao, g.extras,
                 aulas_ativas=get_aulas_ativas())
         elif g.acao == 'excluir' and g.bloco == 2:
             id_aula_ativa = none_if_empty(request.form.get('id_aula_ativa'), int)
             aula_ativa = db.get_or_404(Aulas_Ativas, id_aula_ativa)
-            try:
-                db.session.delete(aula_ativa)
 
-                db.session.flush()
-                registrar_log_generico_usuario(g.userid, 'Exclusão', aula_ativa)
-
-                db.session.commit()
-                flash("Aula ativa excluida com sucesso", "success")
-            except DB_ERRORS as e:
-                handle_db_error(e, "Erro ao excluir aula ativa")
+            db_action(
+                "Exclusão",
+                "Aula ativa excluida com sucesso",
+                "Erro ao excluir aula ativa",
+                obj=aula_ativa,
+                action=lambda: db.session.delete(aula_ativa)
+            )
 
             g.redirect_action, g.bloco = register_return(g.url, g.acao, g.extras,
                 aulas_ativas=get_aulas_ativas())

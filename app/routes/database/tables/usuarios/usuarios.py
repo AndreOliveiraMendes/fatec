@@ -4,15 +4,13 @@ from flask import Blueprint, abort, flash, g, render_template, request
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
-from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.general import get_value_or_abort, none_if_empty
 from app.auxiliar.navigation import register_return
-from app.dao.internal.general import handle_db_error
-from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.usuarios import get_pessoas, get_usuarios
 from app.decorators.decorators import admin_required, crud_route
 from app.extensions import db
 from app.models.usuarios import Usuarios
+from app.routes_helper.db_actions import db_action
 from app.routes_helper.request import get_query_params
 from app.routes_helper.ui import disable_action
 from config.general import PER_PAGE
@@ -76,26 +74,39 @@ def gerenciar_usuarios():
 
         elif g.acao == 'inserir' and g.bloco == 0:
             g.extras['pessoas'] = get_pessoas()
+
         elif g.acao == 'inserir' and g.bloco == 1:
             id_usuario = none_if_empty(request.form.get('id_usuario', None), int)
             id_pessoa = none_if_empty(request.form.get('id_pessoa', None), int)
             tipo_pessoa = none_if_empty(request.form.get('tipo_pessoa', None))
             situacao_pessoa = none_if_empty(request.form.get('situacao_pessoa', None))
             grupo_pessoa = none_if_empty(request.form.get('grupo_pessoa', None))
-            try:
-                novo_usuario = Usuarios(
-                    id_usuario=id_usuario, id_pessoa=id_pessoa, tipo_pessoa=tipo_pessoa,
-                    situacao_pessoa=situacao_pessoa, grupo_pessoa=grupo_pessoa)
-                db.session.add(novo_usuario)
-                db.session.flush()  # garante ID
-                registrar_log_generico_usuario(g.userid, "Inserção", novo_usuario)
-                db.session.commit()
-                flash("Usuario cadastrado com sucesso", "success")
-            except DB_ERRORS as e:
-                handle_db_error(e, "Erro ao cadastrar usuario")
 
-            g.redirect_action, g.bloco = register_return(g.url,
-                g.acao, g.extras, pessoas=get_pessoas())
+            novo_usuario = Usuarios(
+                id_usuario=id_usuario,
+                id_pessoa=id_pessoa,
+                tipo_pessoa=tipo_pessoa,
+                situacao_pessoa=situacao_pessoa,
+                grupo_pessoa=grupo_pessoa
+            )
+
+            def insert():
+                db.session.add(novo_usuario)
+
+            db_action(
+                "Inserção",
+                "Usuario cadastrado com sucesso",
+                "Erro ao cadastrar usuario",
+                obj=novo_usuario,
+                action=insert
+            )
+
+            g.redirect_action, g.bloco = register_return(
+                g.url,
+                g.acao,
+                g.extras,
+                pessoas=get_pessoas()
+            )
 
         elif g.acao in ['editar', 'excluir'] and g.bloco == 0:
             g.extras['usuarios'] = get_usuarios(g.acao, g.userid)
@@ -104,55 +115,84 @@ def gerenciar_usuarios():
             g.user = db.get_or_404(Usuarios, id_usuario)
             g.extras['usuario'] = g.user
             g.extras['pessoas'] = get_pessoas()
+
         elif g.acao == 'editar' and g.bloco == 2:
             id_usuario = none_if_empty(request.form.get('id_usuario', None), int)
-            id_pessoa = get_value_or_abort(request.form.get('id_pessoa', None), 400, "O campo 'id_pessoa' é obrigatório.", int)
-            tipo_pessoa = get_value_or_abort(request.form.get('tipo_pessoa', None), 400, "O campo 'tipo_pessoa' é obrigatório.")
-            situacao_pessoa = get_value_or_abort(request.form.get('situacao_pessoa', None), 400, "O campo 'situacao_pessoa' é obrigatório.")
+
+            id_pessoa = get_value_or_abort(
+                request.form.get('id_pessoa', None),
+                400,
+                "O campo 'id_pessoa' é obrigatório.",
+                int
+            )
+
+            tipo_pessoa = get_value_or_abort(
+                request.form.get('tipo_pessoa', None),
+                400,
+                "O campo 'tipo_pessoa' é obrigatório."
+            )
+
+            situacao_pessoa = get_value_or_abort(
+                request.form.get('situacao_pessoa', None),
+                400,
+                "O campo 'situacao_pessoa' é obrigatório."
+            )
+
             grupo_pessoa = none_if_empty(request.form.get('grupo_pessoa', None))
 
             usuario = db.get_or_404(Usuarios, id_usuario)
+            dados_anteriores = copy.copy(usuario)
 
-            try:
-                dados_anteriores = copy.copy(usuario)
-
+            def update():
                 usuario.id_pessoa = id_pessoa
                 usuario.tipo_pessoa = tipo_pessoa
                 usuario.situacao_pessoa = situacao_pessoa
                 usuario.grupo_pessoa = grupo_pessoa
 
-                db.session.flush()  # Garante que o ID esteja atribuído
+            db_action(
+                "Edição",
+                "Usuario atualizado com sucesso",
+                "Erro ao editar usuario",
+                obj=usuario,
+                old_obj=dados_anteriores,
+                action=update
+            )
 
-                registrar_log_generico_usuario(g.userid, "Edição", usuario, dados_anteriores)
+            g.redirect_action, g.bloco = register_return(
+                g.url,
+                g.acao,
+                g.extras,
+                usuarios=get_usuarios(g.acao, g.userid)
+            )
 
-                db.session.commit()
-                flash("Usuario atualizado com sucesso", "success")
-            except DB_ERRORS as e:
-                handle_db_error(e, "Erro ao editar usuario")
-
-            g.redirect_action, g.bloco = register_return(g.url,
-                g.acao, g.extras, usuarios=get_usuarios(g.acao, g.userid))
         elif g.acao == 'excluir' and g.bloco == 2:
             id_usuario = none_if_empty(request.form.get('id_usuario', None), int)
-            
-            g.user = db.get_or_404(Usuarios, id_usuario)
+
+            usuario = db.get_or_404(Usuarios, id_usuario)
 
             if g.userid == id_usuario:
                 flash("Voce não pode se excluir", "danger")
+
             else:
-                try:
-                    db.session.flush()  # garante ID
-                    registrar_log_generico_usuario(g.userid, "Exclusão", g.user)
 
-                    db.session.delete(g.user)
-                    db.session.commit()
-                    flash("Usuario excluído com sucesso", "success")
+                def delete():
+                    db.session.delete(usuario)
 
-                except DB_ERRORS as e:
-                    handle_db_error(e, "Erro ao excluir usuario")
+                db_action(
+                    "Exclusão",
+                    "Usuario excluído com sucesso",
+                    "Erro ao excluir usuario",
+                    obj=usuario,
+                    action=delete
+                )
 
-            g.redirect_action, g.bloco = register_return(g.url,
-                g.acao, g.extras, usuarios=get_usuarios(g.acao, g.userid))
+            g.redirect_action, g.bloco = register_return(
+                g.url,
+                g.acao,
+                g.extras,
+                usuarios=get_usuarios(g.acao, g.userid)
+            )
+
     if g.redirect_action:
         return g.redirect_action
     return render_template("database/table/usuarios.html",

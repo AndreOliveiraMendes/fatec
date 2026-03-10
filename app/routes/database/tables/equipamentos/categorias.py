@@ -4,15 +4,13 @@ from flask import Blueprint, flash, g, render_template, request
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
-from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.general import get_value_or_abort, none_if_empty
 from app.auxiliar.navigation import register_return
 from app.dao.internal.equipamentos import get_categorias
-from app.dao.internal.general import handle_db_error
-from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.decorators.decorators import admin_required, crud_route
 from app.extensions import db
 from app.models.equipamentos import Categorias_de_Equipamentos
+from app.routes_helper.db_actions import db_action
 from app.routes_helper.request import get_query_params
 from config.general import PER_PAGE
 
@@ -33,7 +31,7 @@ def gerenciar_categorias_de_equipamentos():
             g.extras['pagination'] = categorias_paginas
 
         elif g.acao == "procurar" and g.bloco == 1:
-            id_categoria = none_if_empty(request.form.get('id_categoria'))
+            id_categoria = none_if_empty(request.form.get('id_categoria'), int)
             nome_categoria = none_if_empty(request.form.get('nome_categoria'))
             descricao = none_if_empty(request.form.get('descricao'))
             filters = []
@@ -65,18 +63,22 @@ def gerenciar_categorias_de_equipamentos():
             nome_categoria = none_if_empty(request.form.get('nome_categoria'))
             descricao = none_if_empty(request.form.get('descricao'))
 
-            try:
-                nova_categoria = Categorias_de_Equipamentos(
-                    nome_categoria = nome_categoria,
-                    descricao = descricao
-                )
+            nova_categoria = Categorias_de_Equipamentos(
+                nome_categoria=nome_categoria,
+                descricao=descricao
+            )
+
+            def insert():
                 db.session.add(nova_categoria)
-                db.session.flush()
-                registrar_log_generico_usuario(g.userid, 'Inserção', nova_categoria)
-                db.session.commit()
-                flash("categoria cadastrada com sucesso", "success")
-            except DB_ERRORS as e:
-                handle_db_error(e, "erro ao cadastrar categoria")
+
+            db_action(
+                "Inserção",
+                "categoria cadastrada com sucesso",
+                "erro ao cadastrar categoria",
+                obj=nova_categoria,
+                action=insert
+            )
+
             g.redirect_action, g.bloco = register_return(
                 g.url, g.acao, g.extras
             )
@@ -87,45 +89,52 @@ def gerenciar_categorias_de_equipamentos():
             id_categoria = none_if_empty(request.form.get('id_categoria'))
             categoria = db.get_or_404(Categorias_de_Equipamentos, id_categoria)
             g.extras['categoria'] = categoria
+
         elif g.acao == 'editar' and g.bloco == 2:
-            id_categoria = none_if_empty(request.form.get('id_categoria'))
+            id_categoria = none_if_empty(request.form.get('id_categoria'), int)
             nome_categoria = get_value_or_abort(request.form.get('nome_categoria'), 400, "nome é obrigatorio")
             descricao = none_if_empty(request.form.get('descricao'))
 
             categoria = db.get_or_404(Categorias_de_Equipamentos, id_categoria)
-            try:
-                dados_anteriores = copy.copy(categoria)
+            dados_anteriores = copy.copy(categoria)
 
+            def update():
                 categoria.nome_categoria = nome_categoria
                 categoria.descricao = descricao
 
-                db.session.flush()
-                registrar_log_generico_usuario(g.userid, 'Edição', categoria, dados_anteriores)
-
-                db.session.commit()
-                flash("Categoria editada com sucesso", "success")
-            except DB_ERRORS as e:
-                handle_db_error(e, "Erro ao editar categoria")
-            g.redirect_action, g.bloco = register_return(
-                g.url, g.acao, g.extras, categorias=get_categorias()
+            db_action(
+                "Edição",
+                "Categoria editada com sucesso",
+                "Erro ao editar categoria",
+                obj=categoria,
+                old_obj=dados_anteriores,
+                action=update
             )
-        
+
+            g.redirect_action, g.bloco = register_return(
+                g.url, g.acao, g.extras,
+                categorias=get_categorias()
+            )
+
         elif g.acao == 'excluir' and g.bloco == 2:
-            id_categoria = none_if_empty(request.form.get('id_categoria'))
+            id_categoria = none_if_empty(request.form.get('id_categoria'), int)
 
             categoria = db.get_or_404(Categorias_de_Equipamentos, id_categoria)
-            try:
+
+            def delete():
                 db.session.delete(categoria)
 
-                db.session.flush()
-                registrar_log_generico_usuario(g.userid, 'Exclusão', categoria)
+            db_action(
+                "Exclusão",
+                "Categoria excluida com sucesso",
+                "Erro ao excluir categoria",
+                obj=categoria,
+                action=delete
+            )
 
-                db.session.commit()
-                flash("Categoria excluida com sucesso", "success")
-            except DB_ERRORS as e:
-                handle_db_error(e, "Erro ao excluir categoria")
             g.redirect_action, g.bloco = register_return(
-                g.url, g.acao, g.extras, categorias=get_categorias()
+                g.url, g.acao, g.extras,
+                categorias=get_categorias()
             )
 
     if g.redirect_action:

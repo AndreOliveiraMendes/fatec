@@ -4,13 +4,10 @@ from flask import Blueprint, flash, g, render_template, request
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
-from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.dao_query import filtro_tipo_responsavel
 from app.auxiliar.general import get_value_or_abort, none_if_empty
 from app.auxiliar.navigation import register_return
 from app.dao.internal.aulas import get_aulas_ativas, get_semestres
-from app.dao.internal.general import handle_db_error
-from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.locais import get_locais
 from app.dao.internal.reservas import get_reservas_fixas
 from app.dao.internal.usuarios import get_pessoas, get_usuarios_especiais
@@ -18,6 +15,7 @@ from app.decorators.decorators import admin_required, crud_route
 from app.enums import FinalidadeReservaEnum
 from app.extensions import db
 from app.models.reservas.reservas_laboratorios import Reservas_Fixas
+from app.routes_helper.db_actions import db_action
 from app.routes_helper.request import get_query_params
 from config.general import PER_PAGE
 
@@ -99,6 +97,7 @@ def gerenciar_reservas_fixas():
             g.extras['locais'] = get_locais()
             g.extras['aulas_ativas'] = get_aulas_ativas()
             g.extras['semestres'] = get_semestres()
+
         elif g.acao == 'inserir' and g.bloco == 1:
             id_responsavel = none_if_empty(request.form.get('id_responsavel'), int)
             id_responsavel_especial = none_if_empty(request.form.get('id_responsavel_especial'), int)
@@ -109,29 +108,34 @@ def gerenciar_reservas_fixas():
             observacoes = none_if_empty(request.form.get('observacoes'))
             descricao = none_if_empty(request.form.get('descricao'))
 
-            try:
-                nova_reserva_fixa = Reservas_Fixas(
-                    id_responsavel=id_responsavel, id_responsavel_especial=id_responsavel_especial,
-                    id_reserva_local=id_reserva_local, id_reserva_aula=id_reserva_aula, id_reserva_semestre=id_reserva_semestre,
-                    finalidade_reserva=FinalidadeReservaEnum(finalidade_reserva),
-                    observacoes=observacoes,
-                    descricao=descricao
-                )
+            nova_reserva_fixa = Reservas_Fixas(
+                id_responsavel=id_responsavel,
+                id_responsavel_especial=id_responsavel_especial,
+                id_reserva_local=id_reserva_local,
+                id_reserva_aula=id_reserva_aula,
+                id_reserva_semestre=id_reserva_semestre,
+                finalidade_reserva=FinalidadeReservaEnum(finalidade_reserva),
+                observacoes=observacoes,
+                descricao=descricao
+            )
+
+            def insert():
                 db.session.add(nova_reserva_fixa)
 
-                db.session.flush()
-                registrar_log_generico_usuario(g.userid, 'Inserção', nova_reserva_fixa)
+            db_action(
+                "Inserção",
+                "Reserva semanal cadastrada com sucesso",
+                "Erro ao cadastrar reserva",
+                obj=nova_reserva_fixa,
+                action=insert
+            )
 
-                db.session.commit()
-                flash("Reserva Semanal cadastrada com sucesso", "success")
-            except DB_ERRORS as e:
-                handle_db_error(e, "Erro ao cadastrar reserva")
-            except ValueError as e:
-                handle_db_error(e, "Erro ao cadastrar reserva")
-
-            g.redirect_action, g.bloco = register_return(g.url,
-                g.acao, g.extras, pessoas=get_pessoas(), usuarios_especiais=get_usuarios_especiais(),
-                locais=get_locais(), aulas_ativas=get_aulas_ativas(),
+            g.redirect_action, g.bloco = register_return(
+                g.url, g.acao, g.extras,
+                pessoas=get_pessoas(),
+                usuarios_especiais=get_usuarios_especiais(),
+                locais=get_locais(),
+                aulas_ativas=get_aulas_ativas(),
                 semestres=get_semestres()
             )
 
@@ -146,20 +150,22 @@ def gerenciar_reservas_fixas():
             g.extras['locais'] = get_locais()
             g.extras['aulas_ativas'] = get_aulas_ativas()
             g.extras['semestres'] = get_semestres()
+
         elif g.acao == 'editar' and g.bloco == 2:
             id_reserva_fixa = none_if_empty(request.form.get('id_reserva_fixa'), int)
             id_responsavel = none_if_empty(request.form.get('id_responsavel'), int)
             id_responsavel_especial = none_if_empty(request.form.get('id_responsavel_especial'), int)
-            id_reserva_local = get_value_or_abort(request.form.get('id_reserva_local'), 400, "id do local é obritagorio", int)
+            id_reserva_local = get_value_or_abort(request.form.get('id_reserva_local'), 400, "id do local é obrigatorio", int)
             id_reserva_aula = get_value_or_abort(request.form.get('id_reserva_aula'), 400, "id da aula é obrigatorio", int)
             id_reserva_semestre = get_value_or_abort(request.form.get('id_reserva_semestre'), 400, "id do semestre é obrigatorio", int)
             finalidade_reserva = none_if_empty(request.form.get('finalidade_reserva'))
             observacoes = none_if_empty(request.form.get('observacoes'))
             descricao = none_if_empty(request.form.get('descricao'))
+
             reserva_fixa = db.get_or_404(Reservas_Fixas, id_reserva_fixa)
-            
-            try:
-                dados_anteriores = copy.copy(reserva_fixa)
+            dados_anteriores = copy.copy(reserva_fixa)
+
+            def update():
                 reserva_fixa.id_responsavel = id_responsavel
                 reserva_fixa.id_responsavel_especial = id_responsavel_especial
                 reserva_fixa.id_reserva_local = id_reserva_local
@@ -169,37 +175,41 @@ def gerenciar_reservas_fixas():
                 reserva_fixa.observacoes = observacoes
                 reserva_fixa.descricao = descricao
 
-                db.session.flush()
-                registrar_log_generico_usuario(g.userid, 'Edição', reserva_fixa, dados_anteriores)
-
-                db.session.commit()
-                flash("Reserva editada com sucesso", "success")
-            except DB_ERRORS as e:
-                handle_db_error(e, "Erro ao editar reserva")
-            except ValueError as e:
-                handle_db_error(e, "Erro ao editar reserva")
-
-            g.redirect_action, g.bloco = register_return(g.url,
-                g.acao, g.extras, reservas_fixas=get_reservas_fixas()
+            db_action(
+                "Edição",
+                "Reserva editada com sucesso",
+                "Erro ao editar reserva",
+                obj=reserva_fixa,
+                old_obj=dados_anteriores,
+                action=update
             )
+
+            g.redirect_action, g.bloco = register_return(
+                g.url, g.acao, g.extras,
+                reservas_fixas=get_reservas_fixas()
+            )
+
         elif g.acao == 'excluir' and g.bloco == 2:
             id_reserva_fixa = none_if_empty(request.form.get('id_reserva_fixa'), int)
 
             reserva_fixa = db.get_or_404(Reservas_Fixas, id_reserva_fixa)
-            try:
+
+            def delete():
                 db.session.delete(reserva_fixa)
 
-                db.session.flush()
-                registrar_log_generico_usuario(g.userid, 'Exclusão', reserva_fixa)
-
-                db.session.commit()
-                flash("Reserva excluidas com sucesso", "success")
-            except DB_ERRORS as e:
-                handle_db_error(e, "Erro ao excluir reserva")
-
-            g.redirect_action, g.bloco = register_return(g.url,
-                g.acao, g.extras, reservas_fixas=get_reservas_fixas()
+            db_action(
+                "Exclusão",
+                "Reserva excluida com sucesso",
+                "Erro ao excluir reserva",
+                obj=reserva_fixa,
+                action=delete
             )
+
+            g.redirect_action, g.bloco = register_return(
+                g.url, g.acao, g.extras,
+                reservas_fixas=get_reservas_fixas()
+            )
+
     if g.redirect_action:
         return g.redirect_action
     return render_template("database/table/reservas_fixas.html",

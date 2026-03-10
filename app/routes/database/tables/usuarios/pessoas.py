@@ -4,15 +4,13 @@ from flask import Blueprint, abort, flash, g, render_template, request
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
-from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.general import get_value_or_abort, none_if_empty
 from app.auxiliar.navigation import register_return
-from app.dao.internal.general import handle_db_error
-from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.usuarios import get_pessoas
 from app.decorators.decorators import admin_required, crud_route
 from app.extensions import db
 from app.models.usuarios import Pessoas
+from app.routes_helper.db_actions import db_action
 from app.routes_helper.request import get_query_params
 from app.routes_helper.ui import disable_action
 from config.general import PER_PAGE
@@ -82,23 +80,34 @@ def gerenciar_pessoas():
             nome = none_if_empty(request.form.get('nome', None))
             alias = none_if_empty(request.form.get('alias', None))
             email = none_if_empty(request.form.get('email', None))
-            try:
-                nova_pessoa = Pessoas(nome_pessoa=nome, alias=alias, email_pessoa=email)
-                db.session.add(nova_pessoa)
-                db.session.flush()  # garante ID
-                registrar_log_generico_usuario(g.userid, "Inserção", nova_pessoa)
-                db.session.commit()
-                flash("Pessoa cadastrada com sucesso", "success")
-            except DB_ERRORS as e:
-                handle_db_error(e, "Erro ao cadastrar pessoa")
 
-            g.redirect_action, g.bloco = register_return(g.url, g.acao, g.extras)
+            nova_pessoa = Pessoas(
+                nome_pessoa=nome,
+                alias=alias,
+                email_pessoa=email
+            )
+
+            def insert():
+                db.session.add(nova_pessoa)
+
+            db_action(
+                "Inserção",
+                "Pessoa cadastrada com sucesso",
+                "Erro ao cadastrar pessoa",
+                obj=nova_pessoa,
+                action=insert
+            )
+
+            g.redirect_action, g.bloco = register_return(
+                g.url, g.acao, g.extras
+            )
 
         elif g.acao in ['editar', 'excluir'] and g.bloco == 0:
             g.extras['pessoas'] = get_pessoas(g.acao, g.userid)
         elif g.acao in ['editar', 'excluir'] and g.bloco == 1:
             id_pessoa = request.form.get('id_pessoa', None)
             g.extras['pessoa'] = db.get_or_404(Pessoas, id_pessoa)
+
         elif g.acao == 'editar' and g.bloco == 2:
             id_pessoa = none_if_empty(request.form.get('id_pessoa'), int)
             nome = get_value_or_abort(request.form.get('nome', None), 400, "nome da pessoa é obrigatorio")
@@ -106,29 +115,29 @@ def gerenciar_pessoas():
             email = none_if_empty(request.form.get('email', None))
 
             pessoa = db.get_or_404(Pessoas, id_pessoa)
+            dados_anteriores = copy.copy(pessoa)
 
-            try:
-                # Cria uma cópia dos dados antigos antes de editar
-                dados_anteriores = copy.copy(pessoa)
-
-                # Realiza as alterações
+            def update():
                 pessoa.nome_pessoa = nome
                 pessoa.alias = alias
                 pessoa.email_pessoa = email
 
-                db.session.flush()  # Garante que o ID esteja atribuído
+            db_action(
+                "Edição",
+                "Pessoa atualizada com sucesso",
+                "Erro ao editar pessoa",
+                obj=pessoa,
+                old_obj=dados_anteriores,
+                action=update
+            )
 
-                # Loga com os dados antigos + novos
-                registrar_log_generico_usuario(g.userid, "Edição", pessoa, dados_anteriores)
+            g.redirect_action, g.bloco = register_return(
+                g.url,
+                g.acao,
+                g.extras,
+                pessoas=get_pessoas(g.acao, g.userid)
+            )
 
-                db.session.commit()
-                flash("Pessoa atualizada com sucesso", "success")
-
-            except DB_ERRORS as e:
-                handle_db_error(e, "Erro ao editar pessoa")
-
-            g.redirect_action, g.bloco = register_return(g.url,
-                g.acao, g.extras, pessoas=get_pessoas(g.acao, g.userid))
         elif g.acao == 'excluir' and g.bloco == 2:
             id_pessoa = none_if_empty(request.form.get('id_pessoa'), int)
 
@@ -136,21 +145,27 @@ def gerenciar_pessoas():
 
             if g.user and g.user.id_pessoa == id_pessoa:
                 flash("Voce não pode se excluir", "danger")
+
             else:
-                try:
+
+                def delete():
                     db.session.delete(pessoa)
-                    
-                    db.session.flush()  # garante ID
-                    registrar_log_generico_usuario(g.userid, "Exclusão", pessoa)
 
-                    db.session.commit()
-                    flash("Pessoa excluída com sucesso", "success")
+                db_action(
+                    "Exclusão",
+                    "Pessoa excluída com sucesso",
+                    "Erro ao excluir pessoa",
+                    obj=pessoa,
+                    action=delete
+                )
 
-                except DB_ERRORS as e:
-                    handle_db_error(e, "Erro ao excluir pessoa")
+            g.redirect_action, g.bloco = register_return(
+                g.url,
+                g.acao,
+                g.extras,
+                pessoas=get_pessoas(g.acao, g.userid)
+            )
 
-            g.redirect_action, g.bloco = register_return(g.url,
-                g.acao, g.extras, pessoas=get_pessoas(g.acao, g.userid))
     if g.redirect_action:
         return g.redirect_action
     return render_template("database/table/pessoas.html",

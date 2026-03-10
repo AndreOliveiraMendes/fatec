@@ -16,6 +16,7 @@ from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.decorators.decorators import admin_required, crud_route
 from app.extensions import db
 from app.models.controle import EquipamentoDisponibilidade
+from app.routes_helper.db_actions import db_action
 from app.routes_helper.request import get_query_params
 from config.general import PER_PAGE
 
@@ -79,28 +80,32 @@ def gerenciar_equipamentos_disponibilidade():
 
         elif g.acao == "inserir" and g.bloco == 0:
             g.extras["equipamentos"] = get_equipamentos()
+
         elif g.acao == "inserir" and g.bloco == 1:
             id_equipamento = none_if_empty(request.form.get('id_equipamento'), int)
             data = parse_date_string(request.form.get('data'))
             quantidade_total = none_if_empty(request.form.get('quantidade_total'), int)
 
-            try:
-                novo_registro_disponibilidade = EquipamentoDisponibilidade(
-                    id_equipamento = id_equipamento,
-                    data = data,
-                    quantidade_total = quantidade_total
-                )
+            novo_registro_disponibilidade = EquipamentoDisponibilidade(
+                id_equipamento=id_equipamento,
+                data=data,
+                quantidade_total=quantidade_total
+            )
+
+            def insert():
                 db.session.add(novo_registro_disponibilidade)
 
-                db.session.flush()
-                registrar_log_generico_usuario(g.userid, 'Inserção', novo_registro_disponibilidade)
+            db_action(
+                "Inserção",
+                "Disponibilidade criada com sucesso",
+                "Erro ao criar disponibilidade",
+                obj=novo_registro_disponibilidade,
+                action=insert
+            )
 
-                db.session.commit()
-                flash("Disponibilidade criada com sucesso", "success")
-            except DB_ERRORS as e:
-                handle_db_error(e, "Erro ao criar disponibilidade")
             g.redirect_action, g.bloco = register_return(
-                g.url, g.acao, g.extras, equipamentos=get_equipamentos()
+                g.url, g.acao, g.extras,
+                equipamentos=get_equipamentos()
             )
 
         elif g.acao in ["editar", "excluir"] and g.bloco == 0:
@@ -118,40 +123,48 @@ def gerenciar_equipamentos_disponibilidade():
             quantidade_total = none_if_empty(request.form.get('quantidade_total'), int)
 
             disponibilidade = db.get_or_404(EquipamentoDisponibilidade, id_disponibilidade)
-            try:
-                dados_anteriores = copy.copy(disponibilidade)
+            dados_anteriores = copy.copy(disponibilidade)
+
+            def update():
                 disponibilidade.id_equipamento = equipamento
                 disponibilidade.data = data
                 disponibilidade.quantidade_total = quantidade_total
 
-                db.session.flush()
-                registrar_log_generico_usuario(g.userid, 'Edição', disponibilidade, dados_anteriores)
+            db_action(
+                "Edição",
+                "Disponibilidade editada com sucesso",
+                "Erro ao editar disponilidade",
+                obj=disponibilidade,
+                old_obj=dados_anteriores,
+                action=update
+            )
 
-                db.session.commit()
-                flash("Disponibilidade editada com sucesso", "success")
-            except DB_ERRORS as e:
-                handle_db_error(e, "Erro ao editar disponilidade")
             g.redirect_action, g.bloco = register_return(
-                g.url, g.acao, g.extras, disponibilidades = get_equipamento_disponibilidades()
+                g.url, g.acao, g.extras,
+                disponibilidades=get_equipamento_disponibilidades()
             )
 
         elif g.acao == "excluir" and g.bloco == 2:
             id_disponibilidade = none_if_empty(request.form.get('id_disponibilidade'), int)
 
             disponibilidade = db.get_or_404(EquipamentoDisponibilidade, id_disponibilidade)
-            try:
+
+            def delete():
                 db.session.delete(disponibilidade)
 
-                db.session.flush()
-                registrar_log_generico_usuario(g.userid, 'Exclusão', disponibilidade)
-
-                db.session.commit()
-                flash("Disponibilidade excluida com sucesso", "success")
-            except DB_ERRORS as e:
-                handle_db_error(e, "Erro ao excluir disponibilidade")
-            g.redirect_action, g.bloco = register_return(
-                g.url, g.acao, g.extras, disponibilidades = get_equipamento_disponibilidades()
+            db_action(
+                "Exclusão",
+                "Disponibilidade excluida com sucesso",
+                "Erro ao excluir disponibilidade",
+                obj=disponibilidade,
+                action=delete
             )
+
+            g.redirect_action, g.bloco = register_return(
+                g.url, g.acao, g.extras,
+                disponibilidades=get_equipamento_disponibilidades()
+            )
+
     if g.redirect_action:
         return g.redirect_action
     return render_template("database/table/equipamentos_disponibilidade.html", user=g.user, acao=g.acao, bloco=g.bloco, **g.extras)
