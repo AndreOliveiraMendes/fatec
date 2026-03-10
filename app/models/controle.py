@@ -5,7 +5,7 @@ from sqlalchemy import Date, Enum, ForeignKey, Text, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.auxiliar.model import parse_date
-from app.enums import SituacaoChaveEnum, TipoMovimentacao, TipoReservaEnum
+from app.enums import SituacaoChaveEnum, TipoMovimentacaoEnum, TipoReservaEnum
 from app.extensions import Base
 
 if TYPE_CHECKING:
@@ -105,8 +105,8 @@ class MovimentacaoEquipamento(Base):
         ForeignKey("equipamentos.id_equipamento"),
         nullable=False
     )
-    tipo: Mapped[TipoMovimentacao] = mapped_column(
-        Enum(TipoMovimentacao),
+    tipo: Mapped[TipoMovimentacaoEnum] = mapped_column(
+        Enum(TipoMovimentacaoEnum),
         nullable=False
     )
     quantidade: Mapped[int] = mapped_column(nullable=False)
