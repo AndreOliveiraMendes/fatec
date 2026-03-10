@@ -39,9 +39,9 @@ def parse_time_string_or_abort(value: str | None, error_code, error_message, for
 def parse_date_string_or_abort(value: str | None, error_code, error_message, format: str | None = None) -> date:
     return _parse_generic_or_abort(
         value,
+        format or "%Y-%m-%d",
         error_code,
         error_message,
-        format or "%Y-%m-%d",
         extractor=lambda dt: dt.date()
     )
 
@@ -49,7 +49,7 @@ def parse_date_string_or_abort(value: str | None, error_code, error_message, for
 def parse_datetime_string_or_abort(value: str | None, error_code, error_message, format: str | None = None) -> datetime:
     return _parse_generic_or_abort(
         value,
+        format or "%Y-%m-%dT%H:%M",
         error_code,
-        error_message,
-        format or "%Y-%m-%dT%H:%M"
+        error_message
     )
