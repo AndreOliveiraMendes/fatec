@@ -27,9 +27,9 @@
         <td>{{ ra.aula_ativa.selector_identification }}</td>
         <td>{{ ra.dia_reserva|data }}</td>
         <td>{{ ra.status_reserva.value }}</td>
-        <td>{{ ra.autorizador.nome_pessoa if ra.autorizador else '-' }}</td>
-        <td>{{ ra.observação_responsavel if ra.observação_responsavel else '-' }}</td>
-        <td>{{ ra.observação_autorizador if ra.observação_autorizador else '-' }}</td>
+        <td>{{ ra.autorizador.nome_pessoa|format }}</td>
+        <td>{{ ra.observação_responsavel|format }}</td>
+        <td>{{ ra.observação_autorizador|format }}</td>
     {% endcall %}
 {% endmacro %}
 {% block title %}
@@ -314,8 +314,7 @@
                           class="form-control"
                           placeholder="Insira observações relevantes"
                           rows="6"
-                          cols="60"
-                          value="{{ reserva_auditorio.observação_responsavel }}"></textarea>
+                          cols="60">{{ reserva_auditorio.observação_responsavel|format }}</textarea>
             </div>
             <div class="form-group">
                 <label for="observação_autorizador">Observações do autorizador:</label>
@@ -324,8 +323,7 @@
                           class="form-control"
                           placeholder="Insira observações relevantes"
                           rows="6"
-                          cols="60"
-                          value="{{ reserva_auditorio.observação_autorizador }}"></textarea>
+                          cols="60">{{ reserva_auditorio.observação_autorizador|format }}</textarea>
             </div>
             {{ action_buttons(acao, 2, True, 0) }}
         </form>
@@ -395,8 +393,7 @@
                           placeholder="Insira observações relevantes"
                           rows="6"
                           cols="60"
-                          value="{{ reserva_auditorio.observação_responsavel }}"
-                          disabled></textarea>
+                          disabled>{{ reserva_auditorio.observação_responsavel }}</textarea>
             </div>
             <div class="form-group">
                 <label for="observação_autorizador">Observações do autorizador:</label>
@@ -406,8 +403,7 @@
                           placeholder="Insira observações relevantes"
                           rows="6"
                           cols="60"
-                          value="{{ reserva_auditorio.observação_autorizador }}"
-                          disabled></textarea>
+                          disabled>{{ reserva_auditorio.observação_autorizador }}</textarea>
             </div>
             {{ action_buttons(acao, 2, True, 0, False) }}
         </form>
