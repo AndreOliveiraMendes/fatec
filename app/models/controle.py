@@ -175,7 +175,7 @@ class EquipamentoDisponibilidade(Base):
             f"id_disponibilidade={self.id_disponibilidade}, "
             f"id_equipamento={self.id_equipamento}, "
             f"data={self.data}, "
-            f"quantidade_disponivel={self.quantidade_disponivel}, "
+            f"quantidade_total={self.quantidade_total}, "
             f"gerado_em={self.gerado_em}, "
             f"atualizado_em={self.atualizado_em}"
             f")>"
