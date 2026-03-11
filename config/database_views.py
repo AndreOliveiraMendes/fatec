@@ -41,7 +41,7 @@ SECOES: dict[str, SecaoGrupo] = {
             Secao('Reservas Fixas', 'database_reservas_fixas.gerenciar_reservas_fixas', 'warning', 'crud'),
             Secao('Reservas Temporarias', 'database_reservas_temporarias.gerenciar_reservas_temporarias', 'warning', 'crud'),
             Secao('Reserva Auditorio', 'database_reservas_auditorios.gerenciar_reservas_auditorios', 'warning', 'crud'),
-            Secao('Reserva Equipamento', 'default.under_dev_page', 'warning', 'crud')
+            Secao('Reserva Equipamento', 'database_reservas_equipamentos.gerenciar_reservas_equipamentos', 'warning', 'crud')
         ]
     },
     'Operacional / Configuração':{
@@ -49,8 +49,8 @@ SECOES: dict[str, SecaoGrupo] = {
         'secoes': [
             Secao('Situacoes das reservas', 'database_situacoes_das_reservas.gerenciar_situacoes_das_reservas', 'warning', 'crud'),
             Secao('Exibicao das reservas', 'database_exibicao_reservas.gerenciar_exibicao_reservas', 'warning', 'crud'),
-            Secao('Item da reserva de equipamento', 'default.under_dev_page', 'warning', 'crud'),
-            Secao('Movimentação equipamento', 'default.under_dev_page', 'warning', 'crud'),
+            Secao('Item da reserva de equipamento', 'database_reservas_equipamentos_items.gerenciar_reservas_equipamentos_items', 'warning', 'crud'),
+            Secao('Movimentação equipamento', 'database_movimentacoes_equipamento.gerenciar_movimentacoes_equipamento', 'warning', 'crud'),
             Secao('Quantidade Equipamento', 'database_equipamentos_disponibilidade.gerenciar_equipamentos_disponibilidade', 'warning', 'crud')
         ]
     },
