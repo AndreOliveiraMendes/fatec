@@ -42,6 +42,40 @@ def get_aula_intervalo(inicio:date, fim:date):
             Aulas_Ativas.fim_ativacao >= inicio
         )
     )
+
+def filtro_intervalo(inicio_procura, fim_procura):
+    if inicio_procura and fim_procura:
+        return or_(
+            and_(
+                Aulas_Ativas.inicio_ativacao.is_not(None),
+                Aulas_Ativas.fim_ativacao.is_not(None),
+                Aulas_Ativas.fim_ativacao >= inicio_procura,
+                Aulas_Ativas.inicio_ativacao <= fim_procura
+            ), and_(
+                Aulas_Ativas.inicio_ativacao.is_(None),
+                Aulas_Ativas.fim_ativacao.is_not(None),
+                Aulas_Ativas.fim_ativacao >= inicio_procura
+            ), and_(
+                Aulas_Ativas.inicio_ativacao.is_not(None),
+                Aulas_Ativas.fim_ativacao.is_(None),
+                Aulas_Ativas.inicio_ativacao <= fim_procura
+            ), and_(
+                Aulas_Ativas.inicio_ativacao.is_(None),
+                Aulas_Ativas.fim_ativacao.is_(None)
+            )
+        )
+    elif inicio_procura:
+        return or_(
+            Aulas_Ativas.fim_ativacao >= inicio_procura,
+            Aulas_Ativas.fim_ativacao.is_(None)
+        )
+    elif fim_procura:
+        return or_(
+            Aulas_Ativas.inicio_ativacao <= fim_procura,
+            Aulas_Ativas.inicio_ativacao.is_(None)
+        )
+    else:
+        raise ValueError("Especifique ao menos um valor")
     
 def sort_periodos(descending=False):
     null_case = case(
