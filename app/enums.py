@@ -5,6 +5,7 @@ from enum import IntEnum, StrEnum
 # ==============================
 
 class ActionEnum(StrEnum):
+    ABERTURA = "abertura"
     LISTAR = "listar"
     PROCURAR = "procurar"
     INSERIR = "inserir"

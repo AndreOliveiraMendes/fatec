@@ -163,6 +163,12 @@ class EquipamentoDisponibilidade(Base):
 
     equipamento: Mapped["Equipamentos"] = relationship(back_populates="disponibilidades", passive_deletes=True)
 
+    @property
+    def selector_identification(self):
+        equipamento = self.equipamento.nome_equipamento
+        dia = parse_date(self.data)
+        return f"{equipamento} no {dia}"
+    
     def __repr__(self) -> str:
         return (
             f"<EquipamentoDisponibilidade("
