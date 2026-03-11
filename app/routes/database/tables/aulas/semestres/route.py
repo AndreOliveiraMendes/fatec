@@ -1,4 +1,3 @@
-
 from flask import Blueprint, g, render_template, request
 
 from app.decorators.decorators import admin_required, crud_route

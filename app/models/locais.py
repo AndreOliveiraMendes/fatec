@@ -1,4 +1,3 @@
-
 from typing import TYPE_CHECKING
 
 from sqlalchemy import TEXT, Enum, String, UniqueConstraint

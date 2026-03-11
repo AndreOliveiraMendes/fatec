@@ -1,4 +1,3 @@
-
 from flask import abort
 
 from app.auxiliar.constant import Permission

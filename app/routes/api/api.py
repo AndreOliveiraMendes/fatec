@@ -1,4 +1,3 @@
-
 from flask import Blueprint, jsonify
 from sqlalchemy import select
 
