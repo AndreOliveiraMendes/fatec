@@ -2,7 +2,7 @@
 from flask import Blueprint, g, render_template, request
 
 from app.decorators.decorators import admin_required, crud_route
-from app.routes_helper.controller import get_controler
+from app.routes_helper.controller import get_controller
 
 from .handlers import dispatcher
 from .states import VALID_STATES
@@ -14,7 +14,7 @@ bp = Blueprint('database_aulas_ativas', __name__, url_prefix="/database")
 @crud_route()
 def gerenciar_aulas_ativas():
     if request.method == 'POST':
-        get_controler(VALID_STATES, dispatcher, g.acao, g.bloco)
+        get_controller(VALID_STATES, dispatcher, g.acao, g.bloco)
 
     if g.redirect_action:
         return g.redirect_action

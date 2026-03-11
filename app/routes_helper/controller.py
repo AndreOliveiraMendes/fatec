@@ -3,7 +3,7 @@ from flask import abort
 from app.enums import ActionEnum, StatusEnum, StepEnum
 
 
-def get_controler(valid_states, dispatcher, acao, bloco):
+def get_controller(valid_states, dispatcher, acao, bloco):
     try:
         state = (ActionEnum(acao), StepEnum(bloco))
     except ValueError as e:
