@@ -4,9 +4,9 @@ from flask import flash, g, request
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
-from app.auxiliar.general import none_if_empty
+from app.auxiliar.general import get_value_or_abort, none_if_empty
 from app.auxiliar.navigation import register_return
-from app.auxiliar.parsing import parse_date_string
+from app.auxiliar.parsing import parse_date_string, parse_date_string_or_abort
 from app.dao.internal.controle import get_equipamento_disponibilidades
 from app.dao.internal.equipamentos import get_equipamentos
 from app.decorators.decorators import register_handler
@@ -121,15 +121,15 @@ def fetch_equipamento_disponibilidade():
 @register_handler(dispatcher, "editar", 2)
 def edit_push():
     id_disponibilidade = none_if_empty(request.form.get('id_disponibilidade'), int)
-    equipamento = none_if_empty(request.form.get('id_equipamento'), int)
-    data = parse_date_string(request.form.get('data'))
-    quantidade_total = none_if_empty(request.form.get('quantidade_total'), int)
+    id_equipamento = get_value_or_abort(request.form.get('id_equipamento'), 400, 'id do equipamento é obrigatorio', int)
+    data = parse_date_string_or_abort(request.form.get('data'), 400, 'data é obrigatoria')
+    quantidade_total = get_value_or_abort(request.form.get('quantidade_total'), 400, 'a quantidade total é obrigatoria', int)
 
     disponibilidade = db.get_or_404(EquipamentoDisponibilidade, id_disponibilidade)
     dados_anteriores = copy.copy(disponibilidade)
 
     def update():
-        disponibilidade.id_equipamento = equipamento
+        disponibilidade.id_equipamento = id_equipamento
         disponibilidade.data = data
         disponibilidade.quantidade_total = quantidade_total
 

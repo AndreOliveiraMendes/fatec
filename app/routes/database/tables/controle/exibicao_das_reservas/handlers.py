@@ -6,7 +6,7 @@ from sqlalchemy import select
 
 from app.auxiliar.general import get_value_or_abort, none_if_empty
 from app.auxiliar.navigation import register_return
-from app.auxiliar.parsing import parse_date_string
+from app.auxiliar.parsing import parse_date_string, parse_date_string_or_abort
 from app.dao.internal.aulas import get_aulas_ativas
 from app.dao.internal.controle import get_exibicoes
 from app.dao.internal.locais import get_locais
@@ -127,7 +127,7 @@ def edit_push():
     id_exibicao = none_if_empty(request.form.get('id_exibicao'), int)
     id_exibicao_local = get_value_or_abort(request.form.get('id_exibicao_local'), 400, "id do local obrigatorio", int)
     id_exibicao_aula = get_value_or_abort(request.form.get('id_exibicao_aula'), 400, "id da aula obritagorio", int)
-    exibicao_dia = parse_date_string(request.form.get('exibicao_dia'))
+    exibicao_dia = parse_date_string_or_abort(request.form.get('exibicao_dia'), 400, "dia é obrigatorio")
     tipo_reserva = none_if_empty(request.form.get('tipo_reserva'))
 
     exibicao_da_reserva = db.get_or_404(Exibicao_Reservas, id_exibicao)
