@@ -87,6 +87,7 @@ class TipoMovimentacaoEnum(StrEnum):
     EMPRESTIMO = "emprestimo"
     DEVOLUCAO = "devolucao"
     REPOSICAO = "reposicao"
+    MANUTENCAO = "manutencao"
     AJUSTE = "ajuste"
 
 # ==============================
