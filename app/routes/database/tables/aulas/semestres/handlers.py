@@ -1,6 +1,6 @@
 import copy
 
-from flask import Blueprint, flash, g, render_template, request
+from flask import flash, g, request
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
@@ -8,7 +8,7 @@ from app.auxiliar.general import get_value_or_abort, none_if_empty
 from app.auxiliar.navigation import register_return
 from app.auxiliar.parsing import parse_date_string, parse_date_string_or_abort
 from app.dao.internal.aulas import get_semestres
-from app.decorators.decorators import admin_required, crud_route, register_handler
+from app.decorators.decorators import register_handler
 from app.extensions import db
 from app.models.aulas import Semestres
 from app.routes_helper.db_actions import db_action
