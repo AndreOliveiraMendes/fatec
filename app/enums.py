@@ -10,6 +10,7 @@ class ActionEnum(StrEnum):
     INSERIR = "inserir"
     EDITAR = "editar"
     EXCLUIR = "excluir"
+    EXPORTAR = "exportar"
 
 class StepEnum(IntEnum):
     S0 = 0
