@@ -20,7 +20,7 @@ from config.general import PER_PAGE
 
 dispatcher = {}
 
-@register_handler(dispatcher, 'listar', )
+@register_handler(dispatcher, 'listar', 0)
 def list_handler():
     sel_situacoes = select(Situacoes_Das_Reserva)
     situacoes_das_reservas_paginadas = SelectPagination(
