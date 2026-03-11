@@ -38,7 +38,7 @@ def gerenciar_historicos():
 
 @bp.route("/historicos/exportar", methods=['POST'])
 def exportar_historicos():
-    data_filter, sel_historicos, query_params = get_data()
+    data_filter, sel_historicos, _ = get_data()
     if data_filter:
         sel_historicos = sel_historicos.where(*data_filter)
     formato = request.form.get('formato', 'csv')
