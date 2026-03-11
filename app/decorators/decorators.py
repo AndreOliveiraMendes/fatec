@@ -91,3 +91,9 @@ def crud_route(default_acao="abertura"):
 
         return wrapper
     return decorator
+
+def register_handler(handler, acao, bloco):
+    def decorator(func):
+        handler[(acao, bloco)] = func
+        return func
+    return decorator

@@ -1,16 +1,41 @@
-import enum
+from enum import IntEnum, StrEnum
 
+# ==============================
+# Fluxo / Sistema
+# ==============================
 
-class SituacaoChaveEnum(enum.Enum):
-    NAO_PEGOU_A_CHAVE = "não pegou a chave"
-    PEGOU_A_CHAVE = "pegou a chave"
-    DEVOLVEU_A_CHAVE = "devolveu a chave"
+class ActionEnum(StrEnum):
+    ABERTURA = "abertura"
+    LISTAR = "listar"
+    PROCURAR = "procurar"
+    INSERIR = "inserir"
+    EDITAR = "editar"
+    EXCLUIR = "excluir"
+    EXPORTAR = "exportar"
 
-class TipoReservaEnum(enum.Enum):
+class StepEnum(IntEnum):
+    S0 = 0
+    S1 = 1
+    S2 = 2
+
+class StatusEnum(StrEnum):
+    DISABLED = "disabled"
+    ENABLED = "enabled"
+#    EXTRA = "extra"
+
+class OrigemEnum(StrEnum):
+    SISTEMA = "Sistema"
+    USUARIO = "Usuario"
+
+# ==============================
+# Reservas
+# ==============================
+
+class TipoReservaEnum(StrEnum):
     FIXA = "fixa"
     TEMPORARIA = "temporaria"
 
-class FinalidadeReservaEnum(enum.Enum):
+class FinalidadeReservaEnum(StrEnum):
     GRADUACAO = "Graduação"
     ESPECIALIZACAO = "Especialização"
     EAD = "EAD"
@@ -19,39 +44,56 @@ class FinalidadeReservaEnum(enum.Enum):
     USO_DOS_ALUNOS = "Uso dos Alunos"
     NEPLE = "NEPLE"
 
-class DisponibilidadeEnum(enum.Enum):
-    DISPONIVEL = "Disponivel"
-    INDISPONIVEL = "Indisponivel"
+class TipoAulaEnum(StrEnum):
+    AULA = "Aula"
+    EVENTO = "Evento"
+    OUTROS = "Outros"
 
-class TipoLocalEnum(enum.Enum):
+# ==============================
+# Locais
+# ==============================
+
+class TipoLocalEnum(StrEnum):
     LABORATORIO = "Laboratório"
     SALA = "Sala"
     EXTERNO = "Externo"
     AUDITORIO = "Auditorio"
 
-class TipoAulaEnum(enum.Enum):
-    AULA = "Aula"
-    EVENTO = "Evento"
-    OUTROS = "Outros"
+class DisponibilidadeEnum(StrEnum):
+    DISPONIVEL = "Disponivel"
+    INDISPONIVEL = "Indisponivel"
 
-class OrigemEnum(enum.Enum):
-    SISTEMA = "Sistema"
-    USUARIO = "Usuario"
+# ==============================
+# Auditorios
+# ==============================
 
-class StatusReservaAuditorioEnum(enum.Enum):
+class StatusReservaAuditorioEnum(StrEnum):
     AGUARDANDO = "Aguardando"
-    CANCELADA = "Cancelada"
     APROVADA = "Aprovada"
     REPROVADA = "Reprovada"
+    CANCELADA = "Cancelada"
 
-class StatusReservaEquipamentoEnum(enum.Enum):
+# ==============================
+# Equipamentos
+# ==============================
+
+class StatusReservaEquipamentoEnum(StrEnum):
     PENDENTE = "pendente"
     ATIVA = "ativa"
     CANCELADA = "cancelada"
     CONCLUIDA = "concluida"
 
-class TipoMovimentacao(enum.Enum):
+class TipoMovimentacaoEnum(StrEnum):
     EMPRESTIMO = "emprestimo"
     DEVOLUCAO = "devolucao"
     REPOSICAO = "reposicao"
     AJUSTE = "ajuste"
+
+# ==============================
+# Chaves
+# ==============================
+
+class SituacaoChaveEnum(StrEnum):
+    NAO_PEGOU_A_CHAVE = "não pegou a chave"
+    PEGOU_A_CHAVE = "pegou a chave"
+    DEVOLVEU_A_CHAVE = "devolveu a chave"

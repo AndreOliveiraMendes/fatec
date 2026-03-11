@@ -1,5 +1,4 @@
 import uuid
-from datetime import datetime
 
 from flask import Blueprint, current_app, jsonify, request, session
 

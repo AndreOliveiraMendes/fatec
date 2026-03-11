@@ -7,7 +7,7 @@ from flask import (Blueprint, abort, flash, redirect, render_template, request,
 from sqlalchemy import func, select
 
 from app.auxiliar.constant import DB_ERRORS, Permission
-from app.auxiliar.general import get_value_or_abort, none_if_empty
+from app.auxiliar.general import get_value_or_abort
 from app.auxiliar.parsing import parse_date_string, parse_date_string_or_abort
 from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario

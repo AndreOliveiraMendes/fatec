@@ -1,4 +1,3 @@
-
 from typing import Type, TypeVar
 
 from flask import abort, current_app, flash

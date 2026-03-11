@@ -1,5 +1,5 @@
 import os
-from typing import Callable, Optional, TypeVar, overload
+from typing import Callable, TypeVar, overload
 
 from dotenv import load_dotenv
 from tzlocal import get_localzone
