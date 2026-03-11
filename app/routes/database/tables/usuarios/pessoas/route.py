@@ -15,6 +15,9 @@ from app.routes_helper.request import get_query_params
 from app.routes_helper.ui import disable_action
 from config.general import PER_PAGE
 
+#from .handlers import dispatcher
+#from .states import VALID_STATES
+
 bp = Blueprint('database_pessoas', __name__, url_prefix="/database")
 
 @bp.route("/pessoas", methods=["GET", "POST"])
