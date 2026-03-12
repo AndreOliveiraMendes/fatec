@@ -7,11 +7,10 @@
         Gerenciamento da Tabela <strong>Movimentações de Equipamento</strong>
     </h3>
     <p class="text-muted text-center">
-        A tabela <code>movimentacoes_equipamento</code> registra todas as movimentações de equipamentos no sistema. 
-        O campo <code>tipo</code> é implementado como <strong>ENUM nativo do MySQL</strong>, garantindo restrição 
+        A tabela <code>movimentacoes_equipamento</code> registra todas as movimentações de equipamentos no sistema.
+        O campo <code>tipo</code> é implementado como <strong>ENUM nativo do MySQL</strong>, garantindo restrição
         de valores válidos diretamente no banco de dados.
     </p>
-
     <div class="table-responsive">
         <table class="table table-striped table-bordered table-hover">
             <thead>
@@ -23,72 +22,163 @@
                 </tr>
             </thead>
             <tbody>
-
                 <tr>
-                    <td><code>id_movimentacao</code></td>
+                    <td>
+                        <code>id_movimentacao</code>
+                    </td>
                     <td>INT (auto_increment, PK)</td>
                     <td>Identificador único da movimentação registrada no sistema.</td>
                     <td>-</td>
                 </tr>
-
                 <tr>
-                    <td><code>id_equipamento</code></td>
+                    <td>
+                        <code>id_equipamento</code>
+                    </td>
                     <td>INT (FK)</td>
                     <td>Referência ao equipamento relacionado à movimentação.</td>
                     <td>-</td>
                 </tr>
-
                 <tr>
-                    <td><code>tipo</code></td>
+                    <td>
+                        <code>tipo</code>
+                    </td>
                     <td>ENUM('EMPRESTIMO','DEVOLUCAO','REPOSICAO','AJUSTE','MANUTENCAO')</td>
                     <td>Define o tipo de movimentação realizada com o equipamento.</td>
                     <td>
                         <ul class="valores_possiveis_format">
-                            <li><code>Emprestimo</code></li>
-                            <li><code>Devolucao</code></li>
-                            <li><code>Reposicao</code></li>
-                            <li><code>Ajuste</code></li>
-                            <li><code>Manutencao</code></li>
+                            <li>
+                                <code>Emprestimo</code>
+                            </li>
+                            <li>
+                                <code>Devolucao</code>
+                            </li>
+                            <li>
+                                <code>Reposicao</code>
+                            </li>
+                            <li>
+                                <code>Ajuste</code>
+                            </li>
+                            <li>
+                                <code>Manutencao</code>
+                            </li>
                         </ul>
                     </td>
                 </tr>
-
                 <tr>
-                    <td><code>quantidade</code></td>
+                    <td>
+                        <code>quantidade</code>
+                    </td>
                     <td>INT</td>
                     <td>Quantidade de equipamentos envolvidos na movimentação.</td>
                     <td>-</td>
                 </tr>
-
                 <tr>
-                    <td><code>data_registro</code></td>
+                    <td>
+                        <code>data_registro</code>
+                    </td>
                     <td>DATETIME</td>
                     <td>Data e hora em que a movimentação foi registrada no sistema.</td>
                     <td>-</td>
                 </tr>
-
                 <tr>
-                    <td><code>id_funcionario</code></td>
+                    <td>
+                        <code>id_funcionario</code>
+                    </td>
                     <td>INT (FK)</td>
                     <td>Funcionário responsável pelo registro da movimentação.</td>
                     <td>-</td>
                 </tr>
-
                 <tr>
-                    <td><code>id_responsavel</code></td>
+                    <td>
+                        <code>id_responsavel</code>
+                    </td>
                     <td>INT (FK, opcional)</td>
                     <td>Pessoa responsável pelo equipamento durante a movimentação (ex.: quem pegou emprestado).</td>
                     <td>-</td>
                 </tr>
-
                 <tr>
-                    <td><code>observacao</code></td>
+                    <td>
+                        <code>observacao</code>
+                    </td>
                     <td>TEXT</td>
                     <td>Campo livre para observações adicionais sobre a movimentação.</td>
                     <td>-</td>
                 </tr>
-
             </tbody>
         </table>
     </div>
 {% endblock abertura %}
+{% block inserir %}
+    <h3>Inserir registro de movimentação de equipamento</h3>
+    <form class="form-group"
+          role="form"
+          action="{{ url_for(url) }}"
+          method="post">
+        <input type="hidden" name="acao" value="{{ acao }}">
+        {{ gerar_select("id_equipamento", "Selecione o equipamento", equipamentos, "id_equipamento", "nome_equipamento") }}
+        <div class="form-group">
+            <label for="tipo_movimentacao">Tipo de movimentação</label>
+            <select class="form-control"
+                    id="tipo_movimentacao"
+                    name="tipo_movimentacao"
+                    required>
+                <option value="">Selecione o tipo de movimentação</option>
+                {% for tm in TME %}<option value="{{ tm.value }}">{{ tm.value }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="quantidade">Quantidade</label>
+            <input type="number"
+                   class="form-control"
+                   id="quantidade"
+                   name="quantidade"
+                   min="1"
+                   step="1"
+                   required>
+        </div>
+        <div class="form-group">
+            <label for="data_registro">Data do registro</label>
+            <input type="datetime-local"
+                   class="form-control"
+                   id="data_registro"
+                   name="data_registro"
+                   value="{{ now }}"
+                   required>
+        </div>
+        {{ gerar_select("id_funcionario", "Funcionário responsável", pessoas, "id_pessoa", "nome_pessoa", "id_funcionario") }}
+        {{ gerar_select("id_responsavel", "Funcionário responsável", pessoas, "id_pessoa", "nome_pessoa", "id_responsavel", optional=True) }}
+        <div class="form-group">
+            <label for="observacao">Observação</label>
+            <textarea class="form-control"
+                      id="observacao"
+                      name="observacao"
+                      rows="3"
+                      placeholder="Informações adicionais sobre a movimentação"></textarea>
+        </div>
+        {{ action_buttons(acao, 1, False, 0) }}
+    </form>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const tipo = document.getElementById("tipo_movimentacao");
+            const quantidade = document.getElementById("quantidade");
+
+            function atualizarMin() {
+
+                if (tipo.value === "ajuste") {
+                    quantidade.min = 0;
+                } else {
+                    quantidade.min = 1;
+
+                    if (quantidade.value == 0) {
+                        quantidade.value = 1;
+                    }
+                }
+
+            }
+
+            tipo.addEventListener("change", atualizarMin);
+
+        });
+    </script>
+{% endblock inserir %}

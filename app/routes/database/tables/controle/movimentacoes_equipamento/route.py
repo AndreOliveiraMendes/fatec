@@ -1,6 +1,7 @@
 from flask import Blueprint, g, render_template, request
 
 from app.decorators.decorators import admin_required, crud_route
+from app.enums import TipoMovimentacaoEnum
 from app.routes_helper.controller import get_controller
 
 from .handlers import dispatcher
@@ -12,6 +13,7 @@ bp = Blueprint('database_movimentacoes_equipamento', __name__, url_prefix="/data
 @admin_required
 @crud_route()
 def gerenciar_movimentacoes_equipamento():
+    g.extras['TME'] = TipoMovimentacaoEnum
     if request.method == 'POST':
         get_controller(VALID_STATES, dispatcher, g.acao, g.bloco)
 
