@@ -262,3 +262,89 @@
         });
     </script>
 {% endblock inserir %}
+{% block editar %}
+    {% if bloco == 0 %}
+        <h3>editando movimentacoes</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            {{ gerar_select("id_movimentacao", "Selecione a movimentacao", movimentacoes, "id_movimentacao", "selector_identification") }}
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+    <form class="form-group"
+          role="form"
+          action="{{ url_for(url) }}"
+          method="post">
+        <input type="hidden" name="acao" value="{{ acao }}">
+        {{ gerar_select("id_equipamento", "Selecione o equipamento", equipamentos, "id_equipamento", "nome_equipamento", selected=movimentacao.id_equipamento) }}
+        <div class="form-group">
+            <label for="tipo_movimentacao">Tipo de movimentação</label>
+            <select class="form-control"
+                    id="tipo_movimentacao"
+                    name="tipo_movimentacao"
+                    required>
+                <option value="">Selecione o tipo de movimentação</option>
+                {% for tm in TME %}<option value="{{ tm.value }}">{{ tm.value }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="quantidade">Quantidade</label>
+            <input type="number"
+                   class="form-control"
+                   id="quantidade"
+                   name="quantidade"
+                   min="1"
+                   step="1"
+                   value="{{ movimentacao.quantidade }}"
+                   required>
+        </div>
+        <div class="form-group">
+            <label for="data_registro">Data do registro</label>
+            <input type="datetime-local"
+                   class="form-control"
+                   id="data_registro"
+                   name="data_registro"
+                   value="{{ movimentacao.data_registro }}"
+                   required>
+        </div>
+        {{ gerar_select("id_funcionario", "Funcionário responsável", pessoas, "id_pessoa", "nome_pessoa", "id_funcionario", selected=movimentacao.id_funcionario) }}
+        {{ gerar_select("id_responsavel", "Funcionário responsável", pessoas, "id_pessoa", "nome_pessoa", "id_responsavel", selected=movimentacao.id_responsavel, optional=True) }}
+        <div class="form-group">
+            <label for="observacao">Observação</label>
+            <textarea class="form-control"
+                      id="observacao"
+                      name="observacao"
+                      rows="3"
+                      placeholder="Informações adicionais sobre a movimentação">{{ movimentacao.observacao|format(1) }}</textarea>
+        </div>
+        {{ action_buttons(acao, 2, True, 0) }}
+    </form>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const tipo = document.getElementById("tipo_movimentacao");
+            const quantidade = document.getElementById("quantidade");
+
+            function atualizarMin() {
+
+                if (tipo.value === "ajuste") {
+                    quantidade.min = 0;
+                } else {
+                    quantidade.min = 1;
+
+                    if (quantidade.value == 0) {
+                        quantidade.value = 1;
+                    }
+                }
+
+            }
+
+            tipo.addEventListener("change", atualizarMin);
+
+        });
+    </script>
+    {% endif %}
+{% endblock editar %}

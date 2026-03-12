@@ -369,7 +369,7 @@
                        class="form-control"
                        id="observacoes"
                        name="observacoes"
-                       value="{{ reserva_fixa.observacoes if reserva_fixa.observacoes else '' }}"
+                       value="{{ reserva_fixa.observacoes|format(1) }}"
                        placeholder="campo destinado a observações sobre a reserva">
             </div>
             <div class="form-group">
@@ -379,7 +379,7 @@
                        class="form-control"
                        id="descricao"
                        name="descricao"
-                       value="{{ reserva_fixa.descricao if reserva_fixa.descricao else '' }}"
+                       value="{{ reserva_fixa.descricao|format(1) }}"
                        placeholder="campo destinado a descricao da reserva">
             </div>
             {{ action_buttons(acao, 2, True, 0) }}
@@ -451,7 +451,7 @@
                        class="form-control"
                        id="observacoes"
                        name="observacoes"
-                       value="{{ reserva_fixa.observacoes if reserva_fixa.observacoes else '' }}"
+                       value="{{ reserva_fixa.observacoes|format(1) }}"
                        placeholder="campo destinado a observações sobre a reserva"
                        disabled>
             </div>
@@ -462,7 +462,7 @@
                        class="form-control"
                        id="descricao"
                        name="descricao"
-                       value="{{ reserva_fixa.descricao if reserva_fixa.descricao else '' }}"
+                       value="{{ reserva_fixa.descricao|format(1) }}"
                        placeholder="campo destinado a descricao da reserva"
                        disabled>
             </div>

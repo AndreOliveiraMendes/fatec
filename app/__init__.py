@@ -45,7 +45,7 @@ def create_app(name=None):
 
     with app.app_context():
         from app.auxiliar import error
-        template.register_filters(app)
+        template.register_template_utils(app)
         error.register_error_handler(app)
         url_custom_types.registrar_custom_url_type(app)
 

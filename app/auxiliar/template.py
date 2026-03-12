@@ -23,7 +23,7 @@ from config.database_views import SECOES
 from config.mapeamentos import meses_ingleses, semana_inglesa, situacoes_helper
 
 
-def register_filters(app:Flask):
+def register_template_utils(app:Flask):
     @app.template_global()
     def dynamic_redirect(seconds=5, message=None, target_url=None):
         if message is None:
@@ -391,8 +391,9 @@ def register_filters(app:Flask):
             return 'Desconhecido'
 
     @app.template_filter('format')
-    def format(value):
-        return value if value else '-'
+    def format(value, option=0):
+        return value if value else ('-' if option == 0 else '')
+    
     
     @app.template_filter('hora')
     def format_hora(value):

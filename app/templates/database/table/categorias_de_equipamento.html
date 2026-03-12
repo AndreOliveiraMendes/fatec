@@ -185,7 +185,7 @@
                           id="descricao"
                           name="descricao"
                           rows="3"
-                          placeholder="Digite a descrição da categoria">{{ categoria.descricao if categoria.descricao else '' }}</textarea>
+                          placeholder="Digite a descrição da categoria">{{ categoria.descricao|format(1) }}</textarea>
             </div>
             {{ action_buttons(acao, 2, True, 0) }}
         </form>
@@ -230,7 +230,7 @@
             <!-- Descrição (desabilitado) -->
             <div class="form-group">
                 <label for="descricao">Descrição:</label>
-                <textarea class="form-control" id="descricao" rows="3" disabled>{{ categoria.descricao if categoria.descricao else '' }}</textarea>
+                <textarea class="form-control" id="descricao" rows="3" disabled>{{ categoria.descricao|format(1) }}</textarea>
             </div>
             {{ action_buttons(acao, 2, True, 0, False) }}
         </form>

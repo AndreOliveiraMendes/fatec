@@ -252,7 +252,7 @@
                        class="form-control"
                        name="alias"
                        id="alias"
-                       value="{{ pessoa.alias if pessoa.alias else '' }}"
+                       value="{{ pessoa.alias|format(1) }}"
                        placeholder="Digite o alias">
             </div>
             <div class="form-group">
@@ -262,7 +262,7 @@
                        class="form-control"
                        name="email"
                        id="email"
-                       value="{{ pessoa.email_pessoa if pessoa.email_pessoa else '' }}"
+                       value="{{ pessoa.email_pessoa|format(1) }}"
                        placeholder="Digite o email">
             </div>
             {{ action_buttons(acao, 2, True, 0) }}
@@ -316,7 +316,7 @@
                        class="form-control"
                        name="alias"
                        id="alias"
-                       value="{{ pessoa.alias if pessoa.alias else '' }}"
+                       value="{{ pessoa.alias|format(1) }}"
                        placeholder="Digite o alias"
                        disabled>
             </div>
@@ -327,7 +327,7 @@
                        class="form-control"
                        name="email"
                        id="email"
-                       value="{{ pessoa.email_pessoa if pessoa.email_pessoa else '' }}"
+                       value="{{ pessoa.email_pessoa|format(1) }}"
                        disabled>
             </div>
             {{ action_buttons(acao, 2, True, 0, False) }}

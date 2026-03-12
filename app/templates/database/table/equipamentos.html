@@ -199,7 +199,7 @@
                           id="descricao"
                           name="descricao"
                           rows="3"
-                          placeholder="Digite a descrição do equipamento">{{ equipamento.descricao if equipamento.descricao else '' }}</textarea>
+                          placeholder="Digite a descrição do equipamento">{{ equipamento.descricao|format(1) }}</textarea>
             </div>
             {{ gerar_select("id_categoria", "Selecione a categoria", categorias, "id_categoria", "nome_categoria", selected=equipamento.id_categoria) }}
             {{ action_buttons(acao, 2, True, 0) }}
@@ -245,7 +245,7 @@
             <!-- Descrição -->
             <div class="form-group">
                 <label for="descricao">Descrição:</label>
-                <textarea class="form-control" id="descricao" rows="3" disabled>{{ equipamento.descricao if equipamento.descricao else '' }}</textarea>
+                <textarea class="form-control" id="descricao" rows="3" disabled>{{ equipamento.descricao|format(1) }}</textarea>
             </div>
             <!-- Categoria -->
             <div class="form-group">
