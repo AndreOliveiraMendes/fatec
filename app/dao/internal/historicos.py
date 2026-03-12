@@ -1,12 +1,12 @@
 from datetime import datetime
 from typing import Literal
 
-from sqlalchemy import inspect
+from sqlalchemy import inspect, select
 
 from app.auxiliar.general import dict_format, formatar_valor
 from app.enums import OrigemEnum
 from app.extensions import db
-from app.models.historicos import Historicos
+from app.models.historicos import Historicos, MovimentacaoEquipamento
 from config.general import LOCAL_TIMEZONE
 
 
@@ -90,3 +90,7 @@ def registrar_log_generico_usuario(
         observacao=observacao,
         skip_unchanged=skip_unchanged
     )
+
+def get_movimentacoes_equipamentos():
+    sel_movimentacoes = select(MovimentacaoEquipamento)
+    return db.session.execute(sel_movimentacoes).scalars().all()

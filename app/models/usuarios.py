@@ -6,8 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.extensions import Base
 
 if TYPE_CHECKING:
-    from app.models.controle import MovimentacaoEquipamento
-    from app.models.historicos import Historicos
+    from app.models.historicos import Historicos, MovimentacaoEquipamento
     from app.models.reservas.reservas_auditorios import Reservas_Auditorios
     from app.models.reservas.reservas_equipamentos import Reservas_Equipamentos
     from app.models.reservas.reservas_laboratorios import (

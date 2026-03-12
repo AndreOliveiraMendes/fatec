@@ -8,13 +8,13 @@ from sqlalchemy import select
 from app.auxiliar.general import none_if_empty
 from app.auxiliar.navigation import register_return
 from app.auxiliar.parsing import parse_date_string, parse_datetime_string
-from app.dao.internal.controle import get_movimentacoes_equipamentos
 from app.dao.internal.equipamentos import get_equipamentos
+from app.dao.internal.historicos import get_movimentacoes_equipamentos
 from app.dao.internal.usuarios import get_pessoas
 from app.decorators.decorators import register_handler
 from app.enums import TipoMovimentacaoEnum
 from app.extensions import db
-from app.models.controle import MovimentacaoEquipamento
+from app.models.historicos import MovimentacaoEquipamento
 from app.routes_helper.db_actions import db_action
 from app.routes_helper.request import get_query_params
 from config.general import PER_PAGE
