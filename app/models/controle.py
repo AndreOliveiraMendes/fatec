@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Optional
 from sqlalchemy import Date, Enum, ForeignKey, Text, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.auxiliar.model import parse_date
+from app.auxiliar.model import parse_date, parse_datetime
 from app.enums import SituacaoChaveEnum, TipoMovimentacaoEnum, TipoReservaEnum
 from app.extensions import Base
 
@@ -121,6 +121,12 @@ class MovimentacaoEquipamento(Base):
     equipamento: Mapped["Equipamentos"] = relationship(back_populates="movimentacoes", passive_deletes=True)
     funcionario: Mapped["Pessoas"] = relationship(back_populates="movimentacoes_funcionario", foreign_keys=[id_funcionario], passive_deletes=True)
     responsavel: Mapped["Pessoas"] = relationship(back_populates="movimentacoes_responsavel", foreign_keys=[id_responsavel], passive_deletes=True)
+
+    @property
+    def selector_identification(self):
+        equipamento = self.equipamento.nome_equipamento
+        dia = parse_datetime(self.data_registro)
+        return f"{equipamento}, {dia}"
 
     def __repr__(self) -> str:
         return (

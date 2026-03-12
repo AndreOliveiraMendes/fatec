@@ -1,3 +1,4 @@
+import copy
 from datetime import datetime, timedelta
 
 from flask import current_app, flash, g, request
@@ -7,6 +8,7 @@ from sqlalchemy import select
 from app.auxiliar.general import none_if_empty
 from app.auxiliar.navigation import register_return
 from app.auxiliar.parsing import parse_date_string, parse_datetime_string
+from app.dao.internal.controle import get_movimentacoes_equipamentos
 from app.dao.internal.equipamentos import get_equipamentos
 from app.dao.internal.usuarios import get_pessoas
 from app.decorators.decorators import register_handler
@@ -138,20 +140,81 @@ def insert_push():
         now=datetime.now().strftime("%Y-%m-%dT%H:%M")
     )
 
-@register_handler(dispatcher, 'edit', 0)
+@register_handler(dispatcher, 'editar', 0)
 @register_handler(dispatcher, 'excluir', 0)
 def fetch_movimentacoes():
-    pass
+    g.extras['movimentacoes'] = get_movimentacoes_equipamentos()
 
-@register_handler(dispatcher, 'edit', 1)
+@register_handler(dispatcher, 'editar', 1)
 @register_handler(dispatcher, 'excluir', 1)
 def fetch_movimentacao():
-    pass
+    id_movimentacao = none_if_empty(request.form.get('id_movimentacao'), int)
 
-@register_handler(dispatcher, 'edit', 2)
+    movimentacao = db.get_or_404(MovimentacaoEquipamento, id_movimentacao)
+    g.extras['movimentacao'] = movimentacao
+    g.extras['equipamentos'] = get_equipamentos()
+    g.extras['pessoas'] = get_pessoas()
+
+@register_handler(dispatcher, 'editar', 2)
 def edit_push():
-    pass
+    id_movimentacao = none_if_empty(request.form.get('id_movimentacao'), int)
+    id_equipamento = none_if_empty(request.form.get('id_equipamento'), int)
+    tipo_movimentacao = none_if_empty(request.form.get('tipo_movimentacao'))
+    quantidade = none_if_empty(request.form.get('quantidade'), int)
+    data_registro = parse_datetime_string(request.form.get('data_registro'))
+    id_funcionario = none_if_empty(request.form.get('id_funcionario'), int)
+    id_responsavel = none_if_empty(request.form.get('id_responsavel'), int)
+    observacao = none_if_empty(request.form.get('observacao'))
+
+    movimentacao = db.get_or_404(MovimentacaoEquipamento, id_movimentacao)
+
+    dados_anteriores = copy.copy(movimentacao)
+
+    def atualizar():
+        movimentacao.id_equipamento = id_equipamento
+        movimentacao.quantidade = quantidade
+        if data_registro:
+            movimentacao.data_registro = data_registro
+        else:
+            movimentacao.data_registro = datetime.now()
+        movimentacao.id_funcionario = id_funcionario
+        movimentacao.id_responsavel = id_responsavel
+        movimentacao.observacao = observacao
+        if tipo_movimentacao:
+            movimentacao.tipo = TipoMovimentacaoEnum(tipo_movimentacao)
+
+    db_action(
+        "Edição",
+        "Movimentação atualizada com sucesso",
+        "Erro ao atualizar movimentação",
+        obj=movimentacao,
+        action=atualizar,
+        old_obj=dados_anteriores
+    )
+
+    g.redirect_action, g.bloco = register_return(
+        g.url, g.acao, g.extras,
+        movimentacoes = get_movimentacoes_equipamentos()
+    )
 
 @register_handler(dispatcher, 'excluir', 2)
 def delete_push():
-    pass
+    id_movimentacao = none_if_empty(request.form.get('id_movimentacao'), int)
+
+    movimentacao = db.get_or_404(MovimentacaoEquipamento, id_movimentacao)
+
+    def delete():
+        db.session.delete(movimentacao)
+
+    db_action(
+        "Exclusão",
+        "Registro de movimentação excluida com sucesso",
+        "Erro ao excluir registro de movimentação",
+        obj=movimentacao,
+        action=delete
+    )
+
+    g.redirect_action, g.bloco = register_return(
+        g.url, g.acao, g.extras,
+        movimentacoes = get_movimentacoes_equipamentos()
+    )
