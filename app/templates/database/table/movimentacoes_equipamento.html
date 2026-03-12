@@ -1,4 +1,26 @@
 {% extends "database/table/base_crude" %}
+{% macro result_table(message) %}
+    {% call(item) table_base(
+        movimentacoes,
+        ['ID','Equipamento','Tipo','Quantidade','Funcionario', 'Resposavel', 'data de registro'],
+        id_field='id_movimentacao',
+        vertical_actions=False,
+        table_class='tabela-crude',
+        message=message,
+        pagination=pagination,
+        acao=acao,
+        bloco=bloco,
+        query_params=query_params
+        ) %}
+        <td>{{ item.id_movimentacao }}</td>
+        <td>{{ item.equipamento.nome_equipamento }}</td>
+        <td>{{ item.tipo.value }}</td>
+        <td>{{ item.quantidade }}</td>
+        <td>{{ item.funcionario.nome_pessoa }}</td>
+        <td>{{ item.responsavel.nome_pessoa|format }}</td>
+        <td>{{ item.data_registro|datahora }}</td>
+    {% endcall %}
+{% endmacro %}
 {% block title %}
     Movimentações de Equipamentos
 {% endblock title %}
@@ -108,6 +130,64 @@
         </table>
     </div>
 {% endblock abertura %}
+{% block listar %}
+    <h3>Lista de Movimentações:</h3>
+    {{ result_table("Nenhuma movimentação registrada") }}
+{% endblock listar %}
+{% block procurar %}
+    {% if bloco == 0 %}
+        <h3>Procurar Movimentações de Equipamentos</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label for="codigo">Código da Movimentação:</label>
+                <input class="form-control" type="number" id="codigo" name="id_movimentacao">
+            </div>
+            {{ gerar_select("equipamentos", "Selecione o equipamento", equipamentos, "id_equipamento", "nome_equipamento", optional=True) }}
+            <div class="form-group">
+                <label for="tipo_movimentacao">Tipo de movimentação</label>
+                <select class="form-control" id="tipo_movimentacao" name="tipo_movimentacao">
+                    <option value="">Selecione o tipo de movimentação</option>
+                    {% for tm in TME %}<option value="{{ tm.value }}">{{ tm.value }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="quantidade">Quantidade</label>
+                <input class="form-control"
+                       type="number"
+                       id="quantidade"
+                       name="quantidade"
+                       min="0"
+                       step="1">
+            </div>
+            <div class="form-group">
+                <label for="data_inicio">Data inicial</label>
+                <input class="form-control" type="date" id="data_inicio" name="data_inicio">
+            </div>
+            <div class="form-group">
+                <label for="data_fim">Data final</label>
+                <input class="form-control" type="date" id="data_fim" name="data_fim">
+            </div>
+            {{ gerar_select("funcionario", "Funcionário que registrou", pessoas, "id_pessoa", "nome_pessoa", "id_funcionario", optional=True) }}
+            {{ gerar_select("responsavel", "Responsável pela movimentação", pessoas, "id_pessoa", "nome_pessoa", "id_responsavel", optional=True) }}
+            <div class="form-group">
+                <label for="observacao">Observação</label>
+                <textarea id="observacao"
+                          name="observacao"
+                          class="form-control"
+                          placeholder="Buscar por conteúdo da observação"
+                          rows="4"></textarea>
+            </div>
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <h3>Resultados da Busca</h3>
+        {{ result_table("Nenhuma movimentação encontrada.") }}
+    {% endif %}
+{% endblock procurar %}
 {% block inserir %}
     <h3>Inserir registro de movimentação de equipamento</h3>
     <form class="form-group"
