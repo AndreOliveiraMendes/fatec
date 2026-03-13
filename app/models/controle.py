@@ -107,11 +107,11 @@ class EquipamentoDisponibilidade(Base):
     data: Mapped[date] = mapped_column(Date, nullable=False)
     quantidade_total: Mapped[int] = mapped_column(nullable=False)
     gerado_em: Mapped[datetime] = mapped_column(
-        default=func.now()
+        server_default=func.now()
     )
     atualizado_em: Mapped[datetime] = mapped_column(
-        default=func.now(),
-        onupdate=func.now()
+        server_default=func.now(),
+        server_onupdate=func.now()
     )
 
     __table_args__ = (

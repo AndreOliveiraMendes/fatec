@@ -53,7 +53,7 @@ class MovimentacaoEquipamento(Base):
     )
     quantidade: Mapped[int] = mapped_column(nullable=False)
     data_registro: Mapped[datetime] = mapped_column(
-        default=func.now(),
+        server_default=func.now(),
         nullable=False
     )
     id_funcionario: Mapped[int] = mapped_column(ForeignKey('pessoas.id_pessoa'), nullable=False)

@@ -24,7 +24,7 @@ class Reservas_Equipamentos(Base):
     cancelado_por_id: Mapped[int | None] = mapped_column(ForeignKey('pessoas.id_pessoa'), nullable=True)
     estado: Mapped[StatusReservaEquipamentoEnum] = mapped_column(
         Enum(StatusReservaEquipamentoEnum),
-        default=StatusReservaEquipamentoEnum.PENDENTE.name,
+        server_default=StatusReservaEquipamentoEnum.PENDENTE.name,
         nullable=False
     )
 
