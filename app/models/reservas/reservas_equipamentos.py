@@ -39,7 +39,7 @@ class Reservas_Equipamentos(Base):
             f"id_reserva={self.id_reserva}, "
             f"id_reserva_aula={self.id_reserva_aula}, "
             f"id_reserva_responsavel={self.id_reserva_responsavel}, "
-            f"data_reserva={self.data_reserva}"
+            f"data_reserva={self.data_reserva}, "
             f"criado_em={self.criado_em}"
             f")>"
         )
