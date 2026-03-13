@@ -1,3 +1,5 @@
+from typing import Any, Callable, Literal
+
 from flask import flash, g
 
 from app.auxiliar.constant import DB_ERRORS
@@ -6,7 +8,17 @@ from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.extensions import db
 
 
-def db_action(action_type, success_msg, error_msg, obj=None, old_obj=None, action=None, observacao=None, *args, **kwargs):
+def db_action(
+    action_type: Literal["Inserção", "Edição", "Exclusão"],
+    success_msg: str,
+    error_msg: str,
+    obj=None,
+    old_obj=None,
+    action: Callable[..., Any] | None = None,
+    observacao: str=None,
+    *args,
+    **kwargs
+) -> None:
     try:
         if action:
             action(*args, **kwargs)
