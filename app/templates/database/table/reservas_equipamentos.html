@@ -1,0 +1,122 @@
+{% extends "database/table/base_crude" %}
+{% block title %}
+    Reserva de equipamentos
+{% endblock title %}
+{% block abertura %}
+    <h3 class="text-center">
+        Gerenciamento da Tabela <strong>Reservas de Equipamentos</strong>
+    </h3>
+    <p class="text-muted text-center">
+        A tabela <code>reservas_equipamentos</code> possui os seguintes campos:
+    </p>
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover">
+            <thead>
+                <tr class="information">
+                    <th>Campo</th>
+                    <th>Tipo</th>
+                    <th>Descrição</th>
+                    <th>Valores Possíveis</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <code>id_reserva</code>
+                    </td>
+                    <td>INT (auto_increment, PK)</td>
+                    <td>Identificador único da reserva de equipamento no sistema.</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>id_reserva_aula</code>
+                    </td>
+                    <td>INT (FK)</td>
+                    <td>
+                        Chave estrangeira para a tabela <code>aulas_ativas</code>,
+                        indicando a aula associada à reserva.
+                    </td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>id_reserva_responsavel</code>
+                    </td>
+                    <td>INT (FK)</td>
+                    <td>
+                        Chave estrangeira para a tabela <code>pessoas</code>,
+                        indicando o responsável pela reserva do equipamento.
+                    </td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>data_reserva</code>
+                    </td>
+                    <td>DATE</td>
+                    <td>Data em que o equipamento foi reservado para uso.</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>criado_em</code>
+                    </td>
+                    <td>DATETIME</td>
+                    <td>Data e hora em que a reserva foi criada no sistema.</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>cancelado_em</code>
+                    </td>
+                    <td>DATETIME (NULL)</td>
+                    <td>Data e hora em que a reserva foi cancelada, caso tenha ocorrido.</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>cancelado_por_id</code>
+                    </td>
+                    <td>INT (FK, NULL)</td>
+                    <td>
+                        Chave estrangeira para a tabela <code>pessoas</code>,
+                        indicando qual usuário realizou o cancelamento da reserva.
+                    </td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>estado</code>
+                    </td>
+                    <td>ENUM</td>
+                    <td>Define o estado atual da reserva de equipamento.</td>
+                    <td>
+                        <ul class="valores_possiveis_format">
+                            <li>
+                                <code>PENDENTE</code> = reserva criada aguardando confirmação ou início
+                            </li>
+                            <li>
+                                <code>ATIVA</code> = reserva atualmente em uso
+                            </li>
+                            <li>
+                                <code>CANCELADA</code> = reserva cancelada antes de ocorrer
+                            </li>
+                            <li>
+                                <code>CONCLUIDA</code> = reserva finalizada normalmente
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="alert alert-info mt-3" role="alert">
+        <strong>Nota:</strong> Os campos <code>cancelado_em</code> e
+        <code>cancelado_por_id</code> só possuem valor quando a reserva é
+        cancelada. Caso contrário, permanecem <code>NULL</code>.
+        <br>
+        O campo <code>estado</code> controla o ciclo de vida da reserva
+        dentro do sistema.
+    </div>
+{% endblock abertura %}
