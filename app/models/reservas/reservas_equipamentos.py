@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Enum, ForeignKey, UniqueConstraint, func
+from sqlalchemy import Enum, ForeignKey, Text, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.enums import StatusReservaEquipamentoEnum
@@ -22,6 +22,7 @@ class Reservas_Equipamentos(Base):
     criado_em: Mapped[datetime] = mapped_column(default=func.now())
     cancelado_em: Mapped[datetime | None] = mapped_column(nullable=True)
     cancelado_por_id: Mapped[int | None] = mapped_column(ForeignKey('pessoas.id_pessoa'), nullable=True)
+    motivo_cancelamento: Mapped[str | None] = mapped_column(Text, nullable=True)
     estado: Mapped[StatusReservaEquipamentoEnum] = mapped_column(
         Enum(StatusReservaEquipamentoEnum),
         server_default=StatusReservaEquipamentoEnum.PENDENTE.name,
@@ -39,6 +40,7 @@ class Reservas_Equipamentos(Base):
             f"id_reserva={self.id_reserva}, "
             f"id_reserva_aula={self.id_reserva_aula}, "
             f"id_reserva_responsavel={self.id_reserva_responsavel}, "
+            f"motivo_cancelamento={self.motivo_cancelamento}, "
             f"data_reserva={self.data_reserva}, "
             f"criado_em={self.criado_em}"
             f")>"
