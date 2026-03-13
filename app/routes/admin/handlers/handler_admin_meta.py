@@ -65,7 +65,6 @@ def get_remote_commit():
     return out
 
 def commits_behind():
-    git("fetch")
     out, _, _ = git("rev-list", "HEAD..origin/main", "--count")
 
     try:
