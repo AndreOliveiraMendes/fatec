@@ -36,11 +36,64 @@
                         {% endif %}
                     </td>
                 </tr>
+                <tr>
+                    <th>Branch</th>
+                    <td>{{ status.branch }}</td>
+                </tr>
+                <tr>
+                    <th>Último fetch</th>
+                    <td>
+                        {% if status.last_fetch %}
+                            {{ status.last_fetch.strftime("%d/%m/%Y %H:%M:%S") }}
+                        {% else %}
+                            desconhecido
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>Commits locais não enviados</th>
+                    <td>
+                        {% if status.ahead == 0 %}
+                            <span class="label label-success">Nenhum</span>
+                        {% else %}
+                            <span class="label label-info">{{ status.ahead }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
             </table>
+            <div class="panel panel-default">
+                <div class="panel-heading">Último Commit</div>
+                <table class="table table-bordered">
+                    {% if status.last_commit %}
+                        <tr>
+                            <th>Hash</th>
+                            <td>{{ status.last_commit.hash }}</td>
+                        </tr>
+                        <tr>
+                            <th>Autor</th>
+                            <td>{{ status.last_commit.author }}</td>
+                        </tr>
+                        <tr>
+                            <th>Data</th>
+                            <td>{{ status.last_commit.date }}</td>
+                        </tr>
+                        <tr>
+                            <th>Mensagem</th>
+                            <td>{{ status.last_commit.message }}</td>
+                        </tr>
+                    {% endif %}
+                </table>
+            </div>
         </div>
         <div class="panel panel-default">
             <div class="panel-heading">Ações</div>
             <div class="panel-body">
+                <a href="{{ url_for('admin_meta.fetch') }}"
+                   class="btn btn-primary"
+                   target="_blank">
+                    <span class="glyphicon glyphicon-download"></span>
+                    Atualizar informações (fetch)
+                </a>
                 {% if status.local_changes %}
                     <div class="alert alert-danger">Existem alterações locais no repositório. O update foi bloqueado.</div>
                 {% elif status.behind > 0 %}
