@@ -120,3 +120,50 @@
         dentro do sistema.
     </div>
 {% endblock abertura %}
+{% block inserir %}
+    <h3>Inserir Reserva de Equipamento</h3>
+    <form class="form-group"
+          role="form"
+          action="{{ url_for(url) }}"
+          method="post">
+        <input type="hidden" name="acao" value="{{ acao }}">
+        {{ gerar_select("aulas",
+                "Selecione o horário da aula",
+                aulas_ativas,
+                "id_aula_ativa",
+                "selector_identification",
+                "id_reserva_aula") }}
+        {{ gerar_select("responsavel_reserva",
+                "Selecione o responsável",
+                pessoas,
+                "id_pessoa",
+                "nome_pessoa",
+                "id_reserva_responsavel") }}
+        <div class="form-group">
+            <label for="data_reserva">Data da Reserva</label>
+            <input type="date"
+                   class="form-control"
+                   id="data_reserva"
+                   name="data_reserva"
+                   required>
+        </div>
+        {{ gerar_select("responsavel_cancelar",
+                "Selecione quem cancelou",
+                pessoas,
+                "id_pessoa",
+                "nome_pessoa",
+                "cancelado_por_id", optional=True) }}
+        <div class="form-group">
+            <label for="estado">Estado da Reserva</label>
+            <select class="form-control" id="estado" name="estado" required>
+                <option value="">selecione o status da reserva</option>
+                {% for sre in SREE %}<option value="{{ sre.value }}">{{ sre.value }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="alert alert-info">
+            O estado inicial da reserva será definido automaticamente como
+            <strong>PENDENTE</strong>.
+        </div>
+        {{ action_buttons(acao, 1, False, 0) }}
+    </form>
+{% endblock inserir %}
