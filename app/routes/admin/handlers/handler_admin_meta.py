@@ -1,6 +1,10 @@
 from datetime import datetime
 import os
 import subprocess
+import shutil
+
+def git_available():
+    return shutil.which("git") is not None
 
 def get_branch():
     out, _, _ = git("rev-parse", "--abbrev-ref", "HEAD")
@@ -45,6 +49,8 @@ def last_fetch_time():
     return datetime.fromtimestamp(ts)
 
 def git(*args):
+    if not git_available():
+        return "", "Git não está disponível no servidor.", -1
     result = subprocess.run(
         ["git", *args],
         capture_output=True,

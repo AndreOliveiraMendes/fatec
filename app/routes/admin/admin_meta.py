@@ -1,10 +1,8 @@
-import sys
 from time import time
-import platform
 
 from flask import Blueprint, jsonify, render_template
 from app.decorators.decorators import admin_required
-from app.routes.admin.handlers.handler_admin_meta import commits_ahead, commits_behind, get_branch, get_commit, get_last_commit_info, get_remote_commit, git, git_pull, has_local_changes, last_fetch_time
+from app.routes.admin.handlers.handler_admin_meta import commits_ahead, commits_behind, get_branch, get_commit, get_last_commit_info, get_remote_commit, git, git_available, git_pull, has_local_changes, last_fetch_time
 
 bp = Blueprint("admin_meta", __name__, url_prefix="/admin/meta")
 START_TIME = time()
@@ -50,7 +48,8 @@ def health():
                 last_fetch_time().isoformat()
                 if last_fetch_time()
                 else None
-            )
+            ),
+            "git_installed": git_available()
         },
         "server": {
             "python_version": "3.12",
