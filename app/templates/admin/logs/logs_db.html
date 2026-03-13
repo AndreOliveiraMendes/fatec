@@ -91,6 +91,11 @@
     <p>
         <strong>Total de logs:</strong>{{ logs|length }}
     </p>
+    {% if logs|length >= 20 %}
+        <p>
+            <strong>Mostrando apenas 20 por pagina</strong>
+        </p>
+    {% endif %}
     <div class="table-responsive">
         <table class="table table-striped table-condensed">
             <thead>
@@ -113,30 +118,8 @@
                         <td>{{ log.categoria }}</td>
                         <td>
                             <button type="button"
-                                    class="btn btn-xs btn-info"
-                                    data-toggle="modal"
-                                    data-target="#modal-{{ log.id_historico }}">Ver</button>
-                            <!-- Modal -->
-                            <div class="modal fade"
-                                 id="modal-{{ log.id_historico }}"
-                                 tabindex="-1"
-                                 role="dialog"
-                                 aria-labelledby="modalLabel-{{ log.id_historico }}">
-                                <div class="modal-dialog modal-lg" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
-                                                <span aria-hidden="true">×</span>
-                                            </button>
-                                            <h4 class="modal-title" id="modalLabel-{{ log.id_historico }}">Mensagem completa</h4>
-                                        </div>
-                                        <div class="modal-body pre-wrap">{{ log.message | replace(';', '\n') }}</div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                                    class="btn btn-xs btn-info btn-ver-mensagem"
+                                    data-message="{{ log.message | replace('None', '') | e }}">Ver</button>
                         </td>
                         <td>{{ log.chave_primaria }}</td>
                         <td>
@@ -147,6 +130,20 @@
             </tbody>
         </table>
     </div>
+    <div class="modal fade" id="modal-log" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button class="close" data-dismiss="modal">×</button>
+                    <h4 class="modal-title">Mensagem completa</h4>
+                </div>
+                <div class="modal-body pre-wrap" id="modal-log-content"></div>
+                <div class="modal-footer">
+                    <button class="btn btn-default" data-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <nav>
         <ul id="paginacao" class="pagination">
         </ul>
@@ -154,11 +151,18 @@
 {% endblock content %}
 {% block extra_script %}
     <script>
+        // modal detalhes
+        $(document).on("click", ".btn-ver-mensagem", function () {
+            const msg = $(this).data("message").replaceAll(";", "\n");
+            $("#modal-log-content").text(msg);
+            $("#modal-log").modal("show");
+        });
+        // paginação
         document.addEventListener("DOMContentLoaded", function () {
 
             const rowsPerPage = 20;
             const table = document.getElementById("logs-table");
-            const rows = document.querySelectorAll("#logs-table tr");
+            const rows = Array.from(table.rows);
             const pagination = document.getElementById("paginacao");
 
             const totalRows = rows.length;
@@ -167,63 +171,98 @@
             let currentPage = 1;
 
             function showPage(page) {
+
                 currentPage = page;
 
+                const start = (page - 1) * rowsPerPage;
+                const end = start + rowsPerPage;
+
                 rows.forEach((row, index) => {
-                    const start = (page - 1) * rowsPerPage;
-                    const end = start + rowsPerPage;
 
                     if (index >= start && index < end) {
                         row.style.display = "";
                     } else {
                         row.style.display = "none";
                     }
+
                 });
 
                 updatePagination();
             }
 
-        function updatePagination() {
-            pagination.innerHTML = "";
+            function updatePagination() {
 
-            const prev = document.createElement("li");
-            prev.className = currentPage === 1 ? "disabled" : "";
+                pagination.innerHTML = "";
 
-            prev.innerHTML = '<a href="#">«</a>';
-            prev.onclick = function (e) {
-                e.preventDefault();
-                if (currentPage > 1) showPage(currentPage - 1);
-            };
+                function createItem(label, page, disabled=false, active=false) {
 
-            pagination.appendChild(prev);
+                    const li = document.createElement("li");
 
-            for (let i = 1; i <= totalPages; i++) {
-                const li = document.createElement("li");
+                    if (disabled) li.classList.add("disabled");
+                    if (active) li.classList.add("active");
 
-                if (i === currentPage) {
-                    li.className = "active";
+                    const a = document.createElement("a");
+                    a.href = "#";
+                    a.innerHTML = label;
+
+                    if (!disabled) {
+                        a.onclick = function(e) {
+                            e.preventDefault();
+                            showPage(page);
+                        };
+                    }
+
+                    li.appendChild(a);
+                    pagination.appendChild(li);
                 }
 
-                li.innerHTML = `<a href="#">${i}</a>`;
-                li.onclick = function (e) {
-                    e.preventDefault();
-                    showPage(i);
-                };
+                // << ir para primeira
+                createItem("&laquo;&laquo;", 1, currentPage === 1);
 
-                pagination.appendChild(li);
+                // < anterior
+                createItem("&laquo;", currentPage - 1, currentPage === 1);
+
+                const range = 1; // quantas páginas mostrar ao redor
+
+                // primeiras páginas
+                for (let i = 1; i <= Math.min(2, totalPages); i++) {
+                    createItem(i, i, false, i === currentPage);
+                }
+
+                if (currentPage > 4) {
+                    const li = document.createElement("li");
+                    li.className = "disabled";
+                    li.innerHTML = "<span>...</span>";
+                    pagination.appendChild(li);
+                }
+
+                // páginas próximas da atual
+                for (
+                    let i = Math.max(3, currentPage - range);
+                    i <= Math.min(totalPages - 2, currentPage + range);
+                    i++
+                ) {
+                    createItem(i, i, false, i === currentPage);
+                }
+
+                if (currentPage < totalPages - 3) {
+                    const li = document.createElement("li");
+                    li.className = "disabled";
+                    li.innerHTML = "<span>...</span>";
+                    pagination.appendChild(li);
+                }
+
+                // últimas páginas
+                for (let i = Math.max(totalPages - 1, 3); i <= totalPages; i++) {
+                    createItem(i, i, false, i === currentPage);
+                }
+
+                // > próximo
+                createItem("&raquo;", currentPage + 1, currentPage === totalPages);
+
+                // >> final
+                createItem("&raquo;&raquo;", totalPages, currentPage === totalPages);
             }
-
-            const next = document.createElement("li");
-            next.className = currentPage === totalPages ? "disabled" : "";
-
-            next.innerHTML = '<a href="#">»</a>';
-            next.onclick = function (e) {
-                e.preventDefault();
-                if (currentPage < totalPages) showPage(currentPage + 1);
-            };
-
-            pagination.appendChild(next);
-        }
 
             showPage(1);
         });
