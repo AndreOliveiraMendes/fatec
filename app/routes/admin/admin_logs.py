@@ -138,7 +138,6 @@ def logs_db():
         .join(Usuarios, Historicos.id_usuario == Usuarios.id_usuario, isouter=True)
         .join(Pessoas, Usuarios.id_pessoa == Pessoas.id_pessoa, isouter=True)
         .order_by(Historicos.data_hora.desc())
-        .limit(200)
     )
 
     # Aplica filtros
