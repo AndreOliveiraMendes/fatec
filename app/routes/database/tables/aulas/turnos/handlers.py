@@ -1,4 +1,4 @@
-import copy
+from copy import copy
 
 from flask import g, request
 from flask_sqlalchemy.pagination import SelectPagination
@@ -73,7 +73,7 @@ def edit_push():
     horario_fim = parse_time_string_or_abort(request.form.get('horario_fim'), 400, "horario de fim obrigatorio")
 
     turno = db.get_or_404(Turnos, id_turno)
-    dados_anteriores = copy.copy(turno)
+    dados_anteriores = copy(turno)
 
     def update():
         check_turno(horario_inicio, horario_fim, id_turno)

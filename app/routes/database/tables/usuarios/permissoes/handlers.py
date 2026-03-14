@@ -1,5 +1,5 @@
-import copy
 import operator
+from copy import copy
 from functools import reduce
 
 from flask import Request, flash, g, request
@@ -145,7 +145,7 @@ def edit_push():
         flash("voce não pode remover seu proprio poder de administrador", "danger")
 
     else:
-        dados_anteriores = copy.copy(permissao)
+        dados_anteriores = copy(permissao)
 
         def update():
             permissao.permissao = flag

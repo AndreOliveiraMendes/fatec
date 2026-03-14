@@ -1,4 +1,4 @@
-import copy
+from copy import copy
 
 from flask import flash, g, request
 from flask_sqlalchemy.pagination import SelectPagination
@@ -126,7 +126,7 @@ def edit_push():
     quantidade_total = get_value_or_abort(request.form.get('quantidade_total'), 400, 'a quantidade total é obrigatoria', int)
 
     disponibilidade = db.get_or_404(EquipamentoDisponibilidade, id_disponibilidade)
-    dados_anteriores = copy.copy(disponibilidade)
+    dados_anteriores = copy(disponibilidade)
 
     def update():
         disponibilidade.id_equipamento = id_equipamento

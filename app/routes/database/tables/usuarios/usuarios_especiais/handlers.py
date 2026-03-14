@@ -1,4 +1,4 @@
-import copy
+from copy import copy
 
 from flask import flash, g, request
 from flask_sqlalchemy.pagination import SelectPagination
@@ -103,7 +103,7 @@ def edit_push():
     )
 
     usuario_especial = db.get_or_404(Usuarios_Especiais, id_usuario_especial)
-    dados_anteriores = copy.copy(usuario_especial)
+    dados_anteriores = copy(usuario_especial)
 
     def update():
         usuario_especial.nome_usuario_especial = nome_usuario_especial

@@ -1,4 +1,4 @@
-import copy
+from copy import copy
 
 from flask import g, request
 from flask_sqlalchemy.pagination import SelectPagination
@@ -66,7 +66,7 @@ def edit_push():
     nome_semana = get_value_or_abort(request.form.get('nome_semana'), 400, "Nome do dia da semana é obrigatório.")
     dia_da_semana = db.get_or_404(Dias_da_Semana, id_semana)
 
-    dados_anteriores = copy.copy(dia_da_semana)
+    dados_anteriores = copy(dia_da_semana)
 
     def update():
         dia_da_semana.nome_semana = nome_semana

@@ -1,4 +1,4 @@
-import copy
+from copy import copy
 
 import requests
 from flask import abort, current_app, flash
@@ -54,7 +54,7 @@ def check_login(id, password) -> LoginResult:
                     if alias:
                         pessoa.alias = alias
                 else:
-                    old_pessoa = copy.copy(pessoa)
+                    old_pessoa = copy(pessoa)
                 pessoa.nome_pessoa = nome_pessoa
                 pessoa.email_pessoa = email_pessoa
                 db.session.add(pessoa)
@@ -65,7 +65,7 @@ def check_login(id, password) -> LoginResult:
                 if not user:
                     user = Usuarios(id_usuario=id_usuario)
                 else:
-                    old_user = copy.copy(user)
+                    old_user = copy(user)
                 user.id_pessoa = id_pessoa
                 user.tipo_pessoa = tipo_pessoa
                 user.situacao_pessoa = situacao_pessoa
@@ -84,7 +84,7 @@ def check_login(id, password) -> LoginResult:
                         permission = 0
                     perm=Permissoes(id_permissao_usuario = id_usuario, permissao = permission)
                 else:
-                    old_perm = copy.copy(perm)
+                    old_perm = copy(perm)
                     
                 db.session.add(perm)
 

@@ -1,4 +1,4 @@
-import copy
+from copy import copy
 
 from flask import flash, g, request
 from flask_sqlalchemy.pagination import SelectPagination
@@ -115,7 +115,7 @@ def edit_push():
     tipo = none_if_empty(request.form.get('tipo'))
 
     local = db.get_or_404(Locais, id_local)
-    dados_anteriores = copy.copy(local)
+    dados_anteriores = copy(local)
 
     def update():
         local.nome_local = nome_local

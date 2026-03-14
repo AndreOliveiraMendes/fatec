@@ -1,4 +1,4 @@
-import copy
+from copy import copy
 
 from flask import flash, g, request
 from flask_sqlalchemy.pagination import SelectPagination
@@ -113,7 +113,7 @@ def edit_push():
     email = none_if_empty(request.form.get('email', None))
 
     pessoa = db.get_or_404(Pessoas, id_pessoa)
-    dados_anteriores = copy.copy(pessoa)
+    dados_anteriores = copy(pessoa)
 
     def update():
         pessoa.nome_pessoa = nome

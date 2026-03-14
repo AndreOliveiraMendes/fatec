@@ -1,4 +1,4 @@
-import copy
+from copy import copy
 
 from flask import flash, g, request
 from flask_sqlalchemy.pagination import SelectPagination
@@ -189,7 +189,7 @@ def edit_push():
     descricao = none_if_empty(request.form.get('descricao'))
 
     reserva_temporaria = db.get_or_404(Reservas_Temporarias, id_reserva_temporaria)
-    dados_anteriores = copy.copy(reserva_temporaria)
+    dados_anteriores = copy(reserva_temporaria)
 
     def update():
         check_reserva_temporaria(

@@ -1,4 +1,4 @@
-import copy
+from copy import copy
 
 from flask import flash, g, request
 from flask_sqlalchemy.pagination import SelectPagination
@@ -115,7 +115,7 @@ def edit_push():
 
     aula = db.get_or_404(Aulas, id_aula)
 
-    dados_anteriores = copy.copy(aula)
+    dados_anteriores = copy(aula)
 
     def action():
         aula.horario_inicio = horario_inicio

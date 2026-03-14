@@ -1,4 +1,4 @@
-import copy
+from copy import copy
 
 from flask import flash, g, request
 from flask_sqlalchemy.pagination import SelectPagination
@@ -125,7 +125,7 @@ def edit_push():
     dias_de_prioridade = get_value_or_abort(request.form.get('prioridade'), 400, "dias de prioridade obrigatorio", int)
 
     semestre = db.get_or_404(Semestres, id_semestre)
-    dados_anteriores = copy.copy(semestre)
+    dados_anteriores = copy(semestre)
 
     def update():
         check_semestre(data_inicio, data_fim, id_semestre)

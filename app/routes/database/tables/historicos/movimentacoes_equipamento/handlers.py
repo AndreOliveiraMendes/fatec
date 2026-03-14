@@ -1,4 +1,4 @@
-import copy
+from copy import copy
 from datetime import datetime, timedelta
 
 from flask import current_app, flash, g, request
@@ -168,7 +168,7 @@ def edit_push():
 
     movimentacao = db.get_or_404(MovimentacaoEquipamento, id_movimentacao)
 
-    dados_anteriores = copy.copy(movimentacao)
+    dados_anteriores = copy(movimentacao)
 
     def atualizar():
         movimentacao.id_equipamento = id_equipamento
