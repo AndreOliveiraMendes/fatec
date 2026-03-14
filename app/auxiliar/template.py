@@ -10,6 +10,7 @@ from app.auxiliar.constant import (APP_TITLE, DATA_ABREV, DATA_COMPLETA,
                                    DATA_FLAGS, DATA_NUMERICA, HORA,
                                    PERMISSIONS, SEMANA_ABREV, SEMANA_COMPLETA,
                                    Permission)
+from app.auxiliar.shared import resolver_reserva
 from app.dao.internal.general import get_unique_or_500
 from app.dao.internal.reservas import get_responsavel_reserva
 from app.dao.internal.usuarios import get_user
@@ -315,9 +316,7 @@ def register_template_utils(app:Flask):
             Reservas_Temporarias.id_reserva_aula == aula,
             between(dia, Reservas_Temporarias.inicio_reserva, Reservas_Temporarias.fim_reserva)
         )
-
-        choose = temp or fixa
-
+        
         exibicao = get_unique_or_500(
             Exibicao_Reservas,
             Exibicao_Reservas.id_exibicao_local == lab,
@@ -325,11 +324,7 @@ def register_template_utils(app:Flask):
             Exibicao_Reservas.exibicao_dia == dia
         )
 
-        if exibicao:
-            choose = {"fixa": fixa, "temporaria": temp}.get(exibicao.tipo_reserva.value, choose)
-
-        if not choose:
-            return Markup("Livre")
+        choose, _ = resolver_reserva(temp, fixa, exibicao)
 
         partes = montar_partes_reserva(
             choose,

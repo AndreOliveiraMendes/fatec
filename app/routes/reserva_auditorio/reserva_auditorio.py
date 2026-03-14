@@ -1,10 +1,9 @@
 from copy import copy
 from datetime import datetime
-from typing import Any, Literal
+from typing import Any
 
 from flask import (Blueprint, abort, flash, redirect, render_template, request,
                    session, url_for)
-from sqlalchemy import func, select
 
 from app.auxiliar.constant import DB_ERRORS, Permission
 from app.auxiliar.general import get_value_or_abort
@@ -18,8 +17,9 @@ from app.decorators.decorators import reserva_auditorio_required
 from app.enums import StatusReservaAuditorioEnum
 from app.extensions import db
 from app.models.reservas.reservas_auditorios import Reservas_Auditorios
-from app.models.usuarios import Usuarios
 from config.general import LOCAL_TIMEZONE
+
+from .handler import check_own_reserva, check_role, check_unique_aprovada
 
 bp = Blueprint('reservas_auditorios', __name__, url_prefix="/reserva_auditorio")
 
@@ -53,31 +53,6 @@ def main_page():
             conditions.append(Reservas_Auditorios.dia_reserva <= reserva_dia_fim)
     extras['reservas_auditorios'] = get_reservas_auditorios_filtrada(user.pessoa.id_pessoa, user.perm&(Permission.ADMIN+Permission.AUTORIZAR) > 0, *conditions)
     return render_template('reserva_auditorio/main.html', user=user, **extras)
-
-def check_own_reserva(reserva:Reservas_Auditorios, user:Usuarios):
-    if user.id_pessoa != reserva.id_responsavel and user.perm & (Permission.ADMIN+Permission.AUTORIZAR) == 0:
-        abort(403, description="Acesso negado à reserva de outro usuário.")
-
-def check_role(user:Usuarios, action:Literal['CR', 'AR']):
-    if action == 'CR' and user.perm & Permission.ADMIN == 0:
-        abort(403, description="Acesso negado à atualização de reservas.")
-    elif action == 'AR' and user.perm & (Permission.ADMIN+Permission.AUTORIZAR) == 0:
-        abort(403, description="Acesso negado à autorização de reservas.")
-
-def check_unique_aprovada(reserva:Reservas_Auditorios):
-    count_rtc = select(func.count()).select_from(Reservas_Auditorios).where(
-        Reservas_Auditorios.id_reserva_auditorio != reserva.id_reserva_auditorio,
-        Reservas_Auditorios.id_reserva_local == reserva.id_reserva_local,
-        Reservas_Auditorios.id_reserva_aula == reserva.id_reserva_aula,
-        Reservas_Auditorios.dia_reserva == reserva.dia_reserva,
-        Reservas_Auditorios.status_reserva == StatusReservaAuditorioEnum.APROVADA
-    )
-    res = db.session.scalar(count_rtc)
-    if res is None:
-        res = 0
-    if res > 0:
-        abort(409, description="Já existe uma reserva aprovada para este auditório no mesmo horário.")
-
 
 @bp.route('/atualizar_status_reserva/<int:id_reserva>', methods=['POST'])
 @reserva_auditorio_required

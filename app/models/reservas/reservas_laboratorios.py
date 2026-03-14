@@ -78,11 +78,11 @@ class Reservas_Fixas(ReservaBase):
     
     def __repr__(self):
         return (
-            f"Reservas_Fixas(id_reserva_fixa={self.id_reserva_fixa}, id_responsavel={self.id_responsavel}, "
+            f"<Reservas_Fixas(id_reserva_fixa={self.id_reserva_fixa}, id_responsavel={self.id_responsavel}, "
             f"id_responsavel_especial={self.id_responsavel_especial}, tipo_responsavel={self.tipo_responsavel}, "
             f"id_reserva_local={self.id_reserva_local}, id_reserva_aula={self.id_reserva_aula}, "
             f"finalidade_reserva={self.finalidade_reserva}, observacoes={self.observacoes}, "
-            f"descricao={self.descricao}, id_reserva_semestre={self.id_reserva_semestre})"
+            f"descricao={self.descricao}, id_reserva_semestre={self.id_reserva_semestre})>"
         )
 
 class Reservas_Temporarias(ReservaBase):
@@ -118,10 +118,10 @@ class Reservas_Temporarias(ReservaBase):
 
     def __repr__(self):
         return (
-            f"Reservas_Fixas(id_reserva_temporaria={self.id_reserva_temporaria}, id_responsavel={self.id_responsavel}, "
+            f"<Reservas_Fixas(id_reserva_temporaria={self.id_reserva_temporaria}, id_responsavel={self.id_responsavel}, "
             f"id_responsavel_especial={self.id_responsavel_especial}, tipo_responsavel={self.tipo_responsavel}, "
             f"id_reserva_local={self.id_reserva_local}, id_reserva_aula={self.id_reserva_aula}, "
             f"finalidade_reserva={self.finalidade_reserva}, observacoes={self.observacoes}, "
             f"descricao={self.descricao}, inicio_reserva={self.inicio_reserva}, "
-            f"fim_reserva={self.fim_reserva})"
+            f"fim_reserva={self.fim_reserva})>"
         )

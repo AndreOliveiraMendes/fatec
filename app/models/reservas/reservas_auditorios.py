@@ -52,9 +52,9 @@ class Reservas_Auditorios(Base):
         dia = self.dia_reserva
         return f" {aula} em {local} no dia {dia}"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
-            f"ReservaAuditorio(id_reserva_auditorio={self.id_reserva_auditorio}, "
+            f"<ReservaAuditorio(id_reserva_auditorio={self.id_reserva_auditorio}, "
             f"id_responsavel={self.id_responsavel}, "
             f"id_reserva_local={self.id_reserva_local}, "
             f"id_reserva_aula={self.id_reserva_aula}, "
@@ -62,5 +62,5 @@ class Reservas_Auditorios(Base):
             f"status_reserva={self.status_reserva}, "
             f"id_autorizador={self.id_autorizador}, "
             f"observação_responsavel={self.observação_responsavel}, "
-            f"observação_autorizador={self.observação_autorizador})"
+            f"observação_autorizador={self.observação_autorizador})>"
         )

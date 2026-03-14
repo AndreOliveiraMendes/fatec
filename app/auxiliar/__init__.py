@@ -9,4 +9,5 @@ from .model import *
 from .navigation import *
 from .parsing import *
 from .parsing_core import *
+from .shared import *
 from .template import *

@@ -44,11 +44,11 @@ class Exibicao_Reservas(Base):
         dia = parse_date(self.exibicao_dia)
         return f" {dia} no {local} as {aula}"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
-            f"Exibicao_Reservas(id_exibicao={self.id_exibicao}, id_exibicao_local={self.id_exibicao_local}, "
+            f"<Exibicao_Reservas(id_exibicao={self.id_exibicao}, id_exibicao_local={self.id_exibicao_local}, "
             f"id_exibicao_aula={self.id_exibicao_aula}, exibicao_dia={self.exibicao_dia}, "
-            f"tipo_reserva={self.tipo_reserva})"
+            f"tipo_reserva={self.tipo_reserva})>"
         )
 
 class Situacoes_Das_Reserva(Base):

@@ -4,6 +4,7 @@ from typing import Any
 from flask import Blueprint, abort, render_template, request, session
 
 from app.auxiliar.parsing import parse_date_string
+from app.auxiliar.shared import resolver_reserva
 from app.dao.internal.aulas import get_turno_by_time, get_turnos
 from app.dao.internal.reservas import get_reservas_por_dia
 from app.dao.internal.usuarios import get_user
@@ -11,28 +12,13 @@ from app.decorators.decorators import admin_required
 from app.enums import SituacaoChaveEnum, TipoAulaEnum
 from app.extensions import db
 from app.models.aulas import Turnos
+from config.json_related import carregar_config_geral
 
 from .handler import process_reservas
 
 bp = Blueprint('situacao_reservas', __name__, url_prefix="/situacoes_reservas")
 
-def verificar_merge_reserva(reserva_1, reserva_2, tolerancia=20):
-    mesma_sala = reserva_1.get('local') == reserva_2.get('local')
-    mesmo_professor = reserva_1.get('id_responsavel') == reserva_2.get('id_responsavel')
 
-    if not (mesma_sala and mesmo_professor):
-        return False
-
-    # pega fim da primeira e início da segunda
-    h1 = reserva_1.get('horarios')[-1].aula.horario_fim
-    h2 = reserva_2.get('horarios')[0].aula.horario_inicio
-
-    dt1 = datetime.combine(datetime.today(), h1)
-    dt2 = datetime.combine(datetime.today(), h2)
-
-    diff_min = abs((dt2 - dt1).total_seconds() // 60)  # sempre positivo
-
-    return diff_min <= tolerancia
 
 @bp.route('/')
 @admin_required
@@ -71,5 +57,10 @@ def gerenciar_situacoes():
         except ValueError:
             abort(400, "erro ao processar o tipo de horario")
     reservas_fixas, reservas_temporarias = get_reservas_por_dia(reserva_dia, reserva_turno, reserva_tipo_horario)
-    extras['reservas'] = process_reservas(reservas_fixas, reservas_temporarias, reserva_dia)
+    extras['config'] = carregar_config_geral()
+    pre_processed_reservas = process_reservas(reservas_fixas, reservas_temporarias, reserva_dia)
+    reservas = []
+    for r in pre_processed_reservas:
+        fixa, temp, exibicao = r.fixa, r.temporaria, r.exibicao
+        choose, tipo = resolver_reserva(temp, fixa, exibicao)
     return render_template("gestão_reservas/situacoes_reservas.html", user=user, **extras)

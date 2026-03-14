@@ -1,110 +1,26 @@
 from datetime import date
 from urllib.parse import urlparse
 
-from flask import (Blueprint, abort, current_app, flash, redirect,
-                   render_template, request, session, url_for)
+from flask import (Blueprint, abort, flash, redirect, render_template, request,
+                   session, url_for)
 from markupsafe import Markup
 from sqlalchemy import select
 
 from app.auxiliar.constant import DB_ERRORS, Permission
 from app.auxiliar.general import none_if_empty
-from app.dao.external.disponibilidade import get_prioridade
-from app.dao.internal.aulas import (get_aulas_ativas_por_semestre,
-                                    get_aulas_extras)
 from app.dao.internal.historicos import registrar_log_generico_usuario
-from app.dao.internal.locais import get_laboratorios
-from app.dao.internal.reservas import check_conflict_reservas_fixas
-from app.dao.internal.usuarios import (get_pessoas, get_user,
-                                       get_usuarios_especiais)
 from app.decorators.decorators import reserva_fixa_required
 from app.enums import FinalidadeReservaEnum
 from app.extensions import db
 from app.models.aulas import Semestres, Turnos
-from app.models.locais import Locais
 from app.models.reservas.reservas_laboratorios import Reservas_Fixas
 from app.models.usuarios import Permissoes, Usuarios
-from app.routes_helper.request import check_local
-from app.routes_helper.tables import builder_helper_fixa
 
-# ========= BLUEPRINT =========
+from .handlers import (_current_user, _get_lab_especifico, _get_lab_geral,
+                       _get_semestre_or_403, _handle_db_error, _has_conflict,
+                       _parse_reserva_key)
+
 bp = Blueprint('reservas_semanais', __name__, url_prefix="/reserva_fixa")
-
-
-# ========= HELPERS =========
-
-def _current_user():
-    userid = session.get("userid")
-    user = get_user(userid)
-    if not user:
-        abort(403, description="Usuário não autenticado.")
-    return userid, user
-
-
-def _get_semestre_or_403(id_semestre, userid, perm):
-    semestre = db.get_or_404(Semestres, id_semestre)
-    _check_semestre(semestre, userid, perm)
-    return semestre
-
-
-def _check_semestre(semestre, userid, perm):
-    if perm & Permission.ADMIN:
-        return
-
-    today = date.today()
-
-    if not (semestre.data_inicio_reserva <= today <= semestre.data_fim_reserva):
-        abort(403, description="Semestre fora do período de reservas.")
-
-    if (today - semestre.data_inicio_reserva).days < semestre.dias_de_prioridade:
-        has_priority, prioridade = get_prioridade()
-        user = db.get_or_404(Usuarios, userid)
-
-        if has_priority and prioridade and user.pessoa.id_pessoa not in prioridade:
-            abort(403, description="Usuário não se enquadra na regra de prioridade.")
-
-
-def _parse_reserva_key(key: str):
-    key = key.removeprefix("reserva[").removesuffix("]") if hasattr(key, "removeprefix") else key[8:-1]
-    return tuple(map(int, key.split(",")))
-
-
-def _has_conflict(semestre, reservas, user):
-    dia = semestre.data_inicio
-    cache = {}
-    visited = set()
-
-    for _, aula in reservas:
-        if aula not in cache:
-            cache[aula] = check_conflict_reservas_fixas(dia, aula, user.id_pessoa)
-
-        if cache[aula]["conflict"] or aula in visited:
-            return True
-
-        visited.add(aula)
-
-    return False
-
-
-def _build_base_extras(semestre, turno=None, local=None):
-    return {
-        "semestre": semestre,
-        "turno": turno,
-        "local": local,
-        "day": date.today(),
-        "finalidade_reserva": FinalidadeReservaEnum,
-        "responsavel": get_pessoas(),
-        "responsavel_especial": get_usuarios_especiais(),
-        "contador_fixa": session.get("contador_fixa")
-    }
-
-
-def _handle_db_error(e, msg):
-    db.session.rollback()
-    flash(f"{msg}: {str(getattr(e, 'orig', e))}", "danger")
-    current_app.logger.error(f"{msg}: {e}")
-
-
-# ========= REQUEST HOOK =========
 
 @bp.before_request
 def return_counter():
@@ -123,9 +39,6 @@ def return_counter():
     )
 
     session["contador_fixa"] = session.get("contador_fixa", 0) + 1 if dentro else 1
-
-
-# ========= ROUTES =========
 
 @bp.route("/")
 @reserva_fixa_required
@@ -167,7 +80,6 @@ def main_page():
         day=today
     )
 
-
 @bp.route("/semestre/<int:id_semestre>")
 @reserva_fixa_required
 def get_semestre(id_semestre):
@@ -190,7 +102,6 @@ def get_semestre(id_semestre):
         day=date.today()
     )
 
-
 @bp.route('/semestre/<int:id_semestre>/turno/lab')
 @bp.route('/semestre/<int:id_semestre>/turno/lab/<int:id_lab>')
 @bp.route('/semestre/<int:id_semestre>/turno/<int:id_turno>/lab')
@@ -202,54 +113,6 @@ def get_lab(id_semestre, id_turno=None, id_lab=None):
         if id_lab else
         _get_lab_geral(id_semestre, id_turno)
     )
-
-
-def _get_lab_geral(id_semestre, id_turno):
-    userid, user = _current_user()
-    semestre = _get_semestre_or_403(id_semestre, userid, user.perm)
-
-    turno = db.get_or_404(Turnos, id_turno) if id_turno else None
-    aulas = get_aulas_ativas_por_semestre(semestre, turno)
-    locais = get_laboratorios(bool(user.perm & Permission.ADMIN))
-
-    if not aulas or not locais:
-        flash("não há recursos disponíveis", "danger")
-        return redirect(url_for("default.home"))
-
-    extras = _build_base_extras(semestre, turno)
-    extras.update(
-        aulas=aulas,
-        locais=locais,
-        aulas_extras=get_aulas_extras(semestre, turno)
-    )
-
-    return render_template("reserva_fixa/geral.html", user=user, **extras)
-
-
-def _get_lab_especifico(id_semestre, id_turno, id_lab):
-    userid, user = _current_user()
-    semestre = _get_semestre_or_403(id_semestre, userid, user.perm)
-
-    turno = db.get_or_404(Turnos, id_turno) if id_turno else None
-    local = db.get_or_404(Locais, id_lab)
-    check_local(local, user.perm)
-
-    aulas = get_aulas_ativas_por_semestre(semestre, turno)
-    if not aulas:
-        flash("não há horários disponíveis", "danger")
-        return redirect(url_for("default.home"))
-
-    extras = _build_base_extras(semestre, turno, local)
-    builder_helper_fixa(extras, aulas)
-
-    extras.update(
-        aulas=aulas,
-        locais=get_laboratorios(bool(user.perm & Permission.ADMIN)),
-        aulas_extras=get_aulas_extras(semestre, turno)
-    )
-
-    return render_template("reserva_fixa/especifico.html", user=user, **extras)
-
 
 @bp.route("/semestre/<int:id_semestre>", methods=["POST"])
 @reserva_fixa_required
