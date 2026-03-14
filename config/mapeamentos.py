@@ -65,28 +65,30 @@ mapa_icones_status = {
 situacoes_helper = [
     {
         "state": "exibicao",
-        "url_path": "gestao_reserva.gerenciar_exibicao",
+        "url_path": "exibicao_reserva.gerenciar_exibicao",
         "label": "controle de exibição"
     },
     {
-        "state": "fixa",
-        "url_path": "gestao_reserva.gerenciar_situacoes",
-        "param": {
-            "tipo_reserva": "fixa"
+        "state": "situacao",
+        "url_path": "situacao_reservas.gerenciar_situacoes",
+        "label": "situação reserva"
+    },{
+        "state":"fixa",
+        "url_path":'gestao_reserva.gerenciar_situacoes',
+        "param":{
+            "tipo_reserva":"fixa"
         },
-        "label": "situação reserva fixa"
-    },
-    {
-        "state": "temporaria",
-        "url_path": "gestao_reserva.gerenciar_situacoes",
-        "param": {
-            "tipo_reserva": "temporaria"
+        "label":"situação reserva fixa"
+    },{
+        "state":"temporaria",
+        "url_path":'gestao_reserva.gerenciar_situacoes',
+        "param":{
+            "tipo_reserva":"temporaria"
         },
-        "label": "situação reserva temporaria"
-    },
-    {
+        "label":"situação reserva temporaria"
+    },{
         "state": "comandos",
-        "url_path": "gestao_reserva.comandos_remotos",
+        "url_path": "comandos_remotos.comandos_remotos",
         "label": "comandos remotos"
     }
 ]

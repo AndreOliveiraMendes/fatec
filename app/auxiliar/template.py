@@ -245,15 +245,15 @@ def register_template_utils(app:Flask):
         return Markup(''.join(html_parts))
 
     @app.template_global()
-    def generate_situacao_head(current: Literal['exibicao', 'fixa', 'temporaria', 'comandos']) -> Markup:
+    def generate_situacao_head(current: Literal['exibicao', 'situacao', 'fixa', 'temporaria', 'comandos']) -> Markup:
         html_parts: List[str] = ['<div class="pills-group"><ul class="nav nav-pills">']
         
         for builder in situacoes_helper:
             state = builder.get('state')
-            url_path = builder.get('url_path')
-            args = builder.get('param', {})
+            url_path = builder.get('url_path', 'default.under_dev_page')
             label = builder.get('label', state)
-            url = url_for(url_path, **args)
+            params = builder.get('param', {})
+            url = url_for(url_path, **params)
             
             active_class = 'active' if current == state else ''
             disabled_class = 'disabled_a_click' if current == state else ''
