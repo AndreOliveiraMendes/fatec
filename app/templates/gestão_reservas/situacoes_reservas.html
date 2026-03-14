@@ -4,7 +4,7 @@
 {% endblock title %}
 {% block content %}
     {{ generate_situacao_head("situacao") }}
-    <h3>Hoje: {{ hoje|data }}</h3>
+    <h3>Hoje: {{ hoje|datahora }}</h3>
     <div class="panel panel-default">
         <div class="panel-heading">
             <h3 class="panel-title">
@@ -30,7 +30,7 @@
                             <option value="">Selecionar o turno</option>
                             {% for turno in turnos %}
                                 <option value="{{ turno.id_turno }}"
-                                        {% if turno.id_turno == request.args.get('reserva_turno') | int %}selected{% endif %}>
+                                        {% if turno.id_turno == reserva_turno %}selected{% endif %}>
                                     {{ turno.nome_turno }}
                                 </option>
                             {% endfor %}
@@ -69,11 +69,26 @@
                         <tbody>
                             {% for reserva in reservas %}
                                 <tr>
-                                    <td></td>
+                                    <td>{{ reserva.horarios[0].aula.horario_inicio|hora }} - {{ reserva.horarios[-1].aula.horario_fim|hora }}</td>
                                     <td>{{ reserva.local.nome_local }}</td>
-                                    <td>{{ reserva.responsavel }}</td>
                                     <td>
-                                    {#
+                                        {{ reserva.responsavel }}
+                                        {% set tipos = reserva.tipo | unique | list %}
+                                        {% if tipos|length == 1 and tipos[0] == "fixa" %}
+                                            <span class="badge badge-fixa" title="Reserva fixa">
+                                                <span class="glyphicon glyphicon-pushpin"></span> F
+                                            </span>
+                                        {% elif tipos|length == 1 and tipos[0] == "temporaria" %}
+                                            <span class="badge badge-temp" title="Reserva temporária">
+                                                <span class="glyphicon glyphicon-time"></span> T
+                                            </span>
+                                        {% else %}
+                                            <span class="badge badge-mista" title="Reserva mista">
+                                                <span class="glyphicon glyphicon-random"></span> M
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
                                         {% if reserva.situacao %}
                                             {% if reserva.situacao.situacao_chave.value == 'não pegou a chave' %}
                                                 {% set color = "danger" %}
@@ -90,15 +105,19 @@
                                                 <span class="badge badge_status badge-default">???</span>
                                             {% endif %}
                                         {% endif %}
-                                    #}
                                     </td>
                                     <td>
                                         <form class="form-inline"
                                               role="form"
+                                              action="{{ url_for('situacao_reservas.atualizar') }}"
                                               method="post">
-                                            {%- for aula in reserva.horarios -%}
-                                                <input type="hidden" name="aulas" value="{{ aula.id_aula_ativa }}">
+                                            {%- for aula, tipo in reserva.cat -%}
+                                                <input type="hidden"
+                                                       name="info"
+                                                       value='{{ {"aula": aula.id_aula_ativa, "tipo": tipo}|tojson }}'>
                                             {%- endfor -%}
+                                            <input type="hidden" name="lab" value="{{ reserva.local.id_local }}">
+                                            <input type="hidden" name="dia" value="{{ reserva_dia }}">
                                             {% for sit in situacaoChave %}
                                                 {% if reserva.situacao and reserva.situacao.situacao_chave.value == sit[0].value %}
                                                     {% set color = sit[1][1] %}
@@ -143,3 +162,18 @@
         })
     </script>
 {% endblock extra_script %}
+{% block extra_css %}
+    <style>
+        .badge-fixa {
+            background-color: #4a90e2;
+        }
+
+        .badge-temp {
+            background-color: #f39c12;
+        }
+
+        .badge-mista {
+            background-color: #8e44ad;
+        }
+    </style>
+{% endblock extra_css %}

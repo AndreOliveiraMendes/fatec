@@ -1,4 +1,8 @@
-def resolver_reserva(temp, fixa, exibicao):
+from app.models.controle import Exibicao_Reservas
+from app.models.reservas.reservas_laboratorios import Reservas_Fixas, Reservas_Temporarias
+
+
+def resolver_reserva(temp:Reservas_Temporarias|None, fixa:Reservas_Fixas|None, exibicao:Exibicao_Reservas|None):
     choose = temp or fixa
 
     tipo = (
@@ -8,10 +12,12 @@ def resolver_reserva(temp, fixa, exibicao):
     )
 
     if exibicao:
-        choose = {"fixa": fixa, "temporaria": temp}.get(
-            exibicao.tipo_reserva.value,
-            choose
-        )
+        if exibicao.tipo_reserva.value == "fixa":
+            choose = fixa
+            tipo = "fixa"
+        elif exibicao.tipo_reserva.value == "temporaria":
+            choose = temp
+            tipo = "temporaria"
 
         tipo = {
             "fixa": "fixa",

@@ -130,6 +130,8 @@ def gerenciar_situacoes_reservas_fixas(extras):
         extras['reserva_dia'], turno, TipoAulaEnum(extras['reserva_tipo_horario'])
     )
     reservas = []
+    modo = extras.get("config", {}).get("modo_gerenciacao", "multiplo")
+    toleranca = int(extras.get("config", {}).get("toleranca", 20))
     if reservas_fixas:
         for r in reservas_fixas:
             reserva = {}
@@ -137,9 +139,7 @@ def gerenciar_situacoes_reservas_fixas(extras):
             reserva['local'] = r.local
             reserva['responsavel'] = get_responsavel_reserva(r, True)
             reserva['id_responsavel'] = (r.id_responsavel, r.id_responsavel_especial)
-            modo = extras.get("config", {}).get("modo_gerenciacao", "multiplo")
             ultima = reservas[-1] if reservas else None
-            toleranca = int(extras.get("config", {}).get("toleranca", 20))
             
             if modo == "multiplo" and ultima is not None and verificar_merge_reserva(ultima, reserva, toleranca):
                 ultima["horarios"] += reserva["horarios"]
@@ -157,15 +157,15 @@ def gerenciar_situacoes_reservas_temporarias(extras):
         extras['reserva_dia'], turno, TipoAulaEnum(extras['reserva_tipo_horario'])
     )
     reservas = []
+    modo = extras.get("config", {}).get("modo_gerenciacao", "multiplo")
+    toleranca = int(extras.get("config", {}).get("toleranca", 20))
     for r in reservas_temporarias:
         reserva = {}
         reserva['horarios'] = [r.aula_ativa]
         reserva['local'] = r.local
         reserva['responsavel'] = get_responsavel_reserva(r, True)
         reserva['id_responsavel'] = (r.id_responsavel, r.id_responsavel_especial)
-        modo = extras.get("config", {}).get("modo_gerenciacao", "multiplo")
         ultima = reservas[-1] if reservas else None
-        toleranca = int(extras.get("config", {}).get("toleranca", 20))
         
         if modo == "multiplo" and ultima is not None and verificar_merge_reserva(ultima, reserva, toleranca):
             ultima["horarios"] += reserva["horarios"]
@@ -215,8 +215,10 @@ def atualizar_situacoes_fixa(common):
             sucess_messages.append(f"situação {i + 1} atualizada com sucesso")
         except DB_ERRORS as e:
             handle_db_error(e, "Erro ao executar ação")
+            error_messages.append(f"erro ao atualizar situacao {i + 1}")
         except ValueError as e:
             handle_db_error(e, "Erro ao executar ação")
+            error_messages.append(f"erro ao atualizar situacao {i + 1}")
     if sucess_messages:
         flash('<br>'.join(sucess_messages), "success")
     if error_messages:
