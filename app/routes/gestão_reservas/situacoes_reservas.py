@@ -45,7 +45,7 @@ def gerenciar_situacoes():
     extras['situacaoChave'] = list(zip(SituacaoChaveEnum, icons))
     extras['turnos'] = get_turnos()
     extras['tipo_aula'] = TipoAulaEnum
-    reserva_dia = parse_date_string(request.args.get('reserva-dia'))
+    reserva_dia = parse_date_string(request.args.get('reserva_dia'))
     if not reserva_dia:
         reserva_dia = hoje.date()
     extras['reserva_dia'] = reserva_dia
