@@ -29,7 +29,7 @@ def gerenciar_situacoes(tipo_reserva):
     extras: dict[str, Any] = {'hoje':hoje}
     extras['icons'] = icons
     extras['situacaoChave'] = list(zip(SituacaoChaveEnum, icons))
-    reserva_dia = parse_date_string(request.args.get('reserva-dia', default=hoje.date().strftime("%Y-%m-%d")))
+    reserva_dia = parse_date_string(request.args.get('reserva_dia', default=hoje.date().strftime("%Y-%m-%d")))
     reserva_turno = request.args.get('reserva_turno', type=int)
     reserva_tipo_horario = request.args.get('reserva_tipo_horario', default=TipoAulaEnum.AULA.value)
     if not 'reserva_turno' in request.args:

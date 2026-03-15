@@ -148,4 +148,4 @@ def atualizar():
         flash('<br>'.join(sucess_messages), "success")
     if error_messages:
         flash('<br>'.join(error_messages))
-    return redirect(url_for('situacao_reservas.gerenciar_situacoes'))
+    return redirect(url_for('situacao_reservas.gerenciar_situacoes', reserva_dia=dia))

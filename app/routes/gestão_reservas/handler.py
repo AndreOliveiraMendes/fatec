@@ -223,7 +223,7 @@ def atualizar_situacoes_fixa(common):
         flash('<br>'.join(sucess_messages), "success")
     if error_messages:
         flash('<br>'.join(error_messages))
-    return redirect(url_for('gestao_reserva.gerenciar_situacoes', tipo_reserva="fixa"))
+    return redirect(url_for('gestao_reserva.gerenciar_situacoes', tipo_reserva="fixa", reserva_dia=dia))
 
 def atualizar_situacoes_temporaria(common):
     userid = common.get('userid')
@@ -271,4 +271,4 @@ def atualizar_situacoes_temporaria(common):
         flash('<br>'.join(sucess_messages), "success")
     if error_messages:
         flash('<br>'.join(error_messages))
-    return redirect(url_for('gestao_reserva.gerenciar_situacoes', tipo_reserva="temporaria"))
+    return redirect(url_for('gestao_reserva.gerenciar_situacoes', tipo_reserva="temporaria", reserva_dia=dia))
