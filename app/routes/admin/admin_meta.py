@@ -3,11 +3,8 @@ from time import time
 from flask import Blueprint, jsonify, render_template
 
 from app.decorators.decorators import admin_required
-from app.routes.admin.handlers.handler_admin_meta import (checkout_branch,
-                                                          commits_ahead,
+from app.routes.admin.handlers.handler_admin_meta import (commits_ahead,
                                                           commits_behind,
-                                                          create_branch,
-                                                          delete_branch,
                                                           get_branch,
                                                           get_commit,
                                                           get_last_commit_info,
@@ -15,6 +12,10 @@ from app.routes.admin.handlers.handler_admin_meta import (checkout_branch,
                                                           get_remote_branches,
                                                           get_remote_commit,
                                                           git, git_available,
+                                                          git_checkout_branch,
+                                                          git_create_branch,
+                                                          git_delete_branch,
+                                                          git_fetch_prune,
                                                           git_pull,
                                                           has_local_changes,
                                                           last_fetch_time)
@@ -116,7 +117,7 @@ def fetch():
 @admin_required
 def checkout(branch):
 
-    out, err, code = checkout_branch(branch)
+    out, err, code = git_checkout_branch(branch)
 
     return jsonify({"out":out, "err": err, "code": code})
 
@@ -131,7 +132,7 @@ def create():
     if not branch:
         return "Nome da branch não informado"
 
-    out, err, code = create_branch(branch)
+    out, err, code = git_create_branch(branch)
 
     return jsonify({"out":out, "err": err, "code": code})
 
@@ -139,6 +140,13 @@ def create():
 @admin_required
 def delete(branch):
 
-    out, err, code = delete_branch(branch)
+    out, err, code = git_delete_branch(branch)
 
+    return jsonify({"out":out, "err": err, "code": code})
+
+@bp.route("/prune")
+@admin_required
+def prune():
+    out, err, code = git_fetch_prune()
+    
     return jsonify({"out":out, "err": err, "code": code})

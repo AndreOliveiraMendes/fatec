@@ -60,12 +60,18 @@
                 {% endfor %}
             </table>
         </div>
+        <div class="panel panel-danger">
+            <div class="panel-heading">Ações extras</div>
+            <div class="panel-body">
+                <button class="btn btn-xs btn-danger git-action"
+                        data-url="{{ url_for('admin_meta.prune') }}">prunar</button>
+            </div>
+        </div>
         <a href="{{ url_for('admin_meta.central') }}" class="btn btn-default">← Voltar</a>
     </div>
 {% endblock content %}
 {% block extra_script %}
     <script>
-
         document.querySelectorAll(".git-action").forEach(btn => {
 
             btn.addEventListener("click", function(){

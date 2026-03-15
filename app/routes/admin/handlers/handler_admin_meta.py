@@ -7,6 +7,16 @@ from datetime import datetime
 def git_available():
     return shutil.which("git") is not None
 
+def git(*args):
+    if not git_available():
+        return "", "Git não está disponível no servidor.", -1
+    result = subprocess.run(
+        ["git", *args],
+        capture_output=True,
+        text=True
+    )
+    return result.stdout.strip(), result.stderr.strip(), result.returncode
+
 def get_branch():
     out, _, _ = git("rev-parse", "--abbrev-ref", "HEAD")
     return out
@@ -31,14 +41,12 @@ def get_last_commit_info():
         "message": msg
     }
 
-
 def commits_ahead():
     out, _, _ = git("rev-list", "origin/main..HEAD", "--count")
     try:
         return int(out)
     except:
         return 0
-
 
 def last_fetch_time():
     path = ".git/FETCH_HEAD"
@@ -48,16 +56,6 @@ def last_fetch_time():
 
     ts = os.path.getmtime(path)
     return datetime.fromtimestamp(ts)
-
-def git(*args):
-    if not git_available():
-        return "", "Git não está disponível no servidor.", -1
-    result = subprocess.run(
-        ["git", *args],
-        capture_output=True,
-        text=True
-    )
-    return result.stdout.strip(), result.stderr.strip(), result.returncode
 
 def has_local_changes():
     out, _, _ = git("status", "--porcelain")
@@ -106,7 +104,6 @@ def get_local_branches():
 
     return branches
 
-
 def get_remote_branches():
     out, err, code = git("branch", "-r")
 
@@ -120,14 +117,14 @@ def get_remote_branches():
 
     return branches
 
-
-def checkout_branch(branch):
+def git_checkout_branch(branch):
     return git("checkout", branch)
 
-
-def create_branch(branch):
+def git_create_branch(branch):
     return git("checkout", "-b", "branch")
 
-
-def delete_branch(branch):
+def git_delete_branch(branch):
     return git("branch", "-D", branch)
+
+def git_fetch_prune():
+    return git("fetch", "--prune")
