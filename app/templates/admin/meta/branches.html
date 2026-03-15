@@ -1,0 +1,88 @@
+{% extends "base-fixed" %}
+{% block title %}
+    Admin • Branches
+{% endblock title %}
+{% block content %}
+    <div class="container">
+        <h3>Painel de Branches</h3>
+        <div class="panel panel-default">
+            <div class="panel-heading">Criar Branch</div>
+            <div class="panel-body">
+                <form action="{{ url_for('admin_meta.create') }}" method="get">
+                    <div class="form-group">
+                        <input type="text"
+                               name="name"
+                               class="form-control"
+                               placeholder="nome-da-branch">
+                    </div>
+                    <button class="btn btn-success">Criar Branch</button>
+                </form>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">Branches Locais</div>
+            <table class="table table-bordered">
+                <tr>
+                    <th>Branch</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+                {% for b in local_branches %}
+                    <tr>
+                        <td>{{ b.name }}</td>
+                        <td>
+                            {% if b.current %}<span class="label label-success">Atual</span>{% endif %}
+                        </td>
+                        <td>
+                            {% if not b.current %}
+                                <button class="btn btn-xs btn-primary git-action"
+                                        data-url="{{ url_for('admin_meta.checkout', branch=b.name) }}">
+                                    Checkout
+                                </button>
+                                <button class="btn btn-xs btn-danger git-action"
+                                        data-url="{{ url_for('admin_meta.delete', branch=b.name) }}">Delete</button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">Branches Remotas</div>
+            <table class="table table-bordered">
+                <tr>
+                    <th>Branch</th>
+                </tr>
+                {% for b in remote_branches %}
+                    <tr>
+                        <td>{{ b }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <a href="{{ url_for('admin_meta.central') }}" class="btn btn-default">← Voltar</a>
+    </div>
+{% endblock content %}
+{% block extra_script %}
+    <script>
+
+        document.querySelectorAll(".git-action").forEach(btn => {
+
+            btn.addEventListener("click", function(){
+
+                const url = this.dataset.url
+
+                if(url.includes("delete_branch")){
+                    if(!confirm("Deletar branch?")) return
+                }
+
+                fetch(url)
+                .then(r => r.text())
+                .then(() => location.reload())
+
+            })
+
+        })
+
+    </script>
+{% endblock extra_script %}

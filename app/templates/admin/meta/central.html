@@ -88,23 +88,59 @@
         <div class="panel panel-default">
             <div class="panel-heading">Ações</div>
             <div class="panel-body">
-                <a href="{{ url_for('admin_meta.fetch') }}"
-                   class="btn btn-primary"
-                   target="_blank">
+                <button class="btn btn-primary git-action"
+                        data-url="{{ url_for('admin_meta.fetch') }}">
                     <span class="glyphicon glyphicon-download"></span>
                     Atualizar informações (fetch)
-                </a>
+                </button>
                 {% if status.local_changes %}
                     <div class="alert alert-danger">Existem alterações locais no repositório. O update foi bloqueado.</div>
                 {% elif status.behind > 0 %}
-                    <a href="{{ url_for('admin_meta.update') }}" class="btn btn-success">
+                    <button class="btn btn-success git-action"
+                            data-url="{{ url_for('admin_meta.update') }}">
                         <span class="glyphicon glyphicon-refresh"></span>
                         Atualizar sistema
-                    </a>
+                    </button>
                 {% else %}
                     <div class="alert alert-success">Sistema já está atualizado.</div>
                 {% endif %}
+                <a href="{{ url_for('admin_meta.branches') }}" class="btn btn-info">
+                    <span class="glyphicon glyphicon-random"></span>
+                    Branches
+                </a>
             </div>
         </div>
     </div>
 {% endblock content %}
+{% block extra_script %}
+    <script>
+
+        document.querySelectorAll(".git-action").forEach(btn => {
+
+            btn.addEventListener("click", function(){
+
+                const url = this.dataset.url
+
+                this.disabled = true
+                this.innerHTML = "Executando..."
+
+                fetch(url)
+                .then(r => r.text())
+                .then(() => {
+
+                    location.reload()
+
+                })
+                .catch(() => {
+
+                    alert("Erro ao executar ação")
+                    location.reload()
+
+                })
+
+            })
+
+        })
+
+    </script>
+{% endblock extra_script %}

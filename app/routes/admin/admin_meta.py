@@ -1,8 +1,23 @@
 from time import time
 
 from flask import Blueprint, jsonify, render_template
+
 from app.decorators.decorators import admin_required
-from app.routes.admin.handlers.handler_admin_meta import commits_ahead, commits_behind, get_branch, get_commit, get_last_commit_info, get_remote_commit, git, git_available, git_pull, has_local_changes, last_fetch_time
+from app.routes.admin.handlers.handler_admin_meta import (checkout_branch,
+                                                          commits_ahead,
+                                                          commits_behind,
+                                                          create_branch,
+                                                          delete_branch,
+                                                          get_branch,
+                                                          get_commit,
+                                                          get_last_commit_info,
+                                                          get_local_branches,
+                                                          get_remote_branches,
+                                                          get_remote_commit,
+                                                          git, git_available,
+                                                          git_pull,
+                                                          has_local_changes,
+                                                          last_fetch_time)
 
 bp = Blueprint("admin_meta", __name__, url_prefix="/admin/meta")
 START_TIME = time()
@@ -28,12 +43,24 @@ def central():
         "admin/meta/central.html",
         status=status
     )
+    
+@bp.route("/branches")
+@admin_required
+def branches():
+
+    return render_template(
+        "admin/meta/branches.html",
+        local_branches=get_local_branches(),
+        remote_branches=get_remote_branches(),
+        current=get_branch()
+    )
 
 @bp.route("/health")
 @admin_required
 def health():
 
     uptime_seconds = int(time() - START_TIME)
+    last_fetch = last_fetch_time()
 
     status = {
         "status": "ok",
@@ -45,8 +72,8 @@ def health():
             "behind": commits_behind(),
             "local_changes": has_local_changes(),
             "last_fetch": (
-                last_fetch_time().isoformat()
-                if last_fetch_time()
+                last_fetch.isoformat()
+                if last_fetch
                 else None
             ),
             "git_installed": git_available()
@@ -75,12 +102,43 @@ def update():
 
     out, err, code = git_pull()
 
-    return f"<pre>{out}</pre>"
+    return jsonify({"out":out, "err": err, "code": code})
 
 @bp.route("/fetch")
 @admin_required
 def fetch():
 
     out, err, code = git("fetch")
+
+    return jsonify({"out":out, "err": err, "code": code})
+    
+@bp.route("/checkout/<branch>")
+@admin_required
+def checkout(branch):
+
+    out, err, code = checkout_branch(branch)
+
+    return jsonify({"out":out, "err": err, "code": code})
+
+@bp.route("/create_branch")
+@admin_required
+def create():
+
+    from flask import request
+
+    branch = request.args.get("name")
+
+    if not branch:
+        return "Nome da branch não informado"
+
+    out, err, code = create_branch(branch)
+
+    return jsonify({"out":out, "err": err, "code": code})
+
+@bp.route("/delete_branch/<branch>")
+@admin_required
+def delete(branch):
+
+    out, err, code = delete_branch(branch)
 
     return jsonify({"out":out, "err": err, "code": code})
