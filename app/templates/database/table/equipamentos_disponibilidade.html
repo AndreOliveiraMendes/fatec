@@ -1,0 +1,324 @@
+{% extends "database/table/base_crude" %}
+{% macro result_table(message) %}
+    {% call(item) table_base(
+        disponibilidades,
+        ['ID Disponibilidade', 'Equipamento', 'Dia', 'Quantidade', 'Gerado em', 'Atualizado em'],
+        id_field='id_disponibilidade',
+        message=message,
+        pagination=pagination,
+        acao=acao,
+        bloco=bloco,
+        query_params=query_params
+        ) %}
+        <td>{{ item.id_disponibilidade }}</td>
+        <td>{{ item.equipamento.nome_equipamento }}</td>
+        <td>{{ item.data|data }}</td>
+        <td>{{ item.quantidade_total }}</td>
+        <td>{{ item.gerado_em|datahora }}</td>
+        <td>{{ item.atualizado_em|datahora }}</td>
+    {% endcall %}
+{% endmacro %}
+{% block title %}
+    equipamento disponibilidade
+{% endblock title %}
+{% block abertura %}
+    <h3>
+        Gerenciamento da Tabela <strong>Equipamentos Disponibilidade</strong>
+    </h3>
+    <p>
+        A tabela <code>equipamentos_disponibilidade</code> possui os seguintes campos:
+    </p>
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover">
+            <thead>
+                <tr class="information">
+                    <th>Campo</th>
+                    <th>Tipo</th>
+                    <th>Descrição</th>
+                    <th>Valores Possíveis</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <code>id_disponibilidade</code>
+                    </td>
+                    <td>INT (auto_increment, PK)</td>
+                    <td>Identificador único do registro de disponibilidade do equipamento.</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>id_equipamento</code>
+                    </td>
+                    <td>INT (NOT NULL, FK)</td>
+                    <td>Identificador do equipamento ao qual a disponibilidade pertence.</td>
+                    <td>
+                        Valores de <code>id_equipamento</code> existentes na tabela
+                        <code>equipamentos</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>data</code>
+                    </td>
+                    <td>DATE (NOT NULL)</td>
+                    <td>Data referente ao controle de disponibilidade do equipamento.</td>
+                    <td>
+                        Formato <code>YYYY-MM-DD</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>quantidade_total</code>
+                    </td>
+                    <td>INT (NOT NULL)</td>
+                    <td>Quantidade total de unidades disponíveis nesta data.</td>
+                    <td>Número inteiro ≥ 0</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>gerado_em</code>
+                    </td>
+                    <td>DATETIME (NOT NULL)</td>
+                    <td>Data e hora de criação do registro.</td>
+                    <td>
+                        Formato <code>YYYY-MM-DD HH:MM:SS</code>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>atualizado_em</code>
+                    </td>
+                    <td>DATETIME (NOT NULL)</td>
+                    <td>Data e hora da última atualização do registro.</td>
+                    <td>
+                        Formato <code>YYYY-MM-DD HH:MM:SS</code>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="alert alert-info">
+        <strong>Regras de Negócio Implícitas</strong>
+        <ul>
+            <li>
+                Para cada combinação de <code>id_equipamento</code> e <code>data</code>
+                deve existir no máximo um registro de disponibilidade.
+            </li>
+            <li>
+                A disponibilidade representa o controle diário de estoque do
+                equipamento.
+            </li>
+            <li>
+                O campo <code>atualizado_em</code> deve refletir a última alteração
+                feita no registro.
+            </li>
+        </ul>
+    </div>
+{% endblock abertura %}
+{% block listar %}
+    <h3>Lista de disponibilidades</h3>
+    {{ result_table("Nenhuma disponibilidade cadastrada") }}
+{% endblock listar %}
+{% block procurar %}
+    {% if bloco == 0 %}
+        <h3>Procurar Disponibilidade de Equipamentos</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label for="codigo">ID do Registro:</label>
+                <input type="number"
+                       class="form-control"
+                       name="id_disponibilidade"
+                       id="codigo"
+                       placeholder="Digite o ID">
+            </div>
+            {{ gerar_select('equipamento',
+                        'Equipamento',
+                        equipamentos,
+                        'id_equipamento',
+                        'nome_equipamento',
+                        optional=True) }}
+            <h4>Faixa de Data</h4>
+            <div class="form-group">
+                <label>De:</label>
+                <input type="date"
+                       class="form-control"
+                       name="data_start"
+                       placeholder="Início do período">
+            </div>
+            <div class="form-group">
+                <label>Até:</label>
+                <input type="date"
+                       class="form-control"
+                       name="data_end"
+                       placeholder="Fim do período">
+            </div>
+            <h4>Faixa de Quantidade Total</h4>
+            <div class="form-group">
+                <label>Mínimo:</label>
+                <input type="number"
+                       class="form-control"
+                       name="quantidade_min"
+                       placeholder="Quantidade mínima">
+            </div>
+            <div class="form-group">
+                <label>Máximo:</label>
+                <input type="number"
+                       class="form-control"
+                       name="quantidade_max"
+                       placeholder="Quantidade máxima">
+            </div>
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <h3>Resultados da Busca:</h3>
+        {{ result_table("Nenhum resultado encontrado.") }}
+    {% endif %}
+{% endblock procurar %}
+{% block inserir %}
+    <h3>Inserir Disponibilidade de Equipamento</h3>
+    <form class="form-group"
+          role="form"
+          action="{{ url_for(url) }}"
+          method="post">
+        <input type="hidden" name="acao" value="{{ acao }}">
+        {{ gerar_select('id_equipamento',
+                'Equipamento',
+                equipamentos,
+                'id_equipamento',
+                'nome_equipamento') }}
+        <div class="form-group">
+            <label>Data:</label>
+            <input type="date" class="form-control" name="data" required>
+        </div>
+        <div class="form-group">
+            <label>Quantidade Disponível:</label>
+            <input type="number"
+                   class="form-control"
+                   name="quantidade_total"
+                   min="0"
+                   placeholder="Quantidade total disponível"
+                   required>
+        </div>
+        {{ action_buttons(acao, 1, False, 0) }}
+    </form>
+{% endblock inserir %}
+{% block editar %}
+    {% if bloco == 0 %}
+        <h3>Editando disponibilidade de equipamentos</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            {{ gerar_select("id_disponibilidade", "Selecione o registro", disponibilidades, "id_disponibilidade", "selector_identification") }}
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <h3>Editar disponibilidade</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <!-- ID Disponibilidade (somente leitura) -->
+            <div class="form-group">
+                <label for="id_disponibilidade">ID da Disponibilidade:</label>
+                <input type="text"
+                       class="form-control"
+                       name="id_disponibilidade"
+                       id="id_disponibilidade"
+                       value="{{ disponibilidade.id_disponibilidade }}"
+                       readonly>
+            </div>
+            {{ gerar_select("id_equipamento",
+                        "Selecione o equipamento",
+                        equipamentos,
+                        "id_equipamento",
+                        "nome_equipamento",
+                        selected=disponibilidade.id_equipamento) }}
+            <!-- Data -->
+            <div class="form-group">
+                <label for="data">Data:</label>
+                <input type="date"
+                       class="form-control"
+                       name="data"
+                       id="data"
+                       value="{{ disponibilidade.data }}"
+                       required>
+            </div>
+            <!-- Quantidade total -->
+            <div class="form-group">
+                <label for="quantidade_total">Quantidade Total:</label>
+                <input type="number"
+                       class="form-control"
+                       name="quantidade_total"
+                       id="quantidade_total"
+                       min="0"
+                       value="{{ disponibilidade.quantidade_total }}"
+                       required>
+            </div>
+            {{ action_buttons(acao, 2, True, 0) }}
+        </form>
+    {% endif %}
+{% endblock editar %}
+{% block excluir %}
+    {% if bloco == 0 %}
+        <h3>Excluir disponibilidade de equipamentos</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            {{ gerar_select("id_disponibilidade", "Selecione o registro", disponibilidades, "id_disponibilidade", "selector_identification") }}
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <!-- ID -->
+            <div class="form-group">
+                <label for="id_disponibilidade">ID da Disponibilidade:</label>
+                <input type="text"
+                       class="form-control"
+                       name="id_disponibilidade"
+                       id="id_disponibilidade"
+                       value="{{ disponibilidade.id_disponibilidade }}"
+                       readonly>
+            </div>
+            <!-- Equipamento -->
+            <div class="form-group">
+                <label for="equipamento">Equipamento:</label>
+                <input type="text"
+                       class="form-control"
+                       value="{{ disponibilidade.equipamento.nome_equipamento }}"
+                       disabled>
+            </div>
+            <!-- Data -->
+            <div class="form-group">
+                <label for="data">Data:</label>
+                <input type="text"
+                       class="form-control"
+                       value="{{ disponibilidade.data }}"
+                       disabled>
+            </div>
+            <!-- Quantidade -->
+            <div class="form-group">
+                <label for="quantidade_total">Quantidade Total:</label>
+                <input type="number"
+                       class="form-control"
+                       value="{{ disponibilidade.quantidade_total }}"
+                       disabled>
+            </div>
+            {{ action_buttons(acao, 2, True, 0, False) }}
+        </form>
+    {% endif %}
+{% endblock excluir %}

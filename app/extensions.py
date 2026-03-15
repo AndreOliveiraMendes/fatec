@@ -6,3 +6,5 @@ class Base(DeclarativeBase):
     pass
 
 db = SQLAlchemy(model_class=Base)
+
+__all__ = ["db", "Base"]

@@ -20,6 +20,7 @@ from app.extensions import db
 from app.models.aulas import Aulas, Aulas_Ativas, Dias_da_Semana
 from app.models.reservas.reservas_laboratorios import (Reservas_Fixas,
                                                        Reservas_Temporarias)
+from app.routes_helper.ui import get_log_summary
 from app.security.cryptograph import load_key
 from config.database_views import SECOES
 from config.general import LOCAL_TIMEZONE
@@ -110,8 +111,9 @@ def gerenciar_menu():
             "path": os.path.abspath(SECRET_PATH),
             "last_modified": datetime.fromtimestamp(mtime).strftime("%d/%m/%Y %H:%M:%S")
         }
-    return render_template("admin/admin.html", user=user,
-        secoes=SECOES, key=key, key_info=key_info)
+    error_count, last_lines = get_log_summary()
+    return render_template("admin/painel/admin.html", user=user,
+        secoes=SECOES, key=key, error_count=error_count, last_lines=last_lines)
 
 @bp.route("/configurar_painel", methods=['GET', 'POST'])
 @admin_required
@@ -263,7 +265,7 @@ def menu_reservas():
     user = get_user(userid)
     today = datetime.now(LOCAL_TIMEZONE)
     extras = {'datetime':today}
-    return render_template("admin/menu_reserva.html", user=user, **extras)
+    return render_template("admin/observacoes/menu_reserva.html", user=user, **extras)
 
 @bp.route("/observações/reservas_fixas")
 @admin_required
@@ -289,7 +291,7 @@ def get_observações_fixa():
     extras['pagination'] = reservas_fixas
     # pra conservar os parametros
     extras['args_extras'] = args_extras
-    return render_template("admin/observações_fixa.html", user=user, **extras)
+    return render_template("admin/observacoes/observações_fixa.html", user=user, **extras)
 
 @bp.route('/observações/reservas_temporarias')
 @admin_required
@@ -314,4 +316,4 @@ def get_observações_temporaria():
     extras['pagination'] = reservas_temporaria
     # pra conservar os parametros
     extras['args_extras'] = args_extras
-    return render_template("admin/observações_temporaria.html", user=user, **extras)
+    return render_template("admin/observacoes/observações_temporaria.html", user=user, **extras)

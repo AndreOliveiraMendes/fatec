@@ -1,0 +1,72 @@
+
+{% from "macros/pagination.html" import paginacao, paginacao_header, paginacao_button, paginacao_footer %}
+{% macro table_base(
+    items,
+    headers,
+    id_field=None,
+    message='Nenhum registro encontrado.',
+    alert_class='alert-info',
+    table_class='',
+    show_actions=True,
+    vertical_actions=False,
+    pagination=None,
+    acao=None,
+    bloco=None,
+    query_params=None,
+    bloco_action=1
+    ) %}
+    {% if items %}
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered table-hover {{ table_class }}">
+                <thead>
+                    <tr class="info">
+                        {% for h in headers %}<th>{{ h }}</th>{% endfor %}
+                        {% if show_actions %}<th>Ação</th>{% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                        <tr>
+                            {% if caller %}{{ caller(item) }}{% endif %}
+                            {% if show_actions %}
+                                <td>
+                                    <form method="post" class="form-inline">
+                                        <input type="hidden" name="bloco" value="{{ bloco_action }}">
+                                        <input type="hidden"
+                                               name="{{ id_field }}"
+                                               value="{{ item[id_field] }}">
+                                        <div class="btn-group{% if vertical_actions %}-vertical{% endif %}">
+                                            <button type="submit"
+                                                    name="acao"
+                                                    value="editar"
+                                                    class="btn btn-warning btn-sm"
+                                                    title="Editar">
+                                                <i class="glyphicon glyphicon-pencil"></i>
+                                            </button>
+                                            <button type="submit"
+                                                    name="acao"
+                                                    value="excluir"
+                                                    class="btn btn-danger btn-sm"
+                                                    title="Excluir">
+                                                <i class="glyphicon glyphicon-trash"></i>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if pagination %}
+            {% if query_params %}
+                {{ paginacao(pagination, acao, bloco, query_params) }}
+            {% else %}
+                {{ paginacao(pagination, acao, bloco) }}
+            {% endif %}
+        {% endif %}
+    {% else %}
+        <div class="alert {{ alert_class }}">{{ message }}</div>
+    {% endif %}
+{% endmacro %}

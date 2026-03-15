@@ -1,15 +1,14 @@
 from copy import copy
 from datetime import datetime
-from typing import Any, Literal
+from typing import Any
 
 from flask import (Blueprint, abort, flash, redirect, render_template, request,
                    session, url_for)
-from sqlalchemy import func, select
 
-from app.auxiliar.constant import DB_ERRORS, PERM_ADMIN, PERM_AUTORIZAR
-from app.auxiliar.general import none_if_empty
-from app.auxiliar.parsing import parse_date_string
-from app.dao.internal.general import _handle_db_error
+from app.auxiliar.constant import DB_ERRORS, Permission
+from app.auxiliar.general import get_value_or_abort
+from app.auxiliar.parsing import parse_date_string, parse_date_string_or_abort
+from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.locais import get_auditorios
 from app.dao.internal.reservas import get_reservas_auditorios_filtrada
@@ -18,8 +17,9 @@ from app.decorators.decorators import reserva_auditorio_required
 from app.enums import StatusReservaAuditorioEnum
 from app.extensions import db
 from app.models.reservas.reservas_auditorios import Reservas_Auditorios
-from app.models.usuarios import Usuarios
 from config.general import LOCAL_TIMEZONE
+
+from .handler import check_own_reserva, check_role, check_unique_aprovada
 
 bp = Blueprint('reservas_auditorios', __name__, url_prefix="/reserva_auditorio")
 
@@ -51,33 +51,8 @@ def main_page():
             conditions.append(Reservas_Auditorios.dia_reserva >= reserva_dia_inicio)
         if reserva_dia_fim:
             conditions.append(Reservas_Auditorios.dia_reserva <= reserva_dia_fim)
-    extras['reservas_auditorios'] = get_reservas_auditorios_filtrada(user.pessoa.id_pessoa, user.perm&(PERM_ADMIN+PERM_AUTORIZAR) > 0, *conditions)
+    extras['reservas_auditorios'] = get_reservas_auditorios_filtrada(user.pessoa.id_pessoa, user.perm&(Permission.ADMIN+Permission.AUTORIZAR) > 0, *conditions)
     return render_template('reserva_auditorio/main.html', user=user, **extras)
-
-def check_own_reserva(reserva:Reservas_Auditorios, user:Usuarios):
-    if user.id_pessoa != reserva.id_responsavel and user.perm & (PERM_ADMIN+PERM_AUTORIZAR) == 0:
-        abort(403, description="Acesso negado à reserva de outro usuário.")
-
-def check_role(user:Usuarios, action:Literal['CR', 'AR']):
-    if action == 'CR' and user.perm & PERM_ADMIN == 0:
-        abort(403, description="Acesso negado à atualização de reservas.")
-    elif action == 'AR' and user.perm & (PERM_ADMIN+PERM_AUTORIZAR) == 0:
-        abort(403, description="Acesso negado à autorização de reservas.")
-
-def check_unique_aprovada(reserva:Reservas_Auditorios):
-    count_rtc = select(func.count()).select_from(Reservas_Auditorios).where(
-        Reservas_Auditorios.id_reserva_auditorio != reserva.id_reserva_auditorio,
-        Reservas_Auditorios.id_reserva_local == reserva.id_reserva_local,
-        Reservas_Auditorios.id_reserva_aula == reserva.id_reserva_aula,
-        Reservas_Auditorios.dia_reserva == reserva.dia_reserva,
-        Reservas_Auditorios.status_reserva == StatusReservaAuditorioEnum.APROVADA
-    )
-    res = db.session.scalar(count_rtc)
-    if res is None:
-        res = 0
-    if res > 0:
-        abort(409, description="Já existe uma reserva aprovada para este auditório no mesmo horário.")
-
 
 @bp.route('/atualizar_status_reserva/<int:id_reserva>', methods=['POST'])
 @reserva_auditorio_required
@@ -106,9 +81,9 @@ def atualizar_status(id_reserva):
             db.session.commit()
             flash("Reserva Atualizada com sucesso", "success")
         except DB_ERRORS as e:
-            _handle_db_error(e, "Erro ao atualizar reserva")
+            handle_db_error(e, "Erro ao atualizar reserva")
         except ValueError as e:
-            _handle_db_error(e, "Erro ao atualizar reserva")
+            handle_db_error(e, "Erro ao atualizar reserva")
     if old_status in ['Aguardando', 'Aprovada', 'Reprovada'] and new_status in ['Aprovada', 'Reprovada']:
         check_role(user, "AR")
         if new_status == 'Aprovada':
@@ -123,9 +98,9 @@ def atualizar_status(id_reserva):
             db.session.commit()
             flash("Reserva Atualizada com sucesso", "success")
         except DB_ERRORS as e:
-            _handle_db_error(e, "Erro ao atualizar reserva")
+            handle_db_error(e, "Erro ao atualizar reserva")
         except ValueError as e:
-            _handle_db_error(e, "Erro ao atualizar reserva")
+            handle_db_error(e, "Erro ao atualizar reserva")
     return redirect(url_for('reservas_auditorios.main_page'))
 
 @bp.route('/get_info/<int:id_reserva>')
@@ -173,7 +148,7 @@ def editar_observacao(field, id_reserva):
         db.session.commit()
         flash(f"Comentario {field} realizado com sucesso", "success")
     except DB_ERRORS as e:
-        _handle_db_error(e, "Erro ao comentar")
+        handle_db_error(e, "Erro ao comentar")
     return redirect(url_for('reservas_auditorios.main_page'))
 
 @bp.route('/adicionando_reserva_auditorio', methods=['POST'])
@@ -183,12 +158,10 @@ def adicionar():
     user = get_user(userid)
     if not user:
         abort(403, description="Usuário não encontrado.")
-    auditorio = none_if_empty(request.form.get('auditorio'), int)
-    dia = parse_date_string(request.form.get('dia'))
-    hora = none_if_empty(request.form.get('hora'), int)
+    auditorio = get_value_or_abort(request.form.get('auditorio'), 400, "id do auditorio é obritagorio", int)
+    dia = parse_date_string_or_abort(request.form.get('dia'), 400, "dia é obrigatorio")
+    hora = get_value_or_abort(request.form.get('hora'), 400, "id do horario é obrigatorio", int)
     observacao = request.form.get('observacao')
-    if auditorio is None or dia is None or hora is None:
-        abort(400, description="Parâmetros inválidos para criação de reserva.")
     try:
         nova_reserva = Reservas_Auditorios()
         nova_reserva.id_reserva_local = auditorio
@@ -206,5 +179,5 @@ def adicionar():
         db.session.commit()
         flash("reserva adicionada com sucesso", "success")
     except DB_ERRORS as e:
-        _handle_db_error(e, "Erro ao adicionar reserva")
+        handle_db_error(e, "Erro ao adicionar reserva")
     return redirect(url_for('reservas_auditorios.main_page'))

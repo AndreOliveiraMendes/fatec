@@ -1,7 +1,40 @@
+from enum import IntFlag
+
 from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
                             InternalError, OperationalError, ProgrammingError)
 
-# exceptions for database
+# --------------------------------------------------
+# Database exceptions
+# --------------------------------------------------
+
+class IntervalConflictError(Exception):
+    def __init__(self, message, table=None, fields=None, values=None, interval=None):
+        self.message = message
+        self.table = table
+        self.fields = fields
+        self.values = values
+        self.interval = interval
+        super().__init__(message)
+
+    def __str__(self):
+        context = []
+
+        if self.table:
+            context.append(f"table={self.table!r}")
+
+        if self.fields:
+            context.append(f"fields={self.fields!r}")
+
+        if self.values:
+            context.append(f"values={self.values!r}")
+            
+        if self.interval:
+            context.append(f"interval={self.interval!r}")
+
+        if context:
+            return f"{self.message} | " + " ".join(context)
+
+        return self.message
 
 DB_ERRORS = (
     DataError,
@@ -9,18 +42,44 @@ DB_ERRORS = (
     InterfaceError,
     InternalError,
     OperationalError,
-    ProgrammingError
+    ProgrammingError,
+    IntervalConflictError
 )
 
-#flags de permissão
-PERM_RESERVA_FIXA = 1
-PERM_RESERVA_TEMPORARIA = 2
-PERM_RESERVA_AUDITORIO = 4
-PERM_ADMIN = 8
-PERM_AUTORIZAR = 16
-PERM_CMD_CONFIG = 32
+# --------------------------------------------------
+# Schema exception
+# --------------------------------------------------
 
-#flags de formatação de data
+class CircularDependencyError(Exception):
+    pass
+
+# --------------------------------------------------
+# Permission flags (bitmask)
+# --------------------------------------------------
+
+class Permission(IntFlag):
+    RESERVA_FIXA = 1
+    RESERVA_TEMPORARIA = 2
+    RESERVA_AUDITORIO = 4
+    ADMIN = 8
+    AUTORIZAR = 16
+    CMD_CONFIG = 32
+
+
+PERMISSIONS = {
+    "FIXA": Permission.RESERVA_FIXA,
+    "TEMP": Permission.RESERVA_TEMPORARIA,
+    "AUDITORIO": Permission.RESERVA_AUDITORIO,
+    "ADMIN": Permission.ADMIN,
+    "AUTORIZAR": Permission.AUTORIZAR,
+    "CONFIGURAR_COMANDOS": Permission.CMD_CONFIG,
+}
+
+
+# --------------------------------------------------
+# Date formatting flags (bitmask)
+# --------------------------------------------------
+
 DATA_NUMERICA = 0x1
 DATA_ABREV = 0x2
 DATA_COMPLETA = 0x4
@@ -28,29 +87,27 @@ HORA = 0x8
 SEMANA_ABREV = 0x10
 SEMANA_COMPLETA = 0x20
 
-#flags de redirect
+
+DATA_FLAGS = {
+    "DATA_NUMERICA": DATA_NUMERICA,
+    "DATA_ABREV": DATA_ABREV,
+    "DATA_COMPLETA": DATA_COMPLETA,
+    "HORA": HORA,
+    "SEMANA_ABREV": SEMANA_ABREV,
+    "SEMANA_COMPLETA": SEMANA_COMPLETA,
+}
+
+
+# --------------------------------------------------
+# Redirect targets
+# --------------------------------------------------
+
 REDIRECT_HOME = "home"
 REDIRECT_TV = "tv"
 
-# permissoes
-PERMISSIONS = {
-    'FIXA': PERM_RESERVA_FIXA,
-    'TEMP': PERM_RESERVA_TEMPORARIA,
-    'AUDITORIO': PERM_RESERVA_AUDITORIO,
-    'ADMIN': PERM_ADMIN,
-    'AUTORIZAR': PERM_AUTORIZAR,
-    'CONFIGURAR_COMANDOS': PERM_CMD_CONFIG
-}
 
-# flags de formato
-DATA_FLAGS = {
-    'DATA_NUMERICA': DATA_NUMERICA,
-    'DATA_ABREV': DATA_ABREV,
-    'DATA_COMPLETA': DATA_COMPLETA,
-    'HORA': HORA,
-    'SEMANA_ABREV': SEMANA_ABREV,
-    'SEMANA_COMPLETA': SEMANA_COMPLETA
-}
+# --------------------------------------------------
+# App info
+# --------------------------------------------------
 
-# app title
-APP_TITLE = "Sistema RLF"
+APP_TITLE = "SGR"

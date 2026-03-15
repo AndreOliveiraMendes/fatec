@@ -1,6 +1,7 @@
 {% extends "base-fluid" %}
-{% from "macros/pagination.html" import paginacao, paginacao_header, paginacao_button, paginacao_footer %}
 {% from "macros/form.html" import generate_navigation_database, gerar_select, action_buttons, manter_parametros %}
+{% from "macros/table_base.html" import table_base %}
+{% from "macros/pagination.html" import paginacao, paginacao_header, paginacao_button, paginacao_footer %}
 {% block title %}
     table
 {% endblock title %}
@@ -8,6 +9,10 @@
     <center>
         {{ generate_navigation_database() }}
         {% block content_head %}
+            <div class="panel panel-default">
+                <div class="panel-heading">{{ generate_database_head(url|blueprint) }}</div>
+                <div class="panel-body">{{ generate_head(url_for(url), acao, disable=disable, include=include) }}</div>
+            </div>
         {% endblock content_head %}
         {% if acao == 'abertura' %}
             {% block abertura %}

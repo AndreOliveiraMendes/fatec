@@ -1,4 +1,4 @@
-# Lab Reservation System
+# Sistema de Gestão e Reserva de Recursos
 
 Flask-based system for managing laboratory reservations.
 
@@ -60,66 +60,17 @@ O sistema segue uma arquitetura em camadas com separação clara entre:
 
 ## 📂 Full Structure
 
-<details>
-<summary>Click to expand full project tree</summary>
+Gerar localmente:
 
+```bash
+./tools/quick_tree_generator.sh
 ```
 
-.
-├── .dockerignore
-├── .env.dev.example
-├── .env.example
-├── .gitignore
-├── Dockerfile
-├── LICENSE
-├── Readme.md
-├── app
-│   ├── **init**.py
-│   ├── **main**.py
-│   ├── auxiliar
-│   │   ├── **init**.py
-│   │   ├── api.py
-│   │   ├── constant.py
-│   │   ├── dao_logic.py
-│   │   ├── dao_query.py
-│   │   ├── dates.py
-│   │   ├── error.py
-│   │   ├── general.py
-│   │   ├── model.py
-│   │   ├── navigation.py
-│   │   ├── parsing.py
-│   │   ├── parsing_core.py
-│   │   └── template.py
-│   ├── dao
-│   │   ├── **init**.py
-│   │   ├── external
-│   │   │   └── general.py
-│   │   └── internal
-│   │       ├── aulas.py
-│   │       ├── controle.py
-│   │       ├── general.py
-│   │       ├── historicos.py
-│   │       ├── locais.py
-│   │       ├── reservas.py
-│   │       └── usuarios.py
-│   ├── decorators
-│   │   └── decorators.py
-│   ├── models
-│   ├── routes
-│   ├── routes_helper
-│   ├── security
-│   ├── static
-│   ├── templates
-│   └── types
-├── config
-├── test
-├── requirements.txt
-├── schema.sql
-└── wsgi.py
+ou no formato .txt
 
+```bash
+./tools/update_structure.sh
 ```
-
-</details>
 
 ------------------------------------------------------------------------
 

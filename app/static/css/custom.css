@@ -298,6 +298,12 @@ body {
     left: 1.7em;
 }
 
+.icon-warning {
+    margin-left: 4px;
+    font-size: 0.85em;
+    opacity: 0.7;
+}
+
 /* ==========================
    BOTÕES DE AÇÃO
    ========================== */
@@ -506,4 +512,71 @@ table>tbody>tr>td.reservado-fixo {
 
 .text-devolveu-chave {
     color: #17a2b8;
+}
+
+/* database header */
+.section-badge {
+    font-size: 7px;
+    background: transparent;
+    border: 1px solid #810feb;
+    color: #999;
+    margin-right: 2px;
+    padding: 2px 4px;
+}
+
+.nav-pills>li.active .section-badge {
+    border-color: #d64242;
+}
+
+.navbar-date {
+    display: flex;
+    align-items: center;
+    /* alinha verticalmente */
+    gap: 10px;
+    /* espaço entre texto e ícone */
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+/* ===== LOG PANEL ===== */
+
+.log-container {
+    margin-top: 15px;
+    max-height: 400px;
+    overflow: auto;
+    font-family: monospace;
+    background: #1e1e1e;
+    color: #dcdcdc;
+    border-radius: 4px;
+}
+
+/* Cada linha */
+.log-line {
+    white-space: pre-wrap;
+}
+
+/* ERROR */
+.log-error {
+    color: #ff6b6b;
+    font-weight: bold;
+}
+
+/* WARNING */
+.log-warning {
+    color: #f0ad4e;
+}
+
+/* Badge quando tem erro */
+.badge-error {
+    background-color: #d9534f;
+}
+
+/* Badge OK */
+.badge-ok {
+    background-color: #5cb85c;
+}
+
+/* utils */
+.pre-wrap {
+    white-space: pre-wrap;
 }

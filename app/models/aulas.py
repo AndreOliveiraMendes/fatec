@@ -23,7 +23,7 @@ class Aulas(Base):
     horario_inicio: Mapped[time] = mapped_column(nullable=False)
     horario_fim: Mapped[time] = mapped_column(nullable=False)
 
-    aulas_ativas: Mapped[list["Aulas_Ativas"]] = relationship(back_populates='aula')
+    aulas_ativas: Mapped[list["Aulas_Ativas"]] = relationship(back_populates='aula', passive_deletes=True)
 
     __table_args__ = (
         UniqueConstraint(
@@ -91,16 +91,14 @@ class Aulas_Ativas(Base):
         ),
     )
 
-    aula: Mapped["Aulas"] = relationship(back_populates='aulas_ativas')
-    reservas_fixas: Mapped[list["Reservas_Fixas"]] = relationship(back_populates='aula_ativa')
-    reservas_temporarias: Mapped[list["Reservas_Temporarias"]] = relationship(back_populates='aula_ativa')
-    reservas_auditorios: Mapped[list["Reservas_Auditorios"]] = relationship(back_populates='aula_ativa')
-    situacoes_das_reservas: Mapped[list["Situacoes_Das_Reserva"]] = relationship(back_populates='aula_ativa')
-    exibicao_reservas: Mapped[list["Exibicao_Reservas"]] = relationship(back_populates='aula_ativa')
-    dia_da_semana: Mapped["Dias_da_Semana"] = relationship(back_populates='aulas_ativas')
-    reservas_equipamentos: Mapped[list["Reservas_Equipamentos"]] = relationship(
-        back_populates="aula_ativa"
-    )
+    aula: Mapped["Aulas"] = relationship(back_populates='aulas_ativas', passive_deletes=True)
+    reservas_fixas: Mapped[list["Reservas_Fixas"]] = relationship(back_populates='aula_ativa', passive_deletes=True)
+    reservas_temporarias: Mapped[list["Reservas_Temporarias"]] = relationship(back_populates='aula_ativa', passive_deletes=True)
+    reservas_auditorios: Mapped[list["Reservas_Auditorios"]] = relationship(back_populates='aula_ativa', passive_deletes=True)
+    situacoes_das_reservas: Mapped[list["Situacoes_Das_Reserva"]] = relationship(back_populates='aula_ativa', passive_deletes=True)
+    exibicao_reservas: Mapped[list["Exibicao_Reservas"]] = relationship(back_populates='aula_ativa', passive_deletes=True)
+    dia_da_semana: Mapped["Dias_da_Semana"] = relationship(back_populates='aulas_ativas', passive_deletes=True)
+    reservas_equipamentos: Mapped[list["Reservas_Equipamentos"]] = relationship(back_populates="aula_ativa", passive_deletes=True)
 
     def __repr__(self) -> str:
         return (
@@ -115,7 +113,7 @@ class Dias_da_Semana(Base):
     id_semana: Mapped[int] = mapped_column(primary_key=True, autoincrement=False)
     nome_semana: Mapped[str] = mapped_column(String(15), nullable=False, unique=True)
 
-    aulas_ativas: Mapped[list["Aulas_Ativas"]] = relationship(back_populates='dia_da_semana')
+    aulas_ativas: Mapped[list["Aulas_Ativas"]] = relationship(back_populates='dia_da_semana', passive_deletes=True)
 
     def __repr__(self) -> str:
         return f"<Dias_da_Semana(id_semana={self.id_semana}, nome_semana={self.nome_semana})>"
@@ -153,7 +151,7 @@ class Semestres(Base):
     data_fim_reserva: Mapped[date] = mapped_column(nullable=False)
     dias_de_prioridade: Mapped[int] = mapped_column(nullable=False)
 
-    reservas_fixas: Mapped[list["Reservas_Fixas"]] = relationship(back_populates='semestre')
+    reservas_fixas: Mapped[list["Reservas_Fixas"]] = relationship(back_populates='semestre', passive_deletes=True)
 
     __table_args__ = (
         UniqueConstraint(

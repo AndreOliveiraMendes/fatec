@@ -1,6 +1,6 @@
 from copy import copy
 from datetime import date
-from typing import Literal, Sequence, overload
+from typing import Sequence
 
 from flask import (Response, abort, current_app, jsonify, request, session,
                    url_for)
@@ -8,11 +8,11 @@ from sqlalchemy import and_, between, func, select
 from sqlalchemy.exc import IntegrityError, MultipleResultsFound
 from sqlalchemy.sql.elements import ColumnElement
 
-from app.auxiliar.constant import DB_ERRORS, PERM_ADMIN
+from app.auxiliar.constant import DB_ERRORS, Permission
 from app.auxiliar.dao_query import get_aula_semana, get_aula_turno
 from app.auxiliar.general import none_if_empty
 from app.auxiliar.parsing import parse_date_string
-from app.dao.internal.general import _handle_db_error
+from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.enums import FinalidadeReservaEnum, TipoAulaEnum
 from app.extensions import db
@@ -72,37 +72,7 @@ def check_reserva_temporaria(inicio, fim, local, aula, id = None):
             orig=Exception("Já existe uma reserva para esse local e horario.")
         )
     
-@overload
-def get_reservas_por_dia(
-    dia: date,
-    turno: Turnos | None,
-    tipo_horario: TipoAulaEnum | None,
-    tipo_reservas: Literal['fixa']
-) -> Sequence[Reservas_Fixas]:
-    ...
-
-@overload
-def get_reservas_por_dia(
-    dia: date,
-    turno: Turnos | None,
-    tipo_horario: TipoAulaEnum | None,
-    tipo_reservas: Literal['temporaria']
-) -> Sequence[Reservas_Temporarias]:
-    ...
-
-@overload
-def get_reservas_por_dia(
-    dia: date,
-    turno: Turnos | None = ...,
-    tipo_horario: TipoAulaEnum | None = ...,
-    tipo_reservas: None = ...
-) -> tuple[
-    Sequence[Reservas_Fixas],
-    Sequence[Reservas_Temporarias]
-]:
-    ...
-
-def get_reservas_por_dia(dia:date, turno:Turnos|None=None, tipo_horario:TipoAulaEnum|None=None, tipo_reservas:Literal['fixa', 'temporaria']|None=None):
+def get_reservas_por_dia(dia:date, turno:Turnos|None=None, tipo_horario:TipoAulaEnum|None=None) -> tuple[Sequence[Reservas_Fixas], Sequence[Reservas_Temporarias]]:
     """
     Obtém as reservas de aulas para um dia específico.
 
@@ -110,60 +80,29 @@ def get_reservas_por_dia(dia:date, turno:Turnos|None=None, tipo_horario:TipoAula
     - dia (date): O dia para o qual as reservas devem ser consultadas.
     - turno (Turnos | None): O turno das aulas (opcional).
     - tipo_horario (TipoAulaEnum | None): O tipo de horário das aulas (opcional).
-    - tipo_reservas (Literal['fixa', 'temporaria'] | None): O tipo de reservas a serem consultadas.
-      Pode ser 'fixa', 'temporaria' ou None para obter ambos.
 
     Retorno:
-    - Se tipo_reservas for 'fixa', retorna uma lista de reservas fixas.
-    - Se tipo_reservas for 'temporaria', retorna uma lista de reservas temporárias.
-    - Se tipo_reservas for None, retorna uma tupla contendo duas listas: (reservas_fixas, reservas_temporarias).
+    - retorna uma tupla contendo duas listas: (reservas_fixas, reservas_temporarias).
     """
-    reservas_fixas, reservas_temporarias = None, None
-    if tipo_reservas is None or tipo_reservas == 'fixa':
-        sel_semestre = select(Semestres).where(
-            between(dia, Semestres.data_inicio, Semestres.data_fim)
-        )
-        try:
-            reservas_fixas, reservas_temporarias = None, None
-            semestre = db.session.execute(sel_semestre).scalar_one_or_none()
-            if semestre:
-                filtro_fixa = [Reservas_Fixas.id_reserva_semestre == semestre.id_semestre]
-                if turno is not None:
-                    filtro_fixa.append(get_aula_turno(turno))
-                #dia da semana
-                filtro_fixa.append(get_aula_semana(dia))
-                #tipo horario
-                if tipo_horario is not None:
-                    filtro_fixa.append(Aulas_Ativas.tipo_aula == tipo_horario)
-                sel_reserva_fixa = (
-                    select(Reservas_Fixas).where(
-                        *filtro_fixa
-                    ).select_from(Reservas_Fixas)
-                    .join(Aulas_Ativas)
-                    .join(Aulas)
-                    .join(Locais)
-                    .order_by(
-                        Locais.id_local,
-                        Aulas.horario_inicio
-                    )
-                )
-                reservas_fixas = db.session.execute(sel_reserva_fixa).scalars().all()
-        except MultipleResultsFound:
-            abort(500, description="Erro ao consultar reservas fixas.")
-    if tipo_reservas is None or tipo_reservas == 'temporaria':
-        try:
-            filtro_temp: list[ColumnElement[bool]] = [between(dia, Reservas_Temporarias.inicio_reserva, Reservas_Temporarias.fim_reserva)]
+    reservas_fixas, reservas_temporarias = [], []
+    sel_semestre = select(Semestres).where(
+        between(dia, Semestres.data_inicio, Semestres.data_fim)
+    )
+    try:
+        semestre = db.session.execute(sel_semestre).scalar_one_or_none()
+        if semestre:
+            filtro_fixa: list[ColumnElement[bool]] = [Reservas_Fixas.id_reserva_semestre == semestre.id_semestre]
             if turno is not None:
-                filtro_temp.append(get_aula_turno(turno))
+                filtro_fixa.append(get_aula_turno(turno))
             #dia da semana
-            filtro_temp.append(get_aula_semana(dia))
+            filtro_fixa.append(get_aula_semana(dia))
             #tipo horario
             if tipo_horario is not None:
-                filtro_temp.append(Aulas_Ativas.tipo_aula == tipo_horario)
-            sel_reserva_temporaria = (
-                select(Reservas_Temporarias).where(
-                    *filtro_temp
-                ).select_from(Reservas_Temporarias)
+                filtro_fixa.append(Aulas_Ativas.tipo_aula == tipo_horario)
+            sel_reserva_fixa = (
+                select(Reservas_Fixas).where(
+                    *filtro_fixa
+                ).select_from(Reservas_Fixas)
                 .join(Aulas_Ativas)
                 .join(Aulas)
                 .join(Locais)
@@ -172,15 +111,34 @@ def get_reservas_por_dia(dia:date, turno:Turnos|None=None, tipo_horario:TipoAula
                     Aulas.horario_inicio
                 )
             )
-            reservas_temporarias = db.session.execute(sel_reserva_temporaria).scalars().all()
-        except MultipleResultsFound:
-            abort(500, description="Erro ao consultar reservas temporarias.")
-    if tipo_reservas == 'fixa':
-        return reservas_fixas
-    elif tipo_reservas == 'temporaria':
-        return reservas_temporarias
-    else:
-        return reservas_fixas, reservas_temporarias
+            reservas_fixas = db.session.execute(sel_reserva_fixa).scalars().all()
+    except MultipleResultsFound:
+        abort(500, description="Erro ao consultar reservas fixas.")
+    try:
+        filtro_temp: list[ColumnElement[bool]] = [between(dia, Reservas_Temporarias.inicio_reserva, Reservas_Temporarias.fim_reserva)]
+        if turno is not None:
+            filtro_temp.append(get_aula_turno(turno))
+        #dia da semana
+        filtro_temp.append(get_aula_semana(dia))
+        #tipo horario
+        if tipo_horario is not None:
+            filtro_temp.append(Aulas_Ativas.tipo_aula == tipo_horario)
+        sel_reserva_temporaria = (
+            select(Reservas_Temporarias).where(
+                *filtro_temp
+            ).select_from(Reservas_Temporarias)
+            .join(Aulas_Ativas)
+            .join(Aulas)
+            .join(Locais)
+            .order_by(
+                Locais.id_local,
+                Aulas.horario_inicio
+            )
+        )
+        reservas_temporarias = db.session.execute(sel_reserva_temporaria).scalars().all()
+    except MultipleResultsFound:
+        abort(500, description="Erro ao consultar reservas temporarias.")
+    return reservas_fixas, reservas_temporarias
     
 def api_get_reserva_fixa_info(id_reserva):
     reserva = db.get_or_404(Reservas_Fixas, id_reserva)
@@ -231,7 +189,7 @@ def check_ownership_or_admin(reserva: Reservas_Fixas | Reservas_Temporarias):
     perm = db.session.get(Permissoes, userid)
 
     if reserva.id_responsavel != user.pessoa.id_pessoa and (
-        not perm or perm.permissao & PERM_ADMIN == 0
+        not perm or perm.permissao & Permission.ADMIN == 0
     ):
         abort(403, description="Acesso negado à reserva de outro usuário.")
 
@@ -239,7 +197,7 @@ def check_periodo_fixa(reserva: Reservas_Fixas):
     userid = session.get('userid')
     perm = db.session.get(Permissoes, userid)
 
-    if perm and perm.permissao & PERM_ADMIN:
+    if perm and perm.permissao & Permission.ADMIN:
         return True
 
     hoje = date.today()
@@ -337,10 +295,10 @@ def update_reserva_fixa(id_reserva):
         return Response(status=204)
 
     except DB_ERRORS as e:
-        _handle_db_error(e, "falha ao atualizar a reserva")
+        handle_db_error(e, "falha ao atualizar a reserva")
         return Response(status=500)
     except ValueError as e:
-        _handle_db_error(e, "falha ao atualizar a reserva")
+        handle_db_error(e, "falha ao atualizar a reserva")
         return Response(status=500)
     
 def update_reserva_temporaria(id_reserva):
@@ -389,10 +347,10 @@ def update_reserva_temporaria(id_reserva):
         return Response(status=204)
 
     except DB_ERRORS as e:
-        _handle_db_error(e, "falha ao atualizar a reserva")
+        handle_db_error(e, "falha ao atualizar a reserva")
         return Response(status=500)
     except ValueError as e:
-        _handle_db_error(e, "falha ao atualizar a reserva")
+        handle_db_error(e, "falha ao atualizar a reserva")
         return Response(status=500)
     
 def delete_reserva_fixa(id_reserva):
@@ -415,7 +373,7 @@ def delete_reserva_fixa(id_reserva):
         return Response(status=204)
 
     except DB_ERRORS as e:
-        _handle_db_error(e, "falha ao remover reserva")
+        handle_db_error(e, "falha ao remover reserva")
         return Response(status=500)
 
 def delete_reserva_temporaria(id_reserva):
@@ -438,7 +396,7 @@ def delete_reserva_temporaria(id_reserva):
         return Response(status=204)
 
     except DB_ERRORS as e:
-        _handle_db_error(e, "falha ao remover reserva")
+        handle_db_error(e, "falha ao remover reserva")
         return Response(status=500)
     
 def get_reserva_fixa_indirect(dia, id_local, id_aula):

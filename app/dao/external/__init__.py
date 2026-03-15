@@ -1,1 +1,2 @@
-from .general import *
+from .academico import *
+from .disponibilidade import *

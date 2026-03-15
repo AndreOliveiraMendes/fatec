@@ -1,62 +1,15 @@
-from flask import Blueprint, Response, abort, render_template, session
-from sqlalchemy import MetaData, Table, UniqueConstraint, inspect
-from sqlalchemy.dialects import mysql
-from sqlalchemy.schema import CreateTable
+from flask import (Blueprint, Response, abort, flash, redirect,
+                   render_template, session, url_for)
+from sqlalchemy import inspect
 
+from app.auxiliar.constant import CircularDependencyError
 from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import admin_required
 from app.extensions import db
+from app.routes_helper.database import (get_create_table, get_crud_progress,
+                                        get_topologic_sorted)
 
 bp = Blueprint('database_main', __name__, url_prefix="/database")
-
-def get_topologic_sorted(fks):
-    result, sorted_tables = [], []
-    to_be_sorted = [table for table in fks.keys()]
-    interaction = 0
-    while len(to_be_sorted) > 0:
-        sorted_this_interaction = []
-        for table in to_be_sorted:
-            dependencies = fks[table]
-            if not dependencies or all(dep in sorted_tables for dep in dependencies):
-                sorted_this_interaction.append(table)
-        to_be_sorted = [table for table in to_be_sorted if table not in sorted_this_interaction]
-        for table in sorted_this_interaction:
-            sorted_tables.append(table)
-            result.append((table, interaction))
-        interaction += 1
-    return result
-
-def get_create_table(table_name):
-    metadata = MetaData()
-    inspector = inspect(db.engine)
-    uks = inspector.get_unique_constraints(table_name)
-    tabela = Table(table_name, metadata, autoload_with=db.engine)
-    for uk in uks:
-        tabela.append_constraint(UniqueConstraint(*uk['column_names'], name=uk['name']))
-    ddl = CreateTable(tabela, if_not_exists=True).compile(db.engine, dialect=mysql.dialect())
-    return str(ddl)
-
-def dfs(table, fks, visited):
-    if table in visited:
-        return visited[table] == 0
-    else:
-        visited[table] = 0
-        for dep_table in fks[table]:
-            cycles = dfs(dep_table, fks,visited)
-            if cycles:
-                return True
-        visited[table] = 1
-        return False
-
-def has_cycle(fks):
-    cycles = False
-    visited = {}
-    for table in fks.keys():
-        if not table in visited:
-            cycles = dfs(table, fks, visited)
-        if cycles:
-            return True
-    return cycles
 
 @bp.route("/")
 @admin_required
@@ -64,7 +17,50 @@ def menu():
     userid = session.get('userid')
     user = get_user(userid)
     extras = {}
+
     return render_template("database/menu.html", user=user, **extras)
+
+@bp.route("/crud-progress")
+@admin_required
+def crud_progress():
+
+    userid = session.get('userid')
+    user = get_user(userid)
+
+    try:
+        progress = get_crud_progress()
+    except CircularDependencyError:
+        flash("Ciclos detectados nas dependências de tabelas.", "warning")
+        return redirect(url_for('database_main.menu'))
+
+    total = len(progress)
+    defined = sum(1 for item in progress.values() if item.get("defined"))
+    active = sum(1 for item in progress.values() if item.get("active"))
+    candidates = (
+        (table, item)
+        for table, item in progress.items()
+        if not item.get('active', False) or not item.get('defined', False)
+    )
+
+    next_table, _ = min(candidates, key=lambda x: x[1].get('depth'), default=(None, None))
+    percent_defined = int((defined / total) * 100) if total else 0
+    percent_active = int((active / total) * 100) if total else 0
+
+    extras = {
+        "progress": progress,
+        "total": total,
+        "defined": defined,
+        "active": active,
+        "percent_defined": percent_defined,
+        "percent_active": percent_active,
+        "next_table": next_table
+    }
+
+    return render_template(
+        "database/schema/crud_progress.html",
+        user=user,
+        **extras
+    )
 
 @bp.route("/view")
 @admin_required
@@ -126,31 +122,104 @@ def wiki():
 def schema():
     userid = session.get('userid')
     user = get_user(userid)
-    extras = {}
+
     inspector = inspect(db.engine)
     tables = inspector.get_table_names()
-    fks = {table:[fk['referred_table'] for fk in inspector.get_foreign_keys(table)] for table in tables}
-    if not has_cycle(fks):
-        topologic_tables = [table_info + (get_create_table(table_info[0]),) for table_info in get_topologic_sorted(fks)]
-        extras['topologic_tables'] = topologic_tables
-    else:
-        extras['tables_sql'] = [(table, get_create_table(table)) for table in tables]
 
-    return render_template("database/schema/schema.html", user=user, **extras)
+    fks = {
+        table: [fk['referred_table'] for fk in inspector.get_foreign_keys(table)]
+        for table in tables
+    }
+
+    extras = {}
+
+    try:
+        topologic_tables = [
+            table_info + (get_create_table(table_info[0]),)
+            for table_info in get_topologic_sorted(fks)
+        ]
+        extras["topologic_tables"] = topologic_tables
+
+    except CircularDependencyError:
+        extras["tables_sql"] = [
+            (table, get_create_table(table))
+            for table in tables
+        ]
+
+    return render_template(
+        "database/schema/schema.html",
+        user=user,
+        **extras
+    )
+
+@bp.route("/schema/diagram")
+@admin_required
+def schema_diagram():
+    userid = session.get('userid')
+    user = get_user(userid)
+
+    inspector = inspect(db.engine)
+    tables = inspector.get_table_names()
+
+    fks = {table:[fk['referred_table'] for fk in inspector.get_foreign_keys(table)] for table in tables}
+    columns = {}
+    pks = {table: inspector.get_pk_constraint(table)['constrained_columns'] for table in tables}
+
+    for table in tables:
+
+        fk_columns = set()
+
+        for fk in inspector.get_foreign_keys(table):
+            for col in fk['constrained_columns']:
+                fk_columns.add(col)
+
+        columns[table] = []
+
+        for col in inspector.get_columns(table):
+
+            columns[table].append({
+                "name": col["name"],
+                "type": str(col["type"]),
+                "pk": col["name"] in pks.get(table, []),
+                "fk": col["name"] in fk_columns
+            })
+
+    extras = {}
+    extras['fks'] = fks
+    extras['columns'] = columns
+
+    return render_template("database/schema/diagram.html", user=user, **extras)
 
 @bp.route("/schema/sql")
 @admin_required
 def schema_file():
     inspector = inspect(db.engine)
     tables = inspector.get_table_names()
-    fks = {table:[fk['referred_table'] for fk in inspector.get_foreign_keys(table)] for table in tables}
-    if has_cycle(fks):
-        abort(422, description="Não foi possível gerar o esquema: dependências cíclicas detectadas.")
-    else:
-        tables_creation_sql = [get_create_table(table_info[0]) for table_info in get_topologic_sorted(fks)]
-        conteudo = "\n\n".join(map(lambda c: str(c).strip().rstrip(";\n") + ";", tables_creation_sql))
-        return Response(
-            conteudo,
-            mimetype="text/plain; charset=utf-8",
-            headers={"Content-Disposition": "attachment;filename=schema.sql"}
+
+    fks = {
+        table: [fk['referred_table'] for fk in inspector.get_foreign_keys(table)]
+        for table in tables
+    }
+
+    try:
+        tables_creation_sql = [
+            get_create_table(table_info[0])
+            for table_info in get_topologic_sorted(fks)
+        ]
+
+    except CircularDependencyError:
+        abort(
+            422,
+            description="Não foi possível gerar o esquema: dependências cíclicas detectadas."
         )
+
+    conteudo = "\n\n".join(
+        str(c).strip().rstrip(";\n") + ";"
+        for c in tables_creation_sql
+    )
+
+    return Response(
+        conteudo,
+        mimetype="text/plain; charset=utf-8",
+        headers={"Content-Disposition": "attachment;filename=schema.sql"}
+    )

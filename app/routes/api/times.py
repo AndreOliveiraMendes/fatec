@@ -9,13 +9,14 @@ from sqlalchemy.exc import (DataError, IntegrityError, InterfaceError,
 
 from app.auxiliar.dao_query import get_aula_intervalo, sort_periodos
 from app.auxiliar.parsing import parse_date_string
-from app.dao.internal.aulas import check_aula_ativa, get_aulas_ativas_por_dia
+from app.dao.internal.aulas import get_aulas_ativas_por_dia
 from app.dao.internal.general import get_unique_or_500
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.decorators.decorators import admin_required
 from app.enums import TipoAulaEnum
 from app.extensions import db
 from app.models.aulas import Aulas, Aulas_Ativas, Turnos
+from app.service.aulas_service import check_aula_ativa
 from config import LOCAL_TIMEZONE
 
 bp = Blueprint('api_times', __name__, url_prefix='/api/times')

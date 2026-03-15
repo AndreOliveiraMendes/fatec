@@ -16,24 +16,9 @@ from app.models.aulas import Turnos
 from config.general import LOCAL_TIMEZONE
 from config.json_related import carregar_config_geral, carregar_painel_config
 
-bp = Blueprint('consultar_reservas', __name__, url_prefix="/consultar_reserva")
+from .handler import divide
 
-def divide(l, q):
-    result = []
-    qt = len(l)
-    start = 0
-    extra = qt%q
-    merge = extra <= qt
-    qtq = qt//q
-    for g in range(qtq):
-        end = start + q + (1 if merge and g < extra else 0)
-        end = min(end, qt)
-        result.append(l[start:end])
-        start += end - start
-    else:
-        if start < qt:
-            result.append(l[start:])
-    return result
+bp = Blueprint('consultar_reservas', __name__, url_prefix="/consultar_reserva")
 
 @bp.route('/')
 def main_page():

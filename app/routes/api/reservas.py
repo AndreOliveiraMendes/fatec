@@ -1,54 +1,10 @@
-from flask import Blueprint, abort, jsonify
+from flask import Blueprint, jsonify
 
-from app.dao.internal.reservas import (api_get_reserva_fixa_info,
-                                       check_conflict_reservas_fixas,
-                                       delete_reserva_fixa,
-                                       delete_reserva_temporaria,
-                                       get_reserva_fixa_indirect,
-                                       get_reserva_temporaria_indirect,
-                                       get_reserva_temporaria_info,
-                                       update_reserva_fixa,
-                                       update_reserva_temporaria)
 from app.decorators.decorators import admin_required
 
+from .handler import get_handler
+
 bp = Blueprint('api_reservas', __name__, url_prefix='/api/reservas')
-
-# -------------------------
-# MAPEAMENTO DE TIPOS
-# -------------------------
-RESERVA_HANDLERS = {
-    0: {
-        "info": api_get_reserva_fixa_info,
-        "update": update_reserva_fixa,
-        "delete": delete_reserva_fixa,
-        "indirect": get_reserva_fixa_indirect,
-        "check_conflict": check_conflict_reservas_fixas
-    },
-    1: {
-        "info": get_reserva_temporaria_info,
-        "update": update_reserva_temporaria,
-        "delete": delete_reserva_temporaria,
-        "indirect": get_reserva_temporaria_indirect
-    }
-}
-
-def get_handler(tipo_reserva: int, action: str):
-    handler_map = RESERVA_HANDLERS.get(tipo_reserva)
-
-    if handler_map is None:
-        abort(404, description="Tipo de reserva inexistente")
-
-    handler = handler_map.get(action)
-
-    if handler is None:
-        abort(405, description="Ação não permitida para este tipo de reserva")
-
-    return handler
-
-
-# -------------------------
-# ROTAS
-# -------------------------
 
 @bp.route('/reserva/<int:tipo_reserva>/info/<int:id_reserva>')
 def get_reserva_info(tipo_reserva, id_reserva):

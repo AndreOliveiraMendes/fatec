@@ -3,22 +3,32 @@
       <head>
             <meta charset="UTF-8">
             <meta name="description"
-                  content="Sistema de Reservas de Laboratório da Fatec.">
+                  content="Sistema de Gestão e Reserva de Recursos.">
             <meta name="viewport"
-                  content="width = device-width, initial-scale = 1, maximum-scale = 1">
-            <meta name="keywords" content="reservas, laboratório, fatec, sistema">
+                  content="width=device-width, initial-scale=1">
+            <meta name="keywords"
+                  content="reservas, recursos, laboratório, equipamentos, sistema">
             <title>
                   {% block title %}
-                        Meu Sistema
+                        SGR - Sistema de Gestão e Reserva de Recursos
                   {% endblock title %}
             </title>
+            <!-- Favicon moderno (SVG) -->
             <link rel="icon"
                   type="image/svg+xml"
                   href="{{ url_for('default.favicon_svg') }}">
+            <!-- PNG fallback -->
             <link rel="icon"
                   type="image/png"
+                  sizes="32x32"
                   href="{{ url_for('default.favicon_png') }}">
-            <link rel="icon" href="{{ url_for('default.favicon_ico') }}">
+            <!-- ICO legado -->
+            <link rel="shortcut icon"
+                  href="{{ url_for('default.favicon_ico') }}">
+            <!-- Apple / iOS -->
+            <link rel="apple-touch-icon"
+                  sizes="180x180"
+                  href="{{ url_for('default.favicon_png') }}">
             <!-- Bootstrap CSS -->
             <link rel="stylesheet"
                   href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
@@ -27,11 +37,8 @@
                   href="{{ url_for('static', filename='css/custom.css') }}">
             <link rel="stylesheet"
                   href="{{ url_for('static', filename='css/utility.css') }}">
-            <!-- Optional extra CSS for specific pages -->
-            {% block extra_css %}
-            {% endblock extra_css %}
-            {% block extra_head %}
-            {% endblock extra_head %}
+            {% block extra_css %}{% endblock extra_css %}
+            {% block extra_head %}{% endblock extra_head %}
       </head>
       <body>
             {% block body %}

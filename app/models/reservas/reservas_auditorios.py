@@ -40,10 +40,10 @@ class Reservas_Auditorios(Base):
         ),
     )
 
-    local: Mapped["Locais"] = relationship("Locais", back_populates="reservas_auditorios")
-    aula_ativa: Mapped["Aulas_Ativas"] = relationship("Aulas_Ativas", back_populates="reservas_auditorios")
-    responsavel: Mapped["Pessoas"] = relationship("Pessoas", back_populates="reservas_auditorio_responsavel", foreign_keys=[id_responsavel])
-    autorizador: Mapped["Pessoas"] = relationship("Pessoas", back_populates="reservas_auditorio_autorizador", foreign_keys=[id_autorizador])
+    local: Mapped["Locais"] = relationship("Locais", back_populates="reservas_auditorios", passive_deletes=True)
+    aula_ativa: Mapped["Aulas_Ativas"] = relationship("Aulas_Ativas", back_populates="reservas_auditorios", passive_deletes=True)
+    responsavel: Mapped["Pessoas"] = relationship("Pessoas", back_populates="reservas_auditorio_responsavel", foreign_keys=[id_responsavel], passive_deletes=True)
+    autorizador: Mapped["Pessoas"] = relationship("Pessoas", back_populates="reservas_auditorio_autorizador", foreign_keys=[id_autorizador], passive_deletes=True)
 
     @property
     def selector_identification(self):
@@ -52,9 +52,9 @@ class Reservas_Auditorios(Base):
         dia = self.dia_reserva
         return f" {aula} em {local} no dia {dia}"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
-            f"ReservaAuditorio(id_reserva_auditorio={self.id_reserva_auditorio}, "
+            f"<ReservaAuditorio(id_reserva_auditorio={self.id_reserva_auditorio}, "
             f"id_responsavel={self.id_responsavel}, "
             f"id_reserva_local={self.id_reserva_local}, "
             f"id_reserva_aula={self.id_reserva_aula}, "
@@ -62,5 +62,5 @@ class Reservas_Auditorios(Base):
             f"status_reserva={self.status_reserva}, "
             f"id_autorizador={self.id_autorizador}, "
             f"observação_responsavel={self.observação_responsavel}, "
-            f"observação_autorizador={self.observação_autorizador})"
+            f"observação_autorizador={self.observação_autorizador})>"
         )

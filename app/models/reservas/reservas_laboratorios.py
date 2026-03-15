@@ -49,7 +49,7 @@ class Reservas_Fixas(ReservaBase):
     id_reserva_fixa: Mapped[int] = mapped_column(primary_key=True)
     id_reserva_semestre: Mapped[int] = mapped_column(ForeignKey('semestres.id_semestre'), nullable=False)
 
-    semestre: Mapped["Semestres"] = relationship(back_populates='reservas_fixas')
+    semestre: Mapped["Semestres"] = relationship(back_populates='reservas_fixas', passive_deletes=True)
 
     __table_args__ = (
         UniqueConstraint(
@@ -60,10 +60,10 @@ class Reservas_Fixas(ReservaBase):
         ),
     )
 
-    pessoa: Mapped["Pessoas"] = relationship("Pessoas", back_populates="reservas_fixas")
-    usuario_especial: Mapped["Usuarios_Especiais"] = relationship("Usuarios_Especiais", back_populates="reservas_fixas")
-    local: Mapped["Locais"] = relationship("Locais", back_populates="reservas_fixas")
-    aula_ativa: Mapped["Aulas_Ativas"] = relationship("Aulas_Ativas", back_populates="reservas_fixas")
+    pessoa: Mapped["Pessoas"] = relationship("Pessoas", back_populates="reservas_fixas", passive_deletes=True)
+    usuario_especial: Mapped["Usuarios_Especiais"] = relationship("Usuarios_Especiais", back_populates="reservas_fixas", passive_deletes=True)
+    local: Mapped["Locais"] = relationship("Locais", back_populates="reservas_fixas", passive_deletes=True)
+    aula_ativa: Mapped["Aulas_Ativas"] = relationship("Aulas_Ativas", back_populates="reservas_fixas", passive_deletes=True)
 
     @property
     def selector_identification(self):
@@ -78,11 +78,11 @@ class Reservas_Fixas(ReservaBase):
     
     def __repr__(self):
         return (
-            f"Reservas_Fixas(id_reserva_fixa={self.id_reserva_fixa}, id_responsavel={self.id_responsavel}, "
+            f"<Reservas_Fixas(id_reserva_fixa={self.id_reserva_fixa}, id_responsavel={self.id_responsavel}, "
             f"id_responsavel_especial={self.id_responsavel_especial}, tipo_responsavel={self.tipo_responsavel}, "
             f"id_reserva_local={self.id_reserva_local}, id_reserva_aula={self.id_reserva_aula}, "
             f"finalidade_reserva={self.finalidade_reserva}, observacoes={self.observacoes}, "
-            f"descricao={self.descricao}, id_reserva_semestre={self.id_reserva_semestre})"
+            f"descricao={self.descricao}, id_reserva_semestre={self.id_reserva_semestre})>"
         )
 
 class Reservas_Temporarias(ReservaBase):
@@ -99,10 +99,10 @@ class Reservas_Temporarias(ReservaBase):
         ),
     )
 
-    pessoa: Mapped["Pessoas"] = relationship("Pessoas", back_populates="reservas_temporarias")
-    usuario_especial: Mapped["Usuarios_Especiais"] = relationship("Usuarios_Especiais", back_populates="reservas_temporarias")
-    local: Mapped["Locais"] = relationship("Locais", back_populates="reservas_temporarias")
-    aula_ativa: Mapped["Aulas_Ativas"] = relationship("Aulas_Ativas", back_populates="reservas_temporarias")
+    pessoa: Mapped["Pessoas"] = relationship("Pessoas", back_populates="reservas_temporarias", passive_deletes=True)
+    usuario_especial: Mapped["Usuarios_Especiais"] = relationship("Usuarios_Especiais", back_populates="reservas_temporarias", passive_deletes=True)
+    local: Mapped["Locais"] = relationship("Locais", back_populates="reservas_temporarias", passive_deletes=True)
+    aula_ativa: Mapped["Aulas_Ativas"] = relationship("Aulas_Ativas", back_populates="reservas_temporarias", passive_deletes=True)
 
     @property
     def selector_identification(self):
@@ -118,10 +118,10 @@ class Reservas_Temporarias(ReservaBase):
 
     def __repr__(self):
         return (
-            f"Reservas_Fixas(id_reserva_temporaria={self.id_reserva_temporaria}, id_responsavel={self.id_responsavel}, "
+            f"<Reservas_Fixas(id_reserva_temporaria={self.id_reserva_temporaria}, id_responsavel={self.id_responsavel}, "
             f"id_responsavel_especial={self.id_responsavel_especial}, tipo_responsavel={self.tipo_responsavel}, "
             f"id_reserva_local={self.id_reserva_local}, id_reserva_aula={self.id_reserva_aula}, "
             f"finalidade_reserva={self.finalidade_reserva}, observacoes={self.observacoes}, "
             f"descricao={self.descricao}, inicio_reserva={self.inicio_reserva}, "
-            f"fim_reserva={self.fim_reserva})"
+            f"fim_reserva={self.fim_reserva})>"
         )

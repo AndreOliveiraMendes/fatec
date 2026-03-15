@@ -6,8 +6,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.extensions import Base
 
 if TYPE_CHECKING:
-    from app.models.controle import (EquipamentoDisponibilidade,
-                                     MovimentacaoEquipamento)
+    from app.models.controle import EquipamentoDisponibilidade
+    from app.models.historicos import MovimentacaoEquipamento
     from app.models.reservas.reservas_equipamentos import \
         Reserva_Equipamento_Item
 
@@ -26,16 +26,10 @@ class Equipamentos(Base):
         ),
     )
 
-    categoria: Mapped["Categorias_de_Equipamentos"] = relationship(back_populates="equipamentos")
-    itens_reserva: Mapped[list["Reserva_Equipamento_Item"]] = relationship(
-        back_populates="equipamento"
-    )
-    movimentacoes: Mapped[list["MovimentacaoEquipamento"]] = relationship(
-        back_populates="equipamento"
-    )
-    disponibilidades: Mapped[list["EquipamentoDisponibilidade"]] = relationship(
-        back_populates="equipamento"
-    )
+    categoria: Mapped["Categorias_de_Equipamentos"] = relationship(back_populates="equipamentos", passive_deletes=True)
+    itens_reserva: Mapped[list["Reserva_Equipamento_Item"]] = relationship(back_populates="equipamento", passive_deletes=True)
+    movimentacoes: Mapped[list["MovimentacaoEquipamento"]] = relationship(back_populates="equipamento", passive_deletes=True)
+    disponibilidades: Mapped[list["EquipamentoDisponibilidade"]] = relationship(back_populates="equipamento", passive_deletes=True)
 
     def __repr__(self) -> str:
         return (
@@ -60,7 +54,7 @@ class Categorias_de_Equipamentos(Base):
         ),
     )
 
-    equipamentos: Mapped[list["Equipamentos"]] = relationship(back_populates="categoria")
+    equipamentos: Mapped[list["Equipamentos"]] = relationship(back_populates="categoria", passive_deletes=True)
 
     def __repr__(self) -> str:
         return (

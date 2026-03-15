@@ -9,7 +9,14 @@ def register_blueprints(app):
     package_path = __path__
 
     for _, module_name, is_pkg in pkgutil.iter_modules(package_path):
-        if not is_pkg:
+        if is_pkg:
+            # Exemplo: admin, database, default
+            subpackage = f"{package_name}.{module_name}"
+            submodule = importlib.import_module(subpackage)
+            if hasattr(submodule, 'register_blueprints'):
+                submodule.register_blueprints(app)
+        else:
+            # Raiz direta — geralmente não há, mas suportado
             full_module_name = f"{package_name}.{module_name}"
             module = importlib.import_module(full_module_name)
             if hasattr(module, 'bp') and isinstance(module.bp, Blueprint):

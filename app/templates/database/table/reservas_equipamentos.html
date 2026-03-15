@@ -1,0 +1,270 @@
+{% extends "database/table/base_crude" %}
+{% macro result_table(message) %}
+    {% call(re) table_base(
+        reservas_equipamentos,
+        [
+        'Codigo',
+        'Horario',
+        'Responsavel',
+        'Dia da reserva',
+        'Criada em',
+        'Cancelada em',
+        'Cancelada por',
+        'Motivo cancelamento',
+        'Estado da reserva'
+        ],
+        id_field='id_reserva',
+        message=message,
+        vertical_actions=True,
+        pagination=pagination,
+        acao=acao,
+        bloco=bloco,
+        query_params=query_params
+        ) %}
+        <td>{{ re.id_reserva }}</td>
+        <td>{{ re.aula_ativa.selector_identification }}</td>
+        <td>{{ re.responsavel.nome_pessoa }}</td>
+        <td>{{ re.data_reserva|data }}</td>
+        <td>{{ re.criado_em|datahora }}</td>
+        <td>{{ re.cancelado_em|datahora }}</td>
+        <td>{{ re.cancelado_por.nome_pessoa|format(1) }}</td>
+        <td>{{ re.motivo_cancelamento|format(1) }}</td>
+        <td>{{ re.estado.value }}</td>
+    {% endcall %}
+{% endmacro %}
+{% block title %}
+    Reserva de equipamentos
+{% endblock title %}
+{% block abertura %}
+    <h3 class="text-center">
+        Gerenciamento da Tabela <strong>Reservas de Equipamentos</strong>
+    </h3>
+    <p class="text-muted text-center">
+        A tabela <code>reservas_equipamentos</code> possui os seguintes campos:
+    </p>
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover">
+            <thead>
+                <tr class="information">
+                    <th>Campo</th>
+                    <th>Tipo</th>
+                    <th>Descrição</th>
+                    <th>Valores Possíveis</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <code>id_reserva</code>
+                    </td>
+                    <td>INT (auto_increment, PK)</td>
+                    <td>Identificador único da reserva de equipamento no sistema.</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>id_reserva_aula</code>
+                    </td>
+                    <td>INT (FK)</td>
+                    <td>
+                        Chave estrangeira para a tabela <code>aulas_ativas</code>,
+                        indicando a aula associada à reserva.
+                    </td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>id_reserva_responsavel</code>
+                    </td>
+                    <td>INT (FK)</td>
+                    <td>
+                        Chave estrangeira para a tabela <code>pessoas</code>,
+                        indicando o responsável pela reserva do equipamento.
+                    </td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>data_reserva</code>
+                    </td>
+                    <td>DATE</td>
+                    <td>Data em que o equipamento foi reservado para uso.</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>criado_em</code>
+                    </td>
+                    <td>DATETIME</td>
+                    <td>Data e hora em que a reserva foi criada no sistema.</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>cancelado_em</code>
+                    </td>
+                    <td>DATETIME (NULL)</td>
+                    <td>Data e hora em que a reserva foi cancelada, caso tenha ocorrido.</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>cancelado_por_id</code>
+                    </td>
+                    <td>INT (FK, NULL)</td>
+                    <td>
+                        Chave estrangeira para a tabela <code>pessoas</code>,
+                        indicando qual usuário realizou o cancelamento da reserva.
+                    </td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>estado</code>
+                    </td>
+                    <td>ENUM</td>
+                    <td>Define o estado atual da reserva de equipamento.</td>
+                    <td>
+                        <ul class="valores_possiveis_format">
+                            <li>
+                                <code>PENDENTE</code> = reserva criada aguardando confirmação ou início
+                            </li>
+                            <li>
+                                <code>ATIVA</code> = reserva atualmente em uso
+                            </li>
+                            <li>
+                                <code>CANCELADA</code> = reserva cancelada antes de ocorrer
+                            </li>
+                            <li>
+                                <code>CONCLUIDA</code> = reserva finalizada normalmente
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>motivo_cancelamento</code>
+                    </td>
+                    <td>TEXT (NULL)</td>
+                    <td>
+                        Descrição do motivo pelo qual a reserva foi cancelada.
+                        Esse campo é preenchido quando o estado da reserva é definido como
+                        <code>CANCELADA</code>.
+                    </td>
+                    <td>-</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="alert alert-info mt-3" role="alert">
+        <strong>Nota:</strong> Os campos <code>cancelado_em</code> e
+        <code>cancelado_por_id</code> só possuem valor quando a reserva é
+        cancelada. Caso contrário, permanecem <code>NULL</code>.
+        <br>
+        O campo <code>estado</code> controla o ciclo de vida da reserva
+        dentro do sistema.
+    </div>
+{% endblock abertura %}
+{% block listar %}
+    <h3>Lista de Reservas de Equipamentos</h3>
+    {{ result_table("Nenhuma reserva de equipamento cadastrada.") }}
+{% endblock listar %}
+{% block inserir %}
+    <h3>Inserir Reserva de Equipamento</h3>
+    <form class="form-group"
+          role="form"
+          action="{{ url_for(url) }}"
+          method="post">
+        <input type="hidden" name="acao" value="{{ acao }}">
+        {{ gerar_select("aulas",
+                "Selecione o horário da aula",
+                aulas_ativas,
+                "id_aula_ativa",
+                "selector_identification",
+                "id_reserva_aula") }}
+        {{ gerar_select("responsavel_reserva",
+                "Selecione o responsável",
+                pessoas,
+                "id_pessoa",
+                "nome_pessoa",
+                "id_reserva_responsavel") }}
+        <div class="form-group">
+            <label for="data_reserva">Data da Reserva</label>
+            <input type="date"
+                   class="form-control"
+                   id="data_reserva"
+                   name="data_reserva"
+                   required>
+        </div>
+        {{ gerar_select("responsavel_cancelar",
+                "Selecione quem cancelou",
+                pessoas,
+                "id_pessoa",
+                "nome_pessoa",
+                "cancelado_por_id", optional=True) }}
+        <div class="form-group">
+            <label for="cancelado_em">Data do cancelamento</label>
+            <input type="datetime-local" class="form-control" id="cancelado_em" name="cancelado_em">
+        </div>
+        <div class="form-group">
+            <label for="motivo_cancelamento">Motivo do Cancelamento</label>
+            <textarea class="form-control"
+                      id="motivo_cancelamento"
+                      name="motivo_cancelamento"
+                      rows="3"
+                      placeholder="Descreva o motivo do cancelamento (se aplicável)"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="estado">Estado da Reserva</label>
+            <select class="form-control" id="estado" name="estado" required>
+                <option value="">selecione o status da reserva</option>
+                {% for sre in SREE %}<option value="{{ sre.value }}">{{ sre.value }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="alert alert-info">
+            O estado inicial da reserva será definido automaticamente como
+            <strong>PENDENTE</strong>.
+        </div>
+        {{ action_buttons(acao, 1, False, 0) }}
+    </form>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            const estado = document.getElementById("estado");
+            const responsavelCancelar = document.getElementById("responsavel_cancelar");
+            const dataCancelamento = document.getElementById("cancelado_em")
+            const motivoCancelamento = document.getElementById("motivo_cancelamento");
+
+            const groupResponsavel = responsavelCancelar.closest(".form-group");
+            const groupData = dataCancelamento.closest(".form-group");
+            const groupMotivo = motivoCancelamento.closest(".form-group");
+
+            function controlarCamposCancelamento() {
+
+                if (estado.value === "cancelada") {
+                    groupResponsavel.style.display = "block";
+                    groupData.style.display = "block";
+                    groupMotivo.style.display = "block";
+
+                    responsavelCancelar.required = true;
+
+                } else {
+
+                    groupResponsavel.style.display = "none";
+                    groupData.style.display = "none";
+                    groupMotivo.style.display = "none";
+
+                    responsavelCancelar.required = false;
+                    responsavelCancelar.value = "";
+                    dataCancelamento.value = "";
+                    motivoCancelamento.value = "";
+                }
+            }
+
+            estado.addEventListener("change", controlarCamposCancelamento);
+
+            // executa ao carregar a página
+            controlarCamposCancelamento();
+        });
+    </script>
+{% endblock inserir %}

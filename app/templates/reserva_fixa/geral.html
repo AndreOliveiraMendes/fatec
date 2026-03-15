@@ -54,7 +54,7 @@
                     <tr>
                         <th class="col-fixa">horario</th>
                         {% for local in locais %}
-                            <th title="{{ local.descrição if local.descrição else '' }}">{{ local.nome_local.replace('laboratorio ', '') }}</th>
+                            <th title="{{ local.descrição|format(1) }}">{{ local.nome_local.replace('laboratorio ', '') }}</th>
                         {% endfor %}
                     </tr>
                 </thead>

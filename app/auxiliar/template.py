@@ -1,13 +1,16 @@
+import re
 from datetime import datetime
 from typing import List, Literal, Optional, Sequence, Tuple
 
-from flask import Flask, abort, session, url_for
+from flask import Flask, abort, current_app, session, url_for
 from markupsafe import Markup
 from sqlalchemy import between
 
 from app.auxiliar.constant import (APP_TITLE, DATA_ABREV, DATA_COMPLETA,
-                                   DATA_FLAGS, DATA_NUMERICA, HORA, PERM_ADMIN,
-                                   PERMISSIONS, SEMANA_ABREV, SEMANA_COMPLETA)
+                                   DATA_FLAGS, DATA_NUMERICA, HORA,
+                                   PERMISSIONS, SEMANA_ABREV, SEMANA_COMPLETA,
+                                   Permission)
+from app.auxiliar.shared import resolver_reserva
 from app.dao.internal.general import get_unique_or_500
 from app.dao.internal.reservas import get_responsavel_reserva
 from app.dao.internal.usuarios import get_user
@@ -21,7 +24,7 @@ from config.database_views import SECOES
 from config.mapeamentos import meses_ingleses, semana_inglesa, situacoes_helper
 
 
-def register_filters(app:Flask):
+def register_template_utils(app:Flask):
     @app.template_global()
     def dynamic_redirect(seconds=5, message=None, target_url=None):
         if message is None:
@@ -116,20 +119,87 @@ def register_filters(app:Flask):
     
     @app.template_global()
     def generate_database_head(current_table: str) -> Markup:
-        tables_info: List[Tuple[str, str, str]] = [
-            (t[1].split('.')[0], t[1], t[0])
-            for sec in SECOES.values()
+        tables_info: List[Tuple[str, str, str, str]] = [
+            (t[1].split('.')[0], t[1], t[0], key)
+            for key, sec in SECOES.items()
             for t in sec['secoes']
         ]
 
-        html_parts = ['<div class="pills-group">','<ul class="nav nav-pills">']
-        for table, url, nome in tables_info:
+        tables_info.sort(key=lambda e: (e[3], e[2]))
+
+        html_parts = [
+            '<div class="pills-group">',
+            # Row com dois filtros
+            '<div class="form-inline" style="margin-bottom:10px;">',
+            '  <div class="form-group" style="margin-right:10px;">',
+            '    <label for="filter-sigla">Sigla:</label>',
+            '    <input type="text" id="filter-sigla" class="form-control" placeholder="Filtrar sigla">',
+            '  </div>',
+            '  <div class="form-group">',
+            '    <label for="filter-tabela">Tabela:</label>',
+            '    <input type="text" id="filter-tabela" class="form-control" placeholder="Filtrar tabela">',
+            '  </div>',
+            '</div>',
+            '<ul class="nav nav-pills" id="pills-list">'
+        ]
+
+        for table, url, nome, secao in tables_info:
+            sigla = ''.join(p[0] for p in re.findall(r'\w+', secao))
             active_class = ' class="active"' if table == current_table else ''
             html_parts.append(f'<li role="presentation"{active_class}>')
-            html_parts.append(f'<a href="{url_for(url)}">{nome}</a>')
+            
+            if not url in current_app.view_functions:
+                url = 'default.under_dev_page'
+
+            warning_icon = ''
+            if url == "default.under_dev_page":
+                warning_icon = ' <span class="glyphicon glyphicon-exclamation-sign icon-warning" title="página em desenvolvimento"></span>'
+
+            html_parts.append(
+                f'<a href="{url_for(url)}"><span class="badge section-badge">{sigla}</span>{nome}{warning_icon}</a>'
+            )
             html_parts.append('</li>')
 
-        html_parts.extend(['</ul>','</div>'])
+        html_parts.extend(['</ul>', '</div>'])
+
+        # Script para filtrar pelos dois campos
+        html_parts.append('''
+    <script>
+        function patern_match(str, pattern) {
+            if (pattern.startsWith("^") && pattern.endsWith("$")) {
+                return str === pattern.slice(1, -1)
+            }
+
+            if (pattern.startsWith("^")) {
+                return str.startsWith(pattern.slice(1))
+            }
+
+            if (pattern.endsWith("$")) {
+                return str.endsWith(pattern.slice(0, -1))
+            }
+
+            return str.includes(pattern)
+        }
+        function filterPills() {
+            var filterSigla = document.getElementById('filter-sigla').value.toUpperCase();
+            var filterTabela = document.getElementById('filter-tabela').value.toUpperCase();
+            var lis = document.querySelectorAll('#pills-list li');
+            lis.forEach(function(li) {
+                var badge = li.querySelector('.section-badge').textContent.toUpperCase();
+                var nome = li.textContent.toUpperCase().replace(badge, '').trim();
+                if ((patern_match(badge, filterSigla) && patern_match(nome, filterTabela)) || li.classList.contains('active')) {
+                    li.style.display = '';
+                } else {
+                    li.style.display = 'none';
+                }
+            });
+        }
+
+        document.getElementById('filter-sigla').addEventListener('keyup', filterPills);
+        document.getElementById('filter-tabela').addEventListener('keyup', filterPills);
+    </script>
+    ''')
+        
         return Markup('\n'.join(html_parts))
 
     def lab_url(tipo, turno:Turnos|None, local:Locais|None, **kwargs):
@@ -161,7 +231,7 @@ def register_filters(app:Flask):
                 active_link = lab_url(tipo, turno, None, **kwargs)
             
             if lab.disponibilidade.value == 'Indisponivel':
-                if user.perm & PERM_ADMIN == 0:
+                if user.perm & Permission.ADMIN == 0:
                     active_class = 'disabled'
                     active_link = ""
                 else:
@@ -176,15 +246,15 @@ def register_filters(app:Flask):
         return Markup(''.join(html_parts))
 
     @app.template_global()
-    def generate_situacao_head(current: Literal['exibicao', 'fixa', 'temporaria', 'comandos']) -> Markup:
+    def generate_situacao_head(current: Literal['exibicao', 'situacao', 'fixa', 'temporaria', 'comandos']) -> Markup:
         html_parts: List[str] = ['<div class="pills-group"><ul class="nav nav-pills">']
         
         for builder in situacoes_helper:
             state = builder.get('state')
-            url_path = builder.get('url_path')
-            args = builder.get('param', {})
+            url_path = builder.get('url_path', 'default.under_dev_page')
             label = builder.get('label', state)
-            url = url_for(url_path, **args)
+            params = builder.get('param', {})
+            url = url_for(url_path, **params)
             
             active_class = 'active' if current == state else ''
             disabled_class = 'disabled_a_click' if current == state else ''
@@ -246,9 +316,7 @@ def register_filters(app:Flask):
             Reservas_Temporarias.id_reserva_aula == aula,
             between(dia, Reservas_Temporarias.inicio_reserva, Reservas_Temporarias.fim_reserva)
         )
-
-        choose = temp or fixa
-
+        
         exibicao = get_unique_or_500(
             Exibicao_Reservas,
             Exibicao_Reservas.id_exibicao_local == lab,
@@ -256,11 +324,7 @@ def register_filters(app:Flask):
             Exibicao_Reservas.exibicao_dia == dia
         )
 
-        if exibicao:
-            choose = {"fixa": fixa, "temporaria": temp}.get(exibicao.tipo_reserva.value, choose)
-
-        if not choose:
-            return Markup("Livre")
+        choose, _ = resolver_reserva(temp, fixa, exibicao)
 
         partes = montar_partes_reserva(
             choose,
@@ -273,6 +337,38 @@ def register_filters(app:Flask):
         )
 
         return Markup("<br>".join(partes))
+    
+    def resolve_endpoint(endpoint):
+        if endpoint not in current_app.view_functions:
+            return 'default.under_dev_page'
+        return endpoint
+    
+    @app.template_global()
+    def safe_url(endpoint, **values):
+
+        return url_for(resolve_endpoint(endpoint), **values)
+    
+    @app.template_global()
+    def is_under_dev_url(endpoint):
+        return resolve_endpoint(endpoint) == 'default.under_dev_page'
+    
+    @app.template_global()
+    def endpoint_status(endpoint):
+
+        exists = endpoint in current_app.view_functions
+
+        if not exists:
+            endpoint = 'default.under_dev_page'
+
+        return {
+            "endpoint": endpoint,
+            "exists": exists,
+            "url": url_for(endpoint)
+        }
+
+    @app.template_filter('blueprint')
+    def get_blueprint(endpoint):
+        return endpoint.split('.', 1)[0]
 
     @app.template_filter('has_flag')
     def has_flag(value, flag, strict_mode=False):
@@ -290,8 +386,9 @@ def register_filters(app:Flask):
             return 'Desconhecido'
 
     @app.template_filter('format')
-    def format(value):
-        return value if value else '-'
+    def format(value, option=0):
+        return value if value else ('-' if option == 0 else '')
+    
     
     @app.template_filter('hora')
     def format_hora(value):

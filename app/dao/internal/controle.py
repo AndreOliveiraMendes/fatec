@@ -7,7 +7,8 @@ from sqlalchemy.exc import MultipleResultsFound
 from app.enums import TipoReservaEnum
 from app.extensions import db
 from app.models.aulas import Aulas_Ativas
-from app.models.controle import Exibicao_Reservas, Situacoes_Das_Reserva
+from app.models.controle import (EquipamentoDisponibilidade, Exibicao_Reservas,
+                                 Situacoes_Das_Reserva)
 from app.models.locais import Locais
 
 
@@ -45,3 +46,7 @@ def get_situacoes():
 def get_exibicoes():
     sel_exibicoes_das_reservas = select(Exibicao_Reservas)
     return db.session.execute(sel_exibicoes_das_reservas).scalars().all()
+
+def get_equipamento_disponibilidades():
+    sel_disponibilidades = select(EquipamentoDisponibilidade)
+    return db.session.execute(sel_disponibilidades).scalars().all()

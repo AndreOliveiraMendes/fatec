@@ -1,0 +1,240 @@
+{% extends "base-fixed" %}
+{% from "macros/form.html" import generate_navigation_database %}
+{% block title %}
+    Banco de Dados
+{% endblock title %}
+{% block extra_css %}
+    <style>
+
+#schema-diagram{
+    height:800px;
+    border:1px solid #ddd;
+    border-radius:6px;
+}
+
+    </style>
+{% endblock extra_css %}
+{% block extra_script %}
+    <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <script>
+
+const fks = {{ fks|tojson }};
+const columns = {{ columns|tojson }};
+
+let network;
+let nodesDataset;
+
+const collapsed = {};
+
+
+
+/* -----------------------------
+   LABEL BUILDER
+----------------------------- */
+
+function buildTableLabel(table){
+
+    const cols = columns[table] || [];
+
+    let label = "📦 " + table + "\n────────────\n";
+
+    cols.forEach(col => {
+
+        let icon = "  ";
+
+        if(col.pk) icon = "🔑";
+        else if(col.fk) icon = "🔗";
+
+        label += `${icon} ${col.name} : ${col.type}\n`;
+
+    });
+
+    return label;
+
+}
+
+
+
+/* -----------------------------
+   NODE BUILDER
+----------------------------- */
+
+function buildNodes(){
+
+    const nodes = [];
+
+    Object.keys(fks).forEach(table => {
+
+        nodes.push({
+            id: table,
+            label: buildTableLabel(table),
+            shape: "box",
+            font:{
+                multi:true,
+                face:"monospace",
+                align:"left"
+            }
+        });
+
+    });
+
+    return nodes;
+
+}
+
+
+
+/* -----------------------------
+   EDGE BUILDER
+----------------------------- */
+
+function buildEdges(){
+
+    const edges = [];
+
+    Object.entries(fks).forEach(([table, refs]) => {
+
+        refs.forEach(ref => {
+
+            edges.push({
+                from: table,
+                to: ref,
+                arrows: "to"
+            });
+
+        });
+
+    });
+
+    return edges;
+
+}
+
+
+
+/* -----------------------------
+   NETWORK OPTIONS
+----------------------------- */
+
+function getOptions(){
+
+    return {
+
+        layout:{
+            hierarchical:{
+                direction:"LR",
+                sortMethod:"directed",
+
+                levelSeparation:350,
+                nodeSpacing:160,
+                treeSpacing:220
+            }
+        },
+
+        nodes:{
+            shape:"box",
+
+            margin:{
+                top:12,
+                right:18,
+                bottom:12,
+                left:18
+            },
+
+            font:{
+                multi:true,
+                face:"monospace",
+                size:14
+            },
+
+            color:{
+                background:"#a2bfdb",
+                border:"#2c3e50",
+                highlight:"#1abc9c"
+            }
+        },
+
+        edges:{
+            arrows:{to:true},
+            smooth:true
+        },
+
+        physics:false
+
+    };
+
+}
+
+
+
+/* -----------------------------
+   CLICK HANDLER
+----------------------------- */
+
+function registerEvents(){
+
+    network.on("click", function(params){
+
+        if(!params.nodes.length) return;
+
+        const table = params.nodes[0];
+
+        collapsed[table] = !collapsed[table];
+
+        const label = collapsed[table]
+            ? "📦 " + table
+            : buildTableLabel(table);
+
+        nodesDataset.update({
+            id: table,
+            label: label
+        });
+
+    });
+
+}
+
+
+
+/* -----------------------------
+   MAIN BUILDER
+----------------------------- */
+
+function buildDiagram(){
+
+    const container = document.getElementById("schema-diagram");
+
+    nodesDataset = new vis.DataSet(buildNodes());
+
+    const edgesDataset = new vis.DataSet(buildEdges());
+
+    const data = {
+        nodes: nodesDataset,
+        edges: edgesDataset
+    };
+
+    network = new vis.Network(
+        container,
+        data,
+        getOptions()
+    );
+
+    registerEvents();
+
+}
+
+
+
+/* -----------------------------
+   INIT
+----------------------------- */
+
+window.onload = buildDiagram;
+
+    </script>
+{% endblock extra_script %}
+{% block content %}
+    {{ generate_navigation_database() }}
+    <h3>Diagrama de dependência das tabelas</h3>
+    <div id="schema-diagram"></div>
+{% endblock content %}

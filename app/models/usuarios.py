@@ -1,4 +1,3 @@
-
 from typing import TYPE_CHECKING
 
 from sqlalchemy import ForeignKey, String, UniqueConstraint
@@ -7,8 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.extensions import Base
 
 if TYPE_CHECKING:
-    from app.models.controle import MovimentacaoEquipamento
-    from app.models.historicos import Historicos
+    from app.models.historicos import Historicos, MovimentacaoEquipamento
     from app.models.reservas.reservas_auditorios import Reservas_Auditorios
     from app.models.reservas.reservas_equipamentos import Reservas_Equipamentos
     from app.models.reservas.reservas_laboratorios import (
@@ -22,29 +20,15 @@ class Pessoas(Base):
     email_pessoa: Mapped[str | None] = mapped_column(String(100))
     alias: Mapped[str | None] = mapped_column(String(100))
 
-    reservas_fixas: Mapped[list["Reservas_Fixas"]] = relationship(back_populates='pessoa')
-    reservas_temporarias: Mapped[list["Reservas_Temporarias"]] = relationship(back_populates='pessoa')
-    usuarios: Mapped[list["Usuarios"]] = relationship(back_populates='pessoa')
-    reservas_auditorio_responsavel: Mapped[list["Reservas_Auditorios"]] = relationship(
-        back_populates="responsavel",
-        foreign_keys="Reservas_Auditorios.id_responsavel"
-    )
-    reservas_auditorio_autorizador: Mapped[list["Reservas_Auditorios"]] = relationship(
-        back_populates="autorizador",
-        foreign_keys="Reservas_Auditorios.id_autorizador"
-    )
-    reservas_equipamentos: Mapped[list["Reservas_Equipamentos"]] = relationship(
-        back_populates="responsavel",
-        foreign_keys="Reservas_Equipamentos.id_reserva_responsavel"
-    )
-    movimentacoes_funcionario: Mapped[list["MovimentacaoEquipamento"]] = relationship(
-        back_populates="funcionario",
-        foreign_keys="MovimentacaoEquipamento.id_funcionario"
-    )
-    movimentacoes_responsavel: Mapped[list["MovimentacaoEquipamento"]] = relationship(
-        back_populates="responsavel",
-        foreign_keys="MovimentacaoEquipamento.id_responsavel"
-    )
+    reservas_fixas: Mapped[list["Reservas_Fixas"]] = relationship(back_populates='pessoa', passive_deletes=True)
+    reservas_temporarias: Mapped[list["Reservas_Temporarias"]] = relationship(back_populates='pessoa', passive_deletes=True)
+    usuarios: Mapped[list["Usuarios"]] = relationship(back_populates='pessoa', passive_deletes=True)
+    reservas_auditorio_responsavel: Mapped[list["Reservas_Auditorios"]] = relationship(back_populates="responsavel", foreign_keys="Reservas_Auditorios.id_responsavel", passive_deletes=True)
+    reservas_auditorio_autorizador: Mapped[list["Reservas_Auditorios"]] = relationship(back_populates="autorizador", foreign_keys="Reservas_Auditorios.id_autorizador", passive_deletes=True)
+    reservas_equipamentos: Mapped[list["Reservas_Equipamentos"]] = relationship(back_populates="responsavel", foreign_keys="Reservas_Equipamentos.id_reserva_responsavel", passive_deletes=True)
+    reservas_canceladas: Mapped[list["Reservas_Equipamentos"]] = relationship(back_populates="cancelado_por", foreign_keys="Reservas_Equipamentos.cancelado_por_id", passive_deletes=True)
+    movimentacoes_funcionario: Mapped[list["MovimentacaoEquipamento"]] = relationship(back_populates="funcionario", foreign_keys="MovimentacaoEquipamento.id_funcionario", passive_deletes=True)
+    movimentacoes_responsavel: Mapped[list["MovimentacaoEquipamento"]] = relationship(back_populates="responsavel", foreign_keys="MovimentacaoEquipamento.id_responsavel", passive_deletes=True)
 
     def __repr__(self) -> str:
         return (
@@ -61,9 +45,9 @@ class Usuarios(Base):
     situacao_pessoa: Mapped[str] = mapped_column(String(50), nullable=False)
     grupo_pessoa: Mapped[str | None] = mapped_column(String(50))
 
-    pessoa: Mapped["Pessoas"] = relationship(back_populates='usuarios')
-    permissoes: Mapped[list["Permissoes"]] = relationship(back_populates='usuario')
-    historicos: Mapped[list["Historicos"]] = relationship(back_populates='usuario')
+    pessoa: Mapped["Pessoas"] = relationship(back_populates='usuarios', passive_deletes=True)
+    permissoes: Mapped[list["Permissoes"]] = relationship(back_populates='usuario', passive_deletes=True)
+    historicos: Mapped[list["Historicos"]] = relationship(back_populates='usuario', passive_deletes=True)
 
     @property
     def username(self):
@@ -92,7 +76,7 @@ class Permissoes(Base):
     id_permissao_usuario: Mapped[int] = mapped_column(ForeignKey('usuarios.id_usuario'), primary_key=True)
     permissao: Mapped[int] = mapped_column(nullable=False)
 
-    usuario: Mapped['Usuarios'] = relationship(back_populates='permissoes')
+    usuario: Mapped['Usuarios'] = relationship(back_populates='permissoes', passive_deletes=True)
 
     def __repr__(self) -> str:
         return f"<Permissoes(id_permissao_usuario={self.id_permissao_usuario}, permissao={self.permissao})>"
@@ -103,8 +87,8 @@ class Usuarios_Especiais(Base):
     id_usuario_especial: Mapped[int] = mapped_column(primary_key=True)
     nome_usuario_especial: Mapped[str] = mapped_column(String(100), nullable=False)
 
-    reservas_fixas: Mapped[list["Reservas_Fixas"]] = relationship(back_populates='usuario_especial')
-    reservas_temporarias: Mapped[list["Reservas_Temporarias"]] = relationship(back_populates='usuario_especial')
+    reservas_fixas: Mapped[list["Reservas_Fixas"]] = relationship(back_populates='usuario_especial', passive_deletes=True)
+    reservas_temporarias: Mapped[list["Reservas_Temporarias"]] = relationship(back_populates='usuario_especial', passive_deletes=True)
 
     __table_args__ = (
         UniqueConstraint(

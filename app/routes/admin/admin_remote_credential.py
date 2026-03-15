@@ -21,4 +21,4 @@ def gerar_chave():
 def manage_ssh():
     userid = session.get('userid')
     user = get_user(userid)
-    return render_template("admin/ssh_managment.html", user=user)
+    return render_template("admin/ssh/ssh_managment.html", user=user)
