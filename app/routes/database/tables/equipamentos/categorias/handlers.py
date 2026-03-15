@@ -66,15 +66,11 @@ def insert_push():
         descricao=descricao
     )
 
-    def insert():
-        db.session.add(nova_categoria)
-
     db_action(
         "Inserção",
         "categoria cadastrada com sucesso",
         "erro ao cadastrar categoria",
-        obj=nova_categoria,
-        action=insert
+        obj=nova_categoria
     )
 
     g.redirect_action, g.bloco = register_return(
