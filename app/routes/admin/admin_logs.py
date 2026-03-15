@@ -110,6 +110,7 @@ from sqlalchemy import distinct, func, select
 @bp.route("/admin/logs/db", methods=["GET"])
 @admin_required
 def logs_db():
+    user = get_user(session.get('userid'))
     # filtros do request
     tabela_selecionada = request.args.get("tabela")
     categoria_selecionada = request.args.get("categoria")
@@ -160,6 +161,7 @@ def logs_db():
 
     return render_template(
         "admin/logs/logs_db.html",
+        user=user,
         logs=logs,
         tabelas=distinct_tabelas,
         tabela_selecionada=tabela_selecionada,
