@@ -1,7 +1,8 @@
-from datetime import datetime
 import os
-import subprocess
 import shutil
+import subprocess
+from datetime import datetime
+
 
 def git_available():
     return shutil.which("git") is not None
@@ -80,3 +81,53 @@ def commits_behind():
 
 def git_pull():
     return git("pull")
+
+def get_local_branches():
+    out, err, code = git("branch")
+
+    if code != 0:
+        return []
+
+    branches = []
+
+    for line in out.splitlines():
+        line = line.strip()
+
+        if line.startswith("*"):
+            branches.append({
+                "name": line[2:],
+                "current": True
+            })
+        else:
+            branches.append({
+                "name": line,
+                "current": False
+            })
+
+    return branches
+
+
+def get_remote_branches():
+    out, err, code = git("branch", "-r")
+
+    if code != 0:
+        return []
+
+    branches = []
+
+    for line in out.splitlines():
+        branches.append(line.strip())
+
+    return branches
+
+
+def checkout_branch(branch):
+    return git("checkout", branch)
+
+
+def create_branch(branch):
+    return git("checkout", "-b", "branch")
+
+
+def delete_branch(branch):
+    return git("branch", "-D", branch)
