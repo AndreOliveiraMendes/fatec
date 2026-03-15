@@ -16,7 +16,8 @@ def db_action(
     old_obj=None,
     action: Callable[..., Any] | None = None,
     post_action: Callable[..., Any] | None = None,
-    observacao: str | None=None
+    observacao: str | None=None,
+    skip_unchanged = False
 ) -> None:
     try:
         if action:
@@ -33,7 +34,7 @@ def db_action(
 
         if obj is not None:
             registrar_log_generico_usuario(
-                g.userid, action_type, obj, old_obj, observacao
+                g.userid, action_type, obj, old_obj, observacao, skip_unchanged
             )
 
         db.session.commit()
