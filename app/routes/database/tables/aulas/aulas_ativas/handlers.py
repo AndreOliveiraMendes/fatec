@@ -89,7 +89,6 @@ def insert_push():
 
     def action():
         check_aula_ativa(inicio_ativacao, fim_ativacao, id_aula, id_semana, tipo_aula)
-        db.session.add(nova_aula_ativa)
 
     db_action(
         "Inserção",
@@ -165,8 +164,7 @@ def delete_push():
         "Exclusão",
         "Aula ativa excluida com sucesso",
         "Erro ao excluir aula ativa",
-        obj=aula_ativa,
-        action=lambda: db.session.delete(aula_ativa)
+        obj=aula_ativa
     )
 
     g.redirect_action, g.bloco = register_return(g.url, g.acao, g.extras,

@@ -35,15 +35,11 @@ def insert_push():
         nome_semana=nome_semana
     )
 
-    def insert():
-        db.session.add(nova_semana)
-
     db_action(
         "Inserção",
         "Semana cadastrada com sucesso",
         "Falha ao cadastrar semana",
-        obj=nova_semana,
-        action=insert
+        obj=nova_semana
     )
 
     g.redirect_action, g.bloco = register_return(g.url, g.acao, g.extras)
@@ -87,13 +83,9 @@ def delete_push():
     id_semana = none_if_empty(request.form.get('id_semana'), int)
     dia_da_semana = db.get_or_404(Dias_da_Semana, id_semana)
 
-    def delete():
-        db.session.delete(dia_da_semana)
-
     db_action(
         "Exclusão",
         "Dia da semana excluido com sucesso",
         "falha ao excluir semana",
-        obj=dia_da_semana,
-        action=delete
+        obj=dia_da_semana
     )

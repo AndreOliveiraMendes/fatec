@@ -1,5 +1,6 @@
 from app.models.controle import Exibicao_Reservas
-from app.models.reservas.reservas_laboratorios import Reservas_Fixas, Reservas_Temporarias
+from app.models.reservas.reservas_laboratorios import (Reservas_Fixas,
+                                                       Reservas_Temporarias)
 
 
 def resolver_reserva(temp:Reservas_Temporarias|None, fixa:Reservas_Fixas|None, exibicao:Exibicao_Reservas|None):

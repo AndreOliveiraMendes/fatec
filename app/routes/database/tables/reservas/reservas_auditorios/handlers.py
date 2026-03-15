@@ -111,15 +111,11 @@ def insert_push():
         observação_autorizador=observacao_autorizador
     )
 
-    def insert():
-        db.session.add(nova_reserva)
-
     db_action(
         "Inserção",
         "Reserva cadastrada com sucesso",
         "Erro ao cadastrar reserva",
-        obj=nova_reserva,
-        action=insert
+        obj=nova_reserva
     )
 
     g.redirect_action, g.bloco = register_return(
@@ -189,15 +185,11 @@ def delete_fetch():
 
     reserva_auditorio = db.get_or_404(Reservas_Auditorios, id_reserva_auditorio)
 
-    def delete():
-        db.session.delete(reserva_auditorio)
-
     db_action(
         "Exclusão",
         "Reserva excluida com sucesso",
         "Erro ao excluir reserva",
-        obj=reserva_auditorio,
-        action=delete
+        obj=reserva_auditorio
     )
 
     g.redirect_action, g.bloco = register_return(

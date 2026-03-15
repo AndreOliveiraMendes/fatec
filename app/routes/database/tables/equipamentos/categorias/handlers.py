@@ -126,15 +126,11 @@ def delete_push():
 
     categoria = db.get_or_404(Categorias_de_Equipamentos, id_categoria)
 
-    def delete():
-        db.session.delete(categoria)
-
     db_action(
         "Exclusão",
         "Categoria excluida com sucesso",
         "Erro ao excluir categoria",
-        obj=categoria,
-        action=delete
+        obj=categoria
     )
 
     g.redirect_action, g.bloco = register_return(

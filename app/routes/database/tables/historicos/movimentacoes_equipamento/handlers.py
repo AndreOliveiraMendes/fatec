@@ -5,7 +5,7 @@ from flask import current_app, flash, g, request
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
-from app.auxiliar.general import none_if_empty
+from app.auxiliar.general import get_value_or_abort, none_if_empty
 from app.auxiliar.navigation import register_return
 from app.auxiliar.parsing import parse_date_string, parse_datetime_string
 from app.dao.internal.equipamentos import get_equipamentos
@@ -122,8 +122,6 @@ def insert_push():
     def insert():
         if tipo_movimentacao:
             nova_movimentacao.tipo = TipoMovimentacaoEnum(tipo_movimentacao)
-
-        db.session.add(nova_movimentacao)
     
     db_action(
         "Inserção",
@@ -158,11 +156,11 @@ def fetch_movimentacao():
 @register_handler(dispatcher, 'editar', 2)
 def edit_push():
     id_movimentacao = none_if_empty(request.form.get('id_movimentacao'), int)
-    id_equipamento = none_if_empty(request.form.get('id_equipamento'), int)
+    id_equipamento = get_value_or_abort(request.form.get('id_equipamento'), 400, "id do equipamento é obrigatorio", int)
     tipo_movimentacao = none_if_empty(request.form.get('tipo_movimentacao'))
-    quantidade = none_if_empty(request.form.get('quantidade'), int)
+    quantidade = get_value_or_abort(request.form.get('quantidade'), 400, "quantidade é obrigatorio", int)
     data_registro = parse_datetime_string(request.form.get('data_registro'))
-    id_funcionario = none_if_empty(request.form.get('id_funcionario'), int)
+    id_funcionario = get_value_or_abort(request.form.get('id_funcionario'), 400, "id do funcionario é obrigatorio", int)
     id_responsavel = none_if_empty(request.form.get('id_responsavel'), int)
     observacao = none_if_empty(request.form.get('observacao'))
 
@@ -203,15 +201,11 @@ def delete_push():
 
     movimentacao = db.get_or_404(MovimentacaoEquipamento, id_movimentacao)
 
-    def delete():
-        db.session.delete(movimentacao)
-
     db_action(
         "Exclusão",
         "Registro de movimentação excluida com sucesso",
         "Erro ao excluir registro de movimentação",
-        obj=movimentacao,
-        action=delete
+        obj=movimentacao
     )
 
     g.redirect_action, g.bloco = register_return(

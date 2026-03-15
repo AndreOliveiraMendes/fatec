@@ -104,15 +104,11 @@ def insert_push():
         permissao=flag
     )
 
-    def insert():
-        db.session.add(nova_permissao)
-
     db_action(
         "Inserção",
         "Permissao cadastrada com sucesso",
         "Erro ao cadastrar permissão",
         obj=nova_permissao,
-        action=insert,
         observacao=f"0b{flag:03b}"
     )
 
@@ -178,15 +174,11 @@ def delete_push():
 
     else:
 
-        def delete():
-            db.session.delete(permissao)
-
         db_action(
             "Exclusão",
             "Permissao excluída com sucesso",
             "Erro ao excluir permissão",
             obj=permissao,
-            action=delete,
             observacao=f"0b{permissao.permissao:03b}"
         )
 

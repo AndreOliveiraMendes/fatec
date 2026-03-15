@@ -90,7 +90,6 @@ def insert_push():
 
     def insert():
         check_semestre(data_inicio, data_fim)
-        db.session.add(novo_semestre)
 
     db_action(
         "Inserção",
@@ -157,15 +156,11 @@ def delete_push():
 
     semestre = db.get_or_404(Semestres, id_semestre)
 
-    def delete():
-        db.session.delete(semestre)
-
     db_action(
         "Exclusão",
         "Semestre excluido com sucesso",
         "Erro ao excluir semestre",
-        obj=semestre,
-        action=delete
+        obj=semestre
     )
 
     g.redirect_action, g.bloco = register_return(

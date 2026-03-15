@@ -141,7 +141,6 @@ def insert_push():
             id_reserva_local,
             id_reserva_aula
         )
-        db.session.add(nova_reserva_temporaria)
 
     db_action(
         "Inserção",
@@ -230,15 +229,11 @@ def delete_push():
 
     reserva_temporaria = db.get_or_404(Reservas_Temporarias, id_reserva_temporaria)
 
-    def delete():
-        db.session.delete(reserva_temporaria)
-
     db_action(
         "Exclusão",
         "Reserva excluida com sucesso",
         "Erro ao excluir reserva",
-        obj=reserva_temporaria,
-        action=delete
+        obj=reserva_temporaria
     )
 
     g.redirect_action, g.bloco = register_return(

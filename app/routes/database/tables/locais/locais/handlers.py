@@ -79,15 +79,11 @@ def insert_push():
         tipo=TipoLocalEnum(tipo)
     )
 
-    def insert():
-        db.session.add(novo_local)
-
     db_action(
         "Inserção",
         "Local cadastrado com sucesso",
         "Erro ao cadastrar local",
-        obj=novo_local,
-        action=insert
+        obj=novo_local
     )
 
     g.redirect_action, g.bloco = register_return(
@@ -143,15 +139,11 @@ def delete_push():
 
     local = db.get_or_404(Locais, id_local)
 
-    def delete():
-        db.session.delete(local)
-
     db_action(
         "Exclusão",
         "Local excluido com sucesso",
         "Erro ao excluir local",
-        obj=local,
-        action=delete
+        obj=local
     )
 
     g.redirect_action, g.bloco = register_return(

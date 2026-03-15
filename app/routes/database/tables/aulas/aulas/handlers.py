@@ -79,8 +79,7 @@ def insert_push():
         "Inserção",
         "Aula cadastrada com sucesso",
         "Erro ao cadastrar aula",
-        obj=nova_aula,
-        action=lambda: db.session.add(nova_aula)
+        obj=nova_aula
     )
 
     g.redirect_action, g.bloco = register_return(g.url, g.acao, g.extras)
@@ -145,8 +144,7 @@ def exclude_push():
         "Exclusão",
         "Aula excluida com sucesso",
         "Erro ao excluir aula",
-        obj=aula,
-        action=lambda: db.session.delete(aula)
+        obj=aula
     )
 
     g.redirect_action, g.bloco = register_return(

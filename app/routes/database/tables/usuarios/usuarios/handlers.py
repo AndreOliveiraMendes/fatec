@@ -85,15 +85,11 @@ def insert_push():
         grupo_pessoa=grupo_pessoa
     )
 
-    def insert():
-        db.session.add(novo_usuario)
-
     db_action(
         "Inserção",
         "Usuario cadastrado com sucesso",
         "Erro ao cadastrar usuario",
-        obj=novo_usuario,
-        action=insert
+        obj=novo_usuario
     )
 
     g.redirect_action, g.bloco = register_return(
@@ -177,15 +173,11 @@ def delete_fetch():
 
     else:
 
-        def delete():
-            db.session.delete(usuario)
-
         db_action(
             "Exclusão",
             "Usuario excluído com sucesso",
             "Erro ao excluir usuario",
-            obj=usuario,
-            action=delete
+            obj=usuario
         )
 
     g.redirect_action, g.bloco = register_return(

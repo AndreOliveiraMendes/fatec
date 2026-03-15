@@ -63,15 +63,11 @@ def insert_push():
         nome_usuario_especial=nome_usuario_especial
     )
 
-    def insert():
-        db.session.add(novo_usuario_especial)
-
     db_action(
         "Inserção",
         "Usuario Especial cadastrada com sucesso",
         "Erro ao cadastrar usuario especial",
-        obj=novo_usuario_especial,
-        action=insert
+        obj=novo_usuario_especial
     )
 
     g.redirect_action, g.bloco = register_return(
@@ -130,15 +126,11 @@ def delete_push():
 
     usuario_especial = db.get_or_404(Usuarios_Especiais, id_usuario_especial)
 
-    def delete():
-        db.session.delete(usuario_especial)
-
     db_action(
         "Exclusão",
         "Usuario especial excluido com sucesso",
         "Erro ao excluir usuario especial",
-        obj=usuario_especial,
-        action=delete
+        obj=usuario_especial
     )
 
     g.redirect_action, g.bloco = register_return(

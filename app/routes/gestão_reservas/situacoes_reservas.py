@@ -2,7 +2,8 @@ from copy import copy
 from datetime import datetime
 from typing import Any
 
-from flask import Blueprint, abort, flash, json, redirect, render_template, request, session, url_for
+from flask import (Blueprint, abort, flash, json, redirect, render_template,
+                   request, session, url_for)
 
 from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.parsing import parse_date_string
@@ -11,7 +12,8 @@ from app.dao.internal.aulas import get_turno_by_time, get_turnos
 from app.dao.internal.controle import get_situacoes_por_dia
 from app.dao.internal.general import get_unique_or_500, handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
-from app.dao.internal.reservas import get_reservas_por_dia, get_responsavel_reserva
+from app.dao.internal.reservas import (get_reservas_por_dia,
+                                       get_responsavel_reserva)
 from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import admin_required
 from app.enums import SituacaoChaveEnum, TipoAulaEnum, TipoReservaEnum

@@ -79,15 +79,11 @@ def insert_push():
         id_categoria=id_categoria
     )
 
-    def insert():
-        db.session.add(novo_equipamento)
-
     db_action(
         "Inserção",
         "Equipamento cadastrado com sucesso",
         "Erro ao cadastrar equipamento",
-        obj=novo_equipamento,
-        action=insert
+        obj=novo_equipamento
     )
 
     g.redirect_action, g.bloco = register_return(
@@ -143,15 +139,11 @@ def delete_push():
 
     equipamento = db.get_or_404(Equipamentos, id_equipamento)
 
-    def delete():
-        db.session.delete(equipamento)
-
     db_action(
         "Exclusão",
         "Equipamento deletado com sucesso",
         "Erro ao deletar equipamento",
-        obj=equipamento,
-        action=delete
+        obj=equipamento
     )
 
     g.redirect_action, g.bloco = register_return(

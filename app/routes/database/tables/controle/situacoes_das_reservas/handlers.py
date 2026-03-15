@@ -97,8 +97,6 @@ def insert_push():
         if tipo_reserva:
             nova_situacao.tipo_reserva = TipoReservaEnum(tipo_reserva)
 
-        db.session.add(nova_situacao)
-
     db_action(
         "Inserção",
         "Situação cadastrada com sucesso",
@@ -168,15 +166,11 @@ def delete_push():
 
     situacao_da_reserva = db.get_or_404(Situacoes_Das_Reserva, id_situacao)
 
-    def delete():
-        db.session.delete(situacao_da_reserva)
-
     db_action(
         "Exclusão",
         "Situação excluida com sucesso",
         "Erro ao excluir situação",
-        obj=situacao_da_reserva,
-        action=delete
+        obj=situacao_da_reserva
     )
 
     g.redirect_action, g.bloco = register_return(

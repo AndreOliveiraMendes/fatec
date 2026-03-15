@@ -120,15 +120,11 @@ def insert_push():
         descricao=descricao
     )
 
-    def insert():
-        db.session.add(nova_reserva_fixa)
-
     db_action(
         "Inserção",
         "Reserva semanal cadastrada com sucesso",
         "Erro ao cadastrar reserva",
-        obj=nova_reserva_fixa,
-        action=insert
+        obj=nova_reserva_fixa
     )
 
     g.redirect_action, g.bloco = register_return(
@@ -202,15 +198,11 @@ def delete_push():
 
     reserva_fixa = db.get_or_404(Reservas_Fixas, id_reserva_fixa)
 
-    def delete():
-        db.session.delete(reserva_fixa)
-
     db_action(
         "Exclusão",
         "Reserva excluida com sucesso",
         "Erro ao excluir reserva",
-        obj=reserva_fixa,
-        action=delete
+        obj=reserva_fixa
     )
 
     g.redirect_action, g.bloco = register_return(

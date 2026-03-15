@@ -41,7 +41,6 @@ def insert_push():
 
     def insert():
         check_turno(horario_inicio, horario_fim)
-        db.session.add(novo_turno)
 
     db_action(
         "Inserção",
@@ -102,15 +101,11 @@ def delete_push():
 
     turno = db.get_or_404(Turnos, id_turno)
 
-    def delete():
-        db.session.delete(turno)
-
     db_action(
         "Exclusão",
         "Turno excluido com sucesso",
         "Erro ao excluir turno",
-        obj=turno,
-        action=delete
+        obj=turno
     )
 
     g.redirect_action, g.bloco = register_return(

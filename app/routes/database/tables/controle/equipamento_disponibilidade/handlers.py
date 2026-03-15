@@ -89,15 +89,11 @@ def insert_push():
         quantidade_total=quantidade_total
     )
 
-    def insert():
-        db.session.add(novo_registro_disponibilidade)
-
     db_action(
         "Inserção",
         "Disponibilidade criada com sucesso",
         "Erro ao criar disponibilidade",
-        obj=novo_registro_disponibilidade,
-        action=insert
+        obj=novo_registro_disponibilidade
     )
 
     g.redirect_action, g.bloco = register_return(
@@ -153,15 +149,11 @@ def delete_push():
 
     disponibilidade = db.get_or_404(EquipamentoDisponibilidade, id_disponibilidade)
 
-    def delete():
-        db.session.delete(disponibilidade)
-
     db_action(
         "Exclusão",
         "Disponibilidade excluida com sucesso",
         "Erro ao excluir disponibilidade",
-        obj=disponibilidade,
-        action=delete
+        obj=disponibilidade
     )
 
     g.redirect_action, g.bloco = register_return(

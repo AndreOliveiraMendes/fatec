@@ -69,7 +69,6 @@ def insert_push():
             else:
                 nova_reserva.cancelado_em = datetime.now()
             nova_reserva.motivo_cancelamento = motivo_cancelamento
-        db.session.add(nova_reserva)
 
     def post_inserir():
         if nova_reserva.cancelado_em and nova_reserva.cancelado_em < nova_reserva.criado_em:

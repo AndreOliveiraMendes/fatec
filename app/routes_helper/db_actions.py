@@ -15,15 +15,21 @@ def db_action(
     obj=None,
     old_obj=None,
     action: Callable[..., Any] | None = None,
-    observacao: str=None,
-    *args,
-    **kwargs
+    post_action: Callable[..., Any] | None = None,
+    observacao: str | None=None
 ) -> None:
     try:
         if action:
-            action(*args, **kwargs)
+            action()
+        if action_type in ("Inserção", "Edição") and obj:
+            db.session.add(obj)
+        elif action_type == "Exclusão" and obj:
+            db.session.delete(obj)
 
         db.session.flush()
+        
+        if post_action:
+            post_action()
 
         if obj is not None:
             registrar_log_generico_usuario(

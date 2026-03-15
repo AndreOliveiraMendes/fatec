@@ -79,15 +79,11 @@ def insert_push():
         email_pessoa=email
     )
 
-    def insert():
-        db.session.add(nova_pessoa)
-
     db_action(
         "Inserção",
         "Pessoa cadastrada com sucesso",
         "Erro ao cadastrar pessoa",
-        obj=nova_pessoa,
-        action=insert
+        obj=nova_pessoa
     )
 
     g.redirect_action, g.bloco = register_return(
@@ -147,15 +143,11 @@ def delete_push():
 
     else:
 
-        def delete():
-            db.session.delete(pessoa)
-
         db_action(
             "Exclusão",
             "Pessoa excluída com sucesso",
             "Erro ao excluir pessoa",
-            obj=pessoa,
-            action=delete
+            obj=pessoa
         )
 
     g.redirect_action, g.bloco = register_return(

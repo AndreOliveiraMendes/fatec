@@ -92,8 +92,6 @@ def insert_push():
         if tipo_reserva:
             nova_exibicao.tipo_reserva = TipoReservaEnum(tipo_reserva)
 
-        db.session.add(nova_exibicao)
-
     db_action(
         "Inserção",
         "Exibicao configurada com sucesso",
@@ -161,15 +159,11 @@ def delete_push():
 
     exibicao_da_reserva = db.get_or_404(Exibicao_Reservas, id_exibicao)
 
-    def delete():
-        db.session.delete(exibicao_da_reserva)
-
     db_action(
         "Exclusão",
         "Configuração de exibição excluida com sucesso",
         "Erro ao excluir exibicao",
-        obj=exibicao_da_reserva,
-        action=delete
+        obj=exibicao_da_reserva
     )
 
     g.redirect_action, g.bloco = register_return(
