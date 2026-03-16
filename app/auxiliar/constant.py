@@ -65,6 +65,17 @@ class Permission(IntFlag):
     AUTORIZAR = 16
     CMD_CONFIG = 32
 
+    def has(self, perm):
+        return (self & perm) == perm
+
+    def has_any(self, perm):
+        return bool(self & perm)
+    
+    def add(self, perm):
+        return self | perm
+
+    def remove(self, perm):
+        return self & ~perm
 
 PERMISSIONS = {
     "FIXA": Permission.RESERVA_FIXA,

@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.auxiliar.constant import Permission
 from app.extensions import Base
 
 if TYPE_CHECKING:
@@ -46,7 +47,7 @@ class Usuarios(Base):
     grupo_pessoa: Mapped[str | None] = mapped_column(String(50))
 
     pessoa: Mapped["Pessoas"] = relationship(back_populates='usuarios', passive_deletes=True)
-    permissoes: Mapped[list["Permissoes"]] = relationship(back_populates='usuario', passive_deletes=True)
+    permissoes: Mapped["Permissoes"] = relationship(back_populates='usuario', passive_deletes=True)
     historicos: Mapped[list["Historicos"]] = relationship(back_populates='usuario', passive_deletes=True)
 
     @property
@@ -55,7 +56,7 @@ class Usuarios(Base):
     
     @property
     def perm(self):
-        return self.permissoes[0].permissao if self.permissoes else 0
+        return Permission(self.permissoes.permissao) if self.permissoes else Permission(0)
 
     def __repr__(self) -> str:
         return (

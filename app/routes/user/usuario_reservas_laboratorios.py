@@ -42,7 +42,7 @@ def gerenciar_reserva_fixa():
     extras['TipoReserva'] = FinalidadeReservaEnum
     extras['pessoas'] = get_pessoas()
     extras['usuarios_especiais'] = get_usuarios_especiais()
-    extras['laboratorios'] = get_laboratorios(user.perm & Permission.ADMIN > 0)
+    extras['laboratorios'] = get_laboratorios(user.perm.has(Permission.ADMIN))
     extras['semanas'] = get_dias_da_semana()
     return render_template("usuario/reserva_fixa.html", user=user, **extras)
 
@@ -64,7 +64,7 @@ def gerenciar_reserva_temporaria():
     extras['TipoReserva'] = FinalidadeReservaEnum
     extras['pessoas'] = get_pessoas()
     extras['usuarios_especiais'] = get_usuarios_especiais()
-    extras['laboratorios'] = get_laboratorios(user.perm & Permission.ADMIN > 0)
+    extras['laboratorios'] = get_laboratorios(user.perm.has(Permission.ADMIN))
     extras['semanas'] = get_dias_da_semana()
     return render_template("usuario/reserva_temporaria.html", user=user, **extras)
 

@@ -64,7 +64,7 @@ def main_page():
 
         icon = ""
         if not (s.data_inicio_reserva <= today <= s.data_fim_reserva):
-            if not (user and user.perm & Permission.ADMIN):
+            if not (user and user.perm.has(Permission.ADMIN)):
                 state += " disabled"
             icon = Markup("<span class='glyphicon glyphicon-lock'></span>")
         elif (today - s.data_inicio_reserva).days < s.dias_de_prioridade:

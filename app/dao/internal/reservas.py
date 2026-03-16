@@ -186,11 +186,8 @@ def get_responsavel_reserva(
 def check_ownership_or_admin(reserva: Reservas_Fixas | Reservas_Temporarias):
     userid = session.get('userid')
     user = db.get_or_404(Usuarios, userid)
-    perm = db.session.get(Permissoes, userid)
 
-    if reserva.id_responsavel != user.pessoa.id_pessoa and (
-        not perm or perm.permissao & Permission.ADMIN == 0
-    ):
+    if reserva.id_responsavel != user.pessoa.id_pessoa and not user.perm.has(Permission.ADMIN):
         abort(403, description="Acesso negado à reserva de outro usuário.")
 
 def check_periodo_fixa(reserva: Reservas_Fixas):

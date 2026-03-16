@@ -231,7 +231,7 @@ def register_template_utils(app:Flask):
                 active_link = lab_url(tipo, turno, None, **kwargs)
             
             if lab.disponibilidade.value == 'Indisponivel':
-                if user.perm & Permission.ADMIN == 0:
+                if not user.perm.has(Permission.ADMIN):
                     active_class = 'disabled'
                     active_link = ""
                 else:

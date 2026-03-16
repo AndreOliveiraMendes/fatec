@@ -64,7 +64,7 @@ def get_lab_geral(inicio, fim, id_turno):
     turno = db.get_or_404(Turnos, id_turno) if id_turno else None
     tipo = _obter_tipo_horario()
 
-    locais = get_laboratorios(user.perm & Permission.ADMIN > 0)
+    locais = get_laboratorios(user.perm.has(Permission.ADMIN))
     dias = [(dia, turno) for dia in time_range(inicio, fim)]
     aulas = get_aulas_ativas_por_lista_de_dias(dias, tipo)
 
@@ -108,7 +108,7 @@ def get_lab_especifico(inicio, fim, id_turno, id_lab):
     ctx.update({
         "local": local,
         "aulas": aulas,
-        "locais": get_laboratorios(user.perm & Permission.ADMIN > 0),
+        "locais": get_laboratorios(user.perm.has(Permission.ADMIN)),
         "day": date.today()
     })
 

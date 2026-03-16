@@ -73,7 +73,7 @@ def get_reservas(userid, params, page, tipo):
     if not user or not model:
         abort(404, description="Usuário não encontrado.")
     filtro = []
-    if not user.perm & Permission.ADMIN:
+    if not user.perm.has(Permission.ADMIN):
         filtro.append(model.id_responsavel == user.id_pessoa)
     for key, (condition, cast) in FILTERS.get(tipo, {}).items():
         raw = params.get(key)

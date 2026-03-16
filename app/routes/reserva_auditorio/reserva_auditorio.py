@@ -51,7 +51,7 @@ def main_page():
             conditions.append(Reservas_Auditorios.dia_reserva >= reserva_dia_inicio)
         if reserva_dia_fim:
             conditions.append(Reservas_Auditorios.dia_reserva <= reserva_dia_fim)
-    extras['reservas_auditorios'] = get_reservas_auditorios_filtrada(user.pessoa.id_pessoa, user.perm&(Permission.ADMIN+Permission.AUTORIZAR) > 0, *conditions)
+    extras['reservas_auditorios'] = get_reservas_auditorios_filtrada(user.pessoa.id_pessoa, user.perm.has_any(Permission.ADMIN|Permission.AUTORIZAR), *conditions)
     return render_template('reserva_auditorio/main.html', user=user, **extras)
 
 @bp.route('/atualizar_status_reserva/<int:id_reserva>', methods=['POST'])

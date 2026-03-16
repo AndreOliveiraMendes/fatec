@@ -91,7 +91,7 @@ def _get_lab_geral(id_semestre, id_turno):
 
     turno = db.get_or_404(Turnos, id_turno) if id_turno else None
     aulas = get_aulas_ativas_por_semestre(semestre, turno)
-    locais = get_laboratorios(bool(user.perm & Permission.ADMIN))
+    locais = get_laboratorios(user.perm.has(Permission.ADMIN))
 
     if not aulas or not locais:
         flash("não há recursos disponíveis", "danger")
@@ -124,7 +124,7 @@ def _get_lab_especifico(id_semestre, id_turno, id_lab):
 
     extras.update(
         aulas=aulas,
-        locais=get_laboratorios(bool(user.perm & Permission.ADMIN)),
+        locais=get_laboratorios(user.perm.has(Permission.ADMIN)),
         aulas_extras=get_aulas_extras(semestre, turno)
     )
 

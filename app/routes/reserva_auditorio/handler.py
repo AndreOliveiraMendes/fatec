@@ -11,13 +11,13 @@ from app.models.usuarios import Usuarios
 
 
 def check_own_reserva(reserva:Reservas_Auditorios, user:Usuarios):
-    if user.id_pessoa != reserva.id_responsavel and user.perm & (Permission.ADMIN+Permission.AUTORIZAR) == 0:
+    if user.id_pessoa != reserva.id_responsavel and not user.perm.has_any(Permission.ADMIN|Permission.AUTORIZAR):
         abort(403, description="Acesso negado à reserva de outro usuário.")
 
 def check_role(user:Usuarios, action:Literal['CR', 'AR']):
-    if action == 'CR' and user.perm & Permission.ADMIN == 0:
+    if action == 'CR' and not user.perm.has(Permission.ADMIN):
         abort(403, description="Acesso negado à atualização de reservas.")
-    elif action == 'AR' and user.perm & (Permission.ADMIN+Permission.AUTORIZAR) == 0:
+    elif action == 'AR' and not user.perm.has(Permission.ADMIN|Permission.AUTORIZAR):
         abort(403, description="Acesso negado à autorização de reservas.")
 
 def check_unique_aprovada(reserva:Reservas_Auditorios):
