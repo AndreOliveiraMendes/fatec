@@ -6,10 +6,8 @@ from flask import Flask, abort, current_app, session, url_for
 from markupsafe import Markup
 from sqlalchemy import between
 
-from app.auxiliar.constant import (APP_TITLE, DATA_ABREV, DATA_COMPLETA,
-                                   DATA_FLAGS, DATA_NUMERICA, HORA,
-                                   PERMISSIONS, SEMANA_ABREV, SEMANA_COMPLETA,
-                                   Permission)
+from app.auxiliar.constant import (APP_TITLE, DATA_FLAGS, PERMISSIONS,
+                                   FormatDataTime, Permission)
 from app.auxiliar.shared import resolver_reserva
 from app.dao.internal.general import get_unique_or_500
 from app.dao.internal.reservas import get_responsavel_reserva
@@ -408,30 +406,30 @@ def register_template_utils(app:Flask):
         return value.strftime('%d/%m/%Y %H:%M') if value else ''
 
     @app.template_filter('datainfo')
-    def data_configuravel(value, flags):
+    def data_configuravel(value, flag):
         if not value:
             return ''
-        
+        format_flag = FormatDataTime(flag)
         info_dia, info_hora, info_semana = '', '', ''
-        if flags&(DATA_NUMERICA | DATA_ABREV | DATA_COMPLETA):
-            if flags&DATA_NUMERICA:
+        if format_flag.has_any(FormatDataTime.DATA_NUMERICA | FormatDataTime.DATA_ABREV | FormatDataTime.DATA_COMPLETA):
+            if format_flag.has(FormatDataTime.DATA_NUMERICA):
                 mask = '%d/%m/%Y'
                 info_dia = value.strftime(mask)
             else:
                 mask = '%B'
-                if flags&DATA_ABREV:
+                if format_flag.has(FormatDataTime.DATA_ABREV):
                     mask = '%b'
                 mes_ingles = value.strftime(mask)
                 dia = value.strftime('%d')
                 mes = meses_ingleses[mask][mes_ingles]
                 ano = value.strftime('%Y')
                 info_dia = f"{dia} de {mes} de {ano}"
-        if flags&HORA:
+        if format_flag.has(FormatDataTime.HORA):
             mask = '%H:%M'
             info_hora = value.strftime(mask)
-        if flags&(SEMANA_ABREV|SEMANA_COMPLETA):
+        if format_flag.has_any(FormatDataTime.SEMANA_ABREV|FormatDataTime.SEMANA_COMPLETA):
             mask = '%A'
-            if flags&SEMANA_ABREV:
+            if format_flag.has(FormatDataTime.SEMANA_ABREV):
                 mask = '%a'
             semana_ingles = value.strftime(mask)
             info_semana = semana_inglesa[mask][semana_ingles]
