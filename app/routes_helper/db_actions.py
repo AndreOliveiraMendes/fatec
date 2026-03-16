@@ -40,7 +40,7 @@ def db_action(
         db.session.commit()
         flash(success_msg, "success")
 
-    except DB_ERRORS as e:
+    except (*DB_ERRORS, ValueError, PermissionError) as e:
         handle_db_error(e, error_msg)
-    except ValueError as e:
-        handle_db_error(e, error_msg)
+    except Exception as e:
+        handle_db_error(e, "Erro inesperado")

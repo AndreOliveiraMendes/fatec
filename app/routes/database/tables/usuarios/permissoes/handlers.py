@@ -6,7 +6,7 @@ from flask import Request, flash, g, request
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
-from app.auxiliar.constant import Permission
+from app.auxiliar.constant import PERM_CRITICA, Permission
 from app.auxiliar.general import none_if_empty
 from app.auxiliar.navigation import register_return
 from app.dao.internal.usuarios import get_usuarios
@@ -34,16 +34,30 @@ def get_perm(acao, userid):
         sel_permissoes = sel_permissoes.where(Permissoes.id_permissao_usuario!=userid)
     return db.session.execute(sel_permissoes).all()
 
-def get_flag(req: Request) -> int:
-    flags = {
-        "flag_fixa": Permission.RESERVA_FIXA,
-        "flag_temp": Permission.RESERVA_TEMPORARIA,
-        "flag_auditorio": Permission.RESERVA_AUDITORIO,
-        "flag_admin": Permission.ADMIN,
-        "flag_autorizar": Permission.AUTORIZAR,
-        "flag_cmd_config": Permission.CMD_CONFIG,
-    }
-    return reduce(operator.or_, (v for k, v in flags.items() if k in req.form), 0)
+def get_flag(req: Request) -> Permission:
+    perm = Permission(0)
+    for f in request.form.getlist("flags"):
+        perm |= Permission(int(f))
+    return perm
+
+def generate_flags(usuario = None):
+    restrict = PERM_CRITICA & ~g.user.perm
+    flags = [
+        {
+            "name": p.name.lower(),
+            "value": p.value,
+            "label": p.label,
+            "description": p.description,
+        }
+        for p in Permission
+    ]
+    for flag in flags:
+        if restrict & Permission(flag.get('value')):
+            flag["disabled"] = True
+        if usuario and PERM_CRITICA & Permission(flag.get('value')) and usuario == g.userid:
+            flag["disabled"] = True
+
+    return flags
 
 @register_handler(dispatcher, 'listar', 0)
 def list_handler():
@@ -93,6 +107,8 @@ def search_fetch():
 @register_handler(dispatcher, 'inserir', 0)
 def insert_prefetch():
     g.extras['users'] = get_no_perm_users()
+    g.extras['restricted'] = PERM_CRITICA & ~Permission(g.user.perm)
+    g.extras['flags'] = generate_flags()
 
 @register_handler(dispatcher, 'inserir', 1)
 def insert_push():
@@ -104,12 +120,22 @@ def insert_push():
         permissao=flag
     )
 
+    def adicionar():
+        restrict = PERM_CRITICA & ~Permission(g.user.perm)
+        invalid = Permission(flag) & restrict
+        names = [p.name for p in Permission if invalid & p]
+        if invalid:
+            raise PermissionError(
+                f"Você não pode conceder as permissões: {', '.join(names)}."
+            )
+
     db_action(
         "Inserção",
         "Permissao cadastrada com sucesso",
         "Erro ao cadastrar permissão",
         obj=nova_permissao,
-        observacao=f"0b{flag:03b}"
+        observacao=f"0b{flag:03b}",
+        action=adicionar
     )
 
     g.redirect_action, g.bloco = register_return(
@@ -125,10 +151,11 @@ def fetch_permissoes():
 @register_handler(dispatcher, 'editar', 1)
 @register_handler(dispatcher, 'excluir', 1)
 def fetch_permissao():
-    usuario = none_if_empty(request.form.get('id_usuario'))
+    usuario = none_if_empty(request.form.get('id_usuario'), int)
     permissao = db.get_or_404(Permissoes, usuario)
     g.extras['permissao'] = permissao
     g.extras['userid'] = g.userid
+    g.extras['flags'] = generate_flags(usuario)
 
 @register_handler(dispatcher, 'editar', 2)
 def edit_push():
@@ -136,14 +163,27 @@ def edit_push():
     flag = get_flag(request)
 
     permissao = db.get_or_404(Permissoes, id_permissao_usuario)
+    perm_critica = Permission(g.user.perm) & PERM_CRITICA
 
-    if id_permissao_usuario == g.userid and flag & Permission.ADMIN == 0:
-        flash("voce não pode remover seu proprio poder de administrador", "danger")
+    if id_permissao_usuario == g.userid and flag & perm_critica != perm_critica:
+
+        restricted = perm_critica & ~Permission(flag)
+        perms = perms = [p.name for p in Permission if restricted & p]
+        flash(
+            f"Você não pode remover sua própria permissão de {', '.join(perms)}.",
+            "danger"
+        )
 
     else:
         dados_anteriores = copy(permissao)
 
+        restricted = PERM_CRITICA & ~Permission(g.user.perm)
+
         def update():
+            old_perm_crit = Permission(permissao.permissao) & restricted
+            new_perm_crit = Permission(flag) & restricted
+            if old_perm_crit != new_perm_crit:
+                raise PermissionError("Você não pode alterar permissão critica que voce não possui")
             permissao.permissao = flag
 
         observacao = f"0b{dados_anteriores.permissao:03b} → 0b{flag:03b}"

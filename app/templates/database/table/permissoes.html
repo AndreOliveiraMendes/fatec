@@ -67,7 +67,7 @@
                             title="Editar">
                         <i class="glyphicon glyphicon-pencil"></i>
                     </button>
-                    {% if p.id_permissao_usuario != userid %}
+                    {% if not disable_excluir and p.id_permissao_usuario != userid %}
                         <button type="submit"
                                 name="acao"
                                 value="excluir"
@@ -233,33 +233,15 @@
                         <strong>Permissões</strong>
                     </div>
                     <div class="panel-body text-center">
-                        <!-- Grupo de flags -->
-                        <div class="btn-group" data-toggle="buttons">
-                            <label title="Permissão de reserva fixa" for="btn-check-1">
-                                <input id="btn-check-1" type="checkbox" name="flag_fixa">
-                                FIXA
-                            </label>
-                            <label title="Permissão de reserva temporária" for="btn-check-2">
-                                <input id="btn-check-2" type="checkbox" name="flag_temp">
-                                TEMP
-                            </label>
-                            <label title="Permissão de reserva de auditorio" for="btn-check-3">
-                                <input id="btn-check-3" type="checkbox" name="flag_auditorio">
-                                AUDITORIO
-                            </label>
-                            <label title="Permissão de administrador" for="btn-check-4">
-                                <input id="btn-check-4" type="checkbox" name="flag_admin">
-                                ADMIN
-                            </label>
-                            <label title="Permissão de autorizar reservas de auditorio"
-                                   for="btn-check-5">
-                                <input id="btn-check-5" type="checkbox" name="flag_autorizar">
-                                AUTORIZAR
-                            </label>
-                            <label title="Permissão de criar comandos remotos" for="btn-check-6">
-                                <input id="btn-check-6" type="checkbox" name="flag_cmd_config">
-                                COMANDOS REMOTOS
-                            </label>
+                        <div class="btn btn-outline-primary" role="group" aria-label="Permissões">
+                            {% for flag in flags %}
+                                <input type="checkbox"
+                                       id="flag_{{ flag.name }}"
+                                       name="flags"
+                                       value="{{ flag.value }}"
+                                       {% if flag.disabled %}disabled{% endif %}>
+                                <label for="flag_{{ flag.name }}" title="{{ flag.description }}">{{ flag.label }}</label>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
@@ -304,54 +286,19 @@
                     </div>
                     <div class="panel-body text-center">
                         <!-- Grupo de flags -->
-                        <div class="btn-group" data-toggle="buttons">
-                            <label title="Permissão de reserva fixa" for="btn-check-1">
-                                <input id="btn-check-1"
-                                       type="checkbox"
-                                       name="flag_fixa"
-                                       {% if permissao.permissao|has_flag(FIXA) %}checked{% endif %}>
-                                FIXA
-                            </label>
-                            <label title="Permissão de reserva temporária" for="btn-check-2">
-                                <input id="btn-check-2"
-                                       type="checkbox"
-                                       name="flag_temp"
-                                       {% if permissao.permissao|has_flag(TEMP) %}checked{% endif %}>
-                                TEMP
-                            </label>
-                            <label title="Permissão de reserva de auditorio" for="btn-check-3">
-                                <input id="btn-check-3"
-                                       type="checkbox"
-                                       name="flag_auditorio"
-                                       {% if permissao.permissao|has_flag(AUDITORIO) %}checked{% endif %}>
-                                AUDITORIO
-                            </label>
-                            <label title="Permissão de administrador" for="btn-check-4">
-                                {% if permissao.id_permissao_usuario == userid %}
-                                    <input id="btn-check-4" type="checkbox" checked disabled>
-                                    <input type="hidden" name="flag_admin" value="on">
-                                {% else %}
-                                    <input id="btn-check-4"
-                                           type="checkbox"
-                                           name="flag_admin"
-                                           {% if permissao.permissao|has_flag(ADMIN) %}checked{% endif %}>
+                        <div class="btn btn-outline-primary" role="group" aria-label="Permissões">
+                            {% for flag in flags %}
+                                <input type="checkbox"
+                                       id="flag_{{ flag.name }}"
+                                       name="flags"
+                                       value="{{ flag.value }}"
+                                       {% if permissao.permissao|has_flag(flag.value) %}checked{% endif %}
+                                       {% if flag.disabled %}disabled{% endif %}>
+                                {% if flag.disabled and permissao.permissao|has_flag(flag.value) %}
+                                    <input type="hidden" name="flag_{{ flag.name }}" value="{{ flag.value }}">
                                 {% endif %}
-                                ADMIN
-                            </label>
-                            <label title="Permissão de reserva de auditorio" for="btn-check-5">
-                                <input id="btn-check-5"
-                                       type="checkbox"
-                                       name="flag_auditorio"
-                                       {% if permissao.permissao|has_flag(AUTORIZAR) %}checked{% endif %}>
-                                AUTORIZAR
-                            </label>
-                            <label title="Permissão de criar comandos remotos" for="btn-check-6">
-                                <input id="btn-check-6"
-                                       type="checkbox"
-                                       name="flag_cmd_config"
-                                       {% if permissao.permissao|has_flag(CONFIGURAR_COMANDOS) %}checked{% endif %}>
-                                COMANDOS REMOTOS
-                            </label>
+                                <label for="flag_{{ flag.name }}" title="{{ flag.description }}">{{ flag.label }}</label>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>

@@ -70,12 +70,40 @@ class Permission(IntFlag):
 
     def has_any(self, perm):
         return bool(self & perm)
-    
+
     def add(self, perm):
         return self | perm
 
     def remove(self, perm):
         return self & ~perm
+
+    @property
+    def description(self):
+        return PERM_DESCRIPTIONS.get(self, "")
+
+    @property
+    def label(self):
+        return PERM_LABELS.get(self, "")
+    
+PERM_DESCRIPTIONS = {
+    Permission.RESERVA_FIXA: "Permissão de efetuar reservas fixas",
+    Permission.RESERVA_TEMPORARIA: "Permissão de efetuar reservas temporárias",
+    Permission.RESERVA_AUDITORIO: "Permissão de efetuar reservas de auditório",
+    Permission.ADMIN: "Permissão de administração do sistema",
+    Permission.AUTORIZAR: "Permissão de autorizar reservas de auditório",
+    Permission.CMD_CONFIG: "Permissão de configurar comandos remotos",
+}
+
+PERM_LABELS = {
+    Permission.RESERVA_FIXA: "Reserva Fixa",
+    Permission.RESERVA_TEMPORARIA: "Reserva Temporária",
+    Permission.RESERVA_AUDITORIO: "Reserva de Auditório",
+    Permission.ADMIN: "Administrador",
+    Permission.AUTORIZAR: "Autorizador",
+    Permission.CMD_CONFIG: "Configurador",
+}
+
+PERM_CRITICA = Permission.ADMIN | Permission.CMD_CONFIG
 
 PERMISSIONS = {
     "FIXA": Permission.RESERVA_FIXA,
