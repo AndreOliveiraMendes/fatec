@@ -5,12 +5,7 @@
         [
         'Usuario',
         'permissao',
-        'FIXA',
-        'TEMP',
-        'AUDITORIO',
-        'ADMIN',
-        'AUTORIZAR',
-        'COMANDOS REMOTOS',
+        'Permissões Ativas',
         'Ação'
         ],
         id_field='id_permissao_usuario',
@@ -25,34 +20,11 @@
         <td>({{ p.id_permissao_usuario }}) {{ p.usuario.pessoa.nome_pessoa }}</td>
         <td>{{ p.permissao }}</td>
         <td>
-            <i title="Permissão de reserva fixa"
-               class="{% if p.permissao|has_flag(FIXA) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}">
-            </i>
-        </td>
-        <td>
-            <i title="Permissão de reserva temporária"
-               class="{% if p.permissao|has_flag(TEMP) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}">
-            </i>
-        </td>
-        <td>
-            <i title="Permissão de reserva de auditorio"
-               class="{% if p.permissao|has_flag(AUDITORIO) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}">
-            </i>
-        </td>
-        <td>
-            <i title="Permissão de administrador"
-               class="{% if p.permissao|has_flag(ADMIN) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}">
-            </i>
-        </td>
-        <td>
-            <i title="Permissão de autorizar reservas"
-               class="{% if p.permissao|has_flag(AUTORIZAR) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}">
-            </i>
-        </td>
-        <td>
-            <i title="Permissão de configurar comandos remotos"
-               class="{% if p.permissao|has_flag(CONFIGURAR_COMANDOS) %}glyphicon glyphicon-ok text-success{% else %}glyphicon glyphicon-remove text-danger{% endif %}">
-            </i>
+            {% for flag in table_flags %}
+                {% if p.permissao|has_flag(flag.value) %}
+                    <span class="badge badge-success" title="{{ flag.description }}">{{ flag.label }}</span>
+                {% endif %}
+            {% endfor %}
         </td>
         {# AÇÃO CUSTOMIZADA #}
         <td>

@@ -1,5 +1,6 @@
 from flask import Blueprint, g, render_template, request
 
+from app.auxiliar.constant import Permission
 from app.decorators.decorators import admin_required, crud_route
 from app.routes_helper.controller import get_controller
 from app.routes_helper.ui import disable_action
@@ -15,9 +16,9 @@ bp = Blueprint('database_permissoes', __name__, url_prefix="/database")
 def gerenciar_permissoes():
     disabled = ['excluir']
     disable_action(g.extras, disabled)
+    g.extras['table_flags'] = list(Permission)
     if request.method == 'POST':
         get_controller(VALID_STATES, dispatcher, g.acao, g.bloco)
-
     if g.redirect_action:
         return g.redirect_action
     return render_template("database/table/permissoes.html",
