@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import Enum, ForeignKey, Text, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.auxiliar.model import parse_date
 from app.enums import StatusReservaEquipamentoEnum
 from app.extensions import Base
 
@@ -33,6 +34,13 @@ class Reservas_Equipamentos(Base):
     responsavel: Mapped["Pessoas"] = relationship(back_populates="reservas_equipamentos", foreign_keys=[id_reserva_responsavel], passive_deletes=True)
     cancelado_por: Mapped["Pessoas"] = relationship(foreign_keys=[cancelado_por_id], back_populates="reservas_canceladas", passive_deletes=True)
     itens: Mapped[list["Reserva_Equipamento_Item"]] = relationship(back_populates="reserva", passive_deletes=True)
+
+    @property
+    def selector_identification(self):
+        responsavel = self.responsavel.nome_pessoa
+        aula = self.aula_ativa.selector_identification
+        dia = parse_date(self.data_reserva)
+        return f"{responsavel}, {aula}, {dia}"
 
     def __repr__(self) -> str:
         return (

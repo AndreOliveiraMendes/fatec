@@ -19,6 +19,7 @@ from app.extensions import db
 from app.models.aulas import Aulas, Aulas_Ativas, Semestres, Turnos
 from app.models.locais import Locais
 from app.models.reservas.reservas_auditorios import Reservas_Auditorios
+from app.models.reservas.reservas_equipamentos import Reservas_Equipamentos
 from app.models.reservas.reservas_laboratorios import (Reservas_Fixas,
                                                        Reservas_Temporarias)
 from app.models.usuarios import (Permissoes, Pessoas, Usuarios,
@@ -496,3 +497,7 @@ def check_conflict_reservas_fixas(dia, id_aula, id_responsavel):
             "conflict": True,
             "labs": labs
         }
+
+def get_reservas_equipamentos():
+    sel_reservas = select(Reservas_Equipamentos)
+    return db.session.execute(sel_reservas).scalars().all()

@@ -1,3 +1,4 @@
+from copy import copy
 from datetime import datetime
 
 from flask import flash, g, request
@@ -8,6 +9,7 @@ from app.auxiliar.general import none_if_empty
 from app.auxiliar.navigation import register_return
 from app.auxiliar.parsing import parse_date_string, parse_datetime_string
 from app.dao.internal.aulas import get_aulas_ativas
+from app.dao.internal.reservas import get_reservas_equipamentos
 from app.dao.internal.usuarios import get_pessoas
 from app.decorators.decorators import register_handler
 from app.enums import StatusReservaEquipamentoEnum
@@ -139,19 +141,80 @@ def insert_push():
 
 @register_handler(dispatcher, 'editar', 0)
 @register_handler(dispatcher, 'excluir', 0)
-def fetch_reservas_fixas():
-    pass
+def fetch_reservas_equipamentos():
+    g.extras['reservas_equipamentos'] = get_reservas_equipamentos()
 
 @register_handler(dispatcher, 'editar', 1)
 @register_handler(dispatcher, 'excluir', 1)
-def fetch_reserva_fixa():
+def fetch_reserva_equipamento():
+    id_reserva = none_if_empty(request.form.get('id_reserva'), int)
+
+    reserva = db.get_or_404(Reservas_Equipamentos, id_reserva)
+    g.extras['reserva_equipamento'] = reserva
     g.extras['aulas_ativas'] = get_aulas_ativas()
     g.extras['pessoas'] = get_pessoas()
 
 @register_handler(dispatcher, 'editar', 2)
 def edit_push():
-    pass
+    id_reserva = none_if_empty(request.form.get('id_reserva'), int)
+    id_reserva_aula = none_if_empty(request.form.get('id_reserva_aula'), int)
+    id_reserva_responsavel = none_if_empty(request.form.get('id_reserva_responsavel'), int)
+    data_reserva = parse_date_string(request.form.get('data_reserva'))
+    cancelado_por_id = none_if_empty(request.form.get('cancelado_por_id'), int)
+    cancelado_em = parse_datetime_string(request.form.get('cancelado_em'))
+    estado = none_if_empty(request.form.get('estado'))
+    motivo_cancelamento = none_if_empty(request.form.get('motivo_cancelamento'))
+
+    reserva = db.get_or_404(Reservas_Equipamentos, id_reserva)
+    dados_anteriores = copy(reserva)
+
+    def atualizar():
+        reserva.id_reserva_aula = id_reserva_aula
+        reserva.id_reserva_responsavel = id_reserva_responsavel
+        reserva.data_reserva = data_reserva
+        reserva.estado = StatusReservaEquipamentoEnum(estado)
+        if reserva.estado == StatusReservaEquipamentoEnum.CANCELADA:
+            reserva.cancelado_por_id = cancelado_por_id
+            if reserva.cancelado_em:
+                reserva.cancelado_em = cancelado_em
+            else:
+                reserva.cancelado_em = datetime.now()
+            reserva.motivo_cancelamento = motivo_cancelamento
+            if reserva.cancelado_em and reserva.cancelado_em < reserva.criado_em:
+                raise ValueError("Cancelamento não pode ser antes da criação")
+        else:
+            reserva.cancelado_por_id = None
+            reserva.cancelado_em = None
+            reserva.motivo_cancelamento = None
+        
+    db_action(
+        "Edição",
+        "Reserva de equipameto editada com sucesso",
+        "Erro ao editar reserva de equipamento",
+        obj=reserva,
+        old_obj=dados_anteriores,
+        action=atualizar
+    )
+
+    g.redirect_action, g.bloco = register_return(
+        g.url, g.acao, g.extras,
+        reservas_equipamentos = get_reservas_equipamentos()
+    )
 
 @register_handler(dispatcher, 'excluir', 2)
 def delete_push():
-    pass
+    id_reserva = none_if_empty(request.form.get('id_reserva'), int)
+
+    reserva = db.get_or_404(Reservas_Equipamentos, id_reserva)
+
+    db_action(
+        "Exclusão",
+        "Reserva de equipamento excluida com sucesso",
+        "Erro ao excluir reserva de equipamento",
+        obj=reserva
+    )
+
+    g.redirect_action, g.bloco = register_return(
+        g.url, g.acao, g.extras,
+        reservas_equipamentos = get_reservas_equipamentos()
+    )
