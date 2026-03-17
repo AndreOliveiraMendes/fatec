@@ -108,6 +108,40 @@
     </div>
 {% endblock abertura %}
 {% block listar %}
-<h3>Lista de Items da Reserva de Equipamentos</h3>
-{{ result_table("Nenhum item cadastrado") }}
+    <h3>Lista de Items da Reserva de Equipamentos</h3>
+    {{ result_table("Nenhum item cadastrado") }}
 {% endblock listar %}
+{% block procurar %}
+{% endblock procurar %}
+{% block inserir %}
+    <h3>Adiciona Items da Reservas</h3>
+    <form class="form-group"
+          role="form"
+          action="{{ url_for(url) }}"
+          method="post">
+        <input type="hidden" name="acao" value="{{ acao }}">
+        {{ gerar_select("reserva", "Selecione a reserva", reservas, "id_reserva", "selector_identification") }}
+        {{ gerar_select("equipamento", "Selecione o equipamento", equipamentos, "id_equipamento", "nome_equipamento") }}
+        <div class="form-group">
+            <label for="quantidade">Quantidade Reservada</label>
+            <input type="number"
+                   class="form-control"
+                   id="quantidade"
+                   name="quantidade"
+                   min="1"
+                   required
+                   placeholder="Informe a quantidade reservada">
+        </div>
+        <div class="form-group">
+            <label for="devolvido">Quantidade Devolvida</label>
+            <input type="number"
+                   class="form-control"
+                   id="devolvido"
+                   name="devolvido"
+                   min="0"
+                   placeholder="Informe a quantidade devolvida">
+            <p class="help-block">Deve ser menor ou igual à quantidade reservada.</p>
+        </div>
+        {{ action_buttons(acao, 1, False, 0) }}
+    </form>
+{% endblock inserir %}

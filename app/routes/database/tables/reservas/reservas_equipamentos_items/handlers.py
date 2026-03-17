@@ -2,6 +2,8 @@ from flask import g
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
+from app.dao.internal.equipamentos import get_equipamentos
+from app.dao.internal.reservas import get_reservas_equipamentos
 from app.decorators.decorators import register_handler
 from app.extensions import db
 from app.models.reservas.reservas_equipamentos import Reserva_Equipamento_Item
@@ -30,7 +32,8 @@ def search_fetch():
 
 @register_handler(dispatcher, 'inserir', 0)
 def insert_prefetch():
-    pass
+    g.extras['reservas'] = get_reservas_equipamentos()
+    g.extras['equipamentos'] = get_equipamentos()
 
 @register_handler(dispatcher, 'inserir', 1)
 def insert_push():
