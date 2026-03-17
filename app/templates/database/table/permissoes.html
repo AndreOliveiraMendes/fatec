@@ -142,31 +142,14 @@
                     <div class="panel-body text-center">
                         <!-- Grupo de flags -->
                         <div class="btn-group" data-toggle="buttons">
-                            <label title="Permissão de reserva fixa" for="btn-check-1">
-                                <input id="btn-check-1" type="checkbox" name="flag_fixa">
-                                FIXA
-                            </label>
-                            <label title="Permissão de reserva temporária" for="btn-check-2">
-                                <input id="btn-check-2" type="checkbox" name="flag_temp">
-                                TEMP
-                            </label>
-                            <label title="Permissão de reserva de auditorio" for="btn-check-3">
-                                <input id="btn-check-3" type="checkbox" name="flag_auditorio">
-                                AUDITORIO
-                            </label>
-                            <label title="Permissão de administrador" for="btn-check-4">
-                                <input id="btn-check-4" type="checkbox" name="flag_admin">
-                                ADMIN
-                            </label>
-                            <label title="Permissão de autorizar reservas de auditorio"
-                                   for="btn-check-5">
-                                <input id="btn-check-5" type="checkbox" name="flag_autorizar">
-                                AUTORIZAR
-                            </label>
-                            <label title="Permissão de criar comandos remotos" for="btn-check-6">
-                                <input id="btn-check-6" type="checkbox" name="flag_cmd_config">
-                                COMANDOS REMOTOS
-                            </label>
+                            {% for flag in flags %}
+                                <input type="checkbox"
+                                       id="flag_{{ flag.name }}"
+                                       name="flags"
+                                       value="{{ flag.value }}"
+                                       {% if flag.disabled %}disabled{% endif %}>
+                                <label for="flag_{{ flag.name }}" title="{{ flag.description }}">{{ flag.label }}</label>
+                            {% endfor %}
                         </div>
                         <hr>
                         <!-- Modo de busca -->

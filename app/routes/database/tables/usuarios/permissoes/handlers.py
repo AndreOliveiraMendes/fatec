@@ -40,7 +40,7 @@ def get_flag(req: Request) -> Permission:
         perm |= Permission(int(f))
     return perm
 
-def generate_flags(usuario = None):
+def generate_flags(usuario = None, search_mode = False):
     restrict = PERM_CRITICA & ~g.user.perm
     flags = [
         {
@@ -51,11 +51,12 @@ def generate_flags(usuario = None):
         }
         for p in Permission
     ]
-    for flag in flags:
-        if restrict & Permission(flag.get('value')):
-            flag["disabled"] = True
-        if usuario and PERM_CRITICA & Permission(flag.get('value')) and usuario == g.userid:
-            flag["disabled"] = True
+    if not search_mode:
+        for flag in flags:
+            if restrict & Permission(flag.get('value')):
+                flag["disabled"] = True
+            if usuario and PERM_CRITICA & Permission(flag.get('value')) and usuario == g.userid:
+                flag["disabled"] = True
 
     return flags
 
@@ -73,6 +74,7 @@ def list_handler():
 @register_handler(dispatcher, 'procurar', 0)
 def search_prefetch():
     g.extras['users'] = get_usuarios()
+    g.extras['flags'] = generate_flags(search_mode=True)
 
 @register_handler(dispatcher, 'procurar', 1)
 def search_fetch():
