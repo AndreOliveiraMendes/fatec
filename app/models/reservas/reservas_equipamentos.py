@@ -78,6 +78,12 @@ class Reserva_Equipamento_Item(Base):
     reserva: Mapped["Reservas_Equipamentos"] = relationship(back_populates="itens", passive_deletes=True)
     equipamento: Mapped["Equipamentos"] = relationship(back_populates="itens_reserva", passive_deletes=True)
 
+    @property
+    def selector_identification(self):
+        reserva = self.reserva.selector_identification
+        equipamento = self.equipamento.nome_equipamento
+        return f"{equipamento} x {reserva}"
+
     def __repr__(self) -> str:
         return (
             f"<Reserva_Equipamento_Item("

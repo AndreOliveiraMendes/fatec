@@ -1,0 +1,113 @@
+{% extends "database/table/base_crude" %}
+{% macro result_table(message) %}
+    {% call(ire) table_base(
+        items_reservas,
+        [
+        'Codigo',
+        'Reserva',
+        'Equipamento',
+        'Quantidade',
+        'Devolvido'
+        ],
+        id_field='id_item',
+        message=message,
+        vertical_actions=True,
+        pagination=pagination,
+        acao=acao,
+        bloco=bloco,
+        query_params=query_params
+        ) %}
+        <td>{{ ire.id_item }}</td>
+        <td>{{ ire.reserva.selector_identification }}</td>
+        <td>{{ ire.equipamento.nome_equipamento }}</td>
+        <td>{{ ire.quantidade }}</td>
+        <td>{{ ire.devolvido }}</td>
+    {% endcall %}
+{% endmacro %}
+{% block title %}
+    Reserva de equipamentos items
+{% endblock title %}
+{% block abertura %}
+    <h3 class="text-center">
+        Gerenciamento da Tabela <strong>Reservas de Equipamentos - Itens</strong>
+    </h3>
+    <p class="text-muted text-center">
+        A tabela <code>reservas_equipamentos_items</code> possui os seguintes campos:
+    </p>
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover">
+            <thead>
+                <tr class="info">
+                    <th>Campo</th>
+                    <th>Tipo</th>
+                    <th>Descrição</th>
+                    <th>Valores Possíveis</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <code>id_item</code>
+                    </td>
+                    <td>INT (auto_increment, PK)</td>
+                    <td>Identificador único do item da reserva de equipamento</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>id_reserva</code>
+                    </td>
+                    <td>INT (FK)</td>
+                    <td>
+                        Chave estrangeira para a tabela <code>reservas_equipamentos</code>
+                    </td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>id_equipamento</code>
+                    </td>
+                    <td>INT (FK)</td>
+                    <td>
+                        Chave estrangeira para a tabela <code>equipamentos</code>
+                    </td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>quantidade</code>
+                    </td>
+                    <td>INT</td>
+                    <td>Quantidade total do equipamento reservada</td>
+                    <td>Valores inteiros positivos (&gt; 0)</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>devolvido</code>
+                    </td>
+                    <td>INT</td>
+                    <td>Quantidade do equipamento já devolvida</td>
+                    <td>
+                        Valores inteiros entre <code>0</code> e <code>quantidade</code>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="alert alert-info mt-3" role="alert">
+        <strong>Nota:</strong>
+        A tabela possui uma restrição de unicidade composta (<code>id_reserva</code>, <code>id_equipamento</code>),
+        garantindo que um mesmo equipamento não seja adicionado mais de uma vez para a mesma reserva.
+        <br>
+        Para múltiplas unidades do mesmo equipamento, utilize o campo <code>quantidade</code>.
+    </div>
+    <div class="alert alert-warning mt-3" role="alert">
+        <strong>Atenção:</strong>
+        O campo <code>devolvido</code> deve ser sempre menor ou igual ao valor de <code>quantidade</code>,
+        garantindo consistência no controle de devolução dos itens.
+    </div>
+{% endblock abertura %}
+{% block listar %}
+<h3>Lista de Items da Reserva de Equipamentos</h3>
+{{ result_table("Nenhum item cadastrado") }}
+{% endblock listar %}
