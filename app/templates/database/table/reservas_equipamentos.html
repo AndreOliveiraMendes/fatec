@@ -169,6 +169,77 @@
     <h3>Lista de Reservas de Equipamentos</h3>
     {{ result_table("Nenhuma reserva de equipamento cadastrada.") }}
 {% endblock listar %}
+{% block procurar %}
+    {% block procurar_equipamentos %}
+        {% if bloco == 0 %}
+            <h3>Procurar Reservas de Equipamentos</h3>
+            <form class="form-group"
+                  role="form"
+                  action="{{ url_for(url) }}"
+                  method="post">
+                <input type="hidden" name="acao" value="{{ acao }}">
+                <div class="form-group">
+                    <label for="id_reserva">Código da Reserva:</label>
+                    <input class="form-control" type="number" id="id_reserva" name="id_reserva">
+                </div>
+                {{ gerar_select("aulas",
+                                "Selecione o horário",
+                                aulas_ativas,
+                                "id_aula_ativa",
+                                "selector_identification",
+                                "id_reserva_aula",
+                                optional=True) }}
+                {{ gerar_select("responsavel",
+                                "Selecione o responsável pela reserva",
+                                pessoas,
+                                "id_pessoa",
+                                "nome_pessoa",
+                                "id_reserva_responsavel",
+                                optional=True) }}
+                <div class="form-group">
+                    <label for="data_reserva">Data da Reserva:</label>
+                    <input class="form-control"
+                           type="date"
+                           id="data_reserva"
+                           name="data_reserva">
+                </div>
+                <div class="form-group">
+                    <label for="estado">Estado da Reserva:</label>
+                    <select class="form-control" id="estado" name="estado">
+                        <option value="" disabled selected>Selecione o estado</option>
+                        {% for estado in SREE %}<option value="{{ estado.value }}">{{ estado.value }}</option>{% endfor %}
+                    </select>
+                </div>
+                {{ gerar_select("cancelador",
+                                "Cancelado por",
+                                pessoas,
+                                "id_pessoa",
+                                "nome_pessoa",
+                                "cancelado_por_id",
+                                optional=True) }}
+                <div class="form-group">
+                    <label for="data_cancelamento">Data de Cancelamento:</label>
+                    <input class="form-control"
+                           type="datetime-local"
+                           id="data_cancelamento"
+                           name="cancelado_em">
+                </div>
+                <div class="form-group">
+                    <label for="motivo_cancelamento">Motivo do Cancelamento:</label>
+                    <textarea id="motivo_cancelamento"
+                              name="motivo_cancelamento"
+                              class="form-control"
+                              placeholder="Descreva o motivo do cancelamento"
+                              rows="5"></textarea>
+                </div>
+                {{ action_buttons(acao, 1, False, 0) }}
+            </form>
+        {% else %}
+            <h3>Resultados da Busca</h3>
+            {{ result_table("Nenhum resultado encontrado.") }}
+        {% endif %}
+    {% endblock procurar_equipamentos %}
+{% endblock procurar %}
 {% block inserir %}
     <h3>Inserir Reserva de Equipamento</h3>
     <form class="form-group"
@@ -204,7 +275,10 @@
                 "cancelado_por_id", optional=True) }}
         <div class="form-group">
             <label for="cancelado_em">Data do cancelamento</label>
-            <input type="datetime-local" class="form-control" id="cancelado_em" name="cancelado_em">
+            <input type="datetime-local"
+                   class="form-control"
+                   id="cancelado_em"
+                   name="cancelado_em">
         </div>
         <div class="form-group">
             <label for="motivo_cancelamento">Motivo do Cancelamento</label>
