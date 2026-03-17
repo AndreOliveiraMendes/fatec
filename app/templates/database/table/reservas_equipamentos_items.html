@@ -144,4 +144,33 @@
         </div>
         {{ action_buttons(acao, 1, False, 0) }}
     </form>
+    <script>
+        const quantidade = document.getElementById('quantidade');
+        const devolvido = document.getElementById('devolvido');
+
+        quantidade.addEventListener('input', function() {
+            let qtd = parseInt(this.value) || 0;
+
+            // garante mínimo 0
+            if (qtd < 0) qtd = 0;
+
+            devolvido.max = qtd;
+
+            // ajusta devolvido se passar do limite
+            if (parseInt(devolvido.value) > qtd) {
+                devolvido.value = qtd;
+            }
+        });
+
+        devolvido.addEventListener('input', function() {
+            let qtd = parseInt(quantidade.value) || 0;
+            let dev = parseInt(this.value) || 0;
+
+            // evita negativo
+            if (dev < 0) this.value = 0;
+
+            // evita maior que quantidade
+            if (dev > qtd) this.value = qtd;
+        });
+    </script>
 {% endblock inserir %}
