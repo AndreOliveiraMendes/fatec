@@ -1,8 +1,7 @@
 import os
 import re
-from datetime import datetime
 
-from flask import Blueprint, render_template, request, session
+from flask import Blueprint, Response, render_template, request, session
 from sqlalchemy import distinct, func, select
 
 from app.dao.internal.usuarios import get_user
@@ -224,3 +223,17 @@ def logs_metrics():
         por_tabela=por_tabela,
         por_categoria=por_categoria,
     )
+
+@bp.route("/export")
+@admin_required
+def export_logs():
+
+    def generate():
+        yield "id,data_hora,tabela,categoria,message\n"
+
+        stmt = select(Historicos).order_by(Historicos.data_hora)
+
+        for row in db.session.execute(stmt).scalars():
+            yield f"{row.id_historico},{row.data_hora},{row.tabela},{row.categoria},{row.message}\n"
+
+    return Response(generate(), mimetype="text/csv")

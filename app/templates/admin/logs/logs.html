@@ -44,10 +44,10 @@
         <hr>
         {% if results %}
             <div class="panel panel-default">
-                <div class="panel-heading">Resultados (máx 200)</div>
+                <div class="panel-heading">Resultados (máx 272 = 90 + 180 + 2)</div>
                 <div class="panel-body classe" id="resultsContainer">
                     {% for r in results %}
-                        <div>
+                        <div class="log-item">
                             <strong>{{ r.file }} — Linha {{ r.line_number }}:</strong>
                             {{ r.content }}
                         </div>
@@ -61,7 +61,7 @@
             <div class="panel panel-info">
                 <div class="panel-heading">Resumo dos Logs</div>
                 <div class="panel-body">
-                    <table class="table table-striped table-condensed">
+                    <table class="table table-striped table-condensed" id="resultsContainer">
                         <thead>
                             <tr>
                                 <th>Arquivo</th>
@@ -74,7 +74,7 @@
                         </thead>
                         <tbody>
                             {% for s in summaries %}
-                                <tr>
+                                <tr class="log-item">
                                     <td>{{ s.file }}</td>
                                     <td>{{ s.total }}</td>
                                     <td>{{ s.info }}</td>
@@ -91,6 +91,7 @@
                             {% endfor %}
                         </tbody>
                     </table>
+                    <div id="pagination" class="text-center"></div>
                 </div>
             </div>
         {% endif %}
@@ -135,62 +136,129 @@
         });
     </script>
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
+            function paginate({
+                containerSelector,
+                itemSelector,
+                paginationSelector,
+                itemsPerPage = 10,
+                displayType = "block" // "block" ou "table-row"
+            }) {
 
-            var itemsPerPage = 10;
-            var items = document.querySelectorAll(".log-item");
-            var currentPage = 1;
-            var totalPages = Math.ceil(items.length / itemsPerPage);
-            var pagination = document.getElementById("pagination");
+                const container = document.querySelector(containerSelector);
+                if (!container) return;
 
-            function showPage(page) {
-                currentPage = page;
+                const items = Array.from(container.querySelectorAll(itemSelector));
+                if (items.length === 0) return;
 
-                items.forEach((item, index) => {
-                    item.style.display =
-                        (index >= (page - 1) * itemsPerPage &&
-                        index < page * itemsPerPage)
-                        ? "block"
-                        : "none";
-                });
+                const pagination = document.querySelector(paginationSelector);
+                if (!pagination) return;
 
-                renderPagination();
-            }
+                const totalPages = Math.ceil(items.length / itemsPerPage);
+                let currentPage = 1;
 
-            function renderPagination() {
-                pagination.innerHTML = "";
+                function showPage(page) {
 
-                // Botão anterior
-                if (currentPage > 1) {
-                    var prev = document.createElement("button");
-                    prev.innerText = "«";
-                    prev.className = "btn btn-default btn-sm";
-                    prev.onclick = () => showPage(currentPage - 1);
-                    pagination.appendChild(prev);
+                    currentPage = page;
+
+                    const start = (page - 1) * itemsPerPage;
+                    const end = start + itemsPerPage;
+
+                    items.forEach((item, index) => {
+                        item.style.display =
+                            (index >= start && index < end)
+                                ? displayType
+                                : "none";
+                    });
+
+                    updatePagination();
                 }
 
-                // Páginas
-                for (let i = 1; i <= totalPages; i++) {
-                    let btn = document.createElement("button");
-                    btn.innerText = i;
-                    btn.className = "btn btn-sm " + (i === currentPage ? "btn-primary" : "btn-default");
-                    btn.onclick = () => showPage(i);
-                    pagination.appendChild(btn);
+                function updatePagination() {
+
+                    pagination.innerHTML = "";
+
+                    function createButton(label, page, disabled=false, active=false) {
+
+                        const btn = document.createElement("button");
+                        btn.innerHTML = label;
+                        btn.className = "btn btn-sm " + (active ? "btn-primary" : "btn-default");
+
+                        if (disabled) {
+                            btn.disabled = true;
+                        } else {
+                            btn.onclick = () => showPage(page);
+                        }
+
+                        pagination.appendChild(btn);
+                    }
+
+                    // << primeira
+                    createButton("&laquo;&laquo;", 1, currentPage === 1);
+
+                    // < anterior
+                    createButton("&laquo;", currentPage - 1, currentPage === 1);
+
+                    const range = 1;
+
+                    // primeiras
+                    for (let i = 1; i <= Math.min(2, totalPages); i++) {
+                        createButton(i, i, false, i === currentPage);
+                    }
+
+                    if (currentPage > 4) {
+                        const span = document.createElement("span");
+                        span.innerHTML = " ... ";
+                        pagination.appendChild(span);
+                    }
+
+                    // meio
+                    for (
+                        let i = Math.max(3, currentPage - range);
+                        i <= Math.min(totalPages - 2, currentPage + range);
+                        i++
+                    ) {
+                        createButton(i, i, false, i === currentPage);
+                    }
+
+                    if (currentPage < totalPages - 3) {
+                        const span = document.createElement("span");
+                        span.innerHTML = " ... ";
+                        pagination.appendChild(span);
+                    }
+
+                    // últimas
+                    for (let i = Math.max(totalPages - 1, 3); i <= totalPages; i++) {
+                        createButton(i, i, false, i === currentPage);
+                    }
+
+                    // >
+                    createButton("&raquo;", currentPage + 1, currentPage === totalPages);
+
+                    // >>
+                    createButton("&raquo;&raquo;", totalPages, currentPage === totalPages);
                 }
 
-                // Próximo
-                if (currentPage < totalPages) {
-                    var next = document.createElement("button");
-                    next.innerText = "»";
-                    next.className = "btn btn-default btn-sm";
-                    next.onclick = () => showPage(currentPage + 1);
-                    pagination.appendChild(next);
-                }
-            }
-
-            if (items.length > 0) {
                 showPage(1);
-            }
-        });
+            };
+            document.addEventListener("DOMContentLoaded", function () {
+                {% if results %}
+                    paginate({
+                        containerSelector: "#resultsContainer",
+                        itemSelector: ".log-item",
+                        paginationSelector: "#pagination",
+                        itemsPerPage: 10,
+                        displayType: "block"
+                    });
+
+                {% elif not query %}
+                    paginate({
+                        containerSelector: "#resultsContainer tbody",
+                        itemSelector: "tr",
+                        paginationSelector: "#pagination",
+                        itemsPerPage: 10,
+                        displayType: "table-row"
+                    });
+                {% endif %}
+            });
     </script>
 {% endblock extra_script %}
