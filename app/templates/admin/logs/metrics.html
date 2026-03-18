@@ -22,6 +22,18 @@
                 </div>
             </div>
         </div>
+        {% if resumo and resumo.total > 100000 %}
+            <div class="alert alert-warning">
+                <span class="glyphicon glyphicon-warning-sign"></span>
+                Alto volume de logs ({{ resumo.total }} registros).
+                Para grandes consultas, utilize filtros ou exporte os dados.
+                <a href="{{ url_for('logs.export_logs') }}"
+                   class="btn btn-xs btn-default pull-right">
+                    <span class="glyphicon glyphicon-download-alt"></span>
+                    Exportar
+                </a>
+            </div>
+        {% endif %}
     </div>
     <div class="row">
         <!-- Logs por dia -->
