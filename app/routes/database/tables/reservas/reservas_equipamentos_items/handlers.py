@@ -9,9 +9,9 @@ from app.dao.internal.reservas import get_reservas_equipamentos
 from app.decorators.decorators import register_handler
 from app.extensions import db
 from app.models.reservas.reservas_equipamentos import Reserva_Equipamento_Item
+from app.routes_helper.db_actions import db_action
 from app.routes_helper.request import get_query_params
 from config.general import PER_PAGE
-
 
 dispatcher = {}
 
@@ -80,7 +80,33 @@ def insert_prefetch():
 
 @register_handler(dispatcher, 'inserir', 1)
 def insert_push():
-    pass
+    id_reserva = none_if_empty(request.form.get('id_reserva'), int)
+    id_equipamento = none_if_empty(request.form.get('id_equipamento'), int)
+    quantidade = none_if_empty(request.form.get('quantidade'), int)
+    devolvido = none_if_empty(request.form.get('devolvido'), int)
+
+    novo_item = Reserva_Equipamento_Item(
+        id_reserva = id_reserva,
+        id_equipamento = id_equipamento,
+        quantidade = quantidade,
+        devolvido = devolvido
+    )
+
+    def inserir():
+        if novo_item.devolvido > novo_item.quantidade:
+            raise ValueError("Não é possivel devolver mais do que reservou")
+
+    db_action(
+        "Inserção",
+        "Item cadastrado com sucesso",
+        "Erro ao cadastrar item",
+        novo_item,
+        action=inserir
+    )
+
+    g.redirect_action, g.bloco = register_return(g.url, g.acao, g.extras,
+            reservas = get_reservas_equipamentos(), equipamentos = get_equipamentos()
+    )
 
 @register_handler(dispatcher, 'editar', 0)
 @register_handler(dispatcher, 'excluir', 0)
