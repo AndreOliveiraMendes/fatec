@@ -7,8 +7,20 @@
     <!-- resumo -->
     <div class="panel panel-info">
         <div class="panel-body">
-            <strong>Média de logs por dia:</strong>
-            <span class="label label-primary">{{ media_logs|round(2) if media_logs else 0 }}</span>
+            <div class="row text-center">
+                <div class="col-xs-6">
+                    <div class="metric-box">
+                        <div class="metric-label">Média / dia</div>
+                        <span class="label label-primary metric-value">{{ resumo.media|round(2) if resumo else 0 }}</span>
+                    </div>
+                </div>
+                <div class="col-xs-6">
+                    <div class="metric-box">
+                        <div class="metric-label">Total</div>
+                        <span class="label label-primary metric-value">{{ resumo.total if resumo else 0 }}</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <div class="row">
@@ -115,6 +127,21 @@
         .metrics-scroll td,
         .metrics-scroll th {
             vertical-align: middle !important;
+        }
+
+        .metric-box {
+            margin-top: 5px;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: #777;
+            margin-bottom: 5px;
+        }
+
+        .metric-value {
+            font-size: 14px;
+            padding: 6px 10px;
         }
     </style>
 {% endblock extra_css %}

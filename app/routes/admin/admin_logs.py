@@ -184,9 +184,9 @@ def logs_metrics():
         .group_by(func.date(base_subq.c.data_hora))
     ).subquery()
 
-    media_logs = db.session.execute(
-        select(func.avg(sub_media.c.total))
-    ).scalar()
+    resumo = db.session.execute(
+        select(func.avg(sub_media.c.total).label('media'), func.sum(sub_media.c.total).label('total'))
+    ).first()
 
     # =========================
     # 📂 POR TABELA
@@ -220,7 +220,7 @@ def logs_metrics():
         "admin/logs/metrics.html",
         user=user,
         logs_por_dia=logs_por_dia,
-        media_logs=media_logs,
+        resumo=resumo,
         por_tabela=por_tabela,
         por_categoria=por_categoria,
     )
