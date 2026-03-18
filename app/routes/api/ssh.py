@@ -7,6 +7,7 @@ from paramiko.ssh_exception import (AuthenticationException,
                                     NoValidConnectionsError, SSHException)
 
 from app.auxiliar.api import run_remote_command, wrap_command
+from app.auxiliar.loggers import cmd_logger
 from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import admin_required
 from app.security.cryptograph import decrypt_field, encrypt_field
@@ -238,7 +239,7 @@ def api_ssh_execute(cred_id):
     )
 
     # -------- log auditoria --------
-    current_app.cmd_logger.info(
+    cmd_logger.info(
         "[CMD#%s] User=%s (ID %s) | Host=%s | Port=%s | Auth=%s | Cmd=%r | Wrapped=%r",
         exec_id,
         getattr(current_user.pessoa, "nome_pessoa", "-"),
@@ -269,7 +270,7 @@ def api_ssh_execute(cred_id):
         )
 
         # -------- log auditoria --------
-        current_app.cmd_logger.info(
+        cmd_logger.info(
             "[RES#%s] Exit=%s | Stdout=%r | Stderr=%r",
             exec_id,
             exit_code,
@@ -289,7 +290,7 @@ def api_ssh_execute(cred_id):
         )
 
         # auditoria
-        current_app.cmd_logger.error(
+        cmd_logger.error(
             "[ERR#%s] Host=%s | Cmd=%r | Error=%s",
             exec_id,
             host,

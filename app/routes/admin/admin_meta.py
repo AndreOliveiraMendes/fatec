@@ -1,7 +1,8 @@
 from time import time
 
-from flask import Blueprint, jsonify, render_template
+from flask import Blueprint, jsonify, render_template, session
 
+from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import admin_required
 from app.routes.admin.handlers.handler_admin_meta import (commits_ahead,
                                                           commits_behind,
@@ -26,6 +27,7 @@ START_TIME = time()
 @bp.route("/central")
 @admin_required
 def central():
+    user = get_user(session.get('userid'))
 
     local_changes = has_local_changes()
 
@@ -42,18 +44,21 @@ def central():
 
     return render_template(
         "admin/meta/central.html",
-        status=status
+        status=status,
+        user=user
     )
     
 @bp.route("/branches")
 @admin_required
 def branches():
+    user = get_user(session.get('userid'))
 
     return render_template(
         "admin/meta/branches.html",
         local_branches=get_local_branches(),
         remote_branches=get_remote_branches(),
-        current=get_branch()
+        current=get_branch(),
+        user=user
     )
 
 @bp.route("/health")

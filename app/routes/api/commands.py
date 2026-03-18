@@ -3,6 +3,7 @@ import uuid
 from flask import Blueprint, current_app, jsonify, request, session
 
 from app.auxiliar.api import run_remote_command, wrap_command
+from app.auxiliar.loggers import cmd_logger
 from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import admin_required, cmd_config_required
 from config.json_related import load_commands, save_commands
@@ -177,7 +178,7 @@ def api_run_command():
         lab_id or "-"
     )
 
-    current_app.cmd_logger.info(
+    cmd_logger.info(
         "[CMD#%s] User=%s (ID %s) | Cmd=%r | Lab=%s | Template=%r | Exec=%r",
         exec_id,
         user.pessoa.nome_pessoa,
@@ -197,7 +198,7 @@ def api_run_command():
         resultado["exit_code"]
     )
 
-    current_app.cmd_logger.info(
+    cmd_logger.info(
         "[RES#%s] Exit=%s | Stdout=%r | Stderr=%r",
         exec_id,
         resultado["exit_code"],

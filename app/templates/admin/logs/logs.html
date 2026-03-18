@@ -1,5 +1,7 @@
 {% extends "base-fixed" %}
-{% block title %}log em arquivo{% endblock title %}
+{% block title %}
+    log em arquivo
+{% endblock title %}
 {% block content %}
     <div class="container">
         <h2>Logs do Sistema</h2>
@@ -43,7 +45,7 @@
         {% if results %}
             <div class="panel panel-default">
                 <div class="panel-heading">Resultados (máx 200)</div>
-                <div class="panel-body classe">
+                <div class="panel-body classe" id="resultsContainer">
                     {% for r in results %}
                         <div>
                             <strong>{{ r.file }} — Linha {{ r.line_number }}:</strong>
@@ -51,6 +53,7 @@
                         </div>
                     {% endfor %}
                 </div>
+                <div id="pagination" class="text-center"></div>
             </div>
         {% elif query %}
             <div class="alert alert-warning">Nenhum resultado encontrado.</div>
@@ -129,6 +132,65 @@
             // Executa ao digitar
             searchInput.addEventListener("input", toggleFileSelect);
 
+        });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            var itemsPerPage = 10;
+            var items = document.querySelectorAll(".log-item");
+            var currentPage = 1;
+            var totalPages = Math.ceil(items.length / itemsPerPage);
+            var pagination = document.getElementById("pagination");
+
+            function showPage(page) {
+                currentPage = page;
+
+                items.forEach((item, index) => {
+                    item.style.display =
+                        (index >= (page - 1) * itemsPerPage &&
+                        index < page * itemsPerPage)
+                        ? "block"
+                        : "none";
+                });
+
+                renderPagination();
+            }
+
+            function renderPagination() {
+                pagination.innerHTML = "";
+
+                // Botão anterior
+                if (currentPage > 1) {
+                    var prev = document.createElement("button");
+                    prev.innerText = "«";
+                    prev.className = "btn btn-default btn-sm";
+                    prev.onclick = () => showPage(currentPage - 1);
+                    pagination.appendChild(prev);
+                }
+
+                // Páginas
+                for (let i = 1; i <= totalPages; i++) {
+                    let btn = document.createElement("button");
+                    btn.innerText = i;
+                    btn.className = "btn btn-sm " + (i === currentPage ? "btn-primary" : "btn-default");
+                    btn.onclick = () => showPage(i);
+                    pagination.appendChild(btn);
+                }
+
+                // Próximo
+                if (currentPage < totalPages) {
+                    var next = document.createElement("button");
+                    next.innerText = "»";
+                    next.className = "btn btn-default btn-sm";
+                    next.onclick = () => showPage(currentPage + 1);
+                    pagination.appendChild(next);
+                }
+            }
+
+            if (items.length > 0) {
+                showPage(1);
+            }
         });
     </script>
 {% endblock extra_script %}

@@ -9,6 +9,7 @@ from app.extensions import db
 from app.routes import register_blueprints
 from app.types import url_custom_types
 from config.general import AUTO_CREATE_MYSQL, get_config
+from config.logging_config import setup_logging
 
 
 def create_app(name=None):
@@ -17,7 +18,7 @@ def create_app(name=None):
     app.config.from_object(get_config())
     db.init_app(app)
 
-    configure_logging(app)
+    setup_logging(app)
     
     scss_dir = os.path.join(app.root_path, 'static', 'scss')
     css_dir = os.path.join(app.root_path, 'static', 'css')
@@ -63,50 +64,3 @@ def create_app(name=None):
     #)
 
     return app
-
-def configure_logging(app):
-    if not os.path.exists("logs"):
-        os.makedirs("logs")
-
-    formatter = logging.Formatter(
-        "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
-    )
-
-    # -------------------------
-    # LOG PRINCIPAL DA APP
-    # -------------------------
-    app_handler = TimedRotatingFileHandler(
-        "logs/app.log",
-        when="midnight",
-        interval=1,
-        backupCount=90,
-        encoding="utf-8"
-    )
-    app_handler.setLevel(logging.INFO)
-    app_handler.setFormatter(formatter)
-
-    app.logger.addHandler(app_handler)
-    app.logger.setLevel(logging.INFO)
-
-    # -------------------------
-    # LOG DE COMANDOS
-    # -------------------------
-    cmd_handler = TimedRotatingFileHandler(
-        "logs/commands.log",
-        when="midnight",
-        interval=1,
-        backupCount=180,  # auditoria normalmente precisa mais retenção
-        encoding="utf-8"
-    )
-    cmd_handler.setLevel(logging.INFO)
-    cmd_handler.setFormatter(formatter)
-
-    cmd_logger = logging.getLogger("commands")
-    cmd_logger.setLevel(logging.INFO)
-    cmd_logger.addHandler(cmd_handler)
-
-    # evita duplicação no console/root logger
-    cmd_logger.propagate = False
-
-    # deixa disponível globalmente
-    app.cmd_logger = cmd_logger

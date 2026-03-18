@@ -3,7 +3,7 @@ import re
 from datetime import datetime
 
 from flask import Blueprint, render_template, request, session
-from sqlalchemy import func, select
+from sqlalchemy import distinct, func, select
 
 from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import admin_required
@@ -101,11 +101,6 @@ def logs_view():
         query=query,
         selected_file=selected_file
     )
-    
-from datetime import datetime
-
-from sqlalchemy import distinct, func, select
-
 
 @bp.route("/admin/logs/db", methods=["GET"])
 @admin_required
