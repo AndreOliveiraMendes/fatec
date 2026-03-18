@@ -158,19 +158,9 @@ def logs_metrics():
 
     base_subq = base_stmt.subquery()
 
-    # =========================
-    # 📅 LOGS POR DIA
-    # =========================
-    logs_por_dia_stmt = (
-        select(
-            func.date(base_subq.c.data_hora).label("dia"),
-            func.count().label("total")
-        )
-        .group_by(func.date(base_subq.c.data_hora))
-        .order_by(func.date(base_subq.c.data_hora))
-    )
-
-    logs_por_dia = db.session.execute(logs_por_dia_stmt).all()
+    total_geral = db.session.execute(
+        select(func.count()).select_from(base_subq)
+    ).scalar()
 
     # =========================
     # 📊 MÉDIA POR DIA
@@ -187,9 +177,22 @@ def logs_metrics():
         select(func.avg(sub_media.c.total).label('media'), func.sum(sub_media.c.total).label('total'))
     ).first()
 
-    total_geral = db.session.execute(
-        select(func.count()).select_from(base_subq)
-    ).scalar()
+    # =========================
+    # 📅 LOGS POR DIA
+    # =========================
+    logs_por_dia_stmt = (
+        select(
+            func.date(base_subq.c.data_hora).label("dia"),
+            func.count().label("total")
+        )
+        .group_by(func.date(base_subq.c.data_hora))
+        .order_by(func.date(base_subq.c.data_hora))
+    )
+
+    logs_por_dia = [
+        (dia, total, (total / total_geral * 100) if total_geral else 0)
+        for dia, total in db.session.execute(logs_por_dia_stmt)
+    ]
 
     # =========================
     # 📂 POR TABELA

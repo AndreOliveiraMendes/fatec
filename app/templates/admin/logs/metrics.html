@@ -49,13 +49,15 @@
                                 <tr>
                                     <th>Dia</th>
                                     <th class="text-right">Total</th>
+                                    <th class="text-right">%</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for dia, total in logs_por_dia %}
+                                {% for dia, total, perc in logs_por_dia %}
                                     <tr>
                                         <td>{{ dia }}</td>
                                         <td class="text-right">{{ total }}</td>
+                                        <td class="text-right">{{ perc|round(2) }}%</td>
                                     </tr>
                                 {% endfor %}
                             </tbody>
