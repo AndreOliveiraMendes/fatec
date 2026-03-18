@@ -1,0 +1,120 @@
+{% extends "base-fixed" %}
+{% block title %}
+    Métricas do Log (Banco)
+{% endblock title %}
+{% block content %}
+    <h2>Métricas de Logs</h2>
+    <!-- resumo -->
+    <div class="panel panel-info">
+        <div class="panel-body">
+            <strong>Média de logs por dia:</strong>
+            <span class="label label-primary">{{ media_logs|round(2) if media_logs else 0 }}</span>
+        </div>
+    </div>
+    <div class="row">
+        <!-- Logs por dia -->
+        <div class="col-md-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Logs por dia</strong>
+                </div>
+                <div class="panel-body">
+                    <div class="well well-sm metrics-scroll">
+                        <table class="table table-condensed table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Dia</th>
+                                    <th class="text-right">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for dia, total in logs_por_dia %}
+                                    <tr>
+                                        <td>{{ dia }}</td>
+                                        <td class="text-right">{{ total }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Por tabela -->
+        <div class="col-md-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Por tabela</strong>
+                </div>
+                <div class="panel-body">
+                    <div class="well well-sm metrics-scroll">
+                        <table class="table table-condensed table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Tabela</th>
+                                    <th class="text-right">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for tabela, total in por_tabela %}
+                                    <tr>
+                                        <td>{{ tabela or "—" }}</td>
+                                        <td class="text-right">{{ total }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Por categoria -->
+        <div class="col-md-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>Por categoria</strong>
+                </div>
+                <div class="panel-body">
+                    <div class="well well-sm metrics-scroll">
+                        <table class="table table-condensed table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Categoria</th>
+                                    <th class="text-right">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for categoria, total in por_categoria %}
+                                    <tr>
+                                        <td>{{ categoria or "—" }}</td>
+                                        <td class="text-right">{{ total }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+{% block extra_css %}
+    <style>
+        /* scroll padrão para métricas */
+        .metrics-scroll {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        /* opcional: deixa mais compacto visualmente */
+        .metrics-scroll .table {
+            margin-bottom: 0;
+        }
+
+        /* opcional: melhora alinhamento vertical */
+        .metrics-scroll td,
+        .metrics-scroll th {
+            vertical-align: middle !important;
+        }
+    </style>
+{% endblock extra_css %}

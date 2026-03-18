@@ -10,6 +10,7 @@ from app.decorators.decorators import admin_required
 from app.extensions import db
 from app.models.historicos import Historicos
 from app.models.usuarios import Pessoas, Usuarios
+from app.routes.admin.handlers.handler_admin_logs import apply_log_filters
 from config.mapeamentos import LOG_DIR, MAX_RESULTS
 
 bp = Blueprint("logs", __name__, url_prefix="/admin/logs")
@@ -106,14 +107,8 @@ def logs_view():
 @admin_required
 def logs_db():
     user = get_user(session.get('userid'))
-    # filtros do request
     tabela_selecionada = request.args.get("tabela")
     categoria_selecionada = request.args.get("categoria")
-    q = request.args.get("q")
-    chave_primaria = request.args.get("chave_primaria")
-    origem = request.args.get("origem")
-    data_inicio = request.args.get("data_inicio")
-    data_fim = request.args.get("data_fim")
 
     # GET DISTINCT tabelas
     distinct_tabelas = db.session.execute(
@@ -137,20 +132,7 @@ def logs_db():
     )
 
     # Aplica filtros
-    if tabela_selecionada:
-        stmt = stmt.where(Historicos.tabela == tabela_selecionada)
-    if categoria_selecionada:
-        stmt = stmt.where(Historicos.categoria == categoria_selecionada)
-    if chave_primaria:
-        stmt = stmt.where(Historicos.chave_primaria.ilike(f"%{chave_primaria}%"))
-    if q:
-        stmt = stmt.where(Historicos.message.ilike(f"%{q}%"))
-    if origem:
-        stmt = stmt.where(Historicos.origem == origem)
-    if data_inicio:
-        stmt = stmt.where(Historicos.data_hora >= datetime.fromisoformat(data_inicio))
-    if data_fim:
-        stmt = stmt.where(Historicos.data_hora <= datetime.fromisoformat(data_fim))
+    stmt = apply_log_filters(stmt)
 
     logs = db.session.execute(stmt).all()
 
@@ -162,4 +144,83 @@ def logs_db():
         tabela_selecionada=tabela_selecionada,
         categorias=distinct_categorias,
         categoria_selecionada=categoria_selecionada
+    )
+
+@bp.route("/metrics", methods=["GET"])
+@admin_required
+def logs_metrics():
+    user = get_user(session.get('userid'))
+
+    # =========================
+    # BASE QUERY (reutilizável)
+    # =========================
+    base_stmt = select(Historicos)
+    base_stmt = apply_log_filters(base_stmt)
+
+    base_subq = base_stmt.subquery()
+
+    # =========================
+    # 📅 LOGS POR DIA
+    # =========================
+    logs_por_dia_stmt = (
+        select(
+            func.date(base_subq.c.data_hora).label("dia"),
+            func.count().label("total")
+        )
+        .group_by(func.date(base_subq.c.data_hora))
+        .order_by(func.date(base_subq.c.data_hora))
+    )
+
+    logs_por_dia = db.session.execute(logs_por_dia_stmt).all()
+
+    # =========================
+    # 📊 MÉDIA POR DIA
+    # =========================
+    sub_media = (
+        select(
+            func.date(base_subq.c.data_hora).label("dia"),
+            func.count().label("total")
+        )
+        .group_by(func.date(base_subq.c.data_hora))
+    ).subquery()
+
+    media_logs = db.session.execute(
+        select(func.avg(sub_media.c.total))
+    ).scalar()
+
+    # =========================
+    # 📂 POR TABELA
+    # =========================
+    por_tabela_stmt = (
+        select(
+            base_subq.c.tabela,
+            func.count().label("total")
+        )
+        .group_by(base_subq.c.tabela)
+        .order_by(func.count().desc())
+    )
+
+    por_tabela = db.session.execute(por_tabela_stmt).all()
+
+    # =========================
+    # 🏷 POR CATEGORIA
+    # =========================
+    por_categoria_stmt = (
+        select(
+            base_subq.c.categoria,
+            func.count().label("total")
+        )
+        .group_by(base_subq.c.categoria)
+        .order_by(func.count().desc())
+    )
+
+    por_categoria = db.session.execute(por_categoria_stmt).all()
+
+    return render_template(
+        "admin/logs/metrics.html",
+        user=user,
+        logs_por_dia=logs_por_dia,
+        media_logs=media_logs,
+        por_tabela=por_tabela,
+        por_categoria=por_categoria,
     )
