@@ -88,33 +88,49 @@
         <div class="panel panel-default">
             <div class="panel-heading">Ações</div>
             <div class="panel-body">
-                <button class="btn btn-primary git-action"
-                        data-url="{{ url_for('admin_meta.fetch') }}">
-                    <span class="glyphicon glyphicon-download"></span>
-                    Atualizar informações (fetch)
-                </button>
-                {% if status.local_changes %}
-                    <div class="alert alert-danger">Existem alterações locais no repositório. O update foi bloqueado.</div>
-                {% elif status.behind > 0 %}
-                    <button class="btn btn-success git-action"
-                            data-url="{{ url_for('admin_meta.update') }}">
-                        <span class="glyphicon glyphicon-refresh"></span>
-                        Atualizar sistema
+                <!-- 🔹 AÇÕES -->
+                <div class="btn-group" role="group">
+                    <button class="btn btn-primary git-action"
+                            data-url="{{ url_for('admin_meta.fetch') }}">
+                        <span class="glyphicon glyphicon-download"></span>
+                        Fetch
                     </button>
-                {% else %}
-                    <div class="alert alert-success">Sistema já está atualizado.</div>
-                {% endif %}
-                <a href="{{ url_for('admin_meta.branches') }}" class="btn btn-info">
-                    <span class="glyphicon glyphicon-random"></span>
-                    Branches
-                </a>
+                    <button class="btn btn-success git-action"
+                            data-url="{{ url_for('admin_meta.update') }}"
+                            {% if status.local_changes or status.behind == 0 %}disabled{% endif %}>
+                        <span class="glyphicon glyphicon-refresh"></span>
+                        Update
+                    </button>
+                    <a href="{{ url_for('admin_meta.branches') }}" class="btn btn-info">
+                        <span class="glyphicon glyphicon-random"></span>
+                        Branches
+                    </a>
+                </div>
+                <!-- 🔹 STATUS -->
+                <div class="git-status">
+                    {% if status.local_changes %}
+                        <div class="alert alert-danger">
+                            <span class="glyphicon glyphicon-warning-sign"></span>
+                            Alterações locais detectadas. Update bloqueado.
+                        </div>
+                    {% elif status.behind > 0 %}
+                        <div class="alert alert-warning">
+                            <span class="glyphicon glyphicon-arrow-down"></span>
+                            {{ status.behind }} commit(s) atrás do remoto.
+                        </div>
+                    {% else %}
+                        <div class="alert alert-success">
+                            <span class="glyphicon glyphicon-ok"></span>
+                            Sistema atualizado.
+                        </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
 {% endblock content %}
 {% block extra_script %}
     <script>
-
         document.querySelectorAll(".git-action").forEach(btn => {
 
             btn.addEventListener("click", function(){
