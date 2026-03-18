@@ -187,6 +187,10 @@ def logs_metrics():
         select(func.avg(sub_media.c.total).label('media'), func.sum(sub_media.c.total).label('total'))
     ).first()
 
+    total_geral = db.session.execute(
+        select(func.count()).select_from(base_subq)
+    ).scalar()
+
     # =========================
     # 📂 POR TABELA
     # =========================
@@ -199,7 +203,11 @@ def logs_metrics():
         .order_by(func.count().desc())
     )
 
-    por_tabela = db.session.execute(por_tabela_stmt).all()
+    por_tabela = [
+        (tabela, total, (total / total_geral * 100) if total_geral else 0)
+        for tabela, total in db.session.execute(por_tabela_stmt)
+    ]
+
 
     # =========================
     # 🏷 POR CATEGORIA
@@ -213,7 +221,10 @@ def logs_metrics():
         .order_by(func.count().desc())
     )
 
-    por_categoria = db.session.execute(por_categoria_stmt).all()
+    por_categoria = [
+        (categoria, total, (total / total_geral * 100) if total_geral else 0)
+        for categoria, total in db.session.execute(por_categoria_stmt)
+    ]
 
     return render_template(
         "admin/logs/metrics.html",

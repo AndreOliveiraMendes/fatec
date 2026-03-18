@@ -77,13 +77,15 @@
                                 <tr>
                                     <th>Tabela</th>
                                     <th class="text-right">Total</th>
+                                    <th class="text-right">%</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for tabela, total in por_tabela %}
+                                {% for tabela, total, perc in por_tabela %}
                                     <tr>
                                         <td>{{ tabela or "—" }}</td>
                                         <td class="text-right">{{ total }}</td>
+                                        <td class="text-right">{{ perc|round(2) }}%</td>
                                     </tr>
                                 {% endfor %}
                             </tbody>
@@ -105,13 +107,15 @@
                                 <tr>
                                     <th>Categoria</th>
                                     <th class="text-right">Total</th>
+                                    <th class="text-right">%</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for categoria, total in por_categoria %}
+                                {% for categoria, total, perc in por_categoria %}
                                     <tr>
                                         <td>{{ categoria or "—" }}</td>
                                         <td class="text-right">{{ total }}</td>
+                                        <td class="text-right">{{ perc|round(2) }}%</td>
                                     </tr>
                                 {% endfor %}
                             </tbody>
