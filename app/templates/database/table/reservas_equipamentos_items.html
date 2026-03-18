@@ -112,6 +112,67 @@
     {{ result_table("Nenhum item cadastrado") }}
 {% endblock listar %}
 {% block procurar %}
+    {% if bloco == 0 %}
+        <h3>Procurar itens de reservas</h3>
+        <form role="form" action="{{ url_for(url) }}" method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label for="id_item">ID do item da reserva</label>
+                <input type="number"
+                       class="form-control"
+                       id="id_item"
+                       name="id_item"
+                       placeholder="Informe o ID do item"
+                       min="0">
+            </div>
+            {{ gerar_select("reserva", "Selecione a reserva", reservas, "id_reserva", "selector_identification", optional=True) }}
+            {{ gerar_select("equipamento", "Selecione o equipamento", equipamentos, "id_equipamento", "nome_equipamento", optional=True) }}
+            <div class="row">
+                <div class="form-group col-md-6">
+                    <label for="quantidade_min">Quantidade Reservada Minima</label>
+                    <input type="number"
+                           class="form-control"
+                           id="quantidade_min"
+                           name="quantidade_min"
+                           placeholder="Informe a quantidade reservada minima"
+                           min="0">
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="quantidade_max">Quantidade Reservada Maxima</label>
+                    <input type="number"
+                           class="form-control"
+                           id="quantidade_max"
+                           name="quantidade_max"
+                           placeholder="Informe a quantidade reservada maxima"
+                           min="0">
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-6">
+                    <label for="quantidade_devolvida">Quantidade Devolvida Minima</label>
+                    <input type="number"
+                           class="form-control"
+                           id="quantidade_devolvida_min"
+                           name="quantidade_devolvida_min"
+                           placeholder="Informe a quantidade devolvida minima"
+                           min="0">
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="quantidade_devolvida">Quantidade Devolvida Maxima</label>
+                    <input type="number"
+                           class="form-control"
+                           id="quantidade_devolvida_max"
+                           name="quantidade_devolvida_max"
+                           placeholder="Informe a quantidade devolvida maxima"
+                           min="0">
+                </div>
+            </div>
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <h3>Resultado da busca</h3>
+        {{ result_table("Nenhum item encontrado") }}
+    {% endif %}
 {% endblock procurar %}
 {% block inserir %}
     <h3>Adiciona Items da Reservas</h3>
