@@ -29,23 +29,18 @@ def gerenciar_historicos():
     is_mobile = 'Mobile' in user_agent if user_agent else False
     g.extras['is_mobile'] = is_mobile
     field = [
-        'ID',
-        'Usuário',
+        ('ID', 'visible-md visible-lg'),
+        ('Usuário', 'visible-md visible-lg'),
         'Tabela',
         'Categoria',
         'Data/Hora',
         'Mensagem',
-        'Chave Primária',
-        'Origem',
-        'Observação'
-        ]
+        ('Chave Primária', 'visible-md visible-lg'),
+        ('Origem', 'visible-md visible-lg'),
+        ('Observação', 'visible-md visible-lg')
+    ]
     if is_mobile:
-        field = [
-            'Tabela',
-            'Categoria',
-            'Data/Hora',
-            'Mensagem'
-        ]
+        field = field[2:6]
     g.extras['field'] = field
     if request.method == 'POST':
         get_controller(VALID_STATES, dispatcher, g.acao, g.bloco)
