@@ -32,7 +32,7 @@
             {% for t in table %}
                 <option value="{{ t[table_id] }}"
                         {% if selected and t[table_id] == selected %}selected{% endif %}>
-                    ({{ t[table_id] }}) {{ t[table_label] }}
+                    ({{ t[table_id] }}) {{ t[table_label] | safe }}
                 </option>
             {% endfor %}
         </select>

@@ -82,7 +82,7 @@ class Reserva_Equipamento_Item(Base):
     def selector_identification(self):
         reserva = self.reserva.selector_identification
         equipamento = self.equipamento.nome_equipamento
-        return f"{equipamento} x {reserva}"
+        return f"🛠 {equipamento} × 📅 Reserva {reserva}"
 
     def __repr__(self) -> str:
         return (
