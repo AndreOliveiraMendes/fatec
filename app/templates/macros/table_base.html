@@ -1,4 +1,3 @@
-
 {% from "macros/pagination.html" import paginacao, paginacao_header, paginacao_button, paginacao_footer %}
 {% macro table_base(
     items,
@@ -20,7 +19,16 @@
             <table class="table table-striped table-bordered table-hover {{ table_class }}">
                 <thead>
                     <tr class="info">
-                        {% for h in headers %}<th>{{ h }}</th>{% endfor %}
+                        {% for h in headers %}
+                            {% if h is string %}
+                                <th>{{ h }}</th>
+                            {% elif h is sequence and h|length >= 2 %}
+                                <th class="{{ h[1] }}">{{ h[0] }}</th>
+                            {% else %}
+                                <th>{{ h }}</th>
+                                {# fallback seguro #}
+                            {% endif %}
+                        {% endfor %}
                         {% if show_actions %}<th>Ação</th>{% endif %}
                     </tr>
                 </thead>
@@ -32,9 +40,7 @@
                                 <td>
                                     <form method="post" class="form-inline">
                                         <input type="hidden" name="bloco" value="{{ bloco_action }}">
-                                        <input type="hidden"
-                                               name="{{ id_field }}"
-                                               value="{{ item[id_field] }}">
+                                        <input type="hidden" name="{{ id_field }}" value="{{ item[id_field] }}">
                                         <div class="btn-group{% if vertical_actions %}-vertical{% endif %}">
                                             <button type="submit"
                                                     name="acao"

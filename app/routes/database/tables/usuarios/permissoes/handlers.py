@@ -1,6 +1,4 @@
-import operator
 from copy import copy
-from functools import reduce
 
 from flask import Request, flash, g, request
 from flask_sqlalchemy.pagination import SelectPagination

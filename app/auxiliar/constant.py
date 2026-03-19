@@ -119,21 +119,27 @@ PERMISSIONS = {
 # Date formatting flags (bitmask)
 # --------------------------------------------------
 
-DATA_NUMERICA = 0x1
-DATA_ABREV = 0x2
-DATA_COMPLETA = 0x4
-HORA = 0x8
-SEMANA_ABREV = 0x10
-SEMANA_COMPLETA = 0x20
+class FormatDataTime(IntFlag):
+    DATA_NUMERICA = 0x1
+    DATA_ABREV = 0x2
+    DATA_COMPLETA = 0x4
+    HORA = 0x8
+    SEMANA_ABREV = 0x10
+    SEMANA_COMPLETA = 0x20
 
+    def has(self, flag):
+        return (self & flag) == flag
+
+    def has_any(self, flag):
+        return bool(self & flag)
 
 DATA_FLAGS = {
-    "DATA_NUMERICA": DATA_NUMERICA,
-    "DATA_ABREV": DATA_ABREV,
-    "DATA_COMPLETA": DATA_COMPLETA,
-    "HORA": HORA,
-    "SEMANA_ABREV": SEMANA_ABREV,
-    "SEMANA_COMPLETA": SEMANA_COMPLETA,
+    "DATA_NUMERICA": FormatDataTime.DATA_NUMERICA,
+    "DATA_ABREV": FormatDataTime.DATA_ABREV,
+    "DATA_COMPLETA": FormatDataTime.DATA_COMPLETA,
+    "HORA": FormatDataTime.HORA,
+    "SEMANA_ABREV": FormatDataTime.SEMANA_ABREV,
+    "SEMANA_COMPLETA": FormatDataTime.SEMANA_COMPLETA,
 }
 
 
