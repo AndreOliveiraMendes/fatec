@@ -28,6 +28,25 @@ def gerenciar_historicos():
     user_agent = request.headers.get('User-Agent')
     is_mobile = 'Mobile' in user_agent if user_agent else False
     g.extras['is_mobile'] = is_mobile
+    field = [
+        'ID',
+        'Usuário',
+        'Tabela',
+        'Categoria',
+        'Data/Hora',
+        'Mensagem',
+        'Chave Primária',
+        'Origem',
+        'Observação'
+        ]
+    if is_mobile:
+        field = [
+            'Tabela',
+            'Categoria',
+            'Data/Hora',
+            'Mensagem'
+        ]
+    g.extras['field'] = field
     if request.method == 'POST':
         get_controller(VALID_STATES, dispatcher, g.acao, g.bloco)
 

@@ -2,17 +2,7 @@
 {% macro result_table(message) %}
     {% call(h) table_base(
         historicos,
-        [
-        'ID',
-        'Usuário',
-        'Tabela',
-        'Categoria',
-        'Data/Hora',
-        'Mensagem',
-        'Chave Primária',
-        'Origem',
-        'Observação'
-        ],
+        field,
         id_field='id_historico',
         message=message,
         alert_class='alert-warning',
