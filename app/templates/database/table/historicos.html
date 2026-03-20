@@ -22,7 +22,14 @@
         {% endif %}
         <td>
             {% if is_mobile %}
-                <button data-toggle="collapse" data-target="#detalhes{{ h.id_historico }}">{{ h.tabela or '-' }}</button>
+                <button class="btn btn-default btn-xs"
+                        onclick="abrirDetalhes(this)"
+                        data-tabela="{{ h.tabela or '-' }}"
+                        data-origem="{{ h.origem.value }}"
+                        data-data="{{ h.data_hora|datahora if h.data_hora else '-' }}"
+                        data-usuario="{%- if h.id_usuario -%}({{ h.id_usuario }}, {{ h.usuario.pessoa.id_pessoa }}) {{ h.usuario.pessoa.nome_pessoa }}{%- else -%}(-) SISTEMA{%- endif -%}">
+                    {{ h.tabela or '-' }}
+                </button>
             {% else %}
                 {{ h.tabela or '-' }}
             {% endif %}
@@ -35,23 +42,36 @@
         <td class="visible-md visible-lg">{{ h.observacao or '-' }}</td>
     {% endcall %}
     {# ---- BLOCO MOBILE CONTINUA FORA DA MACRO BASE ---- #}
-    {% if historicos and is_mobile %}
-        {% for h in historicos %}
-            <div id="detalhes{{ h.id_historico }}" class="collapse">
-                <p>origem: {{ h.origem.value }}</p>
-                <p>dia: {{ h.data_hora|datahora if h.data_hora else '-' }}</p>
-                {% if h.id_usuario %}
-                    <p>
-                        usuario:
-                        ({{ h.id_usuario }}, {{ h.usuario.pessoa.id_pessoa }})
-                        {{ h.usuario.pessoa.nome_pessoa }}
-                    </p>
-                {% else %}
-                    <p>usuario: (-) SISTEMA</p>
-                {% endif %}
+    <div class="modal fade" id="modalDetalhes" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h4 class="modal-title">Detalhes</h4>
+                </div>
+                <div class="modal-body" id="conteudoModal">
+                    <!-- conteúdo dinâmico -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+                </div>
             </div>
-        {% endfor %}
-    {% endif %}
+        </div>
+    </div>
+    <script>
+        function abrirDetalhes(btn) {
+            const conteudo = `
+                <p><strong>Tabela:</strong> ${btn.dataset.tabela}</p>
+                <p><strong>Origem:</strong> ${btn.dataset.origem}</p>
+                <p><strong>Dia:</strong> ${btn.dataset.data}</p>
+                <p><strong>Usuário:</strong> ${btn.dataset.usuario}</p>
+            `;
+
+            document.getElementById("conteudoModal").innerHTML = conteudo;
+
+            $("#modalDetalhes").modal("show"); // Bootstrap 3 (jQuery)
+        }
+    </script>
 {% endmacro %}
 {% block title %}
     Historicos
