@@ -38,13 +38,13 @@ def carregar_painel_config():
             # -------- VALIDAÇÃO NÍVEL 2 --------
             if not validar_json(
                 data['estilo1'],
-                'tipo', 'tempo', 'laboratorios', 'status_indefinido'
+                'tipo', 'tempo', 'laboratorios', 'status_indefinido', 'modo_gerenciacao'
             ):
                 raise ValueError("Estilo1 incompleto.")
 
             if not validar_json(
                 data['estilo2'],
-                'tipo', 'tempo', 'laboratorios', 'status_indefinido'
+                'tipo', 'tempo', 'laboratorios', 'status_indefinido', 'modo_gerenciacao'
             ):
                 raise ValueError("Estilo2 incompleto.")
 
