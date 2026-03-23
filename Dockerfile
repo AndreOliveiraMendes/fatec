@@ -7,7 +7,8 @@ WORKDIR /app
 # 🔧 Instala git
 RUN apt-get update \
     && apt-get install -y --no-install-recommends git \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && echo "172.16.0.200 academico.fatecourinhos.edu.br" >> /etc/hosts
 
 # 📦 Copia primeiro requirements para cache de camada
 COPY requirements.txt .
