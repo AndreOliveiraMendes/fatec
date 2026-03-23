@@ -1,0 +1,22 @@
+{% extends "base-fixed" %}
+{% block title %}
+    menu de configuração
+{% endblock title %}
+{% block content %}
+    <div class="btn-group-vertical">
+        <a href="{{ url_for('admin.configurar_tela_televisor') }}"
+           class="btn btn-warning">
+            <span class="glyphicon glyphicon-wrench"></span>
+            Configuração Painel
+        </a>
+        <a href="{{ url_for('admin.configuracao_geral') }}"
+           class="btn btn-warning">
+            <span class="glyphicon glyphicon-pushpin"></span>
+            Configuração Gerais
+        </a>
+        <a class="btn btn-warning">
+            <span class="glyphicon glyphicon-scissors"></span>
+            Configuração Estoque
+        </a>
+    </div>
+{% endblock content %}
