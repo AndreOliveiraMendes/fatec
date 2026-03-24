@@ -46,17 +46,18 @@ def configurar_tela_televisor():
         # defaults seguros
         painel_cfg.setdefault("estilo1", {})
         painel_cfg.setdefault("estilo2", {})
-        painel_cfg.setdefault("estilo3", {})
 
         painel_cfg["estilo1"].setdefault("tipo", "")
         painel_cfg["estilo1"].setdefault("tempo", 15)
         painel_cfg["estilo1"].setdefault("laboratorios", 1)
         painel_cfg["estilo1"].setdefault("status_indefinido", False)
+        painel_cfg["estilo1"].setdefault("modo_gerenciacao", "single")
 
         painel_cfg["estilo1"].setdefault("tipo", "")
         painel_cfg["estilo2"].setdefault("tempo", 5)
         painel_cfg["estilo1"].setdefault("laboratorios", 1)
         painel_cfg["estilo2"].setdefault("status_indefinido", False)
+        painel_cfg["estilo2"].setdefault("modo_gerenciacao", "single")
 
         extras["painel_cfg"] = painel_cfg
 
@@ -70,14 +71,16 @@ def configurar_tela_televisor():
                 "tipo": request.form.get("e1_tipo"),
                 "tempo": request.form.get("e1_tempo"),
                 "laboratorios": request.form.get("e1_lab"),
-                "status_indefinido": "e1_status" in request.form
+                "status_indefinido": "e1_status" in request.form,
+                "modo_gerenciacao": request.form.get("e1_modo_gerenciacao")
             },
 
             "estilo2": {
                 "tipo": request.form.get("e2_tipo"),
                 "tempo": request.form.get("e2_tempo"),
                 "laboratorios": request.form.get("e2_lab"),
-                "status_indefinido": "e2_status" in request.form
+                "status_indefinido": "e2_status" in request.form,
+                "modo_gerenciacao": request.form.get("e2_modo_gerenciacao")
             }
         }
 
