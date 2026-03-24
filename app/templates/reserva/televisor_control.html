@@ -50,6 +50,23 @@
                         Mostrar status indefinido como não pegou chave
                     </label>
                 </div>
+                <div class="form-group">
+                    <label for="modo_gerenciacao">Modo de Visualizacao:</label>
+                    <select class="form-control"
+                            id="e1_modo_gerenciacao"
+                            name="e1_modo_gerenciacao"
+                            required>
+                        <option value="">Selecione o Modo</option>
+                        <option value="single"
+                                {% if painel_cfg.estilo1.modo_gerenciacao == 'single' %}selected{% endif %}>
+                            Reservas Separadas
+                        </option>
+                        <option value="multiplo"
+                                {% if painel_cfg.estilo1.modo_gerenciacao == 'multiplo' %}selected{% endif %}>
+                            Reservas Compativeis Unidas
+                        </option>
+                    </select>
+                </div>
             </div>
         </div>
         <!-- ================= ESTILO 2 ================= -->
@@ -94,6 +111,23 @@
                                {% if painel_cfg.estilo2.status_indefinido %}checked{% endif %}>
                         Mostrar status indefinido como não pegou chave
                     </label>
+                </div>
+                <div class="form-group">
+                    <label for="modo_gerenciacao">Modo de Visualizacao:</label>
+                    <select class="form-control"
+                            id="e2_modo_gerenciacao"
+                            name="e2_modo_gerenciacao"
+                            required>
+                        <option value="">Selecione o Modo</option>
+                        <option value="single"
+                                {% if painel_cfg.estilo2.modo_gerenciacao == 'single' %}selected{% endif %}>
+                            Reservas Separadas
+                        </option>
+                        <option value="multiplo"
+                                {% if painel_cfg.estilo2.modo_gerenciacao == 'multiplo' %}selected{% endif %}>
+                            Reservas Compativeis Unidas
+                        </option>
+                    </select>
                 </div>
             </div>
         </div>
