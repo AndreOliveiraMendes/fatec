@@ -1,22 +1,89 @@
 {% extends "base-fixed" %}
 {% block title %}
-    menu de configuração
+    Menu de Configuração
 {% endblock title %}
 {% block content %}
-    <div class="btn-group-vertical">
-        <a href="{{ url_for('admin.configurar_tela_televisor') }}"
-           class="btn btn-warning">
-            <span class="glyphicon glyphicon-wrench"></span>
-            Configuração Painel
-        </a>
-        <a href="{{ url_for('admin.configuracao_geral') }}"
-           class="btn btn-warning">
-            <span class="glyphicon glyphicon-pushpin"></span>
-            Configuração Gerais
-        </a>
-        <a class="btn btn-warning">
-            <span class="glyphicon glyphicon-scissors"></span>
-            Configuração Estoque
-        </a>
+    <div class="container">
+        <div class="painel-box center-block">
+            <h4 class="titulo-painel">
+                <span class="glyphicon glyphicon-cog"></span>
+                Configurações
+            </h4>
+            <div class="btn-group-vertical btn-block">
+                <a href="{{ url_for('admin_config.configurar_tela_televisor') }}"
+                   class="btn btn-painel">
+                    <span class="glyphicon glyphicon-blackboard"></span>
+                    Painel do Televisor
+                </a>
+                <a href="{{ url_for('admin_config.configuracao_geral') }}"
+                   class="btn btn-painel">
+                    <span class="glyphicon glyphicon-wrench"></span>
+                    Configurações Gerais
+                </a>
+                <a href="#" class="btn btn-painel">
+                    <span class="glyphicon glyphicon-list-alt"></span>
+                    Configuração de Estoque
+                </a>
+            </div>
+        </div>
     </div>
 {% endblock content %}
+{% block extra_css %}
+    <style>
+        .painel-box {
+            padding: 20px;
+            border-radius: 6px;
+            background: #ffffff;
+            max-width: 320px;
+            margin-top: 40px;
+
+            /* visual moderno */
+            border: none;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        /* título */
+        .titulo-painel {
+            margin-bottom: 15px;
+            font-weight: 600;
+            color: #444;
+        }
+
+        .titulo-painel .glyphicon {
+            margin-right: 6px;
+            color: #5bc0de;
+        }
+
+        /* botões */
+        .btn-painel {
+            margin-bottom: 10px;
+            text-align: left;
+            font-weight: 500;
+
+            background: #f7f9fb;
+            border: 1px solid #e3e6ea;
+            color: #333;
+
+            transition: all 0.2s ease;
+        }
+
+        /* hover bonito */
+        .btn-painel:hover {
+            background: #5bc0de;
+            color: #fff;
+            border-color: #46b8da;
+            transform: translateX(3px);
+        }
+
+        /* ícones */
+        .btn-painel .glyphicon {
+            margin-right: 10px;
+            font-size: 14px;
+        }
+
+        /* último botão */
+        .btn-group-vertical .btn:last-child {
+            margin-bottom: 0;
+        }
+    </style>
+{% endblock extra_css %}
