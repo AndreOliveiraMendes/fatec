@@ -76,14 +76,17 @@ def tela_televisor1():
     tipo_horario = painel_cfg.get('tipo', TipoAulaEnum.AULA.value)
     intervalo = int(painel_cfg.get('tempo', 15))
     qt_lab = int(painel_cfg.get('laboratorios', 6))
-    locais = divide(get_laboratorios(True), qt_lab)
+    pre_locais = get_laboratorios(True)
+    locais = divide(pre_locais, qt_lab)
     today = datetime.now(LOCAL_TIMEZONE)
     turno = get_turno_by_time(today.time())
     aulas = get_aulas_ativas_por_dia(today.date(), turno, TipoAulaEnum(tipo_horario))
     extras['intervalo'] = intervalo*1000
     extras['locais'] = locais
     extras['hoje'] = today
-    extras['aulas'] = aulas
+    modo = painel_cfg.get('modo_gerenciacao', 'single')
+    extras['aulas'] = merge_aulas(modo, aulas, pre_locais, today, 1)
+    extras['modo'] = modo
     return render_template("reserva/televisor.html", user=user, **extras)
 
 @bp.route("/televisor2")
@@ -103,5 +106,7 @@ def tela_televisor2():
     extras['intervalo'] = intervalo*1000
     extras['locais'] = locais
     extras['hoje'] = today
-    extras['aulas'] = merge_aulas(painel_cfg.get('modo_gerenciacao', 'single'), aulas, pre_locais, today)
+    modo = painel_cfg.get('modo_gerenciacao', 'single')
+    extras['aulas'] = merge_aulas(modo, aulas, pre_locais, today, 2)
+    extras['modo'] = modo
     return render_template("reserva/televisor2.html", user=user, **extras)
