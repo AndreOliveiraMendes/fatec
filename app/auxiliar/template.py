@@ -8,7 +8,7 @@ from sqlalchemy import between
 
 from app.auxiliar.constant import (APP_TITLE, DATA_FLAGS, PERMISSIONS,
                                    FormatDataTime, Permission)
-from app.auxiliar.shared import resolver_reserva
+from app.auxiliar.shared import get_reserva, resolver_reserva
 from app.dao.internal.general import get_unique_or_500
 from app.dao.internal.reservas import get_responsavel_reserva
 from app.dao.internal.usuarios import get_user
@@ -292,48 +292,9 @@ def register_template_utils(app:Flask):
     def get_responsavel_reserva_template(reserva:Reservas_Fixas|Reservas_Temporarias, modo_template = False):
         return get_responsavel_reserva(reserva, modo_template)
 
-    @app.template_global()
-    def get_reserva(lab, aula, dia, mostrar_icone=False, tela_televisor=False, tela=None):
-        fixa, temp, choose = None, None, None
-        semestre = get_unique_or_500(
-            Semestres,
-            between(dia, Semestres.data_inicio, Semestres.data_fim)
-        )
-        if semestre:
-            fixa = get_unique_or_500(
-                Reservas_Fixas,
-                Reservas_Fixas.id_reserva_local == lab,
-                Reservas_Fixas.id_reserva_aula == aula,
-                Reservas_Fixas.id_reserva_semestre == semestre.id_semestre
-            )
-        if isinstance(dia, datetime):
-            dia = dia.date()
-        temp = get_unique_or_500(
-            Reservas_Temporarias,
-            Reservas_Temporarias.id_reserva_local == lab,
-            Reservas_Temporarias.id_reserva_aula == aula,
-            between(dia, Reservas_Temporarias.inicio_reserva, Reservas_Temporarias.fim_reserva)
-        )
-        
-        exibicao = get_unique_or_500(
-            Exibicao_Reservas,
-            Exibicao_Reservas.id_exibicao_local == lab,
-            Exibicao_Reservas.id_exibicao_aula == aula,
-            Exibicao_Reservas.exibicao_dia == dia
-        )
-
-        choose, _ = resolver_reserva(temp, fixa, exibicao)
-
-        partes = montar_partes_reserva(
-            choose,
-            mostrar_icone=mostrar_icone,
-            lab=lab,
-            aula=aula,
-            dia=dia,
-            tela_televisor=tela_televisor,
-            tela=tela
-        )
-
+    @app.template_global('get_reserva')
+    def get_reserva_template(lab, aula, dia, mostrar_icone=False, tela_televisor=False, tela=None):
+        partes = get_reserva(lab, aula, dia, mostrar_icone, tela_televisor, tela)
         return Markup("<br>".join(partes))
     
     def resolve_endpoint(endpoint):

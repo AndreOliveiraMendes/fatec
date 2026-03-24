@@ -1,3 +1,5 @@
+from app.auxiliar.shared import get_reserva
+
 def divide(l, q):
     result = []
     qt = len(l)
@@ -14,3 +16,14 @@ def divide(l, q):
         if start < qt:
             result.append(l[start:])
     return result
+
+def merge_aulas(modo, aulas, lab, dia):
+    if modo == 'multiplo':
+        horarios = []
+        for aula in aulas:
+            if horarios:
+                horario = horarios[-1]
+                print(horario[-1][0].id_aula_ativa, aula[0].id_aula_ativa)
+            else:
+                horarios.append([aula])
+    return aulas
