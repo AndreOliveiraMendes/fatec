@@ -3,13 +3,15 @@ import json
 from importlib.resources import as_file
 from pathlib import Path
 
-from flask import (Blueprint, abort, current_app, flash, redirect,
+from flask import (Blueprint, abort, current_app, flash, jsonify, redirect,
                    render_template, request, session, url_for)
 
+from app.dao.internal.equipamentos import get_equipamentos
 from app.dao.internal.locais import get_locais
 from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import admin_required
 from app.enums import TipoAulaEnum
+from app.routes.admin.handlers.handler_admin_config import get_quantidades_equipamento_dia
 from config.json_related import carregar_config_geral, carregar_painel_config
 
 bp = Blueprint('admin_config', __name__, url_prefix='/admin')
@@ -149,3 +151,20 @@ def configuracao_geral():
             flash("Ocorreu um erro ao salvar a configuração geral. Tente novamente.", "danger")
         return redirect(url_for('default.home'))
     return render_template("admin/control.html", user=user, **extras)
+
+@bp.route("/estoque")
+@admin_required
+def gerenciar_estoque():
+    user = get_user(session.get('userid'))
+    extras = {}
+    extras["equipamentos"] = get_equipamentos()
+    return render_template("admin/estoque.html", user=user, **extras)
+
+@bp.route("/estoque/quantidades")
+@admin_required
+def get_quantidades_estoque():
+    data = request.args.get("data")
+
+    resultados = get_quantidades_equipamento_dia(data)
+
+    return jsonify(resultados)
