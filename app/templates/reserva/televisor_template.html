@@ -11,7 +11,7 @@
                 <a class="navbar-brand"
                    title="ir a pagina inicial"
                    href="{{ url_for("default.home") }}">
-                    Sistema RLF
+                    {{ app }}
                     {% if user and user.perm|has_flag(FIXA) %}
                         <i class="glyphicon glyphicon-calendar"
                            title="Permissão de Reserva Fixa"></i>
