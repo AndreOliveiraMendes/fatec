@@ -75,7 +75,16 @@ input[disabled] {
     font-size: 16px;
     table-layout: fixed;
     margin-top: 0;
-    margin-bottom: 0;
+    margin-bottom: 3px;
+}
+
+.modo-single .tabela-reserva-tv {
+    font-size: 18px;
+}
+
+/* modo multiplo */
+.modo-multiplo .tabela-reserva-tv {
+    font-size: 25px;
 }
 
 .tabela-reserva-tv th,

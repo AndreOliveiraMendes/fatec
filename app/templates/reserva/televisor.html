@@ -11,7 +11,7 @@
          aria-live="polite">
         <div class="carousel-inner">
             {% for lab_group in locais %}
-                <div class="slide{% if loop.index0 == 0 %} active{% endif %}"
+                <div class="slide{% if loop.index0 == 0 %} active{% endif %} modo-{{ modo }}"
                      role="group"
                      aria-hidden="{{ 'false' if loop.index0 == 0 else 'true' }}">
                     <table class="table table-striped table-bordered tabela-reserva-tv">
