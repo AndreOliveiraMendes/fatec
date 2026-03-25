@@ -12,7 +12,7 @@ from app.dao.internal.locais import get_locais
 from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import admin_required
 from app.enums import TipoAulaEnum
-from app.routes.admin.handlers.handler_admin_config import get_quantidades_equipamento_dia
+from app.routes.admin.handlers.handler_admin_config import ajuste_quantidade, get_quantidades_equipamento_dia
 from config.json_related import carregar_config_geral, carregar_painel_config
 
 bp = Blueprint('admin_config', __name__, url_prefix='/admin')
@@ -176,10 +176,27 @@ def get_quantidades_estoque():
 def movimentar_estoque():
     data = request.get_json()
 
-    id_equipamento = data.get("id_equipamento")
-    tipo = data.get("tipo")
-    quantidade = int(data.get("quantidade"))
-    dia = data.get("data")
-    print(id_equipamento, tipo, quantidade, dia)
+    try:
+        id_equipamento = int(data.get("id_equipamento"))
+        tipo = data.get("tipo")
+        quantidade = int(data.get("quantidade"))
+        dia = data.get("data")
+    except (TypeError, ValueError):
+        return jsonify({
+            "sucesso": False,
+            "erro": "Dados inválidos"
+        }), 400
+
+    if tipo == "ajuste":
+        ajuste_quantidade(id_equipamento, quantidade, dia)
+
+    elif tipo in ["reposicao", "manutencao"]:
+        old_quantidade = get_quantidades_equipamento_dia(dia, id_equipamento)
+
+    else:
+        return jsonify({
+            "sucesso": False,
+            "erro": "Tipo de movimentação inválido"
+        }), 400
 
     return jsonify({"sucesso": True})

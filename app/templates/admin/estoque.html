@@ -160,9 +160,9 @@
                 .then(res => res.json())
                 .then(resp => {
                     if (resp.sucesso) {
-                        carregarEstoque(); // atualiza tabela
+                        carregarEstoque();
                     } else {
-                        alert("Erro ao salvar");
+                        alert(resp.erro || "Erro ao salvar");
                     }
                 })
                 .catch(() => alert("Erro na requisição"));
