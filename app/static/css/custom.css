@@ -101,6 +101,50 @@ td.fixa {
 }
 
 /* ==========================
+   Painel de Controle
+   ========================== */
+
+.tabela-controle {
+    background: #fff;
+    border: 1px solid #ddd;
+}
+
+/* HEAD */
+.tabela-controle thead th {
+    background: #d9edf7; /* azul claro BS3 */
+    text-align: center;
+    font-weight: 600;
+    color: #31708f;
+    border-bottom: 2px solid #bce8f1;
+}
+
+/* STRIPED custom */
+.tabela-controle tbody tr:nth-of-type(odd) {
+    background-color: #f9fcff;
+}
+
+/* HOVER suave */
+.tabela-controle tbody tr {
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tabela-controle tbody tr:hover {
+    background-color: #eef7fb;
+    box-shadow: inset 0 0 0 9999px rgba(0,0,0,0.02);
+}
+
+/* células */
+.tabela-controle tbody tr td {
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+/* badges (opcional melhorar contraste) */
+.tabela-controle .badge {
+    font-size: 11px;
+}
+
+/* ==========================
    LAYOUT GERAL
    ========================== */
 html,
