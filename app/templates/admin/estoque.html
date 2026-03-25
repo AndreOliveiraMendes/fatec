@@ -10,7 +10,10 @@
         <div class="row filtro-box">
             <div class="col-sm-4">
                 <label>Dia da consulta</label>
-                <input type="date" id="data-consulta" class="form-control">
+                <input type="date"
+                       id="data-consulta"
+                       class="form-control"
+                       value="{{ data_hoje }}">
             </div>
             <div class="col-sm-2">
                 <label>&nbsp;</label>
@@ -40,13 +43,17 @@
                         </td>
                         <td>
                             <div class="btn-group btn-group-sm">
-                                <button class="btn btn-success" title="Reposição">
+                                <button class="btn btn-success btn-acao"
+                                        data-acao="reposicao"
+                                        title="Reposição">
                                     <span class="glyphicon glyphicon-plus"></span>
                                 </button>
-                                <button class="btn btn-warning" title="Manutenção">
+                                <button class="btn btn-warning btn-acao"
+                                        data-acao="manutencao"
+                                        title="Manutenção">
                                     <span class="glyphicon glyphicon-wrench"></span>
                                 </button>
-                                <button class="btn btn-info" title="Ajuste">
+                                <button class="btn btn-info btn-acao" data-acao="ajuste" title="Ajuste">
                                     <span class="glyphicon glyphicon-edit"></span>
                                 </button>
                             </div>
@@ -82,7 +89,13 @@
 {% endblock extra_css %}
 {% block extra_script %}
     <script>
-        document.getElementById("btn-consultar").addEventListener("click", function () {
+        const API = {
+            quantidades: "{{ url_for('admin_config.get_quantidades_estoque') }}",
+            movimentar: "{{ url_for('admin_config.movimentar_estoque') }}"
+        };
+    </script>
+    <script>
+        function carregarEstoque() {
             const data = document.getElementById("data-consulta").value;
 
             if (!data) {
@@ -90,20 +103,70 @@
                 return;
             }
 
-            fetch(`/admin/estoque/quantidades?data=${data}`)
+            fetch(`${API.quantidades}?data=${data}`)
                 .then(res => res.json())
                 .then(dados => {
                     document.querySelectorAll(".tabela-estoque tbody tr").forEach(tr => {
                         const id = tr.getAttribute("data-id");
                         const input = tr.querySelector(".input-quantidade");
 
-                        if (dados[id] !== undefined) {
-                            input.value = dados[id];
-                        } else {
-                            input.value = 0;
-                        }
+                        input.value = dados[id] ?? 0;
                     });
+                })
+                .catch(() => {
+                    alert("Erro ao carregar estoque");
                 });
+        }
+
+        const btn = document.getElementById("btn-consultar");
+
+        if (btn) {
+            btn.addEventListener("click", carregarEstoque);
+        }
+
+        document.addEventListener("DOMContentLoaded", carregarEstoque);
+        document.querySelectorAll(".btn-acao").forEach(btn => {
+            btn.addEventListener("click", function () {
+
+                const tr = this.closest("tr");
+
+                const id = tr.getAttribute("data-id");
+                const acao = this.getAttribute("data-acao");
+                const quantidade = tr.querySelector(".input-quantidade").value;
+                const data = document.getElementById("data-consulta").value;
+
+                if (!data) {
+                    alert("Selecione uma data");
+                    return;
+                }
+
+                if (!quantidade || quantidade < 0) {
+                    alert("Informe uma quantidade válida");
+                    return;
+                }
+
+                fetch(API.movimentar, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        id_equipamento: id,
+                        tipo: acao,
+                        quantidade: quantidade,
+                        data: data
+                    })
+                })
+                .then(res => res.json())
+                .then(resp => {
+                    if (resp.sucesso) {
+                        carregarEstoque(); // atualiza tabela
+                    } else {
+                        alert("Erro ao salvar");
+                    }
+                })
+                .catch(() => alert("Erro na requisição"));
+            });
         });
     </script>
 {% endblock extra_script %}

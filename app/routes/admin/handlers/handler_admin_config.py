@@ -1,9 +1,4 @@
-from app.dao.internal.equipamentos import get_equipamentos
-
+from app.dao.internal.controle import get_equipamento_disponibilidade_dia
 
 def get_quantidades_equipamento_dia(dia):
-    equipamentos = get_equipamentos()
-    return {
-        1:5,
-        2:10
-    }
+    return get_equipamento_disponibilidade_dia(dia)

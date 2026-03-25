@@ -1,3 +1,4 @@
+from datetime import date
 import importlib.resources as resources
 import json
 from importlib.resources import as_file
@@ -157,7 +158,8 @@ def configuracao_geral():
 def gerenciar_estoque():
     user = get_user(session.get('userid'))
     extras = {}
-    extras["equipamentos"] = get_equipamentos()
+    extras["equipamentos"] = get_equipamentos(load_categoria=True)
+    extras["data_hoje"] = date.today().isoformat()
     return render_template("admin/estoque.html", user=user, **extras)
 
 @bp.route("/estoque/quantidades")
@@ -168,3 +170,16 @@ def get_quantidades_estoque():
     resultados = get_quantidades_equipamento_dia(data)
 
     return jsonify(resultados)
+
+@bp.route("/estoque/movimentar", methods=["POST"])
+@admin_required
+def movimentar_estoque():
+    data = request.get_json()
+
+    id_equipamento = data.get("id_equipamento")
+    tipo = data.get("tipo")
+    quantidade = int(data.get("quantidade"))
+    dia = data.get("data")
+    print(id_equipamento, tipo, quantidade, dia)
+
+    return jsonify({"sucesso": True})
