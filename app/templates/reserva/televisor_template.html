@@ -10,7 +10,7 @@
             <div class="navbar-header">
                 <a class="navbar-brand"
                    title="ir a pagina inicial"
-                   href="{{ url_for("default.home") }}">
+                   href="{{ url_for('default.home') }}">
                     {{ app }}
                     {% if user and user.perm|has_flag(FIXA) %}
                         <i class="glyphicon glyphicon-calendar"
@@ -48,6 +48,13 @@
             margin-bottom:0px;
         }
     </style>
+    {% if modo == "multiplo" %}
+        <style>
+            .tabela-reserva-tv{
+                font-size: 20px;
+            }
+        </style>
+    {% endif %}
 {% endblock extra_css %}
 {% block footer %}
     {{ legenda_icones_reserva() }}
