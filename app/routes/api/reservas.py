@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify
 
 from app.decorators.decorators import admin_required
 
-from .handler import get_handler
+from .handler.handler_reservas import get_handler
 
 bp = Blueprint('api_reservas', __name__, url_prefix='/api/reservas')
 
