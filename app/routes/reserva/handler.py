@@ -1,5 +1,6 @@
 from app.auxiliar.shared import get_reserva
 
+
 def divide(l, q):
     result = []
     qt = len(l)

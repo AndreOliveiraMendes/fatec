@@ -52,8 +52,6 @@ def get_equipamento_disponibilidades():
     sel_disponibilidades = select(EquipamentoDisponibilidade)
     return db.session.execute(sel_disponibilidades).scalars().all()
 
-from sqlalchemy import select, func
-
 def get_equipamento_disponibilidade_dia(dia, id_equipamento=None):
     subq = (
         select(EquipamentoDisponibilidade.quantidade_total)

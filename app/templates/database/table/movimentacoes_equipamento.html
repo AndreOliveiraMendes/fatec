@@ -2,7 +2,7 @@
 {% macro result_table(message) %}
     {% call(item) table_base(
         movimentacoes,
-        ['ID','Equipamento','Tipo','Quantidade','Funcionario', 'Resposavel', 'data de registro'],
+        ['ID','Equipamento','Tipo','Quantidade','Funcionario', 'Resposavel', 'data de registro', 'observacao'],
         id_field='id_movimentacao',
         vertical_actions=False,
         table_class='tabela-crude',
@@ -19,6 +19,7 @@
         <td>{{ item.funcionario.nome_pessoa }}</td>
         <td>{{ item.responsavel.nome_pessoa|format }}</td>
         <td>{{ item.data_registro|datahora }}</td>
+        <td>{{ item.observacao|format }}</td>
     {% endcall %}
 {% endmacro %}
 {% block title %}

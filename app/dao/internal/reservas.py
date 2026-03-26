@@ -4,7 +4,7 @@ from typing import Sequence
 
 from flask import (Response, abort, current_app, jsonify, request, session,
                    url_for)
-from sqlalchemy import and_, between, func, select
+from sqlalchemy import and_, between, case, func, select
 from sqlalchemy.exc import IntegrityError, MultipleResultsFound
 from sqlalchemy.sql.elements import ColumnElement
 
@@ -506,3 +506,37 @@ def get_reservas_equipamentos():
 def get_reservas_equipamentos_items():
     sel_items = select(Reserva_Equipamento_Item)
     return db.session.execute(sel_items).scalars().all()
+
+def get_quantidade_equipamentos_reservados(id_equipamento=None):
+    quantidade_restante = case(
+        (
+            Reserva_Equipamento_Item.devolvido >= Reserva_Equipamento_Item.quantidade,
+            0
+        ),
+        else_=Reserva_Equipamento_Item.quantidade - Reserva_Equipamento_Item.devolvido
+    )
+
+    stmt = (
+        select(
+            Reserva_Equipamento_Item.id_equipamento,
+            func.sum(quantidade_restante).label("total")
+        )
+        .join(
+            Reservas_Equipamentos,
+            Reservas_Equipamentos.id_reserva == Reserva_Equipamento_Item.id_reserva
+        )
+        .where(Reservas_Equipamentos.estado == "ATIVA")
+        .group_by(Reserva_Equipamento_Item.id_equipamento)
+    )
+
+    if id_equipamento is not None:
+        stmt = stmt.where(
+            Reserva_Equipamento_Item.id_equipamento == id_equipamento
+        )
+
+    result = db.session.execute(stmt).all()
+
+    if id_equipamento is not None:
+        return result[0].total if result else 0
+
+    return {row.id_equipamento: row.total for row in result}

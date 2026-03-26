@@ -1,18 +1,20 @@
-from datetime import date
 import importlib.resources as resources
 import json
+from datetime import date
 from importlib.resources import as_file
 from pathlib import Path
 
 from flask import (Blueprint, abort, current_app, flash, jsonify, redirect,
                    render_template, request, session, url_for)
 
+from app.dao.internal.controle import get_equipamento_disponibilidade_dia
 from app.dao.internal.equipamentos import get_equipamentos
 from app.dao.internal.locais import get_locais
+from app.dao.internal.reservas import get_quantidade_equipamentos_reservados
 from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import admin_required
 from app.enums import TipoAulaEnum
-from app.routes.admin.handlers.handler_admin_config import ajuste_quantidade, get_quantidades_equipamento_dia
+from app.routes.admin.handlers.handler_admin_config import ajuste_quantidade
 from config.json_related import carregar_config_geral, carregar_painel_config
 
 bp = Blueprint('admin_config', __name__, url_prefix='/admin')
@@ -167,9 +169,16 @@ def gerenciar_estoque():
 def get_quantidades_estoque():
     data = request.args.get("data")
 
-    resultados = get_quantidades_equipamento_dia(data)
+    resultados = get_equipamento_disponibilidade_dia(data)
 
     return jsonify(resultados)
+
+@bp.route("/estoque/reservado")
+@admin_required
+def get_quantidade_reservada():
+    resultado = get_quantidade_equipamentos_reservados()
+
+    return jsonify(resultado)
 
 @bp.route("/estoque/movimentar", methods=["POST"])
 @admin_required
@@ -181,6 +190,7 @@ def movimentar_estoque():
         tipo = data.get("tipo")
         quantidade = int(data.get("quantidade"))
         dia = data.get("data")
+        observacao = data.get("observacao")
     except (TypeError, ValueError):
         return jsonify({
             "sucesso": False,
@@ -188,10 +198,10 @@ def movimentar_estoque():
         }), 400
 
     if tipo == "ajuste":
-        ajuste_quantidade(id_equipamento, quantidade, dia)
+        ret_code, msg = ajuste_quantidade(id_equipamento, quantidade, dia, observacao)
 
     elif tipo in ["reposicao", "manutencao"]:
-        old_quantidade = get_quantidades_equipamento_dia(dia, id_equipamento)
+        old_quantidade = get_equipamento_disponibilidade_dia(dia, id_equipamento)
 
     else:
         return jsonify({
@@ -199,4 +209,7 @@ def movimentar_estoque():
             "erro": "Tipo de movimentação inválido"
         }), 400
 
-    return jsonify({"sucesso": True})
+    if ret_code > 0:
+        return jsonify({"error": msg}), ret_code
+    else:
+        return jsonify({"sucesso": True})
