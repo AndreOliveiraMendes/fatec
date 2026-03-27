@@ -14,7 +14,8 @@ from app.dao.internal.reservas import get_quantidade_equipamentos_reservados
 from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import admin_required
 from app.enums import TipoAulaEnum
-from app.routes.admin.handlers.handler_admin_config import ajuste_quantidade
+from app.routes.admin.handlers.handler_admin_config import (TIPOS_MOVIMENTACAO,
+                                                            ajuste_quantidade)
 from config.json_related import carregar_config_geral, carregar_painel_config
 
 bp = Blueprint('admin_config', __name__, url_prefix='/admin')
@@ -189,6 +190,7 @@ def movimentar_estoque():
         id_equipamento = int(data.get("id_equipamento"))
         tipo = data.get("tipo")
         quantidade = int(data.get("quantidade"))
+        reservado = int(data.get("reservado"))
         dia = data.get("data")
         observacao = data.get("observacao")
     except (TypeError, ValueError):
@@ -197,19 +199,60 @@ def movimentar_estoque():
             "erro": "Dados inválidos"
         }), 400
 
-    if tipo == "ajuste":
-        ret_code, msg = ajuste_quantidade(id_equipamento, quantidade, dia, observacao)
-
-    elif tipo in ["reposicao", "manutencao"]:
-        old_quantidade = get_equipamento_disponibilidade_dia(dia, id_equipamento)
-
-    else:
+    # 🔹 validações básicas
+    if tipo not in TIPOS_MOVIMENTACAO:
         return jsonify({
             "sucesso": False,
             "erro": "Tipo de movimentação inválido"
         }), 400
 
-    if ret_code > 0:
-        return jsonify({"error": msg}), ret_code
-    else:
+    if quantidade < 0:
+        return jsonify({
+            "sucesso": False,
+            "erro": "Quantidade inválida"
+        }), 400
+
+    # 🔹 log (audit trail)
+    current_app.logger.info(
+        "Movimentação estoque: eq=%s tipo=%s qtd=%s reservado=%s data=%s obs=%s",
+        id_equipamento, tipo, quantidade, reservado, dia, observacao
+    )
+
+    # 🔹 processamento
+    try:
+        if tipo == "ajuste":
+            ret_code, msg = ajuste_quantidade(
+                id_equipamento, quantidade, reservado, dia, observacao
+            )
+
+        elif tipo == "reposicao":
+            # TODO: implementar regra real
+            ret_code, msg = 0, None
+
+        elif tipo == "manutencao":
+            # TODO: implementar regra real (ex: validar contra reservado)
+            ret_code, msg = 0, None
+
+        else:
+            # fallback (não deveria cair aqui)
+            return jsonify({
+                "sucesso": False,
+                "erro": "Tipo inválido"
+            }), 400
+
+        # 🔹 resposta padronizada
+        if ret_code and ret_code > 0:
+            return jsonify({
+                "sucesso": False,
+                "erro": msg
+            }), ret_code
+
         return jsonify({"sucesso": True})
+
+    except Exception as e:
+        current_app.logger.exception("Erro ao movimentar estoque")
+
+        return jsonify({
+            "sucesso": False,
+            "erro": "Erro interno"
+        }), 500

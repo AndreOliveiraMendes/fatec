@@ -9,8 +9,9 @@ from app.extensions import db
 from app.models.controle import EquipamentoDisponibilidade
 from app.models.historicos import MovimentacaoEquipamento
 
+TIPOS_MOVIMENTACAO = {"ajuste", "reposicao", "manutencao"}
 
-def ajuste_quantidade(id, quantidade, dia, observacao):
+def ajuste_quantidade(id, quantidade, reservado, dia, observacao):
     userid = int(session.get('userid'))
     user = get_user(userid)
     try: 
@@ -28,6 +29,9 @@ def ajuste_quantidade(id, quantidade, dia, observacao):
             )
         else:
             quantidade_equipamento.quantidade_total = quantidade
+
+        if quantidade_equipamento.quantidade_total < reservado:
+            raise ValueError("Quantidade total inferior a reservada")
 
         movimentacao_equipamento = MovimentacaoEquipamento(
             id_funcionario = userid,
@@ -52,6 +56,9 @@ def ajuste_quantidade(id, quantidade, dia, observacao):
    
         db.session.commit()
     except DB_ERRORS as e:
-        handle_db_error(e, "Erro ao ajustar o estoque")
+        handle_db_error(e, "Erro ao ajustar o estoque", False)
+        return 400, "Erro ao ajustar o estoque"
+    except ValueError as e:
+        handle_db_error(e, "Erro ao ajustar o estoque", False)
         return 400, "Erro ao ajustar o estoque"
     return 0, ""
