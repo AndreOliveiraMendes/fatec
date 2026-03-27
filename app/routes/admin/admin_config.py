@@ -237,7 +237,7 @@ def movimentar_estoque():
 
         elif tipo == "reposicao":
             ret_code, msg = reposicao_estoque(
-                id_equipamento, quantidade, reservado, dia, observacao
+                id_equipamento, quantidade, dia, observacao
             )
 
         elif tipo == "manutencao":

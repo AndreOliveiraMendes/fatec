@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import TYPE_CHECKING, Optional
 
 from sqlalchemy import TEXT, Enum, ForeignKey, String, Text, func
@@ -52,6 +52,7 @@ class MovimentacaoEquipamento(Base):
         nullable=False
     )
     quantidade: Mapped[int] = mapped_column(nullable=False)
+    data: Mapped[date] = mapped_column(nullable=False)
     data_registro: Mapped[datetime] = mapped_column(
         server_default=func.now(),
         nullable=False

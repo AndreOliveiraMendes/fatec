@@ -4,20 +4,16 @@ from typing import List, Literal, Optional, Sequence, Tuple
 
 from flask import Flask, abort, current_app, session, url_for
 from markupsafe import Markup
-from sqlalchemy import between
 
 from app.auxiliar.constant import (APP_TITLE, DATA_FLAGS, PERMISSIONS,
                                    FormatDataTime, Permission)
-from app.auxiliar.shared import get_reserva, resolver_reserva
-from app.dao.internal.general import get_unique_or_500
+from app.auxiliar.shared import get_reserva
 from app.dao.internal.reservas import get_responsavel_reserva
 from app.dao.internal.usuarios import get_user
-from app.models.aulas import Semestres, Turnos
-from app.models.controle import Exibicao_Reservas
+from app.models.aulas import Turnos
 from app.models.locais import Locais
 from app.models.reservas.reservas_laboratorios import (Reservas_Fixas,
                                                        Reservas_Temporarias)
-from app.routes_helper.ui import montar_partes_reserva
 from config.database_views import SECOES
 from config.mapeamentos import meses_ingleses, semana_inglesa, situacoes_helper
 
