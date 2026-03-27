@@ -41,6 +41,7 @@ def ajuste_quantidade(id, quantidade, reservado, dia, observacao):
         movimentacao_equipamento = MovimentacaoEquipamento(
             id_funcionario = userid,
             id_equipamento = id,
+            data = dia,
             quantidade = quantidade,
             tipo = TipoMovimentacaoEnum.AJUSTE,
             observacao = observacao
@@ -92,6 +93,7 @@ def reposicao_estoque(id: int, quantidade: int, dia, observacao):
         movimentacao_equipamento = MovimentacaoEquipamento(
             id_funcionario = userid,
             id_equipamento = id,
+            data = dia,
             quantidade = quantidade,
             tipo = TipoMovimentacaoEnum.REPOSICAO,
             observacao = observacao

@@ -7,7 +7,8 @@
         'Reserva',
         'Equipamento',
         'Quantidade',
-        'Devolvido'
+        'Devolvido',
+        'data_devolucao'
         ],
         id_field='id_item',
         message=message,
@@ -22,6 +23,7 @@
         <td>{{ ire.equipamento.nome_equipamento }}</td>
         <td>{{ ire.quantidade }}</td>
         <td>{{ ire.devolvido }}</td>
+        <td>{{ ire.data_devolucao|data }}</td>
     {% endcall %}
 {% endmacro %}
 {% block title %}
@@ -90,6 +92,14 @@
                     <td>
                         Valores inteiros entre <code>0</code> e <code>quantidade</code>
                     </td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>data_devolucao</code>
+                    </td>
+                    <td>DATE</td>
+                    <td>data que o item foi totalmente devolvido</td>
+                    <td>-</td>
                 </tr>
             </tbody>
         </table>
@@ -174,232 +184,3 @@
         {{ result_table("Nenhum item encontrado") }}
     {% endif %}
 {% endblock procurar %}
-{% block inserir %}
-    <h3>Adiciona Items da Reservas</h3>
-    <form class="form-group"
-          role="form"
-          action="{{ url_for(url) }}"
-          method="post">
-        <input type="hidden" name="acao" value="{{ acao }}">
-        {{ gerar_select("reserva", "Selecione a reserva", reservas, "id_reserva", "selector_identification") }}
-        {{ gerar_select("equipamento", "Selecione o equipamento", equipamentos, "id_equipamento", "nome_equipamento") }}
-        <div class="form-group">
-            <label for="quantidade">Quantidade Reservada</label>
-            <input type="number"
-                   class="form-control"
-                   id="quantidade"
-                   name="quantidade"
-                   min="1"
-                   required
-                   placeholder="Informe a quantidade reservada">
-        </div>
-        <div class="form-group">
-            <label for="devolvido">Quantidade Devolvida</label>
-            <input type="number"
-                   class="form-control"
-                   id="devolvido"
-                   name="devolvido"
-                   min="0"
-                   placeholder="Informe a quantidade devolvida">
-            <p class="help-block">Deve ser menor ou igual à quantidade reservada.</p>
-        </div>
-        {{ action_buttons(acao, 1, False, 0) }}
-    </form>
-    <script>
-        const quantidade = document.getElementById('quantidade');
-        const devolvido = document.getElementById('devolvido');
-
-        quantidade.addEventListener('input', function() {
-            let qtd = parseInt(this.value) || 0;
-
-            // garante mínimo 0
-            if (qtd < 0) qtd = 0;
-
-            devolvido.max = qtd;
-
-            // ajusta devolvido se passar do limite
-            if (parseInt(devolvido.value) > qtd) {
-                devolvido.value = qtd;
-            }
-        });
-
-        devolvido.addEventListener('input', function() {
-            let qtd = parseInt(quantidade.value) || 0;
-            let dev = parseInt(this.value) || 0;
-
-            // evita negativo
-            if (dev < 0) this.value = 0;
-
-            // evita maior que quantidade
-            if (dev > qtd) this.value = qtd;
-        });
-    </script>
-{% endblock inserir %}
-{% block editar %}
-    {% if bloco == 0 %}
-        <h3>Editar Items da reserva de equipamentos</h3>
-        <form class="form-group"
-              role="form"
-              action="{{ url_for(url) }}"
-              method="post">
-            <input type="hidden" name="acao" value="{{ acao }}">
-            {{ gerar_select("reservas_equipamentos_items", "Selecione o item", items, "id_item", "selector_identification") }}
-            {{ action_buttons(acao, 1, False, 0) }}
-        </form>
-    {% else %}
-        <h3>Editar Item da reserva</h3>
-        <form class="form-group"
-              role="form"
-              action="{{ url_for(url) }}"
-              method="post">
-            <input type="hidden" name="acao" value="{{ acao }}">
-            <div class="form-group">
-                <label>ID Reserva auditorio</label>
-                <input type="number"
-                       class="form-control"
-                       name="id_item"
-                       value="{{ item.id_item }}"
-                       readonly>
-            </div>
-            {{ gerar_select("reserva", "Selecione a reserva", reservas, "id_reserva", "selector_identification", selected=item.id_reserva) }}
-            {{ gerar_select("equipamento", "Selecione o equipamento", equipamentos, "id_equipamento", "nome_equipamento", selected=item.id_equipamento) }}
-            <div class="form-group">
-                <label for="quantidade">Quantidade Reservada</label>
-                <input type="number"
-                       class="form-control"
-                       id="quantidade"
-                       name="quantidade"
-                       min="1"
-                       required
-                       value="{{ item.quantidade }}"
-                       placeholder="Informe a quantidade reservada">
-            </div>
-            <div class="form-group">
-                <label for="devolvido">Quantidade Devolvida</label>
-                <input type="number"
-                       class="form-control"
-                       id="devolvido"
-                       name="devolvido"
-                       min="0"
-                       value="{{ item.devolvido }}"
-                       placeholder="Informe a quantidade devolvida">
-                <p class="help-block">Deve ser menor ou igual à quantidade reservada.</p>
-            </div>
-            {{ action_buttons(acao, 2, False, 0) }}
-        </form>
-        <script>
-            const quantidade = document.getElementById('quantidade');
-            const devolvido = document.getElementById('devolvido');
-
-            quantidade.addEventListener('input', function() {
-                let qtd = parseInt(this.value) || 0;
-
-                // garante mínimo 0
-                if (qtd < 0) qtd = 0;
-
-                devolvido.max = qtd;
-
-                // ajusta devolvido se passar do limite
-                if (parseInt(devolvido.value) > qtd) {
-                    devolvido.value = qtd;
-                }
-            });
-
-            devolvido.addEventListener('input', function() {
-                let qtd = parseInt(quantidade.value) || 0;
-                let dev = parseInt(this.value) || 0;
-
-                // evita negativo
-                if (dev < 0) this.value = 0;
-
-                // evita maior que quantidade
-                if (dev > qtd) this.value = qtd;
-            });
-        </script>
-    {% endif %}
-{% endblock editar %}
-{% block excluir %}
-    {% if bloco == 0 %}
-        <h3>Excluir Items da reserva de equipamentos</h3>
-        <form class="form-group"
-              role="form"
-              action="{{ url_for(url) }}"
-              method="post">
-            <input type="hidden" name="acao" value="{{ acao }}">
-            {{ gerar_select("reservas_equipamentos_items", "Selecione o item", items, "id_item", "selector_identification") }}
-            {{ action_buttons(acao, 1, False, 0) }}
-        </form>
-    {% else %}
-        <h3>Excluir Item da reserva</h3>
-        <form class="form-group"
-              role="form"
-              action="{{ url_for(url) }}"
-              method="post">
-            <input type="hidden" name="acao" value="{{ acao }}">
-            <div class="form-group">
-                <label>ID Reserva auditorio</label>
-                <input type="number"
-                       class="form-control"
-                       name="id_item"
-                       value="{{ item.id_item }}"
-                       readonly>
-            </div>
-            {{ gerar_select("reserva", "Selecione a reserva", reservas, "id_reserva", "selector_identification", selected=item.id_reserva, extra='disabled') }}
-            {{ gerar_select("equipamento", "Selecione o equipamento", equipamentos, "id_equipamento", "nome_equipamento", selected=item.id_equipamento, extra='disabled') }}
-            <div class="form-group">
-                <label for="quantidade">Quantidade Reservada</label>
-                <input type="number"
-                       class="form-control"
-                       id="quantidade"
-                       name="quantidade"
-                       min="1"
-                       required
-                       value="{{ item.quantidade }}"
-                       placeholder="Informe a quantidade reservada"
-                       disabled>
-            </div>
-            <div class="form-group">
-                <label for="devolvido">Quantidade Devolvida</label>
-                <input type="number"
-                       class="form-control"
-                       id="devolvido"
-                       name="devolvido"
-                       min="0"
-                       value="{{ item.devolvido }}"
-                       placeholder="Informe a quantidade devolvida"
-                       disabled>
-                <p class="help-block">Deve ser menor ou igual à quantidade reservada.</p>
-            </div>
-            {{ action_buttons(acao, 2, False, 0) }}
-        </form>
-        <script>
-            const quantidade = document.getElementById('quantidade');
-            const devolvido = document.getElementById('devolvido');
-
-            quantidade.addEventListener('input', function() {
-                let qtd = parseInt(this.value) || 0;
-
-                // garante mínimo 0
-                if (qtd < 0) qtd = 0;
-
-                devolvido.max = qtd;
-
-                // ajusta devolvido se passar do limite
-                if (parseInt(devolvido.value) > qtd) {
-                    devolvido.value = qtd;
-                }
-            });
-
-            devolvido.addEventListener('input', function() {
-                let qtd = parseInt(quantidade.value) || 0;
-                let dev = parseInt(this.value) || 0;
-
-                // evita negativo
-                if (dev < 0) this.value = 0;
-
-                // evita maior que quantidade
-                if (dev > qtd) this.value = qtd;
-            });
-        </script>
-    {% endif %}
-{% endblock excluir %}

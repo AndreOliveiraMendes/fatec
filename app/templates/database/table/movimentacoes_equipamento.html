@@ -2,7 +2,7 @@
 {% macro result_table(message) %}
     {% call(item) table_base(
         movimentacoes,
-        ['ID','Equipamento','Tipo','Quantidade','Funcionario', 'Resposavel', 'data de registro', 'observacao'],
+        ['ID','Equipamento','Tipo','Quantidade','Funcionario', 'Resposavel', 'data', 'data de registro', 'observacao'],
         id_field='id_movimentacao',
         vertical_actions=False,
         table_class='tabela-crude',
@@ -18,6 +18,7 @@
         <td>{{ item.quantidade }}</td>
         <td>{{ item.funcionario.nome_pessoa }}</td>
         <td>{{ item.responsavel.nome_pessoa|format }}</td>
+        <td>{{ item.data|data }}</td>
         <td>{{ item.data_registro|datahora }}</td>
         <td>{{ item.observacao|format }}</td>
     {% endcall %}
@@ -93,6 +94,14 @@
                     </td>
                     <td>INT</td>
                     <td>Quantidade de equipamentos envolvidos na movimentação.</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>data_registro</code>
+                    </td>
+                    <td>DATE</td>
+                    <td>Data que a movimentação ocorreu</td>
                     <td>-</td>
                 </tr>
                 <tr>
@@ -189,285 +198,3 @@
         {{ result_table("Nenhuma movimentação encontrada.") }}
     {% endif %}
 {% endblock procurar %}
-{% block inserir %}
-    <h3>Inserir registro de movimentação de equipamento</h3>
-    <form class="form-group"
-          role="form"
-          action="{{ url_for(url) }}"
-          method="post">
-        <input type="hidden" name="acao" value="{{ acao }}">
-        {{ gerar_select("id_equipamento", "Selecione o equipamento", equipamentos, "id_equipamento", "nome_equipamento") }}
-        <div class="form-group">
-            <label for="tipo_movimentacao">Tipo de movimentação</label>
-            <select class="form-control"
-                    id="tipo_movimentacao"
-                    name="tipo_movimentacao"
-                    required>
-                <option value="">Selecione o tipo de movimentação</option>
-                {% for tm in TME %}<option value="{{ tm.value }}">{{ tm.value }}</option>{% endfor %}
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="quantidade">Quantidade</label>
-            <input type="number"
-                   class="form-control"
-                   id="quantidade"
-                   name="quantidade"
-                   min="1"
-                   step="1"
-                   required>
-        </div>
-        <div class="form-group">
-            <label for="data_registro">Data do registro</label>
-            <input type="datetime-local"
-                   class="form-control"
-                   id="data_registro"
-                   name="data_registro"
-                   value="{{ now }}"
-                   required>
-        </div>
-        {{ gerar_select("id_funcionario", "Funcionário responsável", pessoas, "id_pessoa", "nome_pessoa", "id_funcionario") }}
-        {{ gerar_select("id_responsavel", "Funcionário responsável", pessoas, "id_pessoa", "nome_pessoa", "id_responsavel", optional=True) }}
-        <div class="form-group">
-            <label for="observacao">Observação</label>
-            <textarea class="form-control"
-                      id="observacao"
-                      name="observacao"
-                      rows="3"
-                      placeholder="Informações adicionais sobre a movimentação"></textarea>
-        </div>
-        {{ action_buttons(acao, 1, False, 0) }}
-    </form>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-
-            const tipo = document.getElementById("tipo_movimentacao");
-            const quantidade = document.getElementById("quantidade");
-
-            function atualizarMin() {
-
-                if (tipo.value === "ajuste") {
-                    quantidade.min = 0;
-                } else {
-                    quantidade.min = 1;
-
-                    if (quantidade.value == 0) {
-                        quantidade.value = 1;
-                    }
-                }
-
-            }
-
-            tipo.addEventListener("change", atualizarMin);
-
-        });
-    </script>
-{% endblock inserir %}
-{% block editar %}
-    {% if bloco == 0 %}
-        <h3>editando movimentacoes</h3>
-        <form class="form-group"
-              role="form"
-              action="{{ url_for(url) }}"
-              method="post">
-            <input type="hidden" name="acao" value="{{ acao }}">
-            {{ gerar_select("id_movimentacao", "Selecione a movimentacao", movimentacoes, "id_movimentacao", "selector_identification") }}
-            {{ action_buttons(acao, 1, False, 0) }}
-        </form>
-    {% else %}
-        <h3>Editando movimentação</h3>
-        <form class="form-group"
-              role="form"
-              action="{{ url_for(url) }}"
-              method="post">
-            <input type="hidden" name="acao" value="{{ acao }}">
-            <div class="form-group">
-                <label for="movimentacao">ID da movimentação</label>
-                <input type="number"
-                       class="form-control"
-                       id="movimentacao"
-                       name="id_movimentacao"
-                       value="{{ movimentacao.id_movimentacao }}"
-                       readonly>
-            </div>
-            {{ gerar_select("id_equipamento", "Selecione o equipamento", equipamentos, "id_equipamento", "nome_equipamento", selected=movimentacao.id_equipamento) }}
-            <div class="form-group">
-                <label for="tipo_movimentacao">Tipo de movimentação</label>
-                <select class="form-control"
-                        id="tipo_movimentacao"
-                        name="tipo_movimentacao"
-                        required>
-                    <option value="">Selecione o tipo de movimentação</option>
-                    {% for tm in TME %}
-                        <option value="{{ tm.value }}"
-                                {% if movimentacao.tipo.value == tm.value %}selected{% endif %}>{{ tm.value }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="quantidade">Quantidade</label>
-                <input type="number"
-                       class="form-control"
-                       id="quantidade"
-                       name="quantidade"
-                       min="1"
-                       step="1"
-                       value="{{ movimentacao.quantidade }}"
-                       required>
-            </div>
-            <div class="form-group">
-                <label for="data_registro">Data do registro</label>
-                <input type="datetime-local"
-                       class="form-control"
-                       id="data_registro"
-                       name="data_registro"
-                       value="{{ movimentacao.data_registro }}">
-                <small class="form-text text-muted">
-                    Se nenhum valor for informado, será assumido o horário e dia da atualização do registro.
-                </small>
-            </div>
-            {{ gerar_select("id_funcionario", "Funcionário responsável", pessoas, "id_pessoa", "nome_pessoa", "id_funcionario", selected=movimentacao.id_funcionario) }}
-            {{ gerar_select("id_responsavel", "Funcionário responsável", pessoas, "id_pessoa", "nome_pessoa", "id_responsavel", selected=movimentacao.id_responsavel, optional=True) }}
-            <div class="form-group">
-                <label for="observacao">Observação</label>
-                <textarea class="form-control"
-                          id="observacao"
-                          name="observacao"
-                          rows="3"
-                          placeholder="Informações adicionais sobre a movimentação">{{ movimentacao.observacao|format(1) }}</textarea>
-            </div>
-            {{ action_buttons(acao, 2, True, 0) }}
-        </form>
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-
-                const tipo = document.getElementById("tipo_movimentacao");
-                const quantidade = document.getElementById("quantidade");
-
-                function atualizarMin() {
-
-                    if (tipo.value === "ajuste") {
-                        quantidade.min = 0;
-                    } else {
-                        quantidade.min = 1;
-
-                        if (quantidade.value == 0) {
-                            quantidade.value = 1;
-                        }
-                    }
-
-                }
-
-                tipo.addEventListener("change", atualizarMin);
-
-                atualizarMin();
-            });
-        </script>
-    {% endif %}
-{% endblock editar %}
-{% block excluir %}
-    {% if bloco == 0 %}
-        <h3>Excluindo movimentacoes</h3>
-        <form class="form-group"
-              role="form"
-              action="{{ url_for(url) }}"
-              method="post">
-            <input type="hidden" name="acao" value="{{ acao }}">
-            {{ gerar_select("id_movimentacao", "Selecione a movimentacao", movimentacoes, "id_movimentacao", "selector_identification") }}
-            {{ action_buttons(acao, 1, False, 0) }}
-        </form>
-    {% else %}
-        <h3>Excluindo movimentação</h3>
-        <form class="form-group"
-              role="form"
-              action="{{ url_for(url) }}"
-              method="post">
-            <input type="hidden" name="acao" value="{{ acao }}">
-            <div class="form-group">
-                <label for="movimentacao">ID da movimentação</label>
-                <input type="number"
-                       class="form-control"
-                       id="movimentacao"
-                       name="id_movimentacao"
-                       value="{{ movimentacao.id_movimentacao }}"
-                       readonly>
-            </div>
-            {{ gerar_select("id_equipamento", "Selecione o equipamento", equipamentos, "id_equipamento", "nome_equipamento", selected=movimentacao.id_equipamento, extra=disabled) }}
-            <div class="form-group">
-                <label for="tipo_movimentacao">Tipo de movimentação</label>
-                <select class="form-control"
-                        id="tipo_movimentacao"
-                        name="tipo_movimentacao"
-                        required
-                        disabled>
-                    <option value="">Selecione o tipo de movimentação</option>
-                    {% for tm in TME %}
-                        <option value="{{ tm.value }}"
-                                {% if movimentacao.tipo.value == tm.value %}selected{% endif %}>{{ tm.value }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="quantidade">Quantidade</label>
-                <input type="number"
-                       class="form-control"
-                       id="quantidade"
-                       name="quantidade"
-                       min="1"
-                       step="1"
-                       value="{{ movimentacao.quantidade }}"
-                       required
-                       disabled>
-            </div>
-            <div class="form-group">
-                <label for="data_registro">Data do registro</label>
-                <input type="datetime-local"
-                       class="form-control"
-                       id="data_registro"
-                       name="data_registro"
-                       value="{{ movimentacao.data_registro }}"
-                       disabled>
-                <small class="form-text text-muted">
-                    Se nenhum valor for informado, será assumido o horário e dia da atualização do registro.
-                </small>
-            </div>
-            {{ gerar_select("id_funcionario", "Funcionário responsável", pessoas, "id_pessoa", "nome_pessoa", "id_funcionario", selected=movimentacao.id_funcionario, extra='disabled') }}
-            {{ gerar_select("id_responsavel", "Funcionário responsável", pessoas, "id_pessoa", "nome_pessoa", "id_responsavel", selected=movimentacao.id_responsavel, optional=True, extra='disabled') }}
-            <div class="form-group">
-                <label for="observacao">Observação</label>
-                <textarea class="form-control"
-                          id="observacao"
-                          name="observacao"
-                          rows="3"
-                          placeholder="Informações adicionais sobre a movimentação"
-                          disabled>{{ movimentacao.observacao|format(1) }}</textarea>
-            </div>
-            {{ action_buttons(acao, 2, True, 0) }}
-        </form>
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-
-                const tipo = document.getElementById("tipo_movimentacao");
-                const quantidade = document.getElementById("quantidade");
-
-                function atualizarMin() {
-
-                    if (tipo.value === "ajuste") {
-                        quantidade.min = 0;
-                    } else {
-                        quantidade.min = 1;
-
-                        if (quantidade.value == 0) {
-                            quantidade.value = 1;
-                        }
-                    }
-
-                }
-
-                tipo.addEventListener("change", atualizarMin);
-
-                atualizarMin();
-            });
-        </script>
-    {% endif %}
-{% endblock excluir %}
