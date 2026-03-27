@@ -1,22 +1,32 @@
-from typing import Any, Callable, Dict, Tuple, Type, TypedDict
+from typing import Any, Callable, Dict, NotRequired, Tuple, Type, TypedDict
 
 from flask import current_app, request
-from sqlalchemy import select
-from sqlalchemy.orm import DeclarativeMeta
-from sqlalchemy.sql.elements import ColumnElement
+from sqlalchemy import ColumnElement, and_, select, true
+from sqlalchemy.orm import InstrumentedAttribute
 
 from app.extensions import db
 from app.models.usuarios import Pessoas, Usuarios_Especiais
 
 
 class SelectModelConfig(TypedDict):
-    model: Type[DeclarativeMeta]
-    id_field: ColumnElement
-    label_field: ColumnElement
+    model: Type[Any]
+    id_field: InstrumentedAttribute[Any]
+    label_field: InstrumentedAttribute[Any]
 
-    q_filter: Tuple[Callable[[Any], Any], type]
+    q_filter: Tuple[Callable[[Any], ColumnElement[Any]], type]
+    filters: NotRequired[Dict[str, Tuple[Callable[[Any], ColumnElement[Any]], type]]]
 
-    filters: Dict[str, Tuple[Callable[[Any], Any], type]]
+def multi_ilike(field, texto):
+    palavras = [p for p in texto.split() if len(p) >= 1]
+    
+    if not palavras:
+        return true()
+    
+    return and_(*[
+        field.ilike(f"%{p}%")
+        for p in palavras   
+    ])
+    
 
 SELECT_MODELS: Dict[str, SelectModelConfig] = {
     "pessoas": {
@@ -26,14 +36,14 @@ SELECT_MODELS: Dict[str, SelectModelConfig] = {
         "q_filter": (lambda n:Pessoas.nome_pessoa.ilike(f"%{n}%"), str),
         "filters":{
             "id_pessoa": (lambda i:Pessoas.id_pessoa == i, int),
-            "nome_pessoa": (lambda n:Pessoas.nome_pessoa.ilike(f"%{n}%"), str)
+            "nome_pessoa": (lambda n:multi_ilike(Pessoas.nome_pessoa, n), str)
         }
     },
     "usuarios_especiais": {
         "model": Usuarios_Especiais,
         "id_field": Usuarios_Especiais.id_usuario_especial,
         "label_field": Usuarios_Especiais.nome_usuario_especial,
-        "q_filter": (lambda n:Usuarios_Especiais.nome_usuario_especial.ilike(f"%{n}%"), str)
+        "q_filter": (lambda n:multi_ilike(Usuarios_Especiais.nome_usuario_especial, n), str)
     }
 }
 
