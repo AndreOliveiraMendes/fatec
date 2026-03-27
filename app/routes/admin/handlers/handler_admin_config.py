@@ -7,9 +7,14 @@ from app.dao.internal.usuarios import get_user
 from app.enums import TipoMovimentacaoEnum
 from app.extensions import db
 from app.models.controle import EquipamentoDisponibilidade
+from app.models.equipamentos import Equipamentos
 from app.models.historicos import MovimentacaoEquipamento
 
 TIPOS_MOVIMENTACAO = {"ajuste", "reposicao", "manutencao"}
+
+def check_equipamento(id):
+    equipamento = db.session.get(Equipamentos, id)
+    return equipamento is not None
 
 def ajuste_quantidade(id, quantidade, reservado, dia, observacao):
     userid = int(session.get('userid'))
@@ -62,3 +67,6 @@ def ajuste_quantidade(id, quantidade, reservado, dia, observacao):
         handle_db_error(e, "Erro ao ajustar o estoque", False)
         return 400, "Erro ao ajustar o estoque"
     return 0, ""
+
+def reposicao_estoque(id, quantidade, reservado, dia, observacao):
+    pass

@@ -508,7 +508,7 @@ def get_reservas_equipamentos_items():
     sel_items = select(Reserva_Equipamento_Item)
     return db.session.execute(sel_items).scalars().all()
 
-def get_quantidade_equipamentos_reservados(id_equipamento=None, stats=None):
+def get_quantidade_equipamentos_reservados(data, id_equipamento=None, stats=None):
     quantidade_restante = case(
         (
             Reserva_Equipamento_Item.devolvido >= Reserva_Equipamento_Item.quantidade,
@@ -528,7 +528,10 @@ def get_quantidade_equipamentos_reservados(id_equipamento=None, stats=None):
             Reservas_Equipamentos,
             Reservas_Equipamentos.id_reserva == Reserva_Equipamento_Item.id_reserva
         )
-        .where(Reservas_Equipamentos.estado.in_(stats))
+        .where(
+            Reservas_Equipamentos.estado.in_(stats),
+            Reservas_Equipamentos.data_reserva <= data
+        )
         .group_by(Reserva_Equipamento_Item.id_equipamento)
     )
 

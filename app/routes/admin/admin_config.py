@@ -15,7 +15,9 @@ from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import admin_required
 from app.enums import TipoAulaEnum
 from app.routes.admin.handlers.handler_admin_config import (TIPOS_MOVIMENTACAO,
-                                                            ajuste_quantidade)
+                                                            ajuste_quantidade,
+                                                            check_equipamento,
+                                                            reposicao_estoque)
 from config.json_related import carregar_config_geral, carregar_painel_config
 
 bp = Blueprint('admin_config', __name__, url_prefix='/admin')
@@ -177,7 +179,9 @@ def get_quantidades_estoque():
 @bp.route("/estoque/reservado")
 @admin_required
 def get_quantidade_reservada():
-    resultado = get_quantidade_equipamentos_reservados()
+    data = request.args.get("data")
+
+    resultado = get_quantidade_equipamentos_reservados(data)
 
     return jsonify(resultado)
 
@@ -211,6 +215,12 @@ def movimentar_estoque():
             "sucesso": False,
             "erro": "Quantidade inválida"
         }), 400
+    
+    if not check_equipamento(id_equipamento):
+        return jsonify({
+            "sucesso": False,
+            "erro": "Equipamento inexistente"
+        }), 400
 
     # 🔹 log (audit trail)
     current_app.logger.info(
@@ -226,8 +236,9 @@ def movimentar_estoque():
             )
 
         elif tipo == "reposicao":
-            # TODO: implementar regra real
-            ret_code, msg = 0, None
+            ret_code, msg = reposicao_estoque(
+                id_equipamento, quantidade, reservado, dia, observacao
+            )
 
         elif tipo == "manutencao":
             # TODO: implementar regra real (ex: validar contra reservado)

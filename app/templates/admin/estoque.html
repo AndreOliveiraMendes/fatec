@@ -161,7 +161,7 @@
                     alert("Erro ao carregar estoque [reservas]");
                 });
 
-            fetch(`${API.reservados}`)
+            fetch(`${API.reservados}?data=${data}`)
                 .then(res => res.json())
                 .then(dados => {
                     document.querySelectorAll(".tabela-estoque tbody tr").forEach(tr => {
