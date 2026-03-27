@@ -39,12 +39,12 @@ def _friendly_db_message(error):
 
     return "Não foi possível concluir a operação."
 
-def handle_db_error(e, msg):
+def handle_db_error(e, msg, show_flash_message=True):
     db.session.rollback()
 
-    user_msg = _friendly_db_message(e)
-
-    flash(f"{msg}: {user_msg}", "danger")
+    if show_flash_message:
+        user_msg = _friendly_db_message(e)
+        flash(f"{msg}: {user_msg}", "danger")
 
     current_app.logger.error("%s | erro=%s", msg, e)
 
