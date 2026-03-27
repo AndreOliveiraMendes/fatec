@@ -21,9 +21,9 @@ class Reservas_Equipamentos(Base):
     id_reserva_responsavel: Mapped[int] = mapped_column(ForeignKey('pessoas.id_pessoa'))
     data_reserva: Mapped[date] = mapped_column(nullable=False)
     criado_em: Mapped[datetime] = mapped_column(default=func.now())
-    cancelado_em: Mapped[datetime | None] = mapped_column(nullable=True, server_onupdate=func.now())
+    cancelado_em: Mapped[datetime | None] = mapped_column(nullable=True)
     cancelado_por_id: Mapped[int | None] = mapped_column(ForeignKey('pessoas.id_pessoa'), nullable=True)
-    concluido_em: Mapped[datetime | None] = mapped_column(nullable=True, server_onupdate=func.now())
+    concluido_em: Mapped[datetime | None] = mapped_column(nullable=True)
     motivo_cancelamento: Mapped[str | None] = mapped_column(Text, nullable=True)
     estado: Mapped[StatusReservaEquipamentoEnum] = mapped_column(
         Enum(StatusReservaEquipamentoEnum),

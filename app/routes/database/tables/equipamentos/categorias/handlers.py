@@ -59,10 +59,12 @@ def search_fetch():
 @register_handler(dispatcher, "inserir", 1)
 def insert_push():
     nome_categoria = none_if_empty(request.form.get('nome_categoria'))
+    codigo = none_if_empty(request.form.get('codigo'))
     descricao = none_if_empty(request.form.get('descricao'))
 
     nova_categoria = Categorias_de_Equipamentos(
         nome_categoria=nome_categoria,
+        codigo = codigo,
         descricao=descricao
     )
 
@@ -93,6 +95,7 @@ def fetch_categoria():
 def edit_push():
     id_categoria = none_if_empty(request.form.get('id_categoria'), int)
     nome_categoria = get_value_or_abort(request.form.get('nome_categoria'), 400, "nome é obrigatorio")
+    codigo = get_value_or_abort(request.form.get('codigo'), 400, "codigo é obrigatorio")
     descricao = none_if_empty(request.form.get('descricao'))
 
     categoria = db.get_or_404(Categorias_de_Equipamentos, id_categoria)
@@ -100,6 +103,7 @@ def edit_push():
 
     def update():
         categoria.nome_categoria = nome_categoria
+        categoria.codigo = codigo
         categoria.descricao = descricao
 
     db_action(

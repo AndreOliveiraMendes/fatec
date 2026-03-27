@@ -45,6 +45,7 @@ class Categorias_de_Equipamentos(Base):
 
     id_categoria: Mapped[int] = mapped_column(primary_key=True)
     nome_categoria: Mapped[str] = mapped_column(String(100), nullable=False)
+    codigo: Mapped[str] = mapped_column(String(10), unique=True, nullable=False, index=True)
     descricao: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
     __table_args__ = (
