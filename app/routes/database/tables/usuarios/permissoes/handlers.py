@@ -168,7 +168,7 @@ def edit_push():
     if id_permissao_usuario == g.userid and flag & perm_critica != perm_critica:
 
         restricted = perm_critica & ~Permission(flag)
-        perms = perms = [p.name for p in Permission if restricted & p]
+        perms = [p.name for p in Permission if restricted & p]
         flash(
             f"Você não pode remover sua própria permissão de {', '.join(perms)}.",
             "danger"

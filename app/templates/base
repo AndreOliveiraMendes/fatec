@@ -59,6 +59,7 @@
                                           {{ perm_icon(FIXA, 'calendar', 'greenyellow', 'Permissão de Reserva Fixa') }}
                                           {{ perm_icon(TEMP, 'time', 'greenyellow', 'Permissão de Reserva Temporária') }}
                                           {{ perm_icon(AUDITORIO, 'bullhorn', 'greenyellow', 'Permissão de Reserva de Auditório') }}
+                                          {{ perm_icon(EQUIPAMENTO, 'hdd', 'greenyellow', 'Permissão de Reserva de Equipamento') }}
                                           {{ perm_icon(ADMIN, 'fire', 'red', 'Permissão de Administrador') }}
                                           {{ perm_icon(CONFIGURAR_COMANDOS, 'console', 'blue', 'Permissão de Configurar Comandos Remotos') }}
                                     </a>
