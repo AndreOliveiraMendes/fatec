@@ -43,6 +43,12 @@
                     <span class="glyphicon glyphicon-bullhorn"></span> Reserva Auditorio
                 </a>
             {% endif %}
+            {% if user and user.perm|has_flag(EQUIPAMENTO) %}
+                <a href="{{ url_for('reserva_equipamento.main_page') }}"
+                   class="btn btn-info">
+                    <span class="glyphicon glyphicon-hdd"></span> Reserva de Equipamento
+                </a>
+            {% endif %}
             <a href="{{ url_for('consultar_reservas.main_page') }}"
                class="btn btn-default">
                 <span class="glyphicon glyphicon-search"></span> Consultar Reservas
