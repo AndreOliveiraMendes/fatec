@@ -122,3 +122,61 @@ def reposicao_estoque(id: int, quantidade: int, dia, observacao):
         handle_db_error(e, "Erro ao repor o estoque", False)
         return 400, "Erro ao repor o estoque"
     return 0, ""
+
+def manutencao_estoque(id_equipamento, quantidade, reservado, dia, observacao):
+    userid = int(session.get('userid'))
+    user = get_user(userid)
+
+    try:
+        quantidade_equipamento = get_unique_or_500(
+            EquipamentoDisponibilidade,
+            EquipamentoDisponibilidade.id_equipamento == id_equipamento,
+            EquipamentoDisponibilidade.data == dia
+        )
+
+        if not quantidade_equipamento:
+            quantidade_old = get_equipamento_disponibilidade_dia(dia, id_equipamento)
+            quantidade_equipamento = EquipamentoDisponibilidade(
+                id_equipamento = id_equipamento,
+                data = dia,
+                quantidade_total = quantidade_old
+            )
+
+        #placehold (change once reservado is implemented)
+        if quantidade_equipamento.quantidade_total < quantidade:
+            raise ValueError("Quantidade total inferior a quantidade em manutenção")
+        
+        quantidade_equipamento.quantidade_total -= quantidade
+
+        movimentacao_equipamento = MovimentacaoEquipamento(
+            id_funcionario = userid,
+            id_equipamento = id_equipamento,
+            data = dia,
+            quantidade = quantidade,
+            tipo = TipoMovimentacaoEnum.MANUTENCAO,
+            observacao = observacao
+        )
+
+        db.session.add(quantidade_equipamento)
+        db.session.add(movimentacao_equipamento)
+        db.session.flush()
+
+        nome = getattr(getattr(user, "pessoa", None), "nome_pessoa", "Usuário desconhecido")
+
+        current_app.logger.info(
+            "Usuário '%s' colocou %s unidades em manutenção, ajustando o estoque para %s unidades do equipamento %s",
+            nome,
+            quantidade,
+            quantidade_equipamento.quantidade_total,
+            quantidade_equipamento.equipamento.nome_equipamento
+        )
+
+        db.session.commit()
+
+    except DB_ERRORS as e:
+        handle_db_error(e, "Erro ao registrar manutenção no estoque", False)
+        return 400, "Erro ao registrar manutenção no estoque"
+    except ValueError as e:
+        handle_db_error(e, "Erro ao registrar manutenção no estoque", False)
+        return 400, "Erro ao registrar manutenção no estoque"
+    return 0, ""

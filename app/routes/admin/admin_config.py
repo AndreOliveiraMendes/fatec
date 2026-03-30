@@ -16,7 +16,7 @@ from app.decorators.decorators import admin_required
 from app.enums import TipoAulaEnum
 from app.routes.admin.handlers.handler_admin_config import (TIPOS_MOVIMENTACAO,
                                                             ajuste_quantidade,
-                                                            check_equipamento,
+                                                            check_equipamento, manutencao_estoque,
                                                             reposicao_estoque)
 from config.json_related import carregar_config_geral, carregar_painel_config
 
@@ -241,8 +241,10 @@ def movimentar_estoque():
             )
 
         elif tipo == "manutencao":
-            # TODO: implementar regra real (ex: validar contra reservado)
-            ret_code, msg = 0, None
+            # TODO: implementação definitiva da manutenção (validando contra reservados)
+            ret_code, msg = manutencao_estoque(
+                id_equipamento, quantidade, reservado, dia, observacao
+            )
 
         else:
             # fallback (não deveria cair aqui)
