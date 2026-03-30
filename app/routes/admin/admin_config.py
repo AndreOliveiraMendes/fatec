@@ -16,7 +16,8 @@ from app.decorators.decorators import admin_required
 from app.enums import TipoAulaEnum
 from app.routes.admin.handlers.handler_admin_config import (TIPOS_MOVIMENTACAO,
                                                             ajuste_quantidade,
-                                                            check_equipamento, manutencao_estoque,
+                                                            check_equipamento,
+                                                            manutencao_estoque,
                                                             reposicao_estoque)
 from config.json_related import carregar_config_geral, carregar_painel_config
 

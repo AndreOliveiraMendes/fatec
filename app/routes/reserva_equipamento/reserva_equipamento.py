@@ -10,7 +10,6 @@ from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import reserva_equipamento_required
 from app.enums import StatusReservaEquipamentoEnum, TipoAulaEnum
 
-
 bp = Blueprint('reserva_equipamento', __name__, url_prefix='/reserva_equipamento')
 
 @bp.route('/')
