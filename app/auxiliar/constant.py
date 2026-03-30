@@ -61,9 +61,10 @@ class Permission(IntFlag):
     RESERVA_FIXA = 1
     RESERVA_TEMPORARIA = 2
     RESERVA_AUDITORIO = 4
-    ADMIN = 8
-    AUTORIZAR = 16
-    CMD_CONFIG = 32
+    RESERVA_EQUIPAMENTO = 8
+    ADMIN = 16
+    AUTORIZAR = 32
+    CMD_CONFIG = 64
 
     def has(self, perm):
         return (self & perm) == perm
@@ -89,6 +90,7 @@ PERM_DESCRIPTIONS = {
     Permission.RESERVA_FIXA: "Permissão de efetuar reservas fixas",
     Permission.RESERVA_TEMPORARIA: "Permissão de efetuar reservas temporárias",
     Permission.RESERVA_AUDITORIO: "Permissão de efetuar reservas de auditório",
+    Permission.RESERVA_EQUIPAMENTO: "Permissão de efetuar reservas de equipamento",
     Permission.ADMIN: "Permissão de administração do sistema",
     Permission.AUTORIZAR: "Permissão de autorizar reservas de auditório",
     Permission.CMD_CONFIG: "Permissão de configurar comandos remotos",
@@ -98,6 +100,7 @@ PERM_LABELS = {
     Permission.RESERVA_FIXA: "Reserva Fixa",
     Permission.RESERVA_TEMPORARIA: "Reserva Temporária",
     Permission.RESERVA_AUDITORIO: "Reserva de Auditório",
+    Permission.RESERVA_EQUIPAMENTO: "Reserva de Equipamento",
     Permission.ADMIN: "Administrador",
     Permission.AUTORIZAR: "Autorizador",
     Permission.CMD_CONFIG: "Configurador",
@@ -109,6 +112,7 @@ PERMISSIONS = {
     "FIXA": Permission.RESERVA_FIXA,
     "TEMP": Permission.RESERVA_TEMPORARIA,
     "AUDITORIO": Permission.RESERVA_AUDITORIO,
+    "EQUIPAMENTO": Permission.RESERVA_EQUIPAMENTO,
     "ADMIN": Permission.ADMIN,
     "AUTORIZAR": Permission.AUTORIZAR,
     "CONFIGURAR_COMANDOS": Permission.CMD_CONFIG,
