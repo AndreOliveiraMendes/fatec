@@ -1,6 +1,7 @@
 from datetime import date
 
-from flask import Blueprint, abort, flash, redirect, render_template, request, session, url_for
+from flask import (Blueprint, abort, flash, redirect, render_template, request,
+                   session, url_for)
 
 from app.auxiliar.constant import DB_ERRORS, Permission
 from app.auxiliar.general import none_if_empty
@@ -12,7 +13,8 @@ from app.dao.internal.usuarios import get_pessoas, get_user
 from app.decorators.decorators import reserva_equipamento_required
 from app.enums import StatusReservaEquipamentoEnum, TipoAulaEnum
 from app.extensions import db
-from app.models.reservas.reservas_equipamentos import Reserva_Equipamento_Item, Reservas_Equipamentos
+from app.models.reservas.reservas_equipamentos import (
+    Reserva_Equipamento_Item, Reservas_Equipamentos)
 
 bp = Blueprint('reserva_equipamento', __name__, url_prefix='/reserva_equipamento')
 
