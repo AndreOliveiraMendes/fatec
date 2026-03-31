@@ -20,7 +20,7 @@ class Reservas_Equipamentos(Base):
     id_reserva_aula: Mapped[int] = mapped_column(ForeignKey('aulas_ativas.id_aula_ativa'), nullable=False)
     id_reserva_responsavel: Mapped[int] = mapped_column(ForeignKey('pessoas.id_pessoa'))
     data_reserva: Mapped[date] = mapped_column(nullable=False)
-    criado_em: Mapped[datetime] = mapped_column(default=func.now())
+    criado_em: Mapped[datetime] = mapped_column(server_default=func.now())
     cancelado_em: Mapped[datetime | None] = mapped_column(nullable=True)
     cancelado_por_id: Mapped[int | None] = mapped_column(ForeignKey('pessoas.id_pessoa'), nullable=True)
     concluido_em: Mapped[datetime | None] = mapped_column(nullable=True)
@@ -65,9 +65,9 @@ class Reserva_Equipamento_Item(Base):
     id_equipamento: Mapped[int] = mapped_column(
         ForeignKey("equipamentos.id_equipamento"), nullable=False
     )
-    quantidade: Mapped[int] = mapped_column(nullable=False, default=1)
-    devolvido: Mapped[int] = mapped_column(nullable=False, default=0)
-    data_devolucao: Mapped[date | None] = mapped_column(nullable=True, default=func.now())
+    quantidade: Mapped[int] = mapped_column(nullable=False, server_default='1')
+    devolvido: Mapped[int] = mapped_column(nullable=False, server_default='0')
+    data_devolucao: Mapped[date | None] = mapped_column(nullable=True)
 
     __table_args__ = (
         UniqueConstraint(
