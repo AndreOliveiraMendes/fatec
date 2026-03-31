@@ -96,7 +96,7 @@
 {% block extra_script %}
     <script>
         const API = {
-            resumo: "{{ url_for('reserva_equipamento.get_resumo') }}"
+            resumo: "{{ url_for('api_estoque.get_resumo') }}"
         };
 
         const select = document.getElementById('aula');

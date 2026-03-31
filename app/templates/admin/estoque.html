@@ -131,9 +131,9 @@
 {% block extra_script %}
     <script>
         const API = {
-            quantidades: "{{ url_for('admin_config.get_quantidades_estoque') }}",
-            reservados: "{{ url_for('admin_config.get_quantidade_reservada') }}",
-            movimentar: "{{ url_for('admin_config.movimentar_estoque') }}"
+            quantidades: "{{ url_for('api_estoque.get_quantidades_estoque') }}",
+            reservados: "{{ url_for('api_estoque.get_quantidade_reservada') }}",
+            movimentar: "{{ url_for('api_estoque.movimentar_estoque') }}"
         };
     </script>
     <script>
