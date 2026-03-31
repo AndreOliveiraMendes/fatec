@@ -58,7 +58,7 @@ def gerenciar_exibicao():
         ["glyphicon-time", "success", "temporaria"]
     ]
     extras['icons'] = icons
-    return render_template("gestão_reservas/exibicao_reserva.html", user=user, **extras)
+    return render_template("gestão_reservas/reservas_laboratorios/exibicao_reserva.html", user=user, **extras)
 
 @bp.route('/exibicao/<int:id_aula>/<int:id_lab>/<data:dia>', methods=['POST'])
 @admin_required
