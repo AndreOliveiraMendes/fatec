@@ -39,24 +39,30 @@ SECOES: dict[str, SecaoGrupo] = {
             Secao('Aulas Ativas', 'database_aulas_ativas.gerenciar_aulas_ativas', 'warning', 'crud'),
             Secao('Reservas Fixas', 'database_reservas_fixas.gerenciar_reservas_fixas', 'warning', 'crud'),
             Secao('Reservas Temporarias', 'database_reservas_temporarias.gerenciar_reservas_temporarias', 'warning', 'crud'),
-            Secao('Reserva de Auditório', 'database_reservas_auditorios.gerenciar_reservas_auditorios', 'warning', 'crud'),
-            Secao('Reserva de Equipamento', 'database_reservas_equipamentos.gerenciar_reservas_equipamentos', 'warning', 'crud')
+            Secao('Reserva de Auditório', 'database_reservas_auditorios.gerenciar_reservas_auditorios', 'warning', 'crud')
         ]
     },
     'Operacional / Configuração':{
         'icon': 'glyphicon glyphicon-cog',
         'secoes': [
             Secao('Situacoes das reservas', 'database_situacoes_das_reservas.gerenciar_situacoes_das_reservas', 'warning', 'crud'),
-            Secao('Exibicao das reservas', 'database_exibicao_reservas.gerenciar_exibicao_reservas', 'warning', 'crud'),
-            Secao('Item da reserva de equipamento', 'database_reservas_equipamentos_items.gerenciar_reservas_equipamentos_items', 'warning', 'crud'),
-            Secao('Quantidade Equipamento', 'database_equipamentos_disponibilidade.gerenciar_equipamentos_disponibilidade', 'warning', 'r')
+            Secao('Exibicao das reservas', 'database_exibicao_reservas.gerenciar_exibicao_reservas', 'warning', 'crud')
         ]
     },
     'Logs / Histórico': {
         'icon': 'glyphicon glyphicon-list-alt',
         'secoes': [
             Secao('Histórico', 'database_historicos.gerenciar_historicos', 'danger', 're'),
-            Secao('Movimentação de Equipamento', 'database_movimentacoes_equipamento.gerenciar_movimentacoes_equipamento', 'warning', 'r'),
+            
+        ]
+    },
+    'Reservas Equipamento': {
+        'icon': 'glyphicon glyphicon-briefcase',
+        'secoes':[
+            Secao('Reserva de Equipamento', 'database_reservas_equipamentos.gerenciar_reservas_equipamentos', 'info', 'r'),
+            Secao('Item da reserva de equipamento', 'database_reservas_equipamentos_items.gerenciar_reservas_equipamentos_items', 'info', 'r'),
+            Secao('Quantidade Equipamento', 'database_equipamentos_disponibilidade.gerenciar_equipamentos_disponibilidade', 'info', 'r'),
+            Secao('Movimentação de Equipamento', 'database_movimentacoes_equipamento.gerenciar_movimentacoes_equipamento', 'info', 'r')
         ]
     }
 }

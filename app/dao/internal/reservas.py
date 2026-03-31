@@ -4,7 +4,7 @@ from typing import Sequence
 
 from flask import (Response, abort, current_app, jsonify, request, session,
                    url_for)
-from sqlalchemy import and_, between, func, select
+from sqlalchemy import and_, between, case, func, select
 from sqlalchemy.exc import IntegrityError, MultipleResultsFound
 from sqlalchemy.sql.elements import ColumnElement
 
@@ -14,7 +14,8 @@ from app.auxiliar.general import none_if_empty
 from app.auxiliar.parsing import parse_date_string
 from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
-from app.enums import FinalidadeReservaEnum, TipoAulaEnum
+from app.enums import (FinalidadeReservaEnum, StatusReservaEquipamentoEnum,
+                       TipoAulaEnum)
 from app.extensions import db
 from app.models.aulas import Aulas, Aulas_Ativas, Semestres, Turnos
 from app.models.locais import Locais
@@ -506,3 +507,42 @@ def get_reservas_equipamentos():
 def get_reservas_equipamentos_items():
     sel_items = select(Reserva_Equipamento_Item)
     return db.session.execute(sel_items).scalars().all()
+
+def get_quantidade_equipamentos_reservados(data, id_equipamento=None, stats=None):
+    quantidade_restante = case(
+        (
+            Reserva_Equipamento_Item.devolvido >= Reserva_Equipamento_Item.quantidade,
+            0
+        ),
+        else_=Reserva_Equipamento_Item.quantidade - Reserva_Equipamento_Item.devolvido
+    )
+    if not stats:
+        stats = [StatusReservaEquipamentoEnum.ATIVA]
+
+    stmt = (
+        select(
+            Reserva_Equipamento_Item.id_equipamento,
+            func.sum(quantidade_restante).label("total")
+        )
+        .join(
+            Reservas_Equipamentos,
+            Reservas_Equipamentos.id_reserva == Reserva_Equipamento_Item.id_reserva
+        )
+        .where(
+            Reservas_Equipamentos.estado.in_(stats),
+            Reservas_Equipamentos.data_reserva <= data
+        )
+        .group_by(Reserva_Equipamento_Item.id_equipamento)
+    )
+
+    if id_equipamento is not None:
+        stmt = stmt.where(
+            Reserva_Equipamento_Item.id_equipamento == id_equipamento
+        )
+
+    result = db.session.execute(stmt).all()
+
+    if id_equipamento is not None:
+        return result[0].total if result else 0
+
+    return {row.id_equipamento: row.total for row in result}

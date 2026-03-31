@@ -75,14 +75,22 @@ def check_login(id, password) -> LoginResult:
                 # Permissoes
                 perm = db.session.get(Permissoes, id_usuario)
                 old_perm = None
+
                 if not perm:
+                    base = Permission.RESERVA_FIXA | Permission.RESERVA_AUDITORIO | Permission.RESERVA_EQUIPAMENTO
+                    extra = Permission(0)
+
                     if user.grupo_pessoa in ['ADMINISTRADOR', 'REDE']:
-                        permission = Permission.RESERVA_FIXA | Permission.RESERVA_TEMPORARIA | Permission.RESERVA_AUDITORIO | Permission.ADMIN
+                        extra = Permission.RESERVA_TEMPORARIA | Permission.ADMIN
                     elif user.grupo_pessoa in ['DOCENTE']:
-                        permission = Permission.RESERVA_FIXA | Permission.RESERVA_AUDITORIO
-                    else:
-                        permission = 0
-                    perm=Permissoes(id_permissao_usuario = id_usuario, permissao = permission)
+                        extra = Permission(0)
+
+                    permission = base | extra
+
+                    perm = Permissoes(
+                        id_permissao_usuario=id_usuario,
+                        permissao=permission
+                    )
                 else:
                     old_perm = copy(perm)
                     

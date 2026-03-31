@@ -1,15 +1,24 @@
 import importlib.resources as resources
 import json
+from datetime import date
 from importlib.resources import as_file
 from pathlib import Path
 
-from flask import (Blueprint, abort, current_app, flash, redirect,
+from flask import (Blueprint, abort, current_app, flash, jsonify, redirect,
                    render_template, request, session, url_for)
 
+from app.dao.internal.controle import get_equipamento_disponibilidade_dia
+from app.dao.internal.equipamentos import get_equipamentos
 from app.dao.internal.locais import get_locais
+from app.dao.internal.reservas import get_quantidade_equipamentos_reservados
 from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import admin_required
 from app.enums import TipoAulaEnum
+from app.routes.admin.handlers.handler_admin_config import (TIPOS_MOVIMENTACAO,
+                                                            ajuste_quantidade,
+                                                            check_equipamento,
+                                                            manutencao_estoque,
+                                                            reposicao_estoque)
 from config.json_related import carregar_config_geral, carregar_painel_config
 
 bp = Blueprint('admin_config', __name__, url_prefix='/admin')
@@ -149,3 +158,115 @@ def configuracao_geral():
             flash("Ocorreu um erro ao salvar a configuração geral. Tente novamente.", "danger")
         return redirect(url_for('default.home'))
     return render_template("admin/control.html", user=user, **extras)
+
+@bp.route("/estoque")
+@admin_required
+def gerenciar_estoque():
+    user = get_user(session.get('userid'))
+    extras = {}
+    extras["equipamentos"] = get_equipamentos(load_categoria=True)
+    extras["data_hoje"] = date.today().isoformat()
+    return render_template("admin/estoque.html", user=user, **extras)
+
+@bp.route("/estoque/quantidades")
+@admin_required
+def get_quantidades_estoque():
+    data = request.args.get("data")
+
+    resultados = get_equipamento_disponibilidade_dia(data)
+
+    return jsonify(resultados)
+
+@bp.route("/estoque/reservado")
+@admin_required
+def get_quantidade_reservada():
+    data = request.args.get("data")
+
+    resultado = get_quantidade_equipamentos_reservados(data)
+
+    return jsonify(resultado)
+
+@bp.route("/estoque/movimentar", methods=["POST"])
+@admin_required
+def movimentar_estoque():
+    data = request.get_json()
+
+    try:
+        id_equipamento = int(data.get("id_equipamento"))
+        tipo = data.get("tipo")
+        quantidade = int(data.get("quantidade"))
+        reservado = int(data.get("reservado"))
+        dia = data.get("data")
+        observacao = data.get("observacao")
+    except (TypeError, ValueError):
+        return jsonify({
+            "sucesso": False,
+            "erro": "Dados inválidos"
+        }), 400
+
+    # 🔹 validações básicas
+    if tipo not in TIPOS_MOVIMENTACAO:
+        return jsonify({
+            "sucesso": False,
+            "erro": "Tipo de movimentação inválido"
+        }), 400
+
+    if quantidade < 0:
+        return jsonify({
+            "sucesso": False,
+            "erro": "Quantidade inválida"
+        }), 400
+    
+    if not check_equipamento(id_equipamento):
+        return jsonify({
+            "sucesso": False,
+            "erro": "Equipamento inexistente"
+        }), 400
+
+    # 🔹 log (audit trail)
+    current_app.logger.info(
+        "Movimentação estoque: eq=%s tipo=%s qtd=%s reservado=%s data=%s obs=%s",
+        id_equipamento, tipo, quantidade, reservado, dia, observacao
+    )
+
+    # 🔹 processamento
+    try:
+        if tipo == "ajuste":
+            ret_code, msg = ajuste_quantidade(
+                id_equipamento, quantidade, reservado, dia, observacao
+            )
+
+        elif tipo == "reposicao":
+            ret_code, msg = reposicao_estoque(
+                id_equipamento, quantidade, dia, observacao
+            )
+
+        elif tipo == "manutencao":
+            # TODO: implementação definitiva da manutenção (validando contra reservados)
+            ret_code, msg = manutencao_estoque(
+                id_equipamento, quantidade, reservado, dia, observacao
+            )
+
+        else:
+            # fallback (não deveria cair aqui)
+            return jsonify({
+                "sucesso": False,
+                "erro": "Tipo inválido"
+            }), 400
+
+        # 🔹 resposta padronizada
+        if ret_code and ret_code > 0:
+            return jsonify({
+                "sucesso": False,
+                "erro": msg
+            }), ret_code
+
+        return jsonify({"sucesso": True})
+
+    except Exception as e:
+        current_app.logger.exception("Erro ao movimentar estoque")
+
+        return jsonify({
+            "sucesso": False,
+            "erro": "Erro interno"
+        }), 500

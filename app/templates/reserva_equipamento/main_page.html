@@ -1,0 +1,156 @@
+{% extends "base-fixed" %}
+{% block title %}
+    Reserva de Equipamento
+{% endblock title %}
+{% block content %}
+    <div class="container reserva-container">
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3 text-center">
+                <form method="get" class="form-inline">
+                    <div class="form-group">
+                        <label for="dia">Escolher dia:</label>
+                        <input type="date"
+                               name="dia"
+                               id="dia"
+                               value="{{ hoje.isoformat() }}"
+                               class="form-control"
+                               onchange="this.form.submit()">
+                    </div>
+                </form>
+                <form method="post" action="" class="form-group">
+                    <input type="hidden" name="dia" value="{{ hoje.isoformat() }}">
+                    <div class="form-group">
+                        <label for="aula">Horário:</label>
+                        <select name="aula" id="aula" class="form-control">
+                            {% for horario in horarios %}
+                                <option value="{{ horario[0].id_aula_ativa }}">
+                                    {{ horario[1].horario_inicio|hora }} - {{ horario[1].horario_fim|hora }}
+                                    ({{ horario[2].nome_semana }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Equipamento</th>
+                                <th>Quantidade</th>
+                                <th>Disponível</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for eq in equipamentos %}
+                                <tr>
+                                    <td>{{ eq.nome_equipamento }}</td>
+                                    <td>
+                                        <input type="number"
+                                               name="qtd[{{ eq.id_equipamento }}]"
+                                               value="0"
+                                               min="0"
+                                               class="form-control input-sm">
+                                    </td>
+                                    <td id="disp_{{ eq.id_equipamento }}">-</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% if user and user.perm|has_flag(ADMIN) %}
+                        <div class="form-group">
+                            <label for="pessoa">Pessoa:</label>
+                            <select name="pessoa" id="pessoa" class="form-control">
+                                {% for pessoa in pessoas %}<option value="{{ pessoa.id_pessoa }}">{{ pessoa.nome_pessoa }}</option>{% endfor %}
+                            </select>
+                        </div>
+                    {% else %}
+                        <div class="form-group">
+                            <label for="pessoa">Pessoa:</label>
+                            <input class="form-control"
+                                   type="text"
+                                   name="pessoa"
+                                   id="pessoa"
+                                   value="{{ user.pessoa.nome_pessoa }}"
+                                   disabled>
+                        </div>
+                    {% endif %}
+                    <button type="submit" class="btn btn-primary">Reservar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+{% block extra_css %}
+    <style>
+        .reserva-container {
+            margin-top: 30px;
+        }
+
+        .table {
+            background-color: #fff;
+        }
+
+        button[type="submit"] {
+            margin-top: 10px;
+        }
+    </style>
+{% endblock extra_css %}
+{% block extra_script %}
+    <script>
+        const API = {
+            resumo: "{{ url_for('reserva_equipamento.get_resumo') }}"
+        };
+
+        const select = document.getElementById('aula');
+        const diaInput = document.getElementById('dia');
+
+        function atualizarDisponibilidade() {
+            const aulaId = select.value;
+            const dia = diaInput.value;
+
+            if (!aulaId || !dia) return;
+
+            fetch(`${API.resumo}?data=${dia}&aula_id=${aulaId}`)
+                .then(res => res.json())
+                .then(dados => {
+
+                    for (const eqId in dados) {
+                        const item = dados[eqId];
+
+                        const el = document.getElementById('disp_' + eqId);
+                        const input = document.querySelector(`input[name="qtd[${eqId}]"]`);
+
+                        if (!item) continue;
+
+                        const disp = item.disponivel;
+                        const pend = item.pendente;
+
+                        // texto mais rico
+                        if (el) {
+                            el.innerHTML = `
+                                ${disp} <br>
+                                <small style="color: orange;">
+                                    pend: ${pend}
+                                </small>
+                            `;
+
+                            if (disp < 0) {
+                                el.style.color = "red";
+                            } else {
+                                el.style.color = "";
+                            }
+                        }
+
+                        if (input) {
+                            input.max = Math.max(disp, 0);
+                            input.disabled = disp <= 0;
+                        }
+                    }
+                })
+                .catch(() => {
+                    console.log("erro ao carregar resumo");
+                });
+        }
+
+        select.addEventListener('change', atualizarDisponibilidade);
+        document.addEventListener("DOMContentLoaded", atualizarDisponibilidade);
+    </script>
+{% endblock extra_script %}

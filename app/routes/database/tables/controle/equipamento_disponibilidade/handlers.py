@@ -1,18 +1,15 @@
-from copy import copy
 
 from flask import flash, g, request
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
-from app.auxiliar.general import get_value_or_abort, none_if_empty
+from app.auxiliar.general import none_if_empty
 from app.auxiliar.navigation import register_return
-from app.auxiliar.parsing import parse_date_string, parse_date_string_or_abort
-from app.dao.internal.controle import get_equipamento_disponibilidades
+from app.auxiliar.parsing import parse_date_string
 from app.dao.internal.equipamentos import get_equipamentos
 from app.decorators.decorators import register_handler
 from app.extensions import db
 from app.models.controle import EquipamentoDisponibilidade
-from app.routes_helper.db_actions import db_action
 from app.routes_helper.request import get_query_params
 from config.general import PER_PAGE
 
@@ -72,91 +69,3 @@ def search_fetch():
             g.url, g.acao, g.extras,
             equipamentos = get_equipamentos()
         )
-
-@register_handler(dispatcher, "inserir", 0)
-def insert_prefetch():
-    g.extras["equipamentos"] = get_equipamentos()
-
-@register_handler(dispatcher, "inserir", 1)
-def insert_push():
-    id_equipamento = none_if_empty(request.form.get('id_equipamento'), int)
-    data = parse_date_string(request.form.get('data'))
-    quantidade_total = none_if_empty(request.form.get('quantidade_total'), int)
-
-    novo_registro_disponibilidade = EquipamentoDisponibilidade(
-        id_equipamento=id_equipamento,
-        data=data,
-        quantidade_total=quantidade_total
-    )
-
-    db_action(
-        "Inserção",
-        "Disponibilidade criada com sucesso",
-        "Erro ao criar disponibilidade",
-        obj=novo_registro_disponibilidade
-    )
-
-    g.redirect_action, g.bloco = register_return(
-        g.url, g.acao, g.extras,
-        equipamentos=get_equipamentos()
-    )
-
-@register_handler(dispatcher, "editar", 0)
-@register_handler(dispatcher, "excluir", 0)
-def fetch_equipamentos_disponibilidades():
-    g.extras['disponibilidades'] = get_equipamento_disponibilidades()
-
-@register_handler(dispatcher, "editar", 1)
-@register_handler(dispatcher, "excluir", 1)
-def fetch_equipamento_disponibilidade():
-    id_disponibilidade = none_if_empty(request.form.get('id_disponibilidade'), int)
-    disponibilidade = db.get_or_404(EquipamentoDisponibilidade, id_disponibilidade)
-    g.extras['disponibilidade'] = disponibilidade
-    g.extras['equipamentos'] = get_equipamentos()
-
-@register_handler(dispatcher, "editar", 2)
-def edit_push():
-    id_disponibilidade = none_if_empty(request.form.get('id_disponibilidade'), int)
-    id_equipamento = get_value_or_abort(request.form.get('id_equipamento'), 400, 'id do equipamento é obrigatorio', int)
-    data = parse_date_string_or_abort(request.form.get('data'), 400, 'data é obrigatoria')
-    quantidade_total = get_value_or_abort(request.form.get('quantidade_total'), 400, 'a quantidade total é obrigatoria', int)
-
-    disponibilidade = db.get_or_404(EquipamentoDisponibilidade, id_disponibilidade)
-    dados_anteriores = copy(disponibilidade)
-
-    def update():
-        disponibilidade.id_equipamento = id_equipamento
-        disponibilidade.data = data
-        disponibilidade.quantidade_total = quantidade_total
-
-    db_action(
-        "Edição",
-        "Disponibilidade editada com sucesso",
-        "Erro ao editar disponilidade",
-        obj=disponibilidade,
-        old_obj=dados_anteriores,
-        action=update
-    )
-
-    g.redirect_action, g.bloco = register_return(
-        g.url, g.acao, g.extras,
-        disponibilidades=get_equipamento_disponibilidades()
-    )
-
-@register_handler(dispatcher, "excluir", 2)
-def delete_push():
-    id_disponibilidade = none_if_empty(request.form.get('id_disponibilidade'), int)
-
-    disponibilidade = db.get_or_404(EquipamentoDisponibilidade, id_disponibilidade)
-
-    db_action(
-        "Exclusão",
-        "Disponibilidade excluida com sucesso",
-        "Erro ao excluir disponibilidade",
-        obj=disponibilidade
-    )
-
-    g.redirect_action, g.bloco = register_return(
-        g.url, g.acao, g.extras,
-        disponibilidades=get_equipamento_disponibilidades()
-    )

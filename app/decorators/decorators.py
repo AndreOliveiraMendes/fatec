@@ -50,6 +50,13 @@ def reserva_auditorio_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+def reserva_equipamento_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        require_permission(Permission.RESERVA_EQUIPAMENTO)
+        return f(*args, **kwargs)
+    return decorated_function
+
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):

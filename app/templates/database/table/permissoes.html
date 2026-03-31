@@ -250,7 +250,7 @@
                                        {% if permissao.permissao|has_flag(flag.value) %}checked{% endif %}
                                        {% if flag.disabled %}disabled{% endif %}>
                                 {% if flag.disabled and permissao.permissao|has_flag(flag.value) %}
-                                    <input type="hidden" name="flag_{{ flag.name }}" value="{{ flag.value }}">
+                                    <input type="hidden" name="flags" value="{{ flag.value }}">
                                 {% endif %}
                                 <label for="flag_{{ flag.name }}" title="{{ flag.description }}">{{ flag.label }}</label>
                             {% endfor %}

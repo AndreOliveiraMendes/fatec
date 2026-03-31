@@ -23,6 +23,7 @@ class Reservas_Equipamentos(Base):
     criado_em: Mapped[datetime] = mapped_column(default=func.now())
     cancelado_em: Mapped[datetime | None] = mapped_column(nullable=True)
     cancelado_por_id: Mapped[int | None] = mapped_column(ForeignKey('pessoas.id_pessoa'), nullable=True)
+    concluido_em: Mapped[datetime | None] = mapped_column(nullable=True)
     motivo_cancelamento: Mapped[str | None] = mapped_column(Text, nullable=True)
     estado: Mapped[StatusReservaEquipamentoEnum] = mapped_column(
         Enum(StatusReservaEquipamentoEnum),
@@ -66,6 +67,7 @@ class Reserva_Equipamento_Item(Base):
     )
     quantidade: Mapped[int] = mapped_column(nullable=False, default=1)
     devolvido: Mapped[int] = mapped_column(nullable=False, default=0)
+    data_devolucao: Mapped[date | None] = mapped_column(nullable=True, default=func.now())
 
     __table_args__ = (
         UniqueConstraint(
