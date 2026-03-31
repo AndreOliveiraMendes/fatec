@@ -1,7 +1,163 @@
 {% extends "base-fixed" %}
 {% block title %}
-Gerenciar reservas de equipamentos
+    Gerenciar reservas de equipamentos
 {% endblock title %}
 {% block content %}
-{{ generate_situacao_head("equipamento") }}
+    {{ generate_situacao_head("equipamento") }}
+    <div class="table-responsive">
+        <table class="table table-bordered tabela-controle">
+            <thead>
+                <tr>
+                    <th>Reserva</th>
+                    <th>Horário</th>
+                    <th>dia</th>
+                    <th>Solicitante</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for reserva in reservas %}
+                    <tr class="linha-reserva" data-id="{{ reserva.id_reserva }}">
+                        <td>{{ reserva.id_reserva }}</td>
+                        <td>{{ reserva.aula_ativa.aula.horario_inicio|hora }} - {{ reserva.aula_ativa.aula.horario_fim|hora }}</td>
+                        <td>{{ reserva.data_reserva|data }}</td>
+                        <td>{{ reserva.responsavel.nome_pessoa }}</td>
+                        <td>
+                            <span class="badge-status status-{{ reserva.estado|lower }}">{{ reserva.estado }}</span>
+                        </td>
+                        <td>
+                            <button class="btn btn-default btn-xs btn-toggle">
+                                <span class="glyphicon glyphicon-chevron-down"></span>
+                            </button>
+                        </td>
+                    </tr>
+                    <!-- 🔽 linha expandida -->
+                    <tr class="linha-detalhe" id="detalhe-{{ reserva.id_reserva }}">
+                        <td colspan="6">
+                            <div class="detalhe-container">
+                                <strong>Equipamentos:</strong>
+                                <ul class="lista-equipamentos">
+                                </ul>
+                                <div class="acoes-detalhe"></div>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% endblock content %}
+{% block extra_css %}
+    <style>
+    .badge-status {
+        display: inline-block;
+        padding: 3px 8px;
+        font-size: 11px;
+        font-weight: 600;
+        border-radius: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    /* 🔵 Pendente */
+    .status-pendente {
+        background-color: #e3f2fd;
+        color: #1565c0;
+    }
+
+    /* 🟢 Ativa */
+    .status-ativa {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+    }
+
+    /* 🔴 Cancelada */
+    .status-cancelada {
+        background-color: #ffebee;
+        color: #c62828;
+    }
+
+    /* ⚫ Concluída */
+    .status-concluida {
+        background-color: #f5f5f5;
+        color: #424242;
+    }
+
+    .linha-reserva {
+        cursor: pointer;
+    }
+
+    .linha-detalhe {
+        background: #fafafa;
+    }
+
+    .detalhe-container {
+        padding: 10px 15px;
+    }
+
+    .lista-equipamentos {
+        margin: 5px 0 10px 0;
+        padding-left: 20px;
+    }
+    </style>
+{% endblock extra_css %}
+{% block extra_script %}
+    <script>
+function carregarDetalhes(id, detalheEl) {
+    const lista = detalheEl.querySelector(".lista-equipamentos");
+    const acoes = detalheEl.querySelector(".acoes-detalhe");
+
+    lista.innerHTML = "Carregando...";
+    acoes.innerHTML = "";
+
+    // TODO: implement actual route
+    fetch(`/api/reserva/${id}/detalhes`)
+        .then(res => res.json())
+        .then(data => {
+            lista.innerHTML = "";
+
+            data.equipamentos.forEach(eq => {
+                const li = document.createElement("li");
+                li.textContent = `${eq.nome} x${eq.quantidade}`;
+                lista.appendChild(li);
+            });
+
+            // ações dinâmicas
+            if (data.estado === "ATIVA") {
+                acoes.innerHTML = `
+                    <button class="btn btn-warning btn-sm">
+                        Gerenciar devolução
+                    </button>
+                `;
+            }
+        })
+        .catch(() => {
+            lista.innerHTML = "Erro ao carregar";
+        });
+}
+
+document.querySelectorAll(".linha-reserva").forEach(tr => {
+    const id = tr.dataset.id;
+    const detalhe = document.getElementById(`detalhe-${id}`);
+    detalhe.style.display = "none";
+
+    tr.addEventListener("click", function (e) {
+
+        if (e.target.closest("button")) return;
+
+        const isVisible = detalhe.style.display === "table-row";
+
+        // fecha todos (opcional)
+        document.querySelectorAll(".linha-detalhe").forEach(el => {
+            el.style.display = "none";
+        });
+
+        if (!isVisible) {
+            detalhe.style.display = "table-row";
+            carregarDetalhes(id, detalhe);
+        }
+    });
+});
+    </script>
+{% endblock extra_script %}
