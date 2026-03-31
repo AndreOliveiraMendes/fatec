@@ -54,6 +54,24 @@
                             {% endfor %}
                         </tbody>
                     </table>
+                    {% if user and user.perm|has_flag(ADMIN) %}
+                        <div class="form-group">
+                            <label for="pessoa">Pessoa:</label>
+                            <select name="pessoa" id="pessoa" class="form-control">
+                                {% for pessoa in pessoas %}<option value="{{ pessoa.id_pessoa }}">{{ pessoa.nome_pessoa }}</option>{% endfor %}
+                            </select>
+                        </div>
+                    {% else %}
+                        <div class="form-group">
+                            <label for="pessoa">Pessoa:</label>
+                            <input class="form-control"
+                                   type="text"
+                                   name="pessoa"
+                                   id="pessoa"
+                                   value="{{ user.pessoa.nome_pessoa }}"
+                                   disabled>
+                        </div>
+                    {% endif %}
                     <button type="submit" class="btn btn-primary">Reservar</button>
                 </form>
             </div>
