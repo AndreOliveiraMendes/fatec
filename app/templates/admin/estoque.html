@@ -10,8 +10,7 @@
              role="alert"
              id="alert-info-estoque">
             <strong>Atenção:</strong>
-            A quantidade pode ser ajustada e será usada como referência ao efetuar a ação (ajuste/reposição ou manutenção).
-            Caso uma quantidade maior de equipamentos seja colocada em manutenção, um erro será retornado.
+            O valor ao lado do campo indica o estoque atual e serve como referência para alterações.
             <button type="button" class="close" data-dismiss="alert" aria-label="Fechar">
                 <span>×</span>
             </button>
@@ -48,9 +47,12 @@
                         <td>{{ eq.nome_equipamento }}</td>
                         <td>{{ eq.categoria.nome_categoria }}</td>
                         <td>
-                            <input type="number"
-                                   class="form-control input-sm input-quantidade"
-                                   placeholder="0">
+                            <div class="input-hint-wrapper">
+                                <input type="number"
+                                       class="form-control input-sm input-quantidade"
+                                       placeholder="0">
+                                <span class="hint-valor"></span>
+                            </div>
                         </td>
                         <td>
                             <input type="number"
@@ -126,6 +128,29 @@
         .btn-group .btn {
             min-width: 34px;
         }
+
+        .alterado {
+            border-color: orange;
+            background: #fff8e1;
+        }
+
+        .input-hint-wrapper {
+            position: relative;
+        }
+
+        .input-hint-wrapper input {
+            padding-right: 45px;
+        }
+
+        .hint-valor {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 11px;
+            color: #999;
+            pointer-events: none;
+        }
     </style>
 {% endblock extra_css %}
 {% block extra_script %}
@@ -153,8 +178,28 @@
                     document.querySelectorAll(".tabela-estoque tbody tr").forEach(tr => {
                         const id = tr.getAttribute("data-id");
                         const input = tr.querySelector(".input-quantidade");
+                        const valor = dados[id] ?? 0;
 
-                        input.value = dados[id] ?? 0;
+                        input.value = valor;
+                        input.dataset.original = valor;
+
+                        const hint = tr.querySelector(".hint-valor");
+                        hint.textContent = valor;
+
+                        if (!input.dataset.listener) {
+                            input.addEventListener("input", () => {
+                                const original = Number(input.dataset.original);
+                                const atual = Number(input.value);
+
+                                if (atual !== original) {
+                                    input.classList.add("alterado");
+                                } else {
+                                    input.classList.remove("alterado");
+                                }
+                            });
+
+                            input.dataset.listener = "true";
+                        }
                     });
                 })
                 .catch(() => {
