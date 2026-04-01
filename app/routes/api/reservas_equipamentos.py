@@ -3,7 +3,8 @@ from flask import Blueprint, jsonify, request
 from app.decorators.decorators import admin_required
 from app.extensions import db
 from app.models.reservas.reservas_equipamentos import Reservas_Equipamentos
-from app.routes.api.handler.handler_reservas_equipamentos import build_detalhes_reserva, cancelar_reserva_equipamento_handler
+from app.routes.api.handler.handler_reservas_equipamentos import (
+    build_detalhes_reserva, cancelar_reserva_equipamento_handler)
 
 bp = Blueprint('api_reservas_equipamentos', __name__, url_prefix='/api/reservas/equipamentos')
 
