@@ -85,7 +85,7 @@
                 <div class="modal-body">
                     <input type="hidden" id="cancelar-id">
                     <div class="form-group">
-                        <label>Motivo do cancelamento</label>
+                        <label for="cancelar-motivo">Motivo do cancelamento</label>
                         <textarea id="cancelar-motivo"
                                   class="form-control"
                                   rows="3"
@@ -94,7 +94,7 @@
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-default" data-dismiss="modal">Fechar</button>
-                    <button class="btn btn-danger" onclick="confirmarCancelamento()">Confirmar cancelamento</button>
+                    <button id="btn-confirmar-acao" class="btn btn-danger" onclick="confirmarCancelamento(event)">Confirmar cancelamento</button>
                 </div>
             </div>
         </div>
@@ -214,13 +214,42 @@
 {% endblock extra_css %}
 {% block extra_script %}
     <script>
-        function abrirModalCancelamento(id) {
+        function abrirModalCancelamento(id, estado) {
             const tr = document.querySelector(`.linha-reserva[data-id="${id}"]`);
             const url = tr.dataset.urlCancelar;
 
-            document.getElementById("cancelar-id").value = id;
-            document.getElementById("modalCancelamento").dataset.url = url;
+            const isPendente = estado === "pendente";
 
+            // 🔥 textos dinâmicos
+            const titulo = isPendente ? "Reprovar reserva" : "Cancelar reserva";
+            const label = isPendente ? "Motivo da reprovação" : "Motivo do cancelamento";
+            const botao = isPendente ? "Confirmar reprovação" : "Confirmar cancelamento";
+            const placeholder = `${label}...`;
+
+            // 🔥 referências do modal (evita query repetido e global)
+            const modal = document.getElementById("modalCancelamento");
+            const textarea = modal.querySelector("#cancelar-motivo");
+            const labelEl = modal.querySelector('label[for="cancelar-motivo"]');
+            const btnConfirmar = modal.querySelector("#btn-confirmar-acao");
+            const tituloEl = modal.querySelector(".modal-title");
+
+            // 🔥 dados
+            document.getElementById("cancelar-id").value = id;
+            modal.dataset.url = url;
+            modal.dataset.acao = isPendente ? "reprovar" : "cancelar";
+
+            // 🔥 aplica textos
+            tituloEl.textContent = titulo;
+            labelEl.textContent = label;
+            textarea.placeholder = placeholder;
+            textarea.value = ""; // limpa conteúdo anterior
+            btnConfirmar.textContent = botao;
+
+            // 🔥 opcional: cor diferente por ação
+            btnConfirmar.classList.toggle("btn-danger", !isPendente);
+            btnConfirmar.classList.toggle("btn-warning", isPendente);
+
+            // 🔥 abre modal
             $("#modalCancelamento").modal("show");
         }
 
@@ -253,19 +282,27 @@
 
                     // ações dinâmicas
                     const estado_reserva = data.estado_reserva.toLowerCase();
-                    acoes.innerHTML = "<div class='btn-group'>";
+                    const container = document.createElement("div");
+                    container.className = "btn-group-sm";
 
-                    if (estado_reserva === "pendente" || estado_reserva === "ativa") {
-                        const text = estado_reserva === "pendente" ? "Reprovar" : "Cancelar";
-                        acoes.innerHTML += `
-                            <button class="btn btn-danger btn-sm"
-                                    onclick="abrirModalCancelamento(${data.id_reserva})">
-                                ${text}
-                            </button>
-                        `;
+                    if (estado_reserva === "pendente") {
+                        const btn = document.createElement("button");
+                        btn.className = "btn btn-success btn-sm";
+                        btn.textContent = "Aprovar";
+                        container.appendChild(btn);
                     }
 
-                    acoes.innerHTML += "</div>";
+                    if (estado_reserva === "pendente" || estado_reserva === "ativa") {
+                        const btn = document.createElement("button");
+                        btn.className = "btn btn-danger btn-sm";
+                        btn.textContent = estado_reserva === "pendente" ? "Reprovar" : "Cancelar";
+                        btn.onclick = () => abrirModalCancelamento(data.id_reserva, estado_reserva);
+
+                        container.appendChild(btn);
+                    }
+
+                    acoes.innerHTML = "";
+                    acoes.appendChild(container);
                 })
                 .catch((e) => {
                     lista.innerHTML = "Erro ao carregar:" + e;
@@ -277,7 +314,8 @@
             carregarDetalhes(url, detalhe);
         }
 
-        function confirmarCancelamento() {
+        function confirmarCancelamento(event) {
+            const btn = event.target;
             const id = document.getElementById("cancelar-id").value;
             const motivo = document.getElementById("cancelar-motivo").value.trim();
 
@@ -289,7 +327,6 @@
             if (!confirm("Tem certeza que deseja cancelar esta reserva?")) return;
 
             const url = document.getElementById("modalCancelamento").dataset.url;
-            const btn = event.target;
             const original = btn.textContent;
             btn.disabled = true;
             btn.textContent = "Cancelando...";
