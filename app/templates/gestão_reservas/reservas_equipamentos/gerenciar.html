@@ -42,7 +42,8 @@
                         {% for reserva in reservas %}
                             <tr class="linha-reserva"
                                 data-id="{{ reserva.id_reserva }}"
-                                data-url="{{ reserva.url_detalhes }}">
+                                data-url_detalhe="{{ reserva.url_detalhes }}"
+                                data-url-cancelar="{{ url_for('api_reservas_equipamentos.cancelar_reserva_equipamento', id_reserva = reserva.id_reserva) }}">
                                 <td>{{ reserva.id_reserva }}</td>
                                 <td>{{ reserva.aula_ativa.aula.horario_inicio|hora }} - {{ reserva.aula_ativa.aula.horario_fim|hora }}</td>
                                 <td>{{ reserva.data_reserva|data }}</td>
@@ -72,6 +73,29 @@
                         {% endfor %}
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="modalCancelamento" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Cancelar reserva</h4>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="cancelar-id">
+                    <div class="form-group">
+                        <label>Motivo do cancelamento</label>
+                        <textarea id="cancelar-motivo"
+                                  class="form-control"
+                                  rows="3"
+                                  placeholder="Descreva o motivo..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-default" data-dismiss="modal">Fechar</button>
+                    <button class="btn btn-danger" onclick="confirmarCancelamento()">Confirmar cancelamento</button>
+                </div>
             </div>
         </div>
     </div>
@@ -190,6 +214,16 @@
 {% endblock extra_css %}
 {% block extra_script %}
     <script>
+        function abrirModalCancelamento(id) {
+            const tr = document.querySelector(`.linha-reserva[data-id="${id}"]`);
+            const url = tr.dataset.urlCancelar;
+
+            document.getElementById("cancelar-id").value = id;
+            document.getElementById("modalCancelamento").dataset.url = url;
+
+            $("#modalCancelamento").modal("show");
+        }
+
         function carregarDetalhes(url, detalheEl) {
             const lista = detalheEl.querySelector(".lista-equipamentos");
             const acoes = detalheEl.querySelector(".acoes-detalhe");
@@ -218,22 +252,20 @@
                     });
 
                     // ações dinâmicas
-                    const estao_reserva = data.estado_reserva.toLowerCase();
-                    acoes.innerHTML = `${estao_reserva}`;
+                    const estado_reserva = data.estado_reserva.toLowerCase();
+                    acoes.innerHTML = "<div class='btn-group'>";
 
-                    if (estao_reserva === "pendente") {
-                        acoes.innerHTML = `
-                            <button class="btn btn-success btn-sm">Aprovar</button>
-                            <button class="btn btn-danger btn-sm">Cancelar</button>
+                    if (estado_reserva === "pendente" || estado_reserva === "ativa") {
+                        const text = estado_reserva === "pendente" ? "Reprovar" : "Cancelar";
+                        acoes.innerHTML += `
+                            <button class="btn btn-danger btn-sm"
+                                    onclick="abrirModalCancelamento(${data.id_reserva})">
+                                ${text}
+                            </button>
                         `;
                     }
 
-                    if (estao_reserva === "ativa") {
-                        acoes.innerHTML = `
-                            <button class="btn btn-warning btn-sm">Gerenciar devolução</button>
-                            <button class="btn btn-danger btn-sm">Cancelar</button>
-                        `;
-                    }
+                    acoes.innerHTML += "</div>";
                 })
                 .catch((e) => {
                     lista.innerHTML = "Erro ao carregar:" + e;
@@ -245,9 +277,45 @@
             carregarDetalhes(url, detalhe);
         }
 
+        function confirmarCancelamento() {
+            const id = document.getElementById("cancelar-id").value;
+            const motivo = document.getElementById("cancelar-motivo").value.trim();
+
+            if (!motivo) {
+                alert("Informe o motivo do cancelamento");
+                return;
+            }
+
+            if (!confirm("Tem certeza que deseja cancelar esta reserva?")) return;
+
+            const url = document.getElementById("modalCancelamento").dataset.url;
+            const btn = event.target;
+            const original = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = "Cancelando...";
+
+            fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ motivo })
+            })
+            .then(res => res.json())
+            .then(() => {
+                $("#modalCancelamento").modal("hide");
+                location.reload();
+            })
+            .catch(err => {
+                alert("Erro ao cancelar: " + err);
+                btn.disabled = false;
+                btn.textContent = original;
+            });
+        }
+
         document.querySelectorAll(".linha-reserva").forEach(tr => {
             const id = tr.dataset.id;
-            const url = tr.dataset.url;
+            const url = tr.dataset.url_detalhe;
             const detalhe = document.getElementById(`detalhe-${id}`);
             detalhe.style.display = "none";
 

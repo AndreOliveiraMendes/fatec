@@ -20,8 +20,8 @@ def gerenciar_reservas_equipamentos():
 
     reservas = get_reservas_equipamentos(reserva_dia)
     for reserva in reservas:
-        url = url_for('api_reservas_equipamentos.detalhes_reserva_equipamento', id_reserva = reserva.id_reserva)
-        reserva.url_detalhes = url
+        reserva.url_detalhes = url_for('api_reservas_equipamentos.detalhes_reserva_equipamento', id_reserva = reserva.id_reserva)
+
     return render_template(
         "gestão_reservas/reservas_equipamentos/gerenciar.html",
         user=user,
