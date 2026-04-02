@@ -267,7 +267,7 @@
     });
 </script>
 {% if user and user.perm|has_flag(ADMIN) %}
-<script src="{{ url_for('static', filename='js/reserva_temporaria_modal.js') }}"></script>
+<script src="{{ url_for('static', filename='js/modals/reserva_temporaria_modal.js') }}"></script>
 <script>
             document.addEventListener('DOMContentLoaded', () => {
                 document.addEventListener("click", function (e) {

@@ -324,6 +324,6 @@
         });
     </script>
     {% if user and user.perm|has_flag(ADMIN) %}
-        <script src="{{ url_for('static', filename='js/reserva_fixa_modal.js') }}"></script>
+        <script src="{{ url_for('static', filename='js/modals/reserva_fixa_modal.js') }}"></script>
     {% endif %}
 {% endblock extra_script %}
