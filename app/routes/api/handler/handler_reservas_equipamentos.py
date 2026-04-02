@@ -71,7 +71,6 @@ def check_cancelamento_permissao(reserva: Reservas_Equipamentos):
     
     return reserva.id_reserva_responsavel == userid
 
-
 def cancelar_reserva_equipamento_handler(reserva: Reservas_Equipamentos, motivo: str):
     if reserva.estado == StatusReservaEquipamentoEnum.CANCELADA:
         current_app.logger.warning(
@@ -86,7 +85,7 @@ def cancelar_reserva_equipamento_handler(reserva: Reservas_Equipamentos, motivo:
         return 400, 'Reserva já concluída, não pode ser cancelada'
     
     try:
-        userid = int(session.get('userid'))
+        userid = session.get('userid')
 
         reserva.estado = StatusReservaEquipamentoEnum.CANCELADA
         reserva.motivo_cancelamento = motivo
@@ -103,15 +102,36 @@ def cancelar_reserva_equipamento_handler(reserva: Reservas_Equipamentos, motivo:
 
         return 200, 'ok'
 
-    except DB_ERRORS:
-        current_app.logger.exception(
-            f"Erro ao cancelar reserva | reserva_id={reserva.id_reserva}"
-        )
+    except DB_ERRORS as e:
+        handle_db_error(e, "Erro ao cancelar reserva de equipamento", show_flash_message=False)
         return 500, 'Erro interno ao cancelar reserva de equipamento'
 
-    except (ValueError, TypeError):
-        current_app.logger.warning(
-            f"ID de usuário inválido ao cancelar reserva | reserva_id={reserva.id_reserva}"
-        )
+    except (ValueError, TypeError) as e:
+        handle_db_error(e, "Erro ao cancelar reserva de equipamento", show_flash_message=False)
         return 400, 'ID de usuário inválido'
     
+def aprovar_reserva_equipamento_handler(reserva: Reservas_Equipamentos):
+    if reserva.estado != StatusReservaEquipamentoEnum.PENDENTE:
+        current_app.logger.warning(
+            f"Tentativa de aprovar reserva não pendente | reserva_id={reserva.id_reserva} estado_atual={reserva.estado}"
+        )
+        return 400, 'Apenas reservas pendentes podem ser aprovadas'
+    
+    try:
+        userid = session.get('userid')
+
+        reserva.estado = StatusReservaEquipamentoEnum.ATIVA
+
+        db.session.add(reserva)
+        db.session.commit()
+
+        current_app.logger.info(
+            f"Reserva aprovada | reserva_id={reserva.id_reserva} "
+            f"usuario_id={userid}"
+        )
+
+        return 200, 'ok'
+    
+    except DB_ERRORS as e:
+        handle_db_error(e, "Erro ao aprovar reserva de equipamento", show_flash_message=False)
+        return 500, 'Erro interno ao aprovar reserva de equipamento'
