@@ -3,5 +3,75 @@
     Archive
 {% endblock title %}
 {% block content %}
-WIP
+    <div class="container">
+        <h3>Arquivamento de Históricos</h3>
+        <hr>
+        <div id="alert-area"></div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <strong>Por Semestre</strong>
+                    </div>
+                    <div class="panel-body">
+                        <p>Arquiva todos os semestres já finalizados.</p>
+                        <button id="btn-semestre" class="btn btn-primary">Arquivar por semestre</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <strong>Ano anterior</strong>
+                    </div>
+                    <div class="panel-body">
+                        <p>Arquiva todos os registros do ano passado.</p>
+                        <button id="btn-ano" class="btn btn-warning">Arquivar ano anterior</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock content %}
+{% block extra_script %}
+    <script>
+$(document).ready(function() {
+    const URL_SEMESTRE = "{{ url_for('admin_archive.archive_semestre') }}";
+    const URL_ANO = "{{ url_for('admin_archive.archive_ano') }}";
+
+
+    $("#btn-semestre").click(function() {
+        let btn = $(this);
+        setLoading(btn, true);
+
+        $.post(URL_SEMESTRE)
+            .done(function(res) {
+                showAlert(res.message, "success");
+            })
+            .fail(function() {
+                showAlert("Erro ao arquivar por semestre.", "danger");
+            })
+            .always(function() {
+                setLoading(btn, false);
+            });
+    });
+
+    
+    $("#btn-ano").click(function() {
+        let btn = $(this);
+        setLoading(btn, true);
+
+        $.post(URL_ANO)
+            .done(function(res) {
+                showAlert(res.message, "success");
+            })
+            .fail(function() {
+                showAlert("Erro ao arquivar ano anterior.", "danger");
+            })
+            .always(function() {
+                setLoading(btn, false);
+            });
+    });
+});
+    </script>
+{% endblock extra_script %}
