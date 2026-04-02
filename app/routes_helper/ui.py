@@ -57,9 +57,11 @@ def montar_partes_reserva(choose, *, mostrar_icone=False, lab=None, aula=None, d
         return ["Livre"]
 
     if choose.finalidade_reserva == FinalidadeReservaEnum.CURSO:
-        partes = ["Curso"]
+        
         if choose.descricao:
-            partes.append(choose.descricao)
+            partes = [choose.descricao]
+        else:
+            partes = ["Curso"]
 
     elif choose.finalidade_reserva == FinalidadeReservaEnum.USO_DOS_ALUNOS:
         partes = ["Acadêmico", "Discente", "Reservado"]

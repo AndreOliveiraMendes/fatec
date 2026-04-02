@@ -90,7 +90,7 @@ input[disabled] {
 .tabela-reserva-tv th,
 .tabela-reserva-tv td {
     text-align: center;
-    max-height: 50px;
+    /* max-height: 50px; */
     vertical-align: middle;
     overflow: hidden;
     white-space: nowrap;
@@ -100,6 +100,14 @@ input[disabled] {
 .tabela-reserva-tv thead th {
     background-color: #c00;
     color: #ffffff;
+}
+
+.tabela-reserva-tv tbody td {
+    white-space: normal;        /* permite quebrar linha */
+    overflow: hidden;
+    text-overflow: unset;       /* remove o ... */
+    word-break: break-word;     /* quebra palavras grandes */
+    overflow-wrap: anywhere;
 }
 
 td.fixa {
