@@ -27,13 +27,13 @@ def _current_user():
         abort(403, description="Usuário não autenticado.")
     return userid, user
 
-def _get_semestre_or_403(id_semestre, userid, perm):
+def _get_semestre_or_403(id_semestre, userid, perm: Permission):
     semestre = db.get_or_404(Semestres, id_semestre)
     _check_semestre(semestre, userid, perm)
     return semestre
 
-def _check_semestre(semestre, userid, perm):
-    if perm & Permission.ADMIN:
+def _check_semestre(semestre, userid, perm: Permission):
+    if perm.has(Permission.ADMIN):
         return
 
     today = date.today()

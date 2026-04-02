@@ -15,8 +15,8 @@ def get_query_params(request):
 def get_session_or_request(request, session, key, default=None):
     return session.pop(key, request.form.get(key, default))
 
-def check_local(local: Locais, perm):
-    if perm & Permission.ADMIN > 0:
+def check_local(local: Locais, perm:Permission):
+    if perm.has(Permission.ADMIN):
         return
     if local.disponibilidade.value == 'Indisponivel':
         abort(403, description="Local indisponível para reservas.")

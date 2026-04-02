@@ -17,7 +17,7 @@ def check_own_reserva(reserva:Reservas_Auditorios, user:Usuarios):
 def check_role(user:Usuarios, action:Literal['CR', 'AR']):
     if action == 'CR' and not user.perm.has(Permission.ADMIN):
         abort(403, description="Acesso negado à atualização de reservas.")
-    elif action == 'AR' and not user.perm.has(Permission.ADMIN|Permission.AUTORIZAR):
+    elif action == 'AR' and not user.perm.has_any(Permission.ADMIN|Permission.AUTORIZAR):
         abort(403, description="Acesso negado à autorização de reservas.")
 
 def check_unique_aprovada(reserva:Reservas_Auditorios):

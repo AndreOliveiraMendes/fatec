@@ -77,6 +77,9 @@ class Permission(IntFlag):
 
     def remove(self, perm):
         return self & ~perm
+    
+    def list_permissions(self):
+        return [perm for perm in Permission if self.has(perm)]
 
     @property
     def description(self):
