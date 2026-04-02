@@ -42,7 +42,7 @@
             </div>
         </div>
         <!-- PREVIEW -->
-        <div id="preview-box" class="well" style="display:none;">
+        <div id="preview-box" class="well">
             <h4>Pré-visualização</h4>
             <pre id="preview-content"></pre>
         </div>
@@ -92,7 +92,8 @@ $(function() {
         exec_ano: "{{ url_for('admin_archive.archive_ano') }}"
     };
 
-    let lastType = null;
+    const PREVIEW_TIMEOUT = 2 * 60 * 1000; // 2 minutos
+    let previewTimers = {};
 
     // ================= PREVIEW =================
     $(".btn-preview").click(function() {
@@ -108,10 +109,27 @@ $(function() {
                 $("#preview-box").show();
                 $("#preview-content").text(res.message);
 
-                lastType = type;
+                let execBtn = $('.btn-exec[data-type="'+type+'"]');
 
-                // habilita botão executar correspondente
-                $('.btn-exec[data-type="'+type+'"]').prop("disabled", false);
+                // habilita
+                execBtn.prop("disabled", false);
+
+                // limpa timer anterior (se existir)
+                if (previewTimers[type]) {
+                    clearTimeout(previewTimers[type]);
+                }
+
+                // cria novo timer
+                previewTimers[type] = setTimeout(function() {
+                    execBtn.prop("disabled", true);
+
+                    showAlert(
+                        "A pré-visualização expirou. Clique em 'Ver dados' novamente.",
+                        "warning"
+                    );
+                }, PREVIEW_TIMEOUT);
+
+                showAlert("Pré-visualização válida por 2 minutos.", "info", 3000);
             })
             .fail(function() {
                 showAlert("Erro ao gerar prévia.", "danger");
@@ -127,6 +145,11 @@ $(function() {
         let btn = $(this);
 
         if (!confirm("Tem certeza que deseja arquivar?")) return;
+
+        // limpa expiração
+        if (previewTimers[type]) {
+            clearTimeout(previewTimers[type]);
+        }
 
         setLoading(btn, true);
 
@@ -146,6 +169,8 @@ $(function() {
                 setLoading(btn, false);
             });
     });
+
+    $("#preview-box").hide();
 
 });
     </script>
