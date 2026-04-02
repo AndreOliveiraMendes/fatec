@@ -1,77 +1,152 @@
 {% extends "base-fixed" %}
-{% block title %}
-    Archive
-{% endblock title %}
+{% block title %}Archive{% endblock title %}
 {% block content %}
     <div class="container">
         <h3>Arquivamento de Históricos</h3>
         <hr>
         <div id="alert-area"></div>
         <div class="row">
+            <!-- ================= ARQUIVAR ================= -->
             <div class="col-md-6">
-                <div class="panel panel-default">
+                <div class="panel panel-primary">
                     <div class="panel-heading">
-                        <strong>Por Semestre</strong>
+                        <strong>Arquivar</strong>
                     </div>
                     <div class="panel-body">
-                        <p>Arquiva todos os semestres já finalizados.</p>
-                        <button id="btn-semestre" class="btn btn-primary">Arquivar por semestre</button>
+                        <!-- SEMESTRE -->
+                        <h4>Por semestre</h4>
+                        <p>Arquiva todos os semestres finalizados.</p>
+                        <button class="btn btn-default btn-preview" data-type="semestre">Ver dados</button>
+                        <button class="btn btn-primary btn-exec" data-type="semestre" disabled>Executar</button>
+                        <hr>
+                        <!-- ANO -->
+                        <h4>Ano anterior</h4>
+                        <p>Arquiva registros do ano passado.</p>
+                        <button class="btn btn-default btn-preview" data-type="ano">Ver dados</button>
+                        <button class="btn btn-warning btn-exec" data-type="ano" disabled>Executar</button>
                     </div>
                 </div>
             </div>
+            <!-- ================= VISUALIZAR ================= -->
             <div class="col-md-6">
-                <div class="panel panel-default">
+                <div class="panel panel-info">
                     <div class="panel-heading">
-                        <strong>Ano anterior</strong>
+                        <strong>Arquivos Gerados</strong>
                     </div>
                     <div class="panel-body">
-                        <p>Arquiva todos os registros do ano passado.</p>
-                        <button id="btn-ano" class="btn btn-warning">Arquivar ano anterior</button>
+                        <p>(Em breve)</p>
+                        <button class="btn btn-default" disabled>Listar arquivos</button>
+                        <button class="btn btn-default" disabled>Baixar</button>
                     </div>
                 </div>
             </div>
+        </div>
+        <!-- PREVIEW -->
+        <div id="preview-box" class="well" style="display:none;">
+            <h4>Pré-visualização</h4>
+            <pre id="preview-content"></pre>
         </div>
     </div>
 {% endblock content %}
 {% block extra_script %}
     <script>
-$(document).ready(function() {
-    const URL_SEMESTRE = "{{ url_for('admin_archive.archive_semestre') }}";
-    const URL_ANO = "{{ url_for('admin_archive.archive_ano') }}";
+$(function() {
 
+    function setLoading(btn, isLoading) {
+        if (isLoading) {
+            btn.data("original-text", btn.html());
+            btn.prop("disabled", true);
+            btn.html('<i class="glyphicon glyphicon-refresh glyphicon-spin"></i> Processando...');
+        } else {
+            btn.prop("disabled", false);
+            btn.html(btn.data("original-text"));
+        }
+    }
 
-    $("#btn-semestre").click(function() {
+    function showAlert(message, type="info", timeout=5000) {
+        const alertHtml = `
+            <div class="alert alert-${type} alert-dismissible fade in" role="alert">
+                <button type="button" class="close" data-dismiss="alert">
+                    &times;
+                </button>
+                ${message}
+            </div>
+        `;
+
+        const $alert = $(alertHtml);
+
+        $("#alert-area").append($alert);
+
+        // auto remover depois de X ms
+        if (timeout) {
+            setTimeout(function() {
+                $alert.alert('close');
+            }, timeout);
+        }
+    }
+
+    const URLS = {
+        preview_semestre: "{{ url_for('admin_archive.preview_semestre_route') }}",
+        preview_ano: "{{ url_for('admin_archive.preview_ano_route') }}",
+        exec_semestre: "{{ url_for('admin_archive.archive_semestre') }}",
+        exec_ano: "{{ url_for('admin_archive.archive_ano') }}"
+    };
+
+    let lastType = null;
+
+    // ================= PREVIEW =================
+    $(".btn-preview").click(function() {
+        let type = $(this).data("type");
         let btn = $(this);
+
         setLoading(btn, true);
 
-        $.post(URL_SEMESTRE)
+        let url = (type === "semestre") ? URLS.preview_semestre : URLS.preview_ano;
+
+        $.post(url)
             .done(function(res) {
-                showAlert(res.message, "success");
+                $("#preview-box").show();
+                $("#preview-content").text(res.message);
+
+                lastType = type;
+
+                // habilita botão executar correspondente
+                $('.btn-exec[data-type="'+type+'"]').prop("disabled", false);
             })
             .fail(function() {
-                showAlert("Erro ao arquivar por semestre.", "danger");
+                showAlert("Erro ao gerar prévia.", "danger");
             })
             .always(function() {
                 setLoading(btn, false);
             });
     });
 
-    
-    $("#btn-ano").click(function() {
+    // ================= EXEC =================
+    $(".btn-exec").click(function() {
+        let type = $(this).data("type");
         let btn = $(this);
+
+        if (!confirm("Tem certeza que deseja arquivar?")) return;
+
         setLoading(btn, true);
 
-        $.post(URL_ANO)
+        let url = (type === "semestre") ? URLS.exec_semestre : URLS.exec_ano;
+
+        $.post(url)
             .done(function(res) {
                 showAlert(res.message, "success");
+
+                $("#preview-box").hide();
+                $(".btn-exec").prop("disabled", true);
             })
             .fail(function() {
-                showAlert("Erro ao arquivar ano anterior.", "danger");
+                showAlert("Erro ao arquivar.", "danger");
             })
             .always(function() {
                 setLoading(btn, false);
             });
     });
+
 });
     </script>
 {% endblock extra_script %}

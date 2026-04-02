@@ -2,30 +2,29 @@ import json
 import os
 from datetime import date, datetime
 
-from sqlalchemy import extract, select
+from sqlalchemy import delete, extract, select
 
 from app.extensions import db
 from app.models.aulas import Semestres
 from app.models.historicos import Historicos
 
 
+from sqlalchemy import delete
+
 def archive_last_year_historicos():
     current_year = datetime.now().year
     last_year = current_year - 1
 
-    # 1. Select apenas do ano anterior
     stmt = select(Historicos).where(
         extract('year', Historicos.data_hora) == last_year
     )
 
-    historicos = db.session.execute(stmt).scalars().all()
+    result = db.session.execute(stmt).scalars()
 
-    if not historicos:
-        return "Nada para arquivar."
-
-    # 2. Converter para dict
     data = []
-    for h in historicos:
+    count = 0
+
+    for h in result:
         data.append({
             "id_historico": h.id_historico,
             "id_usuario": h.id_usuario,
@@ -37,32 +36,35 @@ def archive_last_year_historicos():
             "observacao": h.observacao,
             "origem": h.origem
         })
+        count += 1
 
-    # 3. Salvar JSON
+    if count == 0:
+        return "Nada para arquivar."
+
     archive_dir = os.path.join(os.getcwd(), "archive")
     os.makedirs(archive_dir, exist_ok=True)
 
-    filename = f"historicos_{last_year}.json"
-    filepath = os.path.join(archive_dir, filename)
+    filepath = os.path.join(archive_dir, f"historicos_{last_year}.json")
 
     with open(filepath, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
 
-    # 4. Deletar apenas registros do ano anterior
+    # DELETE moderno
     db.session.execute(
-        Historicos.__table__.delete().where(
+        delete(Historicos).where(
             extract('year', Historicos.data_hora) == last_year
         )
     )
 
     db.session.commit()
 
-    return f"Arquivado {last_year} e removido da tabela."
+    return f"{count} registros do ano {last_year} arquivados."
+
+from sqlalchemy import delete
 
 def archive_by_semestre():
     today = date.today()
 
-    # 1. Buscar semestres já finalizados
     semestres = db.session.execute(
         select(Semestres).where(Semestres.data_fim < today)
     ).scalars().all()
@@ -79,20 +81,17 @@ def archive_by_semestre():
         start = semestre.data_inicio
         end = semestre.data_fim
 
-        # 2. Buscar históricos desse semestre
-        historicos = db.session.execute(
-            select(Historicos).where(
-                Historicos.data_hora >= start,
-                Historicos.data_hora <= end
-            )
-        ).scalars().all()
+        stmt = select(Historicos).where(
+            Historicos.data_hora >= start,
+            Historicos.data_hora <= end
+        )
 
-        if not historicos:
-            continue
+        result = db.session.execute(stmt).scalars()
 
-        # 3. Converter
         data = []
-        for h in historicos:
+        count = 0
+
+        for h in result:
             data.append({
                 "id_historico": h.id_historico,
                 "id_usuario": h.id_usuario,
@@ -104,25 +103,70 @@ def archive_by_semestre():
                 "observacao": h.observacao,
                 "origem": h.origem
             })
+            count += 1
 
-        # 4. Nome do arquivo (seguro)
+        if count == 0:
+            continue
+
         nome_arquivo = f"historicos_{semestre.nome_semestre.replace(' ', '_')}.json"
         filepath = os.path.join(archive_dir, nome_arquivo)
 
-        # 5. Salvar
         with open(filepath, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=4)
 
-        # 6. Deletar esses registros
+        # DELETE moderno
         db.session.execute(
-            Historicos.__table__.delete().where(
+            delete(Historicos).where(
                 Historicos.data_hora >= start,
                 Historicos.data_hora <= end
             )
         )
 
-        total_arquivados += len(data)
+        total_arquivados += count
 
     db.session.commit()
 
     return f"{total_arquivados} registros arquivados por semestre."
+
+def preview_last_year():
+    current_year = datetime.now().year
+    last_year = current_year - 1
+
+    count = db.session.execute(
+        select(Historicos).where(
+            extract('year', Historicos.data_hora) == last_year
+        )
+    ).scalars().all()
+
+    total = len(count)
+
+    return f"Ano: {last_year}\nRegistros encontrados: {total}"
+
+def preview_semestre():
+    today = date.today()
+
+    semestres = db.session.execute(
+        select(Semestres).where(Semestres.data_fim < today)
+    ).scalars().all()
+
+    total = 0
+    detalhes = []
+
+    for s in semestres:
+        count = db.session.execute(
+            select(Historicos).where(
+                Historicos.data_hora >= s.data_inicio,
+                Historicos.data_hora <= s.data_fim
+            )
+        ).scalars().all()
+
+        qtd = len(count)
+
+        if qtd > 0:
+            detalhes.append(f"{s.nome_semestre}: {qtd}")
+            total += qtd
+
+    if total == 0:
+        return "Nenhum dado para arquivar."
+
+    return "Total: {}\n\n{}".format(total, "\n".join(detalhes))
