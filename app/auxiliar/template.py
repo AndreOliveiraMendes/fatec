@@ -244,14 +244,17 @@ def register_template_utils(app:Flask):
         html_parts: List[str] = ['<div class="pills-group"><ul class="nav nav-pills">']
         
         for builder in situacoes_helper:
-            state = builder.get('state')
+            key = builder.get('key')
+            enabled = builder.get('enabled', True)
+            if not enabled and current != key:
+                continue
             url_path = builder.get('url_path', 'default.under_dev_page')
-            label = builder.get('label', state)
+            label = builder.get('label', key)
             params = builder.get('param', {})
             url = url_for(url_path, **params)
             
-            active_class = 'active' if current == state else ''
-            disabled_class = 'disabled_a_click' if current == state else ''
+            active_class = 'active' if current == key else ''
+            disabled_class = 'disabled_a_click' if current == key else ''
             
             html_parts.append(f'<li role="presentation" class="{active_class}">')
             html_parts.append(f'<a href="{url}" class="{disabled_class}">{label}</a>')

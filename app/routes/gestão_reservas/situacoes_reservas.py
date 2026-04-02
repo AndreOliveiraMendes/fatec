@@ -91,7 +91,7 @@ def gerenciar_situacoes():
     for r in reservas:
         r['cat'] = list(zip(r["horarios"], r["tipo"]))
     extras['reservas'] = reservas     
-    return render_template("gestão_reservas/situacoes_reservas.html", user=user, **extras)
+    return render_template("gestão_reservas/reservas_laboratorios/situacoes_reservas.html", user=user, **extras)
 
 @bp.route("/atualizar", methods=["POST"])
 @admin_required

@@ -11,4 +11,4 @@ bp = Blueprint('comandos_remotos', __name__, url_prefix="/situacoes_reservas")
 def comandos_remotos():
     userid = session.get('userid')
     user = get_user(userid)
-    return render_template("gestão_reservas/remote_commands.html", user=user)
+    return render_template("gestão_reservas/reservas_laboratorios/remote_commands.html", user=user)

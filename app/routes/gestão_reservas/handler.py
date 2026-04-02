@@ -147,7 +147,7 @@ def gerenciar_situacoes_reservas_fixas(extras):
                 reservas.append(reserva)
             reserva['situacao'] = get_situacoes_por_dia(reserva['horarios'][0], reserva['local'], extras['reserva_dia'], 'fixa')
     extras['reservas'] = reservas
-    return render_template("gestão_reservas/status_fixas.html", user=user, **extras)
+    return render_template("gestão_reservas/reservas_laboratorios/status_fixas.html", user=user, **extras)
 
 def gerenciar_situacoes_reservas_temporarias(extras):
     userid = session.get('userid')
@@ -173,7 +173,7 @@ def gerenciar_situacoes_reservas_temporarias(extras):
             reservas.append(reserva)
         reserva['situacao'] = get_situacoes_por_dia(reserva['horarios'][0], reserva['local'], extras['reserva_dia'], 'temporaria')
     extras['reservas'] = reservas
-    return render_template("gestão_reservas/status_temporarias.html", user=user, **extras)
+    return render_template("gestão_reservas/reservas_laboratorios/status_temporarias.html", user=user, **extras)
 
 def atualizar_situacoes_fixa(common):
     userid = common.get('userid')

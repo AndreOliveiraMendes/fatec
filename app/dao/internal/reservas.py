@@ -500,8 +500,12 @@ def check_conflict_reservas_fixas(dia, id_aula, id_responsavel):
             "labs": labs
         }
 
-def get_reservas_equipamentos():
+def get_reservas_equipamentos(dia = None):
     sel_reservas = select(Reservas_Equipamentos)
+    if dia:
+        sel_reservas = sel_reservas.where(
+            Reservas_Equipamentos.data_reserva == dia
+        )
     return db.session.execute(sel_reservas).scalars().all()
 
 def get_reservas_equipamentos_items():
