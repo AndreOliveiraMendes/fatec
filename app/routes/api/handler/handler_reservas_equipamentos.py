@@ -3,8 +3,9 @@ from datetime import datetime
 from flask import current_app, session
 from sqlalchemy import select
 
-from app.auxiliar.constant import DB_ERRORS
+from app.auxiliar.constant import DB_ERRORS, Permission
 from app.dao.internal.general import handle_db_error
+from app.dao.internal.usuarios import get_user
 from app.enums import StatusReservaEquipamentoEnum
 from app.extensions import db
 from app.models.equipamentos import Equipamentos
@@ -56,7 +57,22 @@ def build_detalhes_reserva(reserva: Reservas_Equipamentos):
 
     return res
 
-def cancelar_reserva_equipamento_handler(reserva, motivo: str):
+def check_cancelamento_permissao(reserva: Reservas_Equipamentos):
+    userid = session.get('userid')
+    if not userid:
+        return False
+    
+    user = get_user(userid)
+    if not user:
+        return False
+    
+    if user.perm.has(Permission.ADMIN):
+        return True
+    
+    return reserva.id_reserva_responsavel == userid
+
+
+def cancelar_reserva_equipamento_handler(reserva: Reservas_Equipamentos, motivo: str):
     if reserva.estado == StatusReservaEquipamentoEnum.CANCELADA:
         current_app.logger.warning(
             f"Tentativa de cancelar reserva já cancelada | reserva_id={reserva.id_reserva}"
