@@ -90,6 +90,147 @@ function abrirModalCancelamento(id, estado) {
     $("#modalCancelamento").modal("show");
 }
 
+function criarBotao({ texto, classe, onClick }) {
+    const btn = document.createElement("button");
+    btn.className = `btn btn-sm ${classe}`;
+    btn.textContent = texto;
+
+    if (onClick) {
+        btn.onclick = onClick;
+    }
+
+    return btn;
+}
+
+function btnAprovar(id) {
+    return criarBotao({
+        texto: "Aprovar",
+        classe: "btn-success",
+        onClick: () => ativarReserva(id)
+    });
+}
+
+function btnGerenciar(id) {
+    return criarBotao({
+        texto: "Gerenciar devoluções",
+        classe: "btn-warning",
+        onClick: () => abrirModalGerenciar(id)
+    });
+}
+
+function btnCancelar(id, estado) {
+    return criarBotao({
+        texto: estado === "pendente" ? "Reprovar" : "Cancelar",
+        classe: "btn-danger",
+        onClick: () => abrirModalCancelamento(id, estado)
+    });
+}
+
+function abrirModalGerenciar(id) {
+    const tr = document.querySelector(`.linha-reserva[data-id="${id}"]`);
+    const url = tr.dataset.url_detalhe;
+
+    const container = document.getElementById("gerenciar-lista");
+    container.innerHTML = "Carregando...";
+
+    fetch(url)
+        .then(res => res.json())
+        .then(data => {
+            container.innerHTML = "";
+
+            data.equipamentos.forEach(eq => {
+                container.appendChild(criarItemGerenciamento(eq));
+            });
+        })
+        .catch(err => {
+            container.innerHTML = "Erro ao carregar: " + err;
+        });
+
+    $("#modalGerenciar").modal("show");
+}
+
+function criarItemGerenciamento(eq) {
+    const div = document.createElement("div");
+    div.className = "item-equipamento";
+
+    div.innerHTML = `
+        <span class="eq-nome">${eq.nome}</span>
+
+        <span class="eq-qtd">
+            ${eq.devolvido}/${eq.quantidade}
+        </span>
+
+        <span class="badge-status badge-${eq.estado_item.toLowerCase()}">
+            ${eq.estado_item}
+        </span>
+
+        <input type="number"
+               class="form-control input-sm"
+               style="width: 70px"
+               min="0"
+               max="${eq.quantidade}"
+               value="${eq.devolvido}">
+
+        <button class="btn btn-primary btn-sm">
+            Salvar
+        </button>
+    `;
+
+    const input = div.querySelector("input");
+    const btn = div.querySelector("button");
+
+    btn.onclick = () => atualizarItem(eq, input.value, btn);
+
+    return div;
+}
+
+function atualizarItem(eq, novaQtd, btn) {
+    const url = eq.url_atualizar;
+
+    if (isNaN(novaQtd) || novaQtd < 0 || novaQtd > eq.quantidade) {
+        showToast("Quantidade inválida", "warning");
+        return;
+    }
+
+    btn.disabled = true;
+    const original = btn.textContent;
+    btn.textContent = "Salvando...";
+
+    fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            devolvido: Number(novaQtd)
+        })
+    })
+    .then(res => res.json())
+    .then((data) => {
+        showToast("Item atualizado!", "success");
+
+        if (data.reserva_concluida) {
+            showToast("Reserva concluída! Todos os itens foram devolvidos.", "info");
+            window.setTimeout(() => location.reload(), 1500);
+        }
+
+        // 🔥 atualiza a linha expandida
+        const tr = document.querySelector(`.linha-reserva[data-id="${eq.id_reserva}"]`);
+        const detalhe = document.getElementById(`detalhe-${eq.id_reserva}`);
+        const urlDetalhe = tr.dataset.url_detalhe;
+
+        recarregarDetalhes(tr, detalhe, urlDetalhe);
+        $("#modalGerenciar").modal("hide");
+    })
+    .catch(err => {
+        showToast("Erro: " + err, "danger");
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.textContent = original;
+    });
+}
+
 function carregarDetalhes(url, detalheEl) {
     const lista = detalheEl.querySelector(".lista-equipamentos");
     const acoes = detalheEl.querySelector(".acoes-detalhe");
@@ -123,21 +264,15 @@ function carregarDetalhes(url, detalheEl) {
             container.className = "btn-group-sm";
 
             if (estado_reserva === "pendente") {
-                const btn = document.createElement("button");
-                btn.className = "btn btn-success btn-sm";
-                btn.textContent = "Aprovar";
-                btn.onclick = () => ativarReserva(data.id_reserva);
+                container.appendChild(btnAprovar(data.id_reserva));
+            }
 
-                container.appendChild(btn);
+            if (estado_reserva === "ativa") {
+                container.appendChild(btnGerenciar(data.id_reserva));
             }
 
             if (estado_reserva === "pendente" || estado_reserva === "ativa") {
-                const btn = document.createElement("button");
-                btn.className = "btn btn-danger btn-sm";
-                btn.textContent = estado_reserva === "pendente" ? "Reprovar" : "Cancelar";
-                btn.onclick = () => abrirModalCancelamento(data.id_reserva, estado_reserva);
-
-                container.appendChild(btn);
+                container.appendChild(btnCancelar(data.id_reserva, estado_reserva));
             }
 
             acoes.innerHTML = "";

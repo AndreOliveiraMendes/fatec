@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from flask import current_app, session
+from flask import current_app, session, url_for
 from sqlalchemy import select
 
 from app.auxiliar.constant import DB_ERRORS, Permission
@@ -49,10 +49,12 @@ def build_detalhes_reserva(reserva: Reservas_Equipamentos):
 
         res["equipamentos"].append({
             "id": eq['id_equipamento'],
+            "id_reserva": reserva.id_reserva,
             "nome": eq['nome_equipamento'],
             "quantidade": qtd,
             "devolvido": devolvido,
-            "estado_item": status
+            "estado_item": status,
+            "url_atualizar": url_for('api_reservas_equipamentos.registrar_devolucao_equipamento', id_reserva=reserva.id_reserva, id_equipamento=eq['id_equipamento'])
         })
 
     return res
@@ -135,3 +137,49 @@ def aprovar_reserva_equipamento_handler(reserva: Reservas_Equipamentos):
     except DB_ERRORS as e:
         handle_db_error(e, "Erro ao aprovar reserva de equipamento", show_flash_message=False)
         return 500, 'Erro interno ao aprovar reserva de equipamento'
+
+def get_item_reserva(id_reserva, id_equipamento):
+    sel_item = (
+        select(Reserva_Equipamento_Item)
+        .where(
+            Reserva_Equipamento_Item.id_reserva == id_reserva,
+            Reserva_Equipamento_Item.id_equipamento == id_equipamento
+        )
+    )
+
+    return db.session.execute(sel_item).scalar_one_or_none()
+
+def registrar_devolucao_equipamento_handler(item: Reserva_Equipamento_Item, qtd_devolvida: int):
+    try:
+        item.devolvido = qtd_devolvida
+        db.session.add(item)
+        db.session.commit()
+
+        current_app.logger.info(
+            f"Devolução registrada | reserva_id={item.id_reserva} "
+            f"equipamento_id={item.id_equipamento} quantidade_devolvida={qtd_devolvida}"
+        )
+
+        return 200, 'ok'
+
+    except DB_ERRORS as e:
+        handle_db_error(e, "Erro ao registrar devolução de equipamento", show_flash_message=False)
+        return 500, 'Erro interno ao registrar devolução de equipamento'
+    
+def finalizar_reserva_se_concluida(reserva: Reservas_Equipamentos):
+    if not all(item.devolvido == item.quantidade for item in reserva.itens):
+        return 200, 'ok'
+
+    try:
+        reserva.estado = StatusReservaEquipamentoEnum.CONCLUIDA
+        db.session.commit()
+
+        current_app.logger.info(
+            f"Reserva concluída automaticamente | reserva_id={reserva.id_reserva}"
+        )
+
+        return 200, 'ok'
+
+    except DB_ERRORS as e:
+        handle_db_error(e, "Erro ao finalizar reserva de equipamento", show_flash_message=False)
+        return 500, 'Erro interno ao finalizar reserva de equipamento'
