@@ -3,8 +3,8 @@ from flask import Blueprint, jsonify, render_template, session
 from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import admin_required
 from app.routes.admin.handlers.handler_admin_archive import (
-    archive_by_semestre, archive_last_year_historicos, preview_last_year,
-    preview_semestre)
+    archive_all_previous_years, archive_by_semestre,
+    preview_all_previous_years, preview_semestre)
 
 bp = Blueprint("admin_archive", __name__, url_prefix='/admin/archive')
 
@@ -25,7 +25,7 @@ def archive_semestre():
 @bp.route("/ano", methods=["POST"])
 @admin_required
 def archive_ano():
-    result = archive_last_year_historicos()
+    result = archive_all_previous_years()
     return jsonify({"message": result})
 
 @bp.route("/preview/semestre", methods=["POST"])
@@ -38,5 +38,5 @@ def preview_semestre_route():
 @bp.route("/preview/ano", methods=["POST"])
 @admin_required
 def preview_ano_route():
-    result = preview_last_year()
+    result = preview_all_previous_years()
     return jsonify({"message": result})

@@ -2,7 +2,7 @@ import json
 import os
 from datetime import date, datetime, time
 
-from sqlalchemy import delete, extract, select
+from sqlalchemy import delete, extract, func, select
 
 from app.extensions import db
 from app.models.aulas import Semestres
@@ -22,51 +22,61 @@ def save_historicos(data, tipo, periodo):
         json.dump(data, f, ensure_ascii=False, indent=4)
     return filepath
 
-def archive_last_year_historicos():
+def archive_all_previous_years():
     current_year = datetime.now().year
     last_year = current_year - 1
 
-    stmt = select(Historicos).where(
-        extract('year', Historicos.data_hora) == last_year
-    )
+    min_year = db.session.execute(
+        select(func.min(extract('year', Historicos.data_hora)))
+    ).scalar()
 
-    result = db.session.execute(stmt).scalars()
+    if not min_year:
+        return "Nenhum registro encontrado."
 
-    data = []
-    count = 0
+    total_arquivados = 0
 
-    for h in result:
-        data.append({
-            "id_historico": h.id_historico,
-            "id_usuario": h.id_usuario,
-            "tabela": h.tabela,
-            "categoria": h.categoria,
-            "data_hora": h.data_hora.isoformat(),
-            "message": h.message,
-            "chave_primaria": h.chave_primaria,
-            "observacao": h.observacao,
-            "origem": h.origem
-        })
-        count += 1
-
-    if count == 0:
-        return "Nada para arquivar."
-
-    archive_dir = os.path.join(os.getcwd(), "archive")
-    os.makedirs(archive_dir, exist_ok=True)
-
-    save_historicos(data, "ano", last_year)
-
-    # DELETE moderno
-    db.session.execute(
-        delete(Historicos).where(
-            extract('year', Historicos.data_hora) == last_year
+    for year in range(int(min_year), last_year + 1):
+        stmt = select(Historicos).where(
+            extract('year', Historicos.data_hora) == year
         )
-    )
+
+        result = db.session.execute(stmt).scalars()
+
+        data = []
+        count = 0
+
+        for h in result:
+            data.append({
+                "id_historico": h.id_historico,
+                "id_usuario": h.id_usuario,
+                "tabela": h.tabela,
+                "categoria": h.categoria,
+                "data_hora": h.data_hora.isoformat(),
+                "message": h.message,
+                "chave_primaria": h.chave_primaria,
+                "observacao": h.observacao,
+                "origem": h.origem
+            })
+            count += 1
+
+        if count == 0:
+            continue
+
+        # salva no lugar certo
+        save_historicos(data, "ano", year)
+
+        # deleta
+        db.session.execute(
+            delete(Historicos).where(
+                extract('year', Historicos.data_hora) == year
+            )
+        )
+
+        total_arquivados += count
 
     db.session.commit()
 
-    return f"{count} registros do ano {last_year} arquivados."
+    return f"{total_arquivados} registros arquivados (anos até {last_year})."
 
 def archive_by_semestre():
     today = date.today()
@@ -130,19 +140,42 @@ def archive_by_semestre():
 
     return f"{total_arquivados} registros arquivados por semestre."
 
-def preview_last_year():
+def preview_all_previous_years():
     current_year = datetime.now().year
     last_year = current_year - 1
 
-    count = db.session.execute(
-        select(Historicos).where(
-            extract('year', Historicos.data_hora) == last_year
-        )
-    ).scalars().all()
+    # menor ano existente
+    min_year = db.session.execute(
+        select(func.min(extract('year', Historicos.data_hora)))
+    ).scalar()
 
-    total = len(count)
+    if not min_year:
+        return "Nenhum registro encontrado."
 
-    return f"Ano: {last_year}\nRegistros encontrados: {total}"
+    linhas = []
+    total_geral = 0
+
+    for year in range(int(min_year), last_year + 1):
+        count = db.session.execute(
+            select(func.count()).where(
+                extract('year', Historicos.data_hora) == year
+            )
+        ).scalar()
+        
+        count = int(count) if count else 0
+
+        if count > 0:
+            linhas.append(f"{year}: {count} registros")
+            total_geral += count
+
+    if total_geral == 0:
+        return "Nada para arquivar."
+
+    preview = "Arquivamento por ano:\n\n"
+    preview += "\n".join(linhas)
+    preview += f"\n\nTotal: {total_geral}"
+
+    return preview
 
 def preview_semestre():
     today = date.today()
