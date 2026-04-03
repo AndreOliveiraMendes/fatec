@@ -50,128 +50,133 @@
 {% endblock content %}
 {% block extra_script %}
     <script>
-$(function() {
+        $(function() {
 
-    function setLoading(btn, isLoading) {
-        if (isLoading) {
-            btn.data("original-text", btn.html());
-            btn.prop("disabled", true);
-            btn.html('<i class="glyphicon glyphicon-refresh glyphicon-spin"></i> Processando...');
-        } else {
-            btn.prop("disabled", false);
-            btn.html(btn.data("original-text"));
-        }
-    }
+            function setLoading(btn, isLoading) {
+                if (isLoading) {
+                    btn.data("original-text", btn.html());
+                    btn.prop("disabled", true);
+                    btn.html('<i class="glyphicon glyphicon-refresh glyphicon-spin"></i> Processando...');
+                } else {
+                    btn.prop("disabled", false);
+                    btn.html(btn.data("original-text"));
+                }
+            }
 
-    function showAlert(message, type="info", timeout=5000) {
-        const alertHtml = `
-            <div class="alert alert-${type} alert-dismissible fade in" role="alert">
-                <button type="button" class="close" data-dismiss="alert">
-                    &times;
-                </button>
-                ${message}
-            </div>
-        `;
+            function showAlert(message, type="info", timeout=5000) {
+                const alertHtml = `
+                    <div class="alert alert-${type} alert-dismissible fade in" role="alert">
+                        <button type="button" class="close" data-dismiss="alert">
+                            &times;
+                        </button>
+                        ${message}
+                    </div>
+                `;
 
-        const $alert = $(alertHtml);
+                const $alert = $(alertHtml);
 
-        $("#alert-area").append($alert);
+                $("#alert-area").append($alert);
 
-        // auto remover depois de X ms
-        if (timeout) {
-            setTimeout(function() {
-                $alert.alert('close');
-            }, timeout);
-        }
-    }
+                // auto remover depois de X ms
+                if (timeout) {
+                    setTimeout(function() {
+                        $alert.alert('close');
+                    }, timeout);
+                }
+            }
 
-    const URLS = {
-        preview_semestre: "{{ url_for('admin_archive.preview_semestre_route') }}",
-        preview_ano: "{{ url_for('admin_archive.preview_ano_route') }}",
-        exec_semestre: "{{ url_for('admin_archive.archive_semestre') }}",
-        exec_ano: "{{ url_for('admin_archive.archive_ano') }}"
-    };
+            const URLS = {
+                preview_semestre: "{{ url_for('admin_archive.preview_semestre_route') }}",
+                preview_ano: "{{ url_for('admin_archive.preview_ano_route') }}",
+                exec_semestre: "{{ url_for('admin_archive.archive_semestre') }}",
+                exec_ano: "{{ url_for('admin_archive.archive_ano') }}"
+            };
 
-    const PREVIEW_TIMEOUT = 2 * 60 * 1000; // 2 minutos
-    let previewTimers = {};
+            const PREVIEW_TIMEOUT = 2 * 60 * 1000; // 2 minutos
+            let previewTimers = {};
 
-    // ================= PREVIEW =================
-    $(".btn-preview").click(function() {
-        let type = $(this).data("type");
-        let btn = $(this);
+            // ================= PREVIEW =================
+            $(".btn-preview").click(function() {
+                let type = $(this).data("type");
+                let opost_type = (type === "semestre") ? "ano" : "semestre";
+                let btn = $(this);
 
-        setLoading(btn, true);
+                setLoading(btn, true);
 
-        let url = (type === "semestre") ? URLS.preview_semestre : URLS.preview_ano;
+                let url = (type === "semestre") ? URLS.preview_semestre : URLS.preview_ano;
 
-        $.post(url)
-            .done(function(res) {
-                $("#preview-box").show();
-                $("#preview-content").text(res.message);
+                $.post(url)
+                    .done(function(res) {
+                        $("#preview-box").show();
+                        $("#preview-content").text(res.message);
 
-                let execBtn = $('.btn-exec[data-type="'+type+'"]');
+                        let execBtn = $('.btn-exec[data-type="'+type+'"]');
+                        let execBtnOposto = $('.btn-exec[data-type="'+opost_type+'"]');
 
-                // habilita
-                execBtn.prop("disabled", false);
+                        // habilita
+                        execBtn.prop("disabled", false);
 
-                // limpa timer anterior (se existir)
+                        // desabilita o outro
+                        execBtnOposto.prop("disabled", true);
+
+                        // limpa timer anterior (se existir)
+                        if (previewTimers[type]) {
+                            clearTimeout(previewTimers[type]);
+                        }
+
+                        // cria novo timer
+                        previewTimers[type] = setTimeout(function() {
+                            execBtn.prop("disabled", true);
+
+                            showAlert(
+                                "A pré-visualização expirou. Clique em 'Ver dados' novamente.",
+                                "warning"
+                            );
+                        }, PREVIEW_TIMEOUT);
+
+                        showAlert("Pré-visualização válida por 2 minutos.", "info", 3000);
+                    })
+                    .fail(function() {
+                        showAlert("Erro ao gerar prévia.", "danger");
+                    })
+                    .always(function() {
+                        setLoading(btn, false);
+                    });
+            });
+
+            // ================= EXEC =================
+            $(".btn-exec").click(function() {
+                let type = $(this).data("type");
+                let btn = $(this);
+
+                if (!confirm("Tem certeza que deseja arquivar?")) return;
+
+                // limpa expiração
                 if (previewTimers[type]) {
                     clearTimeout(previewTimers[type]);
                 }
 
-                // cria novo timer
-                previewTimers[type] = setTimeout(function() {
-                    execBtn.prop("disabled", true);
+                setLoading(btn, true);
 
-                    showAlert(
-                        "A pré-visualização expirou. Clique em 'Ver dados' novamente.",
-                        "warning"
-                    );
-                }, PREVIEW_TIMEOUT);
+                let url = (type === "semestre") ? URLS.exec_semestre : URLS.exec_ano;
 
-                showAlert("Pré-visualização válida por 2 minutos.", "info", 3000);
-            })
-            .fail(function() {
-                showAlert("Erro ao gerar prévia.", "danger");
-            })
-            .always(function() {
-                setLoading(btn, false);
+                $.post(url)
+                    .done(function(res) {
+                        showAlert(res.message, "success");
+
+                        $("#preview-box").hide();
+                        $(".btn-exec").prop("disabled", true);
+                    })
+                    .fail(function() {
+                        showAlert("Erro ao arquivar.", "danger");
+                    })
+                    .always(function() {
+                        setLoading(btn, false);
+                    });
             });
-    });
 
-    // ================= EXEC =================
-    $(".btn-exec").click(function() {
-        let type = $(this).data("type");
-        let btn = $(this);
+            $("#preview-box").hide();
 
-        if (!confirm("Tem certeza que deseja arquivar?")) return;
-
-        // limpa expiração
-        if (previewTimers[type]) {
-            clearTimeout(previewTimers[type]);
-        }
-
-        setLoading(btn, true);
-
-        let url = (type === "semestre") ? URLS.exec_semestre : URLS.exec_ano;
-
-        $.post(url)
-            .done(function(res) {
-                showAlert(res.message, "success");
-
-                $("#preview-box").hide();
-                $(".btn-exec").prop("disabled", true);
-            })
-            .fail(function() {
-                showAlert("Erro ao arquivar.", "danger");
-            })
-            .always(function() {
-                setLoading(btn, false);
-            });
-    });
-
-    $("#preview-box").hide();
-
-});
+        });
     </script>
 {% endblock extra_script %}
