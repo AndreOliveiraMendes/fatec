@@ -9,6 +9,19 @@ from app.models.aulas import Semestres
 from app.models.historicos import Historicos
 
 
+def save_historicos(data, tipo, periodo):
+    base_dir = os.path.join(os.getcwd(), "archive")
+    if tipo == "ano":
+        path = os.path.join(base_dir, "anos")
+    else:
+        path = os.path.join(base_dir, "semestres")
+    os.makedirs(path, exist_ok=True)
+    filename = f"historicos_{periodo}.json"
+    filepath = os.path.join(path, filename)
+    with open(filepath, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+    return filepath
+
 def archive_last_year_historicos():
     current_year = datetime.now().year
     last_year = current_year - 1
@@ -42,10 +55,7 @@ def archive_last_year_historicos():
     archive_dir = os.path.join(os.getcwd(), "archive")
     os.makedirs(archive_dir, exist_ok=True)
 
-    filepath = os.path.join(archive_dir, f"historicos_{last_year}.json")
-
-    with open(filepath, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=4)
+    save_historicos(data, "ano", last_year)
 
     # DELETE moderno
     db.session.execute(
@@ -104,11 +114,7 @@ def archive_by_semestre():
         if count == 0:
             continue
 
-        nome_arquivo = f"historicos_{semestre.nome_semestre.replace(' ', '_')}.json"
-        filepath = os.path.join(archive_dir, nome_arquivo)
-
-        with open(filepath, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=4)
+        save_historicos(data, "semestre", periodo=semestre.nome_semestre.replace(' ', '_'))
 
         # DELETE moderno
         db.session.execute(
