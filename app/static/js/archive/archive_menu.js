@@ -68,6 +68,41 @@ $(function() {
         }, 1000);
     }
 
+    function renderLista(titulo, lista, tipo) {
+        let html = `<h5>${titulo}</h5>`;
+
+        // botão pra baixar a pasta inteira
+        if (lista.length > 0){
+            html += `
+                <button class="btn btn-xs btn-success" style="margin-bottom:10px"
+                    onclick="window.location.href='${URLS.donwload_all}?tipo=${tipo}'">
+                    Baixar tudo (${tipo})
+                </button>
+            `;
+        }
+
+        if (lista.length === 0) {
+            html += `<p><em>Nenhum arquivo encontrado</em></p>`;
+        } else {
+            html += `<ul>`;
+            lista.forEach(function(file) {
+                let name = file.replace(".json", "").replaceAll("_", " ");
+
+                let downloadUrl = `${URLS.donwload_all}?tipo=${tipo}&file=${encodeURIComponent(file)}`;
+
+                html += `
+                    <li style="display:flex; justify-content:space-between; align-items:center;">
+                        <span>${name}</span>
+                        <a href="${downloadUrl}" class="btn btn-xs btn-default">⬇</a>
+                    </li>
+                `;
+            });
+            html += `</ul>`;
+        }
+
+        return html;
+    }
+
     // ================= PREVIEW =================
     $(".btn-preview").click(function() {
         let type = $(this).data("type");
@@ -153,6 +188,47 @@ $(function() {
             .always(function() {
                 setLoading(btn, false);
             });
+    });
+
+    // ================= LISTAR ARQUIVOS =================
+    $("#btn-list-files").click(function() {
+        let btn = $(this);
+
+        setLoading(btn, true);
+        
+        $.post(URLS.list_files)
+            .done(function(res) {
+                let anos = res.files.anos || [];
+                let semestres = res.files.semestres || [];
+
+                anos.sort();
+                semestres.sort();
+
+                let finalHtml = "";
+                finalHtml += renderLista(`📁 Anos (${anos.length})`, anos, "anos");
+                finalHtml += "<hr>";
+                finalHtml += renderLista(`📁 Semestres (${semestres.length})`, semestres, "semestres");
+
+                $("#preview-content").html(finalHtml);
+                $("#preview-box").show();
+
+                $('.btn-exec').prop("disabled", true);
+                // limpa timers
+                Object.values(previewTimers).forEach(clearTimeout);
+                Object.values(countdownIntervals).forEach(clearInterval);
+                $("#preview-timer").text("");
+            })
+            .fail(function() {
+                showAlert("Erro ao listar arquivos.", "danger");
+            })
+            .always(function() {
+                setLoading(btn, false);
+            });
+    })
+
+    // ================= DOWNLOAD ALL =================
+    $("#btn-download-all").click(function() {
+        window.location.href = URLS.donwload_all;
     });
 
     $("#preview-box").hide();

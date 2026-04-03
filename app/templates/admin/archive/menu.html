@@ -38,9 +38,9 @@
                         <strong>Arquivos Gerados</strong>
                     </div>
                     <div class="panel-body">
-                        <p>(Em breve)</p>
-                        <button class="btn btn-default" disabled>Listar arquivos</button>
-                        <button class="btn btn-default" disabled>Baixar</button>
+                        <p>list os arquivos ou baixe-os para gerenciar conforme julgar necessario</p>
+                        <button class="btn btn-info" id="btn-list-files">Listar arquivos</button>
+                        <button id="btn-download-all" class="btn btn-success">Baixar tudo (.zip)</button>
                     </div>
                 </div>
             </div>
@@ -66,7 +66,9 @@
             preview_semestre: "{{ url_for('admin_archive.preview_semestre_route') }}",
             preview_ano: "{{ url_for('admin_archive.preview_ano_route') }}",
             exec_semestre: "{{ url_for('admin_archive.archive_semestre') }}",
-            exec_ano: "{{ url_for('admin_archive.archive_ano') }}"
+            exec_ano: "{{ url_for('admin_archive.archive_ano') }}",
+            list_files: "{{ url_for('admin_archive.list_archives') }}",
+            donwload_all: "{{ url_for('admin_archive.donwload_all_archives') }}"
         };
 
         const PREVIEW_TIMEOUT = 2 * 60 * 1000; // 2 minutos

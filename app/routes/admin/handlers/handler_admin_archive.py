@@ -1,7 +1,10 @@
 import json
 import os
+import zipfile
 from datetime import date, datetime, time
+from io import BytesIO
 
+from flask import abort, send_file
 from sqlalchemy import delete, extract, func, select
 
 from app.extensions import db
@@ -205,3 +208,102 @@ def preview_semestre():
         return "Nenhum dado para arquivar."
 
     return "Total: {}\n\n{}".format(total, "\n".join(detalhes))
+
+def list_archives_files():
+    archive_path = os.path.join(os.getcwd(), "archive")
+    arquivos = {
+        "anos": [],
+        "semestres": []
+    }
+    for tipo in arquivos.keys():
+        tipo_path = os.path.join(archive_path, tipo)
+        if os.path.exists(tipo_path):
+            for filename in os.listdir(tipo_path):
+                if filename.endswith(".json"):
+                    arquivos[tipo].append(filename)
+    return arquivos
+
+def download_archive(tipo=None, file=None):
+    archive_path = os.path.join(os.getcwd(), "archive")
+
+    # 🔒 tipos permitidos
+    allowed_tipos = {"anos", "semestres"}
+
+    # ==============================
+    # 📄 BAIXAR ARQUIVO ESPECÍFICO
+    # ==============================
+    if tipo and file:
+        if tipo not in allowed_tipos:
+            abort(400, description="Tipo inválido.")
+
+        safe_name = os.path.basename(file)  # evita ../
+        file_path = os.path.join(archive_path, tipo, safe_name)
+
+        if not os.path.exists(file_path):
+            abort(404, description="Arquivo não encontrado.")
+
+        return send_file(file_path, as_attachment=True)
+
+    # ==============================
+    # 📁 ZIPAR UM TIPO
+    # ==============================
+    if tipo:
+        if tipo not in allowed_tipos:
+            abort(400, description="Tipo inválido.")
+
+        target_path = os.path.join(archive_path, tipo)
+
+        arquivos = []
+
+        for root, dirs, files in os.walk(target_path):
+            for f in files:
+                if f.endswith(".json"):
+                    full_path = os.path.join(root, f)
+                    arcname = os.path.relpath(full_path, archive_path)
+                    arquivos.append((full_path, arcname))
+
+        if not arquivos:
+            abort(404, description="Nenhum arquivo para download.")
+
+        memory_file = BytesIO()
+
+        with zipfile.ZipFile(memory_file, 'w', zipfile.ZIP_DEFLATED) as zf:
+            for full_path, arcname in arquivos:
+                zf.write(full_path, arcname)
+
+        memory_file.seek(0)
+
+        return send_file(
+            memory_file,
+            download_name=f"{tipo}.zip",
+            as_attachment=True
+        )
+
+    # ==============================
+    # 🧳 ZIPAR TUDO
+    # ==============================
+    arquivos = []
+
+    for root, dirs, files in os.walk(archive_path):
+        for f in files:
+            if f.endswith(".json"):
+                full_path = os.path.join(root, f)
+                arcname = os.path.relpath(full_path, archive_path)
+                arquivos.append((full_path, arcname))
+
+    if not arquivos:
+        abort(404, description="Nenhum arquivo no archive.")
+
+    memory_file = BytesIO()
+
+    with zipfile.ZipFile(memory_file, 'w', zipfile.ZIP_DEFLATED) as zf:
+        for full_path, arcname in arquivos:
+            zf.write(full_path, arcname)
+
+    memory_file.seek(0)
+
+    return send_file(
+        memory_file,
+        download_name="archive.zip",
+        as_attachment=True
+    )
