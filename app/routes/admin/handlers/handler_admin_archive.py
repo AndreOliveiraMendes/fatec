@@ -1,6 +1,6 @@
 import json
 import os
-from datetime import date, datetime
+from datetime import date, datetime, time
 
 from sqlalchemy import delete, extract, select
 
@@ -8,8 +8,6 @@ from app.extensions import db
 from app.models.aulas import Semestres
 from app.models.historicos import Historicos
 
-
-from sqlalchemy import delete
 
 def archive_last_year_historicos():
     current_year = datetime.now().year
@@ -60,8 +58,6 @@ def archive_last_year_historicos():
 
     return f"{count} registros do ano {last_year} arquivados."
 
-from sqlalchemy import delete
-
 def archive_by_semestre():
     today = date.today()
 
@@ -78,12 +74,12 @@ def archive_by_semestre():
     total_arquivados = 0
 
     for semestre in semestres:
-        start = semestre.data_inicio
-        end = semestre.data_fim
+        start_dt = datetime.combine(semestre.data_inicio, time.min)
+        end_dt = datetime.combine(semestre.data_fim, time.max)
 
         stmt = select(Historicos).where(
-            Historicos.data_hora >= start,
-            Historicos.data_hora <= end
+            Historicos.data_hora >= start_dt,
+            Historicos.data_hora <= end_dt
         )
 
         result = db.session.execute(stmt).scalars()
@@ -117,8 +113,8 @@ def archive_by_semestre():
         # DELETE moderno
         db.session.execute(
             delete(Historicos).where(
-                Historicos.data_hora >= start,
-                Historicos.data_hora <= end
+                Historicos.data_hora >= start_dt,
+                Historicos.data_hora <= end_dt
             )
         )
 

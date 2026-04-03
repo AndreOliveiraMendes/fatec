@@ -2,7 +2,9 @@ from flask import Blueprint, jsonify, render_template, session
 
 from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import admin_required
-from app.routes.admin.handlers.handler_admin_archive import archive_by_semestre, archive_last_year_historicos, preview_last_year, preview_semestre
+from app.routes.admin.handlers.handler_admin_archive import (
+    archive_by_semestre, archive_last_year_historicos, preview_last_year,
+    preview_semestre)
 
 bp = Blueprint("admin_archive", __name__, url_prefix='/admin/archive')
 
