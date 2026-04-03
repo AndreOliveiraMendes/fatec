@@ -1,5 +1,7 @@
 {% extends "base-fixed" %}
-{% block title %}Archive{% endblock title %}
+{% block title %}
+    Archive
+{% endblock title %}
 {% block content %}
     <div class="container">
         <h3>Arquivamento de Históricos</h3>
@@ -24,6 +26,8 @@
                         <p>Arquiva registros do ano passado.</p>
                         <button class="btn btn-default btn-preview" data-type="ano">Ver dados</button>
                         <button class="btn btn-warning btn-exec" data-type="ano" disabled>Executar</button>
+                        <hr>
+                        <div id="preview-timer" class="timer"></div>
                     </div>
                 </div>
             </div>
@@ -48,136 +52,26 @@
         </div>
     </div>
 {% endblock content %}
+{% block extra_css %}
+    <style>
+        .timer {
+            margin-top:10px;
+            font-weight:bold;
+        }
+    </style>
+{% endblock extra_css %}
 {% block extra_script %}
     <script>
-        $(function() {
+        const URLS = {
+            preview_semestre: "{{ url_for('admin_archive.preview_semestre_route') }}",
+            preview_ano: "{{ url_for('admin_archive.preview_ano_route') }}",
+            exec_semestre: "{{ url_for('admin_archive.archive_semestre') }}",
+            exec_ano: "{{ url_for('admin_archive.archive_ano') }}"
+        };
 
-            function setLoading(btn, isLoading) {
-                if (isLoading) {
-                    btn.data("original-text", btn.html());
-                    btn.prop("disabled", true);
-                    btn.html('<i class="glyphicon glyphicon-refresh glyphicon-spin"></i> Processando...');
-                } else {
-                    btn.prop("disabled", false);
-                    btn.html(btn.data("original-text"));
-                }
-            }
-
-            function showAlert(message, type="info", timeout=5000) {
-                const alertHtml = `
-                    <div class="alert alert-${type} alert-dismissible fade in" role="alert">
-                        <button type="button" class="close" data-dismiss="alert">
-                            &times;
-                        </button>
-                        ${message}
-                    </div>
-                `;
-
-                const $alert = $(alertHtml);
-
-                $("#alert-area").append($alert);
-
-                // auto remover depois de X ms
-                if (timeout) {
-                    setTimeout(function() {
-                        $alert.alert('close');
-                    }, timeout);
-                }
-            }
-
-            const URLS = {
-                preview_semestre: "{{ url_for('admin_archive.preview_semestre_route') }}",
-                preview_ano: "{{ url_for('admin_archive.preview_ano_route') }}",
-                exec_semestre: "{{ url_for('admin_archive.archive_semestre') }}",
-                exec_ano: "{{ url_for('admin_archive.archive_ano') }}"
-            };
-
-            const PREVIEW_TIMEOUT = 2 * 60 * 1000; // 2 minutos
-            let previewTimers = {};
-
-            // ================= PREVIEW =================
-            $(".btn-preview").click(function() {
-                let type = $(this).data("type");
-                let opost_type = (type === "semestre") ? "ano" : "semestre";
-                let btn = $(this);
-
-                setLoading(btn, true);
-
-                let url = (type === "semestre") ? URLS.preview_semestre : URLS.preview_ano;
-
-                $.post(url)
-                    .done(function(res) {
-                        $("#preview-box").show();
-                        $("#preview-content").text(res.message);
-
-                        let execBtn = $('.btn-exec[data-type="'+type+'"]');
-                        let execBtnOposto = $('.btn-exec[data-type="'+opost_type+'"]');
-
-                        // habilita
-                        execBtn.prop("disabled", false);
-
-                        // desabilita o outro
-                        execBtnOposto.prop("disabled", true);
-
-                        // limpa timer anterior (se existir)
-                        if (previewTimers[type]) {
-                            clearTimeout(previewTimers[type]);
-                        }
-
-                        // cria novo timer
-                        previewTimers[type] = setTimeout(function() {
-                            execBtn.prop("disabled", true);
-
-                            showAlert(
-                                "A pré-visualização expirou. Clique em 'Ver dados' novamente.",
-                                "warning"
-                            );
-                        }, PREVIEW_TIMEOUT);
-
-                        showAlert("Pré-visualização válida por 2 minutos.", "info", 3000);
-                    })
-                    .fail(function() {
-                        showAlert("Erro ao gerar prévia.", "danger");
-                    })
-                    .always(function() {
-                        setLoading(btn, false);
-                    });
-            });
-
-            // ================= EXEC =================
-            $(".btn-exec").click(function() {
-                let type = $(this).data("type");
-                let btn = $(this);
-
-                if (!confirm("Tem certeza que deseja arquivar?")) return;
-
-                // limpa expiração
-                if (previewTimers[type]) {
-                    clearTimeout(previewTimers[type]);
-                }
-
-                setLoading(btn, true);
-
-                let url = (type === "semestre") ? URLS.exec_semestre : URLS.exec_ano;
-
-                $.post(url)
-                    .done(function(res) {
-                        showAlert(res.message, "success");
-
-                        $("#preview-box").hide();
-                        $(".btn-exec").prop("disabled", true);
-                    })
-                    .fail(function() {
-                        showAlert("Erro ao arquivar.", "danger");
-                    })
-                    .always(function() {
-                        setLoading(btn, false);
-                    });
-            });
-
-            $("#preview-box").hide();
-            $('.btn-exec').prop("disabled", true);
-
-        });
+        const PREVIEW_TIMEOUT = 2 * 60 * 1000; // 2 minutos
+        let previewTimers = {};
+        let countdownIntervals = {};
     </script>
+    <script src="{{ url_for('static', filename='js/archive/archive_menu.js') }}"></script>
 {% endblock extra_script %}
