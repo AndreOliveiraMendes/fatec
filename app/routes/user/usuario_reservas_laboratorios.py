@@ -13,10 +13,12 @@ from app.decorators.decorators import login_required
 from app.enums import FinalidadeReservaEnum
 from config.general import LOCAL_TIMEZONE
 
-from .handler.handler_laboratorios import (cancelar_reserva_generico, editar_reserva_generico,
-                      get_reservas, make_params, resolve_tipo)
+from .handler.handler_laboratorios import (cancelar_reserva_generico,
+                                           editar_reserva_generico,
+                                           get_reservas, make_params,
+                                           resolve_tipo)
 
-bp = Blueprint('usuario_reservas', __name__, url_prefix='/usuario')
+bp = Blueprint('usuario_reservas_laboratorios', __name__, url_prefix='/usuario')
 
 @bp.route("/reservas/reservas_fixas")
 @login_required

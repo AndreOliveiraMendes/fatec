@@ -25,13 +25,13 @@ RESERVA_MAP = {
         "model": Reservas_Fixas,
         "order": Reservas_Fixas.id_reserva_semestre,
         "info": info_reserva_fixa,
-        "redirect": lambda: url_for('usuario_reservas.gerenciar_reserva_fixa')
+        "redirect": lambda: url_for('usuario_reservas_laboratorios.gerenciar_reserva_fixa')
     },
     "temporaria": {
         "model": Reservas_Temporarias,
         "order": Reservas_Temporarias.inicio_reserva,
         "info": info_reserva_temporaria,
-        "redirect": lambda: url_for('usuario_reservas.gerenciar_reserva_temporaria')
+        "redirect": lambda: url_for('usuario_reservas_laboratorios.gerenciar_reserva_temporaria')
     }
 }
 

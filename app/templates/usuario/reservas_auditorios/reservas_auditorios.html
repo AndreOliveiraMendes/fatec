@@ -1,0 +1,17 @@
+{% extends "base-fixed" %}
+{% from "macros/pagination.html" import render_pagination %}
+{% from "macros/navigation.html" import go_back %}
+{% block title %}
+    reserva de auditorio
+{% endblock title %}
+{% block content %}
+    <div class="btn-group">
+        <a href="{{ url_for('default.home') }}" class="btn btn-default">
+            <span class="glyphicon glyphicon-home"></span> Início
+        </a>
+        <a href="{{ url_for('usuario.menu_reservas_usuario') }}"
+           class="btn btn-primary">
+            <span class="glyphicon glyphicon-list"></span> Menu
+        </a>
+    </div>
+{% endblock content %}
