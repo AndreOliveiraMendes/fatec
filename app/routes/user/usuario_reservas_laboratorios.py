@@ -13,7 +13,7 @@ from app.decorators.decorators import login_required
 from app.enums import FinalidadeReservaEnum
 from config.general import LOCAL_TIMEZONE
 
-from .handler import (cancelar_reserva_generico, editar_reserva_generico,
+from .handler.handler_laboratorios import (cancelar_reserva_generico, editar_reserva_generico,
                       get_reservas, make_params, resolve_tipo)
 
 bp = Blueprint('usuario_reservas', __name__, url_prefix='/usuario')
@@ -44,7 +44,7 @@ def gerenciar_reserva_fixa():
     extras['usuarios_especiais'] = get_usuarios_especiais()
     extras['laboratorios'] = get_laboratorios(user.perm.has(Permission.ADMIN))
     extras['semanas'] = get_dias_da_semana()
-    return render_template("usuario/reserva_fixa.html", user=user, **extras)
+    return render_template("usuario/reservas_laboratorios/reserva_fixa.html", user=user, **extras)
 
 @bp.route("/reserva/reservas_temporarias")
 @login_required
@@ -66,7 +66,7 @@ def gerenciar_reserva_temporaria():
     extras['usuarios_especiais'] = get_usuarios_especiais()
     extras['laboratorios'] = get_laboratorios(user.perm.has(Permission.ADMIN))
     extras['semanas'] = get_dias_da_semana()
-    return render_template("usuario/reserva_temporaria.html", user=user, **extras)
+    return render_template("usuario/reservas_laboratorios/reserva_temporaria.html", user=user, **extras)
 
 @bp.route("/get_info/<tipo_reserva>/<int:id_reserva>")
 @login_required
