@@ -1,10 +1,11 @@
-from typing import Type, TypeVar
+from typing import Literal, Type, TypeVar
 
 from flask import abort, current_app, flash
 from sqlalchemy import select
 from sqlalchemy.exc import MultipleResultsFound
 
 from app.extensions import Base, db
+from app.models.usuarios import Pessoas, Usuarios, Usuarios_Especiais
 
 T = TypeVar("T", bound=Base)
 
@@ -48,3 +49,21 @@ def handle_db_error(e, msg, show_flash_message=True):
 
     current_app.logger.error("%s | erro=%s", msg, e)
 
+def get_nome_pessoa(id, tipo = Literal['pessoa', 'usuario', 'usuario_especial'], abort_on_null = True):
+    if tipo == 'pessoa':
+        obj = db.session.get(Pessoas, id)
+        if not obj and abort_on_null:
+            abort(404, description="Pessoa não encontrada.")
+        return obj.alias or obj.nome_pessoa
+    elif tipo == 'usuario':
+        obj = db.session.get(Usuarios, id)
+        if not obj and abort_on_null:
+            abort(404, description="Usuário não encontrado.")
+        return obj.pessoa.alias or obj.pessoa.nome_pessoa
+    elif tipo == 'usuario_especial':
+        obj = db.session.get(Usuarios_Especiais, id)
+        if not obj and abort_on_null:
+            abort(404, description="Usuário especial não encontrado.")
+        return obj.nome_usuario_especial
+    else:
+        abort(400, description="Tipo inválido para obtenção do nome da pessoa.")

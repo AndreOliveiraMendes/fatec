@@ -70,31 +70,3 @@ def gerenciar_reserva_temporaria():
     extras['laboratorios'] = get_laboratorios(user.perm.has(Permission.ADMIN))
     extras['semanas'] = get_dias_da_semana()
     return render_template("usuario/reservas_laboratorios/reserva_temporaria.html", user=user, **extras)
-
-@bp.route("/get_info/<tipo_reserva>/<int:id_reserva>")
-@login_required
-def get_info_reserva(tipo_reserva, id_reserva):
-    tipo = resolve_tipo(tipo_reserva)
-    return tipo["info"](id_reserva)
-
-@bp.route("/cancelar_reserva/<tipo_reserva>/<int:id_reserva>", methods=['POST'])
-@login_required
-def cancelar_reserva(tipo_reserva, id_reserva):
-    tipo = resolve_tipo(tipo_reserva)
-
-    return cancelar_reserva_generico(
-        tipo["model"],
-        id_reserva,
-        tipo["redirect"]()
-    )
-
-@bp.route("/editar_reservas/<tipo_reserva>/<int:id_reserva>", methods=['POST'])
-@login_required
-def editar_reserva(tipo_reserva, id_reserva):
-    tipo = resolve_tipo(tipo_reserva)
-
-    return editar_reserva_generico(
-        tipo["model"],
-        id_reserva,
-        tipo["redirect"]()
-    )

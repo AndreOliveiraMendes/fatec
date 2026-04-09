@@ -1,6 +1,4 @@
-from typing import Literal
-
-from flask import abort, current_app, session
+from flask import current_app, session
 from sqlalchemy import select
 
 from app.extensions import db
@@ -40,16 +38,3 @@ def get_user(userid):
 def get_usuarios_especiais():
     sel_usuarios_especiais = select(Usuarios_Especiais)
     return db.session.execute(sel_usuarios_especiais).scalars().all()
-
-def get_nome_pessoa(id, tipo = Literal['pessoa', 'usuario', 'usuario_especial']):
-    if tipo == 'pessoa':
-        obj = db.get_or_404(Pessoas, id)
-        return obj.alias or obj.nome_pessoa
-    elif tipo == 'usuario':
-        obj = db.get_or_404(Usuarios, id)
-        return obj.pessoa.alias or obj.pessoa.nome_pessoa
-    elif tipo == 'usuario_especial':
-        obj = db.get_or_404(Usuarios_Especiais, id)
-        return obj.nome_usuario_especial
-    else:
-        abort(400, description="Tipo inválido para obtenção do nome da pessoa.")

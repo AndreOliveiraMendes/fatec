@@ -80,7 +80,7 @@
                                 {% if user and user.perm|has_flag(ADMIN) %}
                                     <td title="{{ get_nome_pessoa(r.id_responsavel, 'pessoa') }}">{{ get_nome_pessoa(r.id_responsavel, 'pessoa') |truncate(12) }}</td>
                                 {% endif %}
-                                <td></td>
+                                <td>{{ get_nome_pessoa(r.id_responsavel, 'pessoa', false) }}</td>
                             </tr>
                         {% endfor %}
                     </tbody>

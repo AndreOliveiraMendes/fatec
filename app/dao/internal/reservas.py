@@ -12,7 +12,7 @@ from app.auxiliar.constant import DB_ERRORS, Permission
 from app.auxiliar.dao_query import get_aula_semana, get_aula_turno
 from app.auxiliar.general import none_if_empty
 from app.auxiliar.parsing import parse_date_string
-from app.dao.internal.general import handle_db_error
+from app.dao.internal.general import get_nome_pessoa, handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.enums import (FinalidadeReservaEnum, StatusReservaEquipamentoEnum,
                        TipoAulaEnum)
@@ -166,25 +166,25 @@ def get_responsavel_reserva(
     reserva: Reservas_Fixas | Reservas_Temporarias,
     modo_template: bool = False
 ):
-    title = ""
+    title_parts = []
     tipo = reserva.tipo_responsavel
 
     if tipo in (0, 2):
-        r = db.get_or_404(Pessoas, reserva.id_responsavel)
-        title += r.alias or r.nome_pessoa
+        nome = get_nome_pessoa(reserva.id_responsavel, 'pessoa', False)
+        if nome:
+            title_parts.append(nome)
 
     if tipo in (1, 2):
-        r = db.get_or_404(Usuarios_Especiais, reserva.id_responsavel_especial)
-        title += (
-            r.nome_usuario_especial
-            if tipo == 1
-            else f" ({r.nome_usuario_especial})"
-        )
+        nome_especial = get_nome_pessoa(reserva.id_responsavel_especial, 'usuario_especial', False)
+        if nome_especial:
+            if tipo == 2:
+                nome_especial = f"({nome_especial})"
+            title_parts.append(nome_especial)
 
     if modo_template and reserva.finalidade_reserva == FinalidadeReservaEnum.USO_DOS_ALUNOS:
-        title += " uso acadêmico"
+        title_parts.append("uso acadêmico")
 
-    return title
+    return " ".join(title_parts)
 
 def check_ownership_or_admin(reserva: Reservas_Fixas | Reservas_Temporarias):
     userid = session.get('userid')
