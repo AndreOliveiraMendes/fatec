@@ -11,7 +11,8 @@ from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import admin_required
 from app.extensions import db
 from app.models.aulas import Aulas, Dias_da_Semana
-from app.routes.admin.handlers.handler_admin import get_reservas, make_params
+from app.routes.admin.handlers.handler_admin import get_reservas
+from app.routes_helper.request import get_query_params
 from app.routes_helper.ui import get_log_summary
 from app.security.cryptograph import load_key
 from config.database_views import SECOES
@@ -65,7 +66,7 @@ def get_observações_fixa():
         flash("nenhum semestre definido", "danger")
         return redirect(url_for('default.home'))
     page = int(request.args.get("page", 1))
-    args_extras = make_params(request)
+    args_extras = get_query_params(request, origin="args")
     reservas_fixas = get_reservas(args_extras, page, "fixa")
     extras = {}
     # filtro
@@ -91,7 +92,7 @@ def get_observações_temporaria():
         flash("nenhum semestre definido", "danger")
         return redirect(url_for('default.home'))
     page = int(request.args.get("page", 1))
-    args_extras = make_params(request)
+    args_extras = get_query_params(request, origin="args")
     reservas_temporaria = get_reservas(args_extras, page, "temporaria")
     extras = {}
     # filtro

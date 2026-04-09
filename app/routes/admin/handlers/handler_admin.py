@@ -46,9 +46,6 @@ FILTERS = {
     }
 }
 
-def make_params(request):
-    return {key:value for key, value in request.args.items() if key != 'page'}
-
 def get_reservas(params, page, tipo):
     base = RESERVA_MAP.get(tipo, {})
     if not base:

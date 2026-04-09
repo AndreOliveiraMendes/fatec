@@ -60,9 +60,6 @@ def resolve_tipo(tipo_reserva: str):
         abort(404, description="Tipo de reserva inexistente")
     return data
 
-def make_params(request):
-    return {key:value for key, value in request.args.items() if key != 'page'}
-
 def get_reservas(userid, params, page, tipo):
     user = db.session.get(Usuarios, userid)
     base = RESERVA_MAP.get(tipo, {})
