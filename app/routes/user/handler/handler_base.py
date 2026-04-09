@@ -5,6 +5,7 @@ from app.dao.internal.reservas import (info_reserva_fixa,
                                        info_reserva_temporaria)
 from app.enums import FinalidadeReservaEnum
 from app.models.aulas import Aulas_Ativas
+from app.models.reservas.reservas_auditorios import Reservas_Auditorios
 from app.models.reservas.reservas_laboratorios import (Reservas_Fixas,
                                                        Reservas_Temporarias)
 
@@ -20,6 +21,12 @@ RESERVA_MAP = {
         "order": Reservas_Temporarias.inicio_reserva,
         "info": info_reserva_temporaria,
         "redirect": lambda: url_for('usuario_reservas_laboratorios.gerenciar_reserva_temporaria')
+    },
+    "auditorios": {
+        "model": Reservas_Auditorios,
+        "order": Reservas_Auditorios.id_reserva_auditorio,
+        "info": None,
+        "redirect": lambda: url_for('usuarios_reservas_auditorios.gerenciar_reservas_auditorios')
     }
 }
 

@@ -9,9 +9,9 @@ from app.models.usuarios import Usuarios
 from app.routes.user.handler.handler_base import FILTERS, RESERVA_MAP
 
 
-def get_reservas_laboratorios(userid, params, page, tipo):
+def get_reservas_auditorios(userid, args_extras, page):
     user = db.session.get(Usuarios, userid)
-    base = RESERVA_MAP.get(tipo, {})
+    base = RESERVA_MAP.get('auditorios', {})
     if not base:
         abort(404, description="Tipo invalido")
     model = base.get('model')
@@ -21,14 +21,14 @@ def get_reservas_laboratorios(userid, params, page, tipo):
     filtro = []
     if not user.perm.has(Permission.ADMIN):
         filtro.append(model.id_responsavel == user.id_pessoa)
-    for key, (condition, cast) in FILTERS.get(tipo, {}).items():
-        raw = params.get(key)
+    for key, (condition, cast) in FILTERS.get('auditorios', {}).items():
+        raw = args_extras.get(key)
         if raw:
             try:
                 filtro.append(condition(cast(raw)))
             except (TypeError, ValueError) as e:
                 current_app.logger.warning(f"Filtro inválido {key}={raw}")
-
+        
     sel_reservas = select(model).join(Aulas_Ativas).join(Aulas).where(*filtro).order_by(
         org_column,
         Aulas_Ativas.id_semana,

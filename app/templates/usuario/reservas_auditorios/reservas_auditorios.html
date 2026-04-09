@@ -64,4 +64,30 @@
             </div>
         </div>
     </div>
+    <div class="panel-body">
+        {% if reservas_auditorios %}
+            <div class="table-responsive">
+                <table class="table table-striped table-condensed table-bordered table-hover">
+                    <thead>
+                        <tr class="info">
+                            {% if user and user.perm|has_flag(ADMIN) %}<th>Resp</th>{% endif %}
+                            <th>autorizador</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in reservas_auditorios %}
+                            <tr>
+                                {% if user and user.perm|has_flag(ADMIN) %}
+                                    <td title="{{ get_nome_pessoa(r.id_responsavel, 'pessoa') }}">{{ get_nome_pessoa(r.id_responsavel, 'pessoa') |truncate(12) }}</td>
+                                {% endif %}
+                                <td></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-warning">Nenhuma reserva encontrada.</div>
+        {% endif %}
+    </div>
 {% endblock content %}

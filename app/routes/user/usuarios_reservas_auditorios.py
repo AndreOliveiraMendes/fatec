@@ -9,6 +9,7 @@ from app.dao.internal.locais import get_laboratorios
 from app.dao.internal.usuarios import (get_pessoas, get_user,
                                        get_usuarios_especiais)
 from app.decorators.decorators import login_required
+from app.routes.user.handler.handler_auditorios import get_reservas_auditorios
 from app.routes_helper.request import get_query_params
 from config.general import LOCAL_TIMEZONE
 
@@ -23,10 +24,14 @@ def gerenciar_reservas_auditorios():
         abort(404, description="Usuário não encontrado.")
     today = datetime.now(LOCAL_TIMEZONE)
     extras: dict[str, Any] = {'datetime':today}
-
     args_extras = get_query_params(request, origin="args")
+    page = int(request.args.get("page", 1))
+    reservas_auditorio = get_reservas_auditorios(userid, args_extras, page)
+    extras['reservas_auditorios'] = reservas_auditorio.items
+    extras['pagination'] = reservas_auditorio
     extras['args_extras'] = args_extras
 
+    # for edit and filter
     extras['pessoas'] = get_pessoas()
     extras['usuarios_especiais'] = get_usuarios_especiais()
     extras['laboratorios'] = get_laboratorios(user.perm.has(Permission.ADMIN))
