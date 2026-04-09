@@ -1,13 +1,10 @@
 from typing import List, Literal
 
-from flask import abort, Request
+from flask import Request, abort
 
 from app.auxiliar.constant import Permission
 from app.models.locais import Locais
 from config.mapeamentos import IGNORED_FORM_FIELDS
-
-from typing import List, Literal
-from flask import Request, abort
 
 IGNORED_FORM_FIELDS = ["page", "acao", "bloco"]
 

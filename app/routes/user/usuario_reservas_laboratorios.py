@@ -11,12 +11,13 @@ from app.dao.internal.usuarios import (get_pessoas, get_user,
                                        get_usuarios_especiais)
 from app.decorators.decorators import login_required
 from app.enums import FinalidadeReservaEnum
+from app.routes.user.handler.handler_laboratorios import \
+    get_reservas_laboratorios
+from app.routes.user.handler.handler_reserva import (cancelar_reserva_generico,
+                                                     editar_reserva_generico,
+                                                     resolve_tipo)
 from app.routes_helper.request import get_query_params
 from config.general import LOCAL_TIMEZONE
-
-from .handler.handler_laboratorios import (cancelar_reserva_generico,
-                                           editar_reserva_generico,
-                                           get_reservas, resolve_tipo)
 
 bp = Blueprint('usuario_reservas_laboratorios', __name__, url_prefix='/usuario')
 
@@ -35,7 +36,7 @@ def gerenciar_reserva_fixa():
     extras: dict[str, Any] = {'datetime':today}
     page = int(request.args.get("page", 1))
     args_extras = get_query_params(request, origin="args")
-    reservas_fixas = get_reservas(userid, args_extras, page, "fixa")
+    reservas_fixas = get_reservas_laboratorios(userid, args_extras, page, "fixa")
     extras['reservas_fixas'] = reservas_fixas.items
     extras['pagination'] = reservas_fixas
     extras['args_extras'] = args_extras
@@ -59,7 +60,7 @@ def gerenciar_reserva_temporaria():
     extras: dict[str, Any] = {'datetime':today}
     page = int(request.args.get("page", 1))
     args_extras = get_query_params(request, origin="args")
-    reservas_temporarias = get_reservas(userid, args_extras, page, "temporaria")
+    reservas_temporarias = get_reservas_laboratorios(userid, args_extras, page, "temporaria")
     extras['reservas_temporarias'] = reservas_temporarias.items
     extras['pagination'] = reservas_temporarias
     extras['args_extras'] = args_extras
