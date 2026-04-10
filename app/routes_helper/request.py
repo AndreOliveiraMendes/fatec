@@ -6,7 +6,6 @@ from app.auxiliar.constant import Permission
 from app.models.locais import Locais
 from config.mapeamentos import IGNORED_FORM_FIELDS
 
-IGNORED_FORM_FIELDS = ["page", "acao", "bloco"]
 
 def get_query_params(
     request: Request, 

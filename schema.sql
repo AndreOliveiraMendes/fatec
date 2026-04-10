@@ -223,12 +223,12 @@ CREATE TABLE
     IF NOT EXISTS reservas_equipamentos (
         id_reserva INTEGER NOT NULL AUTO_INCREMENT,
         id_reserva_aula INTEGER NOT NULL,
-        id_reserva_responsavel INTEGER NOT NULL,
+        id_responsavel INTEGER NOT NULL,
         data_reserva DATE NOT NULL,
         criado_em DATETIME NOT NULL,
         PRIMARY KEY (id_reserva),
         CONSTRAINT reservas_equipamentos_ibfk_1 FOREIGN KEY (id_reserva_aula) REFERENCES aulas_ativas (id_aula_ativa),
-        CONSTRAINT reservas_equipamentos_ibfk_2 FOREIGN KEY (id_reserva_responsavel) REFERENCES pessoas (id_pessoa)
+        CONSTRAINT reservas_equipamentos_ibfk_2 FOREIGN KEY (id_responsavel) REFERENCES pessoas (id_pessoa)
     ) ENGINE = InnoDB COLLATE utf8mb4_0900_ai_ci DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE

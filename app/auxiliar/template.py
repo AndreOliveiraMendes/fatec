@@ -8,7 +8,7 @@ from markupsafe import Markup
 from app.auxiliar.constant import (APP_TITLE, DATA_FLAGS, PERMISSIONS,
                                    FormatDataTime, Permission)
 from app.auxiliar.shared import get_reserva
-from app.dao.internal.general import get_nome_pessoa
+from app.dao.internal.general import get_nome_pessoa_by_id
 from app.dao.internal.reservas import get_responsavel_reserva
 from app.dao.internal.usuarios import get_user
 from app.models.aulas import Turnos
@@ -292,9 +292,9 @@ def register_template_utils(app:Flask):
     def get_responsavel_reserva_template(reserva:Reservas_Fixas|Reservas_Temporarias, modo_template = False):
         return get_responsavel_reserva(reserva, modo_template)
     
-    @app.template_global('get_nome_pessoa')
-    def get_nome_pessoa_template(id, tipo, abort_on_null = True):
-        return get_nome_pessoa(id, tipo, abort_on_null)
+    @app.template_global('get_nome_pessoa_by_id')
+    def get_nome_pessoa_by_id_template(id, tipo, abort_on_null = True):
+        return get_nome_pessoa_by_id(id, tipo, abort_on_null)
 
     @app.template_global('get_reserva')
     def get_reserva_template(lab, aula, dia, mostrar_icone=False, tela_televisor=False, tela=None):

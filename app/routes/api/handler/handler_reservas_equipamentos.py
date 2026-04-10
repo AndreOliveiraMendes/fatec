@@ -71,7 +71,7 @@ def check_cancelamento_permissao(reserva: Reservas_Equipamentos):
     if user.perm.has(Permission.ADMIN):
         return True
     
-    return reserva.id_reserva_responsavel == userid
+    return reserva.id_responsavel == userid
 
 def cancelar_reserva_equipamento_handler(reserva: Reservas_Equipamentos, motivo: str):
     if reserva.estado == StatusReservaEquipamentoEnum.CANCELADA:

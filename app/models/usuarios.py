@@ -26,7 +26,7 @@ class Pessoas(Base):
     usuarios: Mapped[list["Usuarios"]] = relationship(back_populates='pessoa', passive_deletes=True)
     reservas_auditorio_responsavel: Mapped[list["Reservas_Auditorios"]] = relationship(back_populates="responsavel", foreign_keys="Reservas_Auditorios.id_responsavel", passive_deletes=True)
     reservas_auditorio_autorizador: Mapped[list["Reservas_Auditorios"]] = relationship(back_populates="autorizador", foreign_keys="Reservas_Auditorios.id_autorizador", passive_deletes=True)
-    reservas_equipamentos: Mapped[list["Reservas_Equipamentos"]] = relationship(back_populates="responsavel", foreign_keys="Reservas_Equipamentos.id_reserva_responsavel", passive_deletes=True)
+    reservas_equipamentos: Mapped[list["Reservas_Equipamentos"]] = relationship(back_populates="responsavel", foreign_keys="Reservas_Equipamentos.id_responsavel", passive_deletes=True)
     reservas_canceladas: Mapped[list["Reservas_Equipamentos"]] = relationship(back_populates="cancelado_por", foreign_keys="Reservas_Equipamentos.cancelado_por_id", passive_deletes=True)
     movimentacoes_funcionario: Mapped[list["MovimentacaoEquipamento"]] = relationship(back_populates="funcionario", foreign_keys="MovimentacaoEquipamento.id_funcionario", passive_deletes=True)
     movimentacoes_responsavel: Mapped[list["MovimentacaoEquipamento"]] = relationship(back_populates="responsavel", foreign_keys="MovimentacaoEquipamento.id_responsavel", passive_deletes=True)

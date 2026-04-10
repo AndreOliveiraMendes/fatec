@@ -1,7 +1,8 @@
 from flask import url_for
 from sqlalchemy import and_
 
-from app.dao.internal.reservas import (info_reserva_fixa,
+from app.dao.internal.reservas import (info_reserva_auditorio,
+                                       info_reserva_fixa,
                                        info_reserva_temporaria)
 from app.enums import FinalidadeReservaEnum
 from app.models.aulas import Aulas_Ativas
@@ -25,7 +26,7 @@ RESERVA_MAP = {
     "auditorios": {
         "model": Reservas_Auditorios,
         "order": Reservas_Auditorios.id_reserva_auditorio,
-        "info": None,
+        "info": info_reserva_auditorio,
         "redirect": lambda: url_for('usuarios_reservas_auditorios.gerenciar_reservas_auditorios')
     }
 }
@@ -46,5 +47,8 @@ FILTERS = {
         "dia": (lambda d:and_(Reservas_Temporarias.inicio_reserva <= d, Reservas_Temporarias.fim_reserva >= d), str),
         "semana": (lambda s:Aulas_Ativas.id_semana == s, int),
         "finalidade": (lambda f:Reservas_Temporarias.finalidade_reserva == FinalidadeReservaEnum(f), str)
+    },
+    "auditorios": {
+        
     }
 }

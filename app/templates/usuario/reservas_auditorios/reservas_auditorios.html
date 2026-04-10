@@ -72,15 +72,31 @@
                         <tr class="info">
                             {% if user and user.perm|has_flag(ADMIN) %}<th>Resp</th>{% endif %}
                             <th>autorizador</th>
+                            <th>local</th>
+                            <th>Dia / Horário</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for r in reservas_auditorios %}
                             <tr>
                                 {% if user and user.perm|has_flag(ADMIN) %}
-                                    <td title="{{ get_nome_pessoa(r.id_responsavel, 'pessoa') }}">{{ get_nome_pessoa(r.id_responsavel, 'pessoa') |truncate(12) }}</td>
+                                    <td title="{{ get_nome_pessoa_by_id(r.id_responsavel, 'pessoa') }}">
+                                        {{ get_nome_pessoa_by_id(r.id_responsavel, 'pessoa') |truncate(12) }}
+                                    </td>
                                 {% endif %}
-                                <td>{{ get_nome_pessoa(r.id_responsavel, 'pessoa', false) }}</td>
+                                <td title="{{ get_nome_pessoa_by_id(r.id_autorizador, 'pessoa', false) |format }}">
+                                    {{ get_nome_pessoa_by_id(r.id_autorizador, 'pessoa', false) |format|truncate(12) }}
+                                </td>
+                                <td>{{ r.local.nome_local }}</td>
+                                <td>
+                                    {{ r.aula_ativa.dia_da_semana.nome_semana }}
+                                    <br>
+                                    <small class="text-muted">
+                                        {{ r.aula_ativa.aula.horario_inicio|hora }}
+                                        –
+                                        {{ r.aula_ativa.aula.horario_fim|hora }}
+                                    </small>
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>

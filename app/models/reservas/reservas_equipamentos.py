@@ -18,7 +18,7 @@ class Reservas_Equipamentos(Base):
 
     id_reserva: Mapped[int] = mapped_column(primary_key=True)
     id_reserva_aula: Mapped[int] = mapped_column(ForeignKey('aulas_ativas.id_aula_ativa'), nullable=False)
-    id_reserva_responsavel: Mapped[int] = mapped_column(ForeignKey('pessoas.id_pessoa'))
+    id_responsavel: Mapped[int] = mapped_column(ForeignKey('pessoas.id_pessoa'))
     data_reserva: Mapped[date] = mapped_column(nullable=False)
     criado_em: Mapped[datetime] = mapped_column(server_default=func.now())
     cancelado_em: Mapped[datetime | None] = mapped_column(nullable=True)
@@ -32,7 +32,7 @@ class Reservas_Equipamentos(Base):
     )
 
     aula_ativa: Mapped["Aulas_Ativas"] = relationship(back_populates="reservas_equipamentos", passive_deletes=True)
-    responsavel: Mapped["Pessoas"] = relationship(back_populates="reservas_equipamentos", foreign_keys=[id_reserva_responsavel], passive_deletes=True)
+    responsavel: Mapped["Pessoas"] = relationship(back_populates="reservas_equipamentos", foreign_keys=[id_responsavel], passive_deletes=True)
     cancelado_por: Mapped["Pessoas"] = relationship(foreign_keys=[cancelado_por_id], back_populates="reservas_canceladas", passive_deletes=True)
     itens: Mapped[list["Reserva_Equipamento_Item"]] = relationship(back_populates="reserva", passive_deletes=True)
 
@@ -48,7 +48,7 @@ class Reservas_Equipamentos(Base):
             f"<Reservas_Equipamentos("
             f"id_reserva={self.id_reserva}, "
             f"id_reserva_aula={self.id_reserva_aula}, "
-            f"id_reserva_responsavel={self.id_reserva_responsavel}, "
+            f"id_responsavel={self.id_responsavel}, "
             f"motivo_cancelamento={self.motivo_cancelamento}, "
             f"data_reserva={self.data_reserva}, "
             f"criado_em={self.criado_em}"

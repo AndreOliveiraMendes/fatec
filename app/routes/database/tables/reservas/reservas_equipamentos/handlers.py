@@ -35,7 +35,7 @@ def search_prefetch():
 def search_fetch():
     id_reserva = none_if_empty(request.form.get('id_reserva'), int)
     id_reserva_aula = none_if_empty(request.form.get('id_reserva_aula'), int)
-    id_reserva_responsavel = none_if_empty(request.form.get('id_reserva_responsavel'), int)
+    id_responsavel = none_if_empty(request.form.get('id_responsavel'), int)
     data_reserva = parse_date_string(request.form.get('data_reserva'))
     estado = none_if_empty(request.form.get('estado'))
     estado_enum = None
@@ -52,8 +52,8 @@ def search_fetch():
         filters.append(Reservas_Equipamentos.id_reserva == id_reserva)
     if id_reserva_aula:
         filters.append(Reservas_Equipamentos.id_reserva_aula == id_reserva_aula)
-    if id_reserva_responsavel:
-        filters.append(Reservas_Equipamentos.id_reserva_responsavel == id_reserva_responsavel)
+    if id_responsavel:
+        filters.append(Reservas_Equipamentos.id_responsavel == id_responsavel)
     if data_reserva:
         filters.append(Reservas_Equipamentos.data_reserva == data_reserva)
     if estado_enum:

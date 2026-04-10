@@ -12,7 +12,8 @@ from app.auxiliar.constant import DB_ERRORS, Permission
 from app.auxiliar.dao_query import get_aula_semana, get_aula_turno
 from app.auxiliar.general import none_if_empty
 from app.auxiliar.parsing import parse_date_string
-from app.dao.internal.general import get_nome_pessoa, handle_db_error
+from app.dao.internal.general import (get_nome_pessoa, get_nome_pessoa_by_id,
+                                      handle_db_error)
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.enums import (FinalidadeReservaEnum, StatusReservaEquipamentoEnum,
                        TipoAulaEnum)
@@ -24,9 +25,32 @@ from app.models.reservas.reservas_equipamentos import (
     Reserva_Equipamento_Item, Reservas_Equipamentos)
 from app.models.reservas.reservas_laboratorios import (Reservas_Fixas,
                                                        Reservas_Temporarias)
-from app.models.usuarios import (Permissoes, Pessoas, Usuarios,
-                                 Usuarios_Especiais)
+from app.models.usuarios import Permissoes, Usuarios
 
+
+def get_responsavel_reserva(
+    reserva: Reservas_Fixas | Reservas_Temporarias,
+    modo_template: bool = False
+):
+    title_parts = []
+    tipo = reserva.tipo_responsavel
+
+    if tipo in (0, 2):
+        nome = get_nome_pessoa_by_id(reserva.id_responsavel, 'pessoa', False)
+        if nome:
+            title_parts.append(nome)
+
+    if tipo in (1, 2):
+        nome_especial = get_nome_pessoa_by_id(reserva.id_responsavel_especial, 'usuario_especial', False)
+        if nome_especial:
+            if tipo == 2:
+                nome_especial = f"({nome_especial})"
+            title_parts.append(nome_especial)
+
+    if modo_template and reserva.finalidade_reserva == FinalidadeReservaEnum.USO_DOS_ALUNOS:
+        title_parts.append("uso acadêmico")
+
+    return " ".join(title_parts)
 
 def get_reservas_auditorios_filtrada(id:int, all:bool = False, *args):
     sel_reservas_auditorios = select(Reservas_Auditorios)
@@ -44,6 +68,10 @@ def get_reservas_auditorios_filtrada(id:int, all:bool = False, *args):
     )
     return db.session.execute(sel_reservas_auditorios).scalars().all()
 
+def get_reservas_auditorios_database():
+    sel_reservas_auditorios = select(Reservas_Auditorios)
+    return db.session.execute(sel_reservas_auditorios).scalars().all()
+
 def get_reservas_fixas():
     sel_reservas_fixas = select(Reservas_Fixas)
     return db.session.execute(sel_reservas_fixas).scalars().all()
@@ -52,29 +80,6 @@ def get_reservas_temporarias():
     sel_reservas_temporarias = select(Reservas_Temporarias)
     return db.session.execute(sel_reservas_temporarias).scalars().all()
 
-def get_reservas_auditorios_database():
-    sel_reservas_auditorios = select(Reservas_Auditorios)
-    return db.session.execute(sel_reservas_auditorios).scalars().all()
-
-def check_reserva_temporaria(inicio, fim, local, aula, id = None):
-    base_filter = [Reservas_Temporarias.id_reserva_local == local,
-        Reservas_Temporarias.id_reserva_aula == aula]
-    if id is not None:
-        base_filter.append(Reservas_Temporarias.id_reserva_temporaria != id)
-    base_filter.append(
-        and_(Reservas_Temporarias.fim_reserva >= inicio, Reservas_Temporarias.inicio_reserva <= fim)
-    )
-    count_rtc = select(func.count()).select_from(Reservas_Temporarias).where(*base_filter)
-    res = db.session.scalar(count_rtc)
-    if res is None:
-        abort(403, description="Erro ao verificar conflito de reserva temporaria.")
-    if res > 0:
-        raise IntegrityError(
-            statement=None,
-            params=None,
-            orig=Exception("Já existe uma reserva para esse local e horario.")
-        )
-    
 def get_reservas_por_dia(dia:date, turno:Turnos|None=None, tipo_horario:TipoAulaEnum|None=None) -> tuple[Sequence[Reservas_Fixas], Sequence[Reservas_Temporarias]]:
     """
     Obtém as reservas de aulas para um dia específico.
@@ -142,7 +147,7 @@ def get_reservas_por_dia(dia:date, turno:Turnos|None=None, tipo_horario:TipoAula
     except MultipleResultsFound:
         abort(500, description="Erro ao consultar reservas temporarias.")
     return reservas_fixas, reservas_temporarias
-    
+
 def api_get_reserva_fixa_info(id_reserva):
     reserva = db.get_or_404(Reservas_Fixas, id_reserva)
     responsavel = get_responsavel_reserva(reserva)
@@ -162,35 +167,69 @@ def api_get_reserva_fixa_info(id_reserva):
         "local": reserva.local.nome_local
     }
 
-def get_responsavel_reserva(
-    reserva: Reservas_Fixas | Reservas_Temporarias,
-    modo_template: bool = False
-):
-    title_parts = []
-    tipo = reserva.tipo_responsavel
+def get_reserva_temporaria_info(id_reserva):
+    reserva = db.get_or_404(Reservas_Temporarias, id_reserva)
+    responsavel = get_responsavel_reserva(reserva)
+    return {
+        "id_reserva": reserva.id_reserva_temporaria,
+        "inicio": reserva.inicio_reserva.strftime("%Y-%m-%d") if reserva.inicio_reserva else None,
+        "fim": reserva.fim_reserva.strftime("%Y-%m-%d") if reserva.fim_reserva else None,
+        "id_responsavel": reserva.id_responsavel,
+        "id_responsavel_especial": reserva.id_responsavel_especial,
+        "id_local": reserva.id_reserva_local,
+        "id_aula_ativa": reserva.id_reserva_aula,
+        "finalidade": reserva.finalidade_reserva.value,
+        "observacoes": reserva.observacoes,
+        "descricao": reserva.descricao,
+        "responsavel": responsavel,
+        "horario": reserva.aula_ativa.selector_identification,
+        "local": reserva.local.nome_local
+    }
 
-    if tipo in (0, 2):
-        nome = get_nome_pessoa(reserva.id_responsavel, 'pessoa', False)
-        if nome:
-            title_parts.append(nome)
+def get_reserva_auditorio_info(id_reserva):
+    reserva = db.get_or_404(Reservas_Auditorios, id_reserva)
+    responsavel = get_nome_pessoa(reserva.responsavel)
+    autorizador = get_nome_pessoa(reserva.autorizador)
+    return {
+        "id_reserva": reserva.id_reserva_auditorio,
+        "dia_reserva": reserva.dia_reserva.strftime("%Y-%m-%d"),
+        "id_responsavel": reserva.id_responsavel,
+        "id_autorizador": reserva.id_autorizador,
+        "id_local": reserva.id_reserva_local,
+        "id_aula_ativa": reserva.id_reserva_aula,
+        "responsavel": responsavel,
+        "autorizador": autorizador,
+        "horario": reserva.aula_ativa.selector_identification,
+        "local": reserva.local.nome_local
+    }
 
-    if tipo in (1, 2):
-        nome_especial = get_nome_pessoa(reserva.id_responsavel_especial, 'usuario_especial', False)
-        if nome_especial:
-            if tipo == 2:
-                nome_especial = f"({nome_especial})"
-            title_parts.append(nome_especial)
-
-    if modo_template and reserva.finalidade_reserva == FinalidadeReservaEnum.USO_DOS_ALUNOS:
-        title_parts.append("uso acadêmico")
-
-    return " ".join(title_parts)
-
-def check_ownership_or_admin(reserva: Reservas_Fixas | Reservas_Temporarias):
+def check_reserva_temporaria(inicio, fim, local, aula, id = None):
+    base_filter = [Reservas_Temporarias.id_reserva_local == local,
+        Reservas_Temporarias.id_reserva_aula == aula]
+    if id is not None:
+        base_filter.append(Reservas_Temporarias.id_reserva_temporaria != id)
+    base_filter.append(
+        and_(Reservas_Temporarias.fim_reserva >= inicio, Reservas_Temporarias.inicio_reserva <= fim)
+    )
+    count_rtc = select(func.count()).select_from(Reservas_Temporarias).where(*base_filter)
+    res = db.session.scalar(count_rtc)
+    if res is None:
+        abort(403, description="Erro ao verificar conflito de reserva temporaria.")
+    if res > 0:
+        raise IntegrityError(
+            statement=None,
+            params=None,
+            orig=Exception("Já existe uma reserva para esse local e horario.")
+        )
+    
+def check_ownership_or_admin(reserva: Reservas_Fixas | Reservas_Temporarias | Reservas_Auditorios | Reservas_Equipamentos):
     userid = session.get('userid')
     user = db.get_or_404(Usuarios, userid)
 
-    if reserva.id_responsavel != user.pessoa.id_pessoa and not user.perm.has(Permission.ADMIN):
+    if user.perm.has(Permission.ADMIN):
+        return
+    
+    if not reserva.id_responsavel != user.pessoa.id_pessoa:
         abort(403, description="Acesso negado à reserva de outro usuário.")
 
 def check_periodo_fixa(reserva: Reservas_Fixas):
@@ -237,24 +276,9 @@ def info_reserva_temporaria(id_reserva):
         "editar_url": url_for("usuario_reservas_laboratorios.editar_reserva", tipo_reserva="temporaria", id_reserva=id_reserva)
     }
 
-def get_reserva_temporaria_info(id_reserva):
-    reserva = db.get_or_404(Reservas_Temporarias, id_reserva)
-    responsavel = get_responsavel_reserva(reserva)
-    return {
-        "id_reserva": reserva.id_reserva_temporaria,
-        "inicio": reserva.inicio_reserva.strftime("%Y-%m-%d") if reserva.inicio_reserva else None,
-        "fim": reserva.fim_reserva.strftime("%Y-%m-%d") if reserva.fim_reserva else None,
-        "id_responsavel": reserva.id_responsavel,
-        "id_responsavel_especial": reserva.id_responsavel_especial,
-        "id_local": reserva.id_reserva_local,
-        "id_aula_ativa": reserva.id_reserva_aula,
-        "finalidade": reserva.finalidade_reserva.value,
-        "observacoes": reserva.observacoes,
-        "descricao": reserva.descricao,
-        "responsavel": responsavel,
-        "horario": reserva.aula_ativa.selector_identification,
-        "local": reserva.local.nome_local
-    }
+def info_reserva_auditorio(id_reserva):
+    reserva = db.get_or_404(Reservas_Auditorios, id_reserva)
+
 
 def update_reserva_fixa(id_reserva):
     userid = session.get('userid')
@@ -499,7 +523,7 @@ def check_conflict_reservas_fixas(dia, id_aula, id_responsavel):
             "conflict": True,
             "labs": labs
         }
-
+    
 def get_reservas_equipamentos(dia = None):
     sel_reservas = select(Reservas_Equipamentos)
     if dia:

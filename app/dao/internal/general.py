@@ -49,7 +49,12 @@ def handle_db_error(e, msg, show_flash_message=True):
 
     current_app.logger.error("%s | erro=%s", msg, e)
 
-def get_nome_pessoa(id, tipo = Literal['pessoa', 'usuario', 'usuario_especial'], abort_on_null = True):
+def get_nome_pessoa_by_id(id, tipo = Literal['pessoa', 'usuario', 'usuario_especial'], abort_on_null = True, error_on_empty_id = False):
+    if id is None:
+        if error_on_empty_id:
+            abort(400, description="ID não pode ser vazio.")
+        else:
+            return None
     if tipo == 'pessoa':
         obj = db.session.get(Pessoas, id)
         if not obj and abort_on_null:
@@ -67,3 +72,18 @@ def get_nome_pessoa(id, tipo = Literal['pessoa', 'usuario', 'usuario_especial'],
         return obj.nome_usuario_especial
     else:
         abort(400, description="Tipo inválido para obtenção do nome da pessoa.")
+
+def get_nome_pessoa(obj, abort_on_null = True):
+    if not obj:
+        if abort_on_null:
+            abort(404, description="Registro não encontrado.")
+        else:
+            return None
+    if isinstance(obj, Pessoas):
+        return obj.alias or obj.nome_pessoa
+    elif isinstance(obj, Usuarios):
+        return obj.pessoa.alias or obj.pessoa.nome_pessoa
+    elif isinstance(obj, Usuarios_Especiais):
+        return obj.nome_usuario_especial
+    else:
+        abort(400, description="Tipo de objeto inválido para obtenção do nome da pessoa.")

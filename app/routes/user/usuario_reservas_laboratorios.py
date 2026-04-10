@@ -13,9 +13,6 @@ from app.decorators.decorators import login_required
 from app.enums import FinalidadeReservaEnum
 from app.routes.user.handler.handler_laboratorios import \
     get_reservas_laboratorios
-from app.routes.user.handler.handler_reserva import (cancelar_reserva_generico,
-                                                     editar_reserva_generico,
-                                                     resolve_tipo)
 from app.routes_helper.request import get_query_params
 from config.general import LOCAL_TIMEZONE
 

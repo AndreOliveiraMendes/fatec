@@ -70,7 +70,7 @@ def reservar():
         nova_reserva = Reservas_Equipamentos(
             data_reserva = dia,
             id_reserva_aula = aula_id,
-            id_reserva_responsavel = pessoa,
+            id_responsavel = pessoa,
             estado = StatusReservaEquipamentoEnum.PENDENTE
         )
 

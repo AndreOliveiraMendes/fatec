@@ -1,4 +1,4 @@
-from flask import (Blueprint)
+from flask import Blueprint
 
 from app.decorators.decorators import login_required
 from app.routes.user.handler.handler_reserva import (cancelar_reserva_generico,
