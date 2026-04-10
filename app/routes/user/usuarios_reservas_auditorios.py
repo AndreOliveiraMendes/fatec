@@ -5,7 +5,7 @@ from flask import Blueprint, abort, render_template, request, session
 
 from app.auxiliar.constant import Permission
 from app.dao.internal.aulas import get_dias_da_semana
-from app.dao.internal.locais import get_laboratorios
+from app.dao.internal.locais import get_auditorios, get_laboratorios
 from app.dao.internal.usuarios import (get_pessoas, get_user,
                                        get_usuarios_especiais)
 from app.decorators.decorators import login_required
@@ -33,7 +33,6 @@ def gerenciar_reservas_auditorios():
 
     # for edit and filter
     extras['pessoas'] = get_pessoas()
-    extras['usuarios_especiais'] = get_usuarios_especiais()
-    extras['laboratorios'] = get_laboratorios(user.perm.has(Permission.ADMIN))
+    extras['auditorios'] = get_auditorios()
     extras['semanas'] = get_dias_da_semana()
     return render_template("usuario/reservas_auditorios/reservas_auditorios.html", user=user, **extras)

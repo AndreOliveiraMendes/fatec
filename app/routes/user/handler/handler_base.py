@@ -49,6 +49,10 @@ FILTERS = {
         "finalidade": (lambda f:Reservas_Temporarias.finalidade_reserva == FinalidadeReservaEnum(f), str)
     },
     "auditorios": {
-        
+        "responsavel": (lambda r:Reservas_Auditorios.id_responsavel == r, int),
+        "dia": (lambda d:Reservas_Auditorios.dia_reserva == d, str),
+        "aud": (lambda a:Reservas_Auditorios.id_reserva_local == a, int),
+        "semana": (lambda s:Aulas_Ativas.id_semana == s, int),
+        "autorizador": (lambda a:Reservas_Auditorios.id_autorizador == a, int)
     }
 }
