@@ -4,7 +4,7 @@ from app.decorators.decorators import admin_required
 
 from .handler.handler_reservas_laboratorios import get_handler
 
-bp = Blueprint('api_reservas', __name__, url_prefix='/api/reservas')
+bp = Blueprint('api_reservas_laboratorio', __name__, url_prefix='/api/reservas')
 
 @bp.route('/reserva/<int:tipo_reserva>/info/<int:id_reserva>')
 def get_reserva_info(tipo_reserva, id_reserva):
@@ -26,7 +26,11 @@ def delete_reserva(tipo_reserva, id_reserva):
 # checagem indireta por dia/local/aula
 @bp.route('/get_reserva/<int:tipo_reserva>/<data:dia>/<int:id_local>/<int:id_aula>')
 def get_reserva_indirect(tipo_reserva, dia, id_local, id_aula):
-    return jsonify(get_handler(tipo_reserva, "indirect")(dia, id_local, id_aula))
+    result = get_handler(tipo_reserva, "indirect")(dia, id_local, id_aula)
+    if isinstance(result, dict) and "error" in result:
+        return jsonify(result), 500
+    else:
+        return jsonify(result)
 
 # checagem de conflitos
 @bp.route('/check_conflict_reserva/<int:tipo_reserva>/<data:dia>/<int:id_aula>/<int:id_responsavel>')

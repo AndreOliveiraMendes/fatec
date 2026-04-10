@@ -198,7 +198,7 @@
             TABELA RESERVAS AUTOLOAD
             ========================== */
             const baseUrl = {{ url_for(
-                'api_reservas.get_reserva_indirect',
+                'api_reservas_laboratorio.get_reserva_indirect',
                 tipo_reserva=0,
                 dia=semestre.data_inicio,
                 id_local=0,
@@ -206,7 +206,7 @@
             )|tojson }};
 
             const baseConflictUrl = {{ url_for(
-                'api_reservas.check_conflito_reserva',
+                'api_reservas_laboratorio.check_conflito_reserva',
                 tipo_reserva=0,
                 dia=semestre.data_inicio,
                 id_aula=0,
@@ -301,9 +301,9 @@
 
                 const altPressed = e.altKey;
 
-                const urlInfo = {{ url_for('api_reservas.get_reserva_info', tipo_reserva=0, id_reserva='0')|tojson }}.replace(/0$/, id);
-                const urlDelete = {{ url_for('api_reservas.delete_reserva', tipo_reserva=0, id_reserva='0')|tojson }}.replace(/0$/, id);
-                const urlEdit = {{ url_for('api_reservas.update_reserva', tipo_reserva=0, id_reserva='0')|tojson }}.replace(/0$/, id);
+                const urlInfo = {{ url_for('api_reservas_laboratorio.get_reserva_info', tipo_reserva=0, id_reserva='0')|tojson }}.replace(/0$/, id);
+                const urlDelete = {{ url_for('api_reservas_laboratorio.delete_reserva', tipo_reserva=0, id_reserva='0')|tojson }}.replace(/0$/, id);
+                const urlEdit = {{ url_for('api_reservas_laboratorio.update_reserva', tipo_reserva=0, id_reserva='0')|tojson }}.replace(/0$/, id);
 
                 try{
                     const res = await fetch(urlInfo);

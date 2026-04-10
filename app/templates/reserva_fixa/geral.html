@@ -189,7 +189,7 @@
         const idResponsavelAtual = {{ user.pessoa.id_pessoa|tojson }};
 
         const baseUrl = {{ url_for(
-            'api_reservas.get_reserva_indirect',
+            'api_reservas_laboratorio.get_reserva_indirect',
             tipo_reserva=0,
             dia=semestre.data_inicio,
             id_local=0,
@@ -380,9 +380,9 @@
             const altPressed = e.altKey;
             const id = td.dataset.idReserva;
 
-            const urlInfo = {{ url_for('api_reservas.get_reserva_info', tipo_reserva=0, id_reserva='0')|tojson }};
-            const urlDelete = {{ url_for('api_reservas.delete_reserva', tipo_reserva=0, id_reserva='0')|tojson }};
-            const urlEdit = {{ url_for('api_reservas.update_reserva', tipo_reserva=0, id_reserva='0')|tojson }};
+            const urlInfo = {{ url_for('api_reservas_laboratorio.get_reserva_info', tipo_reserva=0, id_reserva='0')|tojson }};
+            const urlDelete = {{ url_for('api_reservas_laboratorio.delete_reserva', tipo_reserva=0, id_reserva='0')|tojson }};
+            const urlEdit = {{ url_for('api_reservas_laboratorio.update_reserva', tipo_reserva=0, id_reserva='0')|tojson }};
 
             fetch(urlInfo.replace(/0$/, id))
                 .then(r => r.json())

@@ -6,10 +6,10 @@
 {% endblock title %}
 {% block content %}
     <div class="btn-group">
-        <a href="{{ url_for("default.home") }}" class="btn btn-default">
+        <a href="{{ url_for('default.home') }}" class="btn btn-default">
             <span class="glyphicon glyphicon-home"></span> Início
         </a>
-        <a href="{{ url_for("usuario.menu_reservas_usuario") }}"
+        <a href="{{ url_for('usuario.menu_reservas_usuario') }}"
            class="btn btn-primary">
             <span class="glyphicon glyphicon-list"></span> Menu
         </a>
@@ -85,7 +85,10 @@
                                         onchange="this.form.submit()">
                                     <option value="">Todos</option>
                                     {% for tr in TipoReserva %}
-                                    <option value="{{ tr.value }}" {% if request.args.get('finalidade') == tr.value %}selected{% endif %}>{{ tr.value }}</option>
+                                        <option value="{{ tr.value }}"
+                                                {% if request.args.get('finalidade') == tr.value %}selected{% endif %}>
+                                            {{ tr.value }}
+                                        </option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -176,12 +179,7 @@
                                             </button>
                                             <ul class="dropdown-menu dropdown-menu-right">
                                                 <li>
-                                                    <a class="btn-detalhes"
-                                                       data-toggle="modal"
-                                                       data-target="#modalDetalhes"
-                                                       data-info-url="{{ url_for('usuarios_reservas_base.get_info_reserva', tipo_reserva='fixa', id_reserva=r.id_reserva_fixa) }}">
-                                                        Detalhes
-                                                    </a>
+                                                    <a class="btn-detalhes" data-toggle="modal" data-target="#modalDetalhes">Detalhes</a>
                                                 </li>
                                                 <li class="{% if not pode_editar %}disabled{% endif %}">
                                                     <a class="btn-editar"
@@ -216,14 +214,27 @@
 {% endblock content %}
 {% block extra_script %}
     <script>
+        function carregarDetalhes($el){
+            let url = $el.closest('tr').data('info-url');
+
+            $.getJSON(url, function(data){
+                $('#modalDLocal').text(data.local);
+                $('#modalDSemana').text(data.semana);
+                $('#modalDSemestre').text(data.semestre);
+                $('#modalDHorario').text(data.horario);
+                $('#modalDObservacao').text(data.observacao || "sem observações");
+            });
+        }
+
         $(document).on('click','.linha-click',function(e){
             if($(e.target).closest('.btn-group').length) return;
-            let url = $(this).data('info-url');
-            $('.btn-detalhes[data-info-url="'+url+'"]').click();
+
+            carregarDetalhes($(this));
+            $('#modalDetalhes').modal('show');
         });
 
         $(document).on('click','.btn-cancelar',function(){
-            $.getJSON($(this).data('info-url'), function(data){
+            $.getJSON($(this).closest('tr').data('info-url'), function(data){
                 $('#modalCLocal').text(data.local);
                 $('#modalCSemana').text(data.semana);
                 $('#modalCSemestre').text(data.semestre);
@@ -233,7 +244,7 @@
         });
 
         $(document).on('click','.btn-editar',function(){
-            $.getJSON($(this).data('info-url'), function(data){
+            $.getJSON($(this).closest('tr').data('info-url'), function(data){
                 $('#modalELocal').text(data.local);
                 $('#modalESemana').text(data.semana);
                 $('#modalESemestre').text(data.semestre);
@@ -250,13 +261,7 @@
         });
 
         $(document).on('click','.btn-detalhes',function(){
-            $.getJSON($(this).data('info-url'), function(data){
-                $('#modalDLocal').text(data.local);
-                $('#modalDSemana').text(data.semana);
-                $('#modalDSemestre').text(data.semestre);
-                $('#modalDHorario').text(data.horario);
-                $('#modalDObservacao').text(data.observacao || "sem observações");
-            });
+            carregarDetalhes($(this));
         });
 
         $(document).on('click','.acoes',function(e){

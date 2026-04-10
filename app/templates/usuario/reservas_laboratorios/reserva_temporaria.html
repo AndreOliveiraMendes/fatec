@@ -181,7 +181,7 @@
                                                     <a class="btn-detalhes"
                                                        data-toggle="modal"
                                                        data-target="#modalDetalhes"
-                                                       data-info-url="{{ url_for('usuarios_reservas_base.get_info_reserva', tipo_reserva='temporaria', id_reserva=r.id_reserva_temporaria) }}">
+                                                       >
                                                         Detalhes
                                                     </a>
                                                 </li>
@@ -222,52 +222,59 @@
 {% endblock content %}
 {% block extra_script %}
     <script>
-$(document).on('click','.linha-click',function(e){
-    if($(e.target).closest('.btn-group').length) return;
-    let url = $(this).data('info-url');
-    $('.btn-detalhes[data-info-url="'+url+'"]').click();
-});
+        function carregarDetalhes($el){
+            let url = $el.closest('tr').data('info-url');
 
-$(document).on('click','.acoes',function(e){
-    e.stopPropagation();
-});
+            $.getJSON(url, function(data){
+                $('#modalDLocal').text(data.local);
+                $('#modalDSemana').text(data.semana);
+                $('#modalDPeriodo').text(data.periodo);
+                $('#modalDHorario').text(data.horario);
+                $('#modalDObservacao').text(data.observacao || "sem observações");
+            });
+        }
 
-$(document).on('click','.btn-cancelar',function(){
-    $.getJSON($(this).data('info-url'), function(data){
-        $('#modalCLocal').text(data.local);
-        $('#modalCSemana').text(data.semana);
-        $('#modalCPeriodo').text(data.periodo);
-        $('#modalCHorario').text(data.horario);
-        $('#formCancelar').attr('action', data.cancel_url);
-    });
-});
+        $(document).on('click','.linha-click',function(e){
+            if($(e.target).closest('.btn-group').length) return;
 
-$(document).on('click','.btn-editar',function(){
-    $.getJSON($(this).data('info-url'), function(data){
-        $('#modalELocal').text(data.local);
-        $('#modalESemana').text(data.semana);
-        $('#modalEPeriodo').text(data.periodo);
-        $('#modalEHorario').text(data.horario);
-        $('#modalEObservacao').val(data.observacao);
-        $('#modalETipoReserva').val(data.finalidadereserva);
-        $('#formEditar').attr('action', data.editar_url);
+            carregarDetalhes($(this));
+            $('#modalDetalhes').modal('show');
+        });
 
-        {% if user.perm|has_flag(ADMIN) %}
-        $('#modalEResponsavel').val(data.responsavel);
-        $('#modalEResponsavelEspecial').val(data.responsavel_especial);
-        {% endif %}
-    });
-});
+        $(document).on('click','.btn-cancelar',function(){
+            $.getJSON($(this).closest('tr').data('info-url'), function(data){
+                $('#modalCLocal').text(data.local);
+                $('#modalCSemana').text(data.semana);
+                $('#modalCPeriodo').text(data.periodo);
+                $('#modalCHorario').text(data.horario);
+                $('#formCancelar').attr('action', data.cancel_url);
+            });
+        });
 
-$(document).on('click','.btn-detalhes',function(){
-    $.getJSON($(this).data('info-url'), function(data){
-        $('#modalDLocal').text(data.local);
-        $('#modalDSemana').text(data.semana);
-        $('#modalDPeriodo').text(data.periodo);
-        $('#modalDHorario').text(data.horario);
-        $('#modalDObservacao').text(data.observacao || "sem observações");
-    });
-});
+        $(document).on('click','.btn-editar',function(){
+            $.getJSON($(this).closest('tr').data('info-url'), function(data){
+                $('#modalELocal').text(data.local);
+                $('#modalESemana').text(data.semana);
+                $('#modalEPeriodo').text(data.periodo);
+                $('#modalEHorario').text(data.horario);
+                $('#modalEObservacao').val(data.observacao);
+                $('#modalETipoReserva').val(data.finalidadereserva);
+                $('#formEditar').attr('action', data.editar_url);
+
+                {% if user.perm|has_flag(ADMIN) %}
+                $('#modalEResponsavel').val(data.responsavel);
+                $('#modalEResponsavelEspecial').val(data.responsavel_especial);
+                {% endif %}
+            });
+        });
+
+        $(document).on('click','.btn-detalhes',function(){
+            carregarDetalhes($(this));
+        });
+
+        $(document).on('click','.acoes',function(e){
+            e.stopPropagation();
+        });
 
     </script>
 {% endblock extra_script %}

@@ -74,11 +74,12 @@
                             <th>autorizador</th>
                             <th>local</th>
                             <th>Dia / Horário</th>
+                            <th class="col-action">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for r in reservas_auditorios %}
-                            <tr>
+                            <tr data-info-url="{{ url_for('usuarios_reservas_base.get_info_reserva', tipo_reserva='auditorios', id_reserva=r.id_reserva_auditorio) }}">
                                 {% if user and user.perm|has_flag(ADMIN) %}
                                     <td title="{{ get_nome_pessoa_by_id(r.id_responsavel, 'pessoa') }}">
                                         {{ get_nome_pessoa_by_id(r.id_responsavel, 'pessoa') |truncate(12) }}
@@ -97,13 +98,42 @@
                                         {{ r.aula_ativa.aula.horario_fim|hora }}
                                     </small>
                                 </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        {% else %}
-            <div class="alert alert-warning">Nenhuma reserva encontrada.</div>
-        {% endif %}
-    </div>
+                                <td class="acoes">
+                                    <div class="btn-group">
+                                        <button type="button"
+                                                class="btn btn-default btn-xs dropdown-toggle"
+                                                data-toggle="dropdown">
+                                            <span class="glyphicon glyphicon-cog"></span>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-right">
+                                            <li>
+                                                <a class="btn-detalhes" data-toggle="modal" data-target="#modalDetalhes">
+                                                Detalhes
+                                            </a>
+                                        </li>
+                                        <li class="{% if not pode_editar %}disabled{% endif %}">
+                                            <a class="btn-editar"
+                                               {% if pode_editar %} data-toggle="modal" data-target="#modalEditar" data-info-url="{{ url_for('usuarios_reservas_base.get_info_reserva', tipo_reserva='fixa', id_reserva=r.id_reserva_fixa) }}" {% else %} title="Fora do período permitido" {% endif %}>
+                                                Editar
+                                            </a>
+                                        </li>
+                                        <li class="divider"></li>
+                                        <li class="{% if not pode_editar %}disabled{% endif %}">
+                                            <a class="btn-cancelar text-danger"
+                                               {% if pode_editar %} data-toggle="modal" data-target="#modalCancelar" data-info-url="{{ url_for('usuarios_reservas_base.get_info_reserva', tipo_reserva='fixa', id_reserva=r.id_reserva_fixa) }}" {% else %} title="Fora do período permitido" {% endif %}>
+                                                Cancelar
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-warning">Nenhuma reserva encontrada.</div>
+    {% endif %}
+</div>
 {% endblock content %}

@@ -255,8 +255,8 @@ def info_reserva_fixa(id_reserva):
         "finalidadereserva": reserva.finalidade_reserva.value,
         "responsavel": reserva.id_responsavel,
         "responsavel_especial": reserva.id_responsavel_especial,
-        "cancel_url": url_for("usuario_reservas_laboratorios.cancelar_reserva", tipo_reserva="fixa", id_reserva=id_reserva),
-        "editar_url": url_for("usuario_reservas_laboratorios.editar_reserva", tipo_reserva="fixa", id_reserva=id_reserva)
+        "cancel_url": url_for("usuarios_reservas_base.cancelar_reserva", tipo_reserva="fixa", id_reserva=id_reserva),
+        "editar_url": url_for("usuarios_reservas_base.editar_reserva", tipo_reserva="fixa", id_reserva=id_reserva)
     }
 
 def info_reserva_temporaria(id_reserva):
@@ -272,13 +272,26 @@ def info_reserva_temporaria(id_reserva):
         "finalidadereserva": reserva.finalidade_reserva.value,
         "responsavel": reserva.id_responsavel,
         "responsavel_especial": reserva.id_responsavel_especial,
-        "cancel_url": url_for("usuario_reservas_laboratorios.cancelar_reserva", tipo_reserva="temporaria", id_reserva=id_reserva),
-        "editar_url": url_for("usuario_reservas_laboratorios.editar_reserva", tipo_reserva="temporaria", id_reserva=id_reserva)
+        "cancel_url": url_for("usuarios_reservas_base.cancelar_reserva", tipo_reserva="temporaria", id_reserva=id_reserva),
+        "editar_url": url_for("usuarios_reservas_base.editar_reserva", tipo_reserva="temporaria", id_reserva=id_reserva)
     }
 
 def info_reserva_auditorio(id_reserva):
     reserva = db.get_or_404(Reservas_Auditorios, id_reserva)
+    check_ownership_or_admin(reserva)
 
+    return {
+        "local": reserva.local.nome_local,
+        "dia": f"{reserva.dia_reserva}",
+        "semana": reserva.aula_ativa.dia_da_semana.nome_semana,
+        "horario": f"{reserva.aula_ativa.aula.horario_inicio:%H:%M} às {reserva.aula_ativa.aula.horario_fim:%H:%M}",
+        "observacao_responsavel": reserva.observação_responsavel,
+        "observacao_autorizador": reserva.observação_autorizador,
+        "responsavel": reserva.id_responsavel,
+        "autorizador": reserva.id_autorizador,
+        "cancel_url": url_for("default.under_development"),
+        "editar_url": url_for("default.under_development")
+    }
 
 def update_reserva_fixa(id_reserva):
     userid = session.get('userid')
@@ -438,10 +451,13 @@ def get_reserva_fixa_indirect(dia, id_local, id_aula):
     reservas = db.session.execute(select_reservas).scalars().all()
     if len(reservas) > 1:
         current_app.logger.warning(f"Mais de uma reserva fixa encontrada para local {id_local}, aula {id_aula} no dia {dia}")
-        return Response(status=500)
+        result = {
+            "reservado": True,
+            "error": "Mais de uma reserva encontrada para esse local, aula e dia."
+        }
     elif len(reservas) == 0:
         result = {"reservado": False}
-        return jsonify(result)
+        return result
     else:
         reserva = reservas[0]
         result = {
@@ -460,7 +476,7 @@ def get_reserva_fixa_indirect(dia, id_local, id_aula):
             "horario": reserva.aula_ativa.selector_identification,
             "local": reserva.local.nome_local
         }
-        return jsonify(result)
+        return result
     
 def get_reserva_temporaria_indirect(dia, id_local, id_aula):
     select_reservas = select(Reservas_Temporarias).where(
@@ -473,10 +489,10 @@ def get_reserva_temporaria_indirect(dia, id_local, id_aula):
     reservas = db.session.execute(select_reservas).scalars().all()
     if len(reservas) > 1:
         current_app.logger.warning(f"Mais de uma reserva temporária encontrada para local {id_local}, aula {id_aula} no dia {dia}")
-        return Response(status=500)
+        result = {"reservado": True, "error": "Mais de uma reserva encontrada para esse local, aula e dia."}
     elif len(reservas) == 0:
         result = {"reservado": False}
-        return jsonify(result)
+        return result
     else:
         reserva = reservas[0]
         result = {
@@ -495,7 +511,7 @@ def get_reserva_temporaria_indirect(dia, id_local, id_aula):
             "horario": reserva.aula_ativa.selector_identification,
             "local": reserva.local.nome_local
         }
-        return jsonify(result)
+        return result
     
 def check_conflict_reservas_fixas(dia, id_aula, id_responsavel):
     sel_reservas = select(Reservas_Fixas).where(
