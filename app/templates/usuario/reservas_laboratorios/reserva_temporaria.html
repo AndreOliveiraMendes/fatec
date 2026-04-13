@@ -6,10 +6,10 @@
 {% endblock title %}
 {% block content %}
     <div class="btn-group">
-        <a href="{{ url_for("default.home") }}" class="btn btn-default">
+        <a href="{{ url_for('default.home') }}" class="btn btn-default">
             <span class="glyphicon glyphicon-home"></span> Início
         </a>
-        <a href="{{ url_for("usuario.menu_reservas_usuario") }}"
+        <a href="{{ url_for('usuario.menu_reservas_usuario') }}"
            class="btn btn-primary">
             <span class="glyphicon glyphicon-list"></span> Menu
         </a>
@@ -169,6 +169,7 @@
                                     </td>
                                     <td>{{ r.finalidade_reserva.value }}</td>
                                     <!-- AÇÕES -->
+                                    {% set pode_editar = dentro_periodo or user.perm|has_flag(ADMIN) %}
                                     <td class="acoes">
                                         <div class="btn-group">
                                             <button type="button"
@@ -178,12 +179,7 @@
                                             </button>
                                             <ul class="dropdown-menu dropdown-menu-right">
                                                 <li>
-                                                    <a class="btn-detalhes"
-                                                       data-toggle="modal"
-                                                       data-target="#modalDetalhes"
-                                                       >
-                                                        Detalhes
-                                                    </a>
+                                                    <a class="btn-detalhes" data-toggle="modal" data-target="#modalDetalhes">Detalhes</a>
                                                 </li>
                                                 <li>
                                                     <a class="btn-editar"
@@ -501,10 +497,10 @@
 
         $('#modalForm').hide();
 
-    </script>
+</script>
 {% endblock extra_script %}
 {% block extra_css %}
-    <style>
+<style>
         .table-responsive { overflow: visible; }
         .filtro { padding-bottom:0 }
         .filtro_all { margin-left:15px }
@@ -516,5 +512,5 @@
             color:#777;
             border-bottom:1px solid #ddd;
         }
-    </style>
+</style>
 {% endblock extra_css %}

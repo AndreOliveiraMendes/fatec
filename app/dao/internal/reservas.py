@@ -228,7 +228,7 @@ def check_ownership_or_admin(reserva: Reservas_Fixas | Reservas_Temporarias | Re
     if user.perm.has(Permission.ADMIN):
         return
     
-    if not reserva.id_responsavel != user.pessoa.id_pessoa:
+    if not reserva.id_responsavel == user.pessoa.id_pessoa:
         abort(403, description="Acesso negado à reserva de outro usuário.")
 
 def check_periodo_fixa(reserva: Reservas_Fixas):
