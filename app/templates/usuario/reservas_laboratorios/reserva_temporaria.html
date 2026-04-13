@@ -211,9 +211,7 @@
                     </table>
                 </div>
                 {{ render_pagination(pagination, 'usuario_reservas_laboratorios.gerenciar_reserva_temporaria', args_extras) }}
-                {% include "usuario/modals_laboratorio/modal_cancelar.html" %}
-                {% include "usuario/modals_laboratorio/modal_editar.html" %}
-                {% include "usuario/modals_laboratorio/modal_detalhes.html" %}
+                {% include "usuario/modals_laboratorio/modal_global.html" %}
             {% else %}
                 <div class="alert alert-warning">Nenhuma reserva encontrada.</div>
             {% endif %}
@@ -291,22 +289,6 @@
             return $p;
         }
 
-        function carregarDetalhes($el){
-            let url = $el.closest('tr').data('info-url');
-            console.log(url);
-
-            $.getJSON(url, function(data){
-                let $container = $('#modalDetalhesConteudo');
-                $container.empty();
-
-                $container.append($('<p>').text('Detalhes da reserva:'));
-                $container.append(renderCampos(data, camposDetalhes));
-
-                $container.append($('<p>').text('Observações:'));
-                $container.append(renderCampos(data, camposObservacao, true));
-            });
-        }
-
         function renderFormCampos(data, campos){
             let $p = $('<p>');
 
@@ -362,49 +344,150 @@
             return $p;
         }
 
+        function abrirModal(config){
+            const $modal = $('#modalGlobal');
+            const $form = $('#modalForm');
+            const $conteudo = $('#modalConteudo');
+            const $footer = $('#modalFooter');
+
+            $conteudo.empty();
+            $footer.empty();
+
+            $modal.find('.modal-title').text(config.title || '');
+
+            $modal.find('.modal-header')
+                .removeClass('bg-danger bg-info bg-warning')
+                .addClass(config.headerClass || '');
+
+            // SEMPRE mostra o form (container estrutural)
+            $form.show().attr('action', '');
+
+            if(config.render){
+                config.render($conteudo);
+            }
+
+            if(config.form){
+                $form.attr('action', config.form.action);
+                $footer.show();
+
+                config.form.buttons.forEach(btn => {
+                    let $btn = $('<button>')
+                        .addClass(`btn ${btn.class}`)
+                        .text(btn.text);
+
+                    if(btn.type){
+                        $btn.attr('type', btn.type);
+                    }
+
+                    if(btn.type === 'button'){
+                        $btn.attr('data-dismiss', 'modal');
+                    }
+
+                    $footer.append($btn);
+                });
+
+            } else {
+                $footer.hide();
+            }
+
+            $modal.modal('show');
+        }
+
+        function abrirDetalhes($el){
+            $.getJSON($el.closest('tr').data('info-url'), function(data){
+
+                abrirModal({
+                    title: 'Detalhes',
+                    headerClass: 'bg-info',
+
+                    render: ($c) => {
+                        $c.append($('<p>').text('Detalhes da reserva:'));
+                        $c.append(renderCampos(data, camposDetalhes));
+
+                        $c.append($('<p>').text('Observações:'));
+                        $c.append(renderCampos(data, camposObservacao, true));
+                    },
+
+                    form: {
+                        action: '',
+                        buttons: [
+                            { text: 'Voltar', class: 'btn-default', type: 'button' }
+                        ]
+                    }
+                });
+
+            });
+        }
+
         $(document).on('click','.linha-click',function(e){
             if($(e.target).closest('.btn-group').length) return;
+            abrirDetalhes($(this));
+        });
 
-            carregarDetalhes($(this));
-            $('#modalDetalhes').modal('show');
+        $(document).on('click','.btn-detalhes',function(e){
+            e.stopPropagation();
+            abrirDetalhes($(this));
         });
 
         $(document).on('click','.btn-cancelar',function(){
             $.getJSON($(this).closest('tr').data('info-url'), function(data){
-                let $container = $('#modalCancelarConteudo');
-                $container.empty();
 
-                $container.append($('<p>').text('Deseja cancelar a reserva:'));
-                $container.append(renderCampos(data, camposDetalhes));
+                abrirModal({
+                    title: 'Confirmar cancelamento',
+                    headerClass: 'bg-danger',
 
-                $('#formCancelar').attr('action', data.cancel_url);
+                    render: ($c) => {
+                        $c.append($('<p>').text('Deseja cancelar a reserva:'));
+                        $c.append(renderCampos(data, camposDetalhes));
+                    },
+
+                    form: {
+                        action: data.cancel_url,
+                        buttons: [
+                            { text: 'Cancelar', class: 'btn-warning', type: 'submit' },
+                            { text: 'Voltar', class: 'btn-default', type: 'button', click: () => $('#modalGlobal').modal('hide') }
+                        ]
+                    }
+                });
+
             });
         });
 
         $(document).on('click','.btn-editar',function(){
             $.getJSON($(this).closest('tr').data('info-url'), function(data){
-                let $container = $('#modalEditarConteudo');
-                $container.empty();
 
-                $container.append($('<p>').text('Detalhes da reserva:'));
-                $container.append(renderCampos(data, camposDetalhes));
+                abrirModal({
+                    title: 'Editar',
+                    headerClass: 'bg-warning',
 
-                $container.append(renderFormCampos(data, campoFormEditar));
-                {% if user and user.perm|has_flag(ADMIN) %}
-                    $container.append(renderFormCampos(data, campoFormEditarAdmin));
-                {% endif %}
+                    render: ($c) => {
+                        $c.append($('<p>').text('Detalhes da reserva:'));
+                        $c.append(renderCampos(data, camposDetalhes));
 
-                $('#formEditar').attr('action', data.editar_url);
+                        $c.append(renderFormCampos(data, campoFormEditar));
+
+                        {% if user and user.perm|has_flag(ADMIN) %}
+                            $c.append(renderFormCampos(data, campoFormEditarAdmin));
+                        {% endif %}
+                    },
+
+                    form: {
+                        action: data.editar_url,
+                        buttons: [
+                            { text: 'Editar', class: 'btn-warning', type: 'submit' },
+                            { text: 'Voltar', class: 'btn-default', type: 'button' }
+                        ]
+                    }
+                });
+
             });
-        });
-
-        $(document).on('click','.btn-detalhes',function(){
-            carregarDetalhes($(this));
         });
 
         $(document).on('click','.acoes',function(e){
             e.stopPropagation();
         });
+
+        $('#modalForm').hide();
 
     </script>
 {% endblock extra_script %}

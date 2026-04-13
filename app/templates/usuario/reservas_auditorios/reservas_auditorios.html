@@ -202,9 +202,7 @@
                     </tbody>
                 </table>
                 {{ render_pagination(pagination, 'usuarios_reservas_auditorios.gerenciar_reservas_auditorios', args_extras) }}
-                {% include "usuario/modals_laboratorio/modal_cancelar.html" %}
-                {% include "usuario/modals_laboratorio/modal_editar.html" %}
-                {% include "usuario/modals_laboratorio/modal_detalhes.html" %}
+                {% include "usuario/modals_laboratorio/modal_global.html" %}
             </div>
         {% else %}
             <div class="alert alert-warning">Nenhuma reserva encontrada.</div>
@@ -245,51 +243,206 @@
             return $p;
         }
 
-        function carregarDetalhes($el){
-            let url = $el.closest('tr').data('info-url');
+        function renderFormCampos(data, campos){
+            let $p = $('<p>');
 
-            $.getJSON(url, function(data){
-                let $container = $('#modalDetalhesConteudo');
-                $container.empty();
+            Object.keys(campos).forEach(key => {
+                let $group = $('<div class="form-group">');
+                $group.append($(`<label for="${campos[key]['id']}">${campos[key]['label']}</label>`))
 
-                $container.append($('<p>').text('Detalhes da reserva:'));
-                $container.append(renderCampos(data, camposDetalhes));
+                let input = NaN;
+                if (campos[key]['type'] == 'textarea'){
+                    $input = $(`<textarea name="${campos[key]['name']}" id="${campos[key]['id']}" class="form-control">`);
+                } else if(campos[key]['type'] == 'enum' || campos[key]['type'] == 'select') {
+                    $input = $(`<select name="${campos[key]['name']}" id="${campos[key]['id']}" class="form-control">`);
 
-                $container.append($('<p>').text('Observações:'));
-                $container.append(renderCampos(data, camposObservacao, true));
+                    // placeholder
+                    if(campos[key]['placeholder']){
+                        $input.append(
+                            $('<option>').val('').text(campos[key]['placeholder'])
+                        );
+                    }
+
+                    // opções vindas do backend
+                    if(campos[key]['data']){
+                        campos[key]['data'].forEach(opt => {
+                            let value, label;
+
+                            if(typeof opt === 'object'){
+                                value = opt.value;
+                                label = opt.label;
+                            } else {
+                                value = opt;
+                                label = opt;
+                            }
+
+                            let $opt = $('<option>').val(value).text(label);
+
+                            // seleciona automaticamente
+                            if(data[key] == value){
+                                $opt.attr('selected', true);
+                            }
+
+                            $input.append($opt);
+                        });
+                    }
+                } else {
+                    $input = $(`<input type="${campos[key]['type']}" name="${campos[key]['name']}" id="${campos[key]['id']}" class="form-control">`);
+                }
+                $input.val(data[key]);
+                $group.append($input);
+
+                $p.append($group);
+            });
+
+            return $p;
+        }
+
+        function abrirModal(config){
+            const $modal = $('#modalGlobal');
+            const $form = $('#modalForm');
+            const $conteudo = $('#modalConteudo');
+            const $footer = $('#modalFooter');
+
+            $conteudo.empty();
+            $footer.empty();
+
+            $modal.find('.modal-title').text(config.title || '');
+
+            $modal.find('.modal-header')
+                .removeClass('bg-danger bg-info bg-warning')
+                .addClass(config.headerClass || '');
+
+            // SEMPRE mostra o form (container estrutural)
+            $form.show().attr('action', '');
+
+            if(config.render){
+                config.render($conteudo);
+            }
+
+            if(config.form){
+                $form.attr('action', config.form.action);
+                $footer.show();
+
+                config.form.buttons.forEach(btn => {
+                    let $btn = $('<button>')
+                        .addClass(`btn ${btn.class}`)
+                        .text(btn.text);
+
+                    if(btn.type){
+                        $btn.attr('type', btn.type);
+                    }
+
+                    if(btn.type === 'button'){
+                        $btn.attr('data-dismiss', 'modal');
+                    }
+
+                    $footer.append($btn);
+                });
+
+            } else {
+                $footer.hide();
+            }
+
+            $modal.modal('show');
+        }
+
+        function abrirDetalhes($el){
+            $.getJSON($el.closest('tr').data('info-url'), function(data){
+
+                abrirModal({
+                    title: 'Detalhes',
+                    headerClass: 'bg-info',
+
+                    render: ($c) => {
+                        $c.append($('<p>').text('Detalhes da reserva:'));
+                        $c.append(renderCampos(data, camposDetalhes));
+
+                        $c.append($('<p>').text('Observações:'));
+                        $c.append(renderCampos(data, camposObservacao, true));
+                    },
+
+                    form: {
+                        action: '',
+                        buttons: [
+                            { text: 'Voltar', class: 'btn-default', type: 'button' }
+                        ]
+                    }
+                });
+
             });
         }
 
         $(document).on('click','.linha-click',function(e){
             if($(e.target).closest('.btn-group').length) return;
+            abrirDetalhes($(this));
+        });
 
-            carregarDetalhes($(this));
-            $('#modalDetalhes').modal('show');
+        $(document).on('click','.btn-detalhes',function(e){
+            e.stopPropagation();
+            abrirDetalhes($(this));
         });
 
         $(document).on('click','.btn-cancelar',function(){
             $.getJSON($(this).closest('tr').data('info-url'), function(data){
-                let $container = $('#modalCancelarConteudo');
-                $container.empty();
 
-                $container.append($('<p>').text('Deseja cancelar a reserva:'));
-                $container.append(renderCampos(data, camposDetalhes));
+                abrirModal({
+                    title: 'Confirmar cancelamento',
+                    headerClass: 'bg-danger',
+
+                    render: ($c) => {
+                        $c.append($('<p>').text('Deseja cancelar a reserva:'));
+                        $c.append(renderCampos(data, camposDetalhes));
+                    },
+
+                    form: {
+                        action: data.cancel_url,
+                        buttons: [
+                            { text: 'Cancelar', class: 'btn-warning', type: 'submit' },
+                            { text: 'Voltar', class: 'btn-default', type: 'button', click: () => $('#modalGlobal').modal('hide') }
+                        ]
+                    }
+                });
+
             });
         });
 
         $(document).on('click','.btn-editar',function(){
             $.getJSON($(this).closest('tr').data('info-url'), function(data){
 
-            });
-        });
+                abrirModal({
+                    title: 'Editar',
+                    headerClass: 'bg-warning',
 
-        $(document).on('click','.btn-detalhes',function(){
-            carregarDetalhes($(this));
+                    render: ($c) => {
+                        $c.append($('<p>').text('Detalhes da reserva:'));
+                        $c.append(renderCampos(data, camposDetalhes));
+
+                        $c.append(renderFormCampos(data, campoFormEditar));
+
+                        {% if user and user.perm|has_flag(ADMIN) %}
+                            $c.append(renderFormCampos(data, campoFormEditarAdmin));
+                        {% endif %}
+                    },
+
+                    form: {
+                        action: data.editar_url,
+                        buttons: [
+                            { text: 'Editar', class: 'btn-warning', type: 'submit' },
+                            { text: 'Voltar', class: 'btn-default', type: 'button' }
+                        ]
+                    }
+                });
+
+            });
         });
 
         $(document).on('click','.acoes',function(e){
             e.stopPropagation();
         });
+
+        $('#modalForm').hide();
+
     </script>
 {% endblock extra_script %}
 {% block extra_css %}
