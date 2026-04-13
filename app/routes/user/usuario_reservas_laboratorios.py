@@ -40,8 +40,11 @@ def gerenciar_reserva_fixa():
     # for edit and filter
     extras['semestres'] = semestres
     extras['TipoReserva'] = FinalidadeReservaEnum
+    extras['TipoReservaList'] = [e.value for e in FinalidadeReservaEnum]
     extras['pessoas'] = get_pessoas()
+    extras['pessoasList'] = [{"value":p.id_pessoa, "label": p.nome_pessoa} for p in extras['pessoas']]
     extras['usuarios_especiais'] = get_usuarios_especiais()
+    extras['usuarios_especiaisList'] = [{"value":u.id_usuario_especial, "label": u.nome_usuario_especial} for u in extras['usuarios_especiais']]
     extras['laboratorios'] = get_laboratorios(user.perm.has(Permission.ADMIN))
     extras['semanas'] = get_dias_da_semana()
     return render_template("usuario/reservas_laboratorios/reserva_fixa.html", user=user, **extras)
@@ -62,8 +65,11 @@ def gerenciar_reserva_temporaria():
     extras['pagination'] = reservas_temporarias
     extras['args_extras'] = args_extras
     extras['TipoReserva'] = FinalidadeReservaEnum
+    extras['TipoReservaList'] = [e.value for e in FinalidadeReservaEnum]
     extras['pessoas'] = get_pessoas()
+    extras['pessoasList'] = [{"value":p.id_pessoa, "label": p.nome_pessoa} for p in extras['pessoas']]
     extras['usuarios_especiais'] = get_usuarios_especiais()
+    extras['usuarios_especiaisList'] = [{"value":u.id_usuario_especial, "label": u.nome_usuario_especial} for u in extras['usuarios_especiais']]
     extras['laboratorios'] = get_laboratorios(user.perm.has(Permission.ADMIN))
     extras['semanas'] = get_dias_da_semana()
     return render_template("usuario/reservas_laboratorios/reserva_temporaria.html", user=user, **extras)

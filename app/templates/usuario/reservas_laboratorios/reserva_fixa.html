@@ -225,6 +225,44 @@
             observacao: 'Observação'
         };
 
+        const campoFormEditar = {
+            finalidadereserva: {
+                'name': 'finalidade_reserva',
+                'label': 'Finalidade da Reserva',
+                'id': 'finalidadeReserva',
+                'type': 'enum',
+                'placeholder': 'escolha a finalidade da reserva',
+                data: {{ TipoReservaList|tojson }}
+            },
+            observacao: {
+                'name':'observacao',
+                'label': 'Observação',
+                'id': 'Observacao',
+                'type': 'textarea'
+            }
+        }
+
+        {% if user and user.perm|has_flag(ADMIN) %}
+            const campoFormEditarAdmin = {
+                responsavel: {
+                    'name': 'responsavel',
+                    'label': 'Responsavel pela Reserva',
+                    'id': 'responsavel',
+                    'type': 'select',
+                    'placeholder': 'escolha o responsavel pela reserva',
+                    data: {{ pessoasList|tojson }}
+                },
+                responsavel_especial: {
+                    'name': 'responsavel_especial',
+                    'label': 'Responsavel Especial',
+                    'id': 'responsavel_especial',
+                    'type': 'select',
+                    'placeholder': 'escolha o responsavel especial',
+                    data: {{ usuarios_especiaisList|tojson }}
+                }
+            }
+        {% endif %}
+
         function renderCampos(data, campos, show_null = false){
             let $p = $('<p>');
 
@@ -240,6 +278,61 @@
                         $('<br>')
                     )
                 }
+            });
+
+            return $p;
+        }
+
+        function renderFormCampos(data, campos){
+            let $p = $('<p>');
+
+            Object.keys(campos).forEach(key => {
+                let $group = $('<div class="form-group">');
+                $group.append($(`<label for="${campos[key]['id']}">${campos[key]['label']}</label>`))
+
+                let input = NaN;
+                if (campos[key]['type'] == 'textarea'){
+                    $input = $(`<textarea name="${campos[key]['name']}" id="${campos[key]['id']}" class="form-control">`);
+                } else if(campos[key]['type'] == 'enum' || campos[key]['type'] == 'select') {
+                    $input = $(`<select name="${campos[key]['name']}" id="${campos[key]['id']}" class="form-control">`);
+
+                    // placeholder
+                    if(campos[key]['placeholder']){
+                        $input.append(
+                            $('<option>').val('').text(campos[key]['placeholder'])
+                        );
+                    }
+
+                    // opções vindas do backend
+                    if(campos[key]['data']){
+                        campos[key]['data'].forEach(opt => {
+                            let value, label;
+
+                            if(typeof opt === 'object'){
+                                value = opt.value;
+                                label = opt.label;
+                            } else {
+                                value = opt;
+                                label = opt;
+                            }
+
+                            let $opt = $('<option>').val(value).text(label);
+
+                            // seleciona automaticamente
+                            if(data[key] == value){
+                                $opt.attr('selected', true);
+                            }
+
+                            $input.append($opt);
+                        });
+                    }
+                } else {
+                    $input = $(`<input type="${campos[key]['type']}" name="${campos[key]['name']}" id="${campos[key]['id']}" class="form-control">`);
+                }
+                $input.val(data[key]);
+                $group.append($input);
+
+                $p.append($group);
             });
 
             return $p;
@@ -274,23 +367,24 @@
 
                 $container.append($('<p>').text('Deseja cancelar a reserva:'));
                 $container.append(renderCampos(data, camposDetalhes));
+
+                $('#formCancelar').attr('action', data.cancel_url);
             });
         });
 
         $(document).on('click','.btn-editar',function(){
             $.getJSON($(this).closest('tr').data('info-url'), function(data){
-                $('#modalELocal').text(data.local);
-                $('#modalESemana').text(data.semana);
-                $('#modalESemestre').text(data.semestre);
-                $('#modalEHorario').text(data.horario);
-                $('#modalEObservacao').val(data.observacao);
-                $('#modalETipoReserva').val(data.finalidadereserva);
-                $('#formEditar').attr('action', data.editar_url);
+                let $container = $('#modalEditarConteudo');
+                $container.empty();
 
-                {% if user.perm|has_flag(ADMIN) %}
-                $('#modalEResponsavel').val(data.responsavel);
-                $('#modalEResponsavelEspecial').val(data.responsavel_especial);
+                $container.append($('<p>').text('Detalhes da reserva:'));
+                $container.append(renderCampos(data, camposDetalhes));
+
+                $container.append(renderFormCampos(data, campoFormEditar));
+                {% if user and user.perm|has_flag(ADMIN) %}
+                    $container.append(renderFormCampos(data, campoFormEditarAdmin));
                 {% endif %}
+                $('#formEditar').attr('action', data.editar_url);
             });
         });
 
