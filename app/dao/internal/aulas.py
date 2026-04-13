@@ -22,6 +22,10 @@ def get_semestres():
     sel_semestres = select(Semestres.id_semestre, Semestres.nome_semestre).order_by(Semestres.data_inicio)
     return db.session.execute(sel_semestres).all()
 
+def get_semestre_by_id(id_semestre):
+    sel_semestre = select(Semestres).where(Semestres.id_semestre == id_semestre)
+    return db.session.execute(sel_semestre).scalar_one_or_none()
+
 def get_aulas_ativas_por_dia(dia: date, turno: Turnos|None=None, tipo_aula:TipoAulaEnum=TipoAulaEnum.AULA):
     filtros = []
 
