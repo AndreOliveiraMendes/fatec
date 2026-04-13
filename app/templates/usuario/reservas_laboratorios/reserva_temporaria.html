@@ -278,11 +278,11 @@
 
         $(document).on('click','.btn-cancelar',function(){
             $.getJSON($(this).closest('tr').data('info-url'), function(data){
-                $('#modalCLocal').text(data.local);
-                $('#modalCSemana').text(data.semana);
-                $('#modalCPeriodo').text(data.periodo);
-                $('#modalCHorario').text(data.horario);
-                $('#formCancelar').attr('action', data.cancel_url);
+                let $container = $('#modalCancelarConteudo');
+                $container.empty();
+
+                $container.append($('<p>').text('Deseja cancelar a reserva:'));
+                $container.append(renderCampos(data, camposDetalhes));
             });
         });
 

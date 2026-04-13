@@ -269,7 +269,11 @@
 
         $(document).on('click','.btn-cancelar',function(){
             $.getJSON($(this).closest('tr').data('info-url'), function(data){
+                let $container = $('#modalCancelarConteudo');
+                $container.empty();
 
+                $container.append($('<p>').text('Deseja cancelar a reserva:'));
+                $container.append(renderCampos(data, camposDetalhes));
             });
         });
 
