@@ -169,7 +169,7 @@
                                     </td>
                                     <td>{{ r.finalidade_reserva.value }}</td>
                                     <!-- AÇÕES -->
-                                    {% set pode_editar = dentro_periodo or user.perm|has_flag(ADMIN) %}
+                                    {% set pode_editar = r.dentro_periodo or user.perm|has_flag(ADMIN) %}
                                     <td class="acoes">
                                         <div class="btn-group">
                                             <button type="button"

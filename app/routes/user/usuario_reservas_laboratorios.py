@@ -5,7 +5,7 @@ from flask import (Blueprint, abort, flash, redirect, render_template, request,
                    session, url_for)
 
 from app.auxiliar.constant import Permission
-from app.dao.internal.aulas import get_dias_da_semana, get_semestres
+from app.dao.internal.aulas import get_dias_da_semana, get_semestre_by_id, get_semestres
 from app.dao.internal.locais import get_laboratorios
 from app.dao.internal.usuarios import (get_pessoas, get_user,
                                        get_usuarios_especiais)
@@ -35,6 +35,12 @@ def gerenciar_reserva_fixa():
     args_extras = get_query_params(request, origin="args")
     reservas_fixas = get_reservas_laboratorios(userid, args_extras, page, "fixa")
     extras['reservas_fixas'] = reservas_fixas.items
+    for reserva in extras['reservas_fixas']:
+        id_semestre = next((s.id_semestre for s in semestres if reserva.id_reserva_semestre == s.id_semestre), None)
+        reserva.semestre = get_semestre_by_id(id_semestre) if id_semestre is not None else None
+        if not reserva.semestre:
+            continue
+        reserva.dentro_periodo = reserva.semestre.data_inicio_reserva <= today.date() <= reserva.semestre.data_fim_reserva
     extras['pagination'] = reservas_fixas
     extras['args_extras'] = args_extras
     # for edit and filter
