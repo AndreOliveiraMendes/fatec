@@ -419,68 +419,80 @@
             });
         }
 
+        const actions = {
+            'btn-detalhes': function($el){
+                abrirDetalhes($el);
+            },
+
+            'btn-editar': function($el){
+                $.getJSON($el.closest('tr').data('info-url'), function(data){
+
+                    abrirModal({
+                        title: 'Editar',
+                        headerClass: 'bg-warning',
+
+                        render: ($c) => {
+                            $c.append($('<p>').text('Detalhes da reserva:'));
+                            $c.append(renderCampos(data, camposDetalhes));
+
+                            $c.append(renderFormCampos(data, campoFormEditar));
+
+                            {% if user and user.perm|has_flag(ADMIN) %}
+                                $c.append(renderFormCampos(data, campoFormEditarAdmin));
+                            {% endif %}
+                        },
+
+                        form: {
+                            action: data.editar_url,
+                            buttons: [
+                                { text: 'Editar', class: 'btn-warning', type: 'submit' },
+                                { text: 'Voltar', class: 'btn-default', type: 'button' }
+                            ]
+                        }
+                    });
+
+                });
+            },
+
+            'btn-cancelar': function($el){
+                $.getJSON($el.closest('tr').data('info-url'), function(data){
+
+                    abrirModal({
+                        title: 'Confirmar cancelamento',
+                        headerClass: 'bg-danger',
+
+                        render: ($c) => {
+                            $c.append($('<p>').text('Deseja cancelar a reserva:'));
+                            $c.append(renderCampos(data, camposDetalhes));
+                        },
+
+                        form: {
+                            action: data.cancel_url,
+                            buttons: [
+                                { text: 'Cancelar', class: 'btn-warning', type: 'submit' },
+                                { text: 'Voltar', class: 'btn-default', type: 'button' }
+                            ]
+                        }
+                    });
+
+                });
+            }
+        };
+
         $(document).on('click','.linha-click',function(e){
             if($(e.target).closest('.btn-group').length) return;
             abrirDetalhes($(this));
         });
 
-        $(document).on('click','.btn-detalhes',function(e){
+        $(document).on('click', '[class*="btn-"]', function(e){
+            const $el = $(this);
             e.stopPropagation();
-            abrirDetalhes($(this));
-        });
 
-        $(document).on('click','.btn-cancelar',function(){
-            $.getJSON($(this).closest('tr').data('info-url'), function(data){
-
-                abrirModal({
-                    title: 'Confirmar cancelamento',
-                    headerClass: 'bg-danger',
-
-                    render: ($c) => {
-                        $c.append($('<p>').text('Deseja cancelar a reserva:'));
-                        $c.append(renderCampos(data, camposDetalhes));
-                    },
-
-                    form: {
-                        action: data.cancel_url,
-                        buttons: [
-                            { text: 'Cancelar', class: 'btn-warning', type: 'submit' },
-                            { text: 'Voltar', class: 'btn-default', type: 'button', click: () => $('#modalGlobal').modal('hide') }
-                        ]
-                    }
-                });
-
-            });
-        });
-
-        $(document).on('click','.btn-editar',function(){
-            $.getJSON($(this).closest('tr').data('info-url'), function(data){
-
-                abrirModal({
-                    title: 'Editar',
-                    headerClass: 'bg-warning',
-
-                    render: ($c) => {
-                        $c.append($('<p>').text('Detalhes da reserva:'));
-                        $c.append(renderCampos(data, camposDetalhes));
-
-                        $c.append(renderFormCampos(data, campoFormEditar));
-
-                        {% if user and user.perm|has_flag(ADMIN) %}
-                            $c.append(renderFormCampos(data, campoFormEditarAdmin));
-                        {% endif %}
-                    },
-
-                    form: {
-                        action: data.editar_url,
-                        buttons: [
-                            { text: 'Editar', class: 'btn-warning', type: 'submit' },
-                            { text: 'Voltar', class: 'btn-default', type: 'button' }
-                        ]
-                    }
-                });
-
-            });
+            for(let cls in actions){
+                if($el.hasClass(cls)){
+                    return actions[cls]($el); // para no primeiro match
+                }
+            }
         });
 
         $(document).on('click','.acoes',function(e){
