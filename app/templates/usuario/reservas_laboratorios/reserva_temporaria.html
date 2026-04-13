@@ -222,15 +222,50 @@
 {% endblock content %}
 {% block extra_script %}
     <script>
+        const camposDetalhes = {
+            local: 'Local',
+            semana: 'Semana',
+            periodo: 'Periodo',
+            horario: 'Horário'
+        };
+
+        const camposObservacao = {
+            observacao: 'Observação'
+        };
+
+        function renderCampos(data, campos, show_null = false){
+            let $p = $('<p>');
+
+            Object.keys(campos).forEach(key => {
+                if(data[key]){
+                    $p.append(
+                        $('<strong>').text(`${campos[key]}: ${data[key]}`),
+                        $('<br>')
+                    );
+                } else if (show_null){
+                    $p.append(
+                        $('<strong>').text(`${campos[key]}: Nenhuma`),
+                        $('<br>')
+                    )
+                }
+            });
+
+            return $p;
+        }
+
         function carregarDetalhes($el){
             let url = $el.closest('tr').data('info-url');
+            console.log(url);
 
             $.getJSON(url, function(data){
-                $('#modalDLocal').text(data.local);
-                $('#modalDSemana').text(data.semana);
-                $('#modalDPeriodo').text(data.periodo);
-                $('#modalDHorario').text(data.horario);
-                $('#modalDObservacao').text(data.observacao || "sem observações");
+                let $container = $('#modalDetalhesConteudo');
+                $container.empty();
+
+                $container.append($('<p>').text('Detalhes da reserva:'));
+                $container.append(renderCampos(data, camposDetalhes));
+
+                $container.append($('<p>').text('Observações:'));
+                $container.append(renderCampos(data, camposObservacao, true));
             });
         }
 

@@ -95,7 +95,12 @@
                                         class="form-control input-sm"
                                         onchange="this.form.submit()">
                                     <option value="">Todos</option>
-                                    
+                                    {% for stat in status %}
+                                        <option value="{{ stat.value }}"
+                                                {% if request.args.get('status') == stat.value %}selected{% endif %}>
+                                            {{ stat.value }}
+                                        </option>
+                                    {% endfor %}
                                 </select>
                             </div>
                         </div>
@@ -142,7 +147,8 @@
                     </thead>
                     <tbody>
                         {% for r in reservas_auditorios %}
-                            <tr data-info-url="{{ url_for('usuarios_reservas_base.get_info_reserva', tipo_reserva='auditorios', id_reserva=r.id_reserva_auditorio) }}">
+                            <tr class="linha-click"
+                                data-info-url="{{ url_for('usuarios_reservas_base.get_info_reserva', tipo_reserva='auditorios', id_reserva=r.id_reserva_auditorio) }}">
                                 {% if user and user.perm|has_flag(ADMIN) %}
                                     <td title="{{ get_nome_pessoa_by_id(r.id_responsavel, 'pessoa') }}">
                                         {{ get_nome_pessoa_by_id(r.id_responsavel, 'pessoa') |truncate(12) }}
@@ -195,12 +201,93 @@
                         {% endfor %}
                     </tbody>
                 </table>
+                {{ render_pagination(pagination, 'usuarios_reservas_auditorios.gerenciar_reservas_auditorios', args_extras) }}
+                {% include "usuario/modals_laboratorio/modal_cancelar.html" %}
+                {% include "usuario/modals_laboratorio/modal_editar.html" %}
+                {% include "usuario/modals_laboratorio/modal_detalhes.html" %}
             </div>
         {% else %}
             <div class="alert alert-warning">Nenhuma reserva encontrada.</div>
         {% endif %}
     </div>
 {% endblock content %}
+{% block extra_script %}
+    <script>
+        const camposDetalhes = {
+            local: 'Local',
+            semana: 'Semana',
+            dia: 'Dia',
+            horario: 'Horário'
+        };
+
+        const camposObservacao = {
+            observacao_autorizador: 'Observação do autorizador',
+            observacao_responsavel: 'Observação do responsavel'
+        };
+
+        function renderCampos(data, campos, show_null = false){
+            let $p = $('<p>');
+
+            Object.keys(campos).forEach(key => {
+                if(data[key]){
+                    $p.append(
+                        $('<strong>').text(`${campos[key]}: ${data[key]}`),
+                        $('<br>')
+                    );
+                } else if (show_null){
+                    $p.append(
+                        $('<strong>').text(`${campos[key]}: Nenhuma`),
+                        $('<br>')
+                    )
+                }
+            });
+
+            return $p;
+        }
+
+        function carregarDetalhes($el){
+            let url = $el.closest('tr').data('info-url');
+
+            $.getJSON(url, function(data){
+                let $container = $('#modalDetalhesConteudo');
+                $container.empty();
+
+                $container.append($('<p>').text('Detalhes da reserva:'));
+                $container.append(renderCampos(data, camposDetalhes));
+
+                $container.append($('<p>').text('Observações:'));
+                $container.append(renderCampos(data, camposObservacao, true));
+            });
+        }
+
+        $(document).on('click','.linha-click',function(e){
+            if($(e.target).closest('.btn-group').length) return;
+
+            carregarDetalhes($(this));
+            $('#modalDetalhes').modal('show');
+        });
+
+        $(document).on('click','.btn-cancelar',function(){
+            $.getJSON($(this).closest('tr').data('info-url'), function(data){
+
+            });
+        });
+
+        $(document).on('click','.btn-editar',function(){
+            $.getJSON($(this).closest('tr').data('info-url'), function(data){
+
+            });
+        });
+
+        $(document).on('click','.btn-detalhes',function(){
+            carregarDetalhes($(this));
+        });
+
+        $(document).on('click','.acoes',function(e){
+            e.stopPropagation();
+        });
+    </script>
+{% endblock extra_script %}
 {% block extra_css %}
     <style>
         .table-responsive {
@@ -229,3 +316,16 @@
 
     </style>
 {% endblock extra_css %}
+{#
+  "autorizador": null,
+  "cancel_url": "/under_dev",
+  "dia": "2026-04-08",
+  "editar_url": "/under_dev",
+  "horario": "10:20 às 11:10",
+  "local": "auditorio",
+  "observacao_autorizador": null,
+  "observacao_responsavel": null,
+  "responsavel": 1,
+  "semana": "quarta"
+}
+#}

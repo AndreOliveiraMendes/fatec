@@ -2,8 +2,7 @@ from copy import copy
 from datetime import date
 from typing import Sequence
 
-from flask import (Response, abort, current_app, jsonify, request, session,
-                   url_for)
+from flask import Response, abort, current_app, request, session, url_for
 from sqlalchemy import and_, between, case, func, select
 from sqlalchemy.exc import IntegrityError, MultipleResultsFound
 from sqlalchemy.sql.elements import ColumnElement
@@ -265,7 +264,7 @@ def info_reserva_temporaria(id_reserva):
 
     return {
         "local": reserva.local.nome_local,
-        "periodo": f"{reserva.inicio_reserva} - {reserva.fim_reserva}",
+        "periodo": f"{reserva.inicio_reserva:%d/%m/%Y} - {reserva.fim_reserva:%d/%m/%Y}",
         "semana": reserva.aula_ativa.dia_da_semana.nome_semana,
         "horario": f"{reserva.aula_ativa.aula.horario_inicio:%H:%M} às {reserva.aula_ativa.aula.horario_fim:%H:%M}",
         "observacao": reserva.observacoes,
@@ -282,15 +281,15 @@ def info_reserva_auditorio(id_reserva):
 
     return {
         "local": reserva.local.nome_local,
-        "dia": f"{reserva.dia_reserva}",
+        "dia": f"{reserva.dia_reserva:%d/%m/%Y}",
         "semana": reserva.aula_ativa.dia_da_semana.nome_semana,
         "horario": f"{reserva.aula_ativa.aula.horario_inicio:%H:%M} às {reserva.aula_ativa.aula.horario_fim:%H:%M}",
         "observacao_responsavel": reserva.observação_responsavel,
         "observacao_autorizador": reserva.observação_autorizador,
         "responsavel": reserva.id_responsavel,
         "autorizador": reserva.id_autorizador,
-        "cancel_url": url_for("default.under_development"),
-        "editar_url": url_for("default.under_development")
+        "cancel_url": url_for("default.under_dev_page"),
+        "editar_url": url_for("default.under_dev_page")
     }
 
 def update_reserva_fixa(id_reserva):

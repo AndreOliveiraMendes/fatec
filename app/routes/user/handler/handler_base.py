@@ -4,7 +4,7 @@ from sqlalchemy import and_
 from app.dao.internal.reservas import (info_reserva_auditorio,
                                        info_reserva_fixa,
                                        info_reserva_temporaria)
-from app.enums import FinalidadeReservaEnum
+from app.enums import FinalidadeReservaEnum, StatusReservaAuditorioEnum
 from app.models.aulas import Aulas_Ativas
 from app.models.reservas.reservas_auditorios import Reservas_Auditorios
 from app.models.reservas.reservas_laboratorios import (Reservas_Fixas,
@@ -53,6 +53,7 @@ FILTERS = {
         "dia": (lambda d:Reservas_Auditorios.dia_reserva == d, str),
         "aud": (lambda a:Reservas_Auditorios.id_reserva_local == a, int),
         "semana": (lambda s:Aulas_Ativas.id_semana == s, int),
-        "autorizador": (lambda a:Reservas_Auditorios.id_autorizador == a, int)
+        "autorizador": (lambda a:Reservas_Auditorios.id_autorizador == a, int),
+        "status": (lambda s:Reservas_Auditorios.status_reserva == StatusReservaAuditorioEnum(s), str)
     }
 }
