@@ -251,6 +251,16 @@ def check_periodo_temporaria(reserva: Reservas_Temporarias):
     hoje = date.today()
     return reserva.fim_reserva >= hoje
 
+def check_periodo_auditorio(reserva: Reservas_Auditorios):
+    userid = session.get('userid')
+    perm = db.session.get(Permissoes, userid)
+
+    if perm and perm.permissao & Permissoes.ADMIN:
+        return True
+    
+    hoje = date.today()
+    return reserva.dia_reserva >= hoje
+
 def info_reserva_fixa(id_reserva):
     reserva = db.get_or_404(Reservas_Fixas, id_reserva)
     check_ownership_or_admin(reserva)

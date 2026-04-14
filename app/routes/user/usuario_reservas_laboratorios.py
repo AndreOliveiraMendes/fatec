@@ -71,7 +71,6 @@ def gerenciar_reserva_temporaria():
     extras['reservas_temporarias'] = reservas_temporarias.items
     for reserva in extras['reservas_temporarias']:
         reserva.dentro_periodo = reserva.fim_reserva >= today.date()
-        print(reserva.fim_reserva, today.date(), reserva.fim_reserva >= today.date())
     extras['pagination'] = reservas_temporarias
     extras['args_extras'] = args_extras
     extras['TipoReserva'] = FinalidadeReservaEnum

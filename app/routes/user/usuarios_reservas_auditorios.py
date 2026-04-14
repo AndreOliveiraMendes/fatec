@@ -27,6 +27,8 @@ def gerenciar_reservas_auditorios():
     page = int(request.args.get("page", 1))
     reservas_auditorio = get_reservas_auditorios(userid, args_extras, page)
     extras['reservas_auditorios'] = reservas_auditorio.items
+    for reserva in extras['reservas_auditorios']:
+        reserva.dentro_periodo = reserva.dia_reserva >= today.date()
     extras['pagination'] = reservas_auditorio
     extras['args_extras'] = args_extras
 
