@@ -169,7 +169,7 @@
                                     </td>
                                     <td>{{ r.finalidade_reserva.value }}</td>
                                     <!-- AÇÕES -->
-                                    {% set pode_editar = dentro_periodo or user.perm|has_flag(ADMIN) %}
+                                    {% set pode_editar = r.dentro_periodo or user.perm|has_flag(ADMIN) %}
                                     <td class="acoes">
                                         <div class="btn-group">
                                             <button type="button"
@@ -181,22 +181,12 @@
                                                 <li>
                                                     <a class="btn-detalhes" data-toggle="modal" data-target="#modalDetalhes">Detalhes</a>
                                                 </li>
-                                                <li>
-                                                    <a class="btn-editar"
-                                                       data-toggle="modal"
-                                                       data-target="#modalEditar"
-                                                       data-info-url="{{ url_for('usuarios_reservas_base.get_info_reserva', tipo_reserva='temporaria', id_reserva=r.id_reserva_temporaria) }}">
-                                                        Editar
-                                                    </a>
+                                                <li class="{% if not pode_editar %}disabled{% endif %}">
+                                                    <a class="btn-editar">Editar</a>
                                                 </li>
                                                 <li class="divider"></li>
-                                                <li>
-                                                    <a class="btn-cancelar text-danger"
-                                                       data-toggle="modal"
-                                                       data-target="#modalCancelar"
-                                                       data-info-url="{{ url_for('usuarios_reservas_base.get_info_reserva', tipo_reserva='temporaria', id_reserva=r.id_reserva_temporaria) }}">
-                                                        Cancelar
-                                                    </a>
+                                                <li class="{% if not pode_editar %}disabled{% endif %}">
+                                                    <a class="btn-cancelar text-danger">Cancelar</a>
                                                 </li>
                                             </ul>
                                         </div>
@@ -482,6 +472,12 @@
 
         $(document).on('click', '[class*="btn-"]', function(e){
             const $el = $(this);
+
+            if ($el.closest('li').hasClass('disabled')) {
+                e.preventDefault();
+                return;
+            }
+
             e.stopPropagation();
 
             for(let cls in actions){

@@ -5,7 +5,8 @@ from flask import (Blueprint, abort, flash, redirect, render_template, request,
                    session, url_for)
 
 from app.auxiliar.constant import Permission
-from app.dao.internal.aulas import get_dias_da_semana, get_semestre_by_id, get_semestres
+from app.dao.internal.aulas import (get_dias_da_semana, get_semestre_by_id,
+                                    get_semestres)
 from app.dao.internal.locais import get_laboratorios
 from app.dao.internal.usuarios import (get_pessoas, get_user,
                                        get_usuarios_especiais)
@@ -68,6 +69,9 @@ def gerenciar_reserva_temporaria():
     args_extras = get_query_params(request, origin="args")
     reservas_temporarias = get_reservas_laboratorios(userid, args_extras, page, "temporaria")
     extras['reservas_temporarias'] = reservas_temporarias.items
+    for reserva in extras['reservas_temporarias']:
+        reserva.dentro_periodo = reserva.fim_reserva >= today.date()
+        print(reserva.fim_reserva, today.date(), reserva.fim_reserva >= today.date())
     extras['pagination'] = reservas_temporarias
     extras['args_extras'] = args_extras
     extras['TipoReserva'] = FinalidadeReservaEnum

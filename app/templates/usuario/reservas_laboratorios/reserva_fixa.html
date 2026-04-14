@@ -179,20 +179,14 @@
                                             </button>
                                             <ul class="dropdown-menu dropdown-menu-right">
                                                 <li>
-                                                    <a class="btn-detalhes" data-toggle="modal" data-target="#modalDetalhes">Detalhes</a>
+                                                    <a class="btn-detalhes" data-toggle="modal">Detalhes</a>
                                                 </li>
                                                 <li class="{% if not pode_editar %}disabled{% endif %}">
-                                                    <a class="btn-editar"
-                                                       {% if pode_editar %} data-toggle="modal" data-target="#modalEditar" data-info-url="{{ url_for('usuarios_reservas_base.get_info_reserva', tipo_reserva='fixa', id_reserva=r.id_reserva_fixa) }}" {% else %} title="Fora do período permitido" {% endif %}>
-                                                        Editar
-                                                    </a>
+                                                    <a class="btn-editar">Editar</a>
                                                 </li>
                                                 <li class="divider"></li>
                                                 <li class="{% if not pode_editar %}disabled{% endif %}">
-                                                    <a class="btn-cancelar text-danger"
-                                                       {% if pode_editar %} data-toggle="modal" data-target="#modalCancelar" data-info-url="{{ url_for('usuarios_reservas_base.get_info_reserva', tipo_reserva='fixa', id_reserva=r.id_reserva_fixa) }}" {% else %} title="Fora do período permitido" {% endif %}>
-                                                        Cancelar
-                                                    </a>
+                                                    <a class="btn-cancelar text-danger">Cancelar</a>
                                                 </li>
                                             </ul>
                                         </div>
@@ -478,6 +472,12 @@
 
         $(document).on('click', '[class*="btn-"]', function(e){
             const $el = $(this);
+
+            if ($el.closest('li').hasClass('disabled')) {
+                e.preventDefault();
+                return;
+            }
+
             e.stopPropagation();
 
             for(let cls in actions){
@@ -485,10 +485,6 @@
                     return actions[cls]($el); // para no primeiro match
                 }
             }
-        });
-
-        $(document).on('click','.acoes',function(e){
-            e.stopPropagation();
         });
 
         $('#modalForm').hide();

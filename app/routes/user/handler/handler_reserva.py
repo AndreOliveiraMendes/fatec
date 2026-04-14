@@ -8,10 +8,12 @@ from app.auxiliar.general import none_if_empty
 from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.reservas import (check_ownership_or_admin,
-                                       check_periodo_fixa)
+                                       check_periodo_fixa,
+                                       check_periodo_temporaria)
 from app.enums import FinalidadeReservaEnum
 from app.extensions import db
-from app.models.reservas.reservas_laboratorios import Reservas_Fixas
+from app.models.reservas.reservas_laboratorios import (Reservas_Fixas,
+                                                       Reservas_Temporarias)
 from app.models.usuarios import Permissoes
 from app.routes.user.handler.handler_base import RESERVA_MAP
 
@@ -22,12 +24,14 @@ def resolve_tipo(tipo_reserva: str):
         abort(404, description="Tipo de reserva inexistente")
     return data
 
-def cancelar_reserva_generico(modelo, id_reserva, redirect_url):
+def cancelar_reserva_generico(model, id_reserva, redirect_url):
     userid = session.get('userid')
-    reserva = db.get_or_404(modelo, id_reserva)
+    reserva = db.get_or_404(model, id_reserva)
     check_ownership_or_admin(reserva)
-    if modelo == Reservas_Fixas and not check_periodo_fixa(reserva):
+    if model == Reservas_Fixas and not check_periodo_fixa(reserva):
         abort(403, description="periodo de cadastro expirado ou ainda não começado")
+    elif model == Reservas_Temporarias and not check_periodo_temporaria(reserva):
+        abort(403, description="periodo de alteração expirado")
     try:
         db.session.delete(reserva)
         db.session.flush()
@@ -44,6 +48,8 @@ def editar_reserva_generico(model, id_reserva: int, redirect_url: str) -> Respon
     check_ownership_or_admin(reserva)
     if model == Reservas_Fixas and not check_periodo_fixa(reserva):
         abort(403, description="Esta reserva não pode mais ser alterada fora do período permitido.")
+    elif model == Reservas_Temporarias and not check_periodo_temporaria(reserva):
+        abort(403, description="periodo de alteração expirado")
     observacao = none_if_empty(request.form.get('observacao'))
     finalidade_reserva = request.form.get('finalidade_reserva')
     if not finalidade_reserva:
