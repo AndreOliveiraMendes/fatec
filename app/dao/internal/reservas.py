@@ -304,12 +304,27 @@ def info_reserva_auditorio(id_reserva):
         "dia": f"{reserva.dia_reserva:%d/%m/%Y}",
         "semana": reserva.aula_ativa.dia_da_semana.nome_semana,
         "horario": f"{reserva.aula_ativa.aula.horario_inicio:%H:%M} às {reserva.aula_ativa.aula.horario_fim:%H:%M}",
+        "status": reserva.status_reserva.value,
         "observacao_responsavel": reserva.observação_responsavel,
         "observacao_autorizador": reserva.observação_autorizador,
         "responsavel": reserva.id_responsavel,
         "autorizador": reserva.id_autorizador,
         "cancel_url": url_for("usuarios_reservas_base.cancelar_reserva", tipo_reserva="auditorio", id_reserva=id_reserva),
         "editar_url": url_for("usuarios_reservas_base.editar_reserva", tipo_reserva="auditorio", id_reserva=id_reserva)
+    }
+
+def info_reserva_equipamento(id_reserva):
+    reserva = db.get_or_404(Reservas_Equipamentos, id_reserva)
+    check_ownership_or_admin(reserva)
+
+    return {
+        "dia": f"{reserva.data_reserva:%d/%m/%Y}",
+        "semana": f"{reserva.aula_ativa.dia_da_semana.nome_semana}",
+        "horario": f"{reserva.aula_ativa.aula.horario_inicio:%H:%M} às {reserva.aula_ativa.aula.horario_fim:%H:%M}",
+        "responsavel": reserva.id_responsavel,
+        "status": reserva.estado.value,
+        "cancel_url": url_for("usuarios_reservas_base.cancelar_reserva", tipo_reserva="equipamento", id_reserva=id_reserva),
+        "editar_url": url_for("usuarios_reservas_base.editar_reserva", tipo_reserva="equipamento", id_reserva=id_reserva)
     }
 
 def update_reserva_fixa(id_reserva):

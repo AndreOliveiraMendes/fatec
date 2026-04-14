@@ -4,12 +4,13 @@ from sqlalchemy import and_
 from app.dao.internal.reservas import (check_periodo_auditorio,
                                        check_periodo_fixa,
                                        check_periodo_temporaria,
-                                       info_reserva_auditorio,
+                                       info_reserva_auditorio, info_reserva_equipamento,
                                        info_reserva_fixa,
                                        info_reserva_temporaria)
-from app.enums import FinalidadeReservaEnum, StatusReservaAuditorioEnum
+from app.enums import FinalidadeReservaEnum, StatusReservaAuditorioEnum, StatusReservaEquipamentoEnum
 from app.models.aulas import Aulas_Ativas
 from app.models.reservas.reservas_auditorios import Reservas_Auditorios
+from app.models.reservas.reservas_equipamentos import Reservas_Equipamentos
 from app.models.reservas.reservas_laboratorios import (Reservas_Fixas,
                                                        Reservas_Temporarias)
 
@@ -31,6 +32,12 @@ RESERVA_MAP = {
         "order": Reservas_Auditorios.id_reserva_auditorio,
         "info": info_reserva_auditorio,
         "redirect": lambda: url_for('usuarios_reservas_auditorios.gerenciar_reservas_auditorios')
+    },
+    "equipamento": {
+        "model": Reservas_Equipamentos,
+        "order": Reservas_Equipamentos.id_reserva,
+        "info": info_reserva_equipamento,
+        "redirect": lambda: url_for('usuarios_reservas_equipamentos.gerenciar_reservas_equipamentos')
     }
 }
 
@@ -58,6 +65,12 @@ FILTERS = {
         "semana": (lambda s:Aulas_Ativas.id_semana == s, int),
         "autorizador": (lambda a:Reservas_Auditorios.id_autorizador == a, int),
         "status": (lambda s:Reservas_Auditorios.status_reserva == StatusReservaAuditorioEnum(s), str)
+    },
+    "equipamento": {
+        "responsavel": (lambda r:Reservas_Equipamentos.id_responsavel == r, int),
+        "dia": (lambda d:Reservas_Equipamentos.data_reserva == d, str),
+        "semana": (lambda s:Aulas_Ativas.id_semana == s, int),
+        "status": (lambda s:Reservas_Equipamentos.estado == StatusReservaEquipamentoEnum(s), str)
     }
 }
 
