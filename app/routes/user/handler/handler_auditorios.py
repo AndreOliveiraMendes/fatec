@@ -11,7 +11,7 @@ from app.routes.user.handler.handler_base import FILTERS, RESERVA_MAP
 
 def get_reservas_auditorios(userid, args_extras, page):
     user = db.session.get(Usuarios, userid)
-    base = RESERVA_MAP.get('auditorios', {})
+    base = RESERVA_MAP.get('auditorio', {})
     if not base:
         abort(404, description="Tipo invalido")
     model = base.get('model')
@@ -21,7 +21,7 @@ def get_reservas_auditorios(userid, args_extras, page):
     filtro = []
     if not user.perm.has(Permission.ADMIN):
         filtro.append(model.id_responsavel == user.id_pessoa)
-    for key, (condition, cast) in FILTERS.get('auditorios', {}).items():
+    for key, (condition, cast) in FILTERS.get('auditorio', {}).items():
         raw = args_extras.get(key)
         if raw:
             try:

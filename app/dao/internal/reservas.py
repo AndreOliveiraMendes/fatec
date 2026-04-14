@@ -255,7 +255,7 @@ def check_periodo_auditorio(reserva: Reservas_Auditorios):
     userid = session.get('userid')
     perm = db.session.get(Permissoes, userid)
 
-    if perm and perm.permissao & Permissoes.ADMIN:
+    if perm and perm.permissao & Permission.ADMIN:
         return True
     
     hoje = date.today()
@@ -308,8 +308,8 @@ def info_reserva_auditorio(id_reserva):
         "observacao_autorizador": reserva.observação_autorizador,
         "responsavel": reserva.id_responsavel,
         "autorizador": reserva.id_autorizador,
-        "cancel_url": url_for("default.under_dev_page"),
-        "editar_url": url_for("default.under_dev_page")
+        "cancel_url": url_for("usuarios_reservas_base.cancelar_reserva", tipo_reserva="auditorio", id_reserva=id_reserva),
+        "editar_url": url_for("usuarios_reservas_base.editar_reserva", tipo_reserva="auditorio", id_reserva=id_reserva)
     }
 
 def update_reserva_fixa(id_reserva):

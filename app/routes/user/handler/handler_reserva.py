@@ -10,6 +10,7 @@ from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.reservas import check_ownership_or_admin
 from app.enums import FinalidadeReservaEnum
 from app.extensions import db
+from app.models.reservas.reservas_laboratorios import Reservas_Fixas, Reservas_Temporarias
 from app.models.usuarios import Permissoes
 from app.routes.user.handler.handler_base import CHECK_PERIODO_MAP, RESERVA_MAP
 
@@ -44,30 +45,33 @@ def editar_reserva_generico(model, id_reserva: int, redirect_url: str) -> Respon
     check = CHECK_PERIODO_MAP.get(model)
     if check and not check(reserva):
         abort(403, description="Esta reserva não pode mais ser editada fora do período permitido.")
-    observacao = none_if_empty(request.form.get('observacao'))
-    finalidade_reserva = request.form.get('finalidade_reserva')
-    if not finalidade_reserva:
-        finalidade_reserva = FinalidadeReservaEnum.GRADUACAO.value
-    responsavel = none_if_empty(request.form.get('responsavel'))
-    responsavel_especial = none_if_empty(request.form.get('responsavel_especial'))
-    perm = db.session.get(Permissoes, userid)
-    if not perm or perm.permissao&Permission.ADMIN == 0:
-        responsavel = reserva.id_responsavel
-        responsavel_especial = reserva.id_responsavel_especial
-    try:
-        old_data = copy(reserva)
-        reserva.observacoes = observacao
-        reserva.finalidade_reserva = FinalidadeReservaEnum(finalidade_reserva)
-        reserva.id_responsavel = responsavel
-        reserva.id_responsavel_especial = responsavel_especial
+    if model in [Reservas_Fixas, Reservas_Temporarias]:
+        observacao = none_if_empty(request.form.get('observacao'))
+        finalidade_reserva = request.form.get('finalidade_reserva')
+        if not finalidade_reserva:
+            finalidade_reserva = FinalidadeReservaEnum.GRADUACAO.value
+        responsavel = none_if_empty(request.form.get('responsavel'))
+        responsavel_especial = none_if_empty(request.form.get('responsavel_especial'))
+        perm = db.session.get(Permissoes, userid)
+        if not perm or perm.permissao&Permission.ADMIN == 0:
+            responsavel = reserva.id_responsavel
+            responsavel_especial = reserva.id_responsavel_especial
+        try:
+            old_data = copy(reserva)
+            reserva.observacoes = observacao
+            reserva.finalidade_reserva = FinalidadeReservaEnum(finalidade_reserva)
+            reserva.id_responsavel = responsavel
+            reserva.id_responsavel_especial = responsavel_especial
 
-        db.session.flush()
-        registrar_log_generico_usuario(userid, 'Edição', reserva, old_data, observacao='atraves de listagem')
+            db.session.flush()
+            registrar_log_generico_usuario(userid, 'Edição', reserva, old_data, observacao='atraves de listagem')
 
-        db.session.commit()
-        flash("sucesso ao editar reserva", "success")
-    except DB_ERRORS as e:
-        handle_db_error(e, "Erro ao editar reserva")
-    except ValueError as e:
-        handle_db_error(e, "Erro ao editar reserva")
+            db.session.commit()
+            flash("sucesso ao editar reserva", "success")
+        except DB_ERRORS as e:
+            handle_db_error(e, "Erro ao editar reserva")
+        except ValueError as e:
+            handle_db_error(e, "Erro ao editar reserva")
+    else:
+        flash("Tipo de reserva não editável ou inexistente ou metodo não implementado", "danger")
     return redirect(redirect_url)

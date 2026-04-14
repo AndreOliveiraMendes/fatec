@@ -26,7 +26,7 @@ RESERVA_MAP = {
         "info": info_reserva_temporaria,
         "redirect": lambda: url_for('usuario_reservas_laboratorios.gerenciar_reserva_temporaria')
     },
-    "auditorios": {
+    "auditorio": {
         "model": Reservas_Auditorios,
         "order": Reservas_Auditorios.id_reserva_auditorio,
         "info": info_reserva_auditorio,
@@ -51,7 +51,7 @@ FILTERS = {
         "semana": (lambda s:Aulas_Ativas.id_semana == s, int),
         "finalidade": (lambda f:Reservas_Temporarias.finalidade_reserva == FinalidadeReservaEnum(f), str)
     },
-    "auditorios": {
+    "auditorio": {
         "responsavel": (lambda r:Reservas_Auditorios.id_responsavel == r, int),
         "dia": (lambda d:Reservas_Auditorios.dia_reserva == d, str),
         "aud": (lambda a:Reservas_Auditorios.id_reserva_local == a, int),

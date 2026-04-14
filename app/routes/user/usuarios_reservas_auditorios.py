@@ -34,6 +34,7 @@ def gerenciar_reservas_auditorios():
 
     # for edit and filter
     extras['pessoas'] = get_pessoas()
+    extras['pessoasList'] = [{"value":p.id_pessoa, "label": p.nome_pessoa} for p in extras['pessoas']]
     extras['auditorios'] = get_auditorios()
     extras['semanas'] = get_dias_da_semana()
     extras['status'] = StatusReservaAuditorioEnum

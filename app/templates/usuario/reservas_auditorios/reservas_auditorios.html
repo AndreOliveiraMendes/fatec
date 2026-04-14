@@ -148,7 +148,7 @@
                     <tbody>
                         {% for r in reservas_auditorios %}
                             <tr class="linha-click"
-                                data-info-url="{{ url_for('usuarios_reservas_base.get_info_reserva', tipo_reserva='auditorios', id_reserva=r.id_reserva_auditorio) }}">
+                                data-info-url="{{ url_for('usuarios_reservas_base.get_info_reserva', tipo_reserva='auditorio', id_reserva=r.id_reserva_auditorio) }}">
                                 {% if user and user.perm|has_flag(ADMIN) %}
                                     <td title="{{ get_nome_pessoa_by_id(r.id_responsavel, 'pessoa') }}">
                                         {{ get_nome_pessoa_by_id(r.id_responsavel, 'pessoa') |truncate(12) }}
@@ -170,6 +170,8 @@
                                 <td>
                                     <span class="badge_status badge-{{ r.status_reserva.value }}">{{ r.status_reserva.value }}</span>
                                 </td>
+                                <!-- AÇÕES -->
+                                {% set pode_editar = r.dentro_periodo or user.perm|has_flag(ADMIN) %}
                                 <td class="acoes">
                                     <div class="btn-group">
                                         <button type="button"
@@ -216,6 +218,23 @@
             observacao_autorizador: 'Observação do autorizador',
             observacao_responsavel: 'Observação do responsavel'
         };
+
+        const campoFormEditar = {
+
+        }
+
+        {% if user and user.perm|has_flag(ADMIN) %}
+            const campoFormEditarAdmin = {
+                responsavel: {
+                    'name': 'responsavel',
+                    'label': 'Responsavel pela Reserva',
+                    'id': 'responsavel',
+                    'type': 'select',
+                    'placeholder': 'escolha o responsavel pela reserva',
+                    data: {{ pessoasList|tojson }}
+                }
+            }
+        {% endif %}
 
         function renderCampos(data, campos, show_null = false){
             let $p = $('<p>');
