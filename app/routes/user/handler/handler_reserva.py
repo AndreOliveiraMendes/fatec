@@ -8,8 +8,9 @@ from app.auxiliar.general import none_if_empty
 from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.reservas import check_ownership_or_admin
-from app.enums import FinalidadeReservaEnum
+from app.enums import FinalidadeReservaEnum, StatusReservaEquipamentoEnum
 from app.extensions import db
+from app.models.reservas.reservas_equipamentos import Reservas_Equipamentos
 from app.models.reservas.reservas_laboratorios import Reservas_Fixas, Reservas_Temporarias
 from app.models.usuarios import Permissoes
 from app.routes.user.handler.handler_base import CHECK_PERIODO_MAP, RESERVA_MAP
@@ -28,14 +29,27 @@ def cancelar_reserva_generico(model, id_reserva, redirect_url):
     check = CHECK_PERIODO_MAP.get(model)
     if check and not check(reserva):
         abort(403, description="Esta reserva não pode mais ser cancelada fora do período permitido.")
-    try:
-        db.session.delete(reserva)
-        db.session.flush()
-        registrar_log_generico_usuario(userid, 'Exclusão', reserva, observacao="atraves da listagem")
-        db.session.commit()
-        flash("Reserva cancelada com sucesso", "success")
-    except DB_ERRORS as e:
-        handle_db_error(e, "Erro ao excluir reserva")
+    if model == Reservas_Equipamentos:
+        if reserva.estado == StatusReservaEquipamentoEnum.PENDENTE:
+            reserva.estado = StatusReservaEquipamentoEnum.CANCELADA
+            try:
+                db.session.flush()
+                registrar_log_generico_usuario(userid, 'Edição', reserva, observacao="cancelamento atraves da listagem")
+                db.session.commit()
+                flash("Reserva cancelada com sucesso", "success")
+            except DB_ERRORS as e:
+                handle_db_error(e, "Erro ao cancelar reserva")
+        else:
+            flash("somente reservas pendentes podem ser canceladas", "danger")
+    else:
+        try:
+            db.session.delete(reserva)
+            db.session.flush()
+            registrar_log_generico_usuario(userid, 'Exclusão', reserva, observacao="atraves da listagem")
+            db.session.commit()
+            flash("Reserva cancelada com sucesso", "success")
+        except DB_ERRORS as e:
+            handle_db_error(e, "Erro ao excluir reserva")
     return redirect(redirect_url)
 
 def editar_reserva_generico(model, id_reserva: int, redirect_url: str) -> ResponseReturnValue:
