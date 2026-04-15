@@ -37,15 +37,15 @@ def search_fetch():
     id_reserva_aula = none_if_empty(request.form.get('id_reserva_aula'), int)
     id_responsavel = none_if_empty(request.form.get('id_responsavel'), int)
     data_reserva = parse_date_string(request.form.get('data_reserva'))
-    estado = none_if_empty(request.form.get('estado'))
-    estado_enum = None
+    status_reserva = none_if_empty(request.form.get('status_reserva'))
+    status_reserva_enum = None
     cancelado_por_id = none_if_empty(request.form.get('cancelado_por_id'), int)
     cancelado_em = parse_datetime_string(request.form.get('cancelado_em'))
     motivo_cancelamento = none_if_empty(request.form.get('motivo_cancelamento'))
     try:
-        estado_enum = StatusReservaEquipamentoEnum(estado)
+        status_reserva_enum = StatusReservaEquipamentoEnum(status_reserva)
     except ValueError as e:
-        estado_enum = None
+        status_reserva_enum = None
     filters = []
     query_params = get_query_params(request)
     if id_reserva:
@@ -56,8 +56,8 @@ def search_fetch():
         filters.append(Reservas_Equipamentos.id_responsavel == id_responsavel)
     if data_reserva:
         filters.append(Reservas_Equipamentos.data_reserva == data_reserva)
-    if estado_enum:
-        filters.append(Reservas_Equipamentos.estado == estado_enum)
+    if status_reserva_enum:
+        filters.append(Reservas_Equipamentos.status_reserva == status_reserva_enum)
     if cancelado_por_id:
         filters.append(Reservas_Equipamentos.cancelado_por_id == cancelado_por_id)
     if cancelado_em:

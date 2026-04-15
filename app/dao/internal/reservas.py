@@ -322,7 +322,7 @@ def info_reserva_equipamento(id_reserva):
         "semana": f"{reserva.aula_ativa.dia_da_semana.nome_semana}",
         "horario": f"{reserva.aula_ativa.aula.horario_inicio:%H:%M} às {reserva.aula_ativa.aula.horario_fim:%H:%M}",
         "responsavel": reserva.id_responsavel,
-        "status": reserva.estado.value,
+        "status": reserva.status_reserva.value,
         "cancel_url": url_for("usuarios_reservas_base.cancelar_reserva", tipo_reserva="equipamento", id_reserva=id_reserva),
         "editar_url": url_for("usuarios_reservas_base.editar_reserva", tipo_reserva="equipamento", id_reserva=id_reserva)
     }
@@ -607,7 +607,7 @@ def get_quantidade_equipamentos_reservados(data, id_equipamento=None, stats=None
             Reservas_Equipamentos.id_reserva == Reserva_Equipamento_Item.id_reserva
         )
         .where(
-            Reservas_Equipamentos.estado.in_(stats),
+            Reservas_Equipamentos.status_reserva.in_(stats),
             Reservas_Equipamentos.data_reserva <= data
         )
         .group_by(Reserva_Equipamento_Item.id_equipamento)

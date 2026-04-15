@@ -70,7 +70,7 @@ FILTERS = {
         "responsavel": (lambda r:Reservas_Equipamentos.id_responsavel == r, int),
         "dia": (lambda d:Reservas_Equipamentos.data_reserva == d, str),
         "semana": (lambda s:Aulas_Ativas.id_semana == s, int),
-        "status": (lambda s:Reservas_Equipamentos.estado == StatusReservaEquipamentoEnum(s), str)
+        "status": (lambda s:Reservas_Equipamentos.status_reserva == StatusReservaEquipamentoEnum(s), str)
     }
 }
 

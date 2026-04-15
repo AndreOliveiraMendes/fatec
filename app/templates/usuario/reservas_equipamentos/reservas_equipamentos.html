@@ -128,7 +128,7 @@
                                         {{ r.aula_ativa.aula.horario_fim|hora }}
                                     </small>
                                 </td>
-                                <td> <span class="badge-status status-{{ r.estado.value }}">{{ r.estado.value }}</span></td>
+                                <td> <span class="badge-status status-{{ r.status_reserva.value }}">{{ r.status_reserva.value }}</span></td>
                                 <!-- AÇÕES -->
                                 {% set pode_editar = r.dentro_periodo or user.perm|has_flag(ADMIN) %}
                                 <td class="acoes">

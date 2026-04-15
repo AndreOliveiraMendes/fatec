@@ -51,11 +51,11 @@ function removeToast(toast) {
     setTimeout(() => toast.remove(), 300);
 }
 
-function abrirModalCancelamento(id, estado) {
+function abrirModalCancelamento(id, status_reserva) {
     const tr = document.querySelector(`.linha-reserva[data-id="${id}"]`);
     const url = tr.dataset.urlCancelar;
 
-    const isPendente = estado === "pendente";
+    const isPendente = status_reserva === "pendente";
 
     // 🔥 textos dinâmicos
     const titulo = isPendente ? "Reprovar reserva" : "Cancelar reserva";
@@ -118,11 +118,11 @@ function btnGerenciar(id) {
     });
 }
 
-function btnCancelar(id, estado) {
+function btnCancelar(id, status_reserva) {
     return criarBotao({
-        texto: estado === "pendente" ? "Reprovar" : "Cancelar",
+        texto: status_reserva === "pendente" ? "Reprovar" : "Cancelar",
         classe: "btn-danger",
-        onClick: () => abrirModalCancelamento(id, estado)
+        onClick: () => abrirModalCancelamento(id, status_reserva)
     });
 }
 
@@ -160,8 +160,8 @@ function criarItemGerenciamento(eq) {
             ${eq.devolvido}/${eq.quantidade}
         </span>
 
-        <span class="badge-status badge-${eq.estado_item.toLowerCase()}">
-            ${eq.estado_item}
+        <span class="badge-status badge-${eq.status_reserva_item.toLowerCase()}">
+            ${eq.status_reserva_item}
         </span>
 
         <input type="number"
@@ -250,8 +250,8 @@ function carregarDetalhes(url, detalheEl) {
                 li.innerHTML = `
                     <span class="eq-nome">${eq.nome}</span>
                     <span class="eq-qtd">${eq.devolvido}/${eq.quantidade}</span>
-                    <span class="badge-status badge-${eq.estado_item.toLowerCase()}">
-                        ${eq.estado_item}
+                    <span class="badge-status badge-${eq.status_reserva_item.toLowerCase()}">
+                        ${eq.status_reserva_item}
                     </span>
                 `;
 
@@ -259,20 +259,20 @@ function carregarDetalhes(url, detalheEl) {
             });
 
             // ações dinâmicas
-            const estado_reserva = data.estado_reserva.toLowerCase();
+            const status_reserva_reserva = data.status_reserva_reserva.toLowerCase();
             const container = document.createElement("div");
             container.className = "btn-group-sm";
 
-            if (estado_reserva === "pendente") {
+            if (status_reserva_reserva === "pendente") {
                 container.appendChild(btnAprovar(data.id_reserva));
             }
 
-            if (estado_reserva === "ativa") {
+            if (status_reserva_reserva === "ativa") {
                 container.appendChild(btnGerenciar(data.id_reserva));
             }
 
-            if (estado_reserva === "pendente" || estado_reserva === "ativa") {
-                container.appendChild(btnCancelar(data.id_reserva, estado_reserva));
+            if (status_reserva_reserva === "pendente" || status_reserva_reserva === "ativa") {
+                container.appendChild(btnCancelar(data.id_reserva, status_reserva_reserva));
             }
 
             acoes.innerHTML = "";

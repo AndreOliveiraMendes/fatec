@@ -71,7 +71,7 @@ def reservar():
             data_reserva = dia,
             id_reserva_aula = aula_id,
             id_responsavel = pessoa,
-            estado = StatusReservaEquipamentoEnum.PENDENTE
+            status_reserva = StatusReservaEquipamentoEnum.PENDENTE
         )
 
         db.session.add(nova_reserva)

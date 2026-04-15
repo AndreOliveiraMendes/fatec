@@ -32,7 +32,7 @@
         <td>{{ re.cancelado_por.nome_pessoa|format(1) }}</td>
         <td>{{ re.motivo_cancelamento|format(1) }}</td>
         <td>{{ re.concluido_em|datahora }}</td>
-        <td>{{ re.estado.value }}</td>
+        <td>{{ re.status_reserva.value }}</td>
     {% endcall %}
 {% endmacro %}
 {% block title %}
@@ -131,10 +131,10 @@
                 </tr>
                 <tr>
                     <td>
-                        <code>estado</code>
+                        <code>status_reserva</code>
                     </td>
                     <td>ENUM</td>
-                    <td>Define o estado atual da reserva de equipamento.</td>
+                    <td>Define o status_reserva atual da reserva de equipamento.</td>
                     <td>
                         <ul class="valores_possiveis_format">
                             <li>
@@ -159,7 +159,7 @@
                     <td>TEXT (NULL)</td>
                     <td>
                         Descrição do motivo pelo qual a reserva foi cancelada.
-                        Esse campo é preenchido quando o estado da reserva é definido como
+                        Esse campo é preenchido quando o status_reserva da reserva é definido como
                         <code>CANCELADA</code>.
                     </td>
                     <td>-</td>
@@ -172,7 +172,7 @@
         <code>cancelado_por_id</code> só possuem valor quando a reserva é
         cancelada. Caso contrário, permanecem <code>NULL</code>.
         <br>
-        O campo <code>estado</code> controla o ciclo de vida da reserva
+        O campo <code>status_reserva</code> controla o ciclo de vida da reserva
         dentro do sistema.
     </div>
 {% endblock abertura %}
@@ -215,10 +215,10 @@
                            name="data_reserva">
                 </div>
                 <div class="form-group">
-                    <label for="estado">Estado da Reserva:</label>
-                    <select class="form-control" id="estado" name="estado">
-                        <option value="" disabled selected>Selecione o estado</option>
-                        {% for estado in SREE %}<option value="{{ estado.value }}">{{ estado.value }}</option>{% endfor %}
+                    <label for="status_reserva">Estado da Reserva:</label>
+                    <select class="form-control" id="status_reserva" name="status_reserva">
+                        <option value="" disabled selected>Selecione o status_reserva</option>
+                        {% for status_reserva in SREE %}<option value="{{ status_reserva.value }}">{{ status_reserva.value }}</option>{% endfor %}
                     </select>
                 </div>
                 {{ gerar_select("cancelador",

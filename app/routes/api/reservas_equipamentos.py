@@ -63,7 +63,7 @@ def registrar_devolucao_equipamento(id_reserva, id_equipamento):
     if not reserva:
         return jsonify({'error': 'Reserva não encontrada'}), 404
     
-    if not reserva.estado == StatusReservaEquipamentoEnum.ATIVA:
+    if not reserva.status_reserva == StatusReservaEquipamentoEnum.ATIVA:
         return jsonify({'error': 'Apenas reservas ativas podem ser gerenciadas'}), 400
     
     item = get_item_reserva(id_reserva, id_equipamento)
@@ -90,4 +90,4 @@ def registrar_devolucao_equipamento(id_reserva, id_equipamento):
     if code != 200:
         return jsonify({'error': msg}), code
     else:
-        return jsonify({'ok': True, 'reserva_concluida': reserva.estado == StatusReservaEquipamentoEnum.CONCLUIDA})
+        return jsonify({'ok': True, 'reserva_concluida': reserva.status_reserva == StatusReservaEquipamentoEnum.CONCLUIDA})

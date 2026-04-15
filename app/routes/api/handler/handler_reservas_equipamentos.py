@@ -31,7 +31,7 @@ def get_items_reserva_equipamento(id_reserva):
 def build_detalhes_reserva(reserva: Reservas_Equipamentos):
     res = {
         "id_reserva": reserva.id_reserva,
-        "estado_reserva": reserva.estado,
+        "status_reserva_reserva": reserva.status_reserva,
         "data_reserva": reserva.data_reserva.isoformat(),
         "equipamentos": []
     }
@@ -53,7 +53,7 @@ def build_detalhes_reserva(reserva: Reservas_Equipamentos):
             "nome": eq['nome_equipamento'],
             "quantidade": qtd,
             "devolvido": devolvido,
-            "estado_item": status,
+            "status_reserva_item": status,
             "url_atualizar": url_for('api_reservas_equipamentos.registrar_devolucao_equipamento', id_reserva=reserva.id_reserva, id_equipamento=eq['id_equipamento'])
         })
 
@@ -74,13 +74,13 @@ def check_cancelamento_permissao(reserva: Reservas_Equipamentos):
     return reserva.id_responsavel == userid
 
 def cancelar_reserva_equipamento_handler(reserva: Reservas_Equipamentos, motivo: str):
-    if reserva.estado == StatusReservaEquipamentoEnum.CANCELADA:
+    if reserva.status_reserva == StatusReservaEquipamentoEnum.CANCELADA:
         current_app.logger.warning(
             f"Tentativa de cancelar reserva já cancelada | reserva_id={reserva.id_reserva}"
         )
         return 400, 'Reserva já cancelada'
 
-    if reserva.estado == StatusReservaEquipamentoEnum.CONCLUIDA:
+    if reserva.status_reserva == StatusReservaEquipamentoEnum.CONCLUIDA:
         current_app.logger.warning(
             f"Tentativa de cancelar reserva concluída | reserva_id={reserva.id_reserva}"
         )
@@ -89,7 +89,7 @@ def cancelar_reserva_equipamento_handler(reserva: Reservas_Equipamentos, motivo:
     try:
         userid = session.get('userid')
 
-        reserva.estado = StatusReservaEquipamentoEnum.CANCELADA
+        reserva.status_reserva = StatusReservaEquipamentoEnum.CANCELADA
         reserva.motivo_cancelamento = motivo
         reserva.cancelado_por_id = userid
         reserva.cancelado_em = datetime.now(tz=LOCAL_TIMEZONE)
@@ -113,16 +113,16 @@ def cancelar_reserva_equipamento_handler(reserva: Reservas_Equipamentos, motivo:
         return 400, 'ID de usuário inválido'
     
 def aprovar_reserva_equipamento_handler(reserva: Reservas_Equipamentos):
-    if reserva.estado != StatusReservaEquipamentoEnum.PENDENTE:
+    if reserva.status_reserva != StatusReservaEquipamentoEnum.PENDENTE:
         current_app.logger.warning(
-            f"Tentativa de aprovar reserva não pendente | reserva_id={reserva.id_reserva} estado_atual={reserva.estado}"
+            f"Tentativa de aprovar reserva não pendente | reserva_id={reserva.id_reserva} status_reserva_atual={reserva.status_reserva}"
         )
         return 400, 'Apenas reservas pendentes podem ser aprovadas'
     
     try:
         userid = session.get('userid')
 
-        reserva.estado = StatusReservaEquipamentoEnum.ATIVA
+        reserva.status_reserva = StatusReservaEquipamentoEnum.ATIVA
 
         db.session.add(reserva)
         db.session.commit()
@@ -171,7 +171,7 @@ def finalizar_reserva_se_concluida(reserva: Reservas_Equipamentos):
         return 200, 'ok'
 
     try:
-        reserva.estado = StatusReservaEquipamentoEnum.CONCLUIDA
+        reserva.status_reserva = StatusReservaEquipamentoEnum.CONCLUIDA
         db.session.commit()
 
         current_app.logger.info(

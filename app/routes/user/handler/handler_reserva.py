@@ -8,8 +8,9 @@ from app.auxiliar.general import none_if_empty
 from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.reservas import check_ownership_or_admin
-from app.enums import FinalidadeReservaEnum, StatusReservaEquipamentoEnum
+from app.enums import FinalidadeReservaEnum, StatusReservaAuditorioEnum, StatusReservaEquipamentoEnum
 from app.extensions import db
+from app.models.reservas.reservas_auditorios import Reservas_Auditorios
 from app.models.reservas.reservas_equipamentos import Reservas_Equipamentos
 from app.models.reservas.reservas_laboratorios import Reservas_Fixas, Reservas_Temporarias
 from app.models.usuarios import Permissoes
@@ -29,18 +30,17 @@ def cancelar_reserva_generico(model, id_reserva, redirect_url):
     check = CHECK_PERIODO_MAP.get(model)
     if check and not check(reserva):
         abort(403, description="Esta reserva não pode mais ser cancelada fora do período permitido.")
-    if model == Reservas_Equipamentos:
-        if reserva.estado == StatusReservaEquipamentoEnum.PENDENTE:
-            reserva.estado = StatusReservaEquipamentoEnum.CANCELADA
-            try:
-                db.session.flush()
-                registrar_log_generico_usuario(userid, 'Edição', reserva, observacao="cancelamento atraves da listagem")
-                db.session.commit()
-                flash("Reserva cancelada com sucesso", "success")
-            except DB_ERRORS as e:
-                handle_db_error(e, "Erro ao cancelar reserva")
-        else:
-            flash("somente reservas pendentes podem ser canceladas", "danger")
+    if model in [Reservas_Equipamentos, Reservas_Auditorios]:
+        if (model == Reservas_Equipamentos and reserva.status_reserva == StatusReservaEquipamentoEnum.PENDENTE) \
+            or (model == Reservas_Auditorios and reserva.status_reserva == StatusReservaAuditorioEnum.AGUARDANDO):
+            reserva.status_reserva = StatusReservaEquipamentoEnum.CANCELADA
+        try:
+            db.session.flush()
+            registrar_log_generico_usuario(userid, 'Edição', reserva, observacao="cancelamento atraves da listagem")
+            db.session.commit()
+            flash("Reserva cancelada com sucesso", "success")
+        except DB_ERRORS as e:
+            handle_db_error(e, "Erro ao cancelar reserva")
     else:
         try:
             db.session.delete(reserva)
