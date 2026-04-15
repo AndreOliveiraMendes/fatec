@@ -7,8 +7,7 @@ WORKDIR /app
 # 🔧 Instala git
 RUN apt-get update \
     && apt-get install -y --no-install-recommends git \
-    && rm -rf /var/lib/apt/lists/* \
-    && echo "172.16.0.200 academico.fatecourinhos.edu.br" >> /etc/hosts
+    && rm -rf /var/lib/apt/lists/*
 
 # 📦 Copia primeiro requirements para cache de camada
 COPY requirements.txt .
@@ -20,6 +19,10 @@ RUN python -m pip install --root-user-action=ignore --no-cache-dir --upgrade pip
 # 🌐 Expõe a porta Flask
 EXPOSE 5000
 
-# ▶️ Comando para iniciar o servidor (modo local/wsgi)
-#CMD ["python", "-m", "app"]
-#CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "wsgi:app"]
+# 📂 Copia a aplicação
+COPY . .
+
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
