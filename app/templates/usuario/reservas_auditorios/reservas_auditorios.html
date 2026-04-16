@@ -221,7 +221,6 @@
         };
 
         const campoFormEditar = {
-
         }
 
         {% if user and user.perm|has_flag(ADMIN) %}
@@ -232,6 +231,14 @@
                     'id': 'responsavel',
                     'type': 'select',
                     'placeholder': 'escolha o responsavel pela reserva',
+                    data: {{ pessoasList|tojson }}
+                },
+                autorizador: {
+                    'name': 'autorizador',
+                    'label': 'Autorizador da Reserva',
+                    'id': 'autorizador',
+                    'type': 'select',
+                    'placeholder': 'escolha o autorizador da reserva',
                     data: {{ pessoasList|tojson }}
                 }
             }

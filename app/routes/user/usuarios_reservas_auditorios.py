@@ -38,4 +38,5 @@ def gerenciar_reservas_auditorios():
     extras['auditorios'] = get_auditorios()
     extras['semanas'] = get_dias_da_semana()
     extras['status'] = StatusReservaAuditorioEnum
+    extras['statusList'] = [s.value for s in StatusReservaAuditorioEnum]
     return render_template("usuario/reservas_auditorios/reservas_auditorios.html", user=user, **extras)
