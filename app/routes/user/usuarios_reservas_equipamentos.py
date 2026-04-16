@@ -8,10 +8,10 @@ from app.dao.internal.equipamentos import get_equipamentos
 from app.dao.internal.usuarios import get_pessoas, get_user
 from app.decorators.decorators import login_required
 from app.enums import StatusReservaEquipamentoEnum
-from app.routes.user.handler.handler_equipamentos import get_reservas_equipamentos
+from app.routes.user.handler.handler_equipamentos import \
+    get_reservas_equipamentos
 from app.routes_helper.request import get_query_params
 from config.general import LOCAL_TIMEZONE
-
 
 bp = Blueprint('usuarios_reservas_equipamentos', __name__, url_prefix='/usuario')
 

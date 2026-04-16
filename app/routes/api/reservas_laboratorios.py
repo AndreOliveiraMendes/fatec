@@ -14,13 +14,15 @@ def get_reserva_info(tipo_reserva, id_reserva):
 @bp.route('/reserva/<int:tipo_reserva>/update/<int:id_reserva>', methods=['POST'])
 @admin_required
 def update_reserva(tipo_reserva, id_reserva):
-    return jsonify(get_handler(tipo_reserva, "update")(id_reserva))
+    result, code = get_handler(tipo_reserva, "update")(id_reserva)
+    return jsonify(result), code
 
 
 @bp.route('/reserva/<int:tipo_reserva>/delete/<int:id_reserva>', methods=['DELETE'])
 @admin_required
 def delete_reserva(tipo_reserva, id_reserva):
-    return jsonify(get_handler(tipo_reserva, "delete")(id_reserva))
+    result, code = get_handler(tipo_reserva, "delete")(id_reserva)
+    return jsonify(result), code
 
 
 # checagem indireta por dia/local/aula

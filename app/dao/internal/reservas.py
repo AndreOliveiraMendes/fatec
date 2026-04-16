@@ -2,7 +2,7 @@ from copy import copy
 from datetime import date
 from typing import Sequence
 
-from flask import Response, abort, current_app, request, session, url_for
+from flask import abort, current_app, request, session, url_for
 from sqlalchemy import and_, between, case, func, select
 from sqlalchemy.exc import IntegrityError, MultipleResultsFound
 from sqlalchemy.sql.elements import ColumnElement
@@ -340,7 +340,7 @@ def update_reserva_fixa(id_reserva):
     observacoes = none_if_empty(data.get('observacoes'))
     descricao = none_if_empty(data.get('descricao'))
     if local is None or aula is None:
-        return Response(status=400)
+        return "erro", 400
     old_reserva = copy(reserva)
     try:
         reserva.id_responsavel = responsavel
@@ -363,14 +363,14 @@ def update_reserva_fixa(id_reserva):
             f"reserva atualizada com sucesso para {reserva} por {userid}"
         )
 
-        return Response(status=204)
+        return "sucesso", 204
 
     except DB_ERRORS as e:
         handle_db_error(e, "falha ao atualizar a reserva")
-        return Response(status=500)
+        return "erro", 500
     except ValueError as e:
         handle_db_error(e, "falha ao atualizar a reserva")
-        return Response(status=500)
+        return "erro", 500
     
 def update_reserva_temporaria(id_reserva):
     userid = session.get('userid')
@@ -388,7 +388,7 @@ def update_reserva_temporaria(id_reserva):
     descricao = none_if_empty(data.get('descricao'))
     
     if local is None or aula is None or inicio is None or fim is None:
-        return Response(status=400)
+        return "erro", 400
 
     dados_anteriores = copy(reserva)
     try:
@@ -415,14 +415,14 @@ def update_reserva_temporaria(id_reserva):
             f"reserva atualizada com sucesso para {reserva} por {userid}"
         )
 
-        return Response(status=204)
+        return "sucesso", 204
 
     except DB_ERRORS as e:
         handle_db_error(e, "falha ao atualizar a reserva")
-        return Response(status=500)
+        return "erro", 500
     except ValueError as e:
         handle_db_error(e, "falha ao atualizar a reserva")
-        return Response(status=500)
+        return "erro", 500
     
 def delete_reserva_fixa(id_reserva):
     userid = session.get('userid')
@@ -441,11 +441,11 @@ def delete_reserva_fixa(id_reserva):
             f"reserva removida com sucesso para {reserva} por {userid}"
         )
 
-        return Response(status=204)
+        return "sucesso", 204
 
     except DB_ERRORS as e:
         handle_db_error(e, "falha ao remover reserva")
-        return Response(status=500)
+        return "erro", 500
 
 def delete_reserva_temporaria(id_reserva):
     userid = session.get('userid')
@@ -464,11 +464,11 @@ def delete_reserva_temporaria(id_reserva):
             f"reserva removida com sucesso para {reserva} por {userid}"
         )
 
-        return Response(status=204)
+        return "sucesso", 204
 
     except DB_ERRORS as e:
         handle_db_error(e, "falha ao remover reserva")
-        return Response(status=500)
+        return "erro", 500
     
 def get_reserva_fixa_indirect(dia, id_local, id_aula):
     select_reservas = select(Reservas_Fixas).where(
