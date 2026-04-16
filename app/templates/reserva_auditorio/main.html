@@ -154,7 +154,7 @@
                                         </form>
                                     </td>
                                     <td>
-                                        {% if reserva.id_responsavel == user.id_pessoa %}
+                                        {% if reserva.id_responsavel == user.id_pessoa or user.perm|has_flag(ADMIN+AUTORIZAR) %}
                                             <a href="#modalEditar"
                                                data-toggle="modal"
                                                data-info-url="{{ url_for('reservas_auditorios.get_info_reserva', id_reserva=reserva.id_reserva_auditorio) }}"

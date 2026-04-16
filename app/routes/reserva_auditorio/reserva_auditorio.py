@@ -12,7 +12,7 @@ from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.locais import get_auditorios
 from app.dao.internal.reservas import get_reservas_auditorios_filtrada
-from app.dao.internal.usuarios import get_user
+from app.dao.internal.usuarios import get_pessoas, get_user
 from app.decorators.decorators import reserva_auditorio_required
 from app.enums import StatusReservaAuditorioEnum
 from app.extensions import db
@@ -52,6 +52,7 @@ def main_page():
         if reserva_dia_fim:
             conditions.append(Reservas_Auditorios.dia_reserva <= reserva_dia_fim)
     extras['reservas_auditorios'] = get_reservas_auditorios_filtrada(user.pessoa.id_pessoa, user.perm.has_any(Permission.ADMIN|Permission.AUTORIZAR), *conditions)
+    extras['pessoas'] = get_pessoas()
     return render_template('reserva_auditorio/main.html', user=user, **extras)
 
 @bp.route('/atualizar_status_reserva/<int:id_reserva>', methods=['POST'])
@@ -158,6 +159,10 @@ def adicionar():
     user = get_user(userid)
     if not user:
         abort(403, description="Usuário não encontrado.")
+    if user.perm.has_any(Permission.ADMIN):
+        solicitante_id = get_value_or_abort(request.form.get('solicitante'), 400, "id do solicitante é obrigatório", int)
+    else:
+        solicitante_id = user.id_pessoa
     auditorio = get_value_or_abort(request.form.get('auditorio'), 400, "id do auditorio é obritagorio", int)
     dia = parse_date_string_or_abort(request.form.get('dia'), 400, "dia é obrigatorio")
     hora = get_value_or_abort(request.form.get('hora'), 400, "id do horario é obrigatorio", int)
@@ -167,7 +172,7 @@ def adicionar():
         nova_reserva.id_reserva_local = auditorio
         nova_reserva.id_reserva_aula = hora
         nova_reserva.dia_reserva = dia
-        nova_reserva.id_responsavel = user.id_pessoa
+        nova_reserva.id_responsavel = solicitante_id
         if observacao:
             nova_reserva.observação_responsavel = observacao
 
