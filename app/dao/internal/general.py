@@ -40,12 +40,22 @@ def _friendly_db_message(error):
 
     return "Não foi possível concluir a operação."
 
-def handle_db_error(e, msg, show_flash_message=True):
-    db.session.rollback()
+def handle_db_error(e, msg, show_flash_message=True, rollback=True, category="danger"):
+    """Trata erros de banco de dados, realizando rollback (caso necessário), exibindo mensagens amigáveis e logando o erro.
+    
+    Args:
+        e: O erro ocorrido.
+        msg: Mensagem de contexto para o log.
+        show_flash_message: exibe uma mensagem flash para o usuario com uma mensagem amigavel (não tecnica)
+        rollback: realiza rollback da transação atual caso seja necessário
+        category: categoria da mensagem flash ('info', 'success', 'warning', 'danger')
+    """
+    if rollback:
+        db.session.rollback()
 
     if show_flash_message:
         user_msg = _friendly_db_message(e)
-        flash(f"{msg}: {user_msg}", "danger")
+        flash(f"{msg}: {user_msg}", category)
 
     current_app.logger.error("%s | erro=%s", msg, e)
 

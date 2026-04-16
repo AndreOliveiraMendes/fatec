@@ -575,12 +575,16 @@ def check_conflict_reservas_fixas(dia, id_aula, id_responsavel):
         }
     
 def get_reservas_equipamentos(dia = None):
-    sel_reservas = select(Reservas_Equipamentos)
-    if dia:
-        sel_reservas = sel_reservas.where(
-            Reservas_Equipamentos.data_reserva == dia
-        )
-    return db.session.execute(sel_reservas).scalars().all()
+    try:
+        sel_reservas = select(Reservas_Equipamentos)
+        if dia:
+            sel_reservas = sel_reservas.where(
+                Reservas_Equipamentos.data_reserva == dia
+            )
+        return db.session.execute(sel_reservas).scalars().all()
+    except DB_ERRORS as e:
+        handle_db_error(e, rollback=False)
+        return []
 
 def get_reservas_equipamentos_items():
     sel_items = select(Reserva_Equipamento_Item)
