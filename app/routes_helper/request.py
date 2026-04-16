@@ -9,7 +9,7 @@ from config.mapeamentos import IGNORED_FORM_FIELDS
 
 def get_query_params(
     request: Request, 
-    ignore_list: List[str] = None, 
+    ignore_list: List[str] | None = None, 
     origin: Literal["form", "args"] = "form"
 ) -> dict:
     """

@@ -54,22 +54,22 @@ def get_nome_pessoa_by_id(id, tipo = Literal['pessoa', 'usuario', 'usuario_espec
         if error_on_empty_id:
             abort(400, description="ID não pode ser vazio.")
         else:
-            return None
+            return ''
     if tipo == 'pessoa':
         obj = db.session.get(Pessoas, id)
         if not obj and abort_on_null:
             abort(404, description="Pessoa não encontrada.")
-        return obj.alias or obj.nome_pessoa
+        return obj.alias or obj.nome_pessoa if obj is not None else ''
     elif tipo == 'usuario':
         obj = db.session.get(Usuarios, id)
         if not obj and abort_on_null:
             abort(404, description="Usuário não encontrado.")
-        return obj.pessoa.alias or obj.pessoa.nome_pessoa
+        return obj.pessoa.alias or obj.pessoa.nome_pessoa if obj is not None else ''
     elif tipo == 'usuario_especial':
         obj = db.session.get(Usuarios_Especiais, id)
         if not obj and abort_on_null:
             abort(404, description="Usuário especial não encontrado.")
-        return obj.nome_usuario_especial
+        return obj.nome_usuario_especial if obj is not None else ''
     else:
         abort(400, description="Tipo inválido para obtenção do nome da pessoa.")
 

@@ -16,8 +16,21 @@ def check_equipamento(id):
     equipamento = db.session.get(Equipamentos, id)
     return equipamento is not None
 
+def convert_userid():
+    try:
+        userid = session.get('userid')
+        if not userid:
+            raise ValueError("")
+        return int(userid)
+    except (ValueError, TypeError):
+        raise ValueError("ID do usuário inválido")
+
 def ajuste_quantidade(id, quantidade, reservado, dia, observacao):
-    userid = int(session.get('userid'))
+    try:
+        userid = convert_userid()
+    except (ValueError, TypeError) as e:
+        return 400, "ID do usuário inválido"
+
     user = get_user(userid)
     try: 
         quantidade_equipamento = get_unique_or_500(
@@ -70,7 +83,10 @@ def ajuste_quantidade(id, quantidade, reservado, dia, observacao):
     return 0, ""
 
 def reposicao_estoque(id: int, quantidade: int, dia, observacao):
-    userid = int(session.get('userid'))
+    try:
+        userid = convert_userid()
+    except (ValueError, TypeError) as e:
+        return 400, "ID do usuário inválido"
     user = get_user(userid)
 
     try:
@@ -124,7 +140,10 @@ def reposicao_estoque(id: int, quantidade: int, dia, observacao):
     return 0, ""
 
 def manutencao_estoque(id_equipamento, quantidade, reservado, dia, observacao):
-    userid = int(session.get('userid'))
+    try:
+        userid = convert_userid()
+    except (ValueError, TypeError) as e:
+        return 400, "ID do usuário inválido"
     user = get_user(userid)
 
     try:
