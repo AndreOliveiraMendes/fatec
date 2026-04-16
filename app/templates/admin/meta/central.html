@@ -88,13 +88,19 @@
         <div class="panel panel-default">
             <div class="panel-heading">Ações</div>
             <div class="panel-body">
-                <!-- 🔹 AÇÕES -->
-                <div class="btn-group" role="group">
+                <!-- 🔹 AÇÕES PRINCIPAIS -->
+                <div class="btn-group margin-bottom-10" role="group">
                     <button class="btn btn-primary git-action"
                             data-url="{{ url_for('admin_meta.fetch') }}">
                         <span class="glyphicon glyphicon-download"></span>
                         Fetch
                     </button>
+                    <button class="btn btn-danger git-action"
+                           data-url="{{ url_for('admin_meta.push') }}"
+                           {% if status.ahead == 0 or not status.local_changes %}style="pointer-events:none; opacity:0.5;"{% endif %}>
+                            <span class="glyphicon glyphicon-upload"></span>
+                            Push
+                        </button>
                     <button class="btn btn-success git-action"
                             data-url="{{ url_for('admin_meta.update') }}"
                             {% if status.local_changes or status.behind == 0 %}disabled{% endif %}>
@@ -105,9 +111,38 @@
                         <span class="glyphicon glyphicon-random"></span>
                         Branches
                     </a>
+                    <!-- 🔽 OUTRAS OPÇÕES -->
+                    <div class="btn-group" role="group">
+                        <button type="button"
+                                class="btn btn-default dropdown-toggle"
+                                data-toggle="dropdown">
+                            Outras opções
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="#"
+                                   class="git-action"
+                                   data-url="{{ url_for('admin_meta.restore') }}"
+                                   {% if not status.local_changes %}style="pointer-events:none; opacity:0.5;"{% endif %}>
+                                    <span class="glyphicon glyphicon-step-backward"></span>
+                                    Restaurar alterações locais
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#"
+                                   class="git-action"
+                                   data-url="{{ url_for('admin_meta.commit') }}"
+                                   {% if not status.local_changes %}style="pointer-events:none; opacity:0.5;"{% endif %}>
+                                    <span class="glyphicon glyphicon-floppy-save"></span>
+                                    commitar alterações locais
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
-                <!-- 🔹 STATUS -->
-                <div class="git-status">
+                <!-- 🔹 STATUS (com espaço acima) -->
+                <div class="git-status margin-top-15">
                     {% if status.local_changes %}
                         <div class="alert alert-danger">
                             <span class="glyphicon glyphicon-warning-sign"></span>

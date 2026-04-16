@@ -18,6 +18,7 @@ from app.routes.admin.handlers.handler_admin_meta import (commits_ahead,
                                                           git_delete_branch,
                                                           git_fetch_prune,
                                                           git_pull,
+                                                          git_restore,
                                                           has_local_changes,
                                                           last_fetch_time)
 
@@ -109,6 +110,36 @@ def update():
     out, err, code = git_pull()
 
     return jsonify({"out":out, "err": err, "code": code})
+
+@bp.route("/restore")
+@admin_required
+def restore():
+    
+    if not has_local_changes():
+        return jsonify({"message": "Não existem alterações locais para restaurar."})
+    
+    out, err, code = git_restore()
+
+    return jsonify({"out": out, "err": err, "code": code})
+
+@bp.route("/commit")
+@admin_required
+def commit():
+
+    if not has_local_changes():
+        return jsonify({"message": "Não existem alterações locais para commitar."})
+    
+    out, err, code = git("commit", ".", "-m", "commit via painel admin_meta")
+
+    return jsonify({"out": out, "err": err, "code": code})
+
+@bp.route("push")
+@admin_required
+def push():
+
+    out, err, code = git("push")
+
+    return jsonify({"out": out, "err": err, "code": code})
 
 @bp.route("/fetch")
 @admin_required

@@ -80,6 +80,9 @@ def commits_behind():
 def git_pull():
     return git("pull")
 
+def git_restore():
+    return git("restore", ".")
+
 def get_local_branches():
     out, err, code = git("branch")
 
