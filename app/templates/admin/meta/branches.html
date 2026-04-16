@@ -5,66 +5,101 @@
 {% block content %}
     <div class="container">
         <h3>Painel de Branches</h3>
-        <div class="panel panel-default">
-            <div class="panel-heading">Criar Branch</div>
-            <div class="panel-body">
-                <form action="{{ url_for('admin_meta.create') }}" method="get">
-                    <div class="form-group">
-                        <input type="text"
-                               name="name"
-                               class="form-control"
-                               placeholder="nome-da-branch">
+        <div class="row">
+            <!-- 🔸 ESQUERDA (TABELAS) -->
+            <div class="col-md-7">
+                <!-- Criar Branch -->
+                <div class="panel panel-default">
+                    <div class="panel-heading">Criar Branch</div>
+                    <div class="panel-body">
+                        <form class="create-branch-form"
+                              action="{{ url_for('admin_meta.create') }}"
+                              method="get">
+                            <div class="form-group">
+                                <input type="text"
+                                       name="name"
+                                       class="form-control"
+                                       placeholder="nome-da-branch">
+                            </div>
+                            <button class="btn btn-success">Criar Branch</button>
+                        </form>
                     </div>
-                    <button class="btn btn-success">Criar Branch</button>
-                </form>
+                </div>
+                <!-- Locais -->
+                <div class="panel panel-default">
+                    <div class="panel-heading">Branches Locais</div>
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>Branch</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                        {% for b in local_branches %}
+                            <tr>
+                                <td>{{ b.name }}</td>
+                                <td>
+                                    {% if b.current %}<span class="label label-success">Atual</span>{% endif %}
+                                </td>
+                                <td>
+                                    {% if not b.current %}
+                                        <button class="btn btn-xs btn-primary git-action"
+                                                data-url="{{ url_for('admin_meta.checkout', branch=b.name) }}">
+                                            Checkout
+                                        </button>
+                                        <button class="btn btn-xs btn-danger git-action"
+                                                data-url="{{ url_for('admin_meta.delete', branch=b.name) }}">
+                                            Delete
+                                        </button>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+            <!-- 🔸 DIREITA (GRÁFICO) -->
+            <div class="col-md-5">
+                <div class="panel panel-info">
+                    <div class="panel-heading">Visualização</div>
+                    <div class="panel-body">
+                        <div class="branch-graph">
+                            {% for b in local_branches %}
+                                <div class="branch-line">
+                                    <span class="dot {% if b.current %}active{% endif %}"></span>
+                                    <span class="branch-name">{{ b.name }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">Branches Locais</div>
-            <table class="table table-bordered">
-                <tr>
-                    <th>Branch</th>
-                    <th>Status</th>
-                    <th>Ações</th>
-                </tr>
-                {% for b in local_branches %}
-                    <tr>
-                        <td>{{ b.name }}</td>
-                        <td>
-                            {% if b.current %}<span class="label label-success">Atual</span>{% endif %}
-                        </td>
-                        <td>
-                            {% if not b.current %}
-                                <button class="btn btn-xs btn-primary git-action"
-                                        data-url="{{ url_for('admin_meta.checkout', branch=b.name) }}">
-                                    Checkout
-                                </button>
-                                <button class="btn btn-xs btn-danger git-action"
-                                        data-url="{{ url_for('admin_meta.delete', branch=b.name) }}">Delete</button>
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% endfor %}
-            </table>
-        </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">Branches Remotas</div>
-            <table class="table table-bordered">
-                <tr>
-                    <th>Branch</th>
-                </tr>
-                {% for b in remote_branches %}
-                    <tr>
-                        <td>{{ b }}</td>
-                    </tr>
-                {% endfor %}
-            </table>
-        </div>
-        <div class="panel panel-danger">
-            <div class="panel-heading">Ações extras</div>
-            <div class="panel-body">
-                <button class="btn btn-xs btn-danger git-action"
-                        data-url="{{ url_for('admin_meta.prune') }}">prunar</button>
+        <!-- divisão -->
+        <div class="form-section">area ações puramente remotas</div>
+        <div class="row">
+            <div class="col-md-7">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Branches Remotas</div>
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>Branch</th>
+                        </tr>
+                        {% for b in remote_branches %}
+                            <tr>
+                                <td>{{ b }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="panel panel-danger">
+                    <div class="panel-heading">Ações extras</div>
+                    <div class="panel-body">
+                        <button class="btn btn-xs btn-danger git-action"
+                                data-url="{{ url_for('admin_meta.prune') }}">prunar</button>
+                    </div>
+                </div>
             </div>
         </div>
         <a href="{{ url_for('admin_meta.central') }}" class="btn btn-default">← Voltar</a>
@@ -91,4 +126,78 @@
         })
 
     </script>
+    <script>
+        document.querySelector(".create-branch-form").addEventListener("submit", function(e){
+
+            e.preventDefault()
+
+            const input = this.querySelector("input[name='name']")
+            const branch = input.value.trim()
+
+            if(!branch){
+                alert("Informe o nome da branch")
+                return
+            }
+
+            const baseUrl = this.action
+            const url = baseUrl + "?name=" + encodeURIComponent(branch)
+
+            const btn = this.querySelector("button")
+            btn.disabled = true
+            btn.innerText = "Criando..."
+
+            fetch(url)
+            .then(r => r.text())
+            .then(() => {
+                location.reload()
+            })
+            .catch(() => {
+                alert("Erro ao criar branch")
+                btn.disabled = false
+                btn.innerText = "Criar Branch"
+            })
+
+        })
+    </script>
 {% endblock extra_script %}
+{% block extra_css %}
+    <style>
+        .branch-graph {
+            border-left: 2px solid #ccc;
+            padding-left: 15px;
+        }
+
+        .branch-line {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .branch-line .dot {
+            width: 10px;
+            height: 10px;
+            background: #999;
+            border-radius: 50%;
+            position: absolute;
+            left: -21px;
+            top: 4px;
+        }
+
+        .branch-line .dot.active {
+            background: #5cb85c;
+            width: 12px;
+            height: 12px;
+        }
+
+        .branch-name {
+            font-family: monospace;
+        }
+
+        .form-section{
+            margin:20px 0 10px;
+            font-size:12px;
+            text-transform:uppercase;
+            color:#777;
+            border-bottom:1px solid #ddd;
+        }
+    </style>
+{% endblock extra_css %}

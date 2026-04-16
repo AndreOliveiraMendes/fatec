@@ -124,7 +124,7 @@ def git_checkout_branch(branch):
     return git("checkout", branch)
 
 def git_create_branch(branch):
-    return git("checkout", "-b", "branch")
+    return git("checkout", "-b", branch)
 
 def git_delete_branch(branch):
     return git("branch", "-D", branch)
