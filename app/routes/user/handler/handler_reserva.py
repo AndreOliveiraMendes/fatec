@@ -15,8 +15,9 @@ from app.models.reservas.reservas_auditorios import Reservas_Auditorios
 from app.models.reservas.reservas_equipamentos import Reservas_Equipamentos
 from app.models.reservas.reservas_laboratorios import (Reservas_Fixas,
                                                        Reservas_Temporarias)
-from app.models.usuarios import Permissoes
+from app.models.usuarios import Permissoes, Usuarios
 from app.routes.user.handler.handler_base import CHECK_PERIODO_MAP, RESERVA_MAP
+from app.service.reservas_services import check_unique_aprovada
 
 
 def resolve_tipo(tipo_reserva: str):
@@ -57,10 +58,12 @@ def cancelar_reserva_generico(model, id_reserva, redirect_url):
 def editar_reserva_generico(model, id_reserva: int, redirect_url: str) -> ResponseReturnValue:
     userid = session.get('userid')
     reserva = db.get_or_404(model, id_reserva)
+    user = db.get_or_404(Usuarios, userid)
     check_ownership_or_admin(reserva)
     check = CHECK_PERIODO_MAP.get(model)
     if check and not check(reserva):
         abort(403, description="Esta reserva não pode mais ser editada fora do período permitido.")
+    old_data = copy(reserva)
     if model in [Reservas_Fixas, Reservas_Temporarias]:
         observacao = none_if_empty(request.form.get('observacao'))
         finalidade_reserva = request.form.get('finalidade_reserva')
@@ -73,7 +76,6 @@ def editar_reserva_generico(model, id_reserva: int, redirect_url: str) -> Respon
             responsavel = reserva.id_responsavel
             responsavel_especial = reserva.id_responsavel_especial
         try:
-            old_data = copy(reserva)
             reserva.observacoes = observacao
             reserva.finalidade_reserva = FinalidadeReservaEnum(finalidade_reserva)
             reserva.id_responsavel = responsavel
@@ -88,6 +90,38 @@ def editar_reserva_generico(model, id_reserva: int, redirect_url: str) -> Respon
             handle_db_error(e, "Erro ao editar reserva")
         except ValueError as e:
             handle_db_error(e, "Erro ao editar reserva")
+    elif model == Reservas_Auditorios:
+        observacao_responsavel = none_if_empty(request.form.get('Observacao_responsavel'))
+        if user.perm.has_any(Permission.ADMIN | Permission.AUTORIZAR):
+            responsavel = none_if_empty(request.form.get('responsavel'), int)
+            autorizador = none_if_empty(request.form.get('autorizador'), int)
+            observacao_autorizador = none_if_empty(request.form.get('Observacao_autorizador'))
+            status = none_if_empty(request.form.get('status'))
+            has_extra = True
+        else:
+            has_extra = False
+
+        try:
+            reserva.observação_responsavel = observacao_responsavel
+            if has_extra:
+                if status == "Aprovada":
+                    check_unique_aprovada(reserva)
+
+                reserva.observação_autorizador = observacao_autorizador
+                reserva.id_responsavel = responsavel
+                reserva.id_autorizador = autorizador
+                reserva.status_reserva = StatusReservaAuditorioEnum(status)
+
+            db.session.flush()
+            registrar_log_generico_usuario(userid, 'Edição', reserva, old_data, observacao='atraves de listagem')
+
+            db.session.commit()
+            flash("sucesso ao editar reserva", "success")
+        except DB_ERRORS as e:
+            handle_db_error(e, "Erro ao editar reserva")
+        except ValueError as e:
+            handle_db_error(e, "Erro ao editar reserva")      
+        
     else:
         flash("Tipo de reserva não editável ou inexistente ou metodo não implementado", "danger")
     return redirect(redirect_url)

@@ -225,7 +225,8 @@ def check_ownership_or_admin(reserva: Reservas_Fixas | Reservas_Temporarias | Re
     userid = session.get('userid')
     user = db.get_or_404(Usuarios, userid)
 
-    if user.perm.has(Permission.ADMIN):
+    if user.perm.has(Permission.ADMIN) or \
+        (isinstance(reserva, Reservas_Auditorios) and user.perm.has(Permission.AUTORIZAR)):
         return
     
     if not reserva.id_responsavel == user.pessoa.id_pessoa:

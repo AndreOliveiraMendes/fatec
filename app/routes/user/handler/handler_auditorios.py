@@ -19,7 +19,7 @@ def get_reservas_auditorios(userid, args_extras, page):
     if not user or not model:
         abort(404, description="Usuário não encontrado ou modelo inválido.")
     filtro = []
-    if not user.perm.has(Permission.ADMIN):
+    if not user.perm.has_any(Permission.ADMIN | Permission.AUTORIZAR):
         filtro.append(model.id_responsavel == user.id_pessoa)
     for key, (condition, cast) in FILTERS.get('auditorio', {}).items():
         raw = args_extras.get(key)

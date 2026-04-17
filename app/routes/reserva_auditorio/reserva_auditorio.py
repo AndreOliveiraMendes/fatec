@@ -17,9 +17,10 @@ from app.decorators.decorators import reserva_auditorio_required
 from app.enums import StatusReservaAuditorioEnum
 from app.extensions import db
 from app.models.reservas.reservas_auditorios import Reservas_Auditorios
+from app.service.reservas_services import check_unique_aprovada
 from config.general import LOCAL_TIMEZONE
 
-from .handler import check_own_reserva, check_role, check_unique_aprovada
+from .handler import check_own_reserva, check_role
 
 bp = Blueprint('reservas_auditorios', __name__, url_prefix="/reserva_auditorio")
 

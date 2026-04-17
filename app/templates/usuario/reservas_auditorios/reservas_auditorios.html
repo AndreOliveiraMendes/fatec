@@ -105,7 +105,7 @@
                             </div>
                         </div>
                     </div>
-                    {% if user.perm|has_flag(ADMIN) %}
+                    {% if user.perm|has_flag(ADMIN+AUTORIZAR) %}
                         <div class="form-section">Filtros administrativos</div>
                         <div class="row">
                             <!-- RESPONSAVEL -->
@@ -137,7 +137,7 @@
                 <table class="table table-striped table-condensed table-bordered table-hover">
                     <thead>
                         <tr class="info">
-                            {% if user and user.perm|has_flag(ADMIN) %}<th>Resp</th>{% endif %}
+                            {% if user and user.perm|has_flag(ADMIN+AUTORIZAR) %}<th>Resp</th>{% endif %}
                             <th>autorizador</th>
                             <th>local</th>
                             <th>Dia / Horário</th>
@@ -149,7 +149,7 @@
                         {% for r in reservas_auditorios %}
                             <tr class="linha-click"
                                 data-info-url="{{ url_for('usuarios_reservas_base.get_info_reserva', tipo_reserva='auditorio', id_reserva=r.id_reserva_auditorio) }}">
-                                {% if user and user.perm|has_flag(ADMIN) %}
+                                {% if user and user.perm|has_flag(ADMIN+AUTORIZAR) %}
                                     <td title="{{ get_nome_pessoa_by_id(r.id_responsavel, 'pessoa') }}">
                                         {{ get_nome_pessoa_by_id(r.id_responsavel, 'pessoa') |truncate(12) }}
                                     </td>
@@ -171,7 +171,7 @@
                                     <span class="badge_status badge-{{ r.status_reserva.value }}">{{ r.status_reserva.value }}</span>
                                 </td>
                                 <!-- AÇÕES -->
-                                {% set pode_editar = r.dentro_periodo or user.perm|has_flag(ADMIN) %}
+                                {% set pode_editar = r.dentro_periodo or user.perm|has_flag(ADMIN+AUTORIZAR) %}
                                 <td class="acoes">
                                     <div class="btn-group">
                                         <button type="button"
@@ -221,9 +221,15 @@
         };
 
         const campoFormEditar = {
+            observacao_responsavel: {
+                'name': 'Observacao_responsavel',
+                'label': 'Observação do responsável',
+                'id': 'observacao_responsavel',
+                'type': 'textarea'
+            }
         }
 
-        {% if user and user.perm|has_flag(ADMIN) %}
+        {% if user and user.perm|has_flag(ADMIN+AUTORIZAR) %}
             const campoFormEditarAdmin = {
                 responsavel: {
                     'name': 'responsavel',
@@ -240,6 +246,19 @@
                     'type': 'select',
                     'placeholder': 'escolha o autorizador da reserva',
                     data: {{ pessoasList|tojson }}
+                },
+                observacao_autorizador: {
+                    'name': 'Observacao_autorizador',
+                    'label': 'Observação do Autorizador',
+                    'id': 'observacao_autorizador',
+                    'type': 'textarea'
+                },
+                status: {
+                    'name': 'status',
+                    'label': 'Statos da Reserva',
+                    'id': 'status',
+                    'type': 'enum',
+                    data: {{ statusList|tojson }}
                 }
             }
         {% endif %}
@@ -401,6 +420,7 @@
 
             'btn-editar': function($el){
                 $.getJSON($el.closest('tr').data('info-url'), function(data){
+                    const id = {{ user.id_usuario }};
 
                     abrirModal({
                         title: 'Editar',
@@ -410,9 +430,15 @@
                             $c.append($('<p>').text('Detalhes da reserva:'));
                             $c.append(renderCampos(data, camposDetalhes));
 
-                            $c.append(renderFormCampos(data, campoFormEditar));
+                            {% if user and user.perm|has_flag(ADMIN+AUTORIZAR) %}
+                                $c.append(renderFormCampos(data, campoFormEditar));
+                            {% else %}
+                                if(id == data.responsavel){
+                                    $c.append(renderFormCampos(data, campoFormEditar));
+                                }
+                            {% endif %}
 
-                            {% if user and user.perm|has_flag(ADMIN) %}
+                            {% if user and user.perm|has_flag(ADMIN+AUTORIZAR) %}
                                 $c.append(renderFormCampos(data, campoFormEditarAdmin));
                             {% endif %}
                         },
