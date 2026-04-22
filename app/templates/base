@@ -2,10 +2,8 @@
 <html lang="pt-BR">
       <head>
             <meta charset="UTF-8">
-            <meta name="description"
-                  content="Sistema de Gestão e Reserva de Recursos.">
-            <meta name="viewport"
-                  content="width=device-width, initial-scale=1">
+            <meta name="description" content="Sistema de Gestão e Reserva de Recursos.">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
             <meta name="keywords"
                   content="reservas, recursos, laboratório, equipamentos, sistema">
             <title>
@@ -23,8 +21,7 @@
                   sizes="32x32"
                   href="{{ url_for('default.favicon_png') }}">
             <!-- ICO legado -->
-            <link rel="shortcut icon"
-                  href="{{ url_for('default.favicon_ico') }}">
+            <link rel="shortcut icon" href="{{ url_for('default.favicon_ico') }}">
             <!-- Apple / iOS -->
             <link rel="apple-touch-icon"
                   sizes="180x180"
@@ -32,13 +29,18 @@
             <!-- Bootstrap CSS -->
             <link rel="stylesheet"
                   href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
+            <!-- select 2 -->
+            <link href="{{ url_for('static', filename='select2/css/select2.min.css') }}"
+                  rel="stylesheet" />
             <!-- Custom CSS -->
             <link rel="stylesheet"
                   href="{{ url_for('static', filename='css/custom.css') }}">
             <link rel="stylesheet"
                   href="{{ url_for('static', filename='css/utility.css') }}">
-            {% block extra_css %}{% endblock extra_css %}
-            {% block extra_head %}{% endblock extra_head %}
+            {% block extra_css %}
+            {% endblock extra_css %}
+            {% block extra_head %}
+            {% endblock extra_head %}
       </head>
       <body>
             {% block body %}
@@ -103,9 +105,9 @@
                                                       <a href="https://getbootstrap.com/docs/3.4/" target="_blank"><i class="glyphicon glyphicon-question-sign"></i> Bootstrap 3.4.1</a>
                                                 </li>
                                                 {% if user %}
-                                                <li>
-                                                      <a href="{{ url_for('default.shortcuts') }}" target="_blank"><i class="glyphicon glyphicon-road"></i> Atalhos</a>
-                                                </li>
+                                                      <li>
+                                                            <a href="{{ url_for('default.shortcuts') }}" target="_blank"><i class="glyphicon glyphicon-road"></i> Atalhos</a>
+                                                      </li>
                                                 {% endif %}
                                           </ul>
                                     </li>
@@ -123,6 +125,8 @@
             <!-- JS Scripts -->
             <script src="{{ url_for('static', filename='jquery/jquery.min.js') }}"></script>
             <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.min.js') }}"></script>
+            <!-- select2 -->
+            <script src="{{ url_for('static', filename='select2/js/select2.min.js') }}"></script>
             {% block extra_script %}
             {% endblock extra_script %}
       </body>
