@@ -34,9 +34,13 @@ def cancelar_reserva_generico(model, id_reserva, redirect_url):
     if check and not check(reserva):
         abort(403, description="Esta reserva não pode mais ser cancelada fora do período permitido.")
     if model in [Reservas_Equipamentos, Reservas_Auditorios]:
-        if (model == Reservas_Equipamentos and reserva.status_reserva == StatusReservaEquipamentoEnum.PENDENTE) \
-            or (model == Reservas_Auditorios and reserva.status_reserva == StatusReservaAuditorioEnum.AGUARDANDO):
+        if model == Reservas_Equipamentos and reserva.status_reserva == StatusReservaEquipamentoEnum.PENDENTE:
+            motivo_cancelamento = request.form.get('motivo_cancelamento')
             reserva.status_reserva = StatusReservaEquipamentoEnum.CANCELADA
+            reserva.motivo_cancelamento = motivo_cancelamento
+            reserva.cancelado_por_id = userid
+        elif model == Reservas_Auditorios and reserva.status_reserva == StatusReservaAuditorioEnum.AGUARDANDO:
+            reserva.status_reserva = StatusReservaAuditorioEnum.CANCELADA
         try:
             db.session.flush()
             registrar_log_generico_usuario(userid, 'Edição', reserva, observacao="cancelamento atraves da listagem")
@@ -120,8 +124,27 @@ def editar_reserva_generico(model, id_reserva: int, redirect_url: str) -> Respon
         except DB_ERRORS as e:
             handle_db_error(e, "Erro ao editar reserva")
         except ValueError as e:
-            handle_db_error(e, "Erro ao editar reserva")      
-        
+            handle_db_error(e, "Erro ao editar reserva")
+    elif model == Reservas_Equipamentos:      
+        if user.perm.has(Permission.ADMIN):
+            responsavel = request.form.get('responsavel')
+            status = request.form.get('status')
+
+            try:
+                reserva.id_responsavel = responsavel
+                reserva.status_reserva = StatusReservaEquipamentoEnum(status)
+
+                db.session.flush()
+                registrar_log_generico_usuario(userid, 'Edição', reserva, old_data, observacao='atraves de listagem')
+
+                db.session.commit()
+                flash("sucesso ao editar reserva", "success")
+            except DB_ERRORS as e:
+                handle_db_error(e, "Erro ao editar reserva")
+            except ValueError as e:
+                handle_db_error(e, "Erro ao editar reserva")
+        else:
+            flash("sem permissão para editar")
     else:
         flash("Tipo de reserva não editável ou inexistente ou metodo não implementado", "danger")
     return redirect(redirect_url)

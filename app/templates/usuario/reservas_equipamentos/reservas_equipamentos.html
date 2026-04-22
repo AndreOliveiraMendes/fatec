@@ -128,7 +128,9 @@
                                         {{ r.aula_ativa.aula.horario_fim|hora }}
                                     </small>
                                 </td>
-                                <td> <span class="badge-status status-{{ r.status_reserva.value }}">{{ r.status_reserva.value }}</span></td>
+                                <td>
+                                    <span class="badge-status status-{{ r.status_reserva.value }}">{{ r.status_reserva.value }}</span>
+                                </td>
                                 <!-- AÇÕES -->
                                 {% set pode_editar = r.dentro_periodo or user.perm|has_flag(ADMIN) %}
                                 <td class="acoes">
@@ -142,9 +144,11 @@
                                             <li>
                                                 <a class="btn-detalhes" data-toggle="modal" data-target="#modalDetalhes">Detalhes</a>
                                             </li>
-                                            <li class="{% if not pode_editar %}disabled{% endif %}">
-                                                <a class="btn-editar">Editar</a>
-                                            </li>
+                                            {% if pode_editar %}
+                                                <li>
+                                                    <a class="btn-editar">Editar</a>
+                                                </li>
+                                            {% endif %}
                                             <li class="divider"></li>
                                             <li class="{% if not pode_editar %}disabled{% endif %}">
                                                 <a class="btn-cancelar text-danger">Cancelar</a>
@@ -173,12 +177,18 @@
             status: 'Status'
         };
 
-        const camposObservacao = {
+        const camposMotivos = {
+            motivo_cancelamento: 'Motivo do cancelamento',
+            cancelado_por: 'cancelador por'
+        }
 
-        };
-
-        const campoFormEditar = {
-
+        const camposFormCancelar = {
+            motivo_cancelamento: {
+                'name': 'motivo_cancelamento',
+                'label': 'motivo do cancelamento',
+                'id': 'motivo_cancelamento',
+                'type': 'textarea'
+            }
         }
 
         {% if user and user.perm|has_flag(ADMIN) %}
@@ -190,6 +200,13 @@
                     'type': 'select',
                     'placeholder': 'escolha o responsavel pela reserva',
                     data: {{ pessoasList|tojson }}
+                },
+                status: {
+                    'name': 'status',
+                    'label': 'Statos da Reserva',
+                    'id': 'status',
+                    'type': 'enum',
+                    data: {{ statusList|tojson }}
                 }
             }
         {% endif %}
@@ -329,10 +346,10 @@
                         $c.append($('<p>').text('Detalhes da reserva:'));
                         $c.append(renderCampos(data, camposDetalhes));
 
-                        $c.append($('<p>').text('Observações:'));
-                        $c.append(renderCampos(data, camposObservacao, true));
+                        if(data.cancelado_por && data.status === 'cancelada'){
+                            $c.append(renderCampos(data, camposMotivos))
+                        }
                     },
-
                     form: {
                         action: '',
                         buttons: [
@@ -359,8 +376,6 @@
                         render: ($c) => {
                             $c.append($('<p>').text('Detalhes da reserva:'));
                             $c.append(renderCampos(data, camposDetalhes));
-
-                            $c.append(renderFormCampos(data, campoFormEditar));
 
                             {% if user and user.perm|has_flag(ADMIN) %}
                                 $c.append(renderFormCampos(data, campoFormEditarAdmin));
@@ -389,6 +404,8 @@
                         render: ($c) => {
                             $c.append($('<p>').text('Deseja cancelar a reserva:'));
                             $c.append(renderCampos(data, camposDetalhes));
+
+                            $c.append(renderFormCampos(data, camposFormCancelar));
                         },
 
                         form: {

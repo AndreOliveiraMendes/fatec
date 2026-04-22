@@ -324,6 +324,9 @@ def info_reserva_equipamento(id_reserva):
         "horario": f"{reserva.aula_ativa.aula.horario_inicio:%H:%M} às {reserva.aula_ativa.aula.horario_fim:%H:%M}",
         "responsavel": reserva.id_responsavel,
         "status": reserva.status_reserva.value,
+        "motivo_cancelamento": reserva.motivo_cancelamento,
+        "cancelado_por_id": reserva.cancelado_por_id,
+        "cancelado_por": reserva.cancelado_por.alias or reserva.cancelado_por.nome_pessoa,
         "cancel_url": url_for("usuarios_reservas_base.cancelar_reserva", tipo_reserva="equipamento", id_reserva=id_reserva),
         "editar_url": url_for("usuarios_reservas_base.editar_reserva", tipo_reserva="equipamento", id_reserva=id_reserva)
     }

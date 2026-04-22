@@ -37,4 +37,5 @@ def gerenciar_reservas_equipamentos():
     extras['equipamentos'] = get_equipamentos()
     extras['semanas'] = get_dias_da_semana()
     extras['status'] = StatusReservaEquipamentoEnum
+    extras['statusList'] = [s.value for s in StatusReservaEquipamentoEnum]
     return render_template("usuario/reservas_equipamentos/reservas_equipamentos.html", user=user, **extras)
