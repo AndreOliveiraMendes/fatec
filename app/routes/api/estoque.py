@@ -1,8 +1,8 @@
 
 from flask import Blueprint, current_app, jsonify, request
 
-from app.dao.internal.controle import get_equipamento_disponibilidade_dia
-from app.dao.internal.reservas import get_quantidade_equipamentos_reservados
+from app.dao.internal.controle import get_equipamento_disponibilidade_dia_map
+from app.dao.internal.reservas import get_quantidade_equipamentos_reservados_map
 from app.decorators.decorators import (admin_required,
                                        reserva_equipamento_required)
 from app.enums import StatusReservaEquipamentoEnum
@@ -19,7 +19,7 @@ bp = Blueprint('api_estoque', __name__, url_prefix='/api/estoque')
 def get_quantidades_estoque():
     data = request.args.get("data")
 
-    resultados = get_equipamento_disponibilidade_dia(data)
+    resultados = get_equipamento_disponibilidade_dia_map(data)
 
     return jsonify(resultados)
 
@@ -28,7 +28,7 @@ def get_quantidades_estoque():
 def get_quantidade_reservada():
     data = request.args.get("data")
 
-    resultado = get_quantidade_equipamentos_reservados(data)
+    resultado = get_quantidade_equipamentos_reservados_map(data)
 
     return jsonify(resultado)
 
@@ -122,9 +122,9 @@ def movimentar_estoque():
 def get_resumo():
     data = request.args.get("data")
 
-    total = get_equipamento_disponibilidade_dia(data)
-    reservado = get_quantidade_equipamentos_reservados(data)
-    planejado = get_quantidade_equipamentos_reservados(
+    total = get_equipamento_disponibilidade_dia_map(data)
+    reservado = get_quantidade_equipamentos_reservados_map(data)
+    planejado = get_quantidade_equipamentos_reservados_map(
         data,
         stats=[StatusReservaEquipamentoEnum.PENDENTE]
     )

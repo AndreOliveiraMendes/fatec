@@ -59,24 +59,24 @@ def handle_db_error(e, msg, show_flash_message=True, rollback=True, category="da
 
     current_app.logger.error("%s | erro=%s", msg, e)
 
-def get_nome_pessoa_by_id(id, tipo = Literal['pessoa', 'usuario', 'usuario_especial'], abort_on_null = True, error_on_empty_id = False):
-    if id is None:
+def get_nome_pessoa_by_id(id_pessoa, tipo: Literal['pessoa', 'usuario', 'usuario_especial'], abort_on_null = True, error_on_empty_id = False):
+    if id_pessoa is None:
         if error_on_empty_id:
             abort(400, description="ID não pode ser vazio.")
         else:
             return ''
     if tipo == 'pessoa':
-        obj = db.session.get(Pessoas, id)
+        obj = db.session.get(Pessoas, id_pessoa)
         if not obj and abort_on_null:
             abort(404, description="Pessoa não encontrada.")
         return obj.alias or obj.nome_pessoa if obj is not None else ''
     elif tipo == 'usuario':
-        obj = db.session.get(Usuarios, id)
+        obj = db.session.get(Usuarios, id_pessoa)
         if not obj and abort_on_null:
             abort(404, description="Usuário não encontrado.")
         return obj.pessoa.alias or obj.pessoa.nome_pessoa if obj is not None else ''
     elif tipo == 'usuario_especial':
-        obj = db.session.get(Usuarios_Especiais, id)
+        obj = db.session.get(Usuarios_Especiais, id_pessoa)
         if not obj and abort_on_null:
             abort(404, description="Usuário especial não encontrado.")
         return obj.nome_usuario_especial if obj is not None else ''

@@ -1,6 +1,6 @@
 from copy import copy
 from datetime import date
-from typing import Sequence
+from typing import Dict, List, Optional, Sequence
 
 from flask import abort, current_app, request, session, url_for
 from sqlalchemy import and_, between, case, func, select
@@ -584,14 +584,18 @@ def get_reservas_equipamentos(dia = None):
             )
         return db.session.execute(sel_reservas).scalars().all()
     except DB_ERRORS as e:
-        handle_db_error(e, rollback=False)
+        handle_db_error(e, 'erro ao pegar reservas', rollback=False)
         return []
 
 def get_reservas_equipamentos_items():
     sel_items = select(Reserva_Equipamento_Item)
     return db.session.execute(sel_items).scalars().all()
 
-def get_quantidade_equipamentos_reservados(data, id_equipamento=None, stats=None):
+def _query_quantidade_reservados(
+    data,
+    id_equipamento: Optional[int] = None,
+    stats: Optional[List] = None
+):
     quantidade_restante = case(
         (
             Reserva_Equipamento_Item.devolvido >= Reserva_Equipamento_Item.quantidade,
@@ -599,6 +603,7 @@ def get_quantidade_equipamentos_reservados(data, id_equipamento=None, stats=None
         ),
         else_=Reserva_Equipamento_Item.quantidade - Reserva_Equipamento_Item.devolvido
     )
+
     if not stats:
         stats = [StatusReservaEquipamentoEnum.ATIVA]
 
@@ -623,9 +628,32 @@ def get_quantidade_equipamentos_reservados(data, id_equipamento=None, stats=None
             Reserva_Equipamento_Item.id_equipamento == id_equipamento
         )
 
+    return stmt
+
+def get_quantidade_equipamentos_reservados_map(
+    data,
+    stats: Optional[List] = None
+) -> Dict[int, int]:
+    stmt = _query_quantidade_reservados(data, stats=stats)
+
     result = db.session.execute(stmt).all()
 
-    if id_equipamento is not None:
-        return result[0].total if result else 0
+    return {
+        row.id_equipamento: (row.total or 0)
+        for row in result
+    }
+    
+def get_quantidade_equipamentos_reservados_single(
+    data,
+    id_equipamento: int,
+    stats: Optional[List] = None
+) -> int:
+    stmt = _query_quantidade_reservados(
+        data,
+        id_equipamento=id_equipamento,
+        stats=stats
+    )
 
-    return {row.id_equipamento: row.total for row in result}
+    result = db.session.execute(stmt).first()
+
+    return (result.total or 0) if result else 0

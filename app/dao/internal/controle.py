@@ -52,7 +52,11 @@ def get_equipamento_disponibilidades():
     sel_disponibilidades = select(EquipamentoDisponibilidade)
     return db.session.execute(sel_disponibilidades).scalars().all()
 
-def get_equipamento_disponibilidade_dia(dia, id_equipamento=None):
+from typing import Dict, Optional
+from sqlalchemy import select, func
+
+
+def _query_equipamento_disponibilidade(dia, id_equipamento: Optional[int] = None):
     subq = (
         select(EquipamentoDisponibilidade.quantidade_total)
         .where(
@@ -69,15 +73,24 @@ def get_equipamento_disponibilidade_dia(dia, id_equipamento=None):
         func.coalesce(subq, 0).label("quantidade")
     )
 
-    # 🔥 filtro opcional
-    if id_equipamento:
+    if id_equipamento is not None:
         stmt = stmt.where(Equipamentos.id_equipamento == id_equipamento)
+
+    return stmt
+
+def get_equipamento_disponibilidade_dia_map(dia) -> Dict[int, int]:
+    stmt = _query_equipamento_disponibilidade(dia)
 
     result = db.session.execute(stmt).all()
 
-    # 🔹 se for específico → retorna int
-    if id_equipamento is not None:
-        return result[0].quantidade if result else 0
+    return {
+        row.id_equipamento: row.quantidade
+        for row in result
+    }
 
-    # 🔹 se for geral → retorna dict
-    return {row.id_equipamento: row.quantidade for row in result}
+def get_equipamento_disponibilidade_dia_single(dia, id_equipamento: int) -> int:
+    stmt = _query_equipamento_disponibilidade(dia, id_equipamento)
+
+    result = db.session.execute(stmt).first()
+
+    return result.quantidade if result else 0

@@ -1,7 +1,7 @@
 from flask import current_app, session
 
 from app.auxiliar.constant import DB_ERRORS
-from app.dao.internal.controle import get_equipamento_disponibilidade_dia
+from app.dao.internal.controle import get_equipamento_disponibilidade_dia_single
 from app.dao.internal.general import get_unique_or_500, handle_db_error
 from app.dao.internal.usuarios import get_user
 from app.enums import TipoMovimentacaoEnum
@@ -97,7 +97,7 @@ def reposicao_estoque(id: int, quantidade: int, dia, observacao):
         )
 
         if not quantidade_equipamento:
-            quantidade_old = get_equipamento_disponibilidade_dia(dia, id)
+            quantidade_old = get_equipamento_disponibilidade_dia_single(dia, id)
             quantidade_equipamento = EquipamentoDisponibilidade(
                 id_equipamento = id,
                 data = dia,
@@ -154,7 +154,7 @@ def manutencao_estoque(id_equipamento, quantidade, reservado, dia, observacao):
         )
 
         if not quantidade_equipamento:
-            quantidade_old = get_equipamento_disponibilidade_dia(dia, id_equipamento)
+            quantidade_old = get_equipamento_disponibilidade_dia_single(dia, id_equipamento)
             quantidade_equipamento = EquipamentoDisponibilidade(
                 id_equipamento = id_equipamento,
                 data = dia,
