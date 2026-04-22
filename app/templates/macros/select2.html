@@ -1,0 +1,33 @@
+{% macro select2_ajax_field(id, name, label, entity) %}
+    <div class="form-group">
+        {% if label %}<label for="{{ id }}">{{ label }}</label>{% endif %}
+        <select id="{{ id }}" name="{{ name }}" class="form-control" required></select>
+    </div>
+{% endmacro %}
+{% macro select2_ajax_script(id, name, label, entity) %}
+    <script>
+        (function() {
+            var url = "{{ url_for('api_select.select', entity='__entity__') }}".replace('__entity__', "{{ entity }}");
+
+            $('#{{ id }}').select2({
+                placeholder: "Buscar...",
+                minimumInputLength: 2,
+                ajax: {
+                    url: url,
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        return {
+                            q: params.term
+                        };
+                    },
+                    processResults: function (data) {
+                        return {
+                            results: data.results || []
+                        };
+                    }
+                }
+            });
+        })();
+    </script>
+{% endmacro %}
