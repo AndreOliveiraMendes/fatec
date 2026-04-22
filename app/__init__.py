@@ -8,6 +8,7 @@ from app.routes import register_blueprints
 from app.types import url_custom_types
 from config.general import AUTO_CREATE_MYSQL, get_config
 from config.logging_config import setup_logging
+import sass
 
 
 def create_app(name=None):
@@ -20,27 +21,15 @@ def create_app(name=None):
     
     scss_dir = os.path.join(app.root_path, 'static', 'scss')
     css_dir = os.path.join(app.root_path, 'static', 'css')
-    if app.debug:
-        from flask_scss import Scss
 
-        Scss(
-            app,
-            asset_dir=scss_dir,
-            static_dir=css_dir
-        )
+    os.makedirs(css_dir, exist_ok=True)
 
-        app.logger.debug("[SCSS] Compilação automática ativada (modo dev)")
-    else:
-        import sass
+    sass.compile(
+        dirname=(scss_dir, css_dir),
+        output_style='compressed'
+    )
 
-        os.makedirs(css_dir, exist_ok=True)
-
-        sass.compile(
-            dirname=(scss_dir, css_dir),
-            output_style='compressed'
-        )
-
-        app.logger.debug("[SCSS] Compilado para produção")
+    app.logger.debug("[SCSS] compilado")
 
     with app.app_context():
         from app.auxiliar import error
