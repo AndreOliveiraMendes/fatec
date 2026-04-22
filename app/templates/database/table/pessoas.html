@@ -213,7 +213,7 @@
               action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
-            {{ select2_ajax_field('id_pessoa', 'id_pessoa', 'pessoa', 'pessoas') }}
+            {{ select2_ajax_input('id_pessoa', 'id_pessoa') }}
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% elif bloco == 1 %}
@@ -335,5 +335,5 @@
     {% endif %}
 {% endblock excluir %}
 {% block extra_script %}
-    {{ select2_ajax_script('id_pessoa', 'id_pessoa', 'pessoa', 'pessoas') }}
+    {{ select2_ajax_script('id_pessoa', 'pessoas') }}
 {% endblock extra_script %}

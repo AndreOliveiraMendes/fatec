@@ -1,10 +1,10 @@
-{% macro select2_ajax_field(id, name, label, entity) %}
+{% macro select2_ajax_input(id, name, label, optional=False) %}
     <div class="form-group">
         {% if label %}<label for="{{ id }}">{{ label }}</label>{% endif %}
-        <select id="{{ id }}" name="{{ name }}" class="form-control" required></select>
+        <select id="{{ id }}" name="{{ name }}" class="form-control" {% if not optional %}required{% endif %}></select>
     </div>
 {% endmacro %}
-{% macro select2_ajax_script(id, name, label, entity) %}
+{% macro select2_ajax_script(id, entity) %}
     <script>
         (function() {
             var url = "{{ url_for('api_select.select', entity='__entity__') }}".replace('__entity__', "{{ entity }}");
