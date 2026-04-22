@@ -64,7 +64,7 @@ def reservar():
 
     if not equipamentos:
         flash("Nenhum equipamento selecionado para reserva.", "warning")
-        return redirect(url_for('reserva_equipamento.main_page', dia=dia.isoformat()), code=303)
+        return redirect(url_for('reserva_equipamento.main_page', dia=(dia or date.today()).isoformat()), code=303)
 
     try:
         nova_reserva = Reservas_Equipamentos(

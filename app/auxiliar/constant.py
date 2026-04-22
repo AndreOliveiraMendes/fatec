@@ -80,6 +80,10 @@ class Permission(IntFlag):
     
     def list_permissions(self):
         return [perm for perm in Permission if self.has(perm)]
+    
+    @property
+    def safe_name(self) -> str:
+        return self.name or ""
 
     @property
     def description(self):

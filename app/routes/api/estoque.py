@@ -2,7 +2,8 @@
 from flask import Blueprint, current_app, jsonify, request
 
 from app.dao.internal.controle import get_equipamento_disponibilidade_dia_map
-from app.dao.internal.reservas import get_quantidade_equipamentos_reservados_map
+from app.dao.internal.reservas import \
+    get_quantidade_equipamentos_reservados_map
 from app.decorators.decorators import (admin_required,
                                        reserva_equipamento_required)
 from app.enums import StatusReservaEquipamentoEnum

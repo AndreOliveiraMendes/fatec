@@ -42,7 +42,7 @@ def generate_flags(usuario = None, search_mode = False):
     restrict = PERM_CRITICA & ~g.user.perm
     flags = [
         {
-            "name": p.name.lower(),
+            "name": p.safe_name.lower(),
             "value": p.value,
             "label": p.label,
             "description": p.description,
@@ -123,7 +123,7 @@ def insert_push():
     def adicionar():
         restrict = PERM_CRITICA & ~Permission(g.user.perm)
         invalid = Permission(flag) & restrict
-        names = [p.name for p in Permission if invalid & p]
+        names = [p.safe_name for p in Permission if invalid & p]
         if invalid:
             raise PermissionError(
                 f"Você não pode conceder as permissões: {', '.join(names)}."
@@ -168,7 +168,7 @@ def edit_push():
     if id_permissao_usuario == g.userid and flag & perm_critica != perm_critica:
 
         restricted = perm_critica & ~Permission(flag)
-        perms = [p.name for p in Permission if restricted & p]
+        perms = [p.safe_name.lower() for p in Permission if restricted & p]
         flash(
             f"Você não pode remover sua própria permissão de {', '.join(perms)}.",
             "danger"

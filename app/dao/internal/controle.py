@@ -53,7 +53,8 @@ def get_equipamento_disponibilidades():
     return db.session.execute(sel_disponibilidades).scalars().all()
 
 from typing import Dict, Optional
-from sqlalchemy import select, func
+
+from sqlalchemy import func, select
 
 
 def _query_equipamento_disponibilidade(dia, id_equipamento: Optional[int] = None):
