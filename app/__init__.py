@@ -1,5 +1,6 @@
 import os
 
+import sass
 from flask import Flask
 
 from app.auxiliar import template
@@ -8,7 +9,6 @@ from app.routes import register_blueprints
 from app.types import url_custom_types
 from config.general import AUTO_CREATE_MYSQL, get_config
 from config.logging_config import setup_logging
-import sass
 
 
 def create_app(name=None):
