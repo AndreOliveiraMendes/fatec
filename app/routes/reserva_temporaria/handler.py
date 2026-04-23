@@ -9,8 +9,7 @@ from app.auxiliar.dates import time_range
 from app.auxiliar.general import none_if_empty
 from app.dao.internal.aulas import get_aulas_ativas_por_lista_de_dias
 from app.dao.internal.locais import get_laboratorios
-from app.dao.internal.usuarios import (get_pessoas, get_user,
-                                       get_usuarios_especiais)
+from app.dao.internal.usuarios import get_user
 from app.enums import FinalidadeReservaEnum, TipoAulaEnum
 from app.extensions import db
 from app.models.aulas import Turnos
@@ -42,8 +41,6 @@ def _base_context(inicio, fim, turno):
         "turno": turno,
         "fake_data": date(2000, 1, 1),
         "finalidade_reserva": FinalidadeReservaEnum,
-        "responsavel": get_pessoas(),
-        "responsavel_especial": get_usuarios_especiais(),
         "contador_temporaria": session.get("contador_temporaria"),
         "cfg": carregar_config_geral()
     }

@@ -38,30 +38,8 @@
                             <input type="date" id="fim_reserva" class="form-control" name="fim_reserva">
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="id_responsavel" class="col-sm-4 control-label">ID do Responsável</label>
-                        <div class="col-sm-8">
-                            <select id="id_responsavel" name="id_responsavel" class="form-control">
-                                <option value="">Selecione o responsavel</option>
-                                {% for pessoa in responsavel %}
-                                    <option value="{{ pessoa.id_pessoa }}">{{ pessoa.alias if pessoa.alias else pessoa.nome_pessoa }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="id_responsavel_especial" class="col-sm-4 control-label">ID do Responsável Especial</label>
-                        <div class="col-sm-8">
-                            <select id="id_responsavel_especial"
-                                    name="id_responsavel_especial"
-                                    class="form-control">
-                                <option value="">Selecione o responsavel especial</option>
-                                {% for especial in responsavel_especial %}
-                                    <option value="{{ especial.id_usuario_especial }}">{{ especial.nome_usuario_especial }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
+                    {{ select2_ajax_input('id_responsavel', 'id_responsavel', 'ID do Responsável', optional=True, label_class='col-sm-4 control-label', input_class='col-sm-8') }}
+                    {{ select2_ajax_input('id_responsavel_especial', 'id_responsavel_especial', 'ID do Responsável', optional=True, label_class='col-sm-4 control-label', input_class='col-sm-8') }}
                     <div class="form-group">
                         <label for="id_local" class="col-sm-4 control-label">ID do Local</label>
                         <div class="col-sm-8">
@@ -77,7 +55,9 @@
                             <select id="id_aula" name="id_aula" class="form-control">
                                 <option value="">Selecione o horario</option>
                                 {% for info in aulas %}
-                                    <option value="{{ info.id_aula_ativa }}">{{ info.horario_inicio }} - {{ info.horario_fim }} na {{ info.nome_semana }}</option>
+                                    <option value="{{ info.id_aula_ativa }}">
+                                        {{ info.horario_inicio }} - {{ info.horario_fim }} na {{ info.nome_semana }}
+                                    </option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -96,13 +76,19 @@
                     <div class="form-group">
                         <label for="modalEObservacoes" class="col-sm-4 control-label">Observações</label>
                         <div class="col-sm-8">
-                            <textarea id="modalEObservacoes" name="observacoes" class="form-control" rows="3"></textarea>
+                            <textarea id="modalEObservacoes"
+                                      name="observacoes"
+                                      class="form-control"
+                                      rows="3"></textarea>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="modalEDescricao" class="col-sm-4 control-label">Descrição</label>
                         <div class="col-sm-8">
-                            <input type="text" id="modalEDescricao" class="form-control" name="descricao">
+                            <input type="text"
+                                   id="modalEDescricao"
+                                   class="form-control"
+                                   name="descricao">
                         </div>
                     </div>
                 </div>
