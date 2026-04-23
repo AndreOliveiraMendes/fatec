@@ -1,6 +1,7 @@
 {% extends "base-fluid" %}
 {% from "macros/form.html" import action_buttons %}
 {% from "macros/navigation.html" import go_back %}
+{% from "macros/select2.html" import select2_ajax_input, select2_ajax_script, ajax_link %}
 {% block title %}
     efetuar reserva
 {% endblock title %}
@@ -9,7 +10,7 @@
     <div class="center-content">
         <div class="btn-group">
             {{ go_back(contador_fixa) }}
-            <a href="{{ url_for("default.home") }}" class="btn btn-default">
+            <a href="{{ url_for('default.home') }}" class="btn btn-default">
                 <span class="glyphicon glyphicon-home"></span> Início
             </a>
         </div>
@@ -94,26 +95,8 @@
                        placeholder="insira a descrição da reserva">
             </div>
             {% if user and user.perm|has_flag(ADMIN) %}
-                <div class="form-group">
-                    <label for="responsavel">Responsavel:</label>
-                    <select id="responsavel" name="responsavel" class="form-control">
-                        <option value="">Selecione o responsavel pela reserva</option>
-                        {% for r in responsavel %}
-                            <option value="{{ r.id_pessoa }}">({{ r.id_pessoa }}) {{ r.nome_pessoa }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="responsavel_especial">Responsavel especial:</label>
-                    <select id="responsavel_especial"
-                            name="responsavel_especial"
-                            class="form-control">
-                        <option value="">Selecione o responsavel especial pela reserva</option>
-                        {% for r in responsavel_especial %}
-                            <option value="{{ r.id_usuario_especial }}">({{ r.id_usuario_especial }}) {{ r.nome_usuario_especial }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+                {{ select2_ajax_input('responsavel', 'responsavel', 'Responsavel', optional=True) }}
+                {{ select2_ajax_input('responsavel_especial', 'responsavel_especial', 'Responsavel especial', optional=True) }}
             {% endif %}
             {{ action_buttons('inserir', show_voltar=False, label='') }}
         </form>
@@ -324,6 +307,16 @@
         });
     </script>
     {% if user and user.perm|has_flag(ADMIN) %}
+        <script>
+            let url_ajax_pessoas = {{ ajax_link('pessoas') }};
+            let url_ajax_usuarios_especiais = {{ ajax_link('usuarios_especiais') }};
+        </script>
         <script src="{{ url_for('static', filename='js/modals/reserva_fixa_modal.js') }}"></script>
+        <script>
+            {{ select2_ajax_script('responsavel', 'pessoas') }}
+            {{ select2_ajax_script('responsavel_especial', 'usuarios_especiais') }}
+            {{ select2_ajax_script('id_responsavel', 'pessoas') }}
+            {{ select2_ajax_script('id_responsavel_especial', 'usuarios_especiais') }}
+        </script>
     {% endif %}
 {% endblock extra_script %}

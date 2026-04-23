@@ -1,6 +1,7 @@
 {% extends "base-fixed" %}
 {% from "macros/form.html" import action_buttons %}
 {% from "macros/navigation.html" import go_back %}
+{% from "macros/select2.html" import select2_ajax_input, select2_ajax_script, ajax_link %}
 {% block title %}
     efetuar reserva
 {% endblock title %}
@@ -94,26 +95,8 @@
                    placeholder="insira a descrição da reserva">
         </div>
         {% if user and user.perm|has_flag(ADMIN) %}
-            <div class="form-group">
-                <label for="responsavel">Responsavel:</label>
-                <select id="responsavel" name="responsavel" class="form-control">
-                    <option value="">Selecione o responsavel pela reserva</option>
-                    {% for r in responsavel %}
-                        <option value="{{ r.id_pessoa }}">({{ r.id_pessoa }}) {{ r.nome_pessoa }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="responsavel_especial">Responsavel especial:</label>
-                <select id="responsavel_especial"
-                        name="responsavel_especial"
-                        class="form-control">
-                    <option value="">Selecione o responsavel especial pela reserva</option>
-                    {% for r in responsavel_especial %}
-                        <option value="{{ r.id_usuario_especial }}">({{ r.id_usuario_especial }}) {{ r.nome_usuario_especial }}</option>
-                    {% endfor %}
-                </select>
-            </div>
+            {{ select2_ajax_input('responsavel', 'responsavel', 'Responsavel', optional=True) }}
+            {{ select2_ajax_input('responsavel_especial', 'responsavel_especial', 'Responsavel Especial', optional=True) }}
         {% endif %}
         {{ action_buttons('inserir', show_voltar=False, label='') }}
     </form>
@@ -267,62 +250,72 @@
     });
 </script>
 {% if user and user.perm|has_flag(ADMIN) %}
+<script>
+    let url_ajax_pessoas = {{ ajax_link('pessoas') }};
+    let url_ajax_usuarios_especiais = {{ ajax_link('usuarios_especiais') }};
+</script>
 <script src="{{ url_for('static', filename='js/modals/reserva_temporaria_modal.js') }}"></script>
 <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                document.addEventListener("click", function (e) {
+    {{ select2_ajax_script('responsavel', 'pessoas') }}
+    {{ select2_ajax_script('responsavel_especial', 'usuarios_especiais') }}
+    {{ select2_ajax_script('id_responsavel', 'pessoas') }}
+    {{ select2_ajax_script('id_responsavel_especial', 'usuarios_especiais') }}
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener("click", function (e) {
 
-                    // Se clicou diretamente no checkbox, deixa passar (caso habilitado)
-                    {% if cfg and cfg.get('alertar') %}
-                    if (e.target.matches('input[type="checkbox"]')) {
-                        const td = e.target.closest("td.reservado-fixo");
-                        const checkbox = e.target;
-                        if (td && checkbox.checked) {
-                            alert("⚠️ Este horário possui uma reserva fixa, pressione ctrl + no quadrado (fora da check box) para ver mais detalhes");
-                        }
-                        return; // NÃO bloqueia
-                    }
-                    {% endif %}
+            // Se clicou diretamente no checkbox, deixa passar (caso habilitado)
+            {% if cfg and cfg.get('alertar') %}
+            if (e.target.matches('input[type="checkbox"]')) {
+                const td = e.target.closest("td.reservado-fixo");
+                const checkbox = e.target;
+                if (td && checkbox.checked) {
+                    alert("⚠️ Este horário possui uma reserva fixa, pressione ctrl + no quadrado (fora da check box) para ver mais detalhes");
+                }
+                return; // NÃO bloqueia
+            }
+            {% endif %}
 
-                    const td = e.target.closest("td.reservado, td.reservado-fixo");
-                    if (!td) return;
+            const td = e.target.closest("td.reservado, td.reservado-fixo");
+            if (!td) return;
 
-                    const altPressed = e.altKey;
-                    const ctrlPressed = e.ctrlKey;
-                    const id = td.dataset.idReserva;
+            const altPressed = e.altKey;
+            const ctrlPressed = e.ctrlKey;
+            const id = td.dataset.idReserva;
 
-                    const url = {{ url_for('api_reservas_laboratorio.get_reserva_info', tipo_reserva=1, id_reserva='0')|tojson }};
-                    const url_delete = {{ url_for('api_reservas_laboratorio.delete_reserva', tipo_reserva=1, id_reserva='0')|tojson }};
-                    const url_edit = {{ url_for('api_reservas_laboratorio.update_reserva', tipo_reserva=1, id_reserva='0')|tojson }};
+            const url = {{ url_for('api_reservas_laboratorio.get_reserva_info', tipo_reserva=1, id_reserva='0')|tojson }};
+            const url_delete = {{ url_for('api_reservas_laboratorio.delete_reserva', tipo_reserva=1, id_reserva='0')|tojson }};
+            const url_edit = {{ url_for('api_reservas_laboratorio.update_reserva', tipo_reserva=1, id_reserva='0')|tojson }};
 
-                    const id_fixa = td.dataset.idReservaFixa;
-                    const url_info = {{ url_for('api_reservas_laboratorio.get_reserva_info', tipo_reserva=0, id_reserva='0')|tojson }};
+            const id_fixa = td.dataset.idReservaFixa;
+            const url_info = {{ url_for('api_reservas_laboratorio.get_reserva_info', tipo_reserva=0, id_reserva='0')|tojson }};
 
-                    if (td.classList.contains('reservado')) {
+            if (td.classList.contains('reservado')) {
 
-                        fetch(url.replace(/0$/, id))
-                            .then(r => r.json())
-                            .then(data => {
-                                if (altPressed) {
-                                    DeleteData(data, url_delete.replace(/0$/, id));
-                                } else if (ctrlPressed && id_fixa) {
-                                    openInfoModal(url_info.replace(/0$/, id_fixa));
-                                } else {
-                                    openReservaModal(data, url_edit.replace(/0$/, id));
-                                }
-                            })
-                            .catch(err => {
-                                alert("Erro ao carregar reserva devido a: " + err);
-                            });
-
-                    } else {
-                        if (ctrlPressed && id_fixa) {
+                fetch(url.replace(/0$/, id))
+                    .then(r => r.json())
+                    .then(data => {
+                        if (altPressed) {
+                            DeleteData(data, url_delete.replace(/0$/, id));
+                        } else if (ctrlPressed && id_fixa) {
                             openInfoModal(url_info.replace(/0$/, id_fixa));
+                        } else {
+                            openReservaModal(data, url_edit.replace(/0$/, id));
                         }
-                    }
+                    })
+                    .catch(err => {
+                        alert("Erro ao carregar reserva devido a: " + err);
+                    });
 
-                });
-            });
+            } else {
+                if (ctrlPressed && id_fixa) {
+                    openInfoModal(url_info.replace(/0$/, id_fixa));
+                }
+            }
+
+        });
+    });
 </script>
 {% endif %}
 {% endblock extra_script %}

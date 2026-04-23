@@ -90,11 +90,6 @@ def insert_push():
         g.url, g.acao, g.extras
     )
 
-@register_handler(dispatcher, 'editar', 0)
-@register_handler(dispatcher, 'excluir', 0)
-def fetch_pessoas():
-    g.extras['pessoas'] = get_pessoas(g.acao, g.userid)
-
 @register_handler(dispatcher, 'editar', 1)
 @register_handler(dispatcher, 'excluir', 1)
 def fetch_pessoa():

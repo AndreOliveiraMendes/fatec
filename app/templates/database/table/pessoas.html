@@ -213,7 +213,7 @@
               action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
-            {{ gerar_select("pessoa", "Selecione a Pessoa", pessoas, "id_pessoa", "nome_pessoa") }}
+            {{ select2_ajax_input('id_pessoa', 'id_pessoa', 'pessoas') }}
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% elif bloco == 1 %}
@@ -277,7 +277,7 @@
               action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
-            {{ gerar_select("pessoa", "Selecione a Pessoa", pessoas, "id_pessoa", "nome_pessoa") }}
+            {{ select2_ajax_input('id_pessoa', 'id_pessoa', 'pessoas') }}
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% elif bloco == 1 %}
@@ -334,3 +334,6 @@
         </form>
     {% endif %}
 {% endblock excluir %}
+{% block extra_script %}
+    <script>{{ select2_ajax_script('id_pessoa', 'pessoas') }}</script>
+{% endblock extra_script %}

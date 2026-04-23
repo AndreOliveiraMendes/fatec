@@ -12,7 +12,7 @@ from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.locais import get_auditorios
 from app.dao.internal.reservas import get_reservas_auditorios_filtrada
-from app.dao.internal.usuarios import get_pessoas, get_user
+from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import reserva_auditorio_required
 from app.enums import StatusReservaAuditorioEnum
 from app.extensions import db
@@ -53,7 +53,6 @@ def main_page():
         if reserva_dia_fim:
             conditions.append(Reservas_Auditorios.dia_reserva <= reserva_dia_fim)
     extras['reservas_auditorios'] = get_reservas_auditorios_filtrada(user.pessoa.id_pessoa, user.perm.has_any(Permission.ADMIN|Permission.AUTORIZAR), *conditions)
-    extras['pessoas'] = get_pessoas()
     return render_template('reserva_auditorio/main.html', user=user, **extras)
 
 @bp.route('/atualizar_status_reserva/<int:id_reserva>', methods=['POST'])
