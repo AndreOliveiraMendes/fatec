@@ -5,13 +5,16 @@ function openReservaModal(data, url_edit) {
     // Preenche os campos de id
     $('#id_reserva').val(data.id_reserva);
     $('#id_semestre').val(data.id_semestre);
-    $('#id_responsavel').val(data.id_responsavel);
     $('#id_local').val(data.id_local);
     $('#id_aula').val(data.id_aula_ativa);
     $('#finalidade').val(data.finalidade);
     $('#modalEObservacoes').val(data.observacoes);
     $('#modalEDescricao').val(data.descricao);
 
+    
+    // select2 (responsável)
+    let option = new Option(data.responsavel, data.id_responsavel, true, true);
+    $('#id_responsavel').append(option).trigger('change');
     // Preenche os campos visíveis (auxiliares)
     $('#semestre').val(data.semestre);
 

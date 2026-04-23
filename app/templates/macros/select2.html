@@ -1,40 +1,52 @@
-{% macro select2_ajax_input(id, name, label, optional=False, label_class='', input_class='') %}
+{% macro select2_ajax_input(id, name, label, optional=False, value=None, text=None, label_class='', input_class='') %}
     <div class="form-group">
-        {% if label %}<label for="{{ id }}" {% if label_class %}class="{{ label_class }}"{% endif %}>{{ label }}</label>{% endif %}
-        {% if input_class %}
-        <div class="{{ input_class }}">
+        {% if label %}
+            <label for="{{ id }}"
+                   {% if label_class %}class="{{ label_class }}"{% endif %}>{{ label }}</label>
         {% endif %}
-        <select id="{{ id }}" name="{{ name }}" class="form-control" {% if not optional %}required{% endif %}></select>
-    
-    {% if input_class %}
-        </div>
-        {% endif %}
+        {% if input_class %}<div class="{{ input_class }}">{% endif %}
+            <select id="{{ id }}"
+                    name="{{ name }}"
+                    class="form-control"
+                    {% if not optional %}required{% endif %}>
+                {% if value and text %}<option value="{{ value }}" selected>{{ text }}</option>{% endif %}
+            </select>
+            {% if input_class %}</div>{% endif %}
     </div>
 {% endmacro %}
 {% macro select2_ajax_script(id, entity) %}
     (function() {
-        var url = "{{ url_for('api_select.select', entity='__entity__') }}".replace('__entity__', "{{ entity }}");
-
-        var $el = $('#{{ id }}');
-        var $modal = $el.closest('.modal');
-
-        $el.select2({
-            width: $modal.length ? '100%' : '100%',
-            allowClear: true,
-            placeholder: "Buscar...",
-            minimumInputLength: 2,
-            dropdownParent: $modal.length ? $modal : $(document.body),
-            ajax: {
-                url: url,
-                dataType: 'json',
-                delay: 250,
-                data: function (params) {
-                    return { q: params.term };
-                },
-                processResults: function (data) {
-                    return { results: data.results || [] };
-                }
-            }
-        });
+    var url = "{{ url_for('api_select.select', entity='__entity__') }}".replace('__entity__', "{{ entity }}");
+    var $el = $('#{{ id }}');
+    var $modal = $el.closest('.modal');
+    $el.select2({
+    width: $modal.length ? '100%' : '100%',
+    allowClear: true,
+    placeholder: "Buscar...",
+    minimumInputLength: 2,
+    dropdownParent: $modal.length ? $modal : $(document.body),
+    ajax: {
+    url: url,
+    dataType: 'json',
+    delay: 250,
+    data: function (params) {
+    return { q: params.term };
+    },
+    processResults: function (data) {
+    return { results: data.results || [] };
+    }
+    }
+    });
     })();
 {% endmacro %}
+{#
+    testar depois
+    $.ajax({
+        url: '/api/select/pessoas',
+        data: { id: data.id_responsavel }
+    }).then(function(resp) {
+        let item = resp.results[0];
+        let option = new Option(item.text, item.id, true, true);
+        $('#id_responsavel').append(option).trigger('change');
+    });
+#}
