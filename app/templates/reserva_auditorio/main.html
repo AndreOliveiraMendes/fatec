@@ -1,4 +1,5 @@
 {% extends "base-fixed" %}
+{% from "macros/select2.html" import select2_ajax_input, select2_ajax_script %}
 {% block title %}
     Auditorios
 {% endblock title %}
@@ -377,6 +378,11 @@
             });
         });
     </script>
+    {% if user and user.perm|has_flag(ADMIN) %}
+        <script>
+            {{ select2_ajax_script('solicitante', 'pessoas') }}
+        </script>
+    {% endif %}
 {% endblock extra_script %}
 {% block extra_css %}
     <link rel="stylesheet"

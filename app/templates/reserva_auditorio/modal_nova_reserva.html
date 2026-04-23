@@ -33,14 +33,7 @@
                         </div>
                     {% endif %}
                     {% if user and user.perm|has_flag(ADMIN) %}
-                        <div class="form-group">
-                            <label for="solicitante">Solicitante:</label>
-                            <select id="solicitante" name="solicitante" class="form-control" required>
-                                <option value="">Selecione um solicitante</option>
-                                {% for pessoa in pessoas %}<option value="{{ pessoa.id_pessoa }}">{{ pessoa.nome_pessoa }}</option>{% endfor %}
-                            </select>
-                        </div>
-                    {% else %}
+                        {{ select2_ajax_input('solicitante', 'solicitante', 'Solicitante', optional=False) }}
                     {% endif %}
                     <div class="form-group">
                         <label for="dia">Dia:</label>
