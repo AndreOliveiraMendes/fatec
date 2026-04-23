@@ -1,7 +1,14 @@
-{% macro select2_ajax_input(id, name, label, optional=False) %}
+{% macro select2_ajax_input(id, name, label, optional=False, label_class='', input_class='') %}
     <div class="form-group">
-        {% if label %}<label for="{{ id }}">{{ label }}</label>{% endif %}
+        {% if label %}<label for="{{ id }}" {% if label_class %}class="{{ label_class }}"{% endif %}>{{ label }}</label>{% endif %}
+        {% if input_class %}
+        <div class="{{ input_class }}">
+        {% endif %}
         <select id="{{ id }}" name="{{ name }}" class="form-control" {% if not optional %}required{% endif %}></select>
+    
+    {% if input_class %}
+        </div>
+        {% endif %}
     </div>
 {% endmacro %}
 {% macro select2_ajax_script(id, entity) %}
@@ -12,6 +19,7 @@
         var $modal = $el.closest('.modal');
 
         $el.select2({
+            width: $modal.length ? '100%' : '100%',
             allowClear: true,
             placeholder: "Buscar...",
             minimumInputLength: 2,
