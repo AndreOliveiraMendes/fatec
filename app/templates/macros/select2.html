@@ -5,29 +5,28 @@
     </div>
 {% endmacro %}
 {% macro select2_ajax_script(id, entity) %}
-    <script>
-        (function() {
-            var url = "{{ url_for('api_select.select', entity='__entity__') }}".replace('__entity__', "{{ entity }}");
+    (function() {
+        var url = "{{ url_for('api_select.select', entity='__entity__') }}".replace('__entity__', "{{ entity }}");
 
-            $('#{{ id }}').select2({
-                placeholder: "Buscar...",
-                minimumInputLength: 2,
-                ajax: {
-                    url: url,
-                    dataType: 'json',
-                    delay: 250,
-                    data: function (params) {
-                        return {
-                            q: params.term
-                        };
-                    },
-                    processResults: function (data) {
-                        return {
-                            results: data.results || []
-                        };
-                    }
+        var $el = $('#{{ id }}');
+        var $modal = $el.closest('.modal');
+
+        $el.select2({
+            allowClear: true,
+            placeholder: "Buscar...",
+            minimumInputLength: 2,
+            dropdownParent: $modal.length ? $modal : $(document.body),
+            ajax: {
+                url: url,
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return { q: params.term };
+                },
+                processResults: function (data) {
+                    return { results: data.results || [] };
                 }
-            });
-        })();
-    </script>
+            }
+        });
+    })();
 {% endmacro %}

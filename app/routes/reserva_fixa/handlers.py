@@ -75,8 +75,6 @@ def _build_base_extras(semestre, turno=None, local=None):
         "local": local,
         "day": date.today(),
         "finalidade_reserva": FinalidadeReservaEnum,
-        "responsavel": get_pessoas(),
-        "responsavel_especial": get_usuarios_especiais(),
         "contador_fixa": session.get("contador_fixa")
     }
 
