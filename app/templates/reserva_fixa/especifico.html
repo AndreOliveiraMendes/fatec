@@ -1,7 +1,7 @@
 {% extends "base-fluid" %}
 {% from "macros/form.html" import action_buttons %}
 {% from "macros/navigation.html" import go_back %}
-{% from "macros/select2.html" import select2_ajax_input, select2_ajax_script %}
+{% from "macros/select2.html" import select2_ajax_input, select2_ajax_script, ajax_link %}
 {% block title %}
     efetuar reserva
 {% endblock title %}
@@ -307,6 +307,10 @@
         });
     </script>
     {% if user and user.perm|has_flag(ADMIN) %}
+        <script>
+            let url_ajax_pessoas = {{ ajax_link('pessoas') }};
+            let url_ajax_usuarios_especiais = {{ ajax_link('usuarios_especiais') }};
+        </script>
         <script src="{{ url_for('static', filename='js/modals/reserva_fixa_modal.js') }}"></script>
         <script>
             {{ select2_ajax_script('responsavel', 'pessoas') }}

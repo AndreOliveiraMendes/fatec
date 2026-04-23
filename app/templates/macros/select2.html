@@ -39,14 +39,6 @@
     });
     })();
 {% endmacro %}
-{#
-    testar depois
-    $.ajax({
-        url: '/api/select/pessoas',
-        data: { id: data.id_responsavel }
-    }).then(function(resp) {
-        let item = resp.results[0];
-        let option = new Option(item.text, item.id, true, true);
-        $('#id_responsavel').append(option).trigger('change');
-    });
-#}
+{% macro ajax_link(entity) %}
+    "{{ url_for('api_select.select', entity='__entity__') }}".replace('__entity__', "{{ entity }}")
+{% endmacro %}
