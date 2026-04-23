@@ -9,7 +9,7 @@ from app.auxiliar.parsing import parse_date_string
 from app.dao.internal.aulas import get_aulas_ativas_por_dia
 from app.dao.internal.equipamentos import get_equipamentos
 from app.dao.internal.general import handle_db_error
-from app.dao.internal.usuarios import get_pessoas, get_user
+from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import reserva_equipamento_required
 from app.enums import StatusReservaEquipamentoEnum, TipoAulaEnum
 from app.extensions import db
@@ -34,15 +34,13 @@ def main_page():
 
     aulas = get_aulas_ativas_por_dia(today, tipo_aula=TipoAulaEnum.AULA)
     equipamentos = get_equipamentos()
-    pessoas = get_pessoas()
 
     return render_template(
         'reserva_equipamento/main_page.html',
         user=user,
         hoje=today,
         horarios=aulas,
-        equipamentos=equipamentos,
-        pessoas=pessoas
+        equipamentos=equipamentos
     )
 
 @bp.route('/reservar', methods=['POST'])

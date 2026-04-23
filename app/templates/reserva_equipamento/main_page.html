@@ -1,4 +1,5 @@
 {% extends "base-fixed" %}
+{% from "macros/select2.html" import select2_ajax_input, select2_ajax_script %}
 {% block title %}
     Reserva de Equipamento
 {% endblock title %}
@@ -17,7 +18,9 @@
                                onchange="this.form.submit()">
                     </div>
                 </form>
-                <form method="post" action="{{ url_for('reserva_equipamento.reservar') }}" class="form-group">
+                <form method="post"
+                      action="{{ url_for('reserva_equipamento.reservar') }}"
+                      class="form-group">
                     <input type="hidden" name="dia" value="{{ hoje.isoformat() }}">
                     <div class="form-group">
                         <label for="aula">Horário:</label>
@@ -55,12 +58,7 @@
                         </tbody>
                     </table>
                     {% if user and user.perm|has_flag(ADMIN) %}
-                        <div class="form-group">
-                            <label for="pessoa">Pessoa:</label>
-                            <select name="pessoa" id="pessoa" class="form-control">
-                                {% for pessoa in pessoas %}<option value="{{ pessoa.id_pessoa }}">{{ pessoa.nome_pessoa }}</option>{% endfor %}
-                            </select>
-                        </div>
+                        {{ select2_ajax_input('pessoa', 'pessoa', 'Pessoa') }}
                     {% else %}
                         <div class="form-group">
                             <label for="pessoa">Pessoa:</label>
@@ -153,4 +151,7 @@
         select.addEventListener('change', atualizarDisponibilidade);
         document.addEventListener("DOMContentLoaded", atualizarDisponibilidade);
     </script>
-{% endblock extra_script %}
+    {% if user and user.perm|has_flag(ADMIN) %}
+        <script>{{ select2_ajax_script('pessoa', 'pessoas') }}</script>
+    {% endif %}
+    {% endblock extra_script %}
