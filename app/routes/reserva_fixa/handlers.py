@@ -9,8 +9,7 @@ from app.dao.internal.aulas import (get_aulas_ativas_por_semestre,
                                     get_aulas_extras)
 from app.dao.internal.locais import get_laboratorios
 from app.dao.internal.reservas import check_conflict_reservas_fixas
-from app.dao.internal.usuarios import (get_pessoas, get_user,
-                                       get_usuarios_especiais)
+from app.dao.internal.usuarios import get_user
 from app.enums import FinalidadeReservaEnum
 from app.extensions import db
 from app.models.aulas import Semestres, Turnos
