@@ -79,11 +79,14 @@ def reservar():
 
         id_reserva = nova_reserva.id_reserva
 
-        for equipamento_id, quantidade in equipamentos:
+        for equipamento_id, info in equipamentos.items():
+            quantidade = info.get('qtd')
+            observacoes = info.get('obs')
             novo_item = Reserva_Equipamento_Item(
                 id_reserva = id_reserva,
                 id_equipamento = equipamento_id,
-                quantidade = quantidade
+                quantidade = quantidade,
+                observacoes = observacoes
             )
 
             db.session.add(novo_item)

@@ -244,6 +244,9 @@ function carregarDetalhes(url, detalheEl) {
             lista.innerHTML = "";
 
             data.equipamentos.forEach(eq => {
+                const wrapper = document.createElement("div");
+                wrapper.className = "equipamento-block";
+
                 const li = document.createElement("li");
                 li.className = "item-equipamento";
 
@@ -255,7 +258,17 @@ function carregarDetalhes(url, detalheEl) {
                     </span>
                 `;
 
-                lista.appendChild(li);
+                wrapper.appendChild(li);
+
+                if (eq.observacoes) {
+                    const obs = document.createElement("div");
+                    obs.className = "item-observacao";
+                    obs.textContent = eq.observacoes;
+
+                    wrapper.appendChild(obs);
+                }
+
+                lista.appendChild(wrapper);
             });
 
             // ações dinâmicas

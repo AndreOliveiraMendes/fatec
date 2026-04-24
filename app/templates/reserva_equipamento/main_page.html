@@ -39,6 +39,7 @@
                                 <th>Equipamento</th>
                                 <th>Quantidade</th>
                                 <th>Disponível</th>
+                                <th>Observações</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -53,6 +54,9 @@
                                                class="form-control input-sm">
                                     </td>
                                     <td id="disp_{{ eq.id_equipamento }}">-</td>
+                                    <td>
+                                        <textarea name="obs[{{ eq.id_equipamento }}]" placeholder="observação sobre o item"></textarea>
+                                    </td>
                                 </tr>
                             {% endfor %}
                         </tbody>

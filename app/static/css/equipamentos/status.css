@@ -60,16 +60,47 @@
     list-style: none;
     margin-top: 10px;
     padding: 10px 12px;
-    border-left: 4px solid #5bc0de; /* azul Bootstrap info */
+    border-left: 4px solid #5bc0de;
+    /* azul Bootstrap info */
     background-color: #f4f8fb;
-    color: #31708f;
+    color: #1e3844;
     font-size: 13px;
     line-height: 1.4;
-    border-radius: 3px;
+    border-radius: 3px;  
 }
 
 .observacao::before {
-    content: "\e086  Observação";
+    content: "\e086  Observação da reserva";
+    font-family: 'Glyphicons Halflings';
+    display: block;
+    font-weight: bold;
+    font-size: 12px;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    color: #31708f;
+    opacity: 0.8;
+}
+
+.equipamento-block {
+    margin-bottom: 10px;
+}
+
+.item-observacao {
+    margin-left: 20px; /* cria hierarquia visual */
+    margin-top: 5px;
+
+    padding: 8px 10px;
+    border-left: 3px solid #5bc0de;
+    background-color: #f4f8fb;
+
+    font-size: 12px;
+    color: #1e3844;
+
+    border-radius: 3px;
+}
+
+.item-observacao::before {
+    content: "\e086  Observação do item";
     font-family: 'Glyphicons Halflings';
     display: block;
     font-weight: bold;
@@ -159,5 +190,5 @@
 }
 
 #confirmModal {
-z-index: 1060 !important;
+    z-index: 1060 !important;
 }

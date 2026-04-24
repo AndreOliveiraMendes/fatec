@@ -20,7 +20,8 @@ def get_items_reserva_equipamento(id_reserva):
             Reserva_Equipamento_Item.id_equipamento,
             Equipamentos.nome_equipamento,
             Reserva_Equipamento_Item.quantidade,
-            Reserva_Equipamento_Item.devolvido
+            Reserva_Equipamento_Item.devolvido,
+            Reserva_Equipamento_Item.observacoes
         )
         .join(Reservas_Equipamentos)
         .join(Equipamentos)
@@ -40,6 +41,7 @@ def build_detalhes_reserva(reserva: Reservas_Equipamentos):
     for eq in get_items_reserva_equipamento(reserva.id_reserva):
         qtd = eq['quantidade']
         devolvido = eq['devolvido']
+        observacoes = eq['observacoes']
 
         if devolvido == qtd:
             status = "Devolvido"
@@ -55,6 +57,7 @@ def build_detalhes_reserva(reserva: Reservas_Equipamentos):
             "quantidade": qtd,
             "devolvido": devolvido,
             "status_reserva_item": status,
+            "observacoes": observacoes,
             "url_atualizar": url_for('api_reservas_equipamentos.registrar_devolucao_equipamento', id_reserva=reserva.id_reserva, id_equipamento=eq['id_equipamento'])
         })
 

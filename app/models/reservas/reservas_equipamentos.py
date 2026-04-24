@@ -69,6 +69,7 @@ class Reserva_Equipamento_Item(Base):
     quantidade: Mapped[int] = mapped_column(nullable=False, server_default='1')
     devolvido: Mapped[int] = mapped_column(nullable=False, server_default='0')
     data_devolucao: Mapped[date | None] = mapped_column(nullable=True)
+    observacoes: Mapped[str | None] = mapped_column(TEXT, nullable=True)
 
     __table_args__ = (
         UniqueConstraint(
