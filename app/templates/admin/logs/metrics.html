@@ -8,16 +8,22 @@
     <div class="panel panel-info">
         <div class="panel-body">
             <div class="row text-center">
-                <div class="col-xs-6">
+                <div class="col-xs-4">
                     <div class="metric-box">
                         <div class="metric-label">Média / dia</div>
                         <span class="label label-primary metric-value">{{ resumo.media|round(2) if resumo else 0 }}</span>
                     </div>
                 </div>
-                <div class="col-xs-6">
+                <div class="col-xs-4">
                     <div class="metric-box">
                         <div class="metric-label">Total</div>
                         <span class="label label-primary metric-value">{{ resumo.total if resumo else 0 }}</span>
+                    </div>
+                </div>
+                <div class="col-xs-4">
+                    <div class="metric-box">
+                        <div class="metric-label">ETA</div>
+                        <span class="label label-primary metric-value">{{ resumo.eta|round(0, 'ceil')| int if resumo else 0 }} d</span>
                     </div>
                 </div>
             </div>

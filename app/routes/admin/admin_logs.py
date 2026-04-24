@@ -2,7 +2,7 @@ import os
 import re
 
 from flask import Blueprint, Response, render_template, request, session
-from sqlalchemy import distinct, func, select
+from sqlalchemy import case, distinct, func, select
 
 from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import admin_required
@@ -174,7 +174,19 @@ def logs_metrics():
     ).subquery()
 
     resumo = db.session.execute(
-        select(func.avg(sub_media.c.total).label('media'), func.sum(sub_media.c.total).label('total'))
+        select(
+            func.avg(sub_media.c.total).label('media'),
+            func.sum(sub_media.c.total).label('total'),
+            func.greatest(
+                case(
+                    (func.avg(sub_media.c.total) != 0,
+                        (100000 - func.sum(sub_media.c.total)) /
+                            func.avg(sub_media.c.total)),
+                        else_=0
+                ),
+                0
+            ).label('eta')
+        )
     ).first()
 
     # =========================
