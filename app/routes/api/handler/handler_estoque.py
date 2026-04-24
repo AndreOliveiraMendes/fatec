@@ -53,7 +53,7 @@ def ajuste_quantidade(id, quantidade, reservado, dia, observacao):
             raise ValueError("Quantidade total inferior a reservada")
 
         movimentacao_equipamento = MovimentacaoEquipamento(
-            id_funcionario = userid,
+            id_funcionario = user.id_pessoa,
             id_equipamento = id,
             data = dia,
             quantidade = quantidade,
@@ -108,7 +108,7 @@ def reposicao_estoque(id: int, quantidade: int, dia, observacao):
         quantidade_equipamento.quantidade_total += quantidade
 
         movimentacao_equipamento = MovimentacaoEquipamento(
-            id_funcionario = userid,
+            id_funcionario = user.id_pessoa,
             id_equipamento = id,
             data = dia,
             quantidade = quantidade,
@@ -169,7 +169,7 @@ def manutencao_estoque(id_equipamento, quantidade, reservado, dia, observacao):
         quantidade_equipamento.quantidade_total -= quantidade
 
         movimentacao_equipamento = MovimentacaoEquipamento(
-            id_funcionario = userid,
+            id_funcionario = user.id_pessoa,
             id_equipamento = id_equipamento,
             data = dia,
             quantidade = quantidade,
