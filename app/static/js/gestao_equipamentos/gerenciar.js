@@ -243,26 +243,41 @@ function carregarDetalhes(url, detalheEl) {
         .then(data => {
             lista.innerHTML = "";
 
-            data.equipamentos.forEach(eq => {
+            data.equipamentos.forEach((eq, index) => {
                 const wrapper = document.createElement("div");
                 wrapper.className = "equipamento-block";
 
+                // ID único pro collapse
+                const obsId = `obs-${eq.id || index}-${data.id_reserva}`;
+
+                // ITEM PRINCIPAL
                 const li = document.createElement("li");
                 li.className = "item-equipamento";
 
                 li.innerHTML = `
                     <span class="eq-nome">${eq.nome}</span>
                     <span class="eq-qtd">${eq.devolvido}/${eq.quantidade}</span>
+
                     <span class="badge-status badge-${eq.status_reserva_item.toLowerCase()}">
                         ${eq.status_reserva_item}
                     </span>
+
+                    ${
+                        eq.observacoes
+                        ? `<a class="pull-right" data-toggle="collapse" href="#${obsId}">
+                                <span class="glyphicon glyphicon-info-sign"></span>
+                           </a>`
+                        : ""
+                    }
                 `;
 
                 wrapper.appendChild(li);
 
+                // OBSERVAÇÃO (COLLAPSE)
                 if (eq.observacoes) {
                     const obs = document.createElement("div");
-                    obs.className = "item-observacao";
+                    obs.className = "item-observacao collapse";
+                    obs.id = obsId;
                     obs.textContent = eq.observacoes;
 
                     wrapper.appendChild(obs);
@@ -271,27 +286,28 @@ function carregarDetalhes(url, detalheEl) {
                 lista.appendChild(wrapper);
             });
 
-            // ações dinâmicas
-            const status_reserva_reserva = data.status_reserva_reserva.toLowerCase();
+            // AÇÕES
+            const status = data.status_reserva_reserva.toLowerCase();
             const container = document.createElement("div");
             container.className = "btn-group-sm";
 
-            if (status_reserva_reserva === "pendente") {
+            if (status === "pendente") {
                 container.appendChild(btnAprovar(data.id_reserva));
             }
 
-            if (status_reserva_reserva === "ativa") {
+            if (status === "ativa") {
                 container.appendChild(btnGerenciar(data.id_reserva));
             }
 
-            if (status_reserva_reserva === "pendente" || status_reserva_reserva === "ativa") {
-                container.appendChild(btnCancelar(data.id_reserva, status_reserva_reserva));
+            if (status === "pendente" || status === "ativa") {
+                container.appendChild(btnCancelar(data.id_reserva, status));
             }
 
             acoes.innerHTML = "";
             acoes.appendChild(container);
 
-            if (data.observacoes){
+            // OBSERVAÇÃO GERAL DA RESERVA (mantida separada)
+            if (data.observacoes) {
                 const li = document.createElement("li");
                 li.className = "observacao";
                 li.textContent = data.observacoes;
@@ -300,7 +316,7 @@ function carregarDetalhes(url, detalheEl) {
             }
         })
         .catch((e) => {
-            lista.innerHTML = "Erro ao carregar:" + e;
+            lista.innerHTML = "Erro ao carregar: " + e;
         });
 }
 
