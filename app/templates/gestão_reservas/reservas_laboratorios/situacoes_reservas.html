@@ -1,4 +1,4 @@
-{% extends "base-fixed" %}
+{% extends "gestão_reservas/base_gestão" %}
 {% block title %}
     Status das Reservas (geral)
 {% endblock title %}
@@ -157,13 +157,13 @@
         {% endfor %}
     </div>
 {% endblock footer %}
-{% block extra_script %}
+{% block script_head %}
     <script>
         $(function () {
         $('[data-toggle="tooltip"]').tooltip()
         })
     </script>
-{% endblock extra_script %}
+{% endblock script_head %}
 {% block extra_css %}
     <style>
         .badge-fixa {

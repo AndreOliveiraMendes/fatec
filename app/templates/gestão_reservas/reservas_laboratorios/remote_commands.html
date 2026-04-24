@@ -1,4 +1,4 @@
-{% extends "base-fixed" %}
+{% extends "gestão_reservas/base_gestão" %}
 {% block title %}
     Comandos Remotos
 {% endblock title %}
@@ -75,14 +75,14 @@
         <p class="text-white">Executando comando...</p>
     </div>
 {% endblock content %}
-{% block extra_script %}
+{% block script_head %}
     <script>
         (function() {
             const labsContainer = document.getElementById('labsContainer');
             const globalCmdsContainer = document.getElementById('globalCmdsContainer');
             let comandosGlobais = []; // para uso na execução
 
-            const LABS_URL = "{{ url_for('api.api_get_laboratorios') }}";
+            const LABS_URL = "{{ url_for('api_reservas_laboratorio.api_get_laboratorios') }}";
             const COMMANDS_URL = "{{ url_for('api_commands.api_list_commands') }}"; // endpoint de comandos
 
             function renderCmdBadge(cmd, mode="full") {
@@ -446,7 +446,7 @@
             carregarDados();
         })();
     </script>
-{% endblock extra_script %}
+{% endblock script_head %}
 {% block extra_css %}
     <style>
         .command-output {

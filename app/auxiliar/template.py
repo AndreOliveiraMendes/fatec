@@ -241,7 +241,7 @@ def register_template_utils(app:Flask):
         return Markup(''.join(html_parts))
 
     @app.template_global()
-    def generate_situacao_head(current: Literal['exibicao', 'situacao', 'fixa', 'temporaria', 'comandos']) -> Markup:
+    def generate_situacao_head(current: Literal['exibicao', 'situacao', 'fixa', 'temporaria', 'comandos', 'equipamento']) -> Markup:
         html_parts: List[str] = ['<div class="pills-group"><ul class="nav nav-pills">']
         
         for builder in situacoes_helper:
@@ -258,7 +258,13 @@ def register_template_utils(app:Flask):
             disabled_class = 'disabled_a_click' if current == key else ''
             
             html_parts.append(f'<li role="presentation" class="{active_class}">')
-            html_parts.append(f'<a href="{url}" class="{disabled_class}">{label}</a>')
+            html_parts.append(f'<a href="{url}" class="{disabled_class}">')
+            html_parts.append(f'{label}')
+            if builder.get("url_resume"):
+                html_parts.append(
+                    f'<span class="badge badge-head" data-url="{url_for(builder["url_resume"])}" data-target="#{builder["target"]}"></span>'
+                )
+            html_parts.append('</a>')
             html_parts.append('</li>')
         
         html_parts.append('</ul></div>')

@@ -1,0 +1,6 @@
+{% extends "base-fixed" %}
+{% block extra_script %}
+    <script src="{{ url_for('static', filename='js/header_badges.js') }}"></script>
+    {% block script_head %}
+    {% endblock script_head %}
+{% endblock extra_script %}

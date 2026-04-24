@@ -98,6 +98,8 @@ situacoes_helper = [
     },{
         "key": "equipamento",
         "url_path": "gestao_reserva_equipamento.gerenciar_reservas_equipamentos",
+        "url_resume": "api.get_reservas_equipamentos",
+        "target": "alertEquipamentos",
         "label": "reservas de equipamentos",
         "enabled": True
     }

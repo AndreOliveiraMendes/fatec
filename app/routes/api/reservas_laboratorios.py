@@ -1,10 +1,35 @@
 from flask import Blueprint, jsonify
+from sqlalchemy import select
 
 from app.decorators.decorators import admin_required
+from app.enums import TipoLocalEnum
+from app.extensions import db
+from app.models.locais import Locais
 
 from .handler.handler_reservas_laboratorios import get_handler
 
 bp = Blueprint('api_reservas_laboratorio', __name__, url_prefix='/api/reservas')
+
+
+@bp.route("/listar_laboratorios")
+@admin_required
+def api_get_laboratorios():
+    sel_laboratorios = select(Locais).where(
+        Locais.tipo == TipoLocalEnum.LABORATORIO
+    )
+
+    laboratorios = db.session.execute(sel_laboratorios).scalars().all()
+
+    result_labs = []
+    for laboratorio in laboratorios:
+        res = {
+            "id": laboratorio.id_local,
+            "nome": laboratorio.nome_local,
+            "disponivel": laboratorio.disponibilidade.value
+        }
+        result_labs.append(res)
+
+    return jsonify(result_labs)
 
 @bp.route('/reserva/<int:tipo_reserva>/info/<int:id_reserva>')
 def get_reserva_info(tipo_reserva, id_reserva):

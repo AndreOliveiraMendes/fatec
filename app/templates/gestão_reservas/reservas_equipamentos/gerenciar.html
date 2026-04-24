@@ -1,9 +1,14 @@
-{% extends "base-fixed" %}
+{% extends "gestão_reservas/base_gestão" %}
 {% block title %}
     Gerenciar reservas de equipamentos
 {% endblock title %}
 {% block content %}
     {{ generate_situacao_head("equipamento") }}
+    <div id="alertEquipamentos" class="alert alert-warning hide">
+        <strong>Reservas pendentes:</strong>
+        <ul class="alert-list">
+        </ul>
+    </div>
     <div id="toast-container" class="toast-top-right"></div>
     <!-- Modal de confirmação genérico -->
     <div id="confirmModal" class="modal fade" tabindex="-1" role="dialog">
@@ -139,8 +144,9 @@
     </div>
 {% endblock content %}
 {% block extra_css %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/equipamentos/status.css') }}">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/equipamentos/status.css') }}">
 {% endblock extra_css %}
-{% block extra_script %}
+{% block script_head %}
     <script src="{{ url_for('static', filename='js/gestao_equipamentos/gerenciar.js') }}"></script>
-{% endblock extra_script %}
+{% endblock script_head %}

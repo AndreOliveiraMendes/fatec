@@ -1,29 +1,49 @@
-from flask import Blueprint, jsonify
-from sqlalchemy import select
+from datetime import date, timedelta
 
-from app.decorators.decorators import admin_required
-from app.enums import TipoLocalEnum
+from flask import Blueprint, jsonify
+from sqlalchemy import func, select
+
+from app.enums import StatusReservaEquipamentoEnum
 from app.extensions import db
-from app.models.locais import Locais
+from app.models.reservas.reservas_equipamentos import Reservas_Equipamentos
 
 bp = Blueprint('api', __name__, url_prefix='/api')
 
-@bp.route("/listar_laboratorios")
-@admin_required
-def api_get_laboratorios():
-    sel_laboratorios = select(Locais).where(
-        Locais.tipo == TipoLocalEnum.LABORATORIO
+def format_data(d):
+    hoje = date.today()
+    if d == hoje:
+        return f"Hoje ({d.strftime('%d/%m')})"
+    elif d == hoje + timedelta(days=1):
+        return f"Amanhã ({d.strftime('%d/%m')})"
+    elif d == hoje - timedelta(days=1):
+        return f"Ontem ({d.strftime('%d/%m')})"
+    return d.strftime('%d/%m/%Y')
+
+@bp.route("/notification/reservas")
+def get_reservas_equipamentos():
+    stmt = (
+        select(
+            Reservas_Equipamentos.data_reserva,
+            func.count().label("total")
+        )
+        .where(
+            Reservas_Equipamentos.status_reserva.in_([
+                StatusReservaEquipamentoEnum.PENDENTE,
+                StatusReservaEquipamentoEnum.ATIVA
+            ])
+        )
+        .group_by(Reservas_Equipamentos.data_reserva)
+        .order_by(Reservas_Equipamentos.data_reserva)
     )
 
-    laboratorios = db.session.execute(sel_laboratorios).scalars().all()
+    rows = db.session.execute(stmt).all()
 
-    result_labs = []
-    for laboratorio in laboratorios:
-        res = {
-            "id": laboratorio.id_local,
-            "nome": laboratorio.nome_local,
-            "disponivel": laboratorio.disponibilidade.value
-        }
-        result_labs.append(res)
+    data = {
+        "count": sum(r.total for r in rows),
+        "list": [
+            f"{format_data(r.data_reserva)} ({r.total})"
+            for r in rows
+        ]
+    }
 
-    return jsonify(result_labs)
+    return jsonify(data)
