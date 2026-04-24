@@ -33,6 +33,7 @@ def build_detalhes_reserva(reserva: Reservas_Equipamentos):
         "id_reserva": reserva.id_reserva,
         "status_reserva_reserva": reserva.status_reserva,
         "data_reserva": reserva.data_reserva.isoformat(),
+        "observacoes": reserva.observacoes,
         "equipamentos": []
     }
 

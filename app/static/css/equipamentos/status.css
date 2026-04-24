@@ -56,6 +56,30 @@
     padding: 4px 0;
 }
 
+.observacao {
+    list-style: none;
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-left: 4px solid #5bc0de; /* azul Bootstrap info */
+    background-color: #f4f8fb;
+    color: #31708f;
+    font-size: 13px;
+    line-height: 1.4;
+    border-radius: 3px;
+}
+
+.observacao::before {
+    content: "\e086  Observação";
+    font-family: 'Glyphicons Halflings';
+    display: block;
+    font-weight: bold;
+    font-size: 12px;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    color: #31708f;
+    opacity: 0.8;
+}
+
 .eq-nome {
     flex: 1;
 }

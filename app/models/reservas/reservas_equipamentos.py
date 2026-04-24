@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Enum, ForeignKey, Text, UniqueConstraint, func
+from sqlalchemy import TEXT, Enum, ForeignKey, Text, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.auxiliar.model import parse_date
@@ -30,6 +30,7 @@ class Reservas_Equipamentos(Base):
         server_default=StatusReservaEquipamentoEnum.PENDENTE.name,
         nullable=False
     )
+    observacoes: Mapped[str | None] = mapped_column(TEXT, nullable=True)
 
     aula_ativa: Mapped["Aulas_Ativas"] = relationship(back_populates="reservas_equipamentos", passive_deletes=True)
     responsavel: Mapped["Pessoas"] = relationship(back_populates="reservas_equipamentos", foreign_keys=[id_responsavel], passive_deletes=True)

@@ -277,6 +277,14 @@ function carregarDetalhes(url, detalheEl) {
 
             acoes.innerHTML = "";
             acoes.appendChild(container);
+
+            if (data.observacoes){
+                const li = document.createElement("li");
+                li.className = "observacao";
+                li.textContent = data.observacoes;
+
+                lista.appendChild(li);
+            }
         })
         .catch((e) => {
             lista.innerHTML = "Erro ao carregar:" + e;

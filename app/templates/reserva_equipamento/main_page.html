@@ -70,6 +70,15 @@
                                    disabled>
                         </div>
                     {% endif %}
+                    <div class="form-group">
+                        <label for="observacoes">Observações:</label>
+                        <textarea id="observacoes"
+                                  name="observacoes"
+                                  class="form-control"
+                                  placeholder="Insira Observações sobre a reserva (id do equipamento, se tiver, caracteristica, entre outras)"
+                                  rows="6"
+                                  cols="60"></textarea>
+                    </div>
                     <button type="submit" class="btn btn-primary">Reservar</button>
                 </form>
             </div>
@@ -154,4 +163,4 @@
     {% if user and user.perm|has_flag(ADMIN) %}
         <script>{{ select2_ajax_script('pessoa', 'pessoas') }}</script>
     {% endif %}
-    {% endblock extra_script %}
+{% endblock extra_script %}

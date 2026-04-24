@@ -54,6 +54,7 @@ def reservar():
     dia = parse_date_string(request.form.get('dia'))
     aula_id = none_if_empty(request.form.get('aula'), int)
     equipamentos = get_equipamentos_from_form(request.form)
+    observacoes = none_if_empty(request.form.get('observacoes'))
 
     if user.perm.has(Permission.ADMIN):
         pessoa = none_if_empty(request.form.get('pessoa'), int)
@@ -69,7 +70,8 @@ def reservar():
             data_reserva = dia,
             id_reserva_aula = aula_id,
             id_responsavel = pessoa,
-            status_reserva = StatusReservaEquipamentoEnum.PENDENTE
+            status_reserva = StatusReservaEquipamentoEnum.PENDENTE,
+            observacoes = observacoes
         )
 
         db.session.add(nova_reserva)
