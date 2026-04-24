@@ -33,7 +33,7 @@ SELECT_MODELS: Dict[str, SelectModelConfig] = {
         "model": Pessoas,
         "id_field": Pessoas.id_pessoa,
         "label_field": Pessoas.nome_pessoa,
-        "q_filter": (lambda n:Pessoas.nome_pessoa.ilike(f"%{n}%"), str),
+        "q_filter": (lambda n:multi_ilike(Pessoas.nome_pessoa, n), str),
         "filters":{
             "id_pessoa": (lambda i:Pessoas.id_pessoa == i, int),
             "nome_pessoa": (lambda n:multi_ilike(Pessoas.nome_pessoa, n), str)
