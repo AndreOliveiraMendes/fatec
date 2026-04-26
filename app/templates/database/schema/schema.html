@@ -28,8 +28,7 @@
                         </tr>
                         <tr class="collapse" id="sql_{{ table }}">
                             <td colspan="3">
-                                <pre id="code_{{ loop.index }}" class="line-numbers"><code class="language-sql">{{ sql|string|trim ~ ';' | e }}</code></pre>
-                                <button onclick="copyToClipboard('code_{{ loop.index }}')">Copiar</button>
+                                <pre class="line-numbers"><code class="language-sql">{{ sql|string|trim ~ ';' | e }}</code></pre>
                             </td>
                         </tr>
                     {% endfor %}
@@ -71,8 +70,7 @@
                         </tr>
                         <tr class="collapse" id="sql_{{ table }}">
                             <td colspan="3">
-                                <pre id="code_{{ loop.index }}" class="line-numbers"><code class="language-sql">{{ sql|string|trim ~ ';' | e }}</code></pre>
-                                <button onclick="copyToClipboard('code_{{ loop.index }}')">Copiar</button>
+                                <pre class="line-numbers"><code class="language-sql">{{ sql|string|trim ~ ';' | e }}</code></pre>
                             </td>
                         </tr>
                     {% endfor %}
