@@ -30,10 +30,8 @@
             <link rel="stylesheet"
                   href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
             <!-- Prism.js -->
-            <link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism-tomorrow.css"
-                  rel="stylesheet" />
-            <link href="https://cdn.jsdelivr.net/npm/prismjs/plugins/line-numbers/prism-line-numbers.css"
-                  rel="stylesheet" />
+            <link rel="stylesheet"
+                  href="{{ url_for('static', filename='prism.js/css/prism.css') }}">
             <!-- select 2 -->
             <link href="{{ url_for('static', filename='select2/css/select2.min.css') }}"
                   rel="stylesheet" />
@@ -131,9 +129,7 @@
             <script src="{{ url_for('static', filename='jquery/jquery.min.js') }}"></script>
             <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.min.js') }}"></script>
             <!-- prism.js -->
-            <script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
-            <script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-sql.min.js"></script>
-            <script src="https://cdn.jsdelivr.net/npm/prismjs/plugins/line-numbers/prism-line-numbers.min.js"></script>
+            <script src="{{ url_for('static', filename='prism.js/js/prism.js') }}"></script>
             <!-- select2 -->
             <script src="{{ url_for('static', filename='select2/js/select2.min.js') }}"></script>
             {% block extra_script %}
