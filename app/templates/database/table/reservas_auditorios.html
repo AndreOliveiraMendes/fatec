@@ -163,7 +163,7 @@
                        id="codigo"
                        name="id_reserva_auditorio">
             </div>
-            {{ gerar_select("responsavel", "Selecione a Pessoa responsavel pela reserva", pessoas, "id_pessoa", "nome_pessoa", "id_responsavel", optional=True) }}
+            {{ select2_ajax_input('id_responsavel', 'id_responsavel', 'responsavel', optional=True) }}
             {{ gerar_select("locais", "Selecione o local", locais, "id_local", "nome_local", "id_reserva_local", optional=True) }}
             {{ gerar_select("aulas", "Selecione o horario", aulas_ativas, "id_aula_ativa", "selector_identification", "id_reserva_aula", optional=True) }}
             <div class="form-group">
@@ -177,7 +177,7 @@
                     {% for status in SRAE %}<option value="{{ status.value }}">{{ status.value }}</option>{% endfor %}
                 </select>
             </div>
-            {{ gerar_select("responsavel", "Selecione a Pessoa responsavel pela autorização", pessoas, "id_pessoa", "nome_pessoa", "id_autorizador", optional=True) }}
+            {{ select2_ajax_input('id_autorizador', 'id_autorizador', 'autorizador', optional=True) }}
             <div class="form-group">
                 <label for="observação_responsavel">Observações do responsavel:</label>
                 <textarea id="observação_responsavel"
@@ -210,7 +210,7 @@
           action="{{ url_for(url) }}"
           method="post">
         <input type="hidden" name="acao" value="{{ acao }}">
-        {{ gerar_select("responsavel", "Selecione a Pessoa responsavel pela reserva", pessoas, "id_pessoa", "nome_pessoa", "id_responsavel") }}
+        {{ select2_ajax_input('id_responsavel', 'id_responsavel', 'responsavel') }}
         {{ gerar_select("locais", "Selecione o local", locais, "id_local", "nome_local", "id_reserva_local") }}
         {{ gerar_select("aulas", "Selecione o horario", aulas_ativas, "id_aula_ativa", "selector_identification", "id_reserva_aula") }}
         <div class="form-group">
@@ -231,7 +231,7 @@
                 {% for status in SRAE %}<option value="{{ status.value }}">{{ status.value }}</option>{% endfor %}
             </select>
         </div>
-        {{ gerar_select("responsavel", "Selecione a Pessoa responsavel pela autorização", pessoas, "id_pessoa", "nome_pessoa", "id_autorizador", optional=True) }}
+        {{ select2_ajax_input('id_autorizador', 'id_autorizador', 'autorizador', optional=True) }}
         <div class="form-group">
             <label for="observação_responsavel">Observações do responsavel:</label>
             <textarea id="observação_responsavel"
@@ -279,7 +279,7 @@
                        value="{{ reserva_auditorio.id_reserva_auditorio }}"
                        readonly>
             </div>
-            {{ gerar_select("responsavel", "Selecione a Pessoa responsavel pela reserva", pessoas, "id_pessoa", "nome_pessoa", "id_responsavel", selected=reserva_auditorio.id_responsavel) }}
+            {{ select2_ajax_input('id_responsavel', 'id_responsavel', 'responsavel') }}
             {{ gerar_select("locais", "Selecione o local", locais, "id_local", "nome_local", "id_reserva_local", selected=reserva_auditorio.id_reserva_local) }}
             {{ gerar_select("aulas", "Selecione o horario", aulas_ativas, "id_aula_ativa", "selector_identification", "id_reserva_aula", selected=reserva_auditorio.id_reserva_aula) }}
             <div class="form-group">
@@ -306,7 +306,7 @@
                     {% endfor %}
                 </select>
             </div>
-            {{ gerar_select("responsavel", "Selecione a Pessoa responsavel pela autorização", pessoas, "id_pessoa", "nome_pessoa", "id_autorizador", optional=True, selected=reserva_auditorio.id_autorizador) }}
+            {{ select2_ajax_input('id_autorizador', 'id_autorizador', 'autorizador', optional=True) }}
             <div class="form-group">
                 <label for="observação_responsavel">Observações do responsavel:</label>
                 <textarea id="observação_responsavel"
@@ -355,7 +355,7 @@
                        value="{{ reserva_auditorio.id_reserva_auditorio }}"
                        readonly>
             </div>
-            {{ gerar_select("responsavel", "Selecione a Pessoa responsavel pela reserva", pessoas, "id_pessoa", "nome_pessoa", "id_responsavel", selected=reserva_auditorio.id_responsavel, extra='disabled') }}
+            {{ select2_ajax_input('id_responsavel', 'id_responsavel', 'responsavel') }}
             {{ gerar_select("locais", "Selecione o local", locais, "id_local", "nome_local", "id_reserva_local", selected=reserva_auditorio.id_reserva_local, extra='disabled') }}
             {{ gerar_select("aulas", "Selecione o horario", aulas_ativas, "id_aula_ativa", "selector_identification", "id_reserva_aula", selected=reserva_auditorio.id_reserva_aula, extra='disabled') }}
             <div class="form-group">
@@ -384,7 +384,7 @@
                     {% endfor %}
                 </select>
             </div>
-            {{ gerar_select("responsavel", "Selecione a Pessoa responsavel pela autorização", pessoas, "id_pessoa", "nome_pessoa", "id_autorizador", optional=True, selected=reserva_auditorio.id_autorizador, extra='disabled') }}
+            {{ select2_ajax_input('id_autorizador', 'id_autorizador', 'autorizador', optional=True) }}
             <div class="form-group">
                 <label for="observação_responsavel">Observações do responsavel:</label>
                 <textarea id="observação_responsavel"
@@ -409,3 +409,21 @@
         </form>
     {% endif %}
 {% endblock excluir %}
+{% block extra_script %}
+    {% if acao == 'procurar' or acao == 'inserir' %}
+        <script>
+            {{ select2_ajax_script('id_responsavel', 'pessoas') }}
+            {{ select2_ajax_script('id_autorizador', 'pessoas') }}
+        </script>
+    {% elif acao == 'editar' %}
+        <script>
+            {{ select2_ajax_script('id_responsavel', 'pessoas', value=reserva_auditorio.id_responsavel, field='id_pessoa') }}
+            {{ select2_ajax_script('id_autorizador', 'pessoas', value=reserva_auditorio.id_autorizador, field='id_pessoa') }}
+        </script>
+    {% elif acao == 'excluir' %}
+        <script>
+            {{ select2_ajax_script('id_responsavel', 'pessoas', value=reserva_auditorio.id_responsavel, field='id_pessoa') }}
+            {{ select2_ajax_script('id_autorizador', 'pessoas', value=reserva_auditorio.id_autorizador, field='id_pessoa') }}
+        </script>
+    {% endif %}
+{% endblock extra_script %}

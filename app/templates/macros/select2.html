@@ -14,13 +14,14 @@
             {% if input_class %}</div>{% endif %}
     </div>
 {% endmacro %}
-{% macro select2_ajax_script(id, entity) %}
+{% macro select2_ajax_script(id, entity, value=None, field=None) %}
     (function() {
-    var url = "{{ url_for('api_select.select', entity='__entity__') }}".replace('__entity__', "{{ entity }}");
+    var url = "{{ url_for('api_select.select', entity='__entity__') }}"
+    .replace('__entity__', "{{ entity }}");
     var $el = $('#{{ id }}');
     var $modal = $el.closest('.modal');
     $el.select2({
-    width: $modal.length ? '100%' : '100%',
+    width: '100%',
     allowClear: true,
     placeholder: "Buscar...",
     minimumInputLength: 1,
@@ -37,6 +38,22 @@
     }
     }
     });
+    // 🔥 preload (se tiver value + field)
+    {% if value and field %}
+        var initialValue = "{{ value }}";
+        if (initialValue) {
+        $.ajax({
+        url: url,
+        data: { {{ field }}: initialValue }
+        }).then(function(resp) {
+        if (resp.results && resp.results.length > 0) {
+        let item = resp.results[0];
+        let option = new Option(item.text, item.id, true, true);
+        $el.append(option).trigger('change');
+        }
+        });
+        }
+    {% endif %}
     })();
 {% endmacro %}
 {% macro ajax_link(entity) %}
