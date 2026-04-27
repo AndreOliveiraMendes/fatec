@@ -200,13 +200,7 @@
                                 "selector_identification",
                                 "id_reserva_aula",
                                 optional=True) }}
-                {{ gerar_select("responsavel",
-                                "Selecione o responsável pela reserva",
-                                pessoas,
-                                "id_pessoa",
-                                "nome_pessoa",
-                                "id_responsavel",
-                                optional=True) }}
+                {{ select2_ajax_input('id_responsavel', 'id_responsavel', 'responsavel', optional=True) }}
                 <div class="form-group">
                     <label for="data_reserva">Data da Reserva:</label>
                     <input class="form-control"
@@ -218,16 +212,12 @@
                     <label for="status_reserva">Estado da Reserva:</label>
                     <select class="form-control" id="status_reserva" name="status_reserva">
                         <option value="" disabled selected>Selecione o status_reserva</option>
-                        {% for status_reserva in SREE %}<option value="{{ status_reserva.value }}">{{ status_reserva.value }}</option>{% endfor %}
+                        {% for status_reserva in SREE %}
+                            <option value="{{ status_reserva.value }}">{{ status_reserva.value }}</option>
+                        {% endfor %}
                     </select>
                 </div>
-                {{ gerar_select("cancelador",
-                                "Cancelado por",
-                                pessoas,
-                                "id_pessoa",
-                                "nome_pessoa",
-                                "cancelado_por_id",
-                                optional=True) }}
+                {{ select2_ajax_input('cancelado_por_id', 'cancelado_por_id', 'cancelador', optional=True) }}
                 <div class="form-group">
                     <label for="data_cancelamento">Data de Cancelamento:</label>
                     <input class="form-control"
@@ -251,3 +241,9 @@
         {% endif %}
     {% endblock procurar_equipamentos %}
 {% endblock procurar %}
+{% block extra_script %}
+    <script>
+{{ select2_ajax_script('id_responsavel', 'pessoas') }}
+{{ select2_ajax_script('cancelado_por_id', 'pessoas') }}
+    </script>
+{% endblock extra_script %}
