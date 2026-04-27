@@ -58,20 +58,6 @@
             </div>
         </div>
     </div>
-    <script>
-        function abrirDetalhes(btn) {
-            const conteudo = `
-                <p><strong>Tabela:</strong> ${btn.dataset.tabela}</p>
-                <p><strong>Origem:</strong> ${btn.dataset.origem}</p>
-                <p><strong>Dia:</strong> ${btn.dataset.data}</p>
-                <p><strong>Usuário:</strong> ${btn.dataset.usuario}</p>
-            `;
-
-            document.getElementById("conteudoModal").innerHTML = conteudo;
-
-            $("#modalDetalhes").modal("show"); // Bootstrap 3 (jQuery)
-        }
-    </script>
 {% endmacro %}
 {% block title %}
     Historicos
@@ -249,3 +235,21 @@
         {{ action_buttons(acao, 1, False, 0) }}
     </form>
 {% endmacro %}
+{% block extra_script %}
+    {% if acao == 'listar' or acao == 'procurar' %}
+        <script>
+        function abrirDetalhes(btn) {
+            const conteudo = `
+                <p><strong>Tabela:</strong> ${btn.dataset.tabela}</p>
+                <p><strong>Origem:</strong> ${btn.dataset.origem}</p>
+                <p><strong>Dia:</strong> ${btn.dataset.data}</p>
+                <p><strong>Usuário:</strong> ${btn.dataset.usuario}</p>
+            `;
+
+            document.getElementById("conteudoModal").innerHTML = conteudo;
+
+            $("#modalDetalhes").modal("show"); // Bootstrap 3 (jQuery)
+        }
+        </script>
+    {% endif %}
+{% endblock extra_script %}

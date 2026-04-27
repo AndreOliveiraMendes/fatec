@@ -200,8 +200,10 @@
     {% endif %}
 {% endblock procurar %}
 {% block extra_script %}
-<script>
-{{ select2_ajax_script('id_funcionario', 'pessoas') }}
-{{ select2_ajax_script('id_responsavel', 'pessoas') }}
-</script>
+    {% if acao == 'procurar' %}
+        <script>
+            {{ select2_ajax_script('id_funcionario', 'pessoas') }}
+            {{ select2_ajax_script('id_responsavel', 'pessoas') }}
+        </script>
+    {% endif %}
 {% endblock extra_script %}

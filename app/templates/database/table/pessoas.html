@@ -335,5 +335,7 @@
     {% endif %}
 {% endblock excluir %}
 {% block extra_script %}
-    <script>{{ select2_ajax_script('id_pessoa', 'pessoas') }}</script>
+    {% if acao == 'procurar' or acao == 'editar' %}
+        <script>{{ select2_ajax_script('id_pessoa', 'pessoas') }}</script>
+    {% endif %}
 {% endblock extra_script %}
