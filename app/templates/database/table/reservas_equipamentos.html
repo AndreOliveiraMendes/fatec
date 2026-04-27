@@ -242,8 +242,10 @@
     {% endblock procurar_equipamentos %}
 {% endblock procurar %}
 {% block extra_script %}
-    <script>
-{{ select2_ajax_script('id_responsavel', 'pessoas') }}
-{{ select2_ajax_script('cancelado_por_id', 'pessoas') }}
-    </script>
+    {% if acao == 'procurar' %}
+        <script>
+            {{ select2_ajax_script('id_responsavel', 'pessoas') }}
+            {{ select2_ajax_script('cancelado_por_id', 'pessoas') }}
+        </script>
+    {% endif %}
 {% endblock extra_script %}
