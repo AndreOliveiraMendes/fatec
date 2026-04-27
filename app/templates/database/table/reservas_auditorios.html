@@ -422,8 +422,8 @@
         </script>
     {% elif acao == 'excluir' %}
         <script>
-            {{ select2_ajax_script('id_responsavel', 'pessoas', value=reserva_auditorio.id_responsavel, field='id_pessoa') }}
-            {{ select2_ajax_script('id_autorizador', 'pessoas', value=reserva_auditorio.id_autorizador, field='id_pessoa') }}
+            {{ select2_ajax_script('id_responsavel', 'pessoas', value=reserva_auditorio.id_responsavel, field='id_pessoa', readonly=True) }}
+            {{ select2_ajax_script('id_autorizador', 'pessoas', value=reserva_auditorio.id_autorizador, field='id_pessoa', readonly=True) }}
         </script>
     {% endif %}
 {% endblock extra_script %}
