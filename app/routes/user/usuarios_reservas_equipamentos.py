@@ -5,7 +5,7 @@ from flask import Blueprint, abort, render_template, request, session
 
 from app.dao.internal.aulas import get_dias_da_semana
 from app.dao.internal.equipamentos import get_equipamentos
-from app.dao.internal.usuarios import get_pessoas, get_user
+from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import login_required
 from app.enums import StatusReservaEquipamentoEnum
 from app.routes.user.handler.handler_equipamentos import \
@@ -32,8 +32,6 @@ def gerenciar_reservas_equipamentos():
     extras['args_extras'] = args_extras
 
     # for edit and filter
-    extras['pessoas'] = get_pessoas()
-    extras['pessoasList'] = [{"value":p.id_pessoa, "label": p.nome_pessoa} for p in extras['pessoas']]
     extras['equipamentos'] = get_equipamentos()
     extras['semanas'] = get_dias_da_semana()
     extras['status'] = StatusReservaEquipamentoEnum

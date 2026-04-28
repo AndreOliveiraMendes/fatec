@@ -1,91 +1,82 @@
-{% macro select2_ajax_input(id, name, label, optional=False, value=None, text=None, label_class='', input_class='') %}
+{% macro select2_ajax_input(id, name, label, optional=False, value=None, text=None, label_class='', outer_input_class='', inner_input_class='', inner_extras=None) %}
     <div class="form-group">
         {% if label %}
             <label for="{{ id }}"
                    {% if label_class %}class="{{ label_class }}"{% endif %}>{{ label }}</label>
         {% endif %}
-        {% if input_class %}<div class="{{ input_class }}">{% endif %}
+        {% if outer_input_class %}<div class="{{ outer_input_class }}">{% endif %}
             <select id="{{ id }}"
                     name="{{ name }}"
-                    class="form-control"
+                    class="form-control {{ inner_input_class }}"
+                    {% if inner_extras %}{{ inner_extras }}{% endif %}
                     {% if not optional %}required{% endif %}>
                 {% if value and text %}<option value="{{ value }}" selected>{{ text }}</option>{% endif %}
             </select>
-            {% if input_class %}</div>{% endif %}
+            {% if outer_input_class %}</div>{% endif %}
     </div>
 {% endmacro %}
 {% macro select2_ajax_script(id, entity, value=None, field=None, readonly=False) %}
-(function() {
+    (function() {
     var url = "{{ url_for('api_select.select', entity='__entity__') }}"
-        .replace('__entity__', "{{ entity }}");
-
+    .replace('__entity__', "{{ entity }}");
     var $el = $('#{{ id }}');
     var $modal = $el.closest('.modal');
-
     {% if readonly %}
         // 🔒 modo somente leitura (sem AJAX)
         $el.prop('disabled', true);
-
         {% if value %}
             var initialValue = "{{ value }}";
-
             if (initialValue) {
-                $.ajax({
-                    url: url,
-                    data: { {{ field }}: initialValue }
-                }).then(function(resp) {
-                    if (resp.results && resp.results.length > 0) {
-                        let item = resp.results[0];
-                        let option = new Option(item.text, item.id, true, true);
-                        $el.append(option).trigger('change');
-                    }
-                });
+            $.ajax({
+            url: url,
+            data: { {{ field }}: initialValue }
+            }).then(function(resp) {
+            if (resp.results && resp.results.length > 0) {
+            let item = resp.results[0];
+            let option = new Option(item.text, item.id, true, true);
+            $el.append(option).trigger('change');
+            }
+            });
             }
         {% endif %}
-
     {% else %}
-
         // 🚀 modo normal (com busca AJAX)
         $el.select2({
-            width: '100%',
-            allowClear: true,
-            placeholder: "Buscar...",
-            minimumInputLength: 1,
-            dropdownParent: $modal.length ? $modal : $(document.body),
-
-            ajax: {
-                url: url,
-                dataType: 'json',
-                delay: 250,
-                data: function (params) {
-                    return { q: params.term };
-                },
-                processResults: function (data) {
-                    return { results: data.results || [] };
-                }
-            }
+        width: '100%',
+        allowClear: true,
+        placeholder: "Buscar...",
+        minimumInputLength: 1,
+        dropdownParent: $modal.length ? $modal : $(document.body),
+        ajax: {
+        url: url,
+        dataType: 'json',
+        delay: 250,
+        data: function (params) {
+        return { q: params.term };
+        },
+        processResults: function (data) {
+        return { results: data.results || [] };
+        }
+        }
         });
-
         // 🔥 preload
         {% if value and field %}
             var initialValue = "{{ value }}";
-
             if (initialValue) {
-                $.ajax({
-                    url: url,
-                    data: { {{ field }}: initialValue }
-                }).then(function(resp) {
-                    if (resp.results && resp.results.length > 0) {
-                        let item = resp.results[0];
-                        let option = new Option(item.text, item.id, true, true);
-                        $el.append(option).trigger('change');
-                    }
-                });
+            $.ajax({
+            url: url,
+            data: { {{ field }}: initialValue }
+            }).then(function(resp) {
+            if (resp.results && resp.results.length > 0) {
+            let item = resp.results[0];
+            let option = new Option(item.text, item.id, true, true);
+            $el.append(option).trigger('change');
+            }
+            });
             }
         {% endif %}
-
     {% endif %}
-})();
+    })();
 {% endmacro %}
 {% macro ajax_link(entity) %}
     "{{ url_for('api_select.select', entity='__entity__') }}".replace('__entity__', "{{ entity }}")
