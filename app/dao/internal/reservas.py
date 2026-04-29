@@ -326,7 +326,7 @@ def info_reserva_equipamento(id_reserva):
         "status": reserva.status_reserva.value,
         "motivo_cancelamento": reserva.motivo_cancelamento,
         "cancelado_por_id": reserva.cancelado_por_id,
-        "cancelado_por": reserva.cancelado_por.alias or reserva.cancelado_por.nome_pessoa,
+        "cancelado_por": (reserva.cancelado_por.alias or reserva.cancelado_por.nome_pessoa) if reserva.cancelado_por_id is not None else None,
         "cancel_url": url_for("usuarios_reservas_base.cancelar_reserva", tipo_reserva="equipamento", id_reserva=id_reserva),
         "editar_url": url_for("usuarios_reservas_base.editar_reserva", tipo_reserva="equipamento", id_reserva=id_reserva)
     }
