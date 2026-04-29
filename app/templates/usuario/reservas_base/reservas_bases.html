@@ -1,7 +1,7 @@
 {% extends "base-fixed" %}
 {% from "macros/pagination.html" import render_pagination %}
 {% from "macros/navigation.html" import go_back %}
-{% from "macros/select2.html" import select2_ajax_input, select2_ajax_script %}
+{% from "macros/select2.html" import select2_ajax_input, select2_ajax_script, ajax_link %}
 {% block content %}
     <div class="btn-group">
         <a href="{{ url_for('default.home') }}" class="btn btn-default">
@@ -44,6 +44,36 @@
         let modalConfig = {};
     {% endblock script_reserva %}
     <script>
+        function initSelect2Ajax($el, field, value){
+            $el.select2({
+                width: '100%',
+                allowClear: true,
+                placeholder: field.placeholder || "Buscar...",
+                minimumInputLength: 1,
+                dropdownParent: $('#modalGlobal'),
+                ajax: {
+                    url: field.url,
+                    dataType: 'json',
+                    delay: 250,
+                    data: params => ({ q: params.term }),
+                    processResults: data => ({ results: data.results || [] })
+                }
+            });
+
+            if (value && field.preloadField) {
+                $.ajax({
+                    url: field.url,
+                    data: { [field.preloadField]: value }
+                }).then(resp => {
+                    if (resp.results?.length) {
+                        let item = resp.results[0];
+                        let option = new Option(item.text, item.id, true, true);
+                        $el.append(option).trigger('change');
+                    }
+                });
+            }
+        }
+
         function renderCampos(data, fields, show_null = false){
             let $p = $('<p>');
 
@@ -97,11 +127,22 @@
                         });
                     }
                 }
+                else if(field.type === 'select2_ajax'){
+                    $input = $(`<select 
+                        name="${field.name}" 
+                        id="${field.id}" 
+                        class="form-control" 
+                        data-field="${key}"
+                        data-value="${data[key] || ''}"
+                    >`);
+                }
                 else {
                     $input = $(`<input type="${field.type}" name="${field.name}" id="${field.id}" class="form-control">`);
                 }
 
-                $input.val(data[key]);
+                if(!(field.type === 'select2_ajax')){
+                    $input.val(data[key]);
+                }
                 $group.append($input);
                 $p.append($group);
             });
@@ -156,6 +197,19 @@
             }
 
             $modal.modal('show');
+
+            $modal.off('shown.bs.modal').on('shown.bs.modal', function () {
+                $(this).find('select[data-field]').each(function(){
+                    let $el = $(this);
+                    let key = $el.data('field');
+                    let field = fieldSchema[key];
+                    let value = $el.data('value'); // 👈 aqui está o segredo
+
+                    if (!$el.hasClass('select2-hidden-accessible')) {
+                        initSelect2Ajax($el, field, value);
+                    }
+                });
+            });
         }
 
         function renderModalSections($c, data, config){

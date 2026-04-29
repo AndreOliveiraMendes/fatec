@@ -182,13 +182,23 @@
                         name: 'finalidade_reserva',
                         id: 'finalidadeReserva',
                         data: {{ TipoReservaList|tojson }}
+                    },
+
+                    responsavel: {
+                        id: 'responsavel',
+                        name: 'responsavel',
+                        label: 'responsavel',
+                        type: 'select2_ajax',
+                        url: {{ ajax_link('pessoas') }},
+                        preloadField: 'id_pessoa',
+                        placeholder: 'Buscar responsavel...'
                     }
                 };
 
                 fieldGroups = {
                     detalhes: ['local', 'semana', 'semestre', 'horario'],
                     obs: ['observacao'],
-                    edit: ['finalidadereserva', 'observacao']
+                    edit: ['finalidadereserva', 'observacao', 'responsavel']
                 };
 
                 modalConfig = {
