@@ -185,12 +185,22 @@
                     },
 
                     responsavel: {
-                        id: 'responsavel',
+                        id: 'modal_responsavel',
                         name: 'responsavel',
                         label: 'responsavel',
                         type: 'select2_ajax',
                         url: {{ ajax_link('pessoas') }},
                         preloadField: 'id_pessoa',
+                        placeholder: 'Buscar responsavel...'
+                    },
+
+                    responsavel_especial: {
+                        id: 'modal_responsavel_especial',
+                        name: 'responsavel',
+                        label: 'responsavel',
+                        type: 'select2_ajax',
+                        url: {{ ajax_link('usuarios_especiais') }},
+                        preloadField: 'id_usuario_especial',
                         placeholder: 'Buscar responsavel...'
                     }
                 };
@@ -198,7 +208,7 @@
                 fieldGroups = {
                     detalhes: ['local', 'semana', 'semestre', 'horario'],
                     obs: ['observacao'],
-                    edit: ['finalidadereserva', 'observacao', 'responsavel']
+                    edit: ['finalidadereserva', 'observacao', 'responsavel', 'responsavel_especial']
                 };
 
                 modalConfig = {
