@@ -81,11 +81,11 @@
         <div class="row">
             <!-- RESPONSAVEL -->
             <div class="col-sm-4 col-md-3">
-                {{ select2_ajax_input('responsavel', 'responsavel', 'responsavel', optional=True, inner_input_class='input-sm', inner_extras='data-submit-on-change="true"') }}
+                {{ select2_ajax_input('filtro_responsavel', 'responsavel', 'responsavel', optional=True, inner_input_class='input-sm', inner_extras='data-submit-on-change="true"') }}
             </div>
             <!-- RESPONSAVEL ESPECIAL -->
             <div class="col-sm-4 col-md-3">
-                {{ select2_ajax_input('responsavel_especial', 'responsavel_especial', 'Tipo de Uso', optional=True, inner_input_class='input-sm', inner_extras='data-submit-on-change="true"') }}
+                {{ select2_ajax_input('filtro_responsavel_especial', 'responsavel_especial', 'Tipo de Uso', optional=True, inner_input_class='input-sm', inner_extras='data-submit-on-change="true"') }}
             </div>
         </div>
     {% endif %}
@@ -158,8 +158,8 @@
 {% block script_reserva %}
     {% if user and user.perm|has_flag(ADMIN) %}
         <script>
-            {{ select2_ajax_script('responsavel', 'pessoas', value=request.args.get('responsavel'), field='id_pessoa') }}
-            {{ select2_ajax_script('responsavel_especial', 'usuarios_especiais', value=request.args.get('responsavel_especial'), field='id_usuario_especial') }}
+            {{ select2_ajax_script('filtro_responsavel', 'pessoas', value=request.args.get('responsavel'), field='id_pessoa') }}
+            {{ select2_ajax_script('filtro_responsavel_especial', 'usuarios_especiais', value=request.args.get('responsavel_especial'), field='id_usuario_especial') }}
         </script>
     {% endif %}
     <script>
