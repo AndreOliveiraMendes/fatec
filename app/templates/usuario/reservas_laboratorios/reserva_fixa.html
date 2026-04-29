@@ -106,7 +106,6 @@
                 <tbody>
                     {% for r in reservas_fixas %}
                         <tr class="linha-click"
-                            data-action="detalhes"
                             data-info-url="{{ url_for('usuarios_reservas_base.get_info_reserva', tipo_reserva='fixa', id_reserva=r.id_reserva_fixa) }}">
                             {% if user and user.perm|has_flag(ADMIN) %}
                                 <td title="{{ get_responsavel_reserva(r, true) }}">{{ get_responsavel_reserva(r, true) |truncate(12) }}</td>
@@ -165,110 +164,110 @@
     {% endif %}
     <script>
         fieldSchema = {
-                    local: { label: 'Local' },
-                    semana: { label: 'Semana' },
-                    semestre: { label: 'Semestre' },
-                    horario: { label: 'Horário' },
+            local: { label: 'Local' },
+            semana: { label: 'Semana' },
+            semestre: { label: 'Semestre' },
+            horario: { label: 'Horário' },
 
-                    observacao: {
-                        label: 'Observação',
-                        type: 'textarea',
-                        name: 'observacao',
-                        id: 'observacao'
-                    },
+            observacao: {
+                label: 'Observação',
+                type: 'textarea',
+                name: 'observacao',
+                id: 'observacao'
+            },
 
-                    finalidadereserva: {
-                        label: 'Finalidade',
-                        type: 'enum',
-                        name: 'finalidade_reserva',
-                        id: 'finalidadeReserva',
-                        data: {{ TipoReservaList|tojson }}
+            finalidadereserva: {
+                label: 'Finalidade',
+                type: 'enum',
+                name: 'finalidade_reserva',
+                id: 'finalidadeReserva',
+                data: {{ TipoReservaList|tojson }}
+            }
+        };
+
+        {% if user and user.perm|has_flag(ADMIN) %}
+            Object.assign(fieldSchema, {
+                responsavel: {
+                    id: 'modal_responsavel',
+                    name: 'responsavel',
+                    label: 'Responsável pela Reserva',
+                    type: 'select2_ajax',
+                    url: {{ ajax_link('pessoas') }},
+                    preloadField: 'id_pessoa',
+                    placeholder: 'Buscar responsável...'
+                },
+
+                responsavel_especial: {
+                    id: 'modal_responsavel_especial',
+                    name: 'responsavel_especial', // ⚠️ aqui tava errado no seu código
+                    label: 'Responsável Especial',
+                    type: 'select2_ajax',
+                    url: {{ ajax_link('usuarios_especiais') }},
+                    preloadField: 'id_usuario_especial',
+                    placeholder: 'Buscar responsável especial...'
+                }
+            });
+        {% endif %}
+
+        fieldGroups = {
+            detalhes: ['local', 'semana', 'semestre', 'horario'],
+            obs: ['observacao'],
+            edit: ['finalidadereserva', 'observacao']
+        };
+
+        {% if user and user.perm|has_flag(ADMIN) %}
+            fieldGroups.edit.push('responsavel', 'responsavel_especial');
+        {% endif %}
+
+        modalConfig = {
+            detalhes: {
+                title: 'Detalhes',
+                headerClass: 'bg-info',
+                sections: [
+                    { title: 'Detalhes', fields: fieldGroups.detalhes, mode: 'view' },
+                    { title: 'Observações', fields: fieldGroups.obs, mode: 'view', show_null: true }
+                ],
+                form: {
+                    buttons: [
+                        { text: 'Voltar', class: 'btn-default', type: 'button' }
+                    ]
+                }
+            },
+
+            editar: {
+                title: 'Editar',
+                headerClass: 'bg-warning',
+                sections: [
+                    { title: 'Detalhes', fields: fieldGroups.detalhes, mode: 'view' },
+                    { fields: fieldGroups.edit, mode: 'form' }
+                ],
+                form: {
+                    actionKey: 'editar_url',
+                    buttons: [
+                        { text: 'Editar', class: 'btn-warning', type: 'submit' },
+                        { text: 'Voltar', class: 'btn-default', type: 'button' }
+                    ]
+                }
+            },
+
+            cancelar: {
+                title: 'Confirmar cancelamento',
+                headerClass: 'bg-danger',
+                sections: [
+                    {
+                        title: 'Deseja cancelar a reserva:',
+                        fields: fieldGroups.detalhes,
+                        mode: 'view'
                     }
-                };
-
-                {% if user and user.perm|has_flag(ADMIN) %}
-                    Object.assign(fieldSchema, {
-                        responsavel: {
-                            id: 'modal_responsavel',
-                            name: 'responsavel',
-                            label: 'Responsável pela Reserva',
-                            type: 'select2_ajax',
-                            url: {{ ajax_link('pessoas') }},
-                            preloadField: 'id_pessoa',
-                            placeholder: 'Buscar responsável...'
-                        },
-
-                        responsavel_especial: {
-                            id: 'modal_responsavel_especial',
-                            name: 'responsavel_especial', // ⚠️ aqui tava errado no seu código
-                            label: 'Responsável Especial',
-                            type: 'select2_ajax',
-                            url: {{ ajax_link('usuarios_especiais') }},
-                            preloadField: 'id_usuario_especial',
-                            placeholder: 'Buscar responsável especial...'
-                        }
-                    });
-                {% endif %}
-
-                fieldGroups = {
-                    detalhes: ['local', 'semana', 'semestre', 'horario'],
-                    obs: ['observacao'],
-                    edit: ['finalidadereserva', 'observacao']
-                };
-
-                {% if user and user.perm|has_flag(ADMIN) %}
-                    fieldGroups.edit.push('responsavel', 'responsavel_especial');
-                {% endif %}
-
-                modalConfig = {
-                    detalhes: {
-                        title: 'Detalhes',
-                        headerClass: 'bg-info',
-                        sections: [
-                            { title: 'Detalhes', fields: fieldGroups.detalhes, mode: 'view' },
-                            { title: 'Observações', fields: fieldGroups.obs, mode: 'view', show_null: true }
-                        ],
-                        form: {
-                            buttons: [
-                                { text: 'Voltar', class: 'btn-default', type: 'button' }
-                            ]
-                        }
-                    },
-
-                    editar: {
-                        title: 'Editar',
-                        headerClass: 'bg-warning',
-                        sections: [
-                            { title: 'Detalhes', fields: fieldGroups.detalhes, mode: 'view' },
-                            { fields: fieldGroups.edit, mode: 'form' }
-                        ],
-                        form: {
-                            actionKey: 'editar_url',
-                            buttons: [
-                                { text: 'Editar', class: 'btn-warning', type: 'submit' },
-                                { text: 'Voltar', class: 'btn-default', type: 'button' }
-                            ]
-                        }
-                    },
-
-                    cancelar: {
-                        title: 'Confirmar cancelamento',
-                        headerClass: 'bg-danger',
-                        sections: [
-                            {
-                                title: 'Deseja cancelar a reserva:',
-                                fields: fieldGroups.detalhes,
-                                mode: 'view'
-                            }
-                        ],
-                        form: {
-                            actionKey: 'cancel_url',
-                            buttons: [
-                                { text: 'Cancelar', class: 'btn-warning', type: 'submit' },
-                                { text: 'Voltar', class: 'btn-default', type: 'button' }
-                            ]
-                        }
-                    }
-                };    
+                ],
+                form: {
+                    actionKey: 'cancel_url',
+                    buttons: [
+                        { text: 'Cancelar', class: 'btn-warning', type: 'submit' },
+                        { text: 'Voltar', class: 'btn-default', type: 'button' }
+                    ]
+                }
+            }
+        };    
     </script>
 {% endblock script_reserva %}

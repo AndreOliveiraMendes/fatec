@@ -132,14 +132,14 @@
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-right">
                                         <li>
-                                            <a class="btn-detalhes" data-toggle="modal" data-target="#modalDetalhes">Detalhes</a>
+                                            <a data-action="detalhes" data-target="#modalDetalhes">Detalhes</a>
                                         </li>
                                         <li class="{% if not pode_editar %}disabled{% endif %}">
-                                            <a class="btn-editar">Editar</a>
+                                            <a data-action="editar">Editar</a>
                                         </li>
                                         <li class="divider"></li>
                                         <li class="{% if not pode_editar %}disabled{% endif %}">
-                                            <a class="btn-cancelar text-danger">Cancelar</a>
+                                            <a data-action="cancelar" text-danger">Cancelar</a>
                                         </li>
                                     </ul>
                                 </div>
@@ -162,4 +162,112 @@
             {{ select2_ajax_script('responsavel_especial', 'usuarios_especiais', value=request.args.get('responsavel_especial'), field='id_usuario_especial') }}
         </script>
     {% endif %}
+    <script>
+        fieldSchema = {
+            local: { label: 'Local' },
+            semana: { label: 'Semana' },
+            periodo: { label: 'Periodo' },
+            horario: { label: 'Horário' },
+
+            observacao: {
+                label: 'Observação',
+                type: 'textarea',
+                name: 'observacao',
+                id: 'observacao'
+            },
+
+            finalidadereserva: {
+                label: 'Finalidade',
+                type: 'enum',
+                name: 'finalidade_reserva',
+                id: 'finalidadeReserva',
+                data: {{ TipoReservaList|tojson }}
+            }
+        };
+
+        {% if user and user.perm|has_flag(ADMIN) %}
+            Object.assign(fieldSchema, {
+                responsavel: {
+                    id: 'modal_responsavel',
+                    name: 'responsavel',
+                    label: 'Responsável pela Reserva',
+                    type: 'select2_ajax',
+                    url: {{ ajax_link('pessoas') }},
+                    preloadField: 'id_pessoa',
+                    placeholder: 'Buscar responsável...'
+                },
+
+                responsavel_especial: {
+                    id: 'modal_responsavel_especial',
+                    name: 'responsavel_especial', // ⚠️ aqui tava errado no seu código
+                    label: 'Responsável Especial',
+                    type: 'select2_ajax',
+                    url: {{ ajax_link('usuarios_especiais') }},
+                    preloadField: 'id_usuario_especial',
+                    placeholder: 'Buscar responsável especial...'
+                }
+            });
+        {% endif %}
+
+        fieldGroups = {
+            detalhes: ['local', 'semana', 'periodo', 'horario'],
+            obs: ['observacao'],
+            edit: ['finalidadereserva', 'observacao']
+        };
+
+        {% if user and user.perm|has_flag(ADMIN) %}
+            fieldGroups.edit.push('responsavel', 'responsavel_especial');
+        {% endif %}
+
+        modalConfig = {
+            detalhes: {
+                title: 'Detalhes',
+                headerClass: 'bg-info',
+                sections: [
+                    { title: 'Detalhes', fields: fieldGroups.detalhes, mode: 'view' },
+                    { title: 'Observações', fields: fieldGroups.obs, mode: 'view', show_null: true }
+                ],
+                form: {
+                    buttons: [
+                        { text: 'Voltar', class: 'btn-default', type: 'button' }
+                    ]
+                }
+            },
+
+            editar: {
+                title: 'Editar',
+                headerClass: 'bg-warning',
+                sections: [
+                    { title: 'Detalhes', fields: fieldGroups.detalhes, mode: 'view' },
+                    { fields: fieldGroups.edit, mode: 'form' }
+                ],
+                form: {
+                    actionKey: 'editar_url',
+                    buttons: [
+                        { text: 'Editar', class: 'btn-warning', type: 'submit' },
+                        { text: 'Voltar', class: 'btn-default', type: 'button' }
+                    ]
+                }
+            },
+
+            cancelar: {
+                title: 'Confirmar cancelamento',
+                headerClass: 'bg-danger',
+                sections: [
+                    {
+                        title: 'Deseja cancelar a reserva:',
+                        fields: fieldGroups.detalhes,
+                        mode: 'view'
+                    }
+                ],
+                form: {
+                    actionKey: 'cancel_url',
+                    buttons: [
+                        { text: 'Cancelar', class: 'btn-warning', type: 'submit' },
+                        { text: 'Voltar', class: 'btn-default', type: 'button' }
+                    ]
+                }
+            }
+        };    
+    </script>
 {% endblock script_reserva %}
