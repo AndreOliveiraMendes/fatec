@@ -54,7 +54,7 @@
         </div>
         <!-- Autorizador -->
         <div class="col-sm-4 col-md-3">
-            {{ select2_ajax_input('autorizador', 'autorizador', 'autorizador', optional=True, inner_input_class='input-sm', inner_extras='data-submit-on-change="true"') }}
+            {{ select2_ajax_input('filtro_autorizador', 'autorizador', 'autorizador', optional=True, inner_input_class='input-sm', inner_extras='data-submit-on-change="true"') }}
         </div>
         <!-- status -->
         <div class="col-sm-4 col-md-3">
@@ -79,7 +79,7 @@
         <div class="row">
             <!-- RESPONSAVEL -->
             <div class="col-sm-4 col-md-3">
-                {{ select2_ajax_input('responsavel', 'responsavel', 'responsavel', optional=True, inner_input_class='input-sm', inner_extras='data-submit-on-change="true"') }}
+                {{ select2_ajax_input('filtro_responsavel', 'responsavel', 'responsavel', optional=True, inner_input_class='input-sm', inner_extras='data-submit-on-change="true"') }}
             </div>
         </div>
     {% endif %}
@@ -134,14 +134,14 @@
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-right">
                                         <li>
-                                            <a class="btn-detalhes" data-toggle="modal" data-target="#modalDetalhes">Detalhes</a>
+                                            <a data-action="detalhes" data-target="#modalDetalhes">Detalhes</a>
                                         </li>
                                         <li class="{% if not pode_editar %}disabled{% endif %}">
-                                            <a class="btn-editar">Editar</a>
+                                            <a data-action="editar">Editar</a>
                                         </li>
                                         <li class="divider"></li>
                                         <li class="{% if not pode_editar %}disabled{% endif %}">
-                                            <a class="btn-cancelar text-danger">Cancelar</a>
+                                            <a data-action="cancelar" text-danger">Cancelar</a>
                                         </li>
                                     </ul>
                                 </div>
@@ -159,11 +159,151 @@
 {% endblock table %}
 {% block script_reserva %}
     <script>
-        {{ select2_ajax_script('autorizador', 'pessoas', value=request.args.get('autorizador'), field='id_pessoa') }}
+        {{ select2_ajax_script('filtro_autorizador', 'pessoas', value=request.args.get('autorizador'), field='id_pessoa') }}
     </script>
-    {% if user and user.perm|has_flag(ADMIN) %}
+    {% if user and user.perm|has_flag(ADMIN+AUTORIZAR) %}
         <script>
-            {{ select2_ajax_script('responsavel', 'pessoas', value=request.args.get('responsavel'), field='id_pessoa') }}
+            {{ select2_ajax_script('filtro_responsavel', 'pessoas', value=request.args.get('responsavel'), field='id_pessoa') }}
         </script>
     {% endif %}
+    <script>
+        // =========================
+        // FIELD SCHEMA (BASE)
+        // =========================
+        let fieldSchema = {
+            local: { label: 'Local' },
+            semana: { label: 'Semana' },
+            dia: { label: 'Dia' },
+            horario: { label: 'Horário' },
+            status: { label: 'Status' },
+
+            observacao_responsavel: {
+                label: 'Observação do responsável',
+                type: 'textarea',
+                name: 'observacao_responsavel',
+                id: 'observacao_responsavel'
+            },
+
+            observacao_autorizador: {
+                label: 'Observação do autorizador'
+            }
+        };
+
+        // =========================
+        // EXTENSÃO ADMIN + AUTORIZAR
+        // =========================
+        {% if user and user.perm|has_flag(ADMIN+AUTORIZAR) %}
+        Object.assign(fieldSchema, {
+            responsavel: {
+                name: 'responsavel',
+                label: 'Responsável pela Reserva',
+                id: 'responsavel',
+                type: 'select2_ajax',
+                url: {{ ajax_link('pessoas') }},
+                preloadField: 'id_pessoa',
+                placeholder: 'Buscar responsável...'
+            },
+
+            autorizador: {
+                name: 'autorizador',
+                label: 'Autorizador da Reserva',
+                id: 'autorizador',
+                type: 'select2_ajax',
+                url: {{ ajax_link('pessoas') }},
+                preloadField: 'id_pessoa',
+                placeholder: 'Buscar autorizador...'
+            },
+
+            observacao_autorizador: {
+                name: 'observacao_autorizador',
+                label: 'Observação do Autorizador',
+                id: 'observacao_autorizador',
+                type: 'textarea'
+            },
+
+            status: {
+                name: 'status',
+                label: 'Status da Reserva',
+                id: 'status',
+                type: 'enum',
+                data: {{ statusList|tojson }}
+            }
+        });
+        {% endif %}
+
+        // =========================
+        // FIELD GROUPS
+        // =========================
+        let fieldGroups = {
+            detalhes: ['local', 'semana', 'dia', 'horario', 'status'],
+            obs: ['observacao_autorizador', 'observacao_responsavel'],
+            edit: ['observacao_responsavel']
+        };
+
+        // =========================
+        // EXTENSÃO DO EDIT (ADMIN)
+        // =========================
+        {% if user and user.perm|has_flag(ADMIN+AUTORIZAR) %}
+        fieldGroups.edit.push(
+            'responsavel',
+            'autorizador',
+            'observacao_autorizador',
+            'status'
+        );
+        {% endif %}
+
+        // =========================
+        // MODAL CONFIG (exemplo)
+        // =========================
+        let modalConfig = {
+            detalhes: {
+                title: 'Detalhes',
+                headerClass: 'bg-info',
+                sections: [
+                    { title: 'Detalhes', fields: fieldGroups.detalhes, mode: 'view' },
+                    { title: 'Observações', fields: fieldGroups.obs, mode: 'view', show_null: true }
+                ],
+                form: {
+                    buttons: [
+                        { text: 'Voltar', class: 'btn-default', type: 'button' }
+                    ]
+                }
+            },
+
+            editar: {
+                title: 'Editar',
+                headerClass: 'bg-warning',
+                sections: [
+                    { title: 'Detalhes', fields: fieldGroups.detalhes, mode: 'view' },
+                    { fields: fieldGroups.edit, mode: 'form' }
+                ],
+                form: {
+                    actionKey: 'editar_url',
+                    buttons: [
+                        { text: 'Salvar', class: 'btn-warning', type: 'submit' },
+                        { text: 'Voltar', class: 'btn-default', type: 'button' }
+                    ]
+                }
+            },
+
+            cancelar: {
+                title: 'Confirmar cancelamento',
+                headerClass: 'bg-danger',
+                sections: [
+                    {
+                        title: 'Deseja cancelar a reserva:',
+                        fields: fieldGroups.detalhes,
+                        mode: 'view'
+                    }
+                ],
+                form: {
+                    actionKey: 'cancel_url',
+                    buttons: [
+                        { text: 'Cancelar', class: 'btn-warning', type: 'submit' },
+                        { text: 'Voltar', class: 'btn-default', type: 'button' }
+                    ]
+                }
+            }
+        };
+    </script>
 {% endblock script_reserva %}
