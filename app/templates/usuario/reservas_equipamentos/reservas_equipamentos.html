@@ -183,13 +183,20 @@
                     data: {{ statusList|tojson }}
                 }
             });
+
+            /*
+            let idx = fieldSchema.status.data.indexOf("cancelada");
+            if (idx > -1){
+                fieldSchema.status.data.splice(idx, 1);
+            }
+            */
         {% endif %}
 
         // =========================
         // FIELD GROUPS
         // =========================
         let fieldGroups = {
-            detalhes: ['semana', 'dia', 'horario', 'status', 'motivo_cancelamento'],
+            detalhes: ['semana', 'dia', 'horario', 'status', 'motivo_cancelamento', 'cancelado_por'],
             edit: ['status'],
             cancelar: ['motivo_cancelamento']
         };
@@ -223,7 +230,8 @@
                 headerClass: 'bg-warning',
                 sections: [
                     { title: 'Detalhes', fields: fieldGroups.detalhes, mode: 'view' },
-                    { fields: fieldGroups.edit, mode: 'form' }
+                    { fields: fieldGroups.edit, mode: 'form' },
+                    { fields: fieldGroups.cancelar, mode: 'form' }
                 ],
                 form: {
                     actionKey: 'editar_url',
@@ -261,3 +269,8 @@
         };
     </script>
 {% endblock script_reserva %}
+{% block extra_css %}
+    {{ super() }}
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/equipamentos/status.css') }}">
+{% endblock extra_css %}

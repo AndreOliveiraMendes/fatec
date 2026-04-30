@@ -1,7 +1,7 @@
 from flask import url_for
 from sqlalchemy import and_
 
-from app.dao.internal.reservas import (check_periodo_auditorio,
+from app.dao.internal.reservas import (check_periodo_auditorio, check_periodo_equipamento,
                                        check_periodo_fixa,
                                        check_periodo_temporaria,
                                        info_reserva_auditorio,
@@ -79,5 +79,6 @@ FILTERS = {
 CHECK_PERIODO_MAP = {
     Reservas_Fixas: lambda reserva: check_periodo_fixa(reserva),
     Reservas_Temporarias: lambda reserva: check_periodo_temporaria(reserva),
-    Reservas_Auditorios: lambda reserva: check_periodo_auditorio(reserva)
+    Reservas_Auditorios: lambda reserva: check_periodo_auditorio(reserva),
+    Reservas_Equipamentos: lambda reserva: check_periodo_equipamento(reserva)
 }

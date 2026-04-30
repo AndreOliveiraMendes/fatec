@@ -193,42 +193,49 @@
         // EXTENSÃO ADMIN + AUTORIZAR
         // =========================
         {% if user and user.perm|has_flag(ADMIN+AUTORIZAR) %}
-        Object.assign(fieldSchema, {
-            responsavel: {
-                name: 'responsavel',
-                label: 'Responsável pela Reserva',
-                id: 'responsavel',
-                type: 'select2_ajax',
-                url: {{ ajax_link('pessoas') }},
-                preloadField: 'id_pessoa',
-                placeholder: 'Buscar responsável...'
-            },
+            Object.assign(fieldSchema, {
+                responsavel: {
+                    name: 'responsavel',
+                    label: 'Responsável pela Reserva',
+                    id: 'responsavel',
+                    type: 'select2_ajax',
+                    url: {{ ajax_link('pessoas') }},
+                    preloadField: 'id_pessoa',
+                    placeholder: 'Buscar responsável...'
+                },
 
-            autorizador: {
-                name: 'autorizador',
-                label: 'Autorizador da Reserva',
-                id: 'autorizador',
-                type: 'select2_ajax',
-                url: {{ ajax_link('pessoas') }},
-                preloadField: 'id_pessoa',
-                placeholder: 'Buscar autorizador...'
-            },
+                autorizador: {
+                    name: 'autorizador',
+                    label: 'Autorizador da Reserva',
+                    id: 'autorizador',
+                    type: 'select2_ajax',
+                    url: {{ ajax_link('pessoas') }},
+                    preloadField: 'id_pessoa',
+                    placeholder: 'Buscar autorizador...'
+                },
 
-            observacao_autorizador: {
-                name: 'observacao_autorizador',
-                label: 'Observação do Autorizador',
-                id: 'observacao_autorizador',
-                type: 'textarea'
-            },
+                observacao_autorizador: {
+                    name: 'observacao_autorizador',
+                    label: 'Observação do Autorizador',
+                    id: 'observacao_autorizador',
+                    type: 'textarea'
+                },
 
-            status: {
-                name: 'status',
-                label: 'Status da Reserva',
-                id: 'status',
-                type: 'enum',
-                data: {{ statusList|tojson }}
+                status: {
+                    name: 'status',
+                    label: 'Status da Reserva',
+                    id: 'status',
+                    type: 'enum',
+                    data: {{ statusList|tojson }}
+                }
+            });
+
+            /*
+            let idx = fieldSchema.status.data.indexOf("Cancelada");
+            if (idx > -1){
+                fieldSchema.status.data.splice(idx, 1);
             }
-        });
+            */
         {% endif %}
 
         // =========================
