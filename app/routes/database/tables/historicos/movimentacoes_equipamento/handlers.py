@@ -1,21 +1,17 @@
-from copy import copy
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from flask import current_app, flash, g, request
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
-from app.auxiliar.general import get_value_or_abort, none_if_empty
+from app.auxiliar.general import none_if_empty
 from app.auxiliar.navigation import register_return
-from app.auxiliar.parsing import parse_date_string, parse_datetime_string
+from app.auxiliar.parsing import parse_date_string
 from app.dao.internal.equipamentos import get_equipamentos
-from app.dao.internal.historicos import get_movimentacoes_equipamentos
-from app.dao.internal.usuarios import get_pessoas
 from app.decorators.decorators import register_handler
 from app.enums import TipoMovimentacaoEnum
 from app.extensions import db
 from app.models.historicos import MovimentacaoEquipamento
-from app.routes_helper.db_actions import db_action
 from app.routes_helper.request import get_query_params
 from config.general import PER_PAGE
 
@@ -34,7 +30,6 @@ def list_handler():
 @register_handler(dispatcher, 'procurar', 0)
 def search_prefetch():
     g.extras['equipamentos'] = get_equipamentos()
-    g.extras['pessoas'] = get_pessoas()
 
 @register_handler(dispatcher, 'procurar', 1)
 def search_fetch():
@@ -91,124 +86,5 @@ def search_fetch():
         flash("especifique ao menos um campo", "danger")
         g.redirect_action, g.bloco = register_return(
             g.url, g.acao, g.extras,
-            equipamentos=get_equipamentos, pessoas=get_pessoas()
+            equipamentos=get_equipamentos
         )
-
-@register_handler(dispatcher, 'inserir', 0)
-def insert_prefetch():
-    g.extras['equipamentos'] = get_equipamentos()
-    g.extras['pessoas'] = get_pessoas()
-    g.extras['now'] = datetime.now().strftime("%Y-%m-%dT%H:%M")
-
-@register_handler(dispatcher, 'inserir', 1)
-def insert_push():
-    id_equipamento = none_if_empty(request.form.get('id_equipamento'), int)
-    tipo_movimentacao = none_if_empty(request.form.get('tipo_movimentacao'))
-    quantidade = none_if_empty(request.form.get('quantidade'), int)
-    data_registro = parse_datetime_string(request.form.get('data_registro'))
-    id_funcionario = none_if_empty(request.form.get('id_funcionario'), int)
-    id_responsavel = none_if_empty(request.form.get('id_responsavel'), int)
-    observacao = none_if_empty(request.form.get('observacao'))
-
-    nova_movimentacao = MovimentacaoEquipamento(
-        id_equipamento = id_equipamento,
-        quantidade = quantidade,
-        data_registro = data_registro,
-        id_funcionario = id_funcionario,
-        id_responsavel = id_responsavel,
-        observacao = observacao
-    )
-
-    def insert():
-        if tipo_movimentacao:
-            nova_movimentacao.tipo = TipoMovimentacaoEnum(tipo_movimentacao)
-    
-    db_action(
-        "Inserção",
-        "Movimentacao registrada com sucesso",
-        "Erro ao registrar movimentacao",
-        obj=nova_movimentacao,
-        action=insert
-    )
-
-    g.redirect_action, g.bloco = register_return(
-        g.url, g.acao, g.extras,
-        equipamentos=get_equipamentos,
-        pessoas=get_pessoas(),
-        now=datetime.now().strftime("%Y-%m-%dT%H:%M")
-    )
-
-@register_handler(dispatcher, 'editar', 0)
-@register_handler(dispatcher, 'excluir', 0)
-def fetch_movimentacoes():
-    g.extras['movimentacoes'] = get_movimentacoes_equipamentos()
-
-@register_handler(dispatcher, 'editar', 1)
-@register_handler(dispatcher, 'excluir', 1)
-def fetch_movimentacao():
-    id_movimentacao = none_if_empty(request.form.get('id_movimentacao'), int)
-
-    movimentacao = db.get_or_404(MovimentacaoEquipamento, id_movimentacao)
-    g.extras['movimentacao'] = movimentacao
-    g.extras['equipamentos'] = get_equipamentos()
-    g.extras['pessoas'] = get_pessoas()
-
-@register_handler(dispatcher, 'editar', 2)
-def edit_push():
-    id_movimentacao = none_if_empty(request.form.get('id_movimentacao'), int)
-    id_equipamento = get_value_or_abort(request.form.get('id_equipamento'), 400, "id do equipamento é obrigatorio", int)
-    tipo_movimentacao = none_if_empty(request.form.get('tipo_movimentacao'))
-    quantidade = get_value_or_abort(request.form.get('quantidade'), 400, "quantidade é obrigatorio", int)
-    data_registro = parse_datetime_string(request.form.get('data_registro'))
-    id_funcionario = get_value_or_abort(request.form.get('id_funcionario'), 400, "id do funcionario é obrigatorio", int)
-    id_responsavel = none_if_empty(request.form.get('id_responsavel'), int)
-    observacao = none_if_empty(request.form.get('observacao'))
-
-    movimentacao = db.get_or_404(MovimentacaoEquipamento, id_movimentacao)
-
-    dados_anteriores = copy(movimentacao)
-
-    def atualizar():
-        movimentacao.id_equipamento = id_equipamento
-        movimentacao.quantidade = quantidade
-        if data_registro:
-            movimentacao.data_registro = data_registro
-        else:
-            movimentacao.data_registro = datetime.now()
-        movimentacao.id_funcionario = id_funcionario
-        movimentacao.id_responsavel = id_responsavel
-        movimentacao.observacao = observacao
-        if tipo_movimentacao:
-            movimentacao.tipo = TipoMovimentacaoEnum(tipo_movimentacao)
-
-    db_action(
-        "Edição",
-        "Movimentação atualizada com sucesso",
-        "Erro ao atualizar movimentação",
-        obj=movimentacao,
-        action=atualizar,
-        old_obj=dados_anteriores
-    )
-
-    g.redirect_action, g.bloco = register_return(
-        g.url, g.acao, g.extras,
-        movimentacoes = get_movimentacoes_equipamentos()
-    )
-
-@register_handler(dispatcher, 'excluir', 2)
-def delete_push():
-    id_movimentacao = none_if_empty(request.form.get('id_movimentacao'), int)
-
-    movimentacao = db.get_or_404(MovimentacaoEquipamento, id_movimentacao)
-
-    db_action(
-        "Exclusão",
-        "Registro de movimentação excluida com sucesso",
-        "Erro ao excluir registro de movimentação",
-        obj=movimentacao
-    )
-
-    g.redirect_action, g.bloco = register_return(
-        g.url, g.acao, g.extras,
-        movimentacoes = get_movimentacoes_equipamentos()
-    )

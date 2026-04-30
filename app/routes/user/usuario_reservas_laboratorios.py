@@ -8,8 +8,7 @@ from app.auxiliar.constant import Permission
 from app.dao.internal.aulas import (get_dias_da_semana, get_semestre_by_id,
                                     get_semestres)
 from app.dao.internal.locais import get_laboratorios
-from app.dao.internal.usuarios import (get_pessoas, get_user,
-                                       get_usuarios_especiais)
+from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import login_required
 from app.enums import FinalidadeReservaEnum
 from app.routes.user.handler.handler_laboratorios import \
@@ -48,10 +47,6 @@ def gerenciar_reserva_fixa():
     extras['semestres'] = semestres
     extras['TipoReserva'] = FinalidadeReservaEnum
     extras['TipoReservaList'] = [e.value for e in FinalidadeReservaEnum]
-    extras['pessoas'] = get_pessoas()
-    extras['pessoasList'] = [{"value":p.id_pessoa, "label": p.nome_pessoa} for p in extras['pessoas']]
-    extras['usuarios_especiais'] = get_usuarios_especiais()
-    extras['usuarios_especiaisList'] = [{"value":u.id_usuario_especial, "label": u.nome_usuario_especial} for u in extras['usuarios_especiais']]
     extras['laboratorios'] = get_laboratorios(user.perm.has(Permission.ADMIN))
     extras['semanas'] = get_dias_da_semana()
     return render_template("usuario/reservas_laboratorios/reserva_fixa.html", user=user, **extras)
@@ -75,10 +70,6 @@ def gerenciar_reserva_temporaria():
     extras['args_extras'] = args_extras
     extras['TipoReserva'] = FinalidadeReservaEnum
     extras['TipoReservaList'] = [e.value for e in FinalidadeReservaEnum]
-    extras['pessoas'] = get_pessoas()
-    extras['pessoasList'] = [{"value":p.id_pessoa, "label": p.nome_pessoa} for p in extras['pessoas']]
-    extras['usuarios_especiais'] = get_usuarios_especiais()
-    extras['usuarios_especiaisList'] = [{"value":u.id_usuario_especial, "label": u.nome_usuario_especial} for u in extras['usuarios_especiais']]
     extras['laboratorios'] = get_laboratorios(user.perm.has(Permission.ADMIN))
     extras['semanas'] = get_dias_da_semana()
     return render_template("usuario/reservas_laboratorios/reserva_temporaria.html", user=user, **extras)

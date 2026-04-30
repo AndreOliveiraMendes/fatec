@@ -167,44 +167,6 @@
         {{ result_table("Nenhum resultado encontrado.") }}
     {% endif %}
 {% endblock procurar %}
-{% block inserir %}
-    <h3>Inserir Pessoas</h3>
-    <form class="form-group"
-          role="form"
-          action="{{ url_for(url) }}"
-          method="post">
-        <input type="hidden" name="acao" value="{{ acao }}">
-        <div class="form-group">
-            <label for="nome">Nome:</label>
-            <input type="text"
-                   maxlength="100"
-                   class="form-control"
-                   name="nome"
-                   id="nome"
-                   placeholder="Digite o nome"
-                   required>
-        </div>
-        <div class="form-group">
-            <label for="alias">alias:</label>
-            <input type="text"
-                   maxlength="100"
-                   class="form-control"
-                   name="alias"
-                   id="alias"
-                   placeholder="Digite o alias">
-        </div>
-        <div class="form-group">
-            <label for="email">Email:</label>
-            <input type="email"
-                   maxlength="100"
-                   class="form-control"
-                   name="email"
-                   id="email"
-                   placeholder="Digite o email">
-        </div>
-        {{ action_buttons(acao, 1, False, 0) }}
-    </form>
-{% endblock inserir %}
 {% block editar %}
     {% if bloco == 0 %}
         <h3>Editar Pessoas</h3>
@@ -269,71 +231,8 @@
         </form>
     {% endif %}
 {% endblock editar %}
-{% block excluir %}
-    {% if bloco == 0 %}
-        <h3>Excluir Pessoas</h3>
-        <form class="form-group"
-              role="form"
-              action="{{ url_for(url) }}"
-              method="post">
-            <input type="hidden" name="acao" value="{{ acao }}">
-            {{ select2_ajax_input('id_pessoa', 'id_pessoa', 'pessoas') }}
-            {{ action_buttons(acao, 1, False, 0) }}
-        </form>
-    {% elif bloco == 1 %}
-        <h3>Excluir Pessoa</h3>
-        <form class="form-group"
-              role="form"
-              action="{{ url_for(url) }}"
-              method="post">
-            <input type="hidden" name="acao" value="{{ acao }}">
-            <div class="form-group">
-                <label for="id_pessoa">ID Pessoa:</label>
-                <input type="number"
-                       maxlength="100"
-                       class="form-control"
-                       name="id_pessoa"
-                       id="id_pessoa"
-                       value="{{ pessoa.id_pessoa }}"
-                       readonly
-                       required>
-            </div>
-            <div class="form-group">
-                <label for="nome">Nome:</label>
-                <input type="text"
-                       maxlength="100"
-                       class="form-control"
-                       name="nome"
-                       id="nome"
-                       value="{{ pessoa.nome_pessoa }}"
-                       disabled
-                       required>
-            </div>
-            <div class="form-group">
-                <label for="alias">alias:</label>
-                <input type="text"
-                       maxlength="100"
-                       class="form-control"
-                       name="alias"
-                       id="alias"
-                       value="{{ pessoa.alias|format(1) }}"
-                       placeholder="Digite o alias"
-                       disabled>
-            </div>
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email"
-                       maxlength="100"
-                       class="form-control"
-                       name="email"
-                       id="email"
-                       value="{{ pessoa.email_pessoa|format(1) }}"
-                       disabled>
-            </div>
-            {{ action_buttons(acao, 2, True, 0, False) }}
-        </form>
-    {% endif %}
-{% endblock excluir %}
 {% block extra_script %}
-    <script>{{ select2_ajax_script('id_pessoa', 'pessoas') }}</script>
+    {% if acao == 'procurar' or acao == 'editar' %}
+        <script>{{ select2_ajax_script('id_pessoa', 'pessoas') }}</script>
+    {% endif %}
 {% endblock extra_script %}

@@ -6,7 +6,6 @@ from app.auxiliar.general import none_if_empty
 from app.auxiliar.navigation import register_return
 from app.auxiliar.parsing import parse_date_string, parse_datetime_string
 from app.dao.internal.aulas import get_aulas_ativas
-from app.dao.internal.usuarios import get_pessoas
 from app.decorators.decorators import register_handler
 from app.enums import StatusReservaEquipamentoEnum
 from app.extensions import db
@@ -29,7 +28,6 @@ def list_handler():
 @register_handler(dispatcher, 'procurar', 0)
 def search_prefetch():
     g.extras['aulas_ativas'] = get_aulas_ativas()
-    g.extras['pessoas'] = get_pessoas()
 
 @register_handler(dispatcher, 'procurar', 1)
 def search_fetch():
@@ -78,5 +76,5 @@ def search_fetch():
     else:
         flash("especifique ao menos um campo", "danger")
         g.redirect_action, g.bloco = register_return(g.url, g.acao, g.extras,
-            aulas_ativas = get_aulas_ativas(), pessoas = get_pessoas()
+            aulas_ativas = get_aulas_ativas()
     )

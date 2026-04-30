@@ -6,7 +6,6 @@ from sqlalchemy import select
 
 from app.auxiliar.general import get_value_or_abort, none_if_empty
 from app.auxiliar.navigation import register_return
-from app.dao.internal.usuarios import get_pessoas
 from app.decorators.decorators import register_handler
 from app.extensions import db
 from app.models.usuarios import Pessoas
@@ -67,29 +66,6 @@ def search_fetch():
         flash("especifique pelo menos um campo de busca", "danger")
         g.redirect_action, g.bloco = register_return(g.url, g.acao, g.extras)
 
-@register_handler(dispatcher, 'inserir', 1)
-def insert_push():
-    nome = none_if_empty(request.form.get('nome', None))
-    alias = none_if_empty(request.form.get('alias', None))
-    email = none_if_empty(request.form.get('email', None))
-
-    nova_pessoa = Pessoas(
-        nome_pessoa=nome,
-        alias=alias,
-        email_pessoa=email
-    )
-
-    db_action(
-        "Inserção",
-        "Pessoa cadastrada com sucesso",
-        "Erro ao cadastrar pessoa",
-        obj=nova_pessoa
-    )
-
-    g.redirect_action, g.bloco = register_return(
-        g.url, g.acao, g.extras
-    )
-
 @register_handler(dispatcher, 'editar', 1)
 @register_handler(dispatcher, 'excluir', 1)
 def fetch_pessoa():
@@ -123,31 +99,5 @@ def edit_push():
     g.redirect_action, g.bloco = register_return(
         g.url,
         g.acao,
-        g.extras,
-        pessoas=get_pessoas(g.acao, g.userid)
-    )
-
-@register_handler(dispatcher, 'excluir', 2)
-def delete_push():
-    id_pessoa = none_if_empty(request.form.get('id_pessoa'), int)
-
-    pessoa = db.get_or_404(Pessoas, id_pessoa)
-
-    if g.user and g.user.id_pessoa == id_pessoa:
-        flash("Voce não pode se excluir", "danger")
-
-    else:
-
-        db_action(
-            "Exclusão",
-            "Pessoa excluída com sucesso",
-            "Erro ao excluir pessoa",
-            obj=pessoa
-        )
-
-    g.redirect_action, g.bloco = register_return(
-        g.url,
-        g.acao,
-        g.extras,
-        pessoas=get_pessoas(g.acao, g.userid)
+        g.extras
     )

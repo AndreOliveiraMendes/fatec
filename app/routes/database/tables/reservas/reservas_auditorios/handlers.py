@@ -10,7 +10,6 @@ from app.auxiliar.parsing import parse_date_string, parse_date_string_or_abort
 from app.dao.internal.aulas import get_aulas_ativas
 from app.dao.internal.locais import get_locais
 from app.dao.internal.reservas import get_reservas_auditorios_database
-from app.dao.internal.usuarios import get_pessoas
 from app.decorators.decorators import register_handler
 from app.enums import StatusReservaAuditorioEnum
 from app.extensions import db
@@ -33,7 +32,6 @@ def list_handler():
 
 @register_handler(dispatcher, 'procurar', 0)
 def search_prefetch():
-    g.extras['pessoas'] = get_pessoas()
     g.extras['locais'] = get_locais()
     g.extras['aulas_ativas'] = get_aulas_ativas()
 
@@ -80,12 +78,11 @@ def search_fetch():
     else:
         flash("especifique ao menos um campo", "danger")
         g.redirect_action, g.bloco = register_return(g.url, g.acao, g.extras,
-            pessoas=get_pessoas(), locais=get_locais(), aulas_ativas=get_aulas_ativas()
+            locais=get_locais(), aulas_ativas=get_aulas_ativas()
     )
 
 @register_handler(dispatcher, 'inserir', 0)
 def insert_prefetch():
-    g.extras['pessoas'] = get_pessoas()
     g.extras['locais'] = get_locais()
     g.extras['aulas_ativas'] = get_aulas_ativas()
 
@@ -120,7 +117,6 @@ def insert_push():
 
     g.redirect_action, g.bloco = register_return(
         g.url, g.acao, g.extras,
-        pessoas=get_pessoas(),
         locais=get_locais(),
         aulas_ativas=get_aulas_ativas()
     )
@@ -136,7 +132,6 @@ def fetch_reserva_auditorio():
     id_reserva_auditorio = none_if_empty(request.form.get('id_reserva_auditorio'), int)
     reserva_auditorio = db.get_or_404(Reservas_Auditorios, id_reserva_auditorio)
     g.extras['reserva_auditorio'] = reserva_auditorio
-    g.extras['pessoas'] = get_pessoas()
     g.extras['locais'] = get_locais()
     g.extras['aulas_ativas'] = get_aulas_ativas()
 

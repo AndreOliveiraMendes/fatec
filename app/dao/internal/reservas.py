@@ -262,6 +262,16 @@ def check_periodo_auditorio(reserva: Reservas_Auditorios):
     hoje = date.today()
     return reserva.dia_reserva >= hoje
 
+def check_periodo_equipamento(reserva: Reservas_Equipamentos):
+    userid = session.get('userid')
+    perm = db.session.get(Permissoes, userid)
+
+    if perm and perm.permissao & Permission.ADMIN:
+        return True
+
+    hoje = date.today
+    return reserva.data_reserva >= hoje    
+
 def info_reserva_fixa(id_reserva):
     reserva = db.get_or_404(Reservas_Fixas, id_reserva)
     check_ownership_or_admin(reserva)
@@ -325,8 +335,9 @@ def info_reserva_equipamento(id_reserva):
         "responsavel": reserva.id_responsavel,
         "status": reserva.status_reserva.value,
         "motivo_cancelamento": reserva.motivo_cancelamento,
+        "observacoes": reserva.observacoes,
         "cancelado_por_id": reserva.cancelado_por_id,
-        "cancelado_por": reserva.cancelado_por.alias or reserva.cancelado_por.nome_pessoa,
+        "cancelado_por": (reserva.cancelado_por.alias or reserva.cancelado_por.nome_pessoa) if reserva.cancelado_por_id is not None else None,
         "cancel_url": url_for("usuarios_reservas_base.cancelar_reserva", tipo_reserva="equipamento", id_reserva=id_reserva),
         "editar_url": url_for("usuarios_reservas_base.editar_reserva", tipo_reserva="equipamento", id_reserva=id_reserva)
     }

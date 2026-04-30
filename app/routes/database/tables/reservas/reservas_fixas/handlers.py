@@ -10,7 +10,6 @@ from app.auxiliar.navigation import register_return
 from app.dao.internal.aulas import get_aulas_ativas, get_semestres
 from app.dao.internal.locais import get_locais
 from app.dao.internal.reservas import get_reservas_fixas
-from app.dao.internal.usuarios import get_pessoas, get_usuarios_especiais
 from app.decorators.decorators import register_handler
 from app.enums import FinalidadeReservaEnum
 from app.extensions import db
@@ -33,8 +32,6 @@ def list_handler():
 
 @register_handler(dispatcher, 'procurar', 0)
 def search_prefetch():
-    g.extras['pessoas'] = get_pessoas()
-    g.extras['usuarios_especiais'] = get_usuarios_especiais()
     g.extras['locais'] = get_locais()
     g.extras['aulas_ativas'] = get_aulas_ativas()
     g.extras['semestres'] = get_semestres()
@@ -85,15 +82,12 @@ def search_fetch():
     else:
         flash("especifique ao menos um campo", "danger")
         g.redirect_action, g.bloco = register_return(g.url,
-            g.acao, g.extras, pessoas=get_pessoas(), usuarios_especiais=get_usuarios_especiais(),
-            locais=get_locais(), aulas_ativas=get_aulas_ativas(),
-            semestres=get_semestres()
+            g.acao, g.extras,
+            locais=get_locais(), aulas_ativas=get_aulas_ativas(), semestres=get_semestres()
     )
 
 @register_handler(dispatcher, 'inserir', 0)
 def insert_prefetch():
-    g.extras['pessoas'] = get_pessoas()
-    g.extras['usuarios_especiais'] = get_usuarios_especiais()
     g.extras['locais'] = get_locais()
     g.extras['aulas_ativas'] = get_aulas_ativas()
     g.extras['semestres'] = get_semestres()
@@ -129,8 +123,6 @@ def insert_push():
 
     g.redirect_action, g.bloco = register_return(
         g.url, g.acao, g.extras,
-        pessoas=get_pessoas(),
-        usuarios_especiais=get_usuarios_especiais(),
         locais=get_locais(),
         aulas_ativas=get_aulas_ativas(),
         semestres=get_semestres()
@@ -147,8 +139,6 @@ def fetch_reserva_fixa():
     id_reserva_fixa = none_if_empty(request.form.get('id_reserva_fixa'), int)
     reserva_fixa = db.get_or_404(Reservas_Fixas, id_reserva_fixa)
     g.extras['reserva_fixa'] = reserva_fixa
-    g.extras['pessoas'] = get_pessoas()
-    g.extras['usuarios_especiais'] = get_usuarios_especiais()
     g.extras['locais'] = get_locais()
     g.extras['aulas_ativas'] = get_aulas_ativas()
     g.extras['semestres'] = get_semestres()

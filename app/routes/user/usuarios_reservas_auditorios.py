@@ -5,7 +5,7 @@ from flask import Blueprint, abort, render_template, request, session
 
 from app.dao.internal.aulas import get_dias_da_semana
 from app.dao.internal.locais import get_auditorios
-from app.dao.internal.usuarios import get_pessoas, get_user
+from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import login_required
 from app.enums import StatusReservaAuditorioEnum
 from app.routes.user.handler.handler_auditorios import get_reservas_auditorios
@@ -33,8 +33,6 @@ def gerenciar_reservas_auditorios():
     extras['args_extras'] = args_extras
 
     # for edit and filter
-    extras['pessoas'] = get_pessoas()
-    extras['pessoasList'] = [{"value":p.id_pessoa, "label": p.nome_pessoa} for p in extras['pessoas']]
     extras['auditorios'] = get_auditorios()
     extras['semanas'] = get_dias_da_semana()
     extras['status'] = StatusReservaAuditorioEnum

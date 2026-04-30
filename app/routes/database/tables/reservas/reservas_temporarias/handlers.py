@@ -12,7 +12,6 @@ from app.dao.internal.aulas import get_aulas_ativas
 from app.dao.internal.locais import get_locais
 from app.dao.internal.reservas import (check_reserva_temporaria,
                                        get_reservas_temporarias)
-from app.dao.internal.usuarios import get_pessoas, get_usuarios_especiais
 from app.decorators.decorators import register_handler
 from app.enums import FinalidadeReservaEnum
 from app.extensions import db
@@ -48,8 +47,6 @@ def list_handler():
 
 @register_handler(dispatcher, 'procurar', 0)
 def search_prefetch():
-    g.extras['pessoas'] = get_pessoas()
-    g.extras['usuarios_especiais'] = get_usuarios_especiais()
     g.extras['locais'] = get_locais()
     g.extras['aulas_ativas'] = get_aulas_ativas()
 
@@ -100,13 +97,13 @@ def search_fetch():
     else:
         flash("especifique ao menos um campo de busca", "danger")
         g.redirect_action, g.bloco = register_return(g.url,
-            g.acao, g.extras, pessoas=get_pessoas(), usuarios_especiais=get_usuarios_especiais(),
-            locais=get_locais(), aulas_ativas=get_aulas_ativas())
+            g.acao, g.extras,
+            locais=get_locais(),
+            aulas_ativas=get_aulas_ativas()
+        )
 
 @register_handler(dispatcher, 'inserir', 0)
 def insert_prefetch():
-    g.extras['pessoas'] = get_pessoas()
-    g.extras['usuarios_especiais'] = get_usuarios_especiais()
     g.extras['locais'] = get_locais()
     g.extras['aulas_ativas'] = get_aulas_ativas()
 
@@ -152,8 +149,6 @@ def insert_push():
 
     g.redirect_action, g.bloco = register_return(
         g.url, g.acao, g.extras,
-        pessoas=get_pessoas(),
-        usuarios_especiais=get_usuarios_especiais(),
         locais=get_locais(),
         aulas_ativas=get_aulas_ativas()
     )
@@ -169,8 +164,6 @@ def fetch_reserva_temporaria():
     id_reserva_temporaria = none_if_empty(request.form.get('id_reserva_temporaria'), int)
     reserva_temporaria = db.get_or_404(Reservas_Temporarias, id_reserva_temporaria)
     g.extras['reserva_temporaria'] = reserva_temporaria
-    g.extras['pessoas'] = get_pessoas()
-    g.extras['usuarios_especiais'] = get_usuarios_especiais()
     g.extras['locais'] = get_locais()
     g.extras['aulas_ativas'] = get_aulas_ativas()
 

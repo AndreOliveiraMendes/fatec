@@ -182,8 +182,8 @@
                 <label for="data_fim">Data final</label>
                 <input class="form-control" type="date" id="data_fim" name="data_fim">
             </div>
-            {{ gerar_select("funcionario", "Funcionário que registrou", pessoas, "id_pessoa", "nome_pessoa", "id_funcionario", optional=True) }}
-            {{ gerar_select("responsavel", "Responsável pela movimentação", pessoas, "id_pessoa", "nome_pessoa", "id_responsavel", optional=True) }}
+            {{ select2_ajax_input('id_funcionario', 'id_funcionario', 'funcionario', optional=True) }}
+            {{ select2_ajax_input('id_responsavel', 'id_responsavel', 'responsavel', optional=True) }}
             <div class="form-group">
                 <label for="observacao">Observação</label>
                 <textarea id="observacao"
@@ -199,3 +199,11 @@
         {{ result_table("Nenhuma movimentação encontrada.") }}
     {% endif %}
 {% endblock procurar %}
+{% block extra_script %}
+    {% if acao == 'procurar' %}
+        <script>
+            {{ select2_ajax_script('id_funcionario', 'pessoas') }}
+            {{ select2_ajax_script('id_responsavel', 'pessoas') }}
+        </script>
+    {% endif %}
+{% endblock extra_script %}

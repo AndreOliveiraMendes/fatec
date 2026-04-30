@@ -211,8 +211,8 @@
                        id="codigo"
                        placeholder="Digite o ID">
             </div>
-            {{ gerar_select("responsavel", "Selecione a Pessoa", pessoas, "id_pessoa", "nome_pessoa", "id_responsavel", optional=true) }}
-            {{ gerar_select("responsavel_especial", "Selecione o usuario especial", usuarios_especiais, "id_usuario_especial", "nome_usuario_especial", "id_responsavel_especial", optional=true) }}
+            {{ select2_ajax_input('id_responsavel', 'id_responsavel', 'responsavel', optional=True) }}
+            {{ select2_ajax_input('id_responsavel_especial', 'id_responsavel_especial', 'Tipo de uso', optional=True) }}
             <div class="form-group">
                 <label for="tipo_responsavel">Tipo de Responsável</label>
                 <select class="form-control" id="tipo_responsavel" name="tipo_responsavel">
@@ -290,8 +290,8 @@
           action="{{ url_for(url) }}"
           method="post">
         <input type="hidden" name="acao" value="{{ acao }}">
-        {{ gerar_select("responsavel", "Selecione a Pessoa", pessoas, "id_pessoa", "nome_pessoa", "id_responsavel", optional=true) }}
-        {{ gerar_select("responsavel_especial", "Selecione o usuario especial", usuarios_especiais, "id_usuario_especial", "nome_usuario_especial", "id_responsavel_especial", optional=true) }}
+        {{ select2_ajax_input('id_responsavel', 'id_responsavel', 'responsavel', optional=True) }}
+        {{ select2_ajax_input('id_responsavel_especial', 'id_responsavel_especial', 'Tipo de uso', optional=True) }}
         {{ gerar_select("locais", "Selecione o local", locais, "id_local", "nome_local", "id_reserva_local") }}
         {{ gerar_select("aulas", "Selecione o horario", aulas_ativas, "id_aula_ativa", "selector_identification", "id_reserva_aula") }}
         <div class="form-group">
@@ -373,8 +373,8 @@
                        required
                        readonly>
             </div>
-            {{ gerar_select("responsavel", "Selecione a Pessoa", pessoas, "id_pessoa", "nome_pessoa", "id_responsavel", optional=true, selected=reserva_temporaria.id_responsavel) }}
-            {{ gerar_select("responsavel_especial", "Selecione o usuario especial", usuarios_especiais, "id_usuario_especial", "nome_usuario_especial", "id_responsavel_especial", optional=true, selected=reserva_temporaria.id_responsavel_especial) }}
+            {{ select2_ajax_input('id_responsavel', 'id_responsavel', 'responsavel', optional=True) }}
+            {{ select2_ajax_input('id_responsavel_especial', 'id_responsavel_especial', 'Tipo de uso', optional=True) }}
             {{ gerar_select("locais", "Selecione o local", locais, "id_local", "nome_local", "id_reserva_local", selected=reserva_temporaria.id_reserva_local) }}
             {{ gerar_select("aulas", "Selecione o horario", aulas_ativas, "id_aula_ativa", "selector_identification", "id_reserva_aula", selected=reserva_temporaria.id_reserva_aula) }}
             <div class="form-group">
@@ -479,8 +479,8 @@
                        required
                        readonly>
             </div>
-            {{ gerar_select("responsavel", "Selecione a Pessoa", pessoas, "id_pessoa", "nome_pessoa", "id_responsavel", optional=true, selected=reserva_temporaria.id_responsavel, extra='disabled') }}
-            {{ gerar_select("responsavel_especial", "Selecione o usuario especial", usuarios_especiais, "id_usuario_especial", "nome_usuario_especial", "id_responsavel_especial", optional=true, selected=reserva_temporaria.id_responsavel_especial, extra='disabled') }}
+            {{ select2_ajax_input('id_responsavel', 'id_responsavel', 'responsavel', optional=True) }}
+            {{ select2_ajax_input('id_responsavel_especial', 'id_responsavel_especial', 'Tipo de uso', optional=True) }}
             {{ gerar_select("locais", "Selecione o local", locais, "id_local", "nome_local", "id_reserva_local", selected=reserva_temporaria.id_reserva_local, extra='disabled') }}
             {{ gerar_select("aulas", "Selecione o horario", aulas_ativas, "id_aula_ativa", "selector_identification", "id_reserva_aula", selected=reserva_temporaria.id_reserva_aula, extra='disabled') }}
             <div class="form-group">
@@ -562,3 +562,21 @@
         </form>
     {% endif %}
 {% endblock excluir %}
+{% block extra_script %}
+    {% if acao == 'procurar' or acao == 'inserir' %}
+        <script>
+            {{ select2_ajax_script('id_responsavel', 'pessoas') }}
+            {{ select2_ajax_script('id_responsavel_especial', 'usuarios_especiais') }}
+        </script>
+    {% elif acao == 'editar' %}
+        <script>
+            {{ select2_ajax_script('id_responsavel', 'pessoas', value=reserva_temporaria.id_responsavel, field='id_pessoa') }}
+            {{ select2_ajax_script('id_responsavel_especial', 'usuarios_especiais', value=reserva_temporaria.id_responsavel_especial, field='id_usuario_especial') }}
+        </script>
+    {% elif acao == 'excluir' %}
+        <script>
+            {{ select2_ajax_script('id_responsavel', 'pessoas', value=reserva_temporaria.id_responsavel, field='id_pessoa', readonly=True) }}
+            {{ select2_ajax_script('id_responsavel_especial', 'usuarios_especiais', value=reserva_temporaria.id_responsavel_especial, field='id_usuario_especial', readonly=True) }}
+        </script>
+    {% endif %}
+{% endblock extra_script %}

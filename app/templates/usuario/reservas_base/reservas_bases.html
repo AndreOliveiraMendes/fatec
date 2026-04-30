@@ -1,0 +1,337 @@
+{% extends "base-fixed" %}
+{% from "macros/pagination.html" import render_pagination %}
+{% from "macros/navigation.html" import go_back %}
+{% from "macros/select2.html" import select2_ajax_input, select2_ajax_script, ajax_link %}
+{% block content %}
+    <div class="btn-group">
+        <a href="{{ url_for('default.home') }}" class="btn btn-default">
+            <span class="glyphicon glyphicon-home"></span> Início
+        </a>
+        <a href="{{ url_for('usuario.menu_reservas_usuario') }}"
+           class="btn btn-primary">
+            <span class="glyphicon glyphicon-list"></span> Menu
+        </a>
+    </div>
+    <h4 class="text-muted">Agora: {{ datetime|datahora }}</h4>
+    <div class="panel panel-info">
+        <!-- HEADER -->
+        <div class="panel-heading">
+            <strong>
+                {% block header %}
+                {% endblock header %}
+            </strong>
+        </div>
+        <!-- FILTROS -->
+        <div class="panel-body filtro">
+            <div class="well well-sm">
+                <form method="get">
+                    {% block filtros %}
+                    {% endblock filtros %}
+                </form>
+            </div>
+        </div>
+        <!-- TABELA -->
+        <div class="panel-body">
+            {% block table %}
+            {% endblock table %}
+        </div>
+    </div>
+{% endblock content %}
+{% block extra_script %}
+    {% block script_reserva %}
+        let fieldSchema = {};
+        let fieldGroups = {};
+        let modalConfig = {};
+    {% endblock script_reserva %}
+    <script>
+        function initSelect2Ajax($el, field, value){
+            $el.select2({
+                width: '100%',
+                allowClear: true,
+                placeholder: field.placeholder || "Buscar...",
+                minimumInputLength: 1,
+                dropdownParent: $('#modalGlobal'),
+                ajax: {
+                    url: field.url,
+                    dataType: 'json',
+                    delay: 250,
+                    data: params => ({ q: params.term }),
+                    processResults: data => ({ results: data.results || [] })
+                }
+            });
+
+            if (value && field.preloadField) {
+                $.ajax({
+                    url: field.url,
+                    data: { [field.preloadField]: value }
+                }).then(resp => {
+                    if (resp.results?.length) {
+                        let item = resp.results[0];
+                        let option = new Option(item.text, item.id, true, true);
+                        $el.append(option).trigger('change');
+                    }
+                });
+            }
+        }
+
+        function renderCampos(data, fields, show_null = false){
+            let $p = $('<p>');
+
+            fields.forEach(key => {
+                const field = fieldSchema[key];
+
+                if(data[key]){
+                    $p.append(
+                        $('<strong>').text(`${field.label}: ${data[key]}`),
+                        $('<br>')
+                    );
+                } else if (show_null){
+                    $p.append(
+                        $('<strong>').text(`${field.label}: Nenhuma`),
+                        $('<br>')
+                    );
+                }
+            });
+
+            return $p;
+        }
+
+        function renderFormCampos(data, fields){
+            let $p = $('<p>');
+
+            fields.forEach(key => {
+                const field = fieldSchema[key];
+
+                let $group = $('<div class="form-group">');
+                $group.append(`<label for="${field.id}">${field.label}</label>`);
+
+                let $input;
+
+                if (field.type === 'textarea'){
+                    $input = $(`<textarea name="${field.name}" id="${field.id}" class="form-control">`);
+                }
+                else if(field.type === 'enum' || field.type === 'select'){
+                    $input = $(`<select name="${field.name}" id="${field.id}" class="form-control">`);
+
+                    if(field.placeholder){
+                        $input.append(`<option value="">${field.placeholder}</option>`);
+                    }
+
+                    if(field.data){
+                        field.data.forEach(opt => {
+                            let value = typeof opt === 'object' ? opt.value : opt;
+                            let label = typeof opt === 'object' ? opt.label : opt;
+
+                            let selected = (data[key] == value) ? 'selected' : '';
+                            $input.append(`<option value="${value}" ${selected}>${label}</option>`);
+                        });
+                    }
+                }
+                else if(field.type === 'select2_ajax'){
+                    $input = $(`<select 
+                        name="${field.name}" 
+                        id="${field.id}" 
+                        class="form-control" 
+                        data-field="${key}"
+                        data-value="${data[key] || ''}"
+                    >`);
+                }
+                else {
+                    $input = $(`<input type="${field.type}" name="${field.name}" id="${field.id}" class="form-control">`);
+                }
+
+                if(!(field.type === 'select2_ajax')){
+                    $input.val(data[key]);
+                }
+                $group.append($input);
+                $p.append($group);
+            });
+
+            return $p;
+        }
+
+        function abrirModal(config){
+            const $modal = $('#modalGlobal');
+            const $form = $('#modalForm');
+            const $conteudo = $('#modalConteudo');
+            const $footer = $('#modalFooter');
+
+            $conteudo.empty();
+            $footer.empty();
+
+            $modal.find('.modal-title').text(config.title || '');
+
+            $modal.find('.modal-header')
+                .removeClass('bg-danger bg-info bg-warning')
+                .addClass(config.headerClass || '');
+
+            // SEMPRE mostra o form (container estrutural)
+            $form.show().attr('action', '');
+
+            if(config.render){
+                config.render($conteudo);
+            }
+
+            if(config.form){
+                $form.attr('action', config.form.action);
+                $footer.show();
+
+                config.form.buttons.forEach(btn => {
+                    let $btn = $('<button>')
+                        .addClass(`btn ${btn.class}`)
+                        .text(btn.text);
+
+                    if(btn.type){
+                        $btn.attr('type', btn.type);
+                    }
+
+                    if(btn.type === 'button'){
+                        $btn.attr('data-dismiss', 'modal');
+                    }
+
+                    $footer.append($btn);
+                });
+
+            } else {
+                $footer.hide();
+            }
+
+            $modal.modal('show');
+
+            $modal.off('shown.bs.modal').on('shown.bs.modal', function () {
+                $(this).find('select[data-field]').each(function(){
+                    let $el = $(this);
+                    let key = $el.data('field');
+                    let field = fieldSchema[key];
+                    let value = $el.data('value'); // 👈 aqui está o segredo
+
+                    if (!$el.hasClass('select2-hidden-accessible')) {
+                        initSelect2Ajax($el, field, value);
+                    }
+                });
+            });
+        }
+
+        function renderModalSections($c, data, config){
+            config.sections.forEach(section => {
+
+                if(section.title){
+                    $c.append($('<p>').text(section.title));
+                }
+
+                if(section.mode === 'view'){
+                    $c.append(renderCampos(data, section.fields, section.show_null));
+                }
+
+                if(section.mode === 'form'){
+                    $c.append(renderFormCampos(data, section.fields));
+                }
+            });
+        }
+
+        const actions = {
+            'btn-detalhes': function($el){
+                handleAction($el, 'detalhes');
+            },
+            'btn-editar': function($el){
+                handleAction($el, 'editar');
+            },
+            'btn-cancelar': function($el){
+                handleAction($el, 'cancelar');
+            }
+        };
+
+        function handleAction($el, type){
+            $.getJSON($el.closest('tr').data('info-url'), function(data){
+
+                const config = modalConfig[type];
+
+                if(!config){
+                    console.error(`modalConfig["${type}"] não definido`);
+                    return;
+                }
+
+                abrirModal({
+                    title: config.title,
+                    headerClass: config.headerClass,
+
+                    render: ($c) => {
+                        renderModalSections($c, data, config);
+                    },
+
+                    form: config.form ? {
+                        action: data[config.form.actionKey],
+                        buttons: config.form.buttons
+                    } : null
+                });
+
+            });
+        }
+
+        function dispatchAction($el, type){
+            if (!modalConfig[type]) {
+                console.warn(`Ação "${type}" não existe no modalConfig`);
+                return;
+            }
+
+            handleAction($el, type);
+        }
+
+        $(document).on('click', '[data-action]', function(e){
+            const $el = $(this);
+
+            if ($el.closest('li').hasClass('disabled')) {
+                e.preventDefault();
+                return;
+            }
+
+            e.stopPropagation();
+
+            const type = $el.data('action');
+            dispatchAction($el, type);
+        });
+
+        const DEFAULT_ROW_ACTION = 'detalhes';
+
+        $(document).on('click', '.linha-click', function(e){
+            const $el = $(this);
+
+            // se clicou em botão, ignora
+            if($(e.target).closest('.btn-group').length) return;
+
+            e.stopPropagation();
+
+            dispatchAction($el, DEFAULT_ROW_ACTION);
+        });
+
+        $('#modalForm').hide();
+</script>
+{% endblock extra_script %}
+{% block extra_css %}
+<style>
+        .table-responsive {
+            overflow: visible;
+        }
+
+        .filtro {
+            padding-bottom:0
+        }
+
+        .filtro_all {
+            margin-left:15px
+        }
+
+        .col-action {
+            width:80px
+        }
+
+        .form-section{
+            margin:20px 0 10px;
+            font-size:12px;
+            text-transform:uppercase;
+            color:#777;
+            border-bottom:1px solid #ddd;
+        }
+
+</style>
+{% endblock extra_css %}

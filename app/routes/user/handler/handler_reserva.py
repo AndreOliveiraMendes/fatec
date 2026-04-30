@@ -26,39 +26,6 @@ def resolve_tipo(tipo_reserva: str):
         abort(404, description="Tipo de reserva inexistente")
     return data
 
-def cancelar_reserva_generico(model, id_reserva, redirect_url):
-    userid = session.get('userid')
-    reserva = db.get_or_404(model, id_reserva)
-    check_ownership_or_admin(reserva)
-    check = CHECK_PERIODO_MAP.get(model)
-    if check and not check(reserva):
-        abort(403, description="Esta reserva não pode mais ser cancelada fora do período permitido.")
-    if model in [Reservas_Equipamentos, Reservas_Auditorios]:
-        if model == Reservas_Equipamentos and reserva.status_reserva == StatusReservaEquipamentoEnum.PENDENTE:
-            motivo_cancelamento = request.form.get('motivo_cancelamento')
-            reserva.status_reserva = StatusReservaEquipamentoEnum.CANCELADA
-            reserva.motivo_cancelamento = motivo_cancelamento
-            reserva.cancelado_por_id = userid
-        elif model == Reservas_Auditorios and reserva.status_reserva == StatusReservaAuditorioEnum.AGUARDANDO:
-            reserva.status_reserva = StatusReservaAuditorioEnum.CANCELADA
-        try:
-            db.session.flush()
-            registrar_log_generico_usuario(userid, 'Edição', reserva, observacao="cancelamento atraves da listagem")
-            db.session.commit()
-            flash("Reserva cancelada com sucesso", "success")
-        except DB_ERRORS as e:
-            handle_db_error(e, "Erro ao cancelar reserva")
-    else:
-        try:
-            db.session.delete(reserva)
-            db.session.flush()
-            registrar_log_generico_usuario(userid, 'Exclusão', reserva, observacao="atraves da listagem")
-            db.session.commit()
-            flash("Reserva cancelada com sucesso", "success")
-        except DB_ERRORS as e:
-            handle_db_error(e, "Erro ao excluir reserva")
-    return redirect(redirect_url)
-
 def editar_reserva_generico(model, id_reserva: int, redirect_url: str) -> ResponseReturnValue:
     userid = session.get('userid')
     reserva = db.get_or_404(model, id_reserva)
@@ -75,8 +42,7 @@ def editar_reserva_generico(model, id_reserva: int, redirect_url: str) -> Respon
             finalidade_reserva = FinalidadeReservaEnum.GRADUACAO.value
         responsavel = none_if_empty(request.form.get('responsavel'))
         responsavel_especial = none_if_empty(request.form.get('responsavel_especial'))
-        perm = db.session.get(Permissoes, userid)
-        if not perm or perm.permissao&Permission.ADMIN == 0:
+        if user.perm.has(Permission.ADMIN):
             responsavel = reserva.id_responsavel
             responsavel_especial = reserva.id_responsavel_especial
         try:
@@ -110,6 +76,8 @@ def editar_reserva_generico(model, id_reserva: int, redirect_url: str) -> Respon
             if has_extra:
                 if status == "Aprovada":
                     check_unique_aprovada(reserva)
+                elif status == "Cancelada":
+                    return cancelar_reserva_generico(model, id_reserva, redirect_url)
 
                 reserva.observação_autorizador = observacao_autorizador
                 reserva.id_responsavel = responsavel
@@ -132,8 +100,9 @@ def editar_reserva_generico(model, id_reserva: int, redirect_url: str) -> Respon
 
             try:
                 reserva.id_responsavel = responsavel
-                reserva.status_reserva = StatusReservaEquipamentoEnum(status)
-
+                new_status = StatusReservaEquipamentoEnum(status)
+                if new_status == StatusReservaEquipamentoEnum.CANCELADA:
+                    return cancelar_reserva_generico(model, id_reserva, redirect_url)
                 db.session.flush()
                 registrar_log_generico_usuario(userid, 'Edição', reserva, old_data, observacao='atraves de listagem')
 
@@ -147,4 +116,46 @@ def editar_reserva_generico(model, id_reserva: int, redirect_url: str) -> Respon
             flash("sem permissão para editar")
     else:
         flash("Tipo de reserva não editável ou inexistente ou metodo não implementado", "danger")
+    return redirect(redirect_url)
+
+def cancelar_reserva_generico(model, id_reserva, redirect_url):
+    userid = session.get('userid')
+    reserva = db.get_or_404(model, id_reserva)
+    user = db.get_or_404(Usuarios, userid)
+    check_ownership_or_admin(reserva)
+    check = CHECK_PERIODO_MAP.get(model)
+    if check and not check(reserva):
+        abort(403, description="Esta reserva não pode mais ser cancelada fora do período permitido.")
+    if model in [Reservas_Equipamentos, Reservas_Auditorios]:
+        cancelou = False
+        if model == Reservas_Equipamentos and \
+            (reserva.status_reserva == StatusReservaEquipamentoEnum.PENDENTE or user.perm.has(Permission.ADMIN)):
+            motivo_cancelamento = request.form.get('motivo_cancelamento')
+            reserva.status_reserva = StatusReservaEquipamentoEnum.CANCELADA
+            reserva.motivo_cancelamento = motivo_cancelamento
+            reserva.cancelado_por_id = userid
+            cancelou = True
+        elif model == Reservas_Auditorios and \
+            (reserva.status_reserva == StatusReservaAuditorioEnum.AGUARDANDO or user.perm.has(Permission.ADMIN)):
+            reserva.status_reserva = StatusReservaAuditorioEnum.CANCELADA
+            cancelou = True
+        if cancelou:
+            try:
+                db.session.flush()
+                registrar_log_generico_usuario(userid, 'Edição', reserva, observacao="cancelamento atraves da listagem")
+                db.session.commit()
+                flash("Reserva cancelada com sucesso", "success")
+            except DB_ERRORS as e:
+                handle_db_error(e, "Erro ao cancelar reserva")
+        else:
+            flash("Erro ao cancelar reserva", "danger")
+    else:
+        try:
+            db.session.delete(reserva)
+            db.session.flush()
+            registrar_log_generico_usuario(userid, 'Exclusão', reserva, observacao="atraves da listagem")
+            db.session.commit()
+            flash("Reserva cancelada com sucesso", "success")
+        except DB_ERRORS as e:
+            handle_db_error(e, "Erro ao excluir reserva")
     return redirect(redirect_url)

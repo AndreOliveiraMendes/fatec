@@ -134,5 +134,15 @@
             <script src="{{ url_for('static', filename='select2/js/select2.min.js') }}"></script>
             {% block extra_script %}
             {% endblock extra_script %}
+            <script>
+                  {#$('select[data-select2]').select2();#}
+                  
+                  $(document).on('select2:select select2:unselect select2:clear', 'select[data-submit-on-change]', function () {
+                        if (this.dataset.submitting) return;
+
+                        this.dataset.submitting = true;
+                        this.form.submit();
+                  });
+            </script>
       </body>
 </html>
