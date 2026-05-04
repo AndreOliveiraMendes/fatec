@@ -27,6 +27,7 @@ SECOES: dict[str, SecaoGrupo] = {
             Secao('Aulas', 'database_aulas.gerenciar_aulas', 'success', 'crud'),
             Secao('Locais', 'database_locais.gerenciar_locais', 'success', 'crud'),
             Secao('Equipamento', 'database_equipamentos.gerenciar_equipamentos', 'success', 'crud'),
+            Secao('Finalidade Reservas', 'database_finalidade_reservas.gerenciar_finalidade_reservas', 'success', 'crud'),
             Secao('Semestres', 'database_semestres.gerenciar_semestres', 'success', 'crud'),
             Secao('Dias da Semana', 'database_dias_da_semana.gerenciar_dias_da_semana', 'success', 'crud'),
             Secao('Turnos', 'database_turnos.gerenciar_turnos', 'success', 'crud'),
