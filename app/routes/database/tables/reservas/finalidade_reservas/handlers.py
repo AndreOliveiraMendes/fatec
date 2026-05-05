@@ -1,15 +1,29 @@
 import json
 
 from flask import flash, g, request
+from flask_sqlalchemy.pagination import SelectPagination
+from sqlalchemy import select
 
 from app.auxiliar.general import none_if_empty
 from app.auxiliar.navigation import register_return
 from app.decorators.decorators import register_handler
+from app.extensions import db
 from app.models.reservas.reservas_laboratorios import Finalidade_Reserva
 from app.routes_helper.db_actions import db_action
+from config.general import PER_PAGE
 
 
 dispatcher = {}
+
+@register_handler(dispatcher, 'listar', 0)
+def listar_handler():
+    sel_finalidades = select(Finalidade_Reserva)
+    finalidade_reservas_paginada = SelectPagination(
+        select=sel_finalidades, session=db.session,
+        page=g.page, per_page=PER_PAGE, error_out=False
+    )
+    g.extras['finalidades'] = finalidade_reservas_paginada.items
+    g.extras['pagination'] = finalidade_reservas_paginada
 
 @register_handler(dispatcher, 'inserir', 1)
 def insert_push():

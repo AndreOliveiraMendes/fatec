@@ -1,4 +1,58 @@
 {% extends "database/table/base_crude" %}
+{% macro result_table(message) %}
+    {% set show_action_column = not disable_editar or not disable_excluir %}
+    {% call(f) table_base(
+        finalidades,
+        [
+        'ID Finalidade',
+        'Nome',
+        'Ativo',
+        'Descrição',
+        'Config'
+        ],
+        id_field='id_pessoa',
+        message=message,
+        show_actions=True,
+        pagination=pagination,
+        acao=acao,
+        bloco=bloco,
+        query_params=query_params
+        ) %}
+        <td class="text-center">{{ f.id_finalidade }}</td>
+        <td>{{ f.nome }}</td>
+        <td>{{ f.ativo }}</td>
+        <td>{{ f.descricao | format }}</td>
+        <td>
+            <button class="btn btn-info btn-xs btn-ver-config"
+                    data-config='{{ (f.config or {})|tojson }}'>Ver config</button>
+        </td>
+    {% endcall %}
+{% endmacro %}
+{% block extra_script %}
+    {% if acao in ['listar', 'procurar'] %}
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                document.querySelectorAll(".btn-ver-config").forEach(function (btn) {
+                    btn.addEventListener("click", function () {
+                        let config = this.getAttribute("data-config");
+
+                        try {
+                            let parsed = JSON.parse(config);
+                            let formatted = JSON.stringify(parsed, null, 4);
+
+                            document.getElementById("modalConfigContent").textContent = formatted;
+                            Prism.highlightElement(document.getElementById("modalConfigContent"));
+                        } catch (e) {
+                            document.getElementById("modalConfigContent").textContent = "JSON inválido";
+                        }
+
+                        $("#modalConfig").modal("show");
+                    });
+                });
+            });
+        </script>
+    {% endif %}
+{% endblock extra_script %}
 {% block title %}
     Finalidade das Reservas
 {% endblock title %}
@@ -98,6 +152,26 @@
         evitando lógica de negócio complexa diretamente no banco de dados.
     </div>
 {% endblock abertura %}
+{% block listar %}
+    <h3>Lista de Finalidades</h3>
+    {{ result_table("Nenhuma finalidade cadastrada.") }}
+    <div class="modal fade" id="modalConfig" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h4 class="modal-title">Configuração (JSON)</h4>
+                </div>
+                <div class="modal-body">
+                    <pre><code id="modalConfigContent" class="language-json"></code></pre>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock listar %}
 {% block inserir %}
     <h3>Inserir Finalidade de Reserva</h3>
     <form class="form-group"
