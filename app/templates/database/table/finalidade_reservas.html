@@ -20,7 +20,9 @@
         ) %}
         <td class="text-center">{{ f.id_finalidade }}</td>
         <td>{{ f.nome }}</td>
-        <td>{{ f.ativo }}</td>
+        <td>
+            <i class="glyphicon {% if f.ativo %}glyphicon-ok-circle text-success{% else %}glyphicon-remove-circle text-danger{% endif %}"></i>
+        </td>
         <td>{{ f.descricao | format }}</td>
         <td>
             <button class="btn btn-info btn-xs btn-ver-config"
@@ -153,7 +155,7 @@
     </div>
 {% endblock abertura %}
 {% block listar %}
-    <h3>Lista de Finalidades</h3>
+    <h3>Lista de finalidades</h3>
     {{ result_table("Nenhuma finalidade cadastrada.") }}
     <div class="modal fade" id="modalConfig" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
@@ -172,6 +174,83 @@
         </div>
     </div>
 {% endblock listar %}
+{% block procurar %}
+    {% if bloco == 0 %}
+        <h3>Procurar finalidades</h3>
+        <form class="form-horizontal"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <!-- ID -->
+            <div class="form-group">
+                <label for="id_finalidade" class="col-sm-2 control-label">Código</label>
+                <div class="col-sm-4">
+                    <input type="number"
+                           class="form-control"
+                           id="id_finalidade"
+                           name="id_finalidade"
+                           placeholder="Ex: 1">
+                </div>
+            </div>
+            <!-- Nome -->
+            <div class="form-group">
+                <label for="nome" class="col-sm-2 control-label">Nome</label>
+                <div class="col-sm-6">
+                    <input type="text"
+                           class="form-control"
+                           id="nome"
+                           name="nome"
+                           maxlength="50"
+                           placeholder="Digite o nome">
+                </div>
+            </div>
+            <!-- Ativo -->
+            <div class="form-group">
+                <label for="ativo" class="col-sm-2 control-label">Ativo</label>
+                <div class="col-sm-4">
+                    <select class="form-control" id="ativo" name="ativo">
+                        <option value="">Todos</option>
+                        <option value="1">Ativo</option>
+                        <option value="0">Inativo</option>
+                    </select>
+                </div>
+            </div>
+            <!-- Descrição -->
+            <div class="form-group">
+                <label for="descricao" class="col-sm-2 control-label">Descrição</label>
+                <div class="col-sm-6">
+                    <textarea class="form-control"
+                              id="descricao"
+                              name="descricao"
+                              rows="3"
+                              placeholder="Parte da descrição..."></textarea>
+                </div>
+            </div>
+            <!-- Config (JSON) -->
+            <div class="form-group">
+                <label for="config_template" class="col-sm-2 control-label">Template</label>
+                <div class="col-sm-6">
+                    <input type="text"
+                           class="form-control"
+                           id="config_template"
+                           name="config_template"
+                           placeholder="Ex: responsavel">
+                    <span class="help-block">
+                        Filtra pelo campo <code>config.template</code> (busca parcial).
+                    </span>
+                </div>
+            </div>
+            <!-- Botões -->
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-6">{{ action_buttons(acao, 1, False, 0) }}</div>
+            </div>
+        </form>
+    {% else %}
+        <h3>Resultados da busca:</h3>
+        {{ result_table("Nenhum Resultado encontrado") }}
+    {% endif %}
+{% endblock procurar %}
 {% block inserir %}
     <h3>Inserir Finalidade de Reserva</h3>
     <form class="form-group"
