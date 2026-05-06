@@ -15,7 +15,7 @@ from app.models.reservas.reservas_auditorios import Reservas_Auditorios
 from app.models.reservas.reservas_equipamentos import Reservas_Equipamentos
 from app.models.reservas.reservas_laboratorios import (Reservas_Fixas,
                                                        Reservas_Temporarias)
-from app.models.usuarios import Permissoes, Usuarios
+from app.models.usuarios import Usuarios
 from app.routes.user.handler.handler_base import CHECK_PERIODO_MAP, RESERVA_MAP
 from app.service.reservas_services import check_unique_aprovada
 

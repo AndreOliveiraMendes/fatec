@@ -14,17 +14,18 @@ from app.auxiliar.parsing import parse_date_string
 from app.dao.internal.general import (get_nome_pessoa, get_nome_pessoa_by_id,
                                       handle_db_error)
 from app.dao.internal.historicos import registrar_log_generico_usuario
-from app.enums import (FinalidadeReservaEnum, StatusReservaEquipamentoEnum,
-                       TipoAulaEnum)
+from app.enums import StatusReservaEquipamentoEnum, TipoAulaEnum
 from app.extensions import db
 from app.models.aulas import Aulas, Aulas_Ativas, Semestres, Turnos
 from app.models.locais import Locais
 from app.models.reservas.reservas_auditorios import Reservas_Auditorios
 from app.models.reservas.reservas_equipamentos import (
     Reserva_Equipamento_Item, Reservas_Equipamentos)
-from app.models.reservas.reservas_laboratorios import (Finalidade_Reserva, Reservas_Fixas,
+from app.models.reservas.reservas_laboratorios import (Finalidade_Reserva,
+                                                       Reservas_Fixas,
                                                        Reservas_Temporarias)
 from app.models.usuarios import Permissoes, Usuarios
+
 
 def get_responsavel_reserva(
     reserva: Reservas_Fixas | Reservas_Temporarias,
@@ -45,7 +46,7 @@ def get_responsavel_reserva(
                 nome_especial = f"({nome_especial})"
             title_parts.append(nome_especial)
 
-    if modo_template and reserva.finalidade_reserva == FinalidadeReservaEnum.USO_DOS_ALUNOS:
+    if modo_template and reserva.finalidade_reserva.nome == 'uso dos alunos':
         title_parts.append("uso acadêmico")
 
     return " ".join(title_parts)
@@ -354,7 +355,7 @@ def update_reserva_fixa(id_reserva):
     responsavel_especial = none_if_empty(data.get('id_responsavel_especial'), int)
     local = none_if_empty(data.get('id_local'), int)
     aula = none_if_empty(data.get('id_aula'), int)
-    finalidade_reserva = data.get('finalidade')
+    finalidade_reserva = none_if_empty(data.get('id_finalidade'), int)
     observacoes = none_if_empty(data.get('observacoes'))
     descricao = none_if_empty(data.get('descricao'))
     if local is None or aula is None:
@@ -365,7 +366,7 @@ def update_reserva_fixa(id_reserva):
         reserva.id_responsavel_especial = responsavel_especial
         reserva.id_reserva_local = local
         reserva.id_reserva_aula = aula
-        reserva.finalidade_reserva = FinalidadeReservaEnum(finalidade_reserva)
+        reserva.id_finalidade_reserva = finalidade_reserva
         reserva.observacoes = observacoes
         reserva.descricao = descricao
 
@@ -401,7 +402,7 @@ def update_reserva_temporaria(id_reserva):
     fim = parse_date_string(data.get('fim_reserva'))
     local = none_if_empty(data.get('id_local'), int)
     aula = none_if_empty(data.get('id_aula'), int)
-    finalidade_reserva = data.get('finalidade')
+    finalidade_reserva = none_if_empty(data.get('id_finalidade'), int)
     observacoes = none_if_empty(data.get('observacoes'))
     descricao = none_if_empty(data.get('descricao'))
     
@@ -417,7 +418,7 @@ def update_reserva_temporaria(id_reserva):
         reserva.id_responsavel_especial = responsavel_especial
         reserva.id_reserva_local = local
         reserva.id_reserva_aula = aula
-        reserva.finalidade_reserva = FinalidadeReservaEnum(finalidade_reserva)
+        reserva.id_finalidade_reserva = finalidade_reserva
         reserva.observacoes = observacoes
         reserva.descricao = descricao
 

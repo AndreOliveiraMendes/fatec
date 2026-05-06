@@ -1,7 +1,7 @@
-from copy import copy
 import json
+from copy import copy
 
-from flask import flash, g, request, session
+from flask import flash, g, request
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import func, select
 
@@ -14,7 +14,6 @@ from app.models.reservas.reservas_laboratorios import Finalidade_Reserva
 from app.routes_helper.db_actions import db_action
 from app.routes_helper.request import get_query_params
 from config.general import PER_PAGE, str_to_bool
-
 
 dispatcher = {}
 

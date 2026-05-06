@@ -1,9 +1,8 @@
 from datetime import date
 from typing import TYPE_CHECKING
 
-from sqlalchemy import (TEXT, CheckConstraint, ForeignKey, String,
-                        UniqueConstraint, Boolean)
-from sqlalchemy import JSON
+from sqlalchemy import (JSON, TEXT, Boolean, CheckConstraint, ForeignKey,
+                        String, UniqueConstraint)
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 

@@ -1,7 +1,8 @@
 from flask import url_for
 from sqlalchemy import and_
 
-from app.dao.internal.reservas import (check_periodo_auditorio, check_periodo_equipamento,
+from app.dao.internal.reservas import (check_periodo_auditorio,
+                                       check_periodo_equipamento,
                                        check_periodo_fixa,
                                        check_periodo_temporaria,
                                        info_reserva_auditorio,
