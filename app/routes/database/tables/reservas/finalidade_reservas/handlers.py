@@ -1,3 +1,4 @@
+from copy import copy
 import json
 
 from flask import flash, g, request, session
@@ -6,6 +7,7 @@ from sqlalchemy import func, select
 
 from app.auxiliar.general import none_if_empty
 from app.auxiliar.navigation import register_return
+from app.dao.internal.reservas import get_finalidade_reserva
 from app.decorators.decorators import register_handler
 from app.extensions import db
 from app.models.reservas.reservas_laboratorios import Finalidade_Reserva
@@ -98,4 +100,77 @@ def insert_push():
 
     g.redirect_action, g.bloco = register_return(
         g.url, g.acao, g.extras
+    )
+
+@register_handler(dispatcher, 'editar', 0)
+@register_handler(dispatcher, 'excluir', 0)
+def finalidade_prefetch():
+    g.extras['finalidades'] = get_finalidade_reserva()
+
+@register_handler(dispatcher, 'editar', 1)
+@register_handler(dispatcher, 'excluir', 1)
+def finalidade_fetch():
+    id_finalidade = none_if_empty(request.form.get('id_finalidade'), int)
+
+    finalidade = db.get_or_404(Finalidade_Reserva, id_finalidade)
+    g.extras['finalidade'] = finalidade
+
+@register_handler(dispatcher, 'editar', 2)
+def edit_push():
+    id_finalidade = none_if_empty(request.form.get('id_finalidade'), int)
+    nome = none_if_empty(request.form.get("nome"))
+    ativo = none_if_empty(request.form.get("ativo"), bool)
+    descricao = none_if_empty(request.form.get("descricao"))
+    config_str = none_if_empty(request.form.get("config"))
+    config = None
+    valid = True
+    if config_str:
+        try:
+            config = json.loads(config_str)
+        except json.JSONDecodeError as e:
+            valid = False
+            flash(f"JSON inválido: {str(e)}", "danger")
+    if valid:
+        finalidade = db.get_or_404(Finalidade_Reserva, id_finalidade)
+        dados_anteriores = copy(finalidade)
+
+        def update():
+            finalidade.nome = nome
+            finalidade.ativo = ativo
+            finalidade.descricao = descricao
+            finalidade.config = config
+
+        db_action(
+            "Edição",
+            "Finalidade editada com sucesso",
+            "Erro ao editar finalidade",
+            obj=finalidade,
+            old_obj=dados_anteriores,
+            action=update
+        )
+
+    else:
+        flash("JSON inválido. Verifique a formatação e tente novamente.", "danger")
+
+    g.redirect_action, g.bloco = register_return(
+        g.url, g.acao, g.extras,
+        finalidades=get_finalidade_reserva()
+    )
+
+@register_handler(dispatcher, 'excluir', 2)
+def delete_push():
+    id_finalidade = none_if_empty(request.form.get('id_finalidade'), int)
+
+    finalidade = db.get_or_404(Finalidade_Reserva, id_finalidade)
+
+    db_action(
+        "Exclusão",
+        "Finalidade excluida com sucesso",
+        "Erro ao excluir finalidade",
+        obj=finalidade
+    )
+
+    g.redirect_action, g.bloco = register_return(
+        g.url, g.acao, g.extras,
+        finalidades=get_finalidade_reserva()
     )

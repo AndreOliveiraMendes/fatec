@@ -27,6 +27,12 @@ class Finalidade_Reserva(Base):
     reservas_fixas: Mapped[list["Reservas_Fixas"]] = relationship(back_populates="finalidade_reserva", passive_deletes=True)
     reservas_temporarias: Mapped[list["Reservas_Temporarias"]] = relationship(back_populates="finalidade_reserva", passive_deletes=True)
 
+    def __repr__(self):
+        return (
+            f"<Finalidade_Reserva(id_finalidade={self.id_finalidade}, nome={self.nome}, "
+            f"ativo={self.ativo}, descricao={self.descricao}, config={self.config})>"
+        )
+
 class ReservaBase(Base):
     __abstract__ = True
     id_responsavel: Mapped[int | None] = mapped_column(ForeignKey('pessoas.id_pessoa'), nullable=True)

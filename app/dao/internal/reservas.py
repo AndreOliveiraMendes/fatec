@@ -22,10 +22,9 @@ from app.models.locais import Locais
 from app.models.reservas.reservas_auditorios import Reservas_Auditorios
 from app.models.reservas.reservas_equipamentos import (
     Reserva_Equipamento_Item, Reservas_Equipamentos)
-from app.models.reservas.reservas_laboratorios import (Reservas_Fixas,
+from app.models.reservas.reservas_laboratorios import (Finalidade_Reserva, Reservas_Fixas,
                                                        Reservas_Temporarias)
 from app.models.usuarios import Permissoes, Usuarios
-
 
 def get_responsavel_reserva(
     reserva: Reservas_Fixas | Reservas_Temporarias,
@@ -70,6 +69,10 @@ def get_reservas_auditorios_filtrada(id:int, all:bool = False, *args):
 def get_reservas_auditorios_database():
     sel_reservas_auditorios = select(Reservas_Auditorios)
     return db.session.execute(sel_reservas_auditorios).scalars().all()
+
+def get_finalidade_reserva():
+    sel_finalidade = select(Finalidade_Reserva)
+    return db.session.execute(sel_finalidade).scalars().all()
 
 def get_reservas_fixas():
     sel_reservas_fixas = select(Reservas_Fixas)

@@ -10,7 +10,7 @@
         'Descrição',
         'Config'
         ],
-        id_field='id_pessoa',
+        id_field='id_finalidade',
         message=message,
         show_actions=True,
         pagination=pagination,
@@ -308,3 +308,165 @@
         {{ action_buttons(acao, 1, False, 0) }}
     </form>
 {% endblock inserir %}
+{% block editar %}
+    {% if bloco == 0 %}
+        <h3>Editar finalidades</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            {{ gerar_select("finalidade", "Selecione a finalidade", finalidades, "id_finalidade", "nome") }}
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <h3>Inserir Finalidade de Reserva</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label for="id_finalidade">Código</label>
+                <input type="number"
+                       class="form-control"
+                       id="id_finalidade"
+                       name="id_finalidade"
+                       value="{{ finalidade.id_finalidade }}"
+                       placeholder="Ex: 1"
+                       readonly>
+            </div>
+            <!-- Nome -->
+            <div class="form-group">
+                <label for="nome">Nome da Finalidade:</label>
+                <input type="text"
+                       class="form-control"
+                       id="nome"
+                       name="nome"
+                       maxlength="50"
+                       required
+                       value="{{ finalidade.nome }}"
+                       placeholder="Ex: Graduação, Curso, NAPTI">
+            </div>
+            <!-- Ativo -->
+            <div class="form-group">
+                <label for="ativo">Status:</label>
+                <select class="form-control" id="ativo" name="ativo" required>
+                    <option value="1" {% if finalidade.ativo %}selected{% endif %}>Ativo</option>
+                    <option value="0" {% if not finalidade.ativo %}selected{% endif %}>Inativo</option>
+                </select>
+            </div>
+            <!-- Descrição -->
+            <div class="form-group">
+                <label for="descricao">Descrição:</label>
+                <textarea class="form-control"
+                          id="descricao"
+                          name="descricao"
+                          rows="3"
+                          placeholder="Descrição opcional da finalidade">{{ finalidade.descricao|format(1) }}</textarea>
+            </div>
+            <!-- Config JSON -->
+            <div class="form-group">
+                <label for="config">Configuração (JSON):</label>
+                <textarea class="form-control" id="config" name="config" rows="4" placeholder='Ex: {"template": "%responsavel_auto em %local (%aula)"}'>{{ finalidade.config|format(1) }}
+</textarea>
+                <p class="help-block">
+                    Use JSON válido. Exemplo:
+                    <code>{"template": "%responsavel_auto - %descricao"}</code>
+                    <br>
+                    Placeholders disponíveis:
+                    <code>%responsavel</code>,
+                    <code>%responsavel_especial</code>,
+                    <code>%responsavel_auto</code>,
+                    <code>%local</code>,
+                    <code>%aula</code>,
+                    <code>%descricao</code>,
+                    <code>%observacoes</code>
+                </p>
+            </div>
+            {{ action_buttons(acao, 2, True, 0) }}
+        </form>
+    {% endif %}
+{% endblock editar %}
+{% block excluir %}
+    {% if bloco == 0 %}
+        <h3>Editar finalidades</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            {{ gerar_select("finalidade", "Selecione a finalidade", finalidades, "id_finalidade", "nome") }}
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <h3>Inserir Finalidade de Reserva</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label for="id_finalidade">Código</label>
+                <input type="number"
+                       class="form-control"
+                       id="id_finalidade"
+                       name="id_finalidade"
+                       value="{{ finalidade.id_finalidade }}"
+                       placeholder="Ex: 1"
+                       readonly>
+            </div>
+            <!-- Nome -->
+            <div class="form-group">
+                <label for="nome">Nome da Finalidade:</label>
+                <input type="text"
+                       class="form-control"
+                       id="nome"
+                       name="nome"
+                       maxlength="50"
+                       required
+                       value="{{ finalidade.nome }}"
+                       placeholder="Ex: Graduação, Curso, NAPTI"
+                       disabled>
+            </div>
+            <!-- Ativo -->
+            <div class="form-group">
+                <label for="ativo">Status:</label>
+                <select class="form-control" id="ativo" name="ativo" required disabled>
+                    <option value="1" {% if finalidade.ativo %}selected{% endif %}>Ativo</option>
+                    <option value="0" {% if not finalidade.ativo %}selected{% endif %}>Inativo</option>
+                </select>
+            </div>
+            <!-- Descrição -->
+            <div class="form-group">
+                <label for="descricao">Descrição:</label>
+                <textarea class="form-control"
+                          id="descricao"
+                          name="descricao"
+                          rows="3"
+                          placeholder="Descrição opcional da finalidade"
+                          disabled>{{ finalidade.descricao|format(1) }}</textarea>
+            </div>
+            <!-- Config JSON -->
+            <div class="form-group">
+                <label for="config">Configuração (JSON):</label>
+                <textarea class="form-control" id="config" name="config" rows="4" placeholder='Ex: {"template": "%responsavel_auto em %local (%aula)"}' disabled>{{ finalidade.config|format(1) }}
+</textarea>
+                <p class="help-block">
+                    Use JSON válido. Exemplo:
+                    <code>{"template": "%responsavel_auto - %descricao"}</code>
+                    <br>
+                    Placeholders disponíveis:
+                    <code>%responsavel</code>,
+                    <code>%responsavel_especial</code>,
+                    <code>%responsavel_auto</code>,
+                    <code>%local</code>,
+                    <code>%aula</code>,
+                    <code>%descricao</code>,
+                    <code>%observacoes</code>
+                </p>
+            </div>
+            {{ action_buttons(acao, 2, True, 0, False) }}
+        </form>
+    {% endif %}
+{% endblock excluir %}
