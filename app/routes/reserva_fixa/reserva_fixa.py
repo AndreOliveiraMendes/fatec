@@ -10,7 +10,6 @@ from app.auxiliar.constant import DB_ERRORS, Permission
 from app.auxiliar.general import none_if_empty
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.decorators.decorators import reserva_fixa_required
-from app.enums import FinalidadeReservaEnum
 from app.extensions import db
 from app.models.aulas import Semestres, Turnos
 from app.models.reservas.reservas_laboratorios import Reservas_Fixas
@@ -153,7 +152,7 @@ def efetuar_reserva(id_semestre):
                 id_reserva_local=lab,
                 id_reserva_aula=aula,
                 id_reserva_semestre=semestre.id_semestre,
-                finalidade_reserva=FinalidadeReservaEnum(request.form.get("finalidade_reserva")),
+                id_finalidade_reserva=request.form.get("id_finalidade_reserva", type=int),
                 observacoes=none_if_empty(request.form.get("observacoes")),
                 descricao=none_if_empty(request.form.get("descricao"))
             )

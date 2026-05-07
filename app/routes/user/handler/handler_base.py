@@ -9,7 +9,7 @@ from app.dao.internal.reservas import (check_periodo_auditorio,
                                        info_reserva_equipamento,
                                        info_reserva_fixa,
                                        info_reserva_temporaria)
-from app.enums import (FinalidadeReservaEnum, StatusReservaAuditorioEnum,
+from app.enums import (StatusReservaAuditorioEnum,
                        StatusReservaEquipamentoEnum)
 from app.models.aulas import Aulas_Ativas
 from app.models.reservas.reservas_auditorios import Reservas_Auditorios
@@ -51,7 +51,7 @@ FILTERS = {
         "responsavel_especial": (lambda re:Reservas_Fixas.id_responsavel_especial == re, int),
         "lab": (lambda l:Reservas_Fixas.id_reserva_local == l, int),
         "semana": (lambda s:Aulas_Ativas.id_semana == s, int),
-        "finalidade": (lambda f:Reservas_Fixas.finalidade_reserva == FinalidadeReservaEnum(f), str)
+        "finalidade": (lambda f:Reservas_Fixas.id_finalidade_reserva == f, str)
     },
     "temporaria": {
         "responsavel": (lambda r:Reservas_Temporarias.id_responsavel == r, int),
@@ -59,7 +59,7 @@ FILTERS = {
         "lab": (lambda l:Reservas_Temporarias.id_reserva_local == l, int),
         "dia": (lambda d:and_(Reservas_Temporarias.inicio_reserva <= d, Reservas_Temporarias.fim_reserva >= d), str),
         "semana": (lambda s:Aulas_Ativas.id_semana == s, int),
-        "finalidade": (lambda f:Reservas_Temporarias.finalidade_reserva == FinalidadeReservaEnum(f), str)
+        "finalidade": (lambda f:Reservas_Temporarias.id_finalidade_reserva == f, str)
     },
     "auditorio": {
         "responsavel": (lambda r:Reservas_Auditorios.id_responsavel == r, int),

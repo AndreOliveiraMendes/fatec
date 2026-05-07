@@ -13,7 +13,7 @@ from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.reservas import check_reserva_temporaria
 from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import reserva_temp_required
-from app.enums import FinalidadeReservaEnum, TipoAulaEnum
+from app.enums import TipoAulaEnum
 from app.extensions import db
 from app.models.aulas import Turnos
 from app.models.reservas.reservas_laboratorios import Reservas_Temporarias
@@ -136,7 +136,7 @@ def efetuar_reserva(inicio, fim):
     userid = session.get("userid")
     user = db.get_or_404(Usuarios, userid)
 
-    finalidade = none_if_empty(request.form.get("finalidade_reserva"))
+    id_finalidade = none_if_empty(request.form.get("id_finalidade_reserva"), int)
     observacoes = none_if_empty(request.form.get("observacoes"))
     descricao = none_if_empty(request.form.get("descricao"))
     responsavel = none_if_empty(request.form.get("responsavel"))
@@ -181,7 +181,7 @@ def efetuar_reserva(inicio, fim):
                     id_reserva_aula=aula,
                     inicio_reserva=inicio_r,
                     fim_reserva=fim_r,
-                    finalidade_reserva=FinalidadeReservaEnum(finalidade),
+                    id_finalidade_reserva=id_finalidade,
                     observacoes=observacoes
                 )
 

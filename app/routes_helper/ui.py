@@ -5,7 +5,7 @@ from markupsafe import Markup
 
 from app.dao.internal.general import get_unique_or_500
 from app.dao.internal.reservas import get_responsavel_reserva
-from app.enums import FinalidadeReservaEnum, SituacaoChaveEnum
+from app.enums import SituacaoChaveEnum
 from app.models.controle import Situacoes_Das_Reserva
 from config.json_related import carregar_painel_config
 from config.mapeamentos import LOG_FILE, mapa_icones_status
@@ -56,14 +56,14 @@ def montar_partes_reserva(choose, *, mostrar_icone=False, lab=None, aula=None, d
     if not choose:
         return ["Livre"]
 
-    if choose.finalidade_reserva == FinalidadeReservaEnum.CURSO:
+    if choose.finalidade_reserva.nome.lower() == "curso":
         
         if choose.descricao:
             partes = [choose.descricao]
         else:
             partes = ["Curso"]
 
-    elif choose.finalidade_reserva == FinalidadeReservaEnum.USO_DOS_ALUNOS:
+    elif choose.finalidade_reserva.nome.lower() == "uso dos alunos":
         partes = ["Acadêmico", "Discente", "Reservado"]
 
     else:

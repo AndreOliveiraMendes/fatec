@@ -8,9 +8,8 @@ from app.dao.external.disponibilidade import get_prioridade
 from app.dao.internal.aulas import (get_aulas_ativas_por_semestre,
                                     get_aulas_extras)
 from app.dao.internal.locais import get_laboratorios
-from app.dao.internal.reservas import check_conflict_reservas_fixas
+from app.dao.internal.reservas import check_conflict_reservas_fixas, get_finalidade_reserva
 from app.dao.internal.usuarios import get_user
-from app.enums import FinalidadeReservaEnum
 from app.extensions import db
 from app.models.aulas import Semestres, Turnos
 from app.models.locais import Locais
@@ -73,7 +72,7 @@ def _build_base_extras(semestre, turno=None, local=None):
         "turno": turno,
         "local": local,
         "day": date.today(),
-        "finalidade_reserva": FinalidadeReservaEnum,
+        "finalidade_reserva": get_finalidade_reserva(),
         "contador_fixa": session.get("contador_fixa")
     }
 

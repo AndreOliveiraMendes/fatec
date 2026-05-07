@@ -355,7 +355,7 @@ def update_reserva_fixa(id_reserva):
     responsavel_especial = none_if_empty(data.get('id_responsavel_especial'), int)
     local = none_if_empty(data.get('id_local'), int)
     aula = none_if_empty(data.get('id_aula'), int)
-    finalidade_reserva = none_if_empty(data.get('id_finalidade'), int)
+    finalidade_reserva = none_if_empty(data.get('id_finalidade_reserva'), int)
     observacoes = none_if_empty(data.get('observacoes'))
     descricao = none_if_empty(data.get('descricao'))
     if local is None or aula is None:
@@ -402,7 +402,7 @@ def update_reserva_temporaria(id_reserva):
     fim = parse_date_string(data.get('fim_reserva'))
     local = none_if_empty(data.get('id_local'), int)
     aula = none_if_empty(data.get('id_aula'), int)
-    finalidade_reserva = none_if_empty(data.get('id_finalidade'), int)
+    finalidade_reserva = none_if_empty(data.get('id_finalidade_reserva'), int)
     observacoes = none_if_empty(data.get('observacoes'))
     descricao = none_if_empty(data.get('descricao'))
     
