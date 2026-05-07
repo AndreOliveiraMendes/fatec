@@ -30,7 +30,7 @@
         <td>{{ rt.aula_ativa.selector_identification }}</td>
         <td>{{ rt.inicio_reserva|data }}</td>
         <td>{{ rt.fim_reserva|data }}</td>
-        <td>{{ rt.finalidade_reserva.value }}</td>
+        <td>{{ rt.finalidade_reserva.nome }}</td>
         <td>{{ rt.observacoes if rt.observacoes else '-' }}</td>
     {% endcall %}
 {% endmacro %}
@@ -245,20 +245,7 @@
                 </div>
                 <p class="help-block">Procura por reservas ativas que estejam dentro do período selecionado.</p>
             </div>
-            <div class="form-group">
-                <label for="finalidade_reserva">Finalidade da Reserva</label>
-                <select class="form-control"
-                        id="finalidade_reserva"
-                        name="finalidade_reserva">
-                    <option value="" disabled selected>Selecione a finalidade da reserva</option>
-                    <option value="Graduação">Graduação</option>
-                    <option value="Especialização">Especialização</option>
-                    <option value="EAD">EAD</option>
-                    <option value="NAPTI">NAPTI</option>
-                    <option value="Curso">Curso</option>
-                    <option value="Uso dos Alunos">Uso dos Alunos</option>
-                </select>
-            </div>
+            {{ gerar_select("finalidade", "Selecione a finalidade", finalidade_reservas, "id_finalidade", "nome", "id_finalidade_reserva", optional=true) }}
             <div class="form-group">
                 <label for="observacoes">Observacao:</label>
                 <input type="text"
@@ -310,21 +297,7 @@
                    name="fim_reserva"
                    required>
         </div>
-        <div class="form-group">
-            <label for="finalidade_reserva">Finalidade da Reserva</label>
-            <select class="form-control"
-                    id="finalidade_reserva"
-                    name="finalidade_reserva"
-                    required>
-                <option value="" disabled selected>Selecione a finalidade da reserva</option>
-                <option value="Graduação">Graduação</option>
-                <option value="Especialização">Especialização</option>
-                <option value="EAD">EAD</option>
-                <option value="NAPTI">NAPTI</option>
-                <option value="Curso">Curso</option>
-                <option value="Uso dos Alunos">Uso dos Alunos</option>
-            </select>
-        </div>
+        {{ gerar_select("finalidade", "Selecione a finalidade", finalidade_reservas, "id_finalidade", "nome", "id_finalidade_reserva") }}
         <div class="form-group">
             <label for="observacoes">Observacao:</label>
             <input type="text"
@@ -395,39 +368,7 @@
                        value="{{ reserva_temporaria.fim_reserva }}"
                        required>
             </div>
-            <div class="form-group">
-                <label for="finalidade_reserva">Finalidade da Reserva</label>
-                <select class="form-control"
-                        id="finalidade_reserva"
-                        name="finalidade_reserva"
-                        required>
-                    <option value="" disabled selected>Selecione a finalidade da reserva</option>
-                    <option value="Graduação"
-                            {% if reserva_temporaria.finalidade_reserva.value == 'Graduação' %}selected{% endif %}>
-                        Graduação
-                    </option>
-                    <option value="Especialização"
-                            {% if reserva_temporaria.finalidade_reserva.value == 'Especialização' %}selected{% endif %}>
-                        Especialização
-                    </option>
-                    <option value="EAD"
-                            {% if reserva_temporaria.finalidade_reserva.value == 'EAD' %}selected{% endif %}>
-                        EAD
-                    </option>
-                    <option value="NAPTI"
-                            {% if reserva_temporaria.finalidade_reserva.value == 'NAPTI' %}selected{% endif %}>
-                        NAPTI
-                    </option>
-                    <option value="Curso"
-                            {% if reserva_temporaria.finalidade_reserva.value == 'Curso' %}selected{% endif %}>
-                        Curso
-                    </option>
-                    <option value="Uso dos Alunos"
-                            {% if reserva_temporaria.finalidade_reserva.value == 'Uso dos Alunos' %}selected{% endif %}>
-                        Uso dos Alunos
-                    </option>
-                </select>
-            </div>
+            {{ gerar_select("finalidade", "Selecione a finalidade", finalidade_reservas, "id_finalidade", "nome", "id_finalidade_reserva", selected=reserva_temporaria.id_finalidade_reserva) }}
             <div class="form-group">
                 <label for="observacoes">Observacao:</label>
                 <input type="text"
@@ -503,40 +444,7 @@
                        required
                        disabled>
             </div>
-            <div class="form-group">
-                <label for="finalidade_reserva">Finalidade da Reserva</label>
-                <select class="form-control"
-                        id="finalidade_reserva"
-                        name="finalidade_reserva"
-                        required
-                        disabled>
-                    <option value="" disabled selected>Selecione a finalidade da reserva</option>
-                    <option value="Graduação"
-                            {% if reserva_temporaria.finalidade_reserva.value == 'Graduação' %}selected{% endif %}>
-                        Graduação
-                    </option>
-                    <option value="Especialização"
-                            {% if reserva_temporaria.finalidade_reserva.value == 'Especialização' %}selected{% endif %}>
-                        Especialização
-                    </option>
-                    <option value="EAD"
-                            {% if reserva_temporaria.finalidade_reserva.value == 'EAD' %}selected{% endif %}>
-                        EAD
-                    </option>
-                    <option value="NAPTI"
-                            {% if reserva_temporaria.finalidade_reserva.value == 'NAPTI' %}selected{% endif %}>
-                        NAPTI
-                    </option>
-                    <option value="Curso"
-                            {% if reserva_temporaria.finalidade_reserva.value == 'Curso' %}selected{% endif %}>
-                        Curso
-                    </option>
-                    <option value="Uso dos Alunos"
-                            {% if reserva_temporaria.finalidade_reserva.value == 'Uso dos Alunos' %}selected{% endif %}>
-                        Uso dos Alunos
-                    </option>
-                </select>
-            </div>
+            {{ gerar_select("finalidade", "Selecione a finalidade", finalidade_reservas, "id_finalidade", "nome", "id_finalidade_reserva", selected=reserva_temporaria.id_finalidade_reserva, extra='disabled') }}
             <div class="form-group">
                 <label for="observacoes">Observacao:</label>
                 <input type="text"
