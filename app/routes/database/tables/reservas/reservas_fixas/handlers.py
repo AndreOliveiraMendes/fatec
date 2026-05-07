@@ -9,7 +9,8 @@ from app.auxiliar.general import get_value_or_abort, none_if_empty
 from app.auxiliar.navigation import register_return
 from app.dao.internal.aulas import get_aulas_ativas, get_semestres
 from app.dao.internal.locais import get_locais
-from app.dao.internal.reservas import get_finalidade_reserva, get_reservas_fixas
+from app.dao.internal.reservas import (get_finalidade_reserva,
+                                       get_reservas_fixas)
 from app.decorators.decorators import register_handler
 from app.extensions import db
 from app.models.reservas.reservas_laboratorios import Reservas_Fixas

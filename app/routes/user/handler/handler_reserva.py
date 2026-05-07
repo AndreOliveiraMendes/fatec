@@ -8,8 +8,7 @@ from app.auxiliar.general import none_if_empty
 from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.reservas import check_ownership_or_admin
-from app.enums import (StatusReservaAuditorioEnum,
-                       StatusReservaEquipamentoEnum)
+from app.enums import StatusReservaAuditorioEnum, StatusReservaEquipamentoEnum
 from app.extensions import db
 from app.models.reservas.reservas_auditorios import Reservas_Auditorios
 from app.models.reservas.reservas_equipamentos import Reservas_Equipamentos

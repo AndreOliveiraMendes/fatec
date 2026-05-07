@@ -10,7 +10,8 @@ from app.auxiliar.navigation import register_return
 from app.auxiliar.parsing import parse_date_string, parse_date_string_or_abort
 from app.dao.internal.aulas import get_aulas_ativas
 from app.dao.internal.locais import get_locais
-from app.dao.internal.reservas import (check_reserva_temporaria, get_finalidade_reserva,
+from app.dao.internal.reservas import (check_reserva_temporaria,
+                                       get_finalidade_reserva,
                                        get_reservas_temporarias)
 from app.decorators.decorators import register_handler
 from app.extensions import db

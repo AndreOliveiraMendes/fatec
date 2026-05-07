@@ -9,8 +9,7 @@ from app.dao.internal.reservas import (check_periodo_auditorio,
                                        info_reserva_equipamento,
                                        info_reserva_fixa,
                                        info_reserva_temporaria)
-from app.enums import (StatusReservaAuditorioEnum,
-                       StatusReservaEquipamentoEnum)
+from app.enums import StatusReservaAuditorioEnum, StatusReservaEquipamentoEnum
 from app.models.aulas import Aulas_Ativas
 from app.models.reservas.reservas_auditorios import Reservas_Auditorios
 from app.models.reservas.reservas_equipamentos import Reservas_Equipamentos

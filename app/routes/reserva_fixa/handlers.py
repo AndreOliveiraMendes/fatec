@@ -8,7 +8,8 @@ from app.dao.external.disponibilidade import get_prioridade
 from app.dao.internal.aulas import (get_aulas_ativas_por_semestre,
                                     get_aulas_extras)
 from app.dao.internal.locais import get_laboratorios
-from app.dao.internal.reservas import check_conflict_reservas_fixas, get_finalidade_reserva
+from app.dao.internal.reservas import (check_conflict_reservas_fixas,
+                                       get_finalidade_reserva)
 from app.dao.internal.usuarios import get_user
 from app.extensions import db
 from app.models.aulas import Semestres, Turnos
