@@ -152,11 +152,14 @@
             const finalidade = document.getElementById('finalidade_reserva');
             const descricao = document.getElementById('descricao');
 
+            // TODO: better handling
             function toggleDescricao(){
                 if(!finalidade || !descricao) return;
 
                 const wrapper = descricao.parentElement;
-                const ativo = finalidade.value === 'Curso';
+                const selectedOption = finalidade.options[finalidade.selectedIndex];
+                const nome = selectedOption.getAttribute('data-nome');
+                const ativo = nome === 'curso';
 
                 descricao.disabled = !ativo;
                 wrapper.style.display = ativo ? 'block' : 'none';

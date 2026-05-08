@@ -1,5 +1,5 @@
 {% extends "base-fluid" %}
-{% from "macros/form.html" import action_buttons %}
+{% from "macros/form.html" import action_buttons, gerar_select %}
 {% from "macros/navigation.html" import go_back %}
 {% from "macros/select2.html" import select2_ajax_input, select2_ajax_script, ajax_link %}
 {% block title %}
@@ -100,12 +100,14 @@
     <script>{{ adjust_head_fix() }}</script>
     <!-- Script para mostrar/ocultar campo de descrição baseado na finalidade da reserva -->
     <script>
+    // TODO: better handling
     document.getElementById('finalidade_reserva').addEventListener('change', function() {
-        var value = this.value;
         var descricao = document.getElementById('descricao');
         var descricaoWrapper = descricao.parentElement;
+        const selectedOption = this.options[this.selectedIndex];
+        const nome = selectedOption.getAttribute('data-nome');
 
-        if(value == 'Curso'){
+        if(nome == 'curso'){
             descricao.disabled = false;
             descricaoWrapper.style.display = 'block';
         } else {
