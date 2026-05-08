@@ -161,7 +161,8 @@ def api_get_reserva_fixa_info(id_reserva):
         "id_responsavel_especial": reserva.id_responsavel_especial,
         "id_local": reserva.id_reserva_local,
         "id_aula_ativa": reserva.id_reserva_aula,
-        "finalidade": reserva.finalidade_reserva.value,
+        "id_finalidade": reserva.finalidade_reserva.id_finalidade,
+        "finalidade": reserva.finalidade_reserva.nome,
         "observacoes": reserva.observacoes,
         "descricao": reserva.descricao,
         "semestre": reserva.semestre.nome_semestre,
@@ -181,7 +182,8 @@ def get_reserva_temporaria_info(id_reserva):
         "id_responsavel_especial": reserva.id_responsavel_especial,
         "id_local": reserva.id_reserva_local,
         "id_aula_ativa": reserva.id_reserva_aula,
-        "finalidade": reserva.finalidade_reserva.value,
+        "id_finalidade": reserva.finalidade_reserva.id_finalidade,
+        "finalidade": reserva.finalidade_reserva.nome,
         "observacoes": reserva.observacoes,
         "descricao": reserva.descricao,
         "responsavel": responsavel,
@@ -286,7 +288,7 @@ def info_reserva_fixa(id_reserva):
         "semana": reserva.aula_ativa.dia_da_semana.nome_semana,
         "horario": f"{reserva.aula_ativa.aula.horario_inicio:%H:%M} às {reserva.aula_ativa.aula.horario_fim:%H:%M}",
         "observacao": reserva.observacoes,
-        "finalidadereserva": reserva.finalidade_reserva.value,
+        "finalidadereserva": reserva.finalidade_reserva.nome,
         "responsavel": reserva.id_responsavel,
         "responsavel_especial": reserva.id_responsavel_especial,
         "cancel_url": url_for("usuarios_reservas_base.cancelar_reserva", tipo_reserva="fixa", id_reserva=id_reserva),
@@ -303,7 +305,7 @@ def info_reserva_temporaria(id_reserva):
         "semana": reserva.aula_ativa.dia_da_semana.nome_semana,
         "horario": f"{reserva.aula_ativa.aula.horario_inicio:%H:%M} às {reserva.aula_ativa.aula.horario_fim:%H:%M}",
         "observacao": reserva.observacoes,
-        "finalidadereserva": reserva.finalidade_reserva.value,
+        "finalidadereserva": reserva.finalidade_reserva.nome,
         "responsavel": reserva.id_responsavel,
         "responsavel_especial": reserva.id_responsavel_especial,
         "cancel_url": url_for("usuarios_reservas_base.cancelar_reserva", tipo_reserva="temporaria", id_reserva=id_reserva),
@@ -355,7 +357,7 @@ def update_reserva_fixa(id_reserva):
     responsavel_especial = none_if_empty(data.get('id_responsavel_especial'), int)
     local = none_if_empty(data.get('id_local'), int)
     aula = none_if_empty(data.get('id_aula'), int)
-    finalidade_reserva = none_if_empty(data.get('id_finalidade_reserva'), int)
+    finalidade_reserva = none_if_empty(data.get('finalidade'), int)
     observacoes = none_if_empty(data.get('observacoes'))
     descricao = none_if_empty(data.get('descricao'))
     if local is None or aula is None:
@@ -402,7 +404,7 @@ def update_reserva_temporaria(id_reserva):
     fim = parse_date_string(data.get('fim_reserva'))
     local = none_if_empty(data.get('id_local'), int)
     aula = none_if_empty(data.get('id_aula'), int)
-    finalidade_reserva = none_if_empty(data.get('id_finalidade_reserva'), int)
+    finalidade_reserva = none_if_empty(data.get('finalidade'), int)
     observacoes = none_if_empty(data.get('observacoes'))
     descricao = none_if_empty(data.get('descricao'))
     
@@ -521,7 +523,7 @@ def get_reserva_fixa_indirect(dia, id_local, id_aula):
             "id_responsavel_especial": reserva.id_responsavel_especial,
             "id_local": reserva.id_reserva_local,
             "id_aula_ativa": reserva.id_reserva_aula,
-            "finalidade": reserva.finalidade_reserva.value,
+            "finalidade": reserva.finalidade_reserva.nome,
             "observacoes": reserva.observacoes,
             "descricao": reserva.descricao,
             "semestre": reserva.semestre.nome_semestre,
@@ -557,7 +559,7 @@ def get_reserva_temporaria_indirect(dia, id_local, id_aula):
             "id_responsavel_especial": reserva.id_responsavel_especial,
             "id_local": reserva.id_reserva_local,
             "id_aula_ativa": reserva.id_reserva_aula,
-            "finalidade": reserva.finalidade_reserva.value,
+            "finalidade": reserva.finalidade_reserva.nome,
             "observacoes": reserva.observacoes,
             "descricao": reserva.descricao,
             "responsavel": get_responsavel_reserva(reserva),

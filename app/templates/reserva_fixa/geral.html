@@ -1,5 +1,5 @@
 {% extends "base-fixed" %}
-{% from "macros/form.html" import action_buttons %}
+{% from "macros/form.html" import action_buttons, gerar_select %}
 {% from "macros/navigation.html" import go_back %}
 {% from "macros/select2.html" import select2_ajax_input, select2_ajax_script, ajax_link %}
 {% block title %}
@@ -79,16 +79,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="form-group">
-            <label for="finalidade_reserva">Destinação da Reserva:</label>
-            <select id="finalidade_reserva"
-                    class="form-control"
-                    name="finalidade_reserva"
-                    required>
-                <option value="">Selecione a finalidade da reserva</option>
-                {% for fr in finalidade_reserva %}<option value="{{ fr.value }}">{{ fr.value }}</option>{% endfor %}
-            </select>
-        </div>
+        {{ gerar_select("finalidade_reserva", "Destinação da Reserva", finalidade_reserva, "id_finalidade", "nome", "id_finalidade_reserva") }}
         <div class="form-group">
             <label for="observacoes">Observações:</label>
             <textarea id="observacoes"

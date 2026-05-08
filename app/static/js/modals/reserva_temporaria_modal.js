@@ -9,7 +9,7 @@ function openReservaModal(data, url_edit) {
     $('#fim_reserva').val(data.fim);
     $('#id_local').val(data.id_local);
     $('#id_aula').val(data.id_aula_ativa);
-    $('#finalidade').val(data.finalidade);
+    $('#finalidade').val(data.id_finalidade);
     $('#modalEObservacoes').val(data.observacoes);
     $('#modalEDescricao').val(data.descricao);
 
