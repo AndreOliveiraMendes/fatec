@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 class Finalidade_Reserva(Base):
     __tablename__ = 'finalidade_reservas'
     id_finalidade: Mapped[int] = mapped_column(primary_key=True)
-    nome: Mapped[str] = mapped_column(String(50), nullable=False)
+    nome: Mapped[str] = mapped_column(String(50), nullable=False, unique=True)
     ativo: Mapped[bool] = mapped_column(Boolean, nullable=False)
     descricao: Mapped[str | None] = mapped_column(TEXT, nullable=True)
     config: Mapped[dict | None] = mapped_column(JSON, nullable=True)

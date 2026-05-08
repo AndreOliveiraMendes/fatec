@@ -61,9 +61,9 @@
                         onchange="this.form.submit()">
                     <option value="">Todos</option>
                     {% for tr in TipoReserva %}
-                        <option value="{{ tr.value }}"
-                                {% if request.args.get('finalidade') == tr.value %}selected{% endif %}>
-                            {{ tr.value }}
+                        <option value="{{ tr.id_finalidade }}"
+                                {% if request.args.get('finalidade') | int == tr.id_finalidade %}selected{% endif %}>
+                            {{ tr.nome }}
                         </option>
                     {% endfor %}
                 </select>
@@ -120,7 +120,7 @@
                                     {{ r.aula_ativa.aula.horario_fim|hora }}
                                 </small>
                             </td>
-                            <td>{{ r.finalidade_reserva.value }}</td>
+                            <td>{{ r.finalidade_reserva.nome }}</td>
                             <!-- AÇÕES -->
                             {% set pode_editar = r.dentro_periodo or user.perm|has_flag(ADMIN) %}
                             <td class="acoes">
@@ -176,7 +176,7 @@
                 id: 'observacao'
             },
 
-            finalidadereserva: {
+            idfinalidadereserva: {
                 label: 'Finalidade',
                 type: 'enum',
                 name: 'finalidade_reserva',
@@ -212,7 +212,7 @@
         fieldGroups = {
             detalhes: ['local', 'semana', 'periodo', 'horario'],
             obs: ['observacao'],
-            edit: ['finalidadereserva', 'observacao']
+            edit: ['idfinalidadereserva', 'observacao']
         };
 
         {% if user and user.perm|has_flag(ADMIN) %}

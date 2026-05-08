@@ -47,7 +47,7 @@ def gerenciar_reserva_fixa():
     extras['semestres'] = semestres
     finalidade = get_finalidade_reserva()
     extras['TipoReserva'] = finalidade
-    extras['TipoReservaList'] = [(f.id_finalidade, f.nome) for f in finalidade]
+    extras['TipoReservaList'] = [{"value": f.id_finalidade, "label": f.nome} for f in finalidade]
     extras['laboratorios'] = get_laboratorios(user.perm.has(Permission.ADMIN))
     extras['semanas'] = get_dias_da_semana()
     return render_template("usuario/reservas_laboratorios/reserva_fixa.html", user=user, **extras)
@@ -71,7 +71,7 @@ def gerenciar_reserva_temporaria():
     extras['args_extras'] = args_extras
     finalidade = get_finalidade_reserva()
     extras['TipoReserva'] = finalidade
-    extras['TipoReservaList'] = [(f.id_finalidade, f.nome) for f in finalidade]
+    extras['TipoReservaList'] = [{"value": f.id_finalidade, "label": f.nome} for f in finalidade]
     extras['laboratorios'] = get_laboratorios(user.perm.has(Permission.ADMIN))
     extras['semanas'] = get_dias_da_semana()
     return render_template("usuario/reservas_laboratorios/reserva_temporaria.html", user=user, **extras)
