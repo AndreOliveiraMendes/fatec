@@ -14,15 +14,15 @@ from app.auxiliar.parsing import parse_date_string
 from app.dao.internal.general import (get_nome_pessoa, get_nome_pessoa_by_id,
                                       handle_db_error)
 from app.dao.internal.historicos import registrar_log_generico_usuario
-from app.enums import (FinalidadeReservaEnum, StatusReservaEquipamentoEnum,
-                       TipoAulaEnum)
+from app.enums import StatusReservaEquipamentoEnum, TipoAulaEnum
 from app.extensions import db
 from app.models.aulas import Aulas, Aulas_Ativas, Semestres, Turnos
 from app.models.locais import Locais
 from app.models.reservas.reservas_auditorios import Reservas_Auditorios
 from app.models.reservas.reservas_equipamentos import (
     Reserva_Equipamento_Item, Reservas_Equipamentos)
-from app.models.reservas.reservas_laboratorios import (Reservas_Fixas,
+from app.models.reservas.reservas_laboratorios import (Finalidade_Reserva,
+                                                       Reservas_Fixas,
                                                        Reservas_Temporarias)
 from app.models.usuarios import Permissoes, Usuarios
 
@@ -46,7 +46,7 @@ def get_responsavel_reserva(
                 nome_especial = f"({nome_especial})"
             title_parts.append(nome_especial)
 
-    if modo_template and reserva.finalidade_reserva == FinalidadeReservaEnum.USO_DOS_ALUNOS:
+    if modo_template and reserva.finalidade_reserva.nome == 'uso dos alunos':
         title_parts.append("uso acadêmico")
 
     return " ".join(title_parts)
@@ -70,6 +70,10 @@ def get_reservas_auditorios_filtrada(id:int, all:bool = False, *args):
 def get_reservas_auditorios_database():
     sel_reservas_auditorios = select(Reservas_Auditorios)
     return db.session.execute(sel_reservas_auditorios).scalars().all()
+
+def get_finalidade_reserva():
+    sel_finalidade = select(Finalidade_Reserva)
+    return db.session.execute(sel_finalidade).scalars().all()
 
 def get_reservas_fixas():
     sel_reservas_fixas = select(Reservas_Fixas)
@@ -157,7 +161,8 @@ def api_get_reserva_fixa_info(id_reserva):
         "id_responsavel_especial": reserva.id_responsavel_especial,
         "id_local": reserva.id_reserva_local,
         "id_aula_ativa": reserva.id_reserva_aula,
-        "finalidade": reserva.finalidade_reserva.value,
+        "id_finalidade": reserva.finalidade_reserva.id_finalidade,
+        "finalidade": reserva.finalidade_reserva.nome,
         "observacoes": reserva.observacoes,
         "descricao": reserva.descricao,
         "semestre": reserva.semestre.nome_semestre,
@@ -177,7 +182,8 @@ def get_reserva_temporaria_info(id_reserva):
         "id_responsavel_especial": reserva.id_responsavel_especial,
         "id_local": reserva.id_reserva_local,
         "id_aula_ativa": reserva.id_reserva_aula,
-        "finalidade": reserva.finalidade_reserva.value,
+        "id_finalidade": reserva.finalidade_reserva.id_finalidade,
+        "finalidade": reserva.finalidade_reserva.nome,
         "observacoes": reserva.observacoes,
         "descricao": reserva.descricao,
         "responsavel": responsavel,
@@ -282,7 +288,9 @@ def info_reserva_fixa(id_reserva):
         "semana": reserva.aula_ativa.dia_da_semana.nome_semana,
         "horario": f"{reserva.aula_ativa.aula.horario_inicio:%H:%M} às {reserva.aula_ativa.aula.horario_fim:%H:%M}",
         "observacao": reserva.observacoes,
-        "finalidadereserva": reserva.finalidade_reserva.value,
+        "descricao": reserva.descricao,
+        "idfinalidadereserva": reserva.id_finalidade_reserva,
+        "finalidadereserva": reserva.finalidade_reserva.nome,
         "responsavel": reserva.id_responsavel,
         "responsavel_especial": reserva.id_responsavel_especial,
         "cancel_url": url_for("usuarios_reservas_base.cancelar_reserva", tipo_reserva="fixa", id_reserva=id_reserva),
@@ -299,7 +307,9 @@ def info_reserva_temporaria(id_reserva):
         "semana": reserva.aula_ativa.dia_da_semana.nome_semana,
         "horario": f"{reserva.aula_ativa.aula.horario_inicio:%H:%M} às {reserva.aula_ativa.aula.horario_fim:%H:%M}",
         "observacao": reserva.observacoes,
-        "finalidadereserva": reserva.finalidade_reserva.value,
+        "descricao": reserva.descricao,
+        "idfinalidadereserva": reserva.id_finalidade_reserva,
+        "finalidadereserva": reserva.finalidade_reserva.nome,
         "responsavel": reserva.id_responsavel,
         "responsavel_especial": reserva.id_responsavel_especial,
         "cancel_url": url_for("usuarios_reservas_base.cancelar_reserva", tipo_reserva="temporaria", id_reserva=id_reserva),
@@ -351,7 +361,7 @@ def update_reserva_fixa(id_reserva):
     responsavel_especial = none_if_empty(data.get('id_responsavel_especial'), int)
     local = none_if_empty(data.get('id_local'), int)
     aula = none_if_empty(data.get('id_aula'), int)
-    finalidade_reserva = data.get('finalidade')
+    finalidade_reserva = none_if_empty(data.get('finalidade'), int)
     observacoes = none_if_empty(data.get('observacoes'))
     descricao = none_if_empty(data.get('descricao'))
     if local is None or aula is None:
@@ -362,7 +372,7 @@ def update_reserva_fixa(id_reserva):
         reserva.id_responsavel_especial = responsavel_especial
         reserva.id_reserva_local = local
         reserva.id_reserva_aula = aula
-        reserva.finalidade_reserva = FinalidadeReservaEnum(finalidade_reserva)
+        reserva.id_finalidade_reserva = finalidade_reserva
         reserva.observacoes = observacoes
         reserva.descricao = descricao
 
@@ -398,7 +408,7 @@ def update_reserva_temporaria(id_reserva):
     fim = parse_date_string(data.get('fim_reserva'))
     local = none_if_empty(data.get('id_local'), int)
     aula = none_if_empty(data.get('id_aula'), int)
-    finalidade_reserva = data.get('finalidade')
+    finalidade_reserva = none_if_empty(data.get('finalidade'), int)
     observacoes = none_if_empty(data.get('observacoes'))
     descricao = none_if_empty(data.get('descricao'))
     
@@ -414,7 +424,7 @@ def update_reserva_temporaria(id_reserva):
         reserva.id_responsavel_especial = responsavel_especial
         reserva.id_reserva_local = local
         reserva.id_reserva_aula = aula
-        reserva.finalidade_reserva = FinalidadeReservaEnum(finalidade_reserva)
+        reserva.id_finalidade_reserva = finalidade_reserva
         reserva.observacoes = observacoes
         reserva.descricao = descricao
 
@@ -517,7 +527,7 @@ def get_reserva_fixa_indirect(dia, id_local, id_aula):
             "id_responsavel_especial": reserva.id_responsavel_especial,
             "id_local": reserva.id_reserva_local,
             "id_aula_ativa": reserva.id_reserva_aula,
-            "finalidade": reserva.finalidade_reserva.value,
+            "finalidade": reserva.finalidade_reserva.nome,
             "observacoes": reserva.observacoes,
             "descricao": reserva.descricao,
             "semestre": reserva.semestre.nome_semestre,
@@ -553,7 +563,7 @@ def get_reserva_temporaria_indirect(dia, id_local, id_aula):
             "id_responsavel_especial": reserva.id_responsavel_especial,
             "id_local": reserva.id_reserva_local,
             "id_aula_ativa": reserva.id_reserva_aula,
-            "finalidade": reserva.finalidade_reserva.value,
+            "finalidade": reserva.finalidade_reserva.nome,
             "observacoes": reserva.observacoes,
             "descricao": reserva.descricao,
             "responsavel": get_responsavel_reserva(reserva),

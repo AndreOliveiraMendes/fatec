@@ -68,7 +68,7 @@
                             <select id="finalidade" name="finalidade" class="form-control">
                                 <option value="">Selecione a finalidade</option>
                                 {% for finalidade in finalidade_reserva %}
-                                    <option value="{{ finalidade.value }}">{{ finalidade.value }}</option>
+                                    <option value="{{ finalidade.id_finalidade }}">{{ finalidade.nome }}</option>
                                 {% endfor %}
                             </select>
                         </div>

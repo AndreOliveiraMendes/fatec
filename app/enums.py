@@ -35,15 +35,6 @@ class TipoReservaEnum(StrEnum):
     FIXA = "fixa"
     TEMPORARIA = "temporaria"
 
-class FinalidadeReservaEnum(StrEnum):
-    GRADUACAO = "Graduação"
-    ESPECIALIZACAO = "Especialização"
-    EAD = "EAD"
-    NAPTI = "NAPTI"
-    CURSO = "Curso"
-    USO_DOS_ALUNOS = "Uso dos Alunos"
-    NEPLE = "NEPLE"
-
 class TipoAulaEnum(StrEnum):
     AULA = "Aula"
     EVENTO = "Evento"

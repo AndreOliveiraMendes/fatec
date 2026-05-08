@@ -67,9 +67,9 @@
                         onchange="this.form.submit()">
                     <option value="">Todos</option>
                     {% for tr in TipoReserva %}
-                        <option value="{{ tr.value }}"
-                                {% if request.args.get('finalidade') == tr.value %}selected{% endif %}>
-                            {{ tr.value }}
+                        <option value="{{ tr.id_finalidade }}"
+                                {% if request.args.get('finalidade') | int == tr.id_finalidade %}selected{% endif %}>
+                            {{ tr.nome }}
                         </option>
                     {% endfor %}
                 </select>
@@ -120,7 +120,7 @@
                                     {{ r.aula_ativa.aula.horario_fim|hora }}
                                 </small>
                             </td>
-                            <td>{{ r.finalidade_reserva.value }}</td>
+                            <td>{{ r.finalidade_reserva.nome }}</td>
                             <!-- AÇÕES -->
                             {% set pode_editar = r.dentro_periodo or user.perm|has_flag(ADMIN) %}
                             <td class="acoes">
@@ -176,9 +176,16 @@
                 id: 'observacao'
             },
 
-            finalidadereserva: {
+            descricao: {
+                label: 'Descrição',
+                type: 'text',
+                name: 'descricao',
+                id: 'descricao'
+            },
+
+            idfinalidadereserva: {
                 label: 'Finalidade',
-                type: 'enum',
+                type: 'select',
                 name: 'finalidade_reserva',
                 id: 'finalidadeReserva',
                 data: {{ TipoReservaList|tojson }}
@@ -199,7 +206,7 @@
 
                 responsavel_especial: {
                     id: 'modal_responsavel_especial',
-                    name: 'responsavel_especial', // ⚠️ aqui tava errado no seu código
+                    name: 'responsavel_especial',
                     label: 'Responsável Especial',
                     type: 'select2_ajax',
                     url: {{ ajax_link('usuarios_especiais') }},
@@ -211,8 +218,8 @@
 
         fieldGroups = {
             detalhes: ['local', 'semana', 'semestre', 'horario'],
-            obs: ['observacao'],
-            edit: ['finalidadereserva', 'observacao']
+            obs: ['observacao', 'descricao'],
+            edit: ['idfinalidadereserva', 'observacao', 'descricao']
         };
 
         {% if user and user.perm|has_flag(ADMIN) %}

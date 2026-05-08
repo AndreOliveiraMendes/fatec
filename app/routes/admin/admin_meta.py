@@ -62,6 +62,12 @@ def branches():
         user=user
     )
 
+@bp.route("/about")
+def sobre():
+    user = get_user(session.get('userid'))
+
+    return render_template("admin/meta/about.html", user=user)
+
 @bp.route("/health")
 @admin_required
 def health():

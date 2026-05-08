@@ -11,7 +11,15 @@ from tzlocal import get_localzone
 T = TypeVar("T")
 
 def str_to_bool(s):
-    return str(s).lower() in ("true", "1", "yes", "on")
+    if s is None or s == "":
+        return None  # importante pra filtro opcional
+    s = str(s).lower()
+    if s in ("true", "1", "yes", "on", 1):
+        return True
+    if s in ("false", "0", "no", "off", 0):
+        return False
+
+    raise ValueError(f"Valor inválido para boolean: {s}")
 
 @overload
 def env(key: str) -> str | None: ...

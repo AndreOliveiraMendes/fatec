@@ -1,13 +1,13 @@
 from datetime import date
 from typing import TYPE_CHECKING
 
-from sqlalchemy import (TEXT, CheckConstraint, Enum, ForeignKey, String,
-                        UniqueConstraint)
+from sqlalchemy import (JSON, TEXT, Boolean, CheckConstraint, ForeignKey,
+                        String, UniqueConstraint)
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.auxiliar.model import parse_date
-from app.enums import FinalidadeReservaEnum, TipoReservaEnum
+from app.enums import TipoReservaEnum
 from app.extensions import Base
 
 if TYPE_CHECKING:
@@ -15,16 +15,30 @@ if TYPE_CHECKING:
     from app.models.locais import Locais
     from app.models.usuarios import Pessoas, Usuarios_Especiais
 
+class Finalidade_Reserva(Base):
+    __tablename__ = 'finalidade_reservas'
+    id_finalidade: Mapped[int] = mapped_column(primary_key=True)
+    nome: Mapped[str] = mapped_column(String(50), nullable=False, unique=True)
+    ativo: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    descricao: Mapped[str | None] = mapped_column(TEXT, nullable=True)
+    config: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+
+    reservas_fixas: Mapped[list["Reservas_Fixas"]] = relationship(back_populates="finalidade_reserva", passive_deletes=True)
+    reservas_temporarias: Mapped[list["Reservas_Temporarias"]] = relationship(back_populates="finalidade_reserva", passive_deletes=True)
+
+    def __repr__(self):
+        return (
+            f"<Finalidade_Reserva(id_finalidade={self.id_finalidade}, nome={self.nome}, "
+            f"ativo={self.ativo}, descricao={self.descricao}, config={self.config})>"
+        )
+
 class ReservaBase(Base):
     __abstract__ = True
     id_responsavel: Mapped[int | None] = mapped_column(ForeignKey('pessoas.id_pessoa'), nullable=True)
     id_responsavel_especial: Mapped[int | None] = mapped_column(ForeignKey('usuarios_especiais.id_usuario_especial'), nullable=True)
     id_reserva_local: Mapped[int] = mapped_column(ForeignKey('locais.id_local'), nullable=False)
     id_reserva_aula: Mapped[int] = mapped_column(ForeignKey('aulas_ativas.id_aula_ativa'), nullable=False)
-    finalidade_reserva: Mapped[FinalidadeReservaEnum] = mapped_column(
-        Enum(FinalidadeReservaEnum, name="tipo_reserva_enum", create_constraint=True),
-        server_default=FinalidadeReservaEnum.GRADUACAO.name
-    )
+    id_finalidade_reserva: Mapped[int] = mapped_column(ForeignKey('finalidade_reservas.id_finalidade'), nullable=False)
     observacoes: Mapped[str | None] = mapped_column(TEXT, nullable=True)
     descricao: Mapped[str | None] = mapped_column(String(100), nullable=True)
 
@@ -64,6 +78,7 @@ class Reservas_Fixas(ReservaBase):
     usuario_especial: Mapped["Usuarios_Especiais"] = relationship("Usuarios_Especiais", back_populates="reservas_fixas", passive_deletes=True)
     local: Mapped["Locais"] = relationship("Locais", back_populates="reservas_fixas", passive_deletes=True)
     aula_ativa: Mapped["Aulas_Ativas"] = relationship("Aulas_Ativas", back_populates="reservas_fixas", passive_deletes=True)
+    finalidade_reserva: Mapped["Finalidade_Reserva"] = relationship("Finalidade_Reserva", back_populates="reservas_fixas", passive_deletes=True)
 
     @property
     def selector_identification(self):
@@ -103,6 +118,7 @@ class Reservas_Temporarias(ReservaBase):
     usuario_especial: Mapped["Usuarios_Especiais"] = relationship("Usuarios_Especiais", back_populates="reservas_temporarias", passive_deletes=True)
     local: Mapped["Locais"] = relationship("Locais", back_populates="reservas_temporarias", passive_deletes=True)
     aula_ativa: Mapped["Aulas_Ativas"] = relationship("Aulas_Ativas", back_populates="reservas_temporarias", passive_deletes=True)
+    finalidade_reserva: Mapped["Finalidade_Reserva"] = relationship("Finalidade_Reserva", back_populates="reservas_temporarias", passive_deletes=True)
 
     @property
     def selector_identification(self):

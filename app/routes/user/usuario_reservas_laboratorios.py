@@ -8,9 +8,9 @@ from app.auxiliar.constant import Permission
 from app.dao.internal.aulas import (get_dias_da_semana, get_semestre_by_id,
                                     get_semestres)
 from app.dao.internal.locais import get_laboratorios
+from app.dao.internal.reservas import get_finalidade_reserva
 from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import login_required
-from app.enums import FinalidadeReservaEnum
 from app.routes.user.handler.handler_laboratorios import \
     get_reservas_laboratorios
 from app.routes_helper.request import get_query_params
@@ -45,8 +45,9 @@ def gerenciar_reserva_fixa():
     extras['args_extras'] = args_extras
     # for edit and filter
     extras['semestres'] = semestres
-    extras['TipoReserva'] = FinalidadeReservaEnum
-    extras['TipoReservaList'] = [e.value for e in FinalidadeReservaEnum]
+    finalidade = get_finalidade_reserva()
+    extras['TipoReserva'] = finalidade
+    extras['TipoReservaList'] = [{"value": f.id_finalidade, "label": f.nome} for f in finalidade]
     extras['laboratorios'] = get_laboratorios(user.perm.has(Permission.ADMIN))
     extras['semanas'] = get_dias_da_semana()
     return render_template("usuario/reservas_laboratorios/reserva_fixa.html", user=user, **extras)
@@ -68,8 +69,9 @@ def gerenciar_reserva_temporaria():
         reserva.dentro_periodo = reserva.fim_reserva >= today.date()
     extras['pagination'] = reservas_temporarias
     extras['args_extras'] = args_extras
-    extras['TipoReserva'] = FinalidadeReservaEnum
-    extras['TipoReservaList'] = [e.value for e in FinalidadeReservaEnum]
+    finalidade = get_finalidade_reserva()
+    extras['TipoReserva'] = finalidade
+    extras['TipoReservaList'] = [{"value": f.id_finalidade, "label": f.nome} for f in finalidade]
     extras['laboratorios'] = get_laboratorios(user.perm.has(Permission.ADMIN))
     extras['semanas'] = get_dias_da_semana()
     return render_template("usuario/reservas_laboratorios/reserva_temporaria.html", user=user, **extras)

@@ -11,9 +11,9 @@ from app.auxiliar.parsing import parse_date_string, parse_date_string_or_abort
 from app.dao.internal.aulas import get_aulas_ativas
 from app.dao.internal.locais import get_locais
 from app.dao.internal.reservas import (check_reserva_temporaria,
+                                       get_finalidade_reserva,
                                        get_reservas_temporarias)
 from app.decorators.decorators import register_handler
-from app.enums import FinalidadeReservaEnum
 from app.extensions import db
 from app.models.reservas.reservas_laboratorios import Reservas_Temporarias
 from app.routes_helper.db_actions import db_action
@@ -49,6 +49,7 @@ def list_handler():
 def search_prefetch():
     g.extras['locais'] = get_locais()
     g.extras['aulas_ativas'] = get_aulas_ativas()
+    g.extras['finalidade_reservas'] = get_finalidade_reserva()
 
 @register_handler(dispatcher, 'procurar', 1)
 def search_fetch():
@@ -60,7 +61,7 @@ def search_fetch():
     id_reserva_aula = none_if_empty(request.form.get('id_reserva_aula'), int)
     inicio_procura = parse_date_string(request.form.get('inicio_procura'))
     fim_procura = parse_date_string(request.form.get('fim_procura'))
-    finalidade_reserva = none_if_empty(request.form.get('finalidade_reserva'))
+    id_finalidade_reserva = none_if_empty(request.form.get('id_finalidade_reserva'), int)
     observacoes = none_if_empty(request.form.get('observacoes'))
     descricao = none_if_empty(request.form.get('descricao'))
     filters = []
@@ -79,8 +80,8 @@ def search_fetch():
         filters.append(Reservas_Temporarias.id_reserva_aula == id_reserva_aula)
     if inicio_procura or fim_procura:
         filters.append(filtro_intervalo(inicio_procura, fim_procura))
-    if finalidade_reserva:
-        filters.append(Reservas_Temporarias.finalidade_reserva == FinalidadeReservaEnum(finalidade_reserva))
+    if id_finalidade_reserva is not None:
+        filters.append(Reservas_Temporarias.id_finalidade_reserva == id_finalidade_reserva)
     if observacoes:
         filters.append(Reservas_Temporarias.observacoes.ilike(f"%{observacoes}%"))
     if descricao:
@@ -99,13 +100,15 @@ def search_fetch():
         g.redirect_action, g.bloco = register_return(g.url,
             g.acao, g.extras,
             locais=get_locais(),
-            aulas_ativas=get_aulas_ativas()
+            aulas_ativas=get_aulas_ativas(),
+            finalidade_reservas=get_finalidade_reserva()
         )
 
 @register_handler(dispatcher, 'inserir', 0)
 def insert_prefetch():
     g.extras['locais'] = get_locais()
     g.extras['aulas_ativas'] = get_aulas_ativas()
+    g.extras['finalidade_reservas'] = get_finalidade_reserva()
 
 @register_handler(dispatcher, 'inserir', 1)
 def insert_push():
@@ -115,7 +118,7 @@ def insert_push():
     id_reserva_aula = none_if_empty(request.form.get('id_reserva_aula'), int)
     inicio_reserva = parse_date_string(request.form.get('inicio_reserva'))
     fim_reserva = parse_date_string(request.form.get('fim_reserva'))
-    finalidade_reserva = none_if_empty(request.form.get('finalidade_reserva'))
+    id_finalidade_reserva = none_if_empty(request.form.get('id_finalidade_reserva'), int)
     observacoes = none_if_empty(request.form.get('observacoes'))
     descricao = none_if_empty(request.form.get('descricao'))
 
@@ -126,7 +129,7 @@ def insert_push():
         id_reserva_aula=id_reserva_aula,
         inicio_reserva=inicio_reserva,
         fim_reserva=fim_reserva,
-        finalidade_reserva=FinalidadeReservaEnum(finalidade_reserva),
+        id_finalidade_reserva=id_finalidade_reserva,
         observacoes=observacoes,
         descricao=descricao
     )
@@ -150,7 +153,8 @@ def insert_push():
     g.redirect_action, g.bloco = register_return(
         g.url, g.acao, g.extras,
         locais=get_locais(),
-        aulas_ativas=get_aulas_ativas()
+        aulas_ativas=get_aulas_ativas(),
+        finalidade_reservas=get_finalidade_reserva()
     )
 
 @register_handler(dispatcher, 'editar', 0)
@@ -166,6 +170,7 @@ def fetch_reserva_temporaria():
     g.extras['reserva_temporaria'] = reserva_temporaria
     g.extras['locais'] = get_locais()
     g.extras['aulas_ativas'] = get_aulas_ativas()
+    g.extras['finalidade_reservas'] = get_finalidade_reserva()
 
 @register_handler(dispatcher, 'editar', 2)
 def edit_push():
@@ -176,7 +181,7 @@ def edit_push():
     id_reserva_aula = get_value_or_abort(request.form.get('id_reserva_aula'), 400, "id da aula é obrigatorio", int)
     inicio_reserva = parse_date_string_or_abort(request.form.get('inicio_reserva'), 400, "data de inicio é obrigatoria")
     fim_reserva = parse_date_string_or_abort(request.form.get('fim_reserva'), 400, "data de termino é obrigatorio")
-    finalidade_reserva = none_if_empty(request.form.get('finalidade_reserva'))
+    id_finalidade_reserva = none_if_empty(request.form.get('id_finalidade_reserva'), int)
     observacoes = none_if_empty(request.form.get('observacoes'))
     descricao = none_if_empty(request.form.get('descricao'))
 
@@ -198,7 +203,7 @@ def edit_push():
         reserva_temporaria.id_reserva_aula = id_reserva_aula
         reserva_temporaria.inicio_reserva = inicio_reserva
         reserva_temporaria.fim_reserva = fim_reserva
-        reserva_temporaria.finalidade_reserva = FinalidadeReservaEnum(finalidade_reserva)
+        reserva_temporaria.id_finalidade_reserva = id_finalidade_reserva
         reserva_temporaria.observacoes = observacoes
         reserva_temporaria.descricao = descricao
 

@@ -1,0 +1,472 @@
+{% extends "database/table/base_crude" %}
+{% macro result_table(message) %}
+    {% set show_action_column = not disable_editar or not disable_excluir %}
+    {% call(f) table_base(
+        finalidades,
+        [
+        'ID Finalidade',
+        'Nome',
+        'Ativo',
+        'Descrição',
+        'Config'
+        ],
+        id_field='id_finalidade',
+        message=message,
+        show_actions=True,
+        pagination=pagination,
+        acao=acao,
+        bloco=bloco,
+        query_params=query_params
+        ) %}
+        <td class="text-center">{{ f.id_finalidade }}</td>
+        <td>{{ f.nome }}</td>
+        <td>
+            <i class="glyphicon {% if f.ativo %}glyphicon-ok-circle text-success{% else %}glyphicon-remove-circle text-danger{% endif %}"></i>
+        </td>
+        <td>{{ f.descricao | format }}</td>
+        <td>
+            <button class="btn btn-info btn-xs btn-ver-config"
+                    data-config='{{ (f.config or {})|tojson }}'>Ver config</button>
+        </td>
+    {% endcall %}
+{% endmacro %}
+{% block extra_script %}
+    {% if acao in ['listar', 'procurar'] %}
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                document.querySelectorAll(".btn-ver-config").forEach(function (btn) {
+                    btn.addEventListener("click", function () {
+                        let config = this.getAttribute("data-config");
+
+                        try {
+                            let parsed = JSON.parse(config);
+                            let formatted = JSON.stringify(parsed, null, 4);
+
+                            document.getElementById("modalConfigContent").textContent = formatted;
+                            Prism.highlightElement(document.getElementById("modalConfigContent"));
+                        } catch (e) {
+                            document.getElementById("modalConfigContent").textContent = "JSON inválido";
+                        }
+
+                        $("#modalConfig").modal("show");
+                    });
+                });
+            });
+        </script>
+    {% endif %}
+{% endblock extra_script %}
+{% block title %}
+    Finalidade das Reservas
+{% endblock title %}
+{% block abertura %}
+    <h3 class="text-center">
+        Gerenciamento da Tabela <strong>Finalidade de Reservas</strong>
+    </h3>
+    <p class="text-muted text-center">
+        A tabela <code>finalidade_reservas</code> possui os seguintes campos:
+    </p>
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover">
+            <thead>
+                <tr class="info">
+                    <th>Campo</th>
+                    <th>Tipo</th>
+                    <th>Descrição</th>
+                    <th>Valores Possíveis</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <code>id_finalidade</code>
+                    </td>
+                    <td>INT (auto_increment, PK)</td>
+                    <td>Identificador único da finalidade da reserva</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>nome</code>
+                    </td>
+                    <td>VARCHAR(50)</td>
+                    <td>Nome da finalidade (ex: Graduação, Curso, NAPTI)</td>
+                    <td>Texto livre (recomendado padronizar)</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>ativo</code>
+                    </td>
+                    <td>TINYINT(1)</td>
+                    <td>Indica se a finalidade está ativa no sistema</td>
+                    <td>
+                        <ul class="valores_possiveis_format">
+                            <li>
+                                <code>1</code> = Ativo
+                            </li>
+                            <li>
+                                <code>0</code> = Inativo
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>descricao</code>
+                    </td>
+                    <td>TEXT</td>
+                    <td>Descrição detalhada da finalidade da reserva</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code>config</code>
+                    </td>
+                    <td>JSON</td>
+                    <td>
+                        Campo para configuração dinâmica da finalidade.
+                        Pode ser utilizado para definir comportamento da interface
+                        ou regras específicas sem necessidade de alterar o código.
+                    </td>
+                    <td>
+                        <ul class="valores_possiveis_format">
+                            <li>
+                                <code>{"template": "%responsavel_auto em %local (%aula)"}</code>
+                            </li>
+                            <li>
+                                <code>{"template": "%responsavel_auto - %descricao"}</code>
+                            </li>
+                            <li>
+                                <code>{"template": "%local | %aula | %observacoes"}</code>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="alert alert-info mt-3" role="alert">
+        <strong>Nota:</strong> O campo <code>config</code> utiliza o tipo JSON nativo do MySQL 5.7+.
+        Ele permite armazenar configurações flexíveis para cada finalidade, evitando a necessidade
+        de alterar a estrutura do banco ou regras fixas na aplicação.
+        <br>
+        <br>
+        Recomenda-se utilizar esse campo apenas para configurações simples e controladas,
+        evitando lógica de negócio complexa diretamente no banco de dados.
+    </div>
+{% endblock abertura %}
+{% block listar %}
+    <h3>Lista de finalidades</h3>
+    {{ result_table("Nenhuma finalidade cadastrada.") }}
+    <div class="modal fade" id="modalConfig" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h4 class="modal-title">Configuração (JSON)</h4>
+                </div>
+                <div class="modal-body">
+                    <pre><code id="modalConfigContent" class="language-json"></code></pre>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock listar %}
+{% block procurar %}
+    {% if bloco == 0 %}
+        <h3>Procurar finalidades</h3>
+        <form class="form-horizontal"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <!-- ID -->
+            <div class="form-group">
+                <label for="id_finalidade" class="col-sm-2 control-label">Código</label>
+                <div class="col-sm-4">
+                    <input type="number"
+                           class="form-control"
+                           id="id_finalidade"
+                           name="id_finalidade"
+                           placeholder="Ex: 1">
+                </div>
+            </div>
+            <!-- Nome -->
+            <div class="form-group">
+                <label for="nome" class="col-sm-2 control-label">Nome</label>
+                <div class="col-sm-6">
+                    <input type="text"
+                           class="form-control"
+                           id="nome"
+                           name="nome"
+                           maxlength="50"
+                           placeholder="Digite o nome">
+                </div>
+            </div>
+            <!-- Ativo -->
+            <div class="form-group">
+                <label for="ativo" class="col-sm-2 control-label">Ativo</label>
+                <div class="col-sm-4">
+                    <select class="form-control" id="ativo" name="ativo">
+                        <option value="">Todos</option>
+                        <option value="1">Ativo</option>
+                        <option value="0">Inativo</option>
+                    </select>
+                </div>
+            </div>
+            <!-- Descrição -->
+            <div class="form-group">
+                <label for="descricao" class="col-sm-2 control-label">Descrição</label>
+                <div class="col-sm-6">
+                    <textarea class="form-control"
+                              id="descricao"
+                              name="descricao"
+                              rows="3"
+                              placeholder="Parte da descrição..."></textarea>
+                </div>
+            </div>
+            <!-- Config (JSON) -->
+            <div class="form-group">
+                <label for="config_template" class="col-sm-2 control-label">Template</label>
+                <div class="col-sm-6">
+                    <input type="text"
+                           class="form-control"
+                           id="config_template"
+                           name="config_template"
+                           placeholder="Ex: responsavel">
+                    <span class="help-block">
+                        Filtra pelo campo <code>config.template</code> (busca parcial).
+                    </span>
+                </div>
+            </div>
+            <!-- Botões -->
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-6">{{ action_buttons(acao, 1, False, 0) }}</div>
+            </div>
+        </form>
+    {% else %}
+        <h3>Resultados da busca:</h3>
+        {{ result_table("Nenhum Resultado encontrado") }}
+    {% endif %}
+{% endblock procurar %}
+{% block inserir %}
+    <h3>Inserir Finalidade de Reserva</h3>
+    <form class="form-group"
+          role="form"
+          action="{{ url_for(url) }}"
+          method="post">
+        <input type="hidden" name="acao" value="{{ acao }}">
+        <!-- Nome -->
+        <div class="form-group">
+            <label for="nome">Nome da Finalidade:</label>
+            <input type="text"
+                   class="form-control"
+                   id="nome"
+                   name="nome"
+                   maxlength="50"
+                   required
+                   placeholder="Ex: Graduação, Curso, NAPTI">
+        </div>
+        <!-- Ativo -->
+        <div class="form-group">
+            <label for="ativo">Status:</label>
+            <select class="form-control" id="ativo" name="ativo" required>
+                <option value="1" selected>Ativo</option>
+                <option value="0">Inativo</option>
+            </select>
+        </div>
+        <!-- Descrição -->
+        <div class="form-group">
+            <label for="descricao">Descrição:</label>
+            <textarea class="form-control"
+                      id="descricao"
+                      name="descricao"
+                      rows="3"
+                      placeholder="Descrição opcional da finalidade"></textarea>
+        </div>
+        <!-- Config JSON -->
+        <div class="form-group">
+            <label for="config">Configuração (JSON):</label>
+            <textarea class="form-control" id="config" name="config" rows="4" placeholder='Ex: {"template": "%responsavel_auto em %local (%aula)"}'>
+</textarea>
+            <p class="help-block">
+                Use JSON válido. Exemplo:
+                <code>{"template": "%responsavel_auto - %descricao"}</code>
+                <br>
+                Placeholders disponíveis:
+                <code>%responsavel</code>,
+                <code>%responsavel_especial</code>,
+                <code>%responsavel_auto</code>,
+                <code>%local</code>,
+                <code>%aula</code>,
+                <code>%descricao</code>,
+                <code>%observacoes</code>
+            </p>
+        </div>
+        {{ action_buttons(acao, 1, False, 0) }}
+    </form>
+{% endblock inserir %}
+{% block editar %}
+    {% if bloco == 0 %}
+        <h3>Editar finalidades</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            {{ gerar_select("finalidade", "Selecione a finalidade", finalidades, "id_finalidade", "nome") }}
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <h3>Inserir Finalidade de Reserva</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label for="id_finalidade">Código</label>
+                <input type="number"
+                       class="form-control"
+                       id="id_finalidade"
+                       name="id_finalidade"
+                       value="{{ finalidade.id_finalidade }}"
+                       placeholder="Ex: 1"
+                       readonly>
+            </div>
+            <!-- Nome -->
+            <div class="form-group">
+                <label for="nome">Nome da Finalidade:</label>
+                <input type="text"
+                       class="form-control"
+                       id="nome"
+                       name="nome"
+                       maxlength="50"
+                       required
+                       value="{{ finalidade.nome }}"
+                       placeholder="Ex: Graduação, Curso, NAPTI">
+            </div>
+            <!-- Ativo -->
+            <div class="form-group">
+                <label for="ativo">Status:</label>
+                <select class="form-control" id="ativo" name="ativo" required>
+                    <option value="1" {% if finalidade.ativo %}selected{% endif %}>Ativo</option>
+                    <option value="0" {% if not finalidade.ativo %}selected{% endif %}>Inativo</option>
+                </select>
+            </div>
+            <!-- Descrição -->
+            <div class="form-group">
+                <label for="descricao">Descrição:</label>
+                <textarea class="form-control"
+                          id="descricao"
+                          name="descricao"
+                          rows="3"
+                          placeholder="Descrição opcional da finalidade">{{ finalidade.descricao|format(1) }}</textarea>
+            </div>
+            <!-- Config JSON -->
+            <div class="form-group">
+                <label for="config">Configuração (JSON):</label>
+                <textarea class="form-control" id="config" name="config" rows="4" placeholder='Ex: {"template": "%responsavel_auto em %local (%aula)"}'>{{ finalidade.config|format(1) }}
+</textarea>
+                <p class="help-block">
+                    Use JSON válido. Exemplo:
+                    <code>{"template": "%responsavel_auto - %descricao"}</code>
+                    <br>
+                    Placeholders disponíveis:
+                    <code>%responsavel</code>,
+                    <code>%responsavel_especial</code>,
+                    <code>%responsavel_auto</code>,
+                    <code>%local</code>,
+                    <code>%aula</code>,
+                    <code>%descricao</code>,
+                    <code>%observacoes</code>
+                </p>
+            </div>
+            {{ action_buttons(acao, 2, True, 0) }}
+        </form>
+    {% endif %}
+{% endblock editar %}
+{% block excluir %}
+    {% if bloco == 0 %}
+        <h3>Editar finalidades</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            {{ gerar_select("finalidade", "Selecione a finalidade", finalidades, "id_finalidade", "nome") }}
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <h3>Inserir Finalidade de Reserva</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label for="id_finalidade">Código</label>
+                <input type="number"
+                       class="form-control"
+                       id="id_finalidade"
+                       name="id_finalidade"
+                       value="{{ finalidade.id_finalidade }}"
+                       placeholder="Ex: 1"
+                       readonly>
+            </div>
+            <!-- Nome -->
+            <div class="form-group">
+                <label for="nome">Nome da Finalidade:</label>
+                <input type="text"
+                       class="form-control"
+                       id="nome"
+                       name="nome"
+                       maxlength="50"
+                       required
+                       value="{{ finalidade.nome }}"
+                       placeholder="Ex: Graduação, Curso, NAPTI"
+                       disabled>
+            </div>
+            <!-- Ativo -->
+            <div class="form-group">
+                <label for="ativo">Status:</label>
+                <select class="form-control" id="ativo" name="ativo" required disabled>
+                    <option value="1" {% if finalidade.ativo %}selected{% endif %}>Ativo</option>
+                    <option value="0" {% if not finalidade.ativo %}selected{% endif %}>Inativo</option>
+                </select>
+            </div>
+            <!-- Descrição -->
+            <div class="form-group">
+                <label for="descricao">Descrição:</label>
+                <textarea class="form-control"
+                          id="descricao"
+                          name="descricao"
+                          rows="3"
+                          placeholder="Descrição opcional da finalidade"
+                          disabled>{{ finalidade.descricao|format(1) }}</textarea>
+            </div>
+            <!-- Config JSON -->
+            <div class="form-group">
+                <label for="config">Configuração (JSON):</label>
+                <textarea class="form-control" id="config" name="config" rows="4" placeholder='Ex: {"template": "%responsavel_auto em %local (%aula)"}' disabled>{{ finalidade.config|format(1) }}
+</textarea>
+                <p class="help-block">
+                    Use JSON válido. Exemplo:
+                    <code>{"template": "%responsavel_auto - %descricao"}</code>
+                    <br>
+                    Placeholders disponíveis:
+                    <code>%responsavel</code>,
+                    <code>%responsavel_especial</code>,
+                    <code>%responsavel_auto</code>,
+                    <code>%local</code>,
+                    <code>%aula</code>,
+                    <code>%descricao</code>,
+                    <code>%observacoes</code>
+                </p>
+            </div>
+            {{ action_buttons(acao, 2, True, 0, False) }}
+        </form>
+    {% endif %}
+{% endblock excluir %}
