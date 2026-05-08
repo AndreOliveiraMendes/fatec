@@ -36,6 +36,7 @@ def editar_reserva_generico(model, id_reserva: int, redirect_url: str) -> Respon
     old_data = copy(reserva)
     if model in [Reservas_Fixas, Reservas_Temporarias]:
         observacao = none_if_empty(request.form.get('observacao'))
+        descricao = none_if_empty(request.form.get('descricao'))
         finalidade_reserva = request.form.get('finalidade_reserva', type=int)
         responsavel = none_if_empty(request.form.get('responsavel'))
         responsavel_especial = none_if_empty(request.form.get('responsavel_especial'))
@@ -44,6 +45,7 @@ def editar_reserva_generico(model, id_reserva: int, redirect_url: str) -> Respon
             responsavel_especial = reserva.id_responsavel_especial
         try:
             reserva.observacoes = observacao
+            reserva.descricao = descricao
             reserva.id_finalidade_reserva = finalidade_reserva
             reserva.id_responsavel = responsavel
             reserva.id_responsavel_especial = responsavel_especial

@@ -176,6 +176,13 @@
                 id: 'observacao'
             },
 
+            descricao: {
+                label: 'Descrição',
+                type: 'text',
+                name: 'descricao',
+                id: 'descricao'
+            },
+
             idfinalidadereserva: {
                 label: 'Finalidade',
                 type: 'select',
@@ -199,7 +206,7 @@
 
                 responsavel_especial: {
                     id: 'modal_responsavel_especial',
-                    name: 'responsavel_especial', // ⚠️ aqui tava errado no seu código
+                    name: 'responsavel_especial',
                     label: 'Responsável Especial',
                     type: 'select2_ajax',
                     url: {{ ajax_link('usuarios_especiais') }},
@@ -211,8 +218,8 @@
 
         fieldGroups = {
             detalhes: ['local', 'semana', 'semestre', 'horario'],
-            obs: ['observacao'],
-            edit: ['idfinalidadereserva', 'observacao']
+            obs: ['observacao', 'descricao'],
+            edit: ['idfinalidadereserva', 'observacao', 'descricao']
         };
 
         {% if user and user.perm|has_flag(ADMIN) %}
