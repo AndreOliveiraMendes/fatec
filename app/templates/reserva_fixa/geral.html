@@ -79,7 +79,7 @@
                 </tbody>
             </table>
         </div>
-        {{ gerar_select("finalidade_reserva", "Destinação da Reserva", finalidade_reserva, "id_finalidade", "nome", "id_finalidade_reserva") }}
+        {{ gerar_select("finalidade_reserva", "Destinação da Reserva", finalidade_reserva, "id_finalidade", "nome", "id_finalidade_reserva", use_config=True) }}
         <div class="form-group">
             <label for="observacoes">Observações:</label>
             <textarea id="observacoes"
@@ -154,228 +154,208 @@
 {% block extra_script %}
     <script>{{ adjust_head_fix() }}</script>
     <script>
-    document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", () => {
 
-        // =====================================================
-        // CONFIGURAÇÕES INICIAIS
-        // =====================================================
+            // =====================================================
+            // CONFIG
+            // =====================================================
 
-        const idResponsavelAtual = {{ user.pessoa.id_pessoa|tojson }};
-
-        const baseUrl = {{ url_for(
-            'api_reservas_laboratorio.get_reserva_indirect',
-            tipo_reserva=0,
-            dia=semestre.data_inicio,
-            id_local=0,
-            id_aula=0
-        )|tojson }};
-
-        function buildReservaUrl(localId, aulaId) {
-            return baseUrl.replace('/0/0', `/${localId}/${aulaId}`);
-        }
-
-        // =====================================================
-        // CONTROLE DO CAMPO DESCRIÇÃO
-        // =====================================================
-
-        function atualizarCampoDescricao() {
-            const select = document.getElementById('finalidade_reserva');
+            const selectFinalidade = document.getElementById('finalidade_reserva');
             const descricao = document.getElementById('descricao');
-            const wrapper = descricao.parentElement;
-            const selectedOption = select.options[select.selectedIndex];
-            const config = selectedOption.dataset.config ? JSON.parse(selectedOption.dataset.config) : {};
-            if (config.use_description) {
-                descricao.disabled = false;
-                wrapper.style.display = 'block';
-            } else {
-                descricao.disabled = true;
-                wrapper.style.display = 'none';
+            const descricaoWrapper = descricao?.parentElement;
+
+            const configsScript = document.getElementById('finalidade_reserva-configs');
+            const configs = configsScript ? JSON.parse(configsScript.textContent) : {};
+
+            const idResponsavelAtual = {{ user.pessoa.id_pessoa|tojson }};
+
+            const baseUrl = {{ url_for(
+                'api_reservas_laboratorio.get_reserva_indirect',
+                tipo_reserva=0,
+                dia=semestre.data_inicio,
+                id_local=0,
+                id_aula=0
+            )|tojson }};
+
+            const buildReservaUrl = (localId, aulaId) =>
+                baseUrl.replace('/0/0', `/${localId}/${aulaId}`);
+
+            // =====================================================
+            // FINALIDADE → DESCRIÇÃO
+            // =====================================================
+
+            function toggleDescricao() {
+                if (!selectFinalidade || !descricao) return;
+
+                const config = configs[selectFinalidade.value] || {};
+                const ativo = config.use_description;
+
+                descricao.disabled = !ativo;
+                descricaoWrapper.style.display = ativo ? 'block' : 'none';
             }
-        }
 
-        document
-            .getElementById('finalidade_reserva')
-            .addEventListener('change', atualizarCampoDescricao);
-
-        atualizarCampoDescricao();
+            selectFinalidade?.addEventListener('change', toggleDescricao);
+            toggleDescricao();
 
 
-        // =====================================================
-        // BLOQUEIO POR HORÁRIO (RESPONSÁVEL)
-        // =====================================================
+            // =====================================================
+            // BLOQUEIO POR HORÁRIO
+            // =====================================================
 
-        {% if not user or not user.perm|has_flag(ADMIN) %}
-        function aplicarBloqueioPorHorario() {
+            {% if not user or not user.perm|has_flag(ADMIN) %}
+            function aplicarBloqueioPorHorario() {
 
-            // limpa bloqueios antigos
-            document.querySelectorAll('.tabela-reserva td[data-aula]').forEach(td => {
-                td.classList.remove("td-conflito-horario");
+                const horariosOcupados = new Set();
 
-                const checkbox = td.querySelector('input[type="checkbox"]');
-                if (checkbox){
-                    checkbox.disabled = false;
-                    checkbox.checked = false;
-                }
-            });
+                document.querySelectorAll('td[data-id-responsavel]').forEach(td => {
+                    if (String(td.dataset.idResponsavel) === String(idResponsavelAtual)) {
+                        horariosOcupados.add(td.dataset.aula);
+                    }
+                });
 
-            const horariosOcupados = new Set();
+                document.querySelectorAll('.tabela-reserva td[data-aula]').forEach(td => {
 
-            document.querySelectorAll('td[data-id-responsavel]').forEach(td => {
-                if (String(td.dataset.idResponsavel) === String(idResponsavelAtual)) {
-                    horariosOcupados.add(td.dataset.aula);
-                }
-            });
+                    const checkbox = td.querySelector('input[type="checkbox"]');
 
-            horariosOcupados.forEach(aulaId => {
-                document.querySelectorAll(`td[data-aula="${aulaId}"]`)
-                    .forEach(td => {
+                    td.classList.remove("td-conflito-horario");
 
-                        const checkbox = td.querySelector('input[type="checkbox"]');
-                        if (checkbox){
+                    if (checkbox) {
+                        checkbox.disabled = false;
+                        checkbox.checked = false;
+                    }
+
+                    if (horariosOcupados.has(td.dataset.aula)) {
+
+                        if (checkbox) {
                             checkbox.disabled = true;
-                            checkbox.checked = false;
                         }
 
                         td.classList.add("td-conflito-horario");
-                    });
-            });
-        }
-        {% endif %}
+                    }
+                });
+            }
+            {% endif %}
 
 
-        // =====================================================
-        // ATUALIZAÇÃO DAS RESERVAS (AJAX)
-        // =====================================================
+            // =====================================================
+            // ATUALIZAÇÃO DE RESERVAS
+            // =====================================================
 
-        async function atualizarReservas() {
+            async function atualizarReservas() {
 
-            const tds = document.querySelectorAll('.tabela-reserva td[data-aula]');
+                const tds = document.querySelectorAll('.tabela-reserva td[data-aula]');
 
-            for (const td of tds) {
+                for (const td of tds) {
 
-                const localId = td.dataset.local;
-                const aulaId = td.dataset.aula;
-                const url = buildReservaUrl(localId, aulaId);
+                    const { local, aula } = td.dataset;
 
-                try {
-                    const response = await fetch(url);
-                    if (!response.ok) throw new Error(response.status);
+                    try {
+                        const response = await fetch(buildReservaUrl(local, aula));
+                        if (!response.ok) throw new Error(response.status);
 
-                    const data = await response.json();
-
-                    if (data.reservado) {
-
-                        td.classList.add('reservado');
-                        td.classList.remove('livre');
-
-                        td.dataset.idReserva = data.id_reserva;
-                        td.dataset.idResponsavel = data.id_responsavel;
+                        const data = await response.json();
 
                         const checkbox = td.querySelector('input');
-                        if (checkbox) checkbox.remove();
 
-                        const firstName = data.responsavel?.split(' ')[0] || 'Reservado';
-                        td.textContent = firstName;
-                        td.title = data.responsavel || '';
+                        if (data.reservado) {
 
-                    } else {
+                            td.classList.add('reservado');
+                            td.classList.remove('livre');
 
-                        td.classList.remove('reservado');
-                        td.classList.add('livre');
+                            td.dataset.idReserva = data.id_reserva;
+                            td.dataset.idResponsavel = data.id_responsavel;
 
-                        td.dataset.idReserva = '';
-                        td.dataset.idResponsavel = '';
-                        td.title = '';
+                            checkbox?.remove();
 
-                        if (!td.querySelector('input')) {
-                            td.innerHTML =
-                                `<input type="checkbox" class="form-check-input" name="reserva[${localId},${aulaId}]">`;
+                            const nome = data.responsavel?.split(' ')[0] || 'Reservado';
+                            td.textContent = nome;
+                            td.title = data.responsavel || '';
+
+                        } else {
+
+                            td.classList.remove('reservado');
+                            td.classList.add('livre');
+
+                            td.dataset.idReserva = '';
+                            td.dataset.idResponsavel = '';
+                            td.title = '';
+
+                            if (!checkbox) {
+                                td.innerHTML =
+                                    `<input type="checkbox" class="form-check-input" name="reserva[${local},${aula}]">`;
+                            }
                         }
-                    }
 
-                } catch (err) {
-                    console.error(
-                        `Erro ao verificar reserva (${localId}, ${aulaId}):`,
-                        err
-                    );
+                    } catch (err) {
+                        console.error(`Erro (${local}, ${aula}):`, err);
+                    }
                 }
+
+                {% if not user or not user.perm|has_flag(ADMIN) %}
+                aplicarBloqueioPorHorario();
+                {% endif %}
             }
 
-            // aplica bloqueio depois de atualizar tudo
+            atualizarReservas();
+            setInterval(atualizarReservas, 60000);
+
+
+            // =====================================================
+            // BLOQUEIO POR CHECKBOX (AULA)
+            // =====================================================
+
             {% if not user or not user.perm|has_flag(ADMIN) %}
-            aplicarBloqueioPorHorario();
-            {% endif %}
-        }
+            document.addEventListener("change", (e) => {
 
-        atualizarReservas();
-        setInterval(atualizarReservas, 60000);
+                const checkbox = e.target.closest('td[data-aula] input');
+                if (!checkbox) return;
 
+                const tdAtual = checkbox.closest("td");
+                const { aula, local } = tdAtual.dataset;
 
-        // =====================================================
-        // BLOQUEIO POR AULA (checkbox manual)
-        // =====================================================
+                document.querySelectorAll(`td[data-aula="${aula}"]`).forEach(td => {
 
-        {% if not user or not user.perm|has_flag(ADMIN) %}
-        document.addEventListener("change", function (e) {
-
-            const checkbox = e.target.closest('td[data-aula] input[type="checkbox"]');
-            if (!checkbox) return;
-
-            const tdAtual = checkbox.closest("td");
-            const aulaAtual = tdAtual.dataset.aula;
-            const localAtual = tdAtual.dataset.local;
-
-            document
-                .querySelectorAll(`td[data-aula="${aulaAtual}"]`)
-                .forEach(td => {
-
-                    const input = td.querySelector('input[type="checkbox"]');
+                    const input = td.querySelector('input');
                     if (!input) return;
 
-                    if (td.dataset.local !== localAtual) {
+                    if (td.dataset.local !== local) {
                         input.disabled = checkbox.checked;
                         td.classList.toggle("td-bloqueado", checkbox.checked);
                     }
                 });
+            });
+            {% endif %}
+
+
+            // =====================================================
+            // ADMIN
+            // =====================================================
+
+            {% if user and user.perm|has_flag(ADMIN) %}
+            document.addEventListener("click", (e) => {
+
+                const td = e.target.closest("td.reservado");
+                if (!td) return;
+
+                const id = td.dataset.idReserva;
+                const alt = e.altKey;
+
+                const urlInfo = {{ url_for('api_reservas_laboratorio.get_reserva_info', tipo_reserva=0, id_reserva='0')|tojson }};
+                const urlDelete = {{ url_for('api_reservas_laboratorio.delete_reserva', tipo_reserva=0, id_reserva='0')|tojson }};
+                const urlEdit = {{ url_for('api_reservas_laboratorio.update_reserva', tipo_reserva=0, id_reserva='0')|tojson }};
+
+                fetch(urlInfo.replace(/0$/, id))
+                    .then(r => r.json())
+                    .then(data => {
+                        alt
+                            ? DeleteData(data, urlDelete.replace(/0$/, id))
+                            : openReservaModal(data, urlEdit.replace(/0$/, id));
+                    })
+                    .catch(err => alert("Erro: " + err));
+            });
+            {% endif %}
+
         });
-        {% endif %}
-
-
-        // =====================================================
-        // ADMIN - MODAL RESERVA
-        // =====================================================
-
-        {% if user and user.perm|has_flag(ADMIN) %}
-
-        document.addEventListener("click", function (e) {
-
-            const td = e.target.closest("td.reservado");
-            if (!td) return;
-
-            const altPressed = e.altKey;
-            const id = td.dataset.idReserva;
-
-            const urlInfo = {{ url_for('api_reservas_laboratorio.get_reserva_info', tipo_reserva=0, id_reserva='0')|tojson }};
-            const urlDelete = {{ url_for('api_reservas_laboratorio.delete_reserva', tipo_reserva=0, id_reserva='0')|tojson }};
-            const urlEdit = {{ url_for('api_reservas_laboratorio.update_reserva', tipo_reserva=0, id_reserva='0')|tojson }};
-
-            fetch(urlInfo.replace(/0$/, id))
-                .then(r => r.json())
-                .then(data => {
-                    if (altPressed) {
-                        DeleteData(data, urlDelete.replace(/0$/, id));
-                    } else {
-                        openReservaModal(data, urlEdit.replace(/0$/, id));
-                    }
-                })
-                .catch(err =>
-                    alert("Erro ao carregar reserva: " + err)
-                );
-        });
-
-        {% endif %}
-
-    });
     </script>
     {% if user and user.perm|has_flag(ADMIN) %}
         <script>
@@ -390,29 +370,21 @@
             {{ select2_ajax_script('id_responsavel_especial', 'usuarios_especiais') }}
         </script>
     {% endif %}
-    <!-- filtro tabela -->
+    <!-- filtro -->
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", () => {
 
-            const filtroInput = document.getElementById('filtroHorario');
-            const tabela = document.querySelector('.tabela-reserva tbody');
+            const input = document.getElementById('filtroHorario');
+            const rows = document.querySelectorAll('.tabela-reserva tbody tr');
 
-            filtroInput.addEventListener('input', function () {
-                const termo = filtroInput.value.toLowerCase();
+            input?.addEventListener('input', () => {
+                const termo = input.value.toLowerCase();
 
-                tabela.querySelectorAll('tr').forEach(tr => {
-                    const horarioTd = tr.querySelector('td.col-fixa');
-                    if (!horarioTd) return;
-
-                    const texto = horarioTd.textContent.toLowerCase();
-                    if (texto.includes(termo)) {
-                        tr.style.display = '';
-                    } else {
-                        tr.style.display = 'none';
-                    }
+                rows.forEach(tr => {
+                    const texto = tr.querySelector('td.col-fixa')?.textContent.toLowerCase() || '';
+                    tr.style.display = texto.includes(termo) ? '' : 'none';
                 });
             });
-
         });
     </script>
 {% endblock extra_script %}
