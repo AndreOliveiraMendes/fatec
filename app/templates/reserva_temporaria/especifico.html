@@ -100,14 +100,13 @@
     <script>{{ adjust_head_fix() }}</script>
     <!-- Script para mostrar/ocultar campo de descrição baseado na finalidade da reserva -->
     <script>
-    // TODO: better handling
     document.getElementById('finalidade_reserva').addEventListener('change', function() {
         var descricao = document.getElementById('descricao');
         var descricaoWrapper = descricao.parentElement;
         const selectedOption = this.options[this.selectedIndex];
-        const nome = selectedOption.getAttribute('data-nome');
+        const config = selectedOption.dataset.config ? JSON.parse(selectedOption.dataset.config) : {};
 
-        if(nome == 'curso'){
+        if(config.use_description){
             descricao.disabled = false;
             descricaoWrapper.style.display = 'block';
         } else {

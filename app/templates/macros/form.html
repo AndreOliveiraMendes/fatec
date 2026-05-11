@@ -31,10 +31,9 @@
             <option value="" {% if not optional %}disabled selected hidden{% endif %}>{{ placeholder }}</option>
             {% for t in table %}
                 <option value="{{ t[table_id] }}"
-                        {# TODO: better handling #}
-                        data-nome="{{ t[table_label] | safe | lower }}"
+                        data-config='{{ (t["config"] or {}) | tojson | safe }}'
                         {% if selected and t[table_id] == selected %}selected{% endif %}>
-                    ({{ t[table_id] }}) {{ t[table_label] | safe }}
+                    ({{ t[table_id] }}) {{ t[table_label] }}
                 </option>
             {% endfor %}
         </select>

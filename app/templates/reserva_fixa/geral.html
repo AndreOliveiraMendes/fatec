@@ -178,15 +178,13 @@
         // CONTROLE DO CAMPO DESCRIÇÃO
         // =====================================================
 
-        // TODO: better handling
         function atualizarCampoDescricao() {
             const select = document.getElementById('finalidade_reserva');
             const descricao = document.getElementById('descricao');
             const wrapper = descricao.parentElement;
             const selectedOption = select.options[select.selectedIndex];
-            const nome = selectedOption.getAttribute('data-nome');
-
-            if (nome === 'curso') {
+            const config = selectedOption.dataset.config ? JSON.parse(selectedOption.dataset.config) : {};
+            if (config.use_description) {
                 descricao.disabled = false;
                 wrapper.style.display = 'block';
             } else {
