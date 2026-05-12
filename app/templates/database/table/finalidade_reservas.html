@@ -30,6 +30,20 @@
         </td>
     {% endcall %}
 {% endmacro %}
+{% macro config_legend() %}
+    <p class="help-block">
+        Use JSON válido. Exemplo:
+        <code>{"template": "{ra} - {de}"}</code>
+        <br>
+        Placeholders disponíveis:
+        <code>{rn} responsavel</code>,
+        <code>{re} responsavel especial</code>,
+        <code>{ra} responsavel (auto)</code>,
+        <code>{lo} local</code>,
+        <code>{de} descrição</code>,
+        <code>{ob} observação</code>,
+    </p>
+{% endmacro %}
 {% block extra_script %}
     {% if acao in ['listar', 'procurar'] %}
         <script>
@@ -123,20 +137,34 @@
                     </td>
                     <td>JSON</td>
                     <td>
-                        Campo para configuração dinâmica da finalidade.
-                        Pode ser utilizado para definir comportamento da interface
-                        ou regras específicas sem necessidade de alterar o código.
+                        Define o comportamento dinâmico da finalidade.
+                        Permite controlar exibição de campos, formatação de texto
+                        e regras de interface sem necessidade de alterar o código.
                     </td>
                     <td>
+                        <strong>Estrutura:</strong>
+                        <pre><code>{
+    "template": "{rn} - {lo}",
+    "show_status": true,
+    "use_description": true
+}</code></pre>
+                        <strong>Campos:</strong>
                         <ul class="valores_possiveis_format">
                             <li>
-                                <code>{"template": "%responsavel_auto em %local (%aula)"}</code>
+                                <code>template</code>:
+                                Define o texto exibido utilizando placeholders.
+                                <br>
+                                Disponíveis: <code>{rn}</code>, <code>{ra}</code>, <code>{lo}</code>,
+                                <code>{au}</code>, <code>{de}</code>, <code>{ob}</code>,
+                                <code>{tp}</code>, <code>{pe}</code>
                             </li>
                             <li>
-                                <code>{"template": "%responsavel_auto - %descricao"}</code>
+                                <code>show_status</code>:
+                                Exibe o indicador visual de status da reserva.
                             </li>
                             <li>
-                                <code>{"template": "%local | %aula | %observacoes"}</code>
+                                <code>use_description</code>:
+                                Habilita o campo de descrição no formulário.
                             </li>
                         </ul>
                     </td>
@@ -276,21 +304,12 @@
         <!-- Config JSON -->
         <div class="form-group">
             <label for="config">Configuração (JSON):</label>
-            <textarea class="form-control" id="config" name="config" rows="4" placeholder='Ex: {"template": "%responsavel_auto em %local (%aula)"}'>
-</textarea>
-            <p class="help-block">
-                Use JSON válido. Exemplo:
-                <code>{"template": "%responsavel_auto - %descricao"}</code>
-                <br>
-                Placeholders disponíveis:
-                <code>%responsavel</code>,
-                <code>%responsavel_especial</code>,
-                <code>%responsavel_auto</code>,
-                <code>%local</code>,
-                <code>%aula</code>,
-                <code>%descricao</code>,
-                <code>%observacoes</code>
-            </p>
+            <textarea class="form-control"
+                      id="config"
+                      name="config"
+                      rows="4"
+                      placeholder='Ex: {"template": ..., "show_status": ..., "use_description": ...}'></textarea>
+            {{ config_legend() }}
         </div>
         {{ action_buttons(acao, 1, False, 0) }}
     </form>
@@ -355,21 +374,9 @@
             <!-- Config JSON -->
             <div class="form-group">
                 <label for="config">Configuração (JSON):</label>
-                <textarea class="form-control" id="config" name="config" rows="4" placeholder='Ex: {"template": "%responsavel_auto em %local (%aula)"}'>{{ finalidade.config|format(1) }}
+                <textarea class="form-control" id="config" name="config" rows="4" placeholder='Ex: {"template": ..., "show_status": ..., "use_description": ...}'>{{ finalidade.config|format(2) }}
 </textarea>
-                <p class="help-block">
-                    Use JSON válido. Exemplo:
-                    <code>{"template": "%responsavel_auto - %descricao"}</code>
-                    <br>
-                    Placeholders disponíveis:
-                    <code>%responsavel</code>,
-                    <code>%responsavel_especial</code>,
-                    <code>%responsavel_auto</code>,
-                    <code>%local</code>,
-                    <code>%aula</code>,
-                    <code>%descricao</code>,
-                    <code>%observacoes</code>
-                </p>
+                {{ config_legend() }}
             </div>
             {{ action_buttons(acao, 2, True, 0) }}
         </form>
@@ -437,21 +444,9 @@
             <!-- Config JSON -->
             <div class="form-group">
                 <label for="config">Configuração (JSON):</label>
-                <textarea class="form-control" id="config" name="config" rows="4" placeholder='Ex: {"template": "%responsavel_auto em %local (%aula)"}' disabled>{{ finalidade.config|format(1) }}
+                <textarea class="form-control" id="config" name="config" rows="4" placeholder='Ex: {"template": ..., "show_status": ..., "use_description": ...}' disabled>{{ finalidade.config|format(2) }}
 </textarea>
-                <p class="help-block">
-                    Use JSON válido. Exemplo:
-                    <code>{"template": "%responsavel_auto - %descricao"}</code>
-                    <br>
-                    Placeholders disponíveis:
-                    <code>%responsavel</code>,
-                    <code>%responsavel_especial</code>,
-                    <code>%responsavel_auto</code>,
-                    <code>%local</code>,
-                    <code>%aula</code>,
-                    <code>%descricao</code>,
-                    <code>%observacoes</code>
-                </p>
+                {{ config_legend() }}
             </div>
             {{ action_buttons(acao, 2, True, 0, False) }}
         </form>
