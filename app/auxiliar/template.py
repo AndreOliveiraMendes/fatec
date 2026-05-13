@@ -2,7 +2,7 @@ import re
 from datetime import datetime
 from typing import List, Literal, Optional, Sequence, Tuple
 
-from flask import Flask, abort, current_app, session, url_for
+from flask import Flask, abort, current_app, json, session, url_for
 from markupsafe import Markup
 
 from app.auxiliar.constant import (APP_TITLE, DATA_FLAGS, PERMISSIONS,
@@ -356,7 +356,10 @@ def register_template_utils(app:Flask):
 
     @app.template_filter('format')
     def format(value, option=0):
-        return value if value else ('-' if option == 0 else '')
+        if option == 0 or option == 1:
+            return value if value else ('-' if option == 0 else '')
+        else:
+            return json.dumps(value) if value else ''
     
     
     @app.template_filter('hora')

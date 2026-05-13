@@ -46,8 +46,8 @@ def get_responsavel_reserva(
                 nome_especial = f"({nome_especial})"
             title_parts.append(nome_especial)
 
-    if modo_template and reserva.finalidade_reserva.nome.lower() == 'uso dos alunos':
-        title_parts.append("uso acadêmico")
+    if modo_template and not title_parts:
+        title_parts.append("reservado")
 
     return " ".join(title_parts)
 

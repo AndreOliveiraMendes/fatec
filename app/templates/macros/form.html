@@ -20,7 +20,7 @@
         {% endif %}
     </div>
 {% endmacro %}
-{% macro gerar_select(id, label, table, table_id, table_label, table_id_name=None, optional=False, placeholder='Selecione uma opção...', selected = None, extra = None) %}
+{% macro gerar_select(id, label, table, table_id, table_label, table_id_name=None, optional=False, placeholder='Selecione uma opção...', selected = None, extra = None, use_config=False) %}
     <div class="form-group">
         <label for="{{ id }}">{{ label }}</label>
         <select class="form-control"
@@ -31,14 +31,21 @@
             <option value="" {% if not optional %}disabled selected hidden{% endif %}>{{ placeholder }}</option>
             {% for t in table %}
                 <option value="{{ t[table_id] }}"
-                        {# TODO: better handling #}
-                        data-nome="{{ t[table_label] | safe | lower }}"
                         {% if selected and t[table_id] == selected %}selected{% endif %}>
-                    ({{ t[table_id] }}) {{ t[table_label] | safe }}
+                    ({{ t[table_id] }}) {{ t[table_label] }}
                 </option>
             {% endfor %}
         </select>
     </div>
+    {% if use_config %}
+        <script id="{{ id }}-configs" type="application/json">
+            {
+                {% for t in table %}
+                    "{{ t[table_id] }}": {{ (t["config"] or {}) | tojson }}{% if not loop.last %},{% endif %}
+                {% endfor %}
+            }
+        </script>
+    {% endif %}
 {% endmacro %}
 {% macro action_buttons(acao='salvar', bloco_submit='1', show_voltar=True, bloco_voltar='0', show_reset=True, show_submit=True, label='bloco') %}
     <div class="form-group btn-group text-center mt-3">

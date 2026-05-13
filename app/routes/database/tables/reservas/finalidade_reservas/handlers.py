@@ -3,7 +3,7 @@ from copy import copy
 
 from flask import flash, g, request
 from flask_sqlalchemy.pagination import SelectPagination
-from sqlalchemy import func, select
+from sqlalchemy import select
 
 from app.auxiliar.general import none_if_empty
 from app.auxiliar.navigation import register_return
@@ -16,6 +16,67 @@ from app.routes_helper.request import get_query_params
 from config.general import PER_PAGE, str_to_bool
 
 dispatcher = {}
+ALLOWED_KEYS = {"template", "show_status", "use_description"}
+
+def validate_config(config):
+    if config is None:
+        return True, None
+
+    if not isinstance(config, dict):
+        return False, "Config deve ser um objeto JSON"
+
+    clean = {}
+
+    for k, v in config.items():
+        if k not in ALLOWED_KEYS:
+            return False, f"Chave inválida: {k}"
+
+        if k == "template":
+            if not isinstance(v, str):
+                return False, "template deve ser string"
+            clean[k] = v
+
+        elif k in ("show_status", "use_description"):
+            if not isinstance(v, bool):
+                return False, f"{k} deve ser boolean"
+            clean[k] = v
+
+    return True, clean
+
+def build_config_from_form(request):
+    config = {}
+
+    template = request.form.get("config_template")
+    show_status = str_to_bool(request.form.get("config_show_status"))
+    use_description = str_to_bool(request.form.get("config_use_description"))
+
+    if template:
+        config["template"] = template
+
+    if show_status is not None:
+        config["show_status"] = show_status
+
+    if use_description is not None:
+        config["use_description"] = use_description
+
+    # override por JSON bruto
+    raw = request.form.get("config_raw")
+    erro = ""
+
+    if raw:
+        try:
+            config = json.loads(raw)
+        except json.JSONDecodeError as e:
+            erro = f"JSON inválido: {e}"
+            config = None
+
+    if not erro:
+        valid, config = validate_config(config)
+
+    if not valid:
+        erro = config
+
+    return config, erro
 
 @register_handler(dispatcher, 'listar', 0)
 def listar_handler():
@@ -34,6 +95,8 @@ def search_handler():
     ativo = none_if_empty(request.form.get('ativo'), str_to_bool)
     descricao = none_if_empty(request.form.get('descricao'))
     template = none_if_empty(request.form.get('config_template'))
+    use_description = none_if_empty(request.form.get('config_use_description'), str_to_bool)
+    show_status = none_if_empty(request.form.get('config_show_status'), str_to_bool)
 
     filters = []
     query_params = get_query_params(request)
@@ -42,15 +105,20 @@ def search_handler():
     if nome:
         filters.append(Finalidade_Reserva.nome.ilike(f"%{nome}%"))
     if ativo is not None:
-        print(request.form.get('ativo'), bool(ativo))
         filters.append(Finalidade_Reserva.ativo == ativo)
     if descricao:
         filters.append(Finalidade_Reserva.descricao.ilike(f"%{descricao}%"))
     if template:
         filters.append(
-            func.JSON_UNQUOTE(
-                func.JSON_EXTRACT(Finalidade_Reserva.config, '$.template')
-            ).ilike(f"%{template}%")
+            Finalidade_Reserva.config["template"].as_string().ilike(f"%{template}%")
+        )
+    if use_description is not None:
+        filters.append(
+            Finalidade_Reserva.config["use_description"].as_boolean() == use_description
+        )
+    if show_status is not None:
+        filters.append(
+            Finalidade_Reserva.config["show_status"].as_boolean() == show_status
         )
     if filters:
         sel_finalidades = select(Finalidade_Reserva).where(*filters)
@@ -70,17 +138,11 @@ def insert_push():
     nome = none_if_empty(request.form.get("nome"))
     ativo = none_if_empty(request.form.get("ativo"), bool)
     descricao = none_if_empty(request.form.get("descricao"))
-    config_str = none_if_empty(request.form.get("config"))
-    config = None
-    valid = True
-    if config_str:
-        try:
-            config = json.loads(config_str)
-        except json.JSONDecodeError as e:
-            valid = False
-            flash(f"JSON inválido: {str(e)}", "danger")
+    config, error = build_config_from_form(request)
             
-    if valid:
+    if error:
+        flash(error, "danger")
+    else:
         nova_finalidade = Finalidade_Reserva(
             nome = nome,
             ativo = ativo,
@@ -94,8 +156,6 @@ def insert_push():
             "Erro ao cadastrar finalidade",
             obj=nova_finalidade
         )
-    else:
-        flash("JSON inválido. Verifique a formatação e tente novamente.", "danger")
 
     g.redirect_action, g.bloco = register_return(
         g.url, g.acao, g.extras
@@ -120,16 +180,10 @@ def edit_push():
     nome = none_if_empty(request.form.get("nome"))
     ativo = none_if_empty(request.form.get("ativo"), bool)
     descricao = none_if_empty(request.form.get("descricao"))
-    config_str = none_if_empty(request.form.get("config"))
-    config = None
-    valid = True
-    if config_str:
-        try:
-            config = json.loads(config_str)
-        except json.JSONDecodeError as e:
-            valid = False
-            flash(f"JSON inválido: {str(e)}", "danger")
-    if valid:
+    config, error = build_config_from_form(request)
+    if error:
+        flash(error, "danger")
+    else:
         finalidade = db.get_or_404(Finalidade_Reserva, id_finalidade)
         dados_anteriores = copy(finalidade)
 
@@ -147,9 +201,6 @@ def edit_push():
             old_obj=dados_anteriores,
             action=update
         )
-
-    else:
-        flash("JSON inválido. Verifique a formatação e tente novamente.", "danger")
 
     g.redirect_action, g.bloco = register_return(
         g.url, g.acao, g.extras,

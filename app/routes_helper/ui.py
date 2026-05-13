@@ -1,12 +1,15 @@
 import os
 from datetime import datetime
 
+from flask import current_app
 from markupsafe import Markup
 
 from app.dao.internal.general import get_unique_or_500
 from app.dao.internal.reservas import get_responsavel_reserva
 from app.enums import SituacaoChaveEnum
 from app.models.controle import Situacoes_Das_Reserva
+from app.models.reservas.reservas_laboratorios import (Reservas_Fixas,
+                                                       Reservas_Temporarias)
 from config.json_related import carregar_painel_config
 from config.mapeamentos import LOG_FILE, mapa_icones_status
 
@@ -51,26 +54,66 @@ def status_reserva(lab, aula, dia, tipo, tela_televisor=False, tela = None):
             icon += f"""<i class="glyphicon { overlay } icon-contrast overlay-icon"></i>"""
         icon += "</span>"
         return Markup(icon);
+
+def get_reserva_id(reserva: Reservas_Fixas|Reservas_Temporarias):
+    return getattr(reserva, "id_reserva_fixa", None) or getattr(reserva, "id_reserva_temporaria", None)
+
+def get_periodo(reserva: Reservas_Fixas|Reservas_Temporarias):
+    if reserva.tipo_reserva_str == 'fixa':
+        return reserva.semestre.nome_semestre
+    else:
+        return f"{reserva.inicio_reserva} até {reserva.fim_reserva}"
+
+def build_template_fields(reserva: Reservas_Fixas|Reservas_Temporarias):
+    return {
+        "ra": get_responsavel_reserva(reserva),
+        "rn": (reserva.pessoa.alias or reserva.pessoa.nome_pessoa) if reserva.pessoa else "",
+        "re": reserva.usuario_especial.nome_usuario_especial if reserva.usuario_especial else "",
+        "lo": reserva.local.nome_local,
+        "au": f"{reserva.aula_ativa.aula.horario_inicio} - {reserva.aula_ativa.aula.horario_fim}",
+        "de": reserva.descricao,
+        "ob": reserva.observacoes,
+        "id": get_reserva_id(reserva),
+        "pe": get_periodo(reserva),
+        "tp": reserva.tipo_reserva_str
+    }
+
+class SafeDict(dict):
+    def __init__(self, *args, context=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._missing_keys = set()
+        self._context = context
+
+    def __missing__(self, key):
+        if key not in self._missing_keys:
+            current_app.logger.warning(
+                f"[Template] chave '{key}' não existe | contexto={self._context}"
+            )
+            self._missing_keys.add(key)
+        return ""
+
+def resolver_template(template, reserva: Reservas_Fixas|Reservas_Temporarias):
     
-def montar_partes_reserva(choose, *, mostrar_icone=False, lab=None, aula=None, dia=None, tela_televisor=False, tela=None):
+    return template.format_map(
+        SafeDict(build_template_fields(reserva), context=f"reserva_id={reserva.id_reserva_fixa if reserva.tipo_reserva_str == 'fixa' else reserva.id_reserva_temporaria}")
+    )
+    
+    
+def montar_partes_reserva(choose: Reservas_Fixas|Reservas_Temporarias, *, mostrar_icone=False, lab=None, aula=None, dia=None, tela_televisor=False, tela=None):
     if not choose:
         return ["Livre"]
+    
+    config = choose.finalidade_reserva.config
 
-    if choose.finalidade_reserva.nome.lower() == "curso":
-        
-        if choose.descricao:
-            partes = [choose.descricao]
-        else:
-            partes = ["Curso"]
+    if not config:
+        return ["Reservado", choose.selector_identification]
 
-    elif choose.finalidade_reserva.nome.lower() == "uso dos alunos":
-        partes = ["Acadêmico", "Discente", "Reservado"]
+    template = config["template"]
+    partes = [resolver_template(template, choose)]
 
-    else:
-        partes = [get_responsavel_reserva(choose)]
+    if config["show_status"] and mostrar_icone:
         tipo = choose.tipo_reserva_str
-        if mostrar_icone:
-            partes.append(status_reserva(lab, aula, dia, tipo, tela_televisor, tela))
+        partes.append(status_reserva(lab, aula, dia, tipo, tela_televisor, tela))
 
     return partes
 

@@ -30,6 +30,20 @@
         </td>
     {% endcall %}
 {% endmacro %}
+{% macro config_legend() %}
+    <p class="help-block">
+        Exemplo de JSON válido:
+        <code>{"template": "{ra} - {de}"}</code>
+        <br>
+        Placeholders disponíveis:
+        <code>{rn} responsavel</code>,
+        <code>{re} responsavel especial</code>,
+        <code>{ra} responsavel (auto)</code>,
+        <code>{lo} local</code>,
+        <code>{de} descrição</code>,
+        <code>{ob} observação</code>,
+    </p>
+{% endmacro %}
 {% block extra_script %}
     {% if acao in ['listar', 'procurar'] %}
         <script>
@@ -123,20 +137,34 @@
                     </td>
                     <td>JSON</td>
                     <td>
-                        Campo para configuração dinâmica da finalidade.
-                        Pode ser utilizado para definir comportamento da interface
-                        ou regras específicas sem necessidade de alterar o código.
+                        Define o comportamento dinâmico da finalidade.
+                        Permite controlar exibição de campos, formatação de texto
+                        e regras de interface sem necessidade de alterar o código.
                     </td>
                     <td>
+                        <strong>Estrutura:</strong>
+                        <pre><code>{
+    "template": "{rn} - {lo}",
+    "show_status": true,
+    "use_description": true
+}</code></pre>
+                        <strong>Campos:</strong>
                         <ul class="valores_possiveis_format">
                             <li>
-                                <code>{"template": "%responsavel_auto em %local (%aula)"}</code>
+                                <code>template</code>:
+                                Define o texto exibido utilizando placeholders.
+                                <br>
+                                Disponíveis: <code>{rn}</code>, <code>{ra}</code>, <code>{lo}</code>,
+                                <code>{au}</code>, <code>{de}</code>, <code>{ob}</code>,
+                                <code>{tp}</code>, <code>{pe}</code>
                             </li>
                             <li>
-                                <code>{"template": "%responsavel_auto - %descricao"}</code>
+                                <code>show_status</code>:
+                                Exibe o indicador visual de status da reserva.
                             </li>
                             <li>
-                                <code>{"template": "%local | %aula | %observacoes"}</code>
+                                <code>use_description</code>:
+                                Habilita o campo de descrição no formulário.
                             </li>
                         </ul>
                     </td>
@@ -219,23 +247,70 @@
                           rows="3"
                           placeholder="Parte da descrição..."></textarea>
             </div>
-            <!-- Config (JSON) -->
+            <!-- config -->
             <div class="form-group">
-                <label for="config_template" class="col-sm-2 control-label">Template</label>
-                <input type="text"
-                       class="form-control"
-                       id="config_template"
-                       name="config_template"
-                       placeholder="Ex: responsavel">
-                <span class="help-block">
-                    Filtra pelo campo <code>config.template</code> (busca parcial).
-                </span>
+                <label class="col-sm-2 control-label">Config</label>
+                <div class="col-sm-10">
+                    <!-- template -->
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label for="config_template">Template</label>
+                            <input type="text"
+                                   class="form-control"
+                                   id="config_template"
+                                   name="config_template"
+                                   placeholder="Ex: responsavel">
+                        </div>
+                    </div>
+                    <hr class="margin-top-10">
+                    <!-- booleanos -->
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label>show_status</label>
+                            <select class="form-control" name="config_show_status">
+                                <option value="">Todos</option>
+                                <option value="1">True</option>
+                                <option value="0">False</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-6">
+                            <label>use_description</label>
+                            <select class="form-control" name="config_use_description">
+                                <option value="">Todos</option>
+                                <option value="1">True</option>
+                                <option value="0">False</option>
+                            </select>
+                        </div>
+                    </div>
+                    <span class="help-block">
+                        Filtros aplicados em <code>config</code> (JSON):
+                        <code>template</code>,
+                        <code>show_status</code> e
+                        <code>use_description</code>.
+                    </span>
+                </div>
             </div>
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
         <h3>Resultados da busca:</h3>
         {{ result_table("Nenhum Resultado encontrado") }}
+        <div class="modal fade" id="modalConfig" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">×</button>
+                        <h4 class="modal-title">Configuração (JSON)</h4>
+                    </div>
+                    <div class="modal-body">
+                        <pre><code id="modalConfigContent" class="language-json"></code></pre>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     {% endif %}
 {% endblock procurar %}
 {% block inserir %}
@@ -273,24 +348,49 @@
                       rows="3"
                       placeholder="Descrição opcional da finalidade"></textarea>
         </div>
-        <!-- Config JSON -->
         <div class="form-group">
-            <label for="config">Configuração (JSON):</label>
-            <textarea class="form-control" id="config" name="config" rows="4" placeholder='Ex: {"template": "%responsavel_auto em %local (%aula)"}'>
-</textarea>
-            <p class="help-block">
-                Use JSON válido. Exemplo:
-                <code>{"template": "%responsavel_auto - %descricao"}</code>
-                <br>
-                Placeholders disponíveis:
-                <code>%responsavel</code>,
-                <code>%responsavel_especial</code>,
-                <code>%responsavel_auto</code>,
-                <code>%local</code>,
-                <code>%aula</code>,
-                <code>%descricao</code>,
-                <code>%observacoes</code>
-            </p>
+            <label class="col-sm-2 control-label">Config</label>
+            <div class="col-sm-10">
+                <!-- template -->
+                <div class="row">
+                    <div class="col-sm-6">
+                        <label>Template</label>
+                        <input type="text"
+                               class="form-control"
+                               name="config_template"
+                               placeholder="Ex: responsavel">
+                    </div>
+                </div>
+                <hr>
+                <!-- booleanos -->
+                <div class="row">
+                    <div class="col-sm-6">
+                        <label>show_status</label>
+                        <select class="form-control" name="config_show_status">
+                            <option value="">Não definir</option>
+                            <option value="1">True</option>
+                            <option value="0">False</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-6">
+                        <label>use_description</label>
+                        <select class="form-control" name="config_use_description">
+                            <option value="">Não definir</option>
+                            <option value="1">True</option>
+                            <option value="0">False</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- JSON bruto (opcional) -->
+                <hr>
+                <label>JSON bruto (opcional)</label>
+                <textarea class="form-control"
+                          name="config_raw"
+                          rows="3"
+                          placeholder='Sobrescreve os campos acima'></textarea>
+                <span class="help-block">Você pode usar os campos acima ou inserir JSON diretamente.</span>
+                {{ config_legend() }}
+            </div>
         </div>
         {{ action_buttons(acao, 1, False, 0) }}
     </form>
@@ -307,7 +407,7 @@
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
-        <h3>Inserir Finalidade de Reserva</h3>
+        <h3>Editar Finalidade de Reserva</h3>
         <form class="form-group"
               role="form"
               action="{{ url_for(url) }}"
@@ -354,22 +454,50 @@
             </div>
             <!-- Config JSON -->
             <div class="form-group">
-                <label for="config">Configuração (JSON):</label>
-                <textarea class="form-control" id="config" name="config" rows="4" placeholder='Ex: {"template": "%responsavel_auto em %local (%aula)"}'>{{ finalidade.config|format(1) }}
-</textarea>
-                <p class="help-block">
-                    Use JSON válido. Exemplo:
-                    <code>{"template": "%responsavel_auto - %descricao"}</code>
-                    <br>
-                    Placeholders disponíveis:
-                    <code>%responsavel</code>,
-                    <code>%responsavel_especial</code>,
-                    <code>%responsavel_auto</code>,
-                    <code>%local</code>,
-                    <code>%aula</code>,
-                    <code>%descricao</code>,
-                    <code>%observacoes</code>
-                </p>
+                <label>Config</label>
+                <!-- template -->
+                <div class="form-group">
+                    <label>Template</label>
+                    <input type="text"
+                           class="form-control"
+                           name="config_template"
+                           value="{{ finalidade.config.template if finalidade.config else '' }}">
+                </div>
+                <!-- booleanos -->
+                <div class="form-group">
+                    <label>show_status</label>
+                    <select class="form-control" name="config_show_status">
+                        <option value="">Não definir</option>
+                        <option value="1"
+                                {% if finalidade.config and finalidade.config.show_status == True %}selected{% endif %}>
+                            True
+                        </option>
+                        <option value="0"
+                                {% if finalidade.config and finalidade.config.show_status == False %}selected{% endif %}>
+                            False
+                        </option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>use_description</label>
+                    <select class="form-control" name="config_use_description">
+                        <option value="">Não definir</option>
+                        <option value="1"
+                                {% if finalidade.config and finalidade.config.use_description == True %}selected{% endif %}>
+                            True
+                        </option>
+                        <option value="0"
+                                {% if finalidade.config and finalidade.config.use_description == False %}selected{% endif %}>
+                            False
+                        </option>
+                    </select>
+                </div>
+                <!-- JSON raw -->
+                <div class="form-group">
+                    <label>JSON bruto (opcional)</label>
+                    <textarea class="form-control" name="config_raw" rows="4">{{ finalidade.config|tojson(indent=2) if finalidade.config else '' }}</textarea>
+                </div>
+                {{ config_legend() }}
             </div>
             {{ action_buttons(acao, 2, True, 0) }}
         </form>
@@ -377,7 +505,7 @@
 {% endblock editar %}
 {% block excluir %}
     {% if bloco == 0 %}
-        <h3>Editar finalidades</h3>
+        <h3>Excluir finalidades</h3>
         <form class="form-group"
               role="form"
               action="{{ url_for(url) }}"
@@ -387,7 +515,7 @@
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
-        <h3>Inserir Finalidade de Reserva</h3>
+        <h3>Excluir Finalidade de Reserva</h3>
         <form class="form-group"
               role="form"
               action="{{ url_for(url) }}"
@@ -437,21 +565,9 @@
             <!-- Config JSON -->
             <div class="form-group">
                 <label for="config">Configuração (JSON):</label>
-                <textarea class="form-control" id="config" name="config" rows="4" placeholder='Ex: {"template": "%responsavel_auto em %local (%aula)"}' disabled>{{ finalidade.config|format(1) }}
+                <textarea class="form-control" id="config" name="config" rows="4" placeholder='Ex: {"template": ..., "show_status": ..., "use_description": ...}' disabled>{{ finalidade.config|format(2) }}
 </textarea>
-                <p class="help-block">
-                    Use JSON válido. Exemplo:
-                    <code>{"template": "%responsavel_auto - %descricao"}</code>
-                    <br>
-                    Placeholders disponíveis:
-                    <code>%responsavel</code>,
-                    <code>%responsavel_especial</code>,
-                    <code>%responsavel_auto</code>,
-                    <code>%local</code>,
-                    <code>%aula</code>,
-                    <code>%descricao</code>,
-                    <code>%observacoes</code>
-                </p>
+                {{ config_legend() }}
             </div>
             {{ action_buttons(acao, 2, True, 0, False) }}
         </form>
