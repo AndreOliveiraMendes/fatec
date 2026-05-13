@@ -3,7 +3,7 @@ from copy import copy
 
 from flask import flash, g, request
 from flask_sqlalchemy.pagination import SelectPagination
-from sqlalchemy import func, select
+from sqlalchemy import select
 
 from app.auxiliar.general import none_if_empty
 from app.auxiliar.navigation import register_return
@@ -13,7 +13,7 @@ from app.extensions import db
 from app.models.reservas.reservas_laboratorios import Finalidade_Reserva
 from app.routes_helper.db_actions import db_action
 from app.routes_helper.request import get_query_params
-from config.general import PER_PAGE, str_to_bool, str_to_bool_json
+from config.general import PER_PAGE, str_to_bool
 
 dispatcher = {}
 
@@ -34,8 +34,8 @@ def search_handler():
     ativo = none_if_empty(request.form.get('ativo'), str_to_bool)
     descricao = none_if_empty(request.form.get('descricao'))
     template = none_if_empty(request.form.get('config_template'))
-    use_description = none_if_empty(request.form.get('config_use_description'), str_to_bool_json)
-    show_status = none_if_empty(request.form.get('config_show_status'), str_to_bool_json)
+    use_description = none_if_empty(request.form.get('config_use_description'), str_to_bool)
+    show_status = none_if_empty(request.form.get('config_show_status'), str_to_bool)
 
     filters = []
     query_params = get_query_params(request)
@@ -49,21 +49,15 @@ def search_handler():
         filters.append(Finalidade_Reserva.descricao.ilike(f"%{descricao}%"))
     if template:
         filters.append(
-            func.JSON_UNQUOTE(
-                func.JSON_EXTRACT(Finalidade_Reserva.config, '$.template')
-            ).ilike(f"%{template}%")
+            Finalidade_Reserva.config["template"].as_string().ilike(f"%{template}%")
         )
     if use_description is not None:
         filters.append(
-            func.JSON_UNQUOTE(
-                func.JSON_EXTRACT(Finalidade_Reserva.config, '$.use_description')
-            ) == use_description
+            Finalidade_Reserva.config["use_description"].as_boolean() == use_description
         )
     if show_status is not None:
         filters.append(
-            func.JSON_UNQUOTE(
-                func.JSON_EXTRACT(Finalidade_Reserva.config, '$.show_status')
-            ) == show_status
+            Finalidade_Reserva.config["show_status"].as_boolean() == show_status
         )
     if filters:
         sel_finalidades = select(Finalidade_Reserva).where(*filters)
