@@ -32,7 +32,7 @@
 {% endmacro %}
 {% macro config_legend() %}
     <p class="help-block">
-        Use JSON válido. Exemplo:
+        Exemplo de JSON válido:
         <code>{"template": "{ra} - {de}"}</code>
         <br>
         Placeholders disponíveis:
@@ -348,15 +348,49 @@
                       rows="3"
                       placeholder="Descrição opcional da finalidade"></textarea>
         </div>
-        <!-- Config JSON -->
         <div class="form-group">
-            <label for="config">Configuração (JSON):</label>
-            <textarea class="form-control"
-                      id="config"
-                      name="config"
-                      rows="4"
-                      placeholder='Ex: {"template": ..., "show_status": ..., "use_description": ...}'></textarea>
-            {{ config_legend() }}
+            <label class="col-sm-2 control-label">Config</label>
+            <div class="col-sm-10">
+                <!-- template -->
+                <div class="row">
+                    <div class="col-sm-6">
+                        <label>Template</label>
+                        <input type="text"
+                               class="form-control"
+                               name="config_template"
+                               placeholder="Ex: responsavel">
+                    </div>
+                </div>
+                <hr>
+                <!-- booleanos -->
+                <div class="row">
+                    <div class="col-sm-6">
+                        <label>show_status</label>
+                        <select class="form-control" name="config_show_status">
+                            <option value="">Não definir</option>
+                            <option value="1">True</option>
+                            <option value="0">False</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-6">
+                        <label>use_description</label>
+                        <select class="form-control" name="config_use_description">
+                            <option value="">Não definir</option>
+                            <option value="1">True</option>
+                            <option value="0">False</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- JSON bruto (opcional) -->
+                <hr>
+                <label>JSON bruto (opcional)</label>
+                <textarea class="form-control"
+                          name="config_raw"
+                          rows="3"
+                          placeholder='Sobrescreve os campos acima'></textarea>
+                <span class="help-block">Você pode usar os campos acima ou inserir JSON diretamente.</span>
+                {{ config_legend() }}
+            </div>
         </div>
         {{ action_buttons(acao, 1, False, 0) }}
     </form>
@@ -373,7 +407,7 @@
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
-        <h3>Inserir Finalidade de Reserva</h3>
+        <h3>Editar Finalidade de Reserva</h3>
         <form class="form-group"
               role="form"
               action="{{ url_for(url) }}"
@@ -420,9 +454,49 @@
             </div>
             <!-- Config JSON -->
             <div class="form-group">
-                <label for="config">Configuração (JSON):</label>
-                <textarea class="form-control" id="config" name="config" rows="4" placeholder='Ex: {"template": ..., "show_status": ..., "use_description": ...}'>{{ finalidade.config|format(2) }}
-</textarea>
+                <label>Config</label>
+                <!-- template -->
+                <div class="form-group">
+                    <label>Template</label>
+                    <input type="text"
+                           class="form-control"
+                           name="config_template"
+                           value="{{ finalidade.config.template if finalidade.config else '' }}">
+                </div>
+                <!-- booleanos -->
+                <div class="form-group">
+                    <label>show_status</label>
+                    <select class="form-control" name="config_show_status">
+                        <option value="">Não definir</option>
+                        <option value="1"
+                                {% if finalidade.config and finalidade.config.show_status == True %}selected{% endif %}>
+                            True
+                        </option>
+                        <option value="0"
+                                {% if finalidade.config and finalidade.config.show_status == False %}selected{% endif %}>
+                            False
+                        </option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>use_description</label>
+                    <select class="form-control" name="config_use_description">
+                        <option value="">Não definir</option>
+                        <option value="1"
+                                {% if finalidade.config and finalidade.config.use_description == True %}selected{% endif %}>
+                            True
+                        </option>
+                        <option value="0"
+                                {% if finalidade.config and finalidade.config.use_description == False %}selected{% endif %}>
+                            False
+                        </option>
+                    </select>
+                </div>
+                <!-- JSON raw -->
+                <div class="form-group">
+                    <label>JSON bruto (opcional)</label>
+                    <textarea class="form-control" name="config_raw" rows="4">{{ finalidade.config|tojson(indent=2) if finalidade.config else '' }}</textarea>
+                </div>
                 {{ config_legend() }}
             </div>
             {{ action_buttons(acao, 2, True, 0) }}
@@ -431,7 +505,7 @@
 {% endblock editar %}
 {% block excluir %}
     {% if bloco == 0 %}
-        <h3>Editar finalidades</h3>
+        <h3>Excluir finalidades</h3>
         <form class="form-group"
               role="form"
               action="{{ url_for(url) }}"
@@ -441,7 +515,7 @@
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
-        <h3>Inserir Finalidade de Reserva</h3>
+        <h3>Excluir Finalidade de Reserva</h3>
         <form class="form-group"
               role="form"
               action="{{ url_for(url) }}"
