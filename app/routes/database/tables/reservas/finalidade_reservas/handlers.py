@@ -13,7 +13,7 @@ from app.extensions import db
 from app.models.reservas.reservas_laboratorios import Finalidade_Reserva
 from app.routes_helper.db_actions import db_action
 from app.routes_helper.request import get_query_params
-from config.general import PER_PAGE, str_to_bool
+from config.general import PER_PAGE, str_to_bool, str_to_bool_json
 
 dispatcher = {}
 
@@ -34,6 +34,8 @@ def search_handler():
     ativo = none_if_empty(request.form.get('ativo'), str_to_bool)
     descricao = none_if_empty(request.form.get('descricao'))
     template = none_if_empty(request.form.get('config_template'))
+    use_description = none_if_empty(request.form.get('config_use_description'), str_to_bool_json)
+    show_status = none_if_empty(request.form.get('config_show_status'), str_to_bool_json)
 
     filters = []
     query_params = get_query_params(request)
@@ -42,7 +44,6 @@ def search_handler():
     if nome:
         filters.append(Finalidade_Reserva.nome.ilike(f"%{nome}%"))
     if ativo is not None:
-        print(request.form.get('ativo'), bool(ativo))
         filters.append(Finalidade_Reserva.ativo == ativo)
     if descricao:
         filters.append(Finalidade_Reserva.descricao.ilike(f"%{descricao}%"))
@@ -51,6 +52,18 @@ def search_handler():
             func.JSON_UNQUOTE(
                 func.JSON_EXTRACT(Finalidade_Reserva.config, '$.template')
             ).ilike(f"%{template}%")
+        )
+    if use_description is not None:
+        filters.append(
+            func.JSON_UNQUOTE(
+                func.JSON_EXTRACT(Finalidade_Reserva.config, '$.use_description')
+            ) == use_description
+        )
+    if show_status is not None:
+        filters.append(
+            func.JSON_UNQUOTE(
+                func.JSON_EXTRACT(Finalidade_Reserva.config, '$.show_status')
+            ) == show_status
         )
     if filters:
         sel_finalidades = select(Finalidade_Reserva).where(*filters)

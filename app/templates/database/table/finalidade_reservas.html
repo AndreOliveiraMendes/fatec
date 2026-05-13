@@ -247,23 +247,70 @@
                           rows="3"
                           placeholder="Parte da descrição..."></textarea>
             </div>
-            <!-- Config (JSON) -->
+            <!-- config -->
             <div class="form-group">
-                <label for="config_template" class="col-sm-2 control-label">Template</label>
-                <input type="text"
-                       class="form-control"
-                       id="config_template"
-                       name="config_template"
-                       placeholder="Ex: responsavel">
-                <span class="help-block">
-                    Filtra pelo campo <code>config.template</code> (busca parcial).
-                </span>
+                <label class="col-sm-2 control-label">Config</label>
+                <div class="col-sm-10">
+                    <!-- template -->
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label for="config_template">Template</label>
+                            <input type="text"
+                                   class="form-control"
+                                   id="config_template"
+                                   name="config_template"
+                                   placeholder="Ex: responsavel">
+                        </div>
+                    </div>
+                    <hr class="margin-top-10">
+                    <!-- booleanos -->
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <label>show_status</label>
+                            <select class="form-control" name="config_show_status">
+                                <option value="">Todos</option>
+                                <option value="1">True</option>
+                                <option value="0">False</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-6">
+                            <label>use_description</label>
+                            <select class="form-control" name="config_use_description">
+                                <option value="">Todos</option>
+                                <option value="1">True</option>
+                                <option value="0">False</option>
+                            </select>
+                        </div>
+                    </div>
+                    <span class="help-block">
+                        Filtros aplicados em <code>config</code> (JSON):
+                        <code>template</code>,
+                        <code>show_status</code> e
+                        <code>use_description</code>.
+                    </span>
+                </div>
             </div>
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
         <h3>Resultados da busca:</h3>
         {{ result_table("Nenhum Resultado encontrado") }}
+        <div class="modal fade" id="modalConfig" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">×</button>
+                        <h4 class="modal-title">Configuração (JSON)</h4>
+                    </div>
+                    <div class="modal-body">
+                        <pre><code id="modalConfigContent" class="language-json"></code></pre>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     {% endif %}
 {% endblock procurar %}
 {% block inserir %}
