@@ -135,6 +135,8 @@
             <script src="{{ url_for('static', filename='prism.js/js/prism.js') }}"></script>
             <!-- select2 -->
             <script src="{{ url_for('static', filename='select2/js/select2.min.js') }}"></script>
+            <!-- visjs.network -->
+            <script src="{{ url_for('static', filename='visjsnetwork/js/visjsnetwork.js') }}"></script>
             {% block extra_script %}
             {% endblock extra_script %}
             <script>
