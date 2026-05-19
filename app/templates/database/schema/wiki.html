@@ -3,25 +3,6 @@
 {% block title %}
     wiki - Banco de Dados
 {% endblock title %}
-{% block extra_css %}
-    <link href="https://cdn.jsdelivr.net/npm/prismjs/themes/prism-tomorrow.css"
-          rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/prismjs/plugins/line-numbers/prism-line-numbers.css"
-          rel="stylesheet" />
-{% endblock extra_css %}
-{% block extra_script %}
-    <script src="https://cdn.jsdelivr.net/npm/prismjs/prism.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/prismjs/components/prism-markdown.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/prismjs/plugins/line-numbers/prism-line-numbers.min.js"></script>
-    <script>
-        function copyToClipboard(id) {
-            var text = document.getElementById(id).innerText;
-            navigator.clipboard.writeText(text)
-                .then(() => alert("Copiado!"))
-                .catch(err => console.error("Erro ao copiar:", err));
-        }
-    </script>
-{% endblock extra_script %}
 {% block content %}
     <pre class="line-numbers" id="wikicode">
 <code class="language-markdown"># 📚 Documentação do Banco de Dados
@@ -74,5 +55,4 @@
 * ✅ Collation: utf8mb4_0900_ai_ci (or utf8mb4_general_ci for mysql 5.7)
 </code>
     </pre>
-    <button onclick="copyToClipboard('wikicode')">Copiar</button>
 {% endblock content %}
