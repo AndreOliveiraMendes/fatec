@@ -1,8 +1,8 @@
 import os
 from typing import Callable, TypeVar, overload
+import zoneinfo
 
 from dotenv import load_dotenv
-from tzlocal import get_localzone
 
 # --------------------------------------------------
 # Helpers
@@ -127,7 +127,7 @@ FLASK_PORT = env("FLASK_PORT", 5000, int)
 # Datetime
 # --------------------------------------------------
 
-LOCAL_TIMEZONE = get_localzone()
+LOCAL_TIMEZONE = zoneinfo.ZoneInfo("America/Sao_Paulo")
 FIRST_DAY_OF_WEEK = env("FIRST_DAY_OF_WEEK", "domingo")
 INDEX_START = env("INDEX_START", 0, int)
 
