@@ -46,11 +46,7 @@ def env(key, default=None, cast=None):
 # Environment loading
 # --------------------------------------------------
 
-load_dotenv(".env")
-
-ENV_MODE = env("FLASK_ENV", "dev")
-load_dotenv(f".env.{ENV_MODE}")
-
+load_dotenv()
 
 # --------------------------------------------------
 # Flask config
