@@ -127,7 +127,8 @@ FLASK_PORT = env("FLASK_PORT", 5000, int)
 # Datetime
 # --------------------------------------------------
 
-LOCAL_TIMEZONE = zoneinfo.ZoneInfo("America/Sao_Paulo")
+TIMEZONE = env("TIMEZONE", "America/Sao_Paulo")
+LOCAL_TIMEZONE = zoneinfo.ZoneInfo(TIMEZONE)
 FIRST_DAY_OF_WEEK = env("FIRST_DAY_OF_WEEK", "domingo")
 INDEX_START = env("INDEX_START", 0, int)
 
