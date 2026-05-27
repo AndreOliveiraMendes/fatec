@@ -83,14 +83,54 @@ def database():
     db_name = engine.url.database
     driver = engine.url.drivername
 
+    table_stats = {}
+
     with engine.connect() as conn:
         version = conn.exec_driver_sql("SELECT version()").scalar()
+
+        for table in tables:
+            stats = {"rows": None, "size": None}
+
+            # 🔹 Contagem de registros (funciona em qualquer banco)
+            try:
+                stats["rows"] = conn.exec_driver_sql(
+                    f"SELECT COUNT(*) FROM {table}"
+                ).scalar()
+            except Exception:
+                stats["rows"] = "?"
+
+            # 🔹 Tamanho (depende do banco)
+            try:
+                if "postgresql" in driver:
+                    stats["size"] = conn.exec_driver_sql(f"""
+                        SELECT pg_size_pretty(pg_total_relation_size('{table}'))
+                    """).scalar()
+
+                elif "mysql" in driver:
+                    stats["size"] = conn.exec_driver_sql(f"""
+                        SELECT ROUND((DATA_LENGTH + INDEX_LENGTH) / 1024 / 1024, 2)
+                        FROM information_schema.TABLES
+                        WHERE TABLE_NAME = '{table}'
+                    """).scalar()
+                    if stats["size"]:
+                        stats["size"] = f"{stats['size']} MB"
+
+                elif "sqlite" in driver:
+                    stats["size"] = "N/A"
+
+            except Exception:
+                stats["size"] = "?"
+
+            table_stats[table] = stats      
 
     extras['db_info'] = {
         "name": db_name,
         "driver": driver,
         "version": version
     }
+
+    extras["table_stats"] = table_stats
+
     return render_template("database/schema/database.html", user=user, **extras)
 
 @bp.route("/wiki")
