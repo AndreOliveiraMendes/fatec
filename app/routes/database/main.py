@@ -77,6 +77,20 @@ def database():
     extras['uks'] = {table:inspector.get_unique_constraints(table) for table in tables}
     extras['chks'] = {table:inspector.get_check_constraints(table) for table in tables}
     extras['inds'] = {table:inspector.get_indexes(table) for table in tables}
+
+    engine = db.engine
+
+    db_name = engine.url.database
+    driver = engine.url.drivername
+
+    with engine.connect() as conn:
+        version = conn.exec_driver_sql("SELECT version()").scalar()
+
+    extras['db_info'] = {
+        "name": db_name,
+        "driver": driver,
+        "version": version
+    }
     return render_template("database/schema/database.html", user=user, **extras)
 
 @bp.route("/wiki")

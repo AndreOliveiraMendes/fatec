@@ -6,6 +6,33 @@
 {% block content %}
     {{ generate_navigation_database() }}
     <h1>banco de dados:</h1>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="panel panel-info text-center">
+                <div class="panel-heading">Banco</div>
+                <div class="panel-body">
+                    <strong>{{ db_info.name }}</strong>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="panel panel-info text-center">
+                <div class="panel-heading">Driver</div>
+                <div class="panel-body">
+                    <strong>{{ db_info.driver }}</strong>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="panel panel-info text-center">
+                <div class="panel-heading">Versão</div>
+                <div class="panel-body">
+                    <small>{{ db_info.version }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <p><strong>Total de tabelas:</strong> {{ tables|length }}</p>
     <div class="table-responsive">
         <table class="table table-bordered table-striped table-hover">
             <thead>
