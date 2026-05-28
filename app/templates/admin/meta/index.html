@@ -1,0 +1,52 @@
+{% extends "base-fixed" %}
+{% block title %}
+    alt 255 / alt 0160
+{% endblock title %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <div class="panel panel-default">
+                    <div class="panel-heading text-center">
+                        <h3 class="panel-title">
+                            <span class="glyphicon glyphicon-console"></span>
+                            Área Oculta
+                        </h3>
+                    </div>
+                    <div class="panel-body text-center">
+                        <p class="text-muted">Ferramentas internas e utilitários do sistema</p>
+                        <div class="list-group margin-top-20">
+                            <a href="{{ url_for('admin_meta.sobre') }}"
+                               target="_blank"
+                               class="list-group-item">
+                                <h4 class="list-group-item-heading">
+                                    <span class="glyphicon glyphicon-info-sign"></span>
+                                    Sobre
+                                </h4>
+                                <p class="list-group-item-text">Informações gerais do sistema</p>
+                            </a>
+                            <a href="{{ url_for('admin_meta.central') }}"
+                               target="_blank"
+                               class="list-group-item">
+                                <h4 class="list-group-item-heading">
+                                    <span class="glyphicon glyphicon-refresh"></span>
+                                    Central de Atualização
+                                </h4>
+                                <p class="list-group-item-text">Gerenciar updates e versões</p>
+                            </a>
+                            <a href="{{ url_for('admin_meta.health') }}"
+                               target="_blank"
+                               class="list-group-item">
+                                <h4 class="list-group-item-heading">
+                                    <span class="glyphicon glyphicon-heart"></span>
+                                    Status do Sistema
+                                </h4>
+                                <p class="list-group-item-text">Verificar a saúde da aplicação</p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

@@ -4,12 +4,19 @@
 {% endblock title %}
 {% block content %}
     <h2>Painel de Administração</h2>
-    <p>Clique no título de uma seção para expandir e visualizar as opções disponíveis.</p>
+    <p id="secret-trigger">Clique no título de uma seção para expandir e visualizar as opções disponíveis.</p>
     <div class="panel panel-primary">
         <div class="panel-body">
             <a href="{{ url_for('default.home') }}" class="btn btn-primary">
                 <span class="glyphicon glyphicon-home"></span> Página Inicial
             </a>
+            {% if user.perm|has_flag(ADMIN) %}
+                <a href="{{ url_for('admin_meta.home') }}"
+                   id="meta-button"
+                   class="btn btn-primary hide">
+                    <span class="glyphicon glyphicon-star"></span> Página Meta
+                </a>
+            {% endif %}
         </div>
     </div>
     <!-- LOGS -->
@@ -186,7 +193,8 @@
                             <span class="glyphicon glyphicon-cog"></span>
                             Status e Exibição das Reservas
                         </a>
-                        <a href="{{ url_for('admin_config.config_menu') }}" class="btn btn-success">
+                        <a href="{{ url_for('admin_config.config_menu') }}"
+                           class="btn btn-success">
                             <span class="glyphicon glyphicon-wrench"></span>
                             Configurações
                         </a>
@@ -327,4 +335,40 @@
 
         });
     </script>
+    {% if user.perm|has_flag(ADMIN) %}
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                var trigger = document.getElementById("secret-trigger");
+                var metaBtn = document.getElementById("meta-button");
+
+                var clickCount = 0;
+                var storageKey = "metaVisible";
+
+                // estado inicial
+                if (localStorage.getItem(storageKey) === "true") {
+                    metaBtn.classList.remove("hide");
+                } else {
+                    metaBtn.classList.add("hide");
+                }
+
+                trigger.addEventListener("click", function () {
+                    clickCount++;
+
+                    if (clickCount >= 10) {
+                        var isHidden = metaBtn.classList.contains("hide");
+
+                        if (isHidden) {
+                            metaBtn.classList.remove("hide");
+                            localStorage.setItem(storageKey, "true");
+                        } else {
+                            metaBtn.classList.add("hide");
+                            localStorage.setItem(storageKey, "false");
+                        }
+
+                        clickCount = 0;
+                    }
+                });
+            });
+        </script>
+    {% endif %}
 {% endblock extra_script %}
