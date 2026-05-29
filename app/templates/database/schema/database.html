@@ -6,18 +6,129 @@
 {% block content %}
     {{ generate_navigation_database() }}
     <h1>banco de dados:</h1>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="panel panel-info text-center">
+                <div class="panel-heading">Banco</div>
+                <div class="panel-body">
+                    <strong>{{ db_info.name }}</strong>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="panel panel-info text-center">
+                <div class="panel-heading">Driver</div>
+                <div class="panel-body">
+                    <strong>{{ db_info.driver }}</strong>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="panel panel-info text-center">
+                <div class="panel-heading">Versão</div>
+                <div class="panel-body">
+                    <small>{{ db_info.version }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <p>
+        <strong>Total de tabelas:</strong> {{ tables|length }}
+    </p>
+    <div class="panel panel-warning">
+        <div class="panel-heading">
+            <button class="btn btn-warning btn-xs"
+                    data-toggle="collapse"
+                    data-target="#diagnostico-rel">Mostrar / Ocultar</button>
+            <strong class="margin-left-10">Diagnóstico de Relacionamentos</strong>
+        </div>
+        <div id="diagnostico-rel" class="panel-collapse collapse">
+            <div class="panel-body table-responsive">
+                <p>
+                    <strong>Tabelas isoladas:</strong>
+                    <span class="label label-danger">{{ isolated_tables|length }}</span>
+                </p>
+                <p>
+                    <strong>Sem referências (ninguém aponta):</strong>
+                    <span class="label label-warning">{{ no_incoming|length }}</span>
+                </p>
+                <p>
+                    <strong>Não referenciam outras:</strong>
+                    <span class="label label-info">{{ no_outgoing|length }}</span>
+                </p>
+                <table class="table table-bordered table-striped table-hover">
+                    <thead>
+                        <tr class="information">
+                            <th>Tabela</th>
+                            <th>Não referenciada</th>
+                            <th>Não referencia</th>
+                            <th>Isolada</th>
+                            <th>Tipo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for table in tables %}
+                            <tr class=" {% if table in isolated_tables %}danger {% elif table in no_incoming or table in no_outgoing %}warning {% endif %} ">
+                                <td>{{ table }}</td>
+                                <td>
+                                    {% if table in no_incoming %}
+                                        <span class="label label-warning">sim</span>
+                                    {% else %}
+                                        <span class="label label-default">não</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if table in no_outgoing %}
+                                        <span class="label label-info">sim</span>
+                                    {% else %}
+                                        <span class="label label-default">não</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if table in isolated_tables %}
+                                        <span class="label label-danger">sim</span>
+                                    {% else %}
+                                        <span class="label label-default">não</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if table in isolated_tables %}
+                                        <span class="label label-danger">isolada</span>
+                                    {% elif table in no_incoming %}
+                                        <span class="label label-warning">raiz</span>
+                                    {% elif table in no_outgoing %}
+                                        <span class="label label-info">folha</span>
+                                    {% else %}
+                                        <span class="label label-success">normal</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
     <div class="table-responsive">
         <table class="table table-bordered table-striped table-hover">
             <thead>
                 <tr class="information">
                     <th>tabela</th>
+                    <th>linhas</th>
+                    <th>tamanho</th>
                     <th>go</th>
                 </tr>
             </thead>
             <tbody>
                 {% for table in tables %}
-                    <tr class="{{ loop.cycle('linha-1-3', 'linha-2-3', 'linha-3-3') }}">
+                    <tr class=" {{ loop.cycle('linha-1-3', 'linha-2-3', 'linha-3-3') }} {% if table in isolated_tables %}danger{% endif %} ">
                         <td>{{ table }}</td>
+                        <td>
+                            <span class="label label-primary">{{ table_stats[table].rows }}</span>
+                        </td>
+                        <td>
+                            <span class="label label-info">{{ table_stats[table].size }}</span>
+                        </td>
                         <td>
                             {% if loop.first %}<strong>{% endif %}
                                 <a href="#a{{ loop.index0 }}">tabela {{ loop.index }}/{{ loop.length }}</a>
@@ -31,6 +142,10 @@
     {% for table in tables %}
         <h2>
             <a id="a{{ loop.index0 }}">Tabela: {{ table }}</a>
+            <small>
+                ({{ table_stats[table].rows }} registros |
+                {{ table_stats[table].size }})
+            </small>
         </h2>
         <div class="panel panel-default">
             <div class="panel-heading">

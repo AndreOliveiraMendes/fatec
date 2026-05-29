@@ -77,6 +77,97 @@ def database():
     extras['uks'] = {table:inspector.get_unique_constraints(table) for table in tables}
     extras['chks'] = {table:inspector.get_check_constraints(table) for table in tables}
     extras['inds'] = {table:inspector.get_indexes(table) for table in tables}
+
+    # 🔹 quem referencia (entrada)
+    referenced_by = {table: set() for table in tables}
+
+    for table in tables:
+        for fk in extras['fks'][table]:
+            ref = fk['referred_table']
+            if ref in referenced_by:
+                referenced_by[ref].add(table)
+
+    # 🔹 quem é referenciado (saída)
+    references = {
+        table: {fk['referred_table'] for fk in extras['fks'][table]}
+        for table in tables
+    }
+
+    # 🔹 tabelas isoladas (sem entrada e sem saída)
+    isolated_tables = [
+        table for table in tables
+        if not referenced_by[table] and not references[table]
+    ]
+
+    # 🔹 só não referenciadas (ninguém aponta pra elas)
+    no_incoming = [
+        table for table in tables
+        if not referenced_by[table]
+    ]
+
+    # 🔹 só não referenciam ninguém
+    no_outgoing = [
+        table for table in tables
+        if not references[table]
+    ]
+
+    extras["isolated_tables"] = isolated_tables
+    extras["no_incoming"] = no_incoming
+    extras["no_outgoing"] = no_outgoing
+
+    engine = db.engine
+
+    db_name = engine.url.database
+    driver = engine.url.drivername
+
+    table_stats = {}
+
+    with engine.connect() as conn:
+        version = conn.exec_driver_sql("SELECT version()").scalar()
+
+        for table in tables:
+            stats = {"rows": None, "size": None}
+
+            # 🔹 Contagem de registros (funciona em qualquer banco)
+            try:
+                stats["rows"] = conn.exec_driver_sql(
+                    f"SELECT COUNT(*) FROM {table}"
+                ).scalar()
+            except Exception:
+                stats["rows"] = "?"
+
+            # 🔹 Tamanho (depende do banco)
+            try:
+                if "postgresql" in driver:
+                    stats["size"] = conn.exec_driver_sql(f"""
+                        SELECT pg_size_pretty(pg_total_relation_size('{table}'))
+                    """).scalar()
+
+                elif "mysql" in driver:
+                    stats["size"] = conn.exec_driver_sql(f"""
+                        SELECT ROUND((DATA_LENGTH + INDEX_LENGTH) / 1024 / 1024, 2)
+                        FROM information_schema.TABLES
+                        WHERE TABLE_NAME = '{table}'
+                    """).scalar()
+                    if stats["size"]:
+                        stats["size"] = f"{stats['size']} MB"
+
+                elif "sqlite" in driver:
+                    stats["size"] = "N/A"
+
+            except Exception:
+                stats["size"] = "?"
+
+            table_stats[table] = stats      
+
+    extras['db_info'] = {
+        "name": db_name,
+        "driver": driver,
+        "version": version
+    }
+
+    extras["table_stats"] = table_stats
+
     return render_template("database/schema/database.html", user=user, **extras)
 
 @bp.route("/wiki")

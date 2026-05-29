@@ -1,8 +1,8 @@
 import os
+import zoneinfo
 from typing import Callable, TypeVar, overload
 
 from dotenv import load_dotenv
-from tzlocal import get_localzone
 
 # --------------------------------------------------
 # Helpers
@@ -46,11 +46,7 @@ def env(key, default=None, cast=None):
 # Environment loading
 # --------------------------------------------------
 
-load_dotenv(".env")
-
-ENV_MODE = env("FLASK_ENV", "dev")
-load_dotenv(f".env.{ENV_MODE}")
-
+load_dotenv()
 
 # --------------------------------------------------
 # Flask config
@@ -131,7 +127,8 @@ FLASK_PORT = env("FLASK_PORT", 5000, int)
 # Datetime
 # --------------------------------------------------
 
-LOCAL_TIMEZONE = get_localzone()
+TIMEZONE = env("TIMEZONE", "America/Sao_Paulo")
+LOCAL_TIMEZONE = zoneinfo.ZoneInfo(TIMEZONE)
 FIRST_DAY_OF_WEEK = env("FIRST_DAY_OF_WEEK", "domingo")
 INDEX_START = env("INDEX_START", 0, int)
 

@@ -1,5 +1,6 @@
 from time import time
 
+import psutil
 from flask import Blueprint, jsonify, render_template, session
 
 from app.dao.internal.usuarios import get_user
@@ -24,6 +25,13 @@ from app.routes.admin.handlers.handler_admin_meta import (commits_ahead,
 
 bp = Blueprint("admin_meta", __name__, url_prefix="/admin/meta")
 START_TIME = time()
+
+@bp.route("/home")
+@admin_required
+def home():
+    user = get_user(session.get('userid'))
+
+    return render_template("admin/meta/index.html", user=user)
 
 @bp.route("/central")
 @admin_required
@@ -96,6 +104,11 @@ def health():
             "os": "Linux-6.6-Ubuntu",
             "hostname": "srv-prod-01",
             "uptime_seconds": uptime_seconds
+        },
+        "resources": {
+            "cpu_percent": psutil.cpu_percent(interval=0.1),
+            "memory_percent": psutil.virtual_memory().percent,
+            "memory_used_mb": psutil.virtual_memory().used // (1024 * 1024)
         }
     }
 
