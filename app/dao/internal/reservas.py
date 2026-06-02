@@ -453,17 +453,17 @@ def delete_reserva_fixa(id_reserva):
     userid = session.get('userid')
     reserva = db.get_or_404(Reservas_Fixas, id_reserva)
     try:
+        db.session.delete(reserva)
         registrar_log_generico_usuario(
             userid,
             'Exclusão',
             reserva,
             observacao='através de reserva'
         )
-        db.session.delete(reserva)
-        db.session.commit()
         current_app.logger.info(
-            f"reserva removida com sucesso para reserva de id {reserva.id_reserva_fixa} por {userid}"
+            f"reserva removida com sucesso para reserva {reserva} por {userid}"
         )
+        db.session.commit()
 
         return "sucesso", 204
 
@@ -479,18 +479,17 @@ def delete_reserva_temporaria(id_reserva):
     reserva = db.get_or_404(Reservas_Temporarias, id_reserva)
 
     try:
+        db.session.delete(reserva)
         registrar_log_generico_usuario(
             userid,
             'Exclusão',
             reserva,
             observacao='através de reserva'
         )
-        db.session.delete(reserva)
-        db.session.commit()
         current_app.logger.info(
-            f"reserva removida com sucesso para reserva de id {reserva.id_reserva_temporaria} por {userid}"
+            f"reserva removida com sucesso para reserva {reserva} por {userid}"
         )
-
+        db.session.commit()
         return "sucesso", 204
 
     except DB_ERRORS as e:
