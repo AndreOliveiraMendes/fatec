@@ -32,7 +32,7 @@
                                    value="{{ auditorios[0].id_local }}">
                         </div>
                     {% endif %}
-                    {% if user and user.perm|has_flag(ADMIN) %}
+                    {% if user and user.perm|has_flag(ADMIN+AUTORIZAR) %}
                         {{ select2_ajax_input('solicitante', 'solicitante', 'Solicitante', optional=False) }}
                     {% endif %}
                     <div class="form-group">

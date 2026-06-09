@@ -378,7 +378,7 @@
             });
         });
     </script>
-    {% if user and user.perm|has_flag(ADMIN) %}
+    {% if user and user.perm|has_flag(ADMIN+AUTORIZAR) %}
         <script>
             {{ select2_ajax_script('solicitante', 'pessoas') }}
         </script>
