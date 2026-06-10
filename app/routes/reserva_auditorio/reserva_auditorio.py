@@ -159,7 +159,7 @@ def adicionar():
     user = get_user(userid)
     if not user:
         abort(403, description="Usuário não encontrado.")
-    if user.perm.has_any(Permission.ADMIN):
+    if user.perm.has_any(Permission.ADMIN|Permission.AUTORIZAR):
         solicitante_id = get_value_or_abort(request.form.get('solicitante'), 400, "id do solicitante é obrigatório", int)
     else:
         solicitante_id = user.id_pessoa
