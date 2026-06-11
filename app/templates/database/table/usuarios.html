@@ -7,7 +7,8 @@
         'Pessoa',
         'Tipo Pessoa',
         'Situação Pessoa',
-        'Grupo Pessoa'
+        'Grupo Pessoa',
+        'Acoes'
         ],
         id_field='id_usuario',
         message=message,
@@ -22,6 +23,19 @@
         <td>{{ u.tipo_pessoa }}</td>
         <td>{{ u.situacao_pessoa }}</td>
         <td>{{ u.grupo_pessoa if u.grupo_pessoa }}</td>
+        <td class="text-center">
+            <form method="post"
+                  action="{{ url_for('database_permissoes.gerenciar_permissoes') }}">
+                <input type="hidden" name="bloco" value="1">
+                <input type="hidden" name="id_usuario" value="{{ u.id_usuario }}">
+                <button type="submit" name="acao" value="editar" class="btn btn-warning btn-xs">
+                    <span class="glyphicon glyphicon-lock"></span> Editar permissões
+                </button>
+                <button type="submit" name="acao" value="procurar" class="btn btn-success btn-xs">
+                    <span class="glyphicon glyphicon-eye"></span> Ver Permissões
+                </button>
+            </form>
+        </td>
         {% if not disable_editar or not disable_excluir %}
             {% if not disable_editar %}
                 {% set _ = namespace() %}

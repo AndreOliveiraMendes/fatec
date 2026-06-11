@@ -132,7 +132,7 @@
               action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
-            {{ gerar_select("id_usuario", "Selecione o usuario", users, "id_usuario", "nome_pessoa", "id_permissao_usuario", optional=True) 
+            {{ gerar_select("id_usuario", "Selecione o usuario", users, "id_usuario", "nome_pessoa", "id_usuario", optional=True) 
             }}
             <div class="form-group">
                 <div class="panel panel-default">
