@@ -5,7 +5,7 @@ from sqlalchemy import ColumnElement, and_, select, true
 from sqlalchemy.orm import InstrumentedAttribute
 
 from app.extensions import db
-from app.models.usuarios import Pessoas, Usuarios_Especiais
+from app.models.usuarios import Pessoas, Usuarios, Usuarios_Especiais
 
 
 class SelectModelConfig(TypedDict):
@@ -32,7 +32,9 @@ SELECT_MODELS: Dict[str, SelectModelConfig] = {
     "pessoas": {
         "model": Pessoas,
         "id_field": Pessoas.id_pessoa,
-        "label_field": Pessoas.nome_pessoa,
+        "label": {
+            "field": Pessoas.nome_pessoa
+        },
         "q_filter": (lambda n:multi_ilike(Pessoas.nome_pessoa, n), str),
         "filters":{
             "id_pessoa": (lambda i:Pessoas.id_pessoa == i, int),
@@ -42,8 +44,20 @@ SELECT_MODELS: Dict[str, SelectModelConfig] = {
     "usuarios_especiais": {
         "model": Usuarios_Especiais,
         "id_field": Usuarios_Especiais.id_usuario_especial,
-        "label_field": Usuarios_Especiais.nome_usuario_especial,
+        "label": {
+            "field": Usuarios_Especiais.nome_usuario_especial
+        },
         "q_filter": (lambda n:multi_ilike(Usuarios_Especiais.nome_usuario_especial, n), str)
+    },
+    "usuarios": {
+        "model": Usuarios,
+        "id_field": Usuarios.id_usuario,
+        "label": {
+            "model": Pessoas,
+            "field": Pessoas.nome_pessoa,
+            "join": Usuarios.pessoa
+        },
+        "q_filter": (lambda n:multi_ilike(Pessoas.nome_pessoa, n), str)
     }
 }
 
@@ -57,7 +71,7 @@ def get_results(entity, q):
     q_filters = config.get("q_filter")
     filters = config.get("filters", {})
     id_field = config.get("id_field")
-    label_field = config.get("label_field")
+    label = config.get("label")
 
     filtro = []
     condition, cast = q_filters
@@ -77,18 +91,25 @@ def get_results(entity, q):
                     current_app.logger.warning("erro ao aplicar condição [filters]")
                     return {"error": "condição invalida"}, 400
 
-    sel = select(model).order_by(label_field)
+    sel = select(
+        model,
+        label["field"].label("label")
+    )
+    if label and "join" in label:
+        sel = sel.join(label["join"])
+
     if filtro:
         sel = sel.where(*filtro)
 
-    result = db.session.execute(sel).scalars().all()
-
-    return {
-        "results":[
+    result = db.session.execute(sel).all()
+    data = {
+        "results": [
             {
-                "id": getattr(obj, id_field.key),
-                "text": getattr(obj, label_field.key)
+                "id": getattr(row[0], id_field.key),
+                "text": row.label
             }
-            for obj in result
+            for row in result
         ]
-    }, 200
+    }
+
+    return data, 200

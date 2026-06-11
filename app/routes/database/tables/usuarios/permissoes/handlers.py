@@ -76,7 +76,7 @@ def search_prefetch():
 
 @register_handler(dispatcher, 'procurar', 1)
 def search_fetch():
-    id_permissao_usuario = none_if_empty(request.form.get('id_permissao_usuario'), int)
+    id_permissao_usuario = none_if_empty(request.form.get('id_usuario'), int)
     flag = get_flag(request)
     modobusca = none_if_empty(request.form.get('modobusca')) 
     filters = []
