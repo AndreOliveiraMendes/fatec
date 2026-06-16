@@ -7,7 +7,6 @@ from sqlalchemy import select
 from app.auxiliar.constant import PERM_CRITICA, Permission
 from app.auxiliar.general import none_if_empty
 from app.auxiliar.navigation import register_return
-from app.dao.internal.usuarios import get_usuarios
 from app.decorators.decorators import register_handler
 from app.extensions import db
 from app.models.usuarios import Permissoes, Pessoas, Usuarios
@@ -71,7 +70,6 @@ def list_handler():
 
 @register_handler(dispatcher, 'procurar', 0)
 def search_prefetch():
-    g.extras['users'] = get_usuarios()
     g.extras['flags'] = generate_flags(search_mode=True)
 
 @register_handler(dispatcher, 'procurar', 1)
@@ -101,7 +99,7 @@ def search_fetch():
     else:
         flash("especifique pelo menos um campo", "danger")
         g.redirect_action, g.bloco = register_return(
-            g.url, g.acao, g.extras, users=get_usuarios()
+            g.url, g.acao, g.extras
         )
 
 @register_handler(dispatcher, 'inserir', 0)
