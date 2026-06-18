@@ -34,6 +34,7 @@ class OrigemEnum(StrEnum):
 class TipoReservaEnum(StrEnum):
     FIXA = "fixa"
     TEMPORARIA = "temporaria"
+    NENHUMA = "nenhuma"
 
 class TipoAulaEnum(StrEnum):
     AULA = "Aula"
