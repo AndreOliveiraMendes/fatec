@@ -1,6 +1,7 @@
 from flask import Blueprint, g, render_template, request
 
 from app.decorators.decorators import admin_required, crud_route
+from app.enums import TipoAulaEnum
 from app.routes_helper.controller import get_controller
 
 from .handlers import dispatcher
@@ -12,6 +13,7 @@ bp = Blueprint('database_aulas_ativas', __name__, url_prefix="/database")
 @admin_required
 @crud_route()
 def gerenciar_aulas_ativas():
+    g.extras['TAE'] = TipoAulaEnum
     if request.method == 'POST':
         get_controller(VALID_STATES, dispatcher, g.acao, g.bloco)
 

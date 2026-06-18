@@ -47,6 +47,20 @@
         </script>
     {% endif %}
 {% endmacro %}
+{% macro gerar_enum_select(enum, id, label, name, optional=False, placeholder="selecione um valor") %}
+    <div class="form-group">
+    <label for="{{ id }}">{{ label }}</label>
+    <select class="form-control"
+    id="{{ id }}"
+    name="{{ name }}"
+    {% if not optional %}required{% endif %}>
+    <option value="" {% if not optional %}disabled selected hidden{% endif %}>{{ placeholder }}</option>
+    {% for t in enum %}
+    <option value="{{ t.value }}">{{ t.value }}</option>
+    {% endfor %}
+    </select>
+    </div>
+{% endmacro %}
 {% macro action_buttons(acao='salvar', bloco_submit='1', show_voltar=True, bloco_voltar='0', show_reset=True, show_submit=True, label='bloco') %}
     <div class="form-group btn-group text-center mt-3">
         {% if show_voltar %}

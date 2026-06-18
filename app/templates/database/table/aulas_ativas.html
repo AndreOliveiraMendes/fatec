@@ -91,7 +91,7 @@
                         <code>tipo_aula</code>
                     </td>
                     <td>ENUM('AULA','EVENTO','OUTROS')</td>
-                    <td>Categoria da aula ou evento</td>
+                    <td>Categoria da aula ou evento </td>
                     <td>
                         <ul class="valores_possiveis_format">
                             <li>
@@ -152,6 +152,8 @@
                 <p class="help-block">Procura por aulas ativas que estejam dentro do período selecionado.</p>
             </div>
             {{ gerar_select("semana", "Selecione o dia da semana", dias_da_semana, "id_semana", "nome_semana", optional=True) }}
+            {{ gerar_enum_select(TAE, "tipo_aula", "Selecione o tipo de aula",  "tipo_aula", True) }}
+            {#
             <div class="form-group">
                 <label for="tipo_aula" class="control-label">Tipo de Aula</label>
                 <select id="tipo_aula"
@@ -165,6 +167,7 @@
                 </select>
                 <span id="tipo_aulaHelpBlock" class="help-block">se o horario é destinado a aula, evento ou outra finalidade</span>
             </div>
+            #}
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
