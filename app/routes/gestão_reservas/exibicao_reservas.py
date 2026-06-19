@@ -55,7 +55,8 @@ def gerenciar_exibicao():
     icons = [
         ["glyphicon-th-list", "warning", "temporaria priorizada"],
         ["glyphicon-lock", "info", "fixa"],
-        ["glyphicon-time", "success", "temporaria"]
+        ["glyphicon-time", "success", "temporaria"],
+        ["glyphicon-ban-circle", "danger", "nenhuma"]
     ]
     extras['icons'] = icons
     return render_template("gestão_reservas/reservas_laboratorios/exibicao_reserva.html", user=user, **extras)

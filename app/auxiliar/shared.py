@@ -26,6 +26,9 @@ def resolver_reserva(temp:Reservas_Temporarias|None, fixa:Reservas_Fixas|None, e
         elif exibicao.tipo_reserva.value == "temporaria":
             choose = temp
             tipo = "temporaria"
+        elif exibicao.tipo_reserva.value == "nenhuma":
+            choose = None
+            tipo = "neither"
 
         tipo = {
             "fixa": "fixa",
