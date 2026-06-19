@@ -63,46 +63,8 @@
                     <td>TEXT</td>
                     <td>descrição tecnicas dos locais</td>
                 </tr>
-                <tr>
-                    <td>
-                        <code>disponibilidade</code>
-                    </td>
-                    <td>ENUM('DISPONIVEL','INDISPONIVEL')</td>
-                    <td>Indica se o local está disponível para uso.</td>
-                    <td>
-                        <ul class="valores_possiveis_format">
-                            <li>
-                                <code>Disponivel</code>
-                            </li>
-                            <li>
-                                <code>Indisponivel</code>
-                            </li>
-                        </ul>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <code>tipo</code>
-                    </td>
-                    <td>ENUM('LABORATORIO','SALA','EXTERNO','AUDITORIO')</td>
-                    <td>Categoria do local ou espaço associado.</td>
-                    <td>
-                        <ul class="valores_possiveis_format">
-                            <li>
-                                <code>Laboratório</code>
-                            </li>
-                            <li>
-                                <code>Sala</code>
-                            </li>
-                            <li>
-                                <code>Externo</code>
-                            </li>
-                            <li>
-                                <code>Auditorio</code>
-                            </li>
-                        </ul>
-                    </td>
-                </tr>
+                {{ description_enum(DE, 'disponibilidade', 'Indica se o local está disponível para uso.', True) }}
+                {{ description_enum(TLE, 'tipo', 'Categoria do local ou espaço associado.', True) }}
             </tbody>
         </table>
     </div>
@@ -152,28 +114,8 @@
                        name="descrição"
                        placeholder="Digite a descrição">
             </div>
-            <div class="form-group">
-                <label for="disponibilidade">Disponibilidade:</label>
-                <select class="form-control" id="disponibilidade" name="disponibilidade">
-                    <option value="">Selecione...</option>
-                    <option value="Disponivel">Disponível</option>
-                    <option value="Indisponivel">Indisponível</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="tipo">Tipo:</label>
-                <select class="form-control"
-                        id="tipo"
-                        name="tipo"
-                        aria-describedby="tipo_labHelpBlock">
-                    <option value="">Selecione...</option>
-                    <option value="Laboratório">Laboratório</option>
-                    <option value="Sala">Sala</option>
-                    <option value="Externo">Externo</option>
-                    <option value="Auditorio">Auditorio</option>
-                </select>
-                <span id="tipo_labHelpBlock" class="help-block">indica o tipo do local (laboratorio, sala de aula, externo ou auditorio)</span>
-            </div>
+            {{ gerar_enum_select(DE, 'disponibilidade', 'Disponibilidade', 'disponibilidade', True, 'Selecione a disponibilidade') }}
+            {{ gerar_enum_select(TLE, 'tipo', 'Tipo', 'tipo', True, 'Selecione o tipo de local/espaço') }}
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
@@ -206,27 +148,8 @@
                    name="descrição"
                    placeholder="Digite a descrição">
         </div>
-        <div class="form-group">
-            <label for="disponibilidade">Disponibilidade:</label>
-            <select class="form-control"
-                    id="disponibilidade"
-                    name="disponibilidade"
-                    required>
-                <option value="">Selecione...</option>
-                <option value="Disponivel">Disponível</option>
-                <option value="Indisponivel">Indisponível</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="tipo">Tipo:</label>
-            <select class="form-control" id="tipo" name="tipo" required>
-                <option value="">Selecione...</option>
-                <option value="Laboratório">Laboratório</option>
-                <option value="Sala">Sala</option>
-                <option value="Externo">Externo</option>
-                <option value="Auditorio">Auditorio</option>
-            </select>
-        </div>
+        {{ gerar_enum_select(DE, 'disponibilidade', 'Disponibilidade', 'disponibilidade', False, 'Selecione a disponibilidade') }}
+        {{ gerar_enum_select(TLE, 'tipo', 'Tipo', 'tipo', False, 'Selecione o tipo de local/espaço') }}
         {{ action_buttons(acao, 1, False, 0) }}
     </form>
 {% endblock inserir %}
@@ -278,34 +201,8 @@
                        value="{{ local.descrição if local.descrição }}"
                        placeholder="Digite a descrição">
             </div>
-            <div class="form-group">
-                <label for="disponibilidade">Disponibilidade:</label>
-                <select class="form-control"
-                        id="disponibilidade"
-                        name="disponibilidade"
-                        required>
-                    <option value="">Selecione...</option>
-                    <option value="Disponivel"
-                            {% if local.disponibilidade.value == 'Disponivel' %}selected{% endif %}>Disponível</option>
-                    <option value="Indisponivel"
-                            {% if local.disponibilidade.value == 'Indisponivel' %}selected{% endif %}>
-                        Indisponível
-                    </option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="tipo">Tipo:</label>
-                <select class="form-control" id="tipo" name="tipo" required>
-                    <option value="">Selecione...</option>
-                    <option value="Laboratório"
-                            {% if local.tipo.value == 'Laboratório' %}selected{% endif %}>Laboratório</option>
-                    <option value="Sala" {% if local.tipo.value == 'Sala' %}selected{% endif %}>Sala</option>
-                    <option value="Externo"
-                            {% if local.tipo.value == 'Externo' %}selected{% endif %}>Externo</option>
-                    <option value="Auditorio"
-                            {% if local.tipo.value == 'Auditorio' %}selected{% endif %}>Auditorio</option>
-                </select>
-            </div>
+            {{ gerar_enum_select(DE, 'disponibilidade', 'Disponibilidade', 'disponibilidade', False, 'Selecione a disponibilidade', local.disponibilidade.value) }}
+            {{ gerar_enum_select(TLE, 'tipo', 'Tipo', 'tipo', False, 'Selecione o tipo de local/espaço', local.tipo.value) }}
             {{ action_buttons(acao, 2, True, 0) }}
         </form>
     {% endif %}
@@ -360,35 +257,8 @@
                        placeholder="Digite a descrição"
                        disabled>
             </div>
-            <div class="form-group">
-                <label for="disponibilidade">Disponibilidade:</label>
-                <select class="form-control"
-                        id="disponibilidade"
-                        name="disponibilidade"
-                        disabled
-                        required>
-                    <option value="">Selecione...</option>
-                    <option value="Disponivel"
-                            {% if local.disponibilidade.value == 'Disponivel' %}selected{% endif %}>Disponível</option>
-                    <option value="Indisponivel"
-                            {% if local.disponibilidade.value == 'Indisponivel' %}selected{% endif %}>
-                        Indisponível
-                    </option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="tipo">Tipo:</label>
-                <select class="form-control" id="tipo" name="tipo" disabled required>
-                    <option value="">Selecione...</option>
-                    <option value="Laboratório"
-                            {% if local.tipo.value == 'Laboratório' %}selected{% endif %}>Laboratório</option>
-                    <option value="Sala" {% if local.tipo.value == 'Sala' %}selected{% endif %}>Sala</option>
-                    <option value="Externo"
-                            {% if local.tipo.value == 'Externo' %}selected{% endif %}>Externo</option>
-                    <option value="Auditorio"
-                            {% if local.tipo.value == 'Auditorio' %}selected{% endif %}>Auditorio</option>
-                </select>
-            </div>
+            {{ gerar_enum_select(DE, 'disponibilidade', 'Disponibilidade', 'disponibilidade', False, 'Selecione a disponibilidade', local.disponibilidade.value, 'disabled') }}
+            {{ gerar_enum_select(TLE, 'tipo', 'Tipo', 'tipo', False, 'Selecione o tipo de local/espaço', local.tipo.value, 'disabled') }}
             {{ action_buttons(acao, 2, True, 0, False) }}
         </form>
     {% endif %}
