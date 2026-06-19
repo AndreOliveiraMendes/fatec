@@ -6,6 +6,7 @@ from flask import (Blueprint, Response, abort, g, jsonify, render_template,
 
 from app.auxiliar.general import formatar_valor
 from app.decorators.decorators import admin_required, crud_route
+from app.enums import OrigemEnum
 from app.extensions import db
 from app.models.historicos import Historicos
 from app.routes_helper.controller import get_controller
@@ -28,6 +29,7 @@ def gerenciar_historicos():
     user_agent = request.headers.get('User-Agent')
     is_mobile = 'Mobile' in user_agent if user_agent else False
     g.extras['is_mobile'] = is_mobile
+    g.extras['OE'] = OrigemEnum
     field = [
         ('ID', 'visible-md visible-lg'),
         ('Usuário', 'visible-md visible-lg'),
