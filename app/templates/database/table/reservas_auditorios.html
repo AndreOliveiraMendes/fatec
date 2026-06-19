@@ -99,21 +99,7 @@
                     <td>Data da reserva do auditório</td>
                     <td>-</td>
                 </tr>
-                <tr>
-                    <td>
-                        <code>status_reserva</code>
-                    </td>
-                    <td>ENUM</td>
-                    <td>Status atual da reserva</td>
-                    <td>
-                        <ul class="valores_possiveis_format">
-                            <li>'AGUARDANDO'</li>
-                            <li>'CANCELADA'</li>
-                            <li>'APROVADA'</li>
-                            <li>'REPROVADA'</li>
-                        </ul>
-                    </td>
-                </tr>
+                {{ description_enum(SRAE, 'status_reserva', 'Status atual da reserva', True) }}
                 <tr>
                     <td>
                         <code>id_autorizador</code>
@@ -170,13 +156,7 @@
                 <label for="dia_reserva">Data da Reserva:</label>
                 <input class="form-control" type="date" id="dia_reserva" name="dia_reserva">
             </div>
-            <div class="form-group">
-                <label for="status_reserva">Status da Reserva</label>
-                <select class="form-control" id="status_reserva" name="status_reserva">
-                    <option value="" disabled selected>Selecione o Status da Reserva</option>
-                    {% for status in SRAE %}<option value="{{ status.value }}">{{ status.value }}</option>{% endfor %}
-                </select>
-            </div>
+            {{ gerar_enum_select(SRAE, 'status_reserva', "Status da reserva", 'status_reserva', True) }}
             {{ select2_ajax_input('id_autorizador', 'id_autorizador', 'autorizador', optional=True) }}
             <div class="form-group">
                 <label for="observação_responsavel">Observações do responsavel:</label>
@@ -221,16 +201,7 @@
                    name="dia_reserva"
                    required>
         </div>
-        <div class="form-group">
-            <label for="status_reserva">Status da Reserva</label>
-            <select class="form-control"
-                    id="status_reserva"
-                    name="status_reserva"
-                    required>
-                <option value="" disabled selected>Selecione o Status da Reserva</option>
-                {% for status in SRAE %}<option value="{{ status.value }}">{{ status.value }}</option>{% endfor %}
-            </select>
-        </div>
+        {{ gerar_enum_select(SRAE, 'status_reserva', "Status da reserva", 'status_reserva', False) }}
         {{ select2_ajax_input('id_autorizador', 'id_autorizador', 'autorizador', optional=True) }}
         <div class="form-group">
             <label for="observação_responsavel">Observações do responsavel:</label>
@@ -261,7 +232,7 @@
               action="{{ url_for(url) }}"
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
-            {{ gerar_select("reservas_auditorio", "Selecione a reserva", reservas_auditorios, "id_reserva_auditorio", "selector_identification") }}
+            {{ gerar_select("reservas_auditorios", "Selecione a reserva", reservas_auditorios, "id_reserva_auditorio", "selector_identification") }}
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
@@ -291,21 +262,7 @@
                        value="{{ reserva_auditorio.dia_reserva }}"
                        required>
             </div>
-            <div class="form-group">
-                <label for="status_reserva">Status da Reserva</label>
-                <select class="form-control"
-                        id="status_reserva"
-                        name="status_reserva"
-                        required>
-                    <option value="" disabled selected>Selecione o Status da Reserva</option>
-                    {% for status in SRAE %}
-                        <option value="{{ status.value }}"
-                                {% if reserva_auditorio.status_reserva.value == status.value %}selected{% endif %}>
-                            {{ status.value }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
+            {{ gerar_enum_select(SRAE, 'status_reserva', "Status da reserva", 'status_reserva', False, selected=reserva_auditorio.status_reserva.value) }}
             {{ select2_ajax_input('id_autorizador', 'id_autorizador', 'autorizador', optional=True) }}
             <div class="form-group">
                 <label for="observação_responsavel">Observações do responsavel:</label>
@@ -314,7 +271,7 @@
                           class="form-control"
                           placeholder="Insira observações relevantes"
                           rows="6"
-                          cols="60">{{ reserva_auditorio.observação_responsavel|format }}</textarea>
+                          cols="60">{{ reserva_auditorio.observação_responsavel|format(1) }}</textarea>
             </div>
             <div class="form-group">
                 <label for="observação_autorizador">Observações do autorizador:</label>
@@ -323,7 +280,7 @@
                           class="form-control"
                           placeholder="Insira observações relevantes"
                           rows="6"
-                          cols="60">{{ reserva_auditorio.observação_autorizador|format }}</textarea>
+                          cols="60">{{ reserva_auditorio.observação_autorizador|format(1) }}</textarea>
             </div>
             {{ action_buttons(acao, 2, True, 0) }}
         </form>
@@ -368,22 +325,7 @@
                        required
                        disabled>
             </div>
-            <div class="form-group">
-                <label for="status_reserva">Status da Reserva</label>
-                <select class="form-control"
-                        id="status_reserva"
-                        name="status_reserva"
-                        required
-                        disabled>
-                    <option value="" disabled selected>Selecione o Status da Reserva</option>
-                    {% for status in SRAE %}
-                        <option value="{{ status.value }}"
-                                {% if reserva_auditorio.status_reserva.value == status.value %}selected{% endif %}>
-                            {{ status.value }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
+            {{ gerar_enum_select(SRAE, 'status_reserva', "Status da reserva", 'status_reserva', False, selected=reserva_auditorio.status_reserva.value, extras='disabled') }}
             {{ select2_ajax_input('id_autorizador', 'id_autorizador', 'autorizador', optional=True) }}
             <div class="form-group">
                 <label for="observação_responsavel">Observações do responsavel:</label>
@@ -393,7 +335,7 @@
                           placeholder="Insira observações relevantes"
                           rows="6"
                           cols="60"
-                          disabled>{{ reserva_auditorio.observação_responsavel }}</textarea>
+                          disabled>{{ reserva_auditorio.observação_responsavel|format(1) }}</textarea>
             </div>
             <div class="form-group">
                 <label for="observação_autorizador">Observações do autorizador:</label>
@@ -403,7 +345,7 @@
                           placeholder="Insira observações relevantes"
                           rows="6"
                           cols="60"
-                          disabled>{{ reserva_auditorio.observação_autorizador }}</textarea>
+                          disabled>{{ reserva_auditorio.observação_autorizador|format(1) }}</textarea>
             </div>
             {{ action_buttons(acao, 2, True, 0, False) }}
         </form>
@@ -415,12 +357,12 @@
             {{ select2_ajax_script('id_responsavel', 'pessoas') }}
             {{ select2_ajax_script('id_autorizador', 'pessoas') }}
         </script>
-    {% elif acao == 'editar' %}
+    {% elif acao == 'editar' and bloco == 1 %}
         <script>
             {{ select2_ajax_script('id_responsavel', 'pessoas', value=reserva_auditorio.id_responsavel, field='id_pessoa') }}
             {{ select2_ajax_script('id_autorizador', 'pessoas', value=reserva_auditorio.id_autorizador, field='id_pessoa') }}
         </script>
-    {% elif acao == 'excluir' %}
+    {% elif acao == 'excluir' and bloco == 1 %}
         <script>
             {{ select2_ajax_script('id_responsavel', 'pessoas', value=reserva_auditorio.id_responsavel, field='id_pessoa', readonly=True) }}
             {{ select2_ajax_script('id_autorizador', 'pessoas', value=reserva_auditorio.id_autorizador, field='id_pessoa', readonly=True) }}

@@ -63,32 +63,7 @@
                     <td>Referência ao equipamento relacionado à movimentação.</td>
                     <td>-</td>
                 </tr>
-                <tr>
-                    <td>
-                        <code>tipo</code>
-                    </td>
-                    <td>ENUM('EMPRESTIMO','DEVOLUCAO','REPOSICAO','AJUSTE','MANUTENCAO')</td>
-                    <td>Define o tipo de movimentação realizada com o equipamento.</td>
-                    <td>
-                        <ul class="valores_possiveis_format">
-                            <li>
-                                <code>Emprestimo</code>
-                            </li>
-                            <li>
-                                <code>Devolucao</code>
-                            </li>
-                            <li>
-                                <code>Reposicao</code>
-                            </li>
-                            <li>
-                                <code>Ajuste</code>
-                            </li>
-                            <li>
-                                <code>Manutencao</code>
-                            </li>
-                        </ul>
-                    </td>
-                </tr>
+                {{ description_enum(TME, 'tipo', 'Define o tipo de movimentação realizada com o equipamento.', True) }}
                 <tr>
                     <td>
                         <code>quantidade</code>
@@ -158,13 +133,7 @@
                 <input class="form-control" type="number" id="codigo" name="id_movimentacao">
             </div>
             {{ gerar_select("equipamentos", "Selecione o equipamento", equipamentos, "id_equipamento", "nome_equipamento", optional=True) }}
-            <div class="form-group">
-                <label for="tipo_movimentacao">Tipo de movimentação</label>
-                <select class="form-control" id="tipo_movimentacao" name="tipo_movimentacao">
-                    <option value="">Selecione o tipo de movimentação</option>
-                    {% for tm in TME %}<option value="{{ tm.value }}">{{ tm.value }}</option>{% endfor %}
-                </select>
-            </div>
+            {{ gerar_enum_select(TME, 'tipo_movimentacao', 'Tipo de movimentação', 'tipo_movimentacao', True, 'Selecione um tipo') }}
             <div class="form-group">
                 <label for="quantidade">Quantidade</label>
                 <input class="form-control"

@@ -78,20 +78,8 @@
                     <td>DATE</td>
                     <td>dia referido pela situação</td>
                 </tr>
-                <tr>
-                    <td>
-                        <code>situacao_chave</code>
-                    </td>
-                    <td>ENUM('NAO_PEGOU_A_CHAVE','PEGOU_A_CHAVE','DEVOLVEU_A_CHAVE')</td>
-                    <td>situação da chave (não pegou, pegou, devolvida)</td>
-                </tr>
-                <tr>
-                    <td>
-                        <code>tipo_reserva</code>
-                    </td>
-                    <td>ENUM('FIXA','TEMPORARIA')</td>
-                    <td>tipo da reserva associada (fixa ou temporaria)</td>
-                </tr>
+                {{ description_enum(SCE, 'situacao_chave', 'situação da chave') }}
+                {{ description_enum(TRSE, 'tipo_reserva', 'tipo da reserva associada') }}
             </tbody>
         </table>
     </div>
@@ -125,23 +113,8 @@
                        id="situacao_dia"
                        name="situacao_dia">
             </div>
-            <div class="form-group">
-                <label for="situacao_chave">Situação da Reserva:</label>
-                <select class="form-control" id="situacao_chave" name="situacao_chave">
-                    <option value="">Selecione uma Situação da Reserva</option>
-                    <option value="não pegou a chave">não pegou a chave</option>
-                    <option value="pegou a chave">pegou a chave</option>
-                    <option value="devolveu a chave">devolveu a chave</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="tipo_reserva">Tipo da Reserva:</label>
-                <select class="form-control" id="tipo_reserva" name="tipo_reserva">
-                    <option value="">Selecione um tipo de reserva</option>
-                    <option value="fixa">fixa</option>
-                    <option value="temporaria">temporaria</option>
-                </select>
-            </div>
+            {{ gerar_enum_select(SCE, 'situacao_chave', 'Situação da reserva', 'situacao_chave', True, 'Selecione uma Situação da Reserva') }}
+            {{ gerar_enum_select(TRSE, 'tipo_reserva', 'Tipo da reserva', 'tipo_reserva', True, 'Selecione o tipo da reserva') }}
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
@@ -166,26 +139,8 @@
                    name="situacao_dia"
                    required>
         </div>
-        <div class="form-group">
-            <label for="situacao_chave">Situação da Reserva:</label>
-            <select class="form-control"
-                    id="situacao_chave"
-                    name="situacao_chave"
-                    required>
-                <option value="">Selecione uma Situação da Reserva</option>
-                <option value="não pegou a chave">não pegou a chave</option>
-                <option value="pegou a chave">pegou a chave</option>
-                <option value="devolveu a chave">devolveu a chave</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="tipo_reserva">Tipo da Reserva:</label>
-            <select class="form-control" id="tipo_reserva" name="tipo_reserva">
-                <option value="">Selecione um tipo de reserva</option>
-                <option value="fixa">fixa</option>
-                <option value="temporaria">temporaria</option>
-            </select>
-        </div>
+        {{ gerar_enum_select(SCE, 'situacao_chave', 'Situação da reserva', 'situacao_chave', False, 'Selecione uma Situação da Reserva') }}
+        {{ gerar_enum_select(TRSE, 'tipo_reserva', 'Tipo da reserva', 'tipo_reserva', False, 'Selecione o tipo da reserva') }}
         {{ action_buttons(acao, 1, False, 0) }}
     </form>
 {% endblock inserir %}
@@ -227,38 +182,8 @@
                        value="{{ situacao_da_reserva.situacao_dia }}"
                        required>
             </div>
-            <div class="form-group">
-                <label for="situacao_chave">Situação da Reserva:</label>
-                <select class="form-control"
-                        id="situacao_chave"
-                        name="situacao_chave"
-                        required>
-                    <option value="não pegou a chave"
-                            {% if situacao_da_reserva.situacao_chave.value == 'não pegou a chave' %}selected{% endif %}>
-                        não pegou a chave
-                    </option>
-                    <option value="pegou a chave"
-                            {% if situacao_da_reserva.situacao_chave.value == 'pegou a chave' %}selected{% endif %}>
-                        pegou a chave
-                    </option>
-                    <option value="devolveu a chave"
-                            {% if situacao_da_reserva.situacao_chave.value == 'devolveu a chave' %}selected{% endif %}>
-                        devolveu a chave
-                    </option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="tipo_reserva">Tipo da Reserva:</label>
-                <select class="form-control" id="tipo_reserva" name="tipo_reserva">
-                    <option value="">Selecione um tipo de reserva</option>
-                    <option value="fixa"
-                            {% if situacao_da_reserva.tipo_reserva.value == 'fixa' %}selected{% endif %}>fixa</option>
-                    <option value="temporaria"
-                            {% if situacao_da_reserva.tipo_reserva.value == 'temporaria' %}selected{% endif %}>
-                        temporaria
-                    </option>
-                </select>
-            </div>
+            {{ gerar_enum_select(SCE, 'situacao_chave', 'Situação da reserva', 'situacao_chave', False, 'Selecione uma Situação da Reserva', situacao_da_reserva.situacao_chave.value) }}
+            {{ gerar_enum_select(TRSE, 'tipo_reserva', 'Tipo da reserva', 'tipo_reserva', False, 'Selecione o tipo da reserva', situacao_da_reserva.tipo_reserva.value) }}
             {{ action_buttons(acao, 2, True, 0) }}
         </form>
     {% endif %}
@@ -302,39 +227,8 @@
                        required
                        disabled>
             </div>
-            <div class="form-group">
-                <label for="situacao_chave">Situação da Reserva:</label>
-                <select class="form-control"
-                        id="situacao_chave"
-                        name="situacao_chave"
-                        required
-                        disabled>
-                    <option value="não pegou a chave"
-                            {% if situacao_da_reserva.situacao_chave.value == 'não pegou a chave' %}selected{% endif %}>
-                        não pegou a chave
-                    </option>
-                    <option value="pegou a chave"
-                            {% if situacao_da_reserva.situacao_chave.value == 'pegou a chave' %}selected{% endif %}>
-                        pegou a chave
-                    </option>
-                    <option value="devolveu a chave"
-                            {% if situacao_da_reserva.situacao_chave.value == 'devolveu a chave' %}selected{% endif %}>
-                        devolveu a chave
-                    </option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="tipo_reserva">Tipo da Reserva:</label>
-                <select class="form-control" id="tipo_reserva" name="tipo_reserva" disabled>
-                    <option value="">Selecione um tipo de reserva</option>
-                    <option value="fixa"
-                            {% if situacao_da_reserva.tipo_reserva.value == 'fixa' %}selected{% endif %}>fixa</option>
-                    <option value="temporaria"
-                            {% if situacao_da_reserva.tipo_reserva.value == 'temporaria' %}selected{% endif %}>
-                        temporaria
-                    </option>
-                </select>
-            </div>
+            {{ gerar_enum_select(SCE, 'situacao_chave', 'Situação da reserva', 'situacao_chave', False, 'Selecione uma Situação da Reserva', situacao_da_reserva.situacao_chave.value, 'disabled') }}
+            {{ gerar_enum_select(TRSE, 'tipo_reserva', 'Tipo da reserva', 'tipo_reserva', False, 'Selecione o tipo da reserva', situacao_da_reserva.tipo_reserva.value, 'disabled') }}
             {{ action_buttons(acao, 2, True, 0, False) }}
         </form>
     {% endif %}

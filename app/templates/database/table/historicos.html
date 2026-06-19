@@ -87,15 +87,19 @@
                     ('data_hora', 'DATETIME', 'Momento em que a ação foi efetivada'),
                     ('message', 'TEXT', 'Descrição do que foi realizado'),
                     ('chave_primaria', 'TEXT', 'Identificadores da linha modificada pela ação'),
-                    ('origem', "ENUM('SISTEMA', 'USUARIO')", 'se a ação foi efetuada pelo sistema ou pelo usuário'),
+                    ('origem', "", 'se a ação foi efetuada pelo sistema ou pelo usuário'),
                     ('observacao', 'TEXT', 'Observação adicional que complementa a ação realizada')
                     ] %}
                     <tr>
-                        <td>
-                            <code>{{ campo }}</code>
-                        </td>
-                        <td>{{ tipo }}</td>
-                        <td>{{ descricao }}</td>
+                        {% if campo == 'origem' %}
+                            {{ description_enum(OE, campo, descricao, False) }}
+                        {% else %}
+                            <td>
+                                <code>{{ campo }}</code>
+                            </td>
+                            <td>{{ tipo }}</td>
+                            <td>{{ descricao }}</td>
+                        {% endif %}
                     </tr>
                 {% endfor %}
             </tbody>

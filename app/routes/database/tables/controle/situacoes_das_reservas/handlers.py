@@ -11,7 +11,7 @@ from app.dao.internal.aulas import get_aulas_ativas
 from app.dao.internal.controle import get_situacoes
 from app.dao.internal.locais import get_locais
 from app.decorators.decorators import register_handler
-from app.enums import SituacaoChaveEnum, TipoReservaEnum
+from app.enums import SituacaoChaveEnum, TipoReservaSituacaoEnum
 from app.extensions import db
 from app.models.controle import Situacoes_Das_Reserva
 from app.routes_helper.db_actions import db_action
@@ -56,7 +56,7 @@ def search_fetch():
     if situacao_chave:
         filters.append(Situacoes_Das_Reserva.situacao_chave == SituacaoChaveEnum(situacao_chave))
     if tipo_reserva:
-        filters.append(Situacoes_Das_Reserva.tipo_reserva == TipoReservaEnum(tipo_reserva))
+        filters.append(Situacoes_Das_Reserva.tipo_reserva == TipoReservaSituacaoEnum(tipo_reserva))
     if filters:
         sel_situacoes = select(Situacoes_Das_Reserva).where(*filters)
         situacoes_das_reservas_paginadas = SelectPagination(
@@ -95,7 +95,7 @@ def insert_push():
 
     def insert():
         if tipo_reserva:
-            nova_situacao.tipo_reserva = TipoReservaEnum(tipo_reserva)
+            nova_situacao.tipo_reserva = TipoReservaSituacaoEnum(tipo_reserva)
 
     db_action(
         "Inserção",
@@ -144,7 +144,7 @@ def edit_push():
         situacao_da_reserva.situacao_chave = SituacaoChaveEnum(situacao_chave)
 
         if tipo_reserva:
-            situacao_da_reserva.tipo_reserva = TipoReservaEnum(tipo_reserva)
+            situacao_da_reserva.tipo_reserva = TipoReservaSituacaoEnum(tipo_reserva)
 
     db_action(
         "Edição",

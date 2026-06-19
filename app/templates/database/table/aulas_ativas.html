@@ -86,26 +86,7 @@
                     <td>Chave estrangeira para o dia da semana</td>
                     <td>1 a 7 (Domingo a Sábado)</td>
                 </tr>
-                <tr>
-                    <td>
-                        <code>tipo_aula</code>
-                    </td>
-                    <td>ENUM('AULA','EVENTO','OUTROS')</td>
-                    <td>Categoria da aula ou evento</td>
-                    <td>
-                        <ul class="valores_possiveis_format">
-                            <li>
-                                <code>AULA</code> – Aula regular
-                            </li>
-                            <li>
-                                <code>EVENTO</code> – Evento especial (palestras, workshops)
-                            </li>
-                            <li>
-                                <code>OUTROS</code> – Casos diversos
-                            </li>
-                        </ul>
-                    </td>
-                </tr>
+                {{ description_enum(TAE, 'tipo_aula', 'Categoria do tipo de horario', True) }}
             </tbody>
         </table>
     </div>
@@ -152,19 +133,7 @@
                 <p class="help-block">Procura por aulas ativas que estejam dentro do período selecionado.</p>
             </div>
             {{ gerar_select("semana", "Selecione o dia da semana", dias_da_semana, "id_semana", "nome_semana", optional=True) }}
-            <div class="form-group">
-                <label for="tipo_aula" class="control-label">Tipo de Aula</label>
-                <select id="tipo_aula"
-                        name="tipo_aula"
-                        class="select form-control"
-                        aria-describedby="tipo_aulaHelpBlock">
-                    <option value="">Selecione o Tipo de Aula</option>
-                    <option value="Aula">Aulas</option>
-                    <option value="Evento">Eventos</option>
-                    <option value="Outros">Outras finalidas</option>
-                </select>
-                <span id="tipo_aulaHelpBlock" class="help-block">se o horario é destinado a aula, evento ou outra finalidade</span>
-            </div>
+            {{ gerar_enum_select(TAE, "tipo_aula", "Selecione o tipo de aula",  "tipo_aula", True) }}
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
@@ -197,15 +166,7 @@
                    placeholder="término do periodo em que a aula é valida, caso seja temporaria">
         </div>
         {{ gerar_select("id_semana", "Selecione o dia da semana", dias_da_semana, "id_semana", "nome_semana") }}
-        <div class="form-group">
-            <label for="tipo">Tipo:</label>
-            <select class="form-control" id="tipo" name="tipo_aula" required>
-                <option value="">Selecione...</option>
-                <option value="Aula">Aula</option>
-                <option value="Evento">Evento</option>
-                <option value="Outros">Outros</option>
-            </select>
-        </div>
+        {{ gerar_enum_select(TAE, "tipo_aula", "Selecione o tipo de aula",  "tipo_aula") }}
         {{ action_buttons(acao, 1, False, 0) }}
     </form>
 {% endblock inserir %}
@@ -255,18 +216,7 @@
                        placeholder="término do periodo em que a aula é valida, caso seja temporaria">
             </div>
             {{ gerar_select("id_semana", "Selecione o dia da semana", dias_da_semana, "id_semana", "nome_semana", selected=aula_ativa.id_semana) }}
-            <div class="form-group">
-                <label for="tipo">Tipo:</label>
-                <select class="form-control" id="tipo" name="tipo_aula" required>
-                    <option value="">Selecione...</option>
-                    <option value="Aula"
-                            {% if aula_ativa.tipo_aula.value == 'Aula' %}selected{% endif %}>Aula</option>
-                    <option value="Evento"
-                            {% if aula_ativa.tipo_aula.value == 'Evento' %}selected{% endif %}>Evento</option>
-                    <option value="Outros"
-                            {% if aula_ativa.tipo_aula.value == 'Outros' %}selected{% endif %}>Outros</option>
-                </select>
-            </div>
+            {{ gerar_enum_select(TAE, "tipo_aula", "Selecione o tipo de aula",  "tipo_aula", selected=aula_ativa.tipo_aula.value) }}
             {{ action_buttons(acao, 2, True, 0) }}
         </form>
     {% endif %}
@@ -319,18 +269,7 @@
                        disabled>
             </div>
             {{ gerar_select("id_semana", "Selecione o dia da semana", dias_da_semana, "id_semana", "nome_semana", selected=aula_ativa.id_semana, extra='disabled') }}
-            <div class="form-group">
-                <label for="tipo">Tipo:</label>
-                <select class="form-control" id="tipo" name="tipo_aula" required disabled>
-                    <option value="">Selecione...</option>
-                    <option value="Aula"
-                            {% if aula_ativa.tipo_aula.value == 'Aula' %}selected{% endif %}>Aula</option>
-                    <option value="Evento"
-                            {% if aula_ativa.tipo_aula.value == 'Evento' %}selected{% endif %}>Evento</option>
-                    <option value="Outros"
-                            {% if aula_ativa.tipo_aula.value == 'Outros' %}selected{% endif %}>Outros</option>
-                </select>
-            </div>
+            {{ gerar_enum_select(TAE, "tipo_aula", "Selecione o tipo de aula",  "tipo_aula", selected=aula_ativa.tipo_aula.value, extras='disabled') }}
             {{ action_buttons(acao, 2, True, 0, False) }}
         </form>
     {% endif %}

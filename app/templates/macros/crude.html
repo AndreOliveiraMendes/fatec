@@ -76,3 +76,28 @@
         <div class="alert {{ alert_class }}">{{ message }}</div>
     {% endif %}
 {% endmacro %}
+{% macro description_enum(enum, name, description, has_value_column = False) %}
+    <tr>
+        <td>
+            <code>{{ name }}</code>
+        </td>
+        <td>
+            ENUM(
+            {%- for e in enum -%}
+                '{{ e.name }}'
+                {% if not loop.last %},{% endif %}
+            {%- endfor -%}
+            )
+        </td>
+        <td>{{ description }}</td>
+        {% if has_value_column %}
+        <td>
+        <ul class="valores_possiveis_format">
+        {% for e in enum %}
+        <li><code>{{ e.name }}</code> – {{ e.value }}</li>
+        {% endfor %}
+        </ul>
+        </td>
+        {% endif %}
+    </tr>
+{% endmacro %}
