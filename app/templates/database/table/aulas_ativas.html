@@ -86,26 +86,7 @@
                     <td>Chave estrangeira para o dia da semana</td>
                     <td>1 a 7 (Domingo a Sábado)</td>
                 </tr>
-                <tr>
-                    <td>
-                        <code>tipo_aula</code>
-                    </td>
-                    <td>ENUM('AULA','EVENTO','OUTROS')</td>
-                    <td>Categoria da aula ou evento </td>
-                    <td>
-                        <ul class="valores_possiveis_format">
-                            <li>
-                                <code>AULA</code> – Aula regular
-                            </li>
-                            <li>
-                                <code>EVENTO</code> – Evento especial (palestras, workshops)
-                            </li>
-                            <li>
-                                <code>OUTROS</code> – Casos diversos
-                            </li>
-                        </ul>
-                    </td>
-                </tr>
+                {{ description_enum(TAE, 'tipo_aula', 'Categoria do tipo de horario', True) }}
             </tbody>
         </table>
     </div>

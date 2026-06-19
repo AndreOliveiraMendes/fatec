@@ -65,13 +65,7 @@
                     <td>DATE</td>
                     <td>Indentificador do dia</td>
                 </tr>
-                <tr>
-                    <td>
-                        <code>tipo_reserva</code>
-                    </td>
-                    <td>ENUM('FIXA','TEMPORARIA', 'NENHUMA')</td>
-                    <td>a reserva que sera exibida</td>
-                </tr>
+                {{ description_enum(TRE, 'tipo_reserva', 'a reserva que sera exibida') }}
             </tbody>
         </table>
     </div>
@@ -107,14 +101,7 @@
                        id="exibicao_dia"
                        name="exibicao_dia">
             </div>
-            <div class="form-group">
-                <label for="tipo_reserva">Tipo da Reserva:</label>
-                <select class="form-control" id="tipo_reserva" name="tipo_reserva">
-                    <option value="">Selecione um tipo de reserva</option>
-                    <option value="fixa">fixa</option>
-                    <option value="temporaria">temporaria</option>
-                </select>
-            </div>
+            {{ gerar_enum_select(TRE, 'tipo_reserva', 'tipo de reserva', 'tipo_reserva', True, 'Selecione um tipo de reserva') }}
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
@@ -139,14 +126,7 @@
                    name="exibicao_dia"
                    required>
         </div>
-        <div class="form-group">
-            <label for="tipo_reserva">Tipo da Reserva:</label>
-            <select class="form-control" id="tipo_reserva" name="tipo_reserva">
-                <option value="">Selecione um tipo de reserva</option>
-                <option value="fixa">fixa</option>
-                <option value="temporaria">temporaria</option>
-            </select>
-        </div>
+        {{ gerar_enum_select(TRE, 'tipo_reserva', 'tipo de reserva', 'tipo_reserva', False, 'Selecione um tipo de reserva') }}
         {{ action_buttons(acao, 1, False, 0) }}
     </form>
 {% endblock inserir %}
@@ -188,18 +168,7 @@
                        value="{{ exibicao_da_reserva.exibicao_dia }}"
                        required>
             </div>
-            <div class="form-group">
-                <label for="tipo_reserva">Tipo da Reserva:</label>
-                <select class="form-control" id="tipo_reserva" name="tipo_reserva">
-                    <option value="">Selecione um tipo de reserva</option>
-                    <option value="fixa"
-                            {% if exibicao_da_reserva.tipo_reserva.value == 'fixa' %}selected{% endif %}>fixa</option>
-                    <option value="temporaria"
-                            {% if exibicao_da_reserva.tipo_reserva.value == 'temporaria' %}selected{% endif %}>
-                        temporaria
-                    </option>
-                </select>
-            </div>
+            {{ gerar_enum_select(TRE, 'tipo_reserva', 'tipo de reserva', 'tipo_reserva', True, 'Selecione um tipo de reserva', exibicao_da_reserva.tipo_reserva.value) }}
             {{ action_buttons(acao, 2, True, 0) }}
         </form>
     {% endif %}
@@ -243,18 +212,7 @@
                        required
                        disabled>
             </div>
-            <div class="form-group">
-                <label for="tipo_reserva">Tipo da Reserva:</label>
-                <select class="form-control" id="tipo_reserva" name="tipo_reserva" disabled>
-                    <option value="">Selecione um tipo de reserva</option>
-                    <option value="fixa"
-                            {% if exibicao_da_reserva.tipo_reserva.value == 'fixa' %}selected{% endif %}>fixa</option>
-                    <option value="temporaria"
-                            {% if exibicao_da_reserva.tipo_reserva.value == 'temporaria' %}selected{% endif %}>
-                        temporaria
-                    </option>
-                </select>
-            </div>
+            {{ gerar_enum_select(TRE, 'tipo_reserva', 'tipo de reserva', 'tipo_reserva', True, 'Selecione um tipo de reserva', exibicao_da_reserva.tipo_reserva.value, 'disabled') }}
             {{ action_buttons(acao, 2, True, 0) }}
         </form>
     {% endif %}
