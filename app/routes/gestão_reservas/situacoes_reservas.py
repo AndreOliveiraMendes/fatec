@@ -16,7 +16,7 @@ from app.dao.internal.reservas import (get_reservas_por_dia,
                                        get_responsavel_reserva)
 from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import admin_required
-from app.enums import SituacaoChaveEnum, TipoAulaEnum, TipoReservaEnum
+from app.enums import SituacaoChaveEnum, TipoAulaEnum, TipoReservaSituacaoEnum
 from app.extensions import db
 from app.models.aulas import Turnos
 from app.models.controle import Situacoes_Das_Reserva
@@ -113,7 +113,7 @@ def atualizar():
                 Situacoes_Das_Reserva.id_situacao_aula == aula,
                 Situacoes_Das_Reserva.id_situacao_local == lab,
                 Situacoes_Das_Reserva.situacao_dia == dia,
-                Situacoes_Das_Reserva.tipo_reserva == TipoReservaEnum(tipo_reserva)
+                Situacoes_Das_Reserva.tipo_reserva == TipoReservaSituacaoEnum(tipo_reserva)
             )
             
             acao = 'Inserção'
@@ -123,7 +123,7 @@ def atualizar():
                     id_situacao_aula = aula,
                     id_situacao_local = lab,
                     situacao_dia = dia,
-                    tipo_reserva = TipoReservaEnum(tipo_reserva)
+                    tipo_reserva = TipoReservaSituacaoEnum(tipo_reserva)
                 )
             else:
                 old_situacao = copy(situacao)

@@ -65,7 +65,7 @@
                     <td>DATE</td>
                     <td>Indentificador do dia</td>
                 </tr>
-                {{ description_enum(TRE, 'tipo_reserva', 'a reserva que sera exibida') }}
+                {{ description_enum(TREE, 'tipo_reserva', 'a reserva que sera exibida') }}
             </tbody>
         </table>
     </div>
@@ -101,7 +101,7 @@
                        id="exibicao_dia"
                        name="exibicao_dia">
             </div>
-            {{ gerar_enum_select(TRE, 'tipo_reserva', 'tipo de reserva', 'tipo_reserva', True, 'Selecione um tipo de reserva') }}
+            {{ gerar_enum_select(TREE, 'tipo_reserva', 'tipo de reserva', 'tipo_reserva', True, 'Selecione um tipo de reserva') }}
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
@@ -126,7 +126,7 @@
                    name="exibicao_dia"
                    required>
         </div>
-        {{ gerar_enum_select(TRE, 'tipo_reserva', 'tipo de reserva', 'tipo_reserva', False, 'Selecione um tipo de reserva') }}
+        {{ gerar_enum_select(TREE, 'tipo_reserva', 'tipo de reserva', 'tipo_reserva', False, 'Selecione um tipo de reserva') }}
         {{ action_buttons(acao, 1, False, 0) }}
     </form>
 {% endblock inserir %}
@@ -168,7 +168,7 @@
                        value="{{ exibicao_da_reserva.exibicao_dia }}"
                        required>
             </div>
-            {{ gerar_enum_select(TRE, 'tipo_reserva', 'tipo de reserva', 'tipo_reserva', True, 'Selecione um tipo de reserva', exibicao_da_reserva.tipo_reserva.value) }}
+            {{ gerar_enum_select(TREE, 'tipo_reserva', 'tipo de reserva', 'tipo_reserva', True, 'Selecione um tipo de reserva', exibicao_da_reserva.tipo_reserva.value) }}
             {{ action_buttons(acao, 2, True, 0) }}
         </form>
     {% endif %}
@@ -212,7 +212,7 @@
                        required
                        disabled>
             </div>
-            {{ gerar_enum_select(TRE, 'tipo_reserva', 'tipo de reserva', 'tipo_reserva', True, 'Selecione um tipo de reserva', exibicao_da_reserva.tipo_reserva.value, 'disabled') }}
+            {{ gerar_enum_select(TREE, 'tipo_reserva', 'tipo de reserva', 'tipo_reserva', True, 'Selecione um tipo de reserva', exibicao_da_reserva.tipo_reserva.value, 'disabled') }}
             {{ action_buttons(acao, 2, True, 0) }}
         </form>
     {% endif %}

@@ -2,7 +2,7 @@
 from flask import Blueprint, g, render_template, request
 
 from app.decorators.decorators import admin_required, crud_route
-from app.enums import SituacaoChaveEnum, TipoReservaEnum
+from app.enums import SituacaoChaveEnum, TipoReservaSituacaoEnum
 from app.routes_helper.controller import get_controller
 
 from .handlers import dispatcher
@@ -15,7 +15,7 @@ bp = Blueprint('database_situacoes_das_reservas', __name__, url_prefix="/databas
 @crud_route()
 def gerenciar_situacoes_das_reservas():
     g.extras['SCE'] = SituacaoChaveEnum
-    g.extras['TRE'] = TipoReservaEnum
+    g.extras['TRSE'] = TipoReservaSituacaoEnum
     if request.method == 'POST':
         get_controller(VALID_STATES, dispatcher, g.acao, g.bloco)
 

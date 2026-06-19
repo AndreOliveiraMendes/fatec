@@ -78,8 +78,8 @@
                     <td>DATE</td>
                     <td>dia referido pela situação</td>
                 </tr>
-                {{ description_enum(SCRE, 'situacao_chave', 'situação da chave') }}
-                {{ description_enum(TRE, 'tipo_reserva', 'tipo da reserva associada') }}
+                {{ description_enum(SCE, 'situacao_chave', 'situação da chave') }}
+                {{ description_enum(TRSE, 'tipo_reserva', 'tipo da reserva associada') }}
             </tbody>
         </table>
     </div>
@@ -114,7 +114,7 @@
                        name="situacao_dia">
             </div>
             {{ gerar_enum_select(SCE, 'situacao_chave', 'Situação da reserva', 'situacao_chave', True, 'Selecione uma Situação da Reserva') }}
-            {{ gerar_enum_select(TRE, 'tipo_reserva', 'Tipo da reserva', 'tipo_reserva', True, 'Selecione o tipo da reserva') }}
+            {{ gerar_enum_select(TRSE, 'tipo_reserva', 'Tipo da reserva', 'tipo_reserva', True, 'Selecione o tipo da reserva') }}
             {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
@@ -140,7 +140,7 @@
                    required>
         </div>
         {{ gerar_enum_select(SCE, 'situacao_chave', 'Situação da reserva', 'situacao_chave', False, 'Selecione uma Situação da Reserva') }}
-        {{ gerar_enum_select(TRE, 'tipo_reserva', 'Tipo da reserva', 'tipo_reserva', False, 'Selecione o tipo da reserva') }}
+        {{ gerar_enum_select(TRSE, 'tipo_reserva', 'Tipo da reserva', 'tipo_reserva', False, 'Selecione o tipo da reserva') }}
         {{ action_buttons(acao, 1, False, 0) }}
     </form>
 {% endblock inserir %}
@@ -183,7 +183,7 @@
                        required>
             </div>
             {{ gerar_enum_select(SCE, 'situacao_chave', 'Situação da reserva', 'situacao_chave', False, 'Selecione uma Situação da Reserva', situacao_da_reserva.situacao_chave.value) }}
-            {{ gerar_enum_select(TRE, 'tipo_reserva', 'Tipo da reserva', 'tipo_reserva', False, 'Selecione o tipo da reserva', situacao_da_reserva.tipo_reserva.value) }}
+            {{ gerar_enum_select(TRSE, 'tipo_reserva', 'Tipo da reserva', 'tipo_reserva', False, 'Selecione o tipo da reserva', situacao_da_reserva.tipo_reserva.value) }}
             {{ action_buttons(acao, 2, True, 0) }}
         </form>
     {% endif %}
@@ -227,8 +227,8 @@
                        required
                        disabled>
             </div>
-                        {{ gerar_enum_select(SCE, 'situacao_chave', 'Situação da reserva', 'situacao_chave', False, 'Selecione uma Situação da Reserva', situacao_da_reserva.situacao_chave.value, 'disabled') }}
-            {{ gerar_enum_select(TRE, 'tipo_reserva', 'Tipo da reserva', 'tipo_reserva', False, 'Selecione o tipo da reserva', situacao_da_reserva.tipo_reserva.value, 'disabled') }}
+            {{ gerar_enum_select(SCE, 'situacao_chave', 'Situação da reserva', 'situacao_chave', False, 'Selecione uma Situação da Reserva', situacao_da_reserva.situacao_chave.value, 'disabled') }}
+            {{ gerar_enum_select(TRSE, 'tipo_reserva', 'Tipo da reserva', 'tipo_reserva', False, 'Selecione o tipo da reserva', situacao_da_reserva.tipo_reserva.value, 'disabled') }}
             {{ action_buttons(acao, 2, True, 0, False) }}
         </form>
     {% endif %}

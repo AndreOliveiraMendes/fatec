@@ -31,10 +31,16 @@ class OrigemEnum(StrEnum):
 # Reservas
 # ==============================
 
-class TipoReservaEnum(StrEnum):
-    FIXA = "fixa"
-    TEMPORARIA = "temporaria"
+BASE = ["fixa", "temporaria"]
+
+class TipoReservaExibicaoEnum(StrEnum):
+    FIXA = BASE[0]
+    TEMPORARIA = BASE[1]
     NENHUMA = "nenhuma"
+
+class TipoReservaSituacaoEnum(StrEnum):
+    FIXA = BASE[0]
+    TEMPORARIA = BASE[1]
 
 class TipoAulaEnum(StrEnum):
     AULA = "Aula"
