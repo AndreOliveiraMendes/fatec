@@ -8,7 +8,7 @@ from app.dao.internal.general import handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import admin_required
-from app.enums import DisponibilidadeEnum, TipoLocalEnum
+from app.enums import TipoLocalEnum
 from app.extensions import db
 from app.models.locais import Locais
 from config.database_views import SETUP_HEAD
@@ -57,14 +57,14 @@ def fast_setup_locais():
                 nome = data[i].get('nome_local')
                 if prefix:
                     nome = prefix + " " + nome
-                disponibilidade = data[i].get('disponibilidade')
+                disponibilidade = {'Disponivel': True, 'Indisponivel': False}.get(data[i].get('disponibilidade', 'Disponivel'))
                 tipo = data[i].get('tipo')
                 descrição = data[i].get('descrição_local')
                 local = Locais(nome_local=nome)
                 if descrição:
                     local.descrição = descrição
-                if disponibilidade:
-                    local.disponibilidade = DisponibilidadeEnum(disponibilidade)
+                if disponibilidade is not None:
+                    local.disponivel = disponibilidade
                 if tipo:
                     local.tipo = TipoLocalEnum(tipo)
                 db.session.add(local)

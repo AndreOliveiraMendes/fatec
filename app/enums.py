@@ -57,10 +57,6 @@ class TipoLocalEnum(StrEnum):
     EXTERNO = "Externo"
     AUDITORIO = "Auditorio"
 
-class DisponibilidadeEnum(StrEnum):
-    DISPONIVEL = "Disponivel"
-    INDISPONIVEL = "Indisponivel"
-
 # ==============================
 # Auditorios
 # ==============================
