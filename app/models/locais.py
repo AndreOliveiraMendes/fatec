@@ -42,5 +42,5 @@ class Locais(Base):
     def __repr__(self) -> str:
         return (
             f"<Locais(id_local={self.id_local}, nome_local={self.nome_local}, "
-            f"disponibilidade={self.disponibilidade.value}, tipo={self.tipo.value})>"
+            f"disponivel={self.disponivel}, tipo={self.tipo.value})>"
         )
