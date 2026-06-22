@@ -14,7 +14,7 @@ from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.reservas import (get_reservas_por_dia,
                                        get_responsavel_reserva)
 from app.dao.internal.usuarios import get_user
-from app.enums import SituacaoChaveEnum, TipoAulaEnum, TipoReservaEnum
+from app.enums import SituacaoChaveEnum, TipoAulaEnum, TipoReservaSituacaoEnum
 from app.extensions import db
 from app.models.aulas import Aulas_Ativas, Turnos
 from app.models.controle import Exibicao_Reservas, Situacoes_Das_Reserva
@@ -188,7 +188,7 @@ def atualizar_situacoes_fixa(common):
                 Situacoes_Das_Reserva.id_situacao_aula == aula,
                 Situacoes_Das_Reserva.id_situacao_local == lab,
                 Situacoes_Das_Reserva.situacao_dia == dia,
-                Situacoes_Das_Reserva.tipo_reserva == TipoReservaEnum(tipo_reserva)
+                Situacoes_Das_Reserva.tipo_reserva == TipoReservaSituacaoEnum(tipo_reserva)
             )
 
             acao = 'Inserção'
@@ -198,7 +198,7 @@ def atualizar_situacoes_fixa(common):
                     id_situacao_aula = aula,
                     id_situacao_local = lab,
                     situacao_dia = dia,
-                    tipo_reserva = TipoReservaEnum(tipo_reserva)
+                    tipo_reserva = TipoReservaSituacaoEnum(tipo_reserva)
                 )
             else:
                 old_situacao = copy(situacao)
@@ -238,7 +238,7 @@ def atualizar_situacoes_temporaria(common):
                 Situacoes_Das_Reserva.id_situacao_aula == aula,
                 Situacoes_Das_Reserva.id_situacao_local == lab,
                 Situacoes_Das_Reserva.situacao_dia == dia,
-                Situacoes_Das_Reserva.tipo_reserva == TipoReservaEnum(tipo_reserva)
+                Situacoes_Das_Reserva.tipo_reserva == TipoReservaSituacaoEnum(tipo_reserva)
             )
 
             acao = 'Inserção'
@@ -248,7 +248,7 @@ def atualizar_situacoes_temporaria(common):
                     id_situacao_aula = aula,
                     id_situacao_local = lab,
                     situacao_dia = dia,
-                    tipo_reserva = TipoReservaEnum(tipo_reserva)
+                    tipo_reserva = TipoReservaSituacaoEnum(tipo_reserva)
                 )
             else:
                 old_situacao = copy(situacao)

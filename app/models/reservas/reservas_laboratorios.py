@@ -7,7 +7,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.auxiliar.model import parse_date
-from app.enums import TipoReservaEnum
+from app.enums import TipoReservaSituacaoEnum
 from app.extensions import Base
 
 if TYPE_CHECKING:
@@ -54,7 +54,7 @@ class ReservaBase(Base):
             return 3
 
     @property
-    def tipo_reserva_str(self) -> TipoReservaEnum:
+    def tipo_reserva_str(self) -> TipoReservaSituacaoEnum:
         raise NotImplementedError
 
 class Reservas_Fixas(ReservaBase):
@@ -89,7 +89,7 @@ class Reservas_Fixas(ReservaBase):
     
     @property
     def tipo_reserva_str(self):
-        return TipoReservaEnum.FIXA
+        return TipoReservaSituacaoEnum.FIXA
     
     def __repr__(self):
         return (
@@ -130,7 +130,7 @@ class Reservas_Temporarias(ReservaBase):
     
     @property
     def tipo_reserva_str(self):
-        return TipoReservaEnum.TEMPORARIA
+        return TipoReservaSituacaoEnum.TEMPORARIA
 
     def __repr__(self):
         return (

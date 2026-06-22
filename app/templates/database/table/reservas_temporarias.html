@@ -476,12 +476,12 @@
             {{ select2_ajax_script('id_responsavel', 'pessoas') }}
             {{ select2_ajax_script('id_responsavel_especial', 'usuarios_especiais') }}
         </script>
-    {% elif acao == 'editar' %}
+    {% elif acao == 'editar' and bloco == 1 %}
         <script>
             {{ select2_ajax_script('id_responsavel', 'pessoas', value=reserva_temporaria.id_responsavel, field='id_pessoa') }}
             {{ select2_ajax_script('id_responsavel_especial', 'usuarios_especiais', value=reserva_temporaria.id_responsavel_especial, field='id_usuario_especial') }}
         </script>
-    {% elif acao == 'excluir' %}
+    {% elif acao == 'excluir' and bloco == 1 %}
         <script>
             {{ select2_ajax_script('id_responsavel', 'pessoas', value=reserva_temporaria.id_responsavel, field='id_pessoa', readonly=True) }}
             {{ select2_ajax_script('id_responsavel_especial', 'usuarios_especiais', value=reserva_temporaria.id_responsavel_especial, field='id_usuario_especial', readonly=True) }}

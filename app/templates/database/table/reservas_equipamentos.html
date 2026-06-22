@@ -129,29 +129,7 @@
                     </td>
                     <td>-</td>
                 </tr>
-                <tr>
-                    <td>
-                        <code>status_reserva</code>
-                    </td>
-                    <td>ENUM</td>
-                    <td>Define o status_reserva atual da reserva de equipamento.</td>
-                    <td>
-                        <ul class="valores_possiveis_format">
-                            <li>
-                                <code>PENDENTE</code> = reserva criada aguardando confirmação ou início
-                            </li>
-                            <li>
-                                <code>ATIVA</code> = reserva atualmente em uso
-                            </li>
-                            <li>
-                                <code>CANCELADA</code> = reserva cancelada antes de ocorrer
-                            </li>
-                            <li>
-                                <code>CONCLUIDA</code> = reserva finalizada normalmente
-                            </li>
-                        </ul>
-                    </td>
-                </tr>
+                {{ description_enum(SREE, 'status_reserva', 'Define o status_reserva atual da reserva de equipamento', True) }}
                 <tr>
                     <td>
                         <code>motivo_cancelamento</code>
@@ -208,15 +186,7 @@
                            id="data_reserva"
                            name="data_reserva">
                 </div>
-                <div class="form-group">
-                    <label for="status_reserva">Estado da Reserva:</label>
-                    <select class="form-control" id="status_reserva" name="status_reserva">
-                        <option value="" disabled selected>Selecione o status_reserva</option>
-                        {% for status_reserva in SREE %}
-                            <option value="{{ status_reserva.value }}">{{ status_reserva.value }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+                {{ gerar_enum_select(SREE, 'status_reserva', 'Estado da reserva', 'status_reserva', True, 'Selecione o status da reserva') }}
                 {{ select2_ajax_input('cancelado_por_id', 'cancelado_por_id', 'cancelador', optional=True) }}
                 <div class="form-group">
                     <label for="data_cancelamento">Data de Cancelamento:</label>

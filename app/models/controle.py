@@ -5,7 +5,8 @@ from sqlalchemy import Date, Enum, ForeignKey, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.auxiliar.model import parse_date
-from app.enums import SituacaoChaveEnum, TipoReservaEnum
+from app.enums import (SituacaoChaveEnum, TipoReservaExibicaoEnum,
+                       TipoReservaSituacaoEnum)
 from app.extensions import Base
 
 if TYPE_CHECKING:
@@ -20,9 +21,9 @@ class Exibicao_Reservas(Base):
     id_exibicao_aula:Mapped[int] = mapped_column(ForeignKey("aulas_ativas.id_aula_ativa"), nullable=False)
     exibicao_dia:Mapped[date] = mapped_column(nullable=False)
 
-    tipo_reserva: Mapped[TipoReservaEnum] = mapped_column(
-        Enum(TipoReservaEnum, name="tipo_reserva_enum", create_constraint=True),
-        server_default=TipoReservaEnum.TEMPORARIA.name
+    tipo_reserva: Mapped[TipoReservaExibicaoEnum] = mapped_column(
+        Enum(TipoReservaExibicaoEnum, name="tipo_reserva_enum", create_constraint=True),
+        server_default=TipoReservaExibicaoEnum.TEMPORARIA.name
     )
 
     __table_args__ = (
@@ -64,9 +65,9 @@ class Situacoes_Das_Reserva(Base):
         server_default=SituacaoChaveEnum.NAO_PEGOU_A_CHAVE.name
     )
 
-    tipo_reserva: Mapped[TipoReservaEnum] = mapped_column(
-        Enum(TipoReservaEnum, name="tipo_reserva_enum", create_constraint=True),
-        server_default=TipoReservaEnum.FIXA.name
+    tipo_reserva: Mapped[TipoReservaSituacaoEnum] = mapped_column(
+        Enum(TipoReservaSituacaoEnum, name="tipo_reserva_enum", create_constraint=True),
+        server_default=TipoReservaSituacaoEnum.FIXA.name
     )
 
     __table_args__ = (

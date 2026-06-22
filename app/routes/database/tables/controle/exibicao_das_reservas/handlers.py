@@ -11,7 +11,7 @@ from app.dao.internal.aulas import get_aulas_ativas
 from app.dao.internal.controle import get_exibicoes
 from app.dao.internal.locais import get_locais
 from app.decorators.decorators import register_handler
-from app.enums import TipoReservaEnum
+from app.enums import TipoReservaExibicaoEnum
 from app.extensions import db
 from app.models.controle import Exibicao_Reservas
 from app.routes_helper.db_actions import db_action
@@ -53,7 +53,7 @@ def search_fetch():
     if exibicao_dia:
         filters.append(Exibicao_Reservas.exibicao_dia == exibicao_dia)
     if tipo_reserva:
-        filters.append(Exibicao_Reservas.tipo_reserva == TipoReservaEnum(tipo_reserva))
+        filters.append(Exibicao_Reservas.tipo_reserva == TipoReservaExibicaoEnum(tipo_reserva))
     if filters:
         sel_exibicao = select(Exibicao_Reservas).where(*filters)
         exibicao_reservas_paginadas = SelectPagination(
@@ -90,7 +90,7 @@ def insert_push():
 
     def insert():
         if tipo_reserva:
-            nova_exibicao.tipo_reserva = TipoReservaEnum(tipo_reserva)
+            nova_exibicao.tipo_reserva = TipoReservaExibicaoEnum(tipo_reserva)
 
     db_action(
         "Inserção",
@@ -137,7 +137,7 @@ def edit_push():
         exibicao_da_reserva.exibicao_dia = exibicao_dia
 
         if tipo_reserva:
-            exibicao_da_reserva.tipo_reserva = TipoReservaEnum(tipo_reserva)
+            exibicao_da_reserva.tipo_reserva = TipoReservaExibicaoEnum(tipo_reserva)
 
     db_action(
         "Edição",

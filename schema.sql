@@ -5,7 +5,7 @@ CREATE TABLE
 		horario_fim TIME NOT NULL,
 		PRIMARY KEY (id_aula),
 		CONSTRAINT uq_aula_inicio_fim UNIQUE (horario_inicio, horario_fim)
-	) COLLATE utf8mb4_general_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;
+	) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 CREATE TABLE
 	IF NOT EXISTS categorias_de_equipamentos (
@@ -16,7 +16,7 @@ CREATE TABLE
 		PRIMARY KEY (id_categoria),
 		CONSTRAINT ix_categorias_de_equipamentos_codigo UNIQUE (codigo),
 		CONSTRAINT uq_nome_categoria UNIQUE (nome_categoria)
-	) COLLATE utf8mb4_general_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;
+	) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 CREATE TABLE
 	IF NOT EXISTS dias_da_semana (
@@ -24,7 +24,7 @@ CREATE TABLE
 		nome_semana VARCHAR(15) NOT NULL,
 		PRIMARY KEY (id_semana),
 		CONSTRAINT nome_semana UNIQUE (nome_semana)
-	) COLLATE utf8mb4_general_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;
+	) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 CREATE TABLE
 	IF NOT EXISTS finalidade_reservas (
@@ -35,18 +35,18 @@ CREATE TABLE
 		config JSON,
 		PRIMARY KEY (id_finalidade),
 		CONSTRAINT nome UNIQUE (nome)
-	) COLLATE utf8mb4_general_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;
+	) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 CREATE TABLE
 	IF NOT EXISTS locais (
 		id_local INTEGER NOT NULL AUTO_INCREMENT,
 		nome_local VARCHAR(100) NOT NULL,
 		`descrição` TEXT,
-		disponibilidade ENUM ('DISPONIVEL', 'INDISPONIVEL') NOT NULL DEFAULT 'DISPONIVEL',
+		disponivel TINYINT (1) NOT NULL,
 		tipo ENUM ('LABORATORIO', 'SALA', 'EXTERNO', 'AUDITORIO') NOT NULL DEFAULT 'LABORATORIO',
 		PRIMARY KEY (id_local),
 		CONSTRAINT uq_local UNIQUE (nome_local)
-	) COLLATE utf8mb4_general_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;
+	) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 CREATE TABLE
 	IF NOT EXISTS pessoas (
@@ -55,7 +55,7 @@ CREATE TABLE
 		email_pessoa VARCHAR(100),
 		alias VARCHAR(100),
 		PRIMARY KEY (id_pessoa)
-	) COLLATE utf8mb4_general_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;
+	) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 CREATE TABLE
 	IF NOT EXISTS semestres (
@@ -70,7 +70,7 @@ CREATE TABLE
 		CONSTRAINT uq_semestre_inicio_fim UNIQUE (data_inicio, data_fim),
 		CONSTRAINT uq_semestre_inicio_fim_reserva UNIQUE (data_inicio_reserva, data_fim_reserva),
 		CONSTRAINT uq_semestre_nome UNIQUE (nome_semestre)
-	) COLLATE utf8mb4_general_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;
+	) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 CREATE TABLE
 	IF NOT EXISTS turnos (
@@ -81,7 +81,7 @@ CREATE TABLE
 		PRIMARY KEY (id_turno),
 		CONSTRAINT nome_turno UNIQUE (nome_turno),
 		CONSTRAINT uq_turno_inicio_fim UNIQUE (horario_inicio, horario_fim)
-	) COLLATE utf8mb4_general_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;
+	) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 CREATE TABLE
 	IF NOT EXISTS usuarios_especiais (
@@ -89,7 +89,7 @@ CREATE TABLE
 		nome_usuario_especial VARCHAR(100) NOT NULL,
 		PRIMARY KEY (id_usuario_especial),
 		CONSTRAINT uq_usuario_especial UNIQUE (nome_usuario_especial)
-	) COLLATE utf8mb4_general_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;
+	) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 CREATE TABLE
 	IF NOT EXISTS aulas_ativas (
@@ -109,7 +109,7 @@ CREATE TABLE
 				or (`inicio_ativacao` <= `fim_ativacao`)
 			)
 		)
-	) COLLATE utf8mb4_general_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;
+	) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 CREATE TABLE
 	IF NOT EXISTS equipamentos (
@@ -120,7 +120,7 @@ CREATE TABLE
 		PRIMARY KEY (id_equipamento),
 		CONSTRAINT equipamentos_ibfk_1 FOREIGN KEY (id_categoria) REFERENCES categorias_de_equipamentos (id_categoria),
 		CONSTRAINT uq_nome_equipamento UNIQUE (nome_equipamento)
-	) COLLATE utf8mb4_general_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;
+	) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 CREATE TABLE
 	IF NOT EXISTS usuarios (
@@ -131,7 +131,7 @@ CREATE TABLE
 		grupo_pessoa VARCHAR(50),
 		PRIMARY KEY (id_usuario),
 		CONSTRAINT usuarios_ibfk_1 FOREIGN KEY (id_pessoa) REFERENCES pessoas (id_pessoa)
-	) COLLATE utf8mb4_general_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;
+	) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 CREATE TABLE
 	IF NOT EXISTS equipamentos_disponibilidade (
@@ -144,7 +144,7 @@ CREATE TABLE
 		PRIMARY KEY (id_disponibilidade),
 		CONSTRAINT equipamentos_disponibilidade_ibfk_1 FOREIGN KEY (id_equipamento) REFERENCES equipamentos (id_equipamento),
 		CONSTRAINT uq_equipamento_data UNIQUE (id_equipamento, data)
-	) COLLATE utf8mb4_general_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;
+	) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 CREATE TABLE
 	IF NOT EXISTS exibicao_reservas (
@@ -152,12 +152,12 @@ CREATE TABLE
 		id_exibicao_local INTEGER NOT NULL,
 		id_exibicao_aula INTEGER NOT NULL,
 		exibicao_dia DATE NOT NULL,
-		tipo_reserva ENUM ('FIXA', 'TEMPORARIA') NOT NULL DEFAULT 'TEMPORARIA',
+		tipo_reserva ENUM ('FIXA', 'TEMPORARIA', 'NENHUMA') NOT NULL DEFAULT 'TEMPORARIA',
 		PRIMARY KEY (id_exibicao),
 		CONSTRAINT exibicao_reservas_ibfk_1 FOREIGN KEY (id_exibicao_local) REFERENCES locais (id_local),
 		CONSTRAINT exibicao_reservas_ibfk_2 FOREIGN KEY (id_exibicao_aula) REFERENCES aulas_ativas (id_aula_ativa),
 		CONSTRAINT uq_exibicao_local_aula_dia UNIQUE (id_exibicao_local, id_exibicao_aula, exibicao_dia)
-	) COLLATE utf8mb4_general_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;
+	) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 CREATE TABLE
 	IF NOT EXISTS historicos (
@@ -172,7 +172,7 @@ CREATE TABLE
 		origem ENUM ('SISTEMA', 'USUARIO') NOT NULL DEFAULT 'SISTEMA',
 		PRIMARY KEY (id_historico),
 		CONSTRAINT historicos_ibfk_1 FOREIGN KEY (id_usuario) REFERENCES usuarios (id_usuario)
-	) COLLATE utf8mb4_general_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;
+	) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 CREATE TABLE
 	IF NOT EXISTS movimentacoes_equipamento (
@@ -195,7 +195,7 @@ CREATE TABLE
 		CONSTRAINT movimentacoes_equipamento_ibfk_1 FOREIGN KEY (id_equipamento) REFERENCES equipamentos (id_equipamento),
 		CONSTRAINT movimentacoes_equipamento_ibfk_2 FOREIGN KEY (id_funcionario) REFERENCES pessoas (id_pessoa),
 		CONSTRAINT movimentacoes_equipamento_ibfk_3 FOREIGN KEY (id_responsavel) REFERENCES pessoas (id_pessoa)
-	) COLLATE utf8mb4_general_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;
+	) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 CREATE TABLE
 	IF NOT EXISTS permissoes (
@@ -203,7 +203,7 @@ CREATE TABLE
 		permissao INTEGER NOT NULL,
 		PRIMARY KEY (id_permissao_usuario),
 		CONSTRAINT permissoes_ibfk_1 FOREIGN KEY (id_permissao_usuario) REFERENCES usuarios (id_usuario)
-	) COLLATE utf8mb4_general_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;
+	) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 CREATE TABLE
 	IF NOT EXISTS reservas_auditorios (
@@ -232,7 +232,7 @@ CREATE TABLE
 			id_reserva_aula,
 			dia_reserva
 		)
-	) COLLATE utf8mb4_general_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;
+	) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 CREATE TABLE
 	IF NOT EXISTS reservas_equipamentos (
@@ -251,7 +251,7 @@ CREATE TABLE
 		CONSTRAINT reservas_equipamentos_ibfk_1 FOREIGN KEY (id_reserva_aula) REFERENCES aulas_ativas (id_aula_ativa),
 		CONSTRAINT reservas_equipamentos_ibfk_2 FOREIGN KEY (id_responsavel) REFERENCES pessoas (id_pessoa),
 		CONSTRAINT reservas_equipamentos_ibfk_3 FOREIGN KEY (cancelado_por_id) REFERENCES pessoas (id_pessoa)
-	) COLLATE utf8mb4_general_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;
+	) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 CREATE TABLE
 	IF NOT EXISTS reservas_fixas (
@@ -276,7 +276,7 @@ CREATE TABLE
 			id_reserva_aula,
 			id_reserva_semestre
 		)
-	) COLLATE utf8mb4_general_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;
+	) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 CREATE TABLE
 	IF NOT EXISTS reservas_temporarias (
@@ -297,7 +297,7 @@ CREATE TABLE
 		CONSTRAINT reservas_temporarias_ibfk_4 FOREIGN KEY (id_reserva_aula) REFERENCES aulas_ativas (id_aula_ativa),
 		CONSTRAINT reservas_temporarias_ibfk_5 FOREIGN KEY (id_finalidade_reserva) REFERENCES finalidade_reservas (id_finalidade),
 		CONSTRAINT chk_reserva_inicio_menor_fim CHECK ((`inicio_reserva` <= `fim_reserva`))
-	) COLLATE utf8mb4_general_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;
+	) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 CREATE TABLE
 	IF NOT EXISTS situacoes_das_reservas (
@@ -320,7 +320,7 @@ CREATE TABLE
 			situacao_dia,
 			tipo_reserva
 		)
-	) COLLATE utf8mb4_general_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;
+	) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 CREATE TABLE
 	IF NOT EXISTS reservas_equipamentos_items (
@@ -335,4 +335,4 @@ CREATE TABLE
 		CONSTRAINT reservas_equipamentos_items_ibfk_1 FOREIGN KEY (id_reserva) REFERENCES reservas_equipamentos (id_reserva),
 		CONSTRAINT reservas_equipamentos_items_ibfk_2 FOREIGN KEY (id_equipamento) REFERENCES equipamentos (id_equipamento),
 		CONSTRAINT uq_reserva_equipamento UNIQUE (id_reserva, id_equipamento)
-	) COLLATE utf8mb4_general_ci DEFAULT CHARSET = utf8mb4 ENGINE = InnoDB;
+	) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;

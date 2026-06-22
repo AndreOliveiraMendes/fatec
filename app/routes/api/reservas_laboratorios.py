@@ -25,7 +25,7 @@ def api_get_laboratorios():
         res = {
             "id": laboratorio.id_local,
             "nome": laboratorio.nome_local,
-            "disponivel": laboratorio.disponibilidade.value
+            "disponivel": laboratorio.disponivel
         }
         result_labs.append(res)
 

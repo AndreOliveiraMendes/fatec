@@ -8,12 +8,12 @@ from app.auxiliar.general import get_value_or_abort, none_if_empty
 from app.auxiliar.navigation import register_return
 from app.dao.internal.locais import get_locais
 from app.decorators.decorators import register_handler
-from app.enums import DisponibilidadeEnum, TipoLocalEnum
+from app.enums import TipoLocalEnum
 from app.extensions import db
 from app.models.locais import Locais
 from app.routes_helper.db_actions import db_action
 from app.routes_helper.request import get_query_params
-from config.general import PER_PAGE
+from config.general import PER_PAGE, str_to_bool
 
 dispatcher = {}
 
@@ -33,7 +33,7 @@ def search_fetch():
     nome_local = none_if_empty(request.form.get('nome_local'))
     exact_name_match = 'emnome' in request.form
     descrição = none_if_empty(request.form.get('descrição'))
-    disponibilidade = none_if_empty(request.form.get('disponibilidade'))
+    disponibilidade = none_if_empty(request.form.get('disponibilidade'), str_to_bool)
     tipo = none_if_empty(request.form.get('tipo'))
     filters = []
     query_params = get_query_params(request)
@@ -46,8 +46,8 @@ def search_fetch():
             filters.append(Locais.nome_local.ilike(f"%{nome_local}%"))
     if descrição:
         filters.append(Locais.descrição.ilike(f"%{descrição}%"))
-    if disponibilidade:
-        filters.append(Locais.disponibilidade == DisponibilidadeEnum(disponibilidade))
+    if disponibilidade is not None:
+        filters.append(Locais.disponivel == disponibilidade)
     if tipo:
         filters.append(Locais.tipo == TipoLocalEnum(tipo))
     if filters:
@@ -69,13 +69,13 @@ def search_fetch():
 def insert_push():
     nome_local = none_if_empty(request.form.get('nome_local'))
     descricao = none_if_empty(request.form.get('descrição'))
-    disponibilidade = none_if_empty(request.form.get('disponibilidade'))
+    disponibilidade = none_if_empty(request.form.get('disponibilidade'), str_to_bool)
     tipo = none_if_empty(request.form.get('tipo'))
 
     novo_local = Locais(
         nome_local=nome_local,
         descrição=descricao,
-        disponibilidade=DisponibilidadeEnum(disponibilidade),
+        disponivel=disponibilidade,
         tipo=TipoLocalEnum(tipo)
     )
 
@@ -107,7 +107,7 @@ def edit_push():
     id_local = none_if_empty(request.form.get('id_local'), int)
     nome_local = get_value_or_abort(request.form.get('nome_local'), 400, "nome do local é obrigatorio")
     descricao = none_if_empty(request.form.get('descrição'))
-    disponibilidade = none_if_empty(request.form.get('disponibilidade'))
+    disponibilidade = none_if_empty(request.form.get('disponibilidade'), str_to_bool)
     tipo = none_if_empty(request.form.get('tipo'))
 
     local = db.get_or_404(Locais, id_local)
@@ -116,7 +116,7 @@ def edit_push():
     def update():
         local.nome_local = nome_local
         local.descrição = descricao
-        local.disponibilidade = DisponibilidadeEnum(disponibilidade)
+        local.disponivel = disponibilidade
         local.tipo = TipoLocalEnum(tipo)
 
     db_action(

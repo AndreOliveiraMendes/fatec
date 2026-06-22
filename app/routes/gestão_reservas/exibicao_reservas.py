@@ -14,7 +14,7 @@ from app.dao.internal.historicos import registrar_log_generico_usuario
 from app.dao.internal.reservas import get_reservas_por_dia
 from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import admin_required
-from app.enums import TipoAulaEnum, TipoReservaEnum
+from app.enums import TipoAulaEnum, TipoReservaExibicaoEnum
 from app.extensions import db
 from app.models.aulas import Aulas_Ativas, Turnos
 from app.models.controle import Exibicao_Reservas
@@ -55,7 +55,8 @@ def gerenciar_exibicao():
     icons = [
         ["glyphicon-th-list", "warning", "temporaria priorizada"],
         ["glyphicon-lock", "info", "fixa"],
-        ["glyphicon-time", "success", "temporaria"]
+        ["glyphicon-time", "success", "temporaria"],
+        ["glyphicon-ban-circle", "danger", "nenhuma"]
     ]
     extras['icons'] = icons
     return render_template("gestão_reservas/reservas_laboratorios/exibicao_reserva.html", user=user, **extras)
@@ -70,7 +71,7 @@ def atualizar_exibicao(id_aula, id_lab, dia):
     new_exibicao_config = request.form.get('exibicao')
     exibicao = get_exibicao_por_dia(aula, lab, dia)
     old_exibicao = None
-    if new_exibicao_config in ['fixa', 'temporaria']:
+    if new_exibicao_config in ['fixa', 'temporaria', 'nenhuma']:
         try:
             acao = 'Inserção'
             if exibicao:
@@ -82,7 +83,7 @@ def atualizar_exibicao(id_aula, id_lab, dia):
                     id_exibicao_local=id_lab,
                     exibicao_dia=dia
                 )
-            exibicao.tipo_reserva = TipoReservaEnum(new_exibicao_config)
+            exibicao.tipo_reserva = TipoReservaExibicaoEnum(new_exibicao_config)
 
             db.session.add(exibicao)
 
