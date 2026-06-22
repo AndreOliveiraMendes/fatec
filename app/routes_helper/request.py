@@ -52,5 +52,5 @@ def get_session_or_request(request, session, key, default=None):
 def check_local(local: Locais, perm:Permission):
     if perm.has(Permission.ADMIN):
         return
-    if local.disponibilidade.value == 'Indisponivel':
+    if not local.disponivel:
         abort(403, description="Local indisponível para reservas.")

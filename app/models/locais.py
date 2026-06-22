@@ -1,9 +1,9 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import TEXT, Enum, String, UniqueConstraint
+from sqlalchemy import TEXT, Boolean, Enum, String, UniqueConstraint, true
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.enums import DisponibilidadeEnum, TipoLocalEnum
+from app.enums import TipoLocalEnum
 from app.extensions import Base
 
 if TYPE_CHECKING:
@@ -18,11 +18,7 @@ class Locais(Base):
     id_local: Mapped[int] = mapped_column(primary_key=True)
     nome_local: Mapped[str] = mapped_column(String(100), nullable=False)
     descrição: Mapped[str | None] = mapped_column(TEXT, nullable=True)
-
-    disponibilidade: Mapped[DisponibilidadeEnum] = mapped_column(
-        Enum(DisponibilidadeEnum, name="disponibilidade_enum", create_constraint=True),
-        server_default=DisponibilidadeEnum.DISPONIVEL.name
-    )
+    disponivel: Mapped[bool] = mapped_column(Boolean, nullable=False)
 
     tipo: Mapped[TipoLocalEnum] = mapped_column(
         Enum(TipoLocalEnum, name="tipo_local_enum", create_constraint=True),
@@ -46,5 +42,5 @@ class Locais(Base):
     def __repr__(self) -> str:
         return (
             f"<Locais(id_local={self.id_local}, nome_local={self.nome_local}, "
-            f"disponibilidade={self.disponibilidade.value}, tipo={self.tipo.value})>"
+            f"disponivel={self.disponivel}, tipo={self.tipo.value})>"
         )

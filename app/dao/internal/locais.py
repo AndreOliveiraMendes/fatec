@@ -1,6 +1,6 @@
 from sqlalchemy import select
 
-from app.enums import DisponibilidadeEnum, TipoLocalEnum
+from app.enums import TipoLocalEnum
 from app.extensions import db
 from app.models.locais import Locais
 
@@ -13,7 +13,7 @@ def get_laboratorios(ignorar_inativo=False):
     sel_laboratorios = select(Locais)
     filtro = [Locais.tipo == TipoLocalEnum.LABORATORIO]
     if not ignorar_inativo:
-        filtro.append(Locais.disponibilidade == DisponibilidadeEnum.DISPONIVEL)
+        filtro.append(Locais.disponivel)
     sel_laboratorios = sel_laboratorios.where(*filtro)
     return db.session.execute(sel_laboratorios).scalars().all()
 
@@ -21,7 +21,7 @@ def get_auditorios():
     sel_auditorios = select(Locais)
     filtro = [
         Locais.tipo == TipoLocalEnum.AUDITORIO,
-        Locais.disponibilidade == DisponibilidadeEnum.DISPONIVEL
+        Locais.disponivel
     ]
     sel_auditorios = sel_auditorios.where(*filtro)
     return db.session.execute(sel_auditorios).scalars().all()
