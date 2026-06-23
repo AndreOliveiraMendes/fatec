@@ -10,6 +10,8 @@ from app.extensions import Base
 if TYPE_CHECKING:
     from app.models.aulas import Aulas_Ativas
     from app.models.locais import Locais
+    from app.models.notifications import (Reserva_Auditorio_Email,
+                                          Reserva_Auditorio_Equipamentos)
     from app.models.usuarios import Pessoas
 
 class Reservas_Auditorios(Base):
@@ -44,6 +46,15 @@ class Reservas_Auditorios(Base):
     aula_ativa: Mapped["Aulas_Ativas"] = relationship("Aulas_Ativas", back_populates="reservas_auditorios", passive_deletes=True)
     responsavel: Mapped["Pessoas"] = relationship("Pessoas", back_populates="reservas_auditorio_responsavel", foreign_keys=[id_responsavel], passive_deletes=True)
     autorizador: Mapped["Pessoas"] = relationship("Pessoas", back_populates="reservas_auditorio_autorizador", foreign_keys=[id_autorizador], passive_deletes=True)
+    emails: Mapped[list["Reserva_Auditorio_Email"]] = relationship(
+        "Reserva_Auditorio_Email",
+        back_populates="reserva_auditorio"
+    )
+
+    itens_equipamentos: Mapped[list["Reserva_Auditorio_Equipamentos"]] = relationship(
+        "Reserva_Auditorio_Equipamentos",
+        back_populates="reserva_auditorio"
+    )
 
     @property
     def selector_identification(self):

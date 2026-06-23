@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import TEXT, Boolean, Enum, String, UniqueConstraint, true
+from sqlalchemy import TEXT, Boolean, Enum, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.enums import TipoLocalEnum
