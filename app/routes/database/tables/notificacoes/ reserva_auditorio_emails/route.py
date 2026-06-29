@@ -1,6 +1,7 @@
 from flask import Blueprint, g, render_template, request
 
 from app.decorators.decorators import admin_required, crud_route
+from app.enums import StatusEmailEnum
 from app.routes_helper.controller import get_controller
 
 from .handlers import dispatcher
@@ -12,6 +13,7 @@ bp = Blueprint('database_reserva_auditorio_emails', __name__, url_prefix="/datab
 @admin_required
 @crud_route()
 def gerenciar_reserva_auditorio_emails():
+    g.extras['SEE'] = StatusEmailEnum
     if request.method == 'POST':
         get_controller(VALID_STATES, dispatcher, g.acao, g.bloco)
 

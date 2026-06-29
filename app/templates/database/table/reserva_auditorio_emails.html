@@ -1,4 +1,48 @@
 {% extends "database/table/base_crude" %}
 {% block title %}
-reserva auditorio emails
+    reserva auditorio emails
 {% endblock title %}
+{% block abertura %}
+    <h3>
+        Gerenciamento da Tabela <strong>Reserva_Auditorio_Emails</strong>
+    </h3>
+    <p class="text-muted text-center">
+        A tabela <code>reserva_auditorio_emails</code> possui os seguintes campos:
+    </p>
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover">
+            <thead>
+                <tr class="information">
+                    <th>Campo</th>
+                    <th>Tipo</th>
+                    <th>Descrição</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for campo, tipo, descricao in [
+                    ('id_email', 'INT (auto_increment, PK)', 'Identificador único do registro de e-mail.'),
+                    ('id_reserva_auditorio', 'INT (FK)', 'Reserva de auditório à qual este e-mail está associado.'),
+                    ('destinatario', 'VARCHAR(120)', 'Endereço de e-mail do destinatário.'),
+                    ('assunto', 'VARCHAR(200)', 'Assunto da mensagem enviada.'),
+                    ('corpo_email', 'TEXT', 'Conteúdo completo do e-mail.'),
+                    ('status_envio', 'VARCHAR(30)', 'Status do envio (ex.: pendente, enviado ou erro).'),
+                    ('data_envio', 'DATETIME', 'Data e hora em que o e-mail foi enviado.'),
+                    ('erro_envio', 'TEXT', 'Mensagem de erro registrada caso o envio falhe.'),
+                    ('criado_em', 'DATETIME', 'Data e hora em que o registro foi criado automaticamente.')
+                    ] %}
+                    <tr>
+                        {% if campo == 'status_envio' %}
+                            {{ description_enum(SEE, campo, descricao) }}
+                        {% else %}
+                            <td>
+                                <code>{{ campo }}</code>
+                            </td>
+                            <td>{{ tipo }}</td>
+                            <td>{{ descricao }}</td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock abertura %}
