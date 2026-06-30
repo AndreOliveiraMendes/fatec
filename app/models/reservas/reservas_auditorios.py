@@ -61,7 +61,8 @@ class Reservas_Auditorios(Base):
         local = self.local.nome_local
         aula = self.aula_ativa.selector_identification
         dia = self.dia_reserva
-        return f" {aula} em {local} no dia {dia}"
+        responsavel = self.responsavel.nome_pessoa
+        return f" {aula} em {local} no dia {dia} por {responsavel}"
 
     def __repr__(self) -> str:
         return (
