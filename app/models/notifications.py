@@ -66,6 +66,7 @@ class Reserva_Auditorio_Email(Base):
         server_default=func.now()
     )
     tentativas: Mapped[int] = mapped_column(nullable=False, server_default="0")
+    ultima_tentativa: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
     # relationship com reserva
     reserva_auditorio: Mapped["Reservas_Auditorios"] = relationship(
