@@ -68,10 +68,11 @@ class StatusReservaAuditorioEnum(StrEnum):
     CANCELADA = "Cancelada"
     
 class StatusEmailEnum(StrEnum):
-    PENDENTE = "PENDENTE"
-    ENVIANDO = "ENVIANDO"
-    ENVIADO = "ENVIADO"
-    ERRO = "ERRO"
+    PENDENTE = "Pendente"
+    ENVIANDO = "Enviando"
+    ENVIADO = "Enviado"
+    ERRO = "Erro"
+    CANCELADO = "Cancelado"
 
 # ==============================
 # Equipamentos

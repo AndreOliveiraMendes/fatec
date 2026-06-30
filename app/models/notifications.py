@@ -47,30 +47,25 @@ class Reserva_Auditorio_Email(Base):
     __tablename__ = "reserva_auditorio_emails"
 
     id_email: Mapped[int] = mapped_column(primary_key=True)
-
     id_reserva_auditorio: Mapped[int] = mapped_column(
         ForeignKey("reservas_auditorios.id_reserva_auditorio"),
         nullable=False
     )
-
     destinatario: Mapped[str] = mapped_column(String(120), nullable=False)
     assunto: Mapped[str] = mapped_column(String(200), nullable=False)
     corpo_email: Mapped[str] = mapped_column(Text, nullable=False)
-
     status_envio: Mapped[StatusEmailEnum] = mapped_column(
         Enum(StatusEmailEnum, name="status_email_enum", create_constraint=True),
         nullable=False,
         server_default=StatusEmailEnum.PENDENTE.name
     )
-
     data_envio: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
-
     erro_envio: Mapped[str | None] = mapped_column(Text, nullable=True)
-
     criado_em: Mapped[datetime] = mapped_column(
         DateTime,
         server_default=func.now()
     )
+    tentativas: Mapped[int] = mapped_column(nullable=False, server_default="0")
 
     # relationship com reserva
     reserva_auditorio: Mapped["Reservas_Auditorios"] = relationship(

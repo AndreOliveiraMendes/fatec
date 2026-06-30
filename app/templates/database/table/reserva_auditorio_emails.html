@@ -46,3 +46,68 @@
         </table>
     </div>
 {% endblock abertura %}
+{% block inserir %}
+    <h3>Inserir E-mail de Reserva de Auditório</h3>
+    <form class="form-group"
+          role="form"
+          action="{{ url_for(url) }}"
+          method="post">
+        <input type="hidden" name="acao" value="{{ acao }}">
+        {{ gerar_select('id_reserva_auditorio', 'Reserva de Auditorio', reservas_auditorios, 'id_reserva_auditorio', 'selector_identification', optional=False) }}
+        <div class="form-group">
+            <label for="destinatario">Destinatário:</label>
+            <input type="email"
+                   class="form-control"
+                   id="destinatario"
+                   name="destinatario"
+                   maxlength="120"
+                   placeholder="Digite o e-mail do destinatário"
+                   required>
+        </div>
+        <div class="form-group">
+            <label for="assunto">Assunto:</label>
+            <input type="text"
+                   class="form-control"
+                   id="assunto"
+                   name="assunto"
+                   maxlength="200"
+                   placeholder="Digite o assunto do e-mail"
+                   required>
+        </div>
+        <div class="form-group">
+            <label for="corpo_email">Corpo do E-mail:</label>
+            <textarea class="form-control"
+                      id="corpo_email"
+                      name="corpo_email"
+                      rows="8"
+                      placeholder="Digite o conteúdo do e-mail"
+                      required></textarea>
+        </div>
+        {{ gerar_enum_select(SEE, 'status_envio', 'Status do email', 'status_envio', False, 'Selecione o status do envio') }}
+        <div class="form-group">
+            <label for="data_envio">Data de envio:</label>
+            <input type="datetime-local"
+                   class="form-control"
+                   id="data_envio"
+                   name="data_envio">
+        </div>
+        <div class="form-group">
+            <label for="erro_envio">Erro de envio:</label>
+            <textarea class="form-control"
+                      id="erro_envio"
+                      name="erro_envio"
+                      rows="3"
+                      placeholder="Preencha apenas se houver erro no envio"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="tentativas">Tentativas:</label>
+            <input type="number"
+                   class="form-control"
+                   id="tentativas"
+                   name="tentativas"
+                   min="0"
+                   value="0">
+        </div>
+        {{ action_buttons(acao, 1, False, 0) }}
+    </form>
+{% endblock inserir %}
