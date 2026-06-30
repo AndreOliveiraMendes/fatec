@@ -106,7 +106,15 @@
                    id="tentativas"
                    name="tentativas"
                    min="0"
-                   value="0">
+                   value="0"
+                   required>
+        </div>
+        <div class="form-group">
+            <label for="ultima_tentativa">Ultima Tentativa:</label>
+            <input type="datetime-local"
+                   class="form-control"
+                   id="ultima_tentativa"
+                   name="ultima_tentativa">
         </div>
         {{ action_buttons(acao, 1, False, 0) }}
     </form>
