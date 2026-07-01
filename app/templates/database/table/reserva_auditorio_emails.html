@@ -1,4 +1,58 @@
 {% extends "database/table/base_crude" %}
+{% macro result_table(message) %}
+    {% call(item) table_base(
+        notificacoes,
+        [
+        'ID',
+        'Reserva',
+        'Destinatário',
+        'Assunto',
+        'Status',
+        'Tentativas',
+        'Última Tentativa',
+        'Data Envio',
+        'Criado em'
+        ],
+        id_field='id_email',
+        vertical_actions=True,
+        table_class='tabela-crude',
+        message=message,
+        pagination=pagination,
+        acao=acao,
+        bloco=bloco,
+        query_params=query_params
+        ) %}
+        <td>{{ item.id_email }}</td>
+        <td>
+            <span data-toggle="tooltip"
+                  data-placement="top"
+                  title="{{ item.reserva_auditorio.selector_identification }}">
+                {{ item.reserva_auditorio.local.nome_local }}
+                <br>
+                <small>{{ item.reserva_auditorio.dia_reserva }}</small>
+            </span>
+        </td>
+        <td>{{ item.destinatario }}</td>
+        <td>{{ item.assunto }}</td>
+        <td>
+            {% if item.status_envio.name == 'ENVIADO' %}
+                <span class="label label-success">{{ item.status_envio.value }}</span>
+            {% elif item.status_envio.name == 'PENDENTE' %}
+                <span class="label label-warning">{{ item.status_envio.value }}</span>
+            {% elif item.status_envio.name == 'ENVIANDO' %}
+                <span class="label label-info">{{ item.status_envio.value }}</span>
+            {% elif item.status_envio.name == 'ERRO' %}
+                <span class="label label-danger">{{ item.status_envio.value }}</span>
+            {% else %}
+                <span class="label label-default">{{ item.status_envio.value }}</span>
+            {% endif %}
+        </td>
+        <td>{{ item.tentativas }}</td>
+        <td>{{ item.ultima_tentativa|format }}</td>
+        <td>{{ item.data_envio|format }}</td>
+        <td>{{ item.criado_em|format }}</td>
+    {% endcall %}
+{% endmacro %}
 {% block title %}
     reserva auditorio emails
 {% endblock title %}
@@ -46,6 +100,10 @@
         </table>
     </div>
 {% endblock abertura %}
+{% block listar %}
+    <h3>Lista de notificacoes</h3>
+    {{ result_table("nenhuma notificação cadastrada") }}
+{% endblock listar %}
 {% block inserir %}
     <h3>Inserir E-mail de Reserva de Auditório</h3>
     <form class="form-group"
