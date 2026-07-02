@@ -104,6 +104,12 @@
     <h3>Lista de notificacoes</h3>
     {{ result_table("nenhuma notificação cadastrada") }}
 {% endblock listar %}
+{% block procurar %}
+    {% if bloco == 0 %}
+        <h3>procurando notificações</h3>
+    {% else %}
+    {% endif %}
+{% endblock procurar %}
 {% block inserir %}
     <h3>Inserir E-mail de Reserva de Auditório</h3>
     <form class="form-group"

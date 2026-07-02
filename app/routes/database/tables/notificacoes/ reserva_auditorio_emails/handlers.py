@@ -25,6 +25,10 @@ def list_handler():
     g.extras['notificacoes'] = notificacoes_paginadas.items
     g.extras['pagination'] = notificacoes_paginadas
 
+@register_handler(dispatcher, 'procurar', 0)
+def search_prefeth():
+    g.extras['reservas_auditorios'] = get_reservas_auditorios_database()
+
 @register_handler(dispatcher, 'inserir', 0)
 def insert_prefetch():
     g.extras['reservas_auditorios'] = get_reservas_auditorios_database()
