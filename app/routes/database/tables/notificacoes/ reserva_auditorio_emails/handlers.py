@@ -1,4 +1,4 @@
-from flask import g, request
+from flask import flash, g, request
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
 
@@ -11,6 +11,7 @@ from app.enums import StatusEmailEnum
 from app.extensions import db
 from app.models.notifications import Reserva_Auditorio_Email
 from app.routes_helper.db_actions import db_action
+from app.routes_helper.request import get_query_params
 from config.general import PER_PAGE
 
 dispatcher = {}
@@ -28,6 +29,61 @@ def list_handler():
 @register_handler(dispatcher, 'procurar', 0)
 def search_prefeth():
     g.extras['reservas_auditorios'] = get_reservas_auditorios_database()
+
+@register_handler(dispatcher, 'procurar', 1)
+def search_fetch():
+    id_email = none_if_empty(request.form.get('id_email'), int)
+    id_reserva_auditorio = none_if_empty(request.form.get('id_reserva_auditorio'), int)
+    destinatario = none_if_empty(request.form.get('destinatario'))
+    assunto = none_if_empty(request.form.get('assunto'))
+    corpo_email = none_if_empty(request.form.get('corpo_email'))
+    status_envio = none_if_empty(request.form.get('status_envio'))
+    data_envio = parse_datetime_string(request.form.get('data_envio'))
+    erro_envio = none_if_empty(request.form.get('erro_envio'))
+    tentativas = none_if_empty(request.form.get('tentativas'), int)
+    ultima_tentativa = parse_datetime_string(request.form.get('ultima_tentativa'))
+
+    filters = []
+    query_params = get_query_params(request)
+    if id_email is not None:
+        filters.append(Reserva_Auditorio_Email.id_email == id_email)
+    if id_reserva_auditorio is not None:
+        filters.append(Reserva_Auditorio_Email.id_reserva_auditorio == id_reserva_auditorio)
+    if destinatario:
+        filters.append(Reserva_Auditorio_Email.destinatario.ilike(f"%{destinatario}%"))
+    if assunto:
+        filters.append(Reserva_Auditorio_Email.assunto.ilike(f"%{assunto}%"))
+    if corpo_email:
+        filters.append(Reserva_Auditorio_Email.corpo_email.ilike(f"%{corpo_email}%"))
+    if status_envio:
+        try:
+            status_enum = StatusEmailEnum(status_envio)
+        except ValueError:
+            status_enum = None
+        if status_enum is not None:
+            filters.append(Reserva_Auditorio_Email.status_envio == status_enum)
+    if data_envio:
+        filters.append(Reserva_Auditorio_Email.data_envio == data_envio)
+    if erro_envio:
+        filters.append(Reserva_Auditorio_Email.erro_envio.ilike(f"%{erro_envio}%"))
+    if tentativas is not None:
+        filters.append(Reserva_Auditorio_Email.tentativas == tentativas)
+    if ultima_tentativa:
+        filters.append(Reserva_Auditorio_Email.ultima_tentativa == ultima_tentativa)
+    if filters:
+        sel_notificacoes = select(Reserva_Auditorio_Email).where(*filters)
+        notificacoes_paginadas = SelectPagination(
+            select=sel_notificacoes, session=db.session,
+            page=g.page, per_page=PER_PAGE, error_out=False
+        )
+        g.extras['notificacoes'] = notificacoes_paginadas.items
+        g.extras['pagination'] = notificacoes_paginadas
+        g.extras['query_params'] = query_params
+    else:
+        flash("especifique pelo menos um campo de busca", "danger")
+        g.redirect_action, g.bloco = register_return(
+            g.url, g.acao, g.extras
+        )
 
 @register_handler(dispatcher, 'inserir', 0)
 def insert_prefetch():

@@ -107,7 +107,93 @@
 {% block procurar %}
     {% if bloco == 0 %}
         <h3>procurando notificações</h3>
+        <h3>Procurar E-mails de Reserva de Auditório</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label for="id_email">Código do E-mail:</label>
+                <input class="form-control" type="number" id="id_email" name="id_email">
+            </div>
+            {{ gerar_select('id_reserva_auditorio',
+                        'Reserva de Auditório',
+                        reservas_auditorios,
+                        'id_reserva_auditorio',
+                        'selector_identification',
+                        optional=True) }}
+            <div class="form-group">
+                <label for="destinatario">Destinatário:</label>
+                <input class="form-control"
+                       type="email"
+                       id="destinatario"
+                       name="destinatario"
+                       maxlength="120">
+            </div>
+            <div class="form-group">
+                <label for="assunto">Assunto:</label>
+                <input class="form-control"
+                       type="text"
+                       id="assunto"
+                       name="assunto"
+                       maxlength="200">
+            </div>
+            <div class="form-group">
+                <label for="corpo_email">Corpo do E-mail:</label>
+                <textarea class="form-control"
+                          id="corpo_email"
+                          name="corpo_email"
+                          rows="6"
+                          cols="60"></textarea>
+            </div>
+            {{ gerar_enum_select(SEE,
+                        'status_envio',
+                        'Status do e-mail',
+                        'status_envio',
+                        True) }}
+            <div class="form-group">
+                <label for="data_envio">Data de Envio:</label>
+                <input class="form-control"
+                       type="datetime-local"
+                       id="data_envio"
+                       name="data_envio">
+            </div>
+            <div class="form-group">
+                <label for="erro_envio">Erro de Envio:</label>
+                <textarea class="form-control"
+                          id="erro_envio"
+                          name="erro_envio"
+                          rows="4"
+                          cols="60"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="tentativas">Tentativas:</label>
+                <input class="form-control"
+                       type="number"
+                       id="tentativas"
+                       name="tentativas"
+                       min="0">
+            </div>
+            <div class="form-group">
+                <label for="ultima_tentativa">Última Tentativa:</label>
+                <input class="form-control"
+                       type="datetime-local"
+                       id="ultima_tentativa"
+                       name="ultima_tentativa">
+            </div>
+            <div class="form-group">
+                <label for="criado_em">Criado em:</label>
+                <input class="form-control"
+                       type="datetime-local"
+                       id="criado_em"
+                       name="criado_em">
+            </div>
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
     {% else %}
+        <h3>Resultados da pesquisa</h3>
+        {{ result_table("nenhuma notificação encontrada") }}
     {% endif %}
 {% endblock procurar %}
 {% block inserir %}
