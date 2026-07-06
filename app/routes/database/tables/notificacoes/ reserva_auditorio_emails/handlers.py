@@ -1,3 +1,5 @@
+from copy import copy
+
 from flask import flash, g, request
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
@@ -5,6 +7,7 @@ from sqlalchemy import select
 from app.auxiliar.general import get_value_or_abort, none_if_empty
 from app.auxiliar.navigation import register_return
 from app.auxiliar.parsing import parse_datetime_string
+from app.dao.internal.notification import get_notificacoes_email
 from app.dao.internal.reservas import get_reservas_auditorios_database
 from app.decorators.decorators import register_handler
 from app.enums import StatusEmailEnum
@@ -122,4 +125,61 @@ def insert_push():
 
     g.redirect_action, g.bloco = register_return(
         g.url, g.acao, g.extras
+    )
+
+@register_handler(dispatcher, 'editar', 0)
+@register_handler(dispatcher, 'excluir', 0)
+def fetch_notificacoes():
+    g.extras['notificacoes'] = get_notificacoes_email()
+
+@register_handler(dispatcher, 'editar', 1)
+@register_handler(dispatcher, 'excluir', 1)
+def fetch_notificao():
+    id_email = none_if_empty(request.form.get('id_email'), int)
+    notificacao = db.get_or_404(Reserva_Auditorio_Email, id_email)
+    g.extras['notificacao'] = notificacao
+    g.extras['reservas_auditorios'] = get_reservas_auditorios_database()
+
+@register_handler(dispatcher, 'editar', 2)
+def edit_push():
+    id_email = none_if_empty(request.form.get('id_email'), int)
+    id_reserva_auditorio = get_value_or_abort(request.form.get('id_reserva_auditorio'), 400, "id_reserva_auditorio é obrigatorio", int)
+    destinatario = get_value_or_abort(request.form.get('destinatario'), 400, "destinatário é obrigatorio")
+    assunto = get_value_or_abort(request.form.get('assunto'), 400, "assunto é obrigatorio")
+    corpo_email = get_value_or_abort(request.form.get('corpo_email'), 400, "conteudo é obrigatorio")
+    status_envio = get_value_or_abort(request.form.get('status_envio'), 400, "status_envio é obrigatorio")
+    data_envio = parse_datetime_string(request.form.get('data_envio'))
+    erro_envio = none_if_empty(request.form.get('erro_envio'))
+    tentativas = get_value_or_abort(request.form.get('tentativas'), 400, "tentativas é obrigatorio", int)
+    ultima_tentativa = parse_datetime_string(request.form.get('ultima_tentativa'))
+
+    notificacao = db.get_or_404(Reserva_Auditorio_Email, id_email)
+    dados_anteriores = copy(notificacao)
+
+    def update():
+        notificacao.id_reserva_auditorio = id_reserva_auditorio
+        notificacao.destinatario = destinatario
+        notificacao.assunto = assunto
+        notificacao.corpo_email = corpo_email
+        notificacao.status_envio = StatusEmailEnum(status_envio)
+        if data_envio:
+            notificacao.data_envio = data_envio
+        if erro_envio:
+            notificacao.erro_envio = erro_envio
+        notificacao.tentativas = tentativas
+        if ultima_tentativa:
+            notificacao.ultima_tentativa = ultima_tentativa
+    
+    db_action(
+        "Edição",
+        "Notificação editada com sucesso",
+        "Erro ao editar notificacação",
+        obj=notificacao,
+        old_obj=dados_anteriores,
+        action=update
+    )
+
+    g.redirect_action, g.bloco = register_return(
+        g.url, g.acao, g.extras,
+        notificacoes = get_notificacoes_email()
     )

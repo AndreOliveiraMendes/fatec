@@ -5,17 +5,14 @@
         [
         'ID',
         'Reserva',
-        'Destinatário',
-        'Assunto',
         'Status',
         'Tentativas',
-        'Última Tentativa',
         'Data Envio',
-        'Criado em'
+        'Ações'
         ],
         id_field='id_email',
-        vertical_actions=True,
         table_class='tabela-crude',
+        show_actions=False,
         message=message,
         pagination=pagination,
         acao=acao,
@@ -32,8 +29,6 @@
                 <small>{{ item.reserva_auditorio.dia_reserva }}</small>
             </span>
         </td>
-        <td>{{ item.destinatario }}</td>
-        <td>{{ item.assunto }}</td>
         <td>
             {% if item.status_envio.name == 'ENVIADO' %}
                 <span class="label label-success">{{ item.status_envio.value }}</span>
@@ -48,10 +43,100 @@
             {% endif %}
         </td>
         <td>{{ item.tentativas }}</td>
-        <td>{{ item.ultima_tentativa|format }}</td>
         <td>{{ item.data_envio|format }}</td>
-        <td>{{ item.criado_em|format }}</td>
+        <td>
+            <form method="post" class="form-inline">
+                <input type="hidden" name="bloco" value="1">
+                <input type="hidden" name="id_email" value="{{ item.id_email }}">
+                <div class="btn-group">
+                    <button type="submit"
+                            name="acao"
+                            value="editar"
+                            class="btn btn-warning btn-sm"
+                            title="Editar">
+                        <i class="glyphicon glyphicon-pencil"></i>
+                    </button>
+                    <button type="submit"
+                            name="acao"
+                            value="excluir"
+                            class="btn btn-danger btn-sm"
+                            title="Excluir">
+                        <i class="glyphicon glyphicon-trash"></i>
+                    </button>
+                    <button type="button"
+                            class="btn btn-info btn-sm"
+                            title="Visualizar"
+                            data-toggle="modal"
+                            data-target="#modalEmail"
+                            data-id="{{ item.id_email }}"
+                            data-destinatario="{{ item.destinatario|e }}"
+                            data-assunto="{{ item.assunto|e }}"
+                            data-status="{{ item.status_envio.value|e }}"
+                            data-corpo="{{ item.corpo_email|e }}"
+                            data-erro="{{ item.erro_envio|default('', true) |e }}"
+                            data-tentativas="{{ item.tentativas }}"
+                            data-data_envio="{{ item.data_envio|e }}"
+                            data-criado_em="{{ item.criado_em|e }}"
+                            data-ultima_tentativa="{{ item.ultima_tentativa|e }}">
+                        <i class="glyphicon glyphicon-eye-open"></i>
+                    </button>
+                </div>
+            </form>
+        </td>
     {% endcall %}
+    <div class="modal fade" id="modalEmail" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h4 class="modal-title">Detalhes do e-mail</h4>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        <b>ID:</b> <span id="emailId"></span>
+                    </p>
+                    <p>
+                        <b>Destinatário:</b> <span id="emailDestinatario"></span>
+                    </p>
+                    <p>
+                        <b>Assunto:</b> <span id="emailAssunto"></span>
+                    </p>
+                    <p>
+                        <b>Status:</b> <span id="emailStatus"></span>
+                    </p>
+                    <hr>
+                    <h4>Corpo do e-mail</h4>
+                    <pre id="emailCorpo" class="pre-wrap break-word"></pre>
+                    <table class="table table-condensed table-bordered">
+                        <tbody>
+                            <tr>
+                                <th class="w180">Tentativas</th>
+                                <td id="emailTentativas"></td>
+                            </tr>
+                            <tr>
+                                <th>Data de envio</th>
+                                <td id="emailDataEnvio"></td>
+                            </tr>
+                            <tr>
+                                <th>Última tentativa</th>
+                                <td id="emailUltimaTentativa"></td>
+                            </tr>
+                            <tr>
+                                <th>Criado em</th>
+                                <td id="emailCriadoEm"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <hr>
+                    <h4>Erro de envio</h4>
+                    <pre id="emailErro"></pre>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endmacro %}
 {% block title %}
     reserva auditorio emails
@@ -269,3 +354,124 @@
         {{ action_buttons(acao, 1, False, 0) }}
     </form>
 {% endblock inserir %}
+{% block editar %}
+    {% if bloco == 0 %}
+        <h3>Editar notificacões</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            {{ gerar_select("id_email", "Selecione o e-mail", notificacoes, "id_email", "destinatario") }}
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <h3>Editar notificacão</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label for="id_email">Código do E-mail:</label>
+                <input type="number"
+                       class="form-control"
+                       id="id_email"
+                       name="id_email"
+                       value="{{ notificacao.id_email }}"
+                       readonly>
+            </div>
+            {{ gerar_select('id_reserva_auditorio', 'Reserva de Auditorio', reservas_auditorios, 'id_reserva_auditorio', 'selector_identification', optional=False, selected=notificacao.id_reserva_auditorio) }}
+            <div class="form-group">
+                <label for="destinatario">Destinatário:</label>
+                <input type="email"
+                       class="form-control"
+                       id="destinatario"
+                       name="destinatario"
+                       maxlength="120"
+                       placeholder="Digite o e-mail do destinatário"
+                       value="{{ notificacao.destinatario }}"
+                       required>
+            </div>
+            <div class="form-group">
+                <label for="assunto">Assunto:</label>
+                <input type="text"
+                       class="form-control"
+                       id="assunto"
+                       name="assunto"
+                       maxlength="200"
+                       placeholder="Digite o assunto do e-mail"
+                       value="{{ notificacao.assunto }}"
+                       required>
+            </div>
+            <div class="form-group">
+                <label for="corpo_email">Corpo do E-mail:</label>
+                <textarea class="form-control"
+                          id="corpo_email"
+                          name="corpo_email"
+                          rows="8"
+                          placeholder="Digite o conteúdo do e-mail"
+                          required>{{ notificacao.corpo_email|format(1) }}</textarea>
+            </div>
+            {{ gerar_enum_select(SEE, 'status_envio', 'Status do email', 'status_envio', False, 'Selecione o status do envio', selected=notificacao.status_envio.value) }}
+            <div class="form-group">
+                <label for="data_envio">Data de envio:</label>
+                <input type="datetime-local"
+                       class="form-control"
+                       id="data_envio"
+                       name="data_envio"
+                       value="{{ notificacao.data_envio }}">
+            </div>
+            <div class="form-group">
+                <label for="erro_envio">Erro de envio:</label>
+                <textarea class="form-control"
+                          id="erro_envio"
+                          name="erro_envio"
+                          rows="3"
+                          placeholder="Preencha apenas se houver erro no envio">{{ notificacao.erro_envio|format(1) }}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="tentativas">Tentativas:</label>
+                <input type="number"
+                       class="form-control"
+                       id="tentativas"
+                       name="tentativas"
+                       min="0"
+                       value="{{ notificacao.tentativas }}"
+                       required>
+            </div>
+            <div class="form-group">
+                <label for="ultima_tentativa">Ultima Tentativa:</label>
+                <input type="datetime-local"
+                       class="form-control"
+                       id="ultima_tentativa"
+                       name="ultima_tentativa"
+                       value="{{ notificacao.ultima_tentativa }}">
+            </div>
+            {{ action_buttons(acao, 2, True, 0) }}
+        </form>
+    {% endif %}
+{% endblock editar %}
+{% block extra_script %}
+    {% if acao == 'listar' or (acao == 'procurar' and bloco == 1) %}
+        <script>
+            $('#modalEmail').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget);
+
+                $('#emailId').text(button.data('id'));
+                $('#emailDestinatario').text(button.data('destinatario'));
+                $('#emailAssunto').text(button.data('assunto'));
+                $('#emailStatus').text(button.data('status'));
+
+                $('#emailCorpo').text(button.data('corpo'));
+
+                $('#emailTentativas').text(button.data('tentativas'));
+                $('#emailDataEnvio').text(button.data('data_envio') || '-');
+                $('#emailUltimaTentativa').text(button.data('ultima_tentativa') || '-');
+                $('#emailCriadoEm').text(button.data('criado_em') || '-');
+
+                $('#emailErro').text(button.data('erro') || 'Nenhum');
+            });
+        </script>
+    {% endif %}
+{% endblock extra_script %}

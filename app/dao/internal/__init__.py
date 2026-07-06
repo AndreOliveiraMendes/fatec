@@ -6,3 +6,4 @@ from .historicos import *
 from .locais import *
 from .reservas import *
 from .usuarios import *
+from .notification import *
