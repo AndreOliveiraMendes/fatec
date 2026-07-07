@@ -4,6 +4,6 @@ from .equipamentos import *
 from .general import *
 from .historicos import *
 from .locais import *
+from .notification import *
 from .reservas import *
 from .usuarios import *
-from .notification import *

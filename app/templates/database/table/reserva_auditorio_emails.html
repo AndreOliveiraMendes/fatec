@@ -74,7 +74,7 @@
                             data-status="{{ item.status_envio.value|e }}"
                             data-corpo="{{ item.corpo_email|e }}"
                             data-erro="{{ item.erro_envio|default('', true) |e }}"
-                            data-tentativas="{{ item.tentativas }}"
+                            data-tentativas="{{ item.tentativas|e }}"
                             data-data_envio="{{ item.data_envio|e }}"
                             data-criado_em="{{ item.criado_em|e }}"
                             data-ultima_tentativa="{{ item.ultima_tentativa|e }}">
@@ -452,6 +452,111 @@
         </form>
     {% endif %}
 {% endblock editar %}
+{% block excluir %}
+    {% if bloco == 0 %}
+        <h3>Excluir notificacões</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            {{ gerar_select("id_email", "Selecione o e-mail", notificacoes, "id_email", "destinatario") }}
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <h3>Editar notificacão</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label for="id_email">Código do E-mail:</label>
+                <input type="number"
+                       class="form-control"
+                       id="id_email"
+                       name="id_email"
+                       value="{{ notificacao.id_email }}"
+                       readonly>
+            </div>
+            {{ gerar_select('id_reserva_auditorio', 'Reserva de Auditorio', reservas_auditorios, 'id_reserva_auditorio', 'selector_identification', optional=False, selected=notificacao.id_reserva_auditorio, extra='disabled') }}
+            <div class="form-group">
+                <label for="destinatario">Destinatário:</label>
+                <input type="email"
+                       class="form-control"
+                       id="destinatario"
+                       name="destinatario"
+                       maxlength="120"
+                       placeholder="Digite o e-mail do destinatário"
+                       value="{{ notificacao.destinatario }}"
+                       required
+                       disabled>
+            </div>
+            <div class="form-group">
+                <label for="assunto">Assunto:</label>
+                <input type="text"
+                       class="form-control"
+                       id="assunto"
+                       name="assunto"
+                       maxlength="200"
+                       placeholder="Digite o assunto do e-mail"
+                       value="{{ notificacao.assunto }}"
+                       required
+                       disabled>
+            </div>
+            <div class="form-group">
+                <label for="corpo_email">Corpo do E-mail:</label>
+                <textarea class="form-control"
+                          id="corpo_email"
+                          name="corpo_email"
+                          rows="8"
+                          placeholder="Digite o conteúdo do e-mail"
+                          required
+                          disabled>{{ notificacao.corpo_email|format(1) }}</textarea>
+            </div>
+            {{ gerar_enum_select(SEE, 'status_envio', 'Status do email', 'status_envio', False, 'Selecione o status do envio', selected=notificacao.status_envio.value, extras='disabled') }}
+            <div class="form-group">
+                <label for="data_envio">Data de envio:</label>
+                <input type="datetime-local"
+                       class="form-control"
+                       id="data_envio"
+                       name="data_envio"
+                       value="{{ notificacao.data_envio }}"
+                       disabled>
+            </div>
+            <div class="form-group">
+                <label for="erro_envio">Erro de envio:</label>
+                <textarea class="form-control"
+                          id="erro_envio"
+                          name="erro_envio"
+                          rows="3"
+                          placeholder="Preencha apenas se houver erro no envio"
+                          disabled>{{ notificacao.erro_envio|format(1) }}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="tentativas">Tentativas:</label>
+                <input type="number"
+                       class="form-control"
+                       id="tentativas"
+                       name="tentativas"
+                       min="0"
+                       value="{{ notificacao.tentativas }}"
+                       required
+                       disabled>
+            </div>
+            <div class="form-group">
+                <label for="ultima_tentativa">Ultima Tentativa:</label>
+                <input type="datetime-local"
+                       class="form-control"
+                       id="ultima_tentativa"
+                       name="ultima_tentativa"
+                       value="{{ notificacao.ultima_tentativa }}"
+                       disabled>
+            </div>
+            {{ action_buttons(acao, 2, True, 0, False) }}
+        </form>
+    {% endif %}
+{% endblock excluir %}
 {% block extra_script %}
     {% if acao == 'listar' or (acao == 'procurar' and bloco == 1) %}
         <script>

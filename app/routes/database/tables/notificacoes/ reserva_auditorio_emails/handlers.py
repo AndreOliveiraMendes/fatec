@@ -183,3 +183,21 @@ def edit_push():
         g.url, g.acao, g.extras,
         notificacoes = get_notificacoes_email()
     )
+
+@register_handler(dispatcher, 'excluir', 2)
+def delet_push():
+    id_email = none_if_empty(request.form.get('id_email'), int)
+
+    notificacao = db.get_or_404(Reserva_Auditorio_Email, id_email)
+
+    db_action(
+        "Exclusão",
+        "Notificação excluida com sucesso",
+        "Erro ao excluir notificação",
+        notificacao
+    )
+
+    g.redirect_action, g.bloco = register_return(
+        g.url, g.acao, g.extras,
+        notificacoes = get_notificacoes_email()
+    )   
