@@ -23,6 +23,8 @@ class Reserva_Auditorio_Equipamentos(Base):
         ForeignKey("equipamentos.id_equipamento"),
         nullable=False
     )
+    quantidade: Mapped[int] = mapped_column(nullable=False, server_default="1")
+    observacoes: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     # relationships
     reserva_auditorio: Mapped["Reservas_Auditorios"] = relationship(
@@ -40,7 +42,9 @@ class Reserva_Auditorio_Equipamentos(Base):
         return (
             f"<ReservaAuditorioEquipamentos("
             f"id_reserva_auditorio={self.id_reserva_auditorio}, "
-            f"id_equipamento={self.id_equipamento})>"
+            f"id_equipamento={self.id_equipamento}, "
+            f"quantidade={self.quantidade}, "
+            f"observacoes={self.observacoes})>"
         )
 
 class Reserva_Auditorio_Email(Base):

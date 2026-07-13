@@ -24,7 +24,9 @@
                 {% for campo, tipo, descricao in [
                     ('id_item', 'INT (auto_increment, PK)', 'Identificador único do item (equipamento) associado a uma reserva de auditório.'),
                     ('id_reserva_auditorio', 'INT (FK)', 'Reserva de auditório à qual o equipamento está vinculado.'),
-                    ('id_equipamento', 'INT (FK)', 'Equipamento associado à reserva.')
+                    ('id_equipamento', 'INT (FK)', 'Equipamento associado à reserva.'),
+                    ('quantidade', 'INT', 'Quantidade do equipamento reservado para a reserva de auditório.'),
+                    ('observacoes', 'TEXT', 'Observações adicionais sobre o equipamento reservado, se houver.'),
                 ] %}
                     <tr>
                         <td>
