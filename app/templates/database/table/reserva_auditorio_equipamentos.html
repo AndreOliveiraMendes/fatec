@@ -6,11 +6,9 @@
     <h3>
         Gerenciamento da Tabela <strong>Reserva_Auditorio_Equipamentos</strong>
     </h3>
-
     <p class="text-muted text-center">
         A tabela <code>reserva_auditorio_equipamentos</code> possui os seguintes campos:
     </p>
-
     <div class="table-responsive">
         <table class="table table-striped table-bordered table-hover">
             <thead>
@@ -27,7 +25,7 @@
                     ('id_equipamento', 'INT (FK)', 'Equipamento associado à reserva.'),
                     ('quantidade', 'INT', 'Quantidade do equipamento reservado para a reserva de auditório.'),
                     ('observacoes', 'TEXT', 'Observações adicionais sobre o equipamento reservado, se houver.'),
-                ] %}
+                    ] %}
                     <tr>
                         <td>
                             <code>{{ campo }}</code>
@@ -40,3 +38,33 @@
         </table>
     </div>
 {% endblock abertura %}
+{% block inserir %}
+    <h3>Inserir Item de Reserva de Auditório</h3>
+    <form class="form-group"
+          role="form"
+          action="{{ url_for(url) }}"
+          method="post">
+        <input type="hidden" name="acao" value="{{ acao }}">
+        {{ gerar_select('id_reserva_auditorio', 'Reserva de Auditório', reservas_auditorios, 'id_reserva_auditorio', 'selector_identification', optional=False) }}
+        {{ gerar_select('id_equipamento', 'Equipamento', equipamentos, 'id_equipamento', 'nome_equipamento', optional=False) }}
+        <div class="form-group">
+            <label for="quantidade">Quantidade:</label>
+            <input type="number"
+                   class="form-control"
+                   id="quantidade"
+                   name="quantidade"
+                   min="1"
+                   value="1"
+                   required>
+        </div>
+        <div class="form-group">
+            <label for="observacoes">Observações:</label>
+            <textarea class="form-control"
+                      id="observacoes"
+                      name="observacoes"
+                      rows="4"
+                      placeholder="Insira observações específicas para este equipamento (opcional)."></textarea>
+        </div>
+        {{ action_buttons(acao, 1, False, 0) }}
+    </form>
+{% endblock inserir %}
