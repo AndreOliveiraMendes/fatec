@@ -1,4 +1,37 @@
 {% extends "database/table/base_crude" %}
+{% macro result_table(message) %}
+    {% call(item) table_base(
+        items,
+        [
+        'Codigo',
+        'reserva auditorio',
+        'equipamento',
+        'quantidade',
+        'observacoes'
+        ],
+        id_field='id_item',
+        message=message,
+        vertical_actions=False,
+        pagination=pagination,
+        acao=acao,
+        bloco=bloco,
+        query_params=query_params
+        ) %}
+        <td>{{ item.id_item }}</td>
+        <td>
+            <span data-toggle="tooltip"
+                  data-placement="top"
+                  title="{{ item.reserva_auditorio.selector_identification }}">
+                {{ item.reserva_auditorio.local.nome_local }}
+                <br>
+                <small>{{ item.reserva_auditorio.dia_reserva }}</small>
+            </span>
+        </td>
+        <td>{{ item.equipamento.nome_equipamento }}</td>
+        <td>{{ item.quantidade }}</td>
+        <td>{{ item.observacao|format }}</td>
+    {% endcall %}
+{% endmacro %}
 {% block title %}
     reserva auditorio equipamentos
 {% endblock title %}
@@ -38,6 +71,10 @@
         </table>
     </div>
 {% endblock abertura %}
+{% block listar %}
+    <h3>send dunes</h3>
+    {{ result_table("Nenhum equipamento associado a uma reserva de auditorio") }}
+{% endblock listar %}
 {% block inserir %}
     <h3>Inserir Item de Reserva de Auditório</h3>
     <form class="form-group"

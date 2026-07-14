@@ -1,15 +1,29 @@
 from flask import g, request
+from flask_sqlalchemy.pagination import SelectPagination
+from sqlalchemy import select
 
 from app.auxiliar.general import none_if_empty
 from app.auxiliar.navigation import register_return
 from app.dao.internal.equipamentos import get_equipamentos
 from app.dao.internal.reservas import get_reservas_auditorios_database
 from app.decorators.decorators import register_handler
+from app.extensions import db
 from app.models.notifications import Reserva_Auditorio_Equipamentos
 from app.routes_helper.db_actions import db_action
+from config.general import PER_PAGE
 
 
 dispatcher = {}
+
+@register_handler(dispatcher, 'listar', 0)
+def list_handler():
+    sel_items = select(Reserva_Auditorio_Equipamentos)
+    items_paginados = SelectPagination(
+        select=sel_items, session=db.session,
+        page=g.page, per_page=PER_PAGE, error_out=False
+    )
+    g.extras['items'] = items_paginados.items
+    g.extras['pagination'] = items_paginados
 
 @register_handler(dispatcher, 'inserir', 0)
 def insert_prefetch():
