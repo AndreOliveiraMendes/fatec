@@ -85,7 +85,8 @@ def search_fetch():
     else:
         flash("especifique pelo menos um campo de busca", "danger")
         g.redirect_action, g.bloco = register_return(
-            g.url, g.acao, g.extras
+            g.url, g.acao, g.extras,
+            reservas_auditorios=get_reservas_auditorios_database()
         )
 
 @register_handler(dispatcher, 'inserir', 0)
@@ -124,7 +125,8 @@ def insert_push():
     )
 
     g.redirect_action, g.bloco = register_return(
-        g.url, g.acao, g.extras
+        g.url, g.acao, g.extras,
+        reservas_auditorios=get_reservas_auditorios_database()
     )
 
 @register_handler(dispatcher, 'editar', 0)
