@@ -24,6 +24,11 @@ def list_handler():
     )
     g.extras['items'] = items_paginados.items
     g.extras['pagination'] = items_paginados
+    
+@register_handler(dispatcher, 'procurar', 0)
+def search_prefetch():
+    g.extras['reservas_auditorios'] = get_reservas_auditorios_database()
+    g.extras['equipamentos'] = get_equipamentos()    
 
 @register_handler(dispatcher, 'inserir', 0)
 def insert_prefetch():
@@ -52,5 +57,7 @@ def insert_push():
     )
 
     g.redirect_action, g.bloco = register_return(
-        g.url, g.acao, g.extras
+        g.url, g.acao, g.extras,
+        reservas_auditorios=get_reservas_auditorios_database(),
+        equipamentos=get_equipamentos()
     )
