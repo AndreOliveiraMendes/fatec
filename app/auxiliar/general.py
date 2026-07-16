@@ -29,16 +29,16 @@ def none_if_empty(value: Any, cast_type: Callable[[Any], V] = str) -> Optional[V
         return cast_type(value)
     except (ValueError, TypeError):
         return None
-    
+
 def get_value_or_abort(value: Any, error_code, error_message, cast_type: Callable[[Any], V] = str) -> V:
     if value is None:
         abort(error_code, description=error_message)
-        
+
     if isinstance(value, str):
         value = value.strip()
         if not value:
             abort(error_code, description=error_message)
-            
+
     try:
         return cast_type(value)
     except (ValueError, TypeError):

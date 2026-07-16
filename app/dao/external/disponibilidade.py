@@ -44,9 +44,9 @@ def get_grade_by_professor(
                 query = f"""
                     SELECT {', '.join(select_fields)}
                     FROM grade
-                    INNER JOIN curso 
+                    INNER JOIN curso
                         ON grade.curso = curso.codigo
-                    INNER JOIN disciplina 
+                    INNER JOIN disciplina
                         ON grade.disciplina = disciplina.codigo
                 """
 

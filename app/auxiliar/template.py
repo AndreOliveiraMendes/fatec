@@ -111,7 +111,7 @@ def register_template_utils(app:Flask):
 
         html += '</div>\n</form>\n</div>'
         return Markup(html)
-    
+
     @app.template_global()
     def generate_database_head(current_table: str) -> Markup:
         tables_info: List[Tuple[str, str, str, str]] = [
@@ -142,7 +142,7 @@ def register_template_utils(app:Flask):
             sigla = ''.join(p[0] for p in re.findall(r'\w+', secao))
             active_class = ' class="active"' if table == current_table else ''
             html_parts.append(f'<li role="presentation"{active_class}>')
-            
+
             if not url in current_app.view_functions:
                 url = 'default.under_dev_page'
 
@@ -194,7 +194,7 @@ def register_template_utils(app:Flask):
         document.getElementById('filter-tabela').addEventListener('keyup', filterPills);
     </script>
     ''')
-        
+
         return Markup('\n'.join(html_parts))
 
     def lab_url(tipo, turno:Turnos|None, local:Locais|None, **kwargs):
@@ -215,35 +215,35 @@ def register_template_utils(app:Flask):
             abort(403, description="Usuário não autenticado.")
 
         html_parts = ['<div class="pills-group"><ul class="nav nav-pills">']
-        
+
         for lab in locais:
             active_class = ''
             active_link = lab_url(tipo, turno, lab, **kwargs)
             extra = ''
-            
+
             if current and current.id_local == lab.id_local:
                 active_class = 'active'
                 active_link = lab_url(tipo, turno, None, **kwargs)
-            
+
             if not lab.disponivel:
                 if not user.perm.has(Permission.ADMIN):
                     active_class = 'disabled'
                     active_link = ""
                 else:
                     extra = ' <span class="glyphicon glyphicon-exclamation-sign"></span>'
-            
+
             html_parts.append(f'<li role="presentation" class="{active_class}">')
             html_parts.append(f'<a href="{active_link}" class="{active_class}">{lab.nome_local}{extra}</a>')
             html_parts.append('</li>')
-        
+
         html_parts.append('</ul></div>')
-        
+
         return Markup(''.join(html_parts))
 
     @app.template_global()
     def generate_situacao_head(current: Literal['exibicao', 'situacao', 'fixa', 'temporaria', 'comandos', 'equipamento']) -> Markup:
         html_parts: List[str] = ['<div class="pills-group"><ul class="nav nav-pills">']
-        
+
         for builder in situacoes_helper:
             key = builder.get('key')
             enabled = builder.get('enabled', True)
@@ -253,10 +253,10 @@ def register_template_utils(app:Flask):
             label = builder.get('label', key)
             params = builder.get('param', {})
             url = url_for(url_path, **params)
-            
+
             active_class = 'active' if current == key else ''
             disabled_class = 'disabled_a_click' if current == key else ''
-            
+
             html_parts.append(f'<li role="presentation" class="{active_class}">')
             html_parts.append(f'<a href="{url}" class="{disabled_class}">')
             html_parts.append(f'{label}')
@@ -266,9 +266,9 @@ def register_template_utils(app:Flask):
                 )
             html_parts.append('</a>')
             html_parts.append('</li>')
-        
+
         html_parts.append('</ul></div>')
-        
+
         return Markup(''.join(html_parts))
 
     @app.template_global()
@@ -297,7 +297,7 @@ def register_template_utils(app:Flask):
     @app.template_global('get_responsavel_reserva')
     def get_responsavel_reserva_template(reserva:Reservas_Fixas|Reservas_Temporarias, modo_template = False):
         return get_responsavel_reserva(reserva, modo_template)
-    
+
     @app.template_global('get_nome_pessoa_by_id')
     def get_nome_pessoa_by_id_template(id, tipo, abort_on_null = True):
         return get_nome_pessoa_by_id(id, tipo, abort_on_null)
@@ -306,21 +306,21 @@ def register_template_utils(app:Flask):
     def get_reserva_template(lab, aula, dia, mostrar_icone=False, tela_televisor=False, tela=None):
         partes = get_reserva(lab, aula, dia, mostrar_icone, tela_televisor, tela)
         return Markup("<br>".join(partes))
-    
+
     def resolve_endpoint(endpoint):
         if endpoint not in current_app.view_functions:
             return 'default.under_dev_page'
         return endpoint
-    
+
     @app.template_global()
     def safe_url(endpoint, **values):
 
         return url_for(resolve_endpoint(endpoint), **values)
-    
+
     @app.template_global()
     def is_under_dev_url(endpoint):
         return resolve_endpoint(endpoint) == 'default.under_dev_page'
-    
+
     @app.template_global()
     def endpoint_status(endpoint):
 
@@ -345,7 +345,7 @@ def register_template_utils(app:Flask):
             return value & flag == flag
         else:
             return value & flag > 0
-    
+
     @app.template_filter('tipo_responsavel_label')
     def tipo_responsavel_label(value):
         labels = ['Usuário', 'Especial', 'Ambos', 'Nenhum']
@@ -360,8 +360,8 @@ def register_template_utils(app:Flask):
             return value if value else ('-' if option == 0 else '')
         else:
             return json.dumps(value) if value else ''
-    
-    
+
+
     @app.template_filter('hora')
     def format_hora(value):
         return value.strftime('%H:%M') if value else ''
@@ -417,11 +417,11 @@ def register_template_utils(app:Flask):
     @app.context_processor
     def inject_permissions():
         return PERMISSIONS
-    
+
     @app.context_processor
     def inject_data_flags():
         return DATA_FLAGS
-    
+
     @app.context_processor
     def inject_title():
         return {"app": APP_TITLE}

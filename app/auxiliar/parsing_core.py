@@ -30,7 +30,7 @@ def _parse_generic(
         return extractor(dt) if extractor else dt
     except ValueError:
         return None
-    
+
 @overload
 def _parse_generic_or_abort(
     value: str | None,

@@ -251,8 +251,8 @@
 
             // --- Painel de comandos sem laboratório ---
             function renderTabelaGlobais(comandos) {
-                const globais = comandos.filter(cmd => 
-                    !cmd.params.some(p => 
+                const globais = comandos.filter(cmd =>
+                    !cmd.params.some(p =>
                         p.selection_type === 'auto' && Array.isArray(p.values) && p.values.length
                     )
                 );

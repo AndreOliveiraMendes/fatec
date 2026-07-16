@@ -33,11 +33,11 @@ def ajuste_quantidade(id, quantidade, reservado, dia, observacao):
         return 400, "ID do usuário inválido"
 
     user = get_user(userid)
-    try: 
+    try:
         quantidade_equipamento = get_unique_or_500(
             EquipamentoDisponibilidade,
             EquipamentoDisponibilidade.id_equipamento == id,
-            EquipamentoDisponibilidade.data == dia            
+            EquipamentoDisponibilidade.data == dia
         )
 
         if not quantidade_equipamento:
@@ -73,7 +73,7 @@ def ajuste_quantidade(id, quantidade, reservado, dia, observacao):
             quantidade_equipamento.quantidade_total,
             quantidade_equipamento.equipamento.nome_equipamento
         )
-   
+
         db.session.commit()
     except DB_ERRORS as e:
         handle_db_error(e, "Erro ao ajustar o estoque", False)
@@ -94,7 +94,7 @@ def reposicao_estoque(id: int, quantidade: int, dia, observacao):
         quantidade_equipamento = get_unique_or_500(
             EquipamentoDisponibilidade,
             EquipamentoDisponibilidade.id_equipamento == id,
-            EquipamentoDisponibilidade.data == dia            
+            EquipamentoDisponibilidade.data == dia
         )
 
         if not quantidade_equipamento:
@@ -104,7 +104,7 @@ def reposicao_estoque(id: int, quantidade: int, dia, observacao):
                 data = dia,
                 quantidade_total = quantidade_old
             )
-        
+
         quantidade_equipamento.quantidade_total += quantidade
 
         movimentacao_equipamento = MovimentacaoEquipamento(
@@ -165,7 +165,7 @@ def manutencao_estoque(id_equipamento, quantidade, reservado, dia, observacao):
         #placehold (change once reservado is implemented)
         if quantidade_equipamento.quantidade_total < quantidade:
             raise ValueError("Quantidade total inferior a quantidade em manutenção")
-        
+
         quantidade_equipamento.quantidade_total -= quantidade
 
         movimentacao_equipamento = MovimentacaoEquipamento(

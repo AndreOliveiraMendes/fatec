@@ -93,16 +93,16 @@ class SafeDict(dict):
         return ""
 
 def resolver_template(template, reserva: Reservas_Fixas|Reservas_Temporarias):
-    
+
     return template.format_map(
         SafeDict(build_template_fields(reserva), context=f"reserva_id={reserva.id_reserva_fixa if reserva.tipo_reserva_str == 'fixa' else reserva.id_reserva_temporaria}")
     )
-    
-    
+
+
 def montar_partes_reserva(choose: Reservas_Fixas|Reservas_Temporarias, *, mostrar_icone=False, lab=None, aula=None, dia=None, tela_televisor=False, tela=None):
     if not choose:
         return ["Livre"]
-    
+
     config = choose.finalidade_reserva.config
 
     if not config:

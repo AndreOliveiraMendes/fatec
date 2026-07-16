@@ -38,13 +38,13 @@ class Aulas(Base):
         inicio = parse_time(self.horario_inicio)
         fim = parse_time(self.horario_fim)
         return f"{inicio} - {fim}"
-    
+
     def __repr__(self) -> str:
         return (
             f"<Aulas(id_aula={self.id_aula}, horario_inicio={self.horario_inicio}, "
             f"horario_fim={self.horario_fim})>"
         )
-    
+
 class Aulas_Ativas(Base):
     __tablename__ = 'aulas_ativas'
 
@@ -106,7 +106,7 @@ class Aulas_Ativas(Base):
             f"inicio_ativacao={self.inicio_ativacao}, fim_ativacao={self.fim_ativacao}, "
             f"id_semana={self.id_semana}, tipo_aula={self.tipo_aula})>"
         )
-    
+
 class Dias_da_Semana(Base):
     __tablename__ = 'dias_da_semana'
 
@@ -139,7 +139,7 @@ class Turnos(Base):
             f"<Turnos(id_turno={self.id_turno}, nome_turno={self.nome_turno}, "
             f"horario_inicio={self.horario_inicio}, horario_fim={self.horario_fim})>"
         )
-    
+
 class Semestres(Base):
     __tablename__ = 'semestres'
 

@@ -12,7 +12,7 @@ function showToast(message, type = "info", duration = 3000) {
     };
 
     toast.className = `toast alert ${types[type] || "alert-info"}`;
-    
+
     toast.innerHTML = `
         <button type="button" class="close">&times;</button>
         ${message}

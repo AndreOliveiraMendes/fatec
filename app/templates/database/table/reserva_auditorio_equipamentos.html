@@ -72,7 +72,7 @@
     </div>
 {% endblock abertura %}
 {% block listar %}
-    <h3>send dunes</h3>
+    <h3>Lista de items (auditorio x equipamentos)</h3>
     {{ result_table("Nenhum equipamento associado a uma reserva de auditorio") }}
 {% endblock listar %}
 {% block procurar %}
@@ -84,11 +84,36 @@
               method="post">
             <input type="hidden" name="acao" value="{{ acao }}">
             <div class="form-group">
-                <label for="id_email">Código do item:</label>
-                <input class="form-control" type="number" id="id_email" name="id_email">
+                <label for="id_item">Código do item:</label>
+                <input class="form-control"
+                       type="number"
+                       id="id_item"
+                       name="id_item"
+                       placeholder="codigo do item">
             </div>
+            {{ gerar_select('id_reserva_auditorio', 'Reserva de Auditório', reservas_auditorios, 'id_reserva_auditorio', 'selector_identification', optional=True) }}
+            {{ gerar_select('id_equipamento', 'Equipamento', equipamentos, 'id_equipamento', 'nome_equipamento', optional=True) }}
+            <div class="form-group">
+                <label for="quantidade">Quantidade:</label>
+                <input type="number"
+                       class="form-control"
+                       id="quantidade"
+                       name="quantidade"
+                       placeholder="quantidade de items estimada">
+            </div>
+            <div class="form-group">
+                <label for="observacoes">Observações:</label>
+                <textarea class="form-control"
+                          id="observacoes"
+                          name="observacoes"
+                          rows="4"
+                          placeholder="Insira observações específicas para este equipamento (opcional)."></textarea>
+            </div>
+            {{ action_buttons(acao, 1, False, 0) }}
         </form>
     {% else %}
+        <h3>resultado da busca</h3>
+        {{ result_table("Nenhum resultado encontrado") }}
     {% endif %}
 {% endblock procurar %}
 {% block inserir %}
@@ -108,7 +133,8 @@
                    name="quantidade"
                    min="1"
                    value="1"
-                   required>
+                   required
+                   placeholder="quantidade de items estimada">
         </div>
         <div class="form-group">
             <label for="observacoes">Observações:</label>

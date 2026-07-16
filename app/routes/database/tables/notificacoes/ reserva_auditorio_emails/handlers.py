@@ -116,7 +116,7 @@ def insert_push():
         tentativas = tentativas,
         ultima_tentativa = ultima_tentativa
     )
-    
+
     db_action(
         "Inserção",
         "Notificação de reserva (auditorio/equipamentos) cadastrada com sucesso",
@@ -171,7 +171,7 @@ def edit_push():
         notificacao.tentativas = tentativas
         if ultima_tentativa:
             notificacao.ultima_tentativa = ultima_tentativa
-    
+
     db_action(
         "Edição",
         "Notificação editada com sucesso",

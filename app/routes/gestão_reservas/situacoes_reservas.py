@@ -33,13 +33,13 @@ bp = Blueprint('situacao_reservas', __name__, url_prefix="/situacoes_reservas")
 def gerenciar_situacoes():
     userid = session.get('userid')
     user = get_user(userid)
-    
+
     hoje = datetime.today()
     extras: dict[str, Any] = {'hoje':hoje}
     icons = [
         ["glyphicon-thumbs-down", "danger", "Não pegou a chave"],
         ["glyphicon-thumbs-up", "success", "Pegou a chave"],
-        ["glyphicon-ok", "info", "Reserva concluida"] 
+        ["glyphicon-ok", "info", "Reserva concluida"]
     ]
     extras['icons'] = icons
     extras['situacaoChave'] = list(zip(SituacaoChaveEnum, icons))
@@ -90,7 +90,7 @@ def gerenciar_situacoes():
                 reservas.append(reserva)
     for r in reservas:
         r['cat'] = list(zip(r["horarios"], r["tipo"]))
-    extras['reservas'] = reservas     
+    extras['reservas'] = reservas
     return render_template("gestão_reservas/reservas_laboratorios/situacoes_reservas.html", user=user, **extras)
 
 @bp.route("/atualizar", methods=["POST"])
@@ -115,7 +115,7 @@ def atualizar():
                 Situacoes_Das_Reserva.situacao_dia == dia,
                 Situacoes_Das_Reserva.tipo_reserva == TipoReservaSituacaoEnum(tipo_reserva)
             )
-            
+
             acao = 'Inserção'
             old_situacao = None
             if situacao is None:

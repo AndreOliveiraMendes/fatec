@@ -64,7 +64,7 @@ def search_fetch():
             page=g.page, per_page=PER_PAGE, error_out=False
         )
         g.extras['items_reservas'] = items_paginados.items
-        g.extras['pagination'] = items_paginados        
+        g.extras['pagination'] = items_paginados
         g.extras['query_params'] = query_params
     else:
         flash("especifique ao menos um campo", "danger")

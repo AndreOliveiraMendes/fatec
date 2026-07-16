@@ -15,8 +15,8 @@ def get_controller(valid_states, dispatcher, acao, bloco):
     status = valid_states.get(state)
     if status == StatusEnum.DISABLED:
         abort(403, description="Estado desabilitado")
-    
+
     handler = dispatcher.get(state)
-    
+
     if handler:
         handler()

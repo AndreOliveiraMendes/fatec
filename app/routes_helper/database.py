@@ -103,9 +103,9 @@ def get_crud_progress():
     order = get_topologic_sorted(fks)
 
     status = get_routes_status()
-    
+
     result = {}
-    
+
     for table, depth in order:
 
         expected_endpoint = f"database_{table}.gerenciar_{table}"
@@ -113,7 +113,7 @@ def get_crud_progress():
         result[table]['depth'] = depth
         result[table]['expected_endpoint'] = expected_endpoint
         result[table]['active'] = route_exists(expected_endpoint)
-    
+
     for items in status:
         _, endpoint, defined = items.values()
         table = endpoint_table(endpoint)

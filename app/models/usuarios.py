@@ -36,7 +36,7 @@ class Pessoas(Base):
             f"<Pessoas(id_pessoa={self.id_pessoa}, nome_pessoa={self.nome_pessoa}, "
             f"email_pessoa={self.email_pessoa})>"
         )
-    
+
 class Usuarios(Base):
     __tablename__ = 'usuarios'
 
@@ -53,7 +53,7 @@ class Usuarios(Base):
     @property
     def username(self):
         return self.pessoa.nome_pessoa if self.pessoa else None
-    
+
     @property
     def perm(self):
         return Permission(self.permissoes.permissao) if self.permissoes else Permission(0)
@@ -64,13 +64,13 @@ class Usuarios(Base):
             f"tipo_pessoa={self.tipo_pessoa}, situacao_pessoa={self.situacao_pessoa}, "
             f"grupo_pessoa={self.grupo_pessoa})>"
         )
-    
+
     def __str__(self):
         uid = self.id_usuario
         pid = self.id_pessoa
         nome = self.pessoa.nome_pessoa
         return f"({uid}, {pid}) {nome}"
-    
+
 class Permissoes(Base):
     __tablename__ = 'permissoes'
 

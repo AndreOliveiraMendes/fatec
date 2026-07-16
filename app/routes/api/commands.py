@@ -141,7 +141,7 @@ def api_delete_param(cmd_id, param_id):
 @bp.route("/run_command", methods=["POST"])
 @admin_required
 def api_run_command():
-    
+
     data = request.get_json(force=True)
     cmd_id = data.get("cmd_id")
     lab_id = data.get("lab_id")
@@ -152,7 +152,7 @@ def api_run_command():
     user = get_user(userid)
     if not user:
         return jsonify({"success": False, "error": "Usuário não encontrado."}), 404
-    
+
 
     # 2️⃣ — Carrega o comando
     comandos = load_commands()
@@ -165,7 +165,7 @@ def api_run_command():
         comando_final = cmd["template"].format(**parametros)
     except KeyError as e:
         return jsonify({"success": False, "error": f"Parâmetro ausente: {e.args[0]}"}), 400
-    
+
     comando_final = wrap_command(comando_final, cmd["full_path"])
     exec_id = uuid.uuid4().hex[:8]
 

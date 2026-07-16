@@ -79,7 +79,7 @@ def crud_route(default_acao="abertura"):
             assert blueprint is not None
 
             g.url = get_url(blueprint)
-            
+
             g.redirect_action = None
 
             g.acao = get_session_or_request(

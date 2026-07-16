@@ -140,7 +140,7 @@ def gerenciar_situacoes_reservas_fixas(extras):
             reserva['responsavel'] = get_responsavel_reserva(r, True)
             reserva['id_responsavel'] = (r.id_responsavel, r.id_responsavel_especial)
             ultima = reservas[-1] if reservas else None
-            
+
             if modo == "multiplo" and ultima is not None and verificar_merge_reserva(ultima, reserva, toleranca):
                 ultima["horarios"] += reserva["horarios"]
             else:
@@ -166,7 +166,7 @@ def gerenciar_situacoes_reservas_temporarias(extras):
         reserva['responsavel'] = get_responsavel_reserva(r, True)
         reserva['id_responsavel'] = (r.id_responsavel, r.id_responsavel_especial)
         ultima = reservas[-1] if reservas else None
-        
+
         if modo == "multiplo" and ultima is not None and verificar_merge_reserva(ultima, reserva, toleranca):
             ultima["horarios"] += reserva["horarios"]
         else:

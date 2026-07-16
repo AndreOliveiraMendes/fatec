@@ -31,11 +31,11 @@ def login():
     else:
         flash("Caro Usuario, esse sistema usa as mesma credenciais do <a href='https://academico.fatecourinhos.edu.br/'>academico</a>", "info")
         return render_template("auth/login.html")
-    
+
 @bp.route("/logout")
 @login_required
 def logout():
-    userid = session.pop('userid') 
+    userid = session.pop('userid')
     user = get_user(userid)
     if not user:
         abort(400, description="Usuário inválido.")

@@ -16,7 +16,7 @@ def get_unique_or_500(model: Type[T], *args, **kwargs):
         ).scalar_one_or_none()
     except MultipleResultsFound:
         abort(500, description=f"Erro ao consultar {model.__name__}.")
-        
+
 def _friendly_db_message(error):
     raw = str(getattr(error, "orig", error)).lower()
 
@@ -42,7 +42,7 @@ def _friendly_db_message(error):
 
 def handle_db_error(e, msg, show_flash_message=True, rollback=True, category="danger"):
     """Trata erros de banco de dados, realizando rollback (caso necessário), exibindo mensagens amigáveis e logando o erro.
-    
+
     Args:
         e: O erro ocorrido.
         msg: Mensagem de contexto para o log.

@@ -16,18 +16,18 @@ if TYPE_CHECKING:
 
 class Reservas_Auditorios(Base):
     __tablename__ = "reservas_auditorios"
-    
+
     id_reserva_auditorio: Mapped[int] = mapped_column(primary_key=True)
     id_responsavel: Mapped[int] = mapped_column(ForeignKey('pessoas.id_pessoa'), nullable=False)
     id_reserva_local: Mapped[int] = mapped_column(ForeignKey('locais.id_local'), nullable=False)
     id_reserva_aula: Mapped[int] = mapped_column(ForeignKey('aulas_ativas.id_aula_ativa'), nullable=False)
-    
+
     dia_reserva: Mapped[date] = mapped_column(nullable=False)
     status_reserva: Mapped[StatusReservaAuditorioEnum] = mapped_column(
         Enum(StatusReservaAuditorioEnum, name="status_reserva_enum", create_constraint=True),
         server_default=StatusReservaAuditorioEnum.AGUARDANDO.name
     )
-    
+
     id_autorizador: Mapped[int | None] = mapped_column(ForeignKey('pessoas.id_pessoa'), nullable=True)
     observação_responsavel: Mapped[str | None] = mapped_column(TEXT, nullable=True)
     observação_autorizador: Mapped[str | None] = mapped_column(TEXT, nullable=True)

@@ -56,7 +56,7 @@ def central():
         status=status,
         user=user
     )
-    
+
 @bp.route("/branches")
 @admin_required
 def branches():
@@ -133,10 +133,10 @@ def update():
 @bp.route("/restore")
 @admin_required
 def restore():
-    
+
     if not has_local_changes():
         return jsonify({"message": "Não existem alterações locais para restaurar."})
-    
+
     out, err, code = git_restore()
 
     return jsonify({"out": out, "err": err, "code": code})
@@ -147,7 +147,7 @@ def commit():
 
     if not has_local_changes():
         return jsonify({"message": "Não existem alterações locais para commitar."})
-    
+
     out, err, code = git("commit", ".", "-m", "commit via painel admin_meta")
 
     return jsonify({"out": out, "err": err, "code": code})
@@ -167,7 +167,7 @@ def fetch():
     out, err, code = git("fetch")
 
     return jsonify({"out":out, "err": err, "code": code})
-    
+
 @bp.route("/checkout/<branch>")
 @admin_required
 def checkout(branch):
@@ -203,5 +203,5 @@ def delete(branch):
 @admin_required
 def prune():
     out, err, code = git_fetch_prune()
-    
+
     return jsonify({"out":out, "err": err, "code": code})

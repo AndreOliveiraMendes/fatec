@@ -130,7 +130,7 @@ class EquipamentoDisponibilidade(Base):
         equipamento = self.equipamento.nome_equipamento
         dia = parse_date(self.data)
         return f"{equipamento} no {dia}"
-    
+
     def __repr__(self) -> str:
         return (
             f"<EquipamentoDisponibilidade("

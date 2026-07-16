@@ -28,7 +28,7 @@ def get_pessoas_externas(
             with conn.cursor(dictionary=True) as cursor:
 
                 query = """
-                    SELECT 
+                    SELECT
                         pessoa.codigo,
                         pessoa.nome,
                         pessoa.email

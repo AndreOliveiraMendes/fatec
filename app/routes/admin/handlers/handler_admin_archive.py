@@ -164,7 +164,7 @@ def preview_all_previous_years():
                 extract('year', Historicos.data_hora) == year
             )
         ).scalar()
-        
+
         count = int(count) if count else 0
 
         if count > 0:

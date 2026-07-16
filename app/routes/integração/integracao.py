@@ -34,7 +34,7 @@ def check_pessoas():
         for docente in docentes:
             docente["ja_no_interno"] = docente["codigo"] in codigos_internos
             docente["url"] = url_for("integracao.importar_pessoa", id_pessoa=docente["codigo"])
-    
+
     return render_template("integracao/academico_pessoas.html", user=user, docentes = docentes, erro=erro)
 
 @bp.route("/academico/importar/docentes", methods=["GET", "POST"])
@@ -64,7 +64,7 @@ def importar_docentes():
 
                 db.session.add(pessoa)
                 registrar_log_generico_usuario(userid, 'Inserção', pessoa, observacao="importado")
-            
+
             db.session.commit()
 
             flash(f"{len(novos_docentes)} docentes importados com sucesso!", "success")
@@ -83,7 +83,7 @@ def importar_pessoa(id_pessoa):
     user = get_user(userid)
     if not user:
         abort(404, description="user not logged")
-        
+
     pessoa_interna = db.session.get(Pessoas, id_pessoa)
     if pessoa_interna:
         flash("Pessoa já está cadastrada no sistema.", "warning")

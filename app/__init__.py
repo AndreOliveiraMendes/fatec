@@ -18,7 +18,7 @@ def create_app(name=None):
     db.init_app(app)
 
     setup_logging(app)
-    
+
     scss_dir = os.path.join(app.root_path, 'static', 'scss')
     css_dir = os.path.join(app.root_path, 'static', 'css')
 
@@ -41,7 +41,7 @@ def create_app(name=None):
 
         if AUTO_CREATE_MYSQL:
             db.create_all()
-    
+
     #sessao
     #app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=7)
     #app.config.update(

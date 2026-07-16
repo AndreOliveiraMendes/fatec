@@ -14,7 +14,7 @@ bp = Blueprint('database_aulas', __name__, url_prefix="/database")
 def gerenciar_aulas():
     if request.method == 'POST':
         get_controller(VALID_STATES, dispatcher, g.acao, g.bloco)
-        
+
     if g.redirect_action:
         return g.redirect_action
     return render_template("database/table/aulas.html", user=g.user, acao=g.acao, bloco=g.bloco, **g.extras)

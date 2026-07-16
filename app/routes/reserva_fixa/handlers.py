@@ -81,7 +81,7 @@ def _handle_db_error(e, msg):
     db.session.rollback()
     flash(f"{msg}: {str(getattr(e, 'orig', e))}", "danger")
     current_app.logger.error(f"{msg}: {e}")
-    
+
 def _get_lab_geral(id_semestre, id_turno):
     userid, user = _current_user()
     semestre = _get_semestre_or_403(id_semestre, userid, user.perm)

@@ -18,15 +18,15 @@ class SelectModelConfig(TypedDict):
 
 def multi_ilike(field, texto):
     palavras = [p for p in texto.split() if len(p) >= 1]
-    
+
     if not palavras:
         return true()
-    
+
     return and_(*[
         field.ilike(f"%{p}%")
-        for p in palavras   
+        for p in palavras
     ])
-    
+
 
 SELECT_MODELS: Dict[str, SelectModelConfig] = {
     "pessoas": {
@@ -66,7 +66,7 @@ def get_results(entity, q):
 
     if not config:
         return {"error": "Entidade inválida"}, 400
-    
+
     model = config.get("model")
     q_filters = config.get("q_filter")
     filters = config.get("filters", {})
