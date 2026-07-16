@@ -329,10 +329,18 @@ CREATE TABLE
 		destinatario VARCHAR(120) NOT NULL,
 		assunto VARCHAR(200) NOT NULL,
 		corpo_email TEXT NOT NULL,
-		status_envio VARCHAR(30) NOT NULL DEFAULT 'pendente',
+		status_envio ENUM (
+			'PENDENTE',
+			'ENVIANDO',
+			'ENVIADO',
+			'ERRO',
+			'CANCELADO'
+		) NOT NULL DEFAULT 'PENDENTE',
 		data_envio DATETIME,
 		erro_envio TEXT,
 		criado_em DATETIME NOT NULL DEFAULT (now ()),
+		tentativas INTEGER NOT NULL DEFAULT '0',
+		ultima_tentativa DATETIME,
 		PRIMARY KEY (id_email),
 		CONSTRAINT reserva_auditorio_emails_ibfk_1 FOREIGN KEY (id_reserva_auditorio) REFERENCES reservas_auditorios (id_reserva_auditorio)
 	) ENGINE = InnoDB COLLATE utf8mb4_general_ci DEFAULT CHARSET = utf8mb4;
@@ -342,6 +350,8 @@ CREATE TABLE
 		id_item INTEGER NOT NULL AUTO_INCREMENT,
 		id_reserva_auditorio INTEGER NOT NULL,
 		id_equipamento INTEGER NOT NULL,
+		quantidade INTEGER NOT NULL DEFAULT '1',
+		observacoes TEXT,
 		PRIMARY KEY (id_item),
 		CONSTRAINT reserva_auditorio_equipamentos_ibfk_1 FOREIGN KEY (id_reserva_auditorio) REFERENCES reservas_auditorios (id_reserva_auditorio),
 		CONSTRAINT reserva_auditorio_equipamentos_ibfk_2 FOREIGN KEY (id_equipamento) REFERENCES equipamentos (id_equipamento)
