@@ -1,3 +1,5 @@
+from copy import copy
+
 from flask import flash, g, request
 from flask_sqlalchemy.pagination import SelectPagination
 from sqlalchemy import select
@@ -5,6 +7,7 @@ from sqlalchemy import select
 from app.auxiliar.general import none_if_empty
 from app.auxiliar.navigation import register_return
 from app.dao.internal.equipamentos import get_equipamentos
+from app.dao.internal.notification import get_notificacoes_equipamentos
 from app.dao.internal.reservas import get_reservas_auditorios_database
 from app.decorators.decorators import register_handler
 from app.extensions import db
@@ -12,7 +15,6 @@ from app.models.notifications import Reserva_Auditorio_Equipamentos
 from app.routes_helper.db_actions import db_action
 from app.routes_helper.request import get_query_params
 from config.general import PER_PAGE
-
 
 dispatcher = {}
 
@@ -98,4 +100,68 @@ def insert_push():
         g.url, g.acao, g.extras,
         reservas_auditorios=get_reservas_auditorios_database(),
         equipamentos=get_equipamentos()
+    )
+
+@register_handler(dispatcher, 'editar', 0)
+@register_handler(dispatcher, 'excluir', 0)
+def item_fetch():
+    g.extras['items'] = get_notificacoes_equipamentos()
+
+@register_handler(dispatcher, 'editar', 1)
+@register_handler(dispatcher, 'excluir', 1)
+def item_fetch():
+    id_item = none_if_empty(request.form.get('id_item'), int)
+
+    item = db.get_or_404(Reserva_Auditorio_Equipamentos, id_item)
+    g.extras['item'] = item
+    g.extras['reservas_auditorios'] = get_reservas_auditorios_database()
+    g.extras['equipamentos'] = get_equipamentos()
+
+@register_handler(dispatcher, 'editar', 2)
+def edit_push():
+    id_item = none_if_empty(request.form.get('id_item'), int)
+    id_reserva_auditorio = none_if_empty(request.form.get('id_reserva_auditorio'), int)
+    id_equipamento = none_if_empty(request.form.get('id_equipamento'), int)
+    quantidade = none_if_empty(request.form.get('quantidade'))
+    observacoes = none_if_empty(request.form.get('observacoes'))
+
+    item = db.get_or_404(Reserva_Auditorio_Equipamentos, id_item)
+    dados_anteriores = copy(item)
+
+    def update():
+        item.reserva_auditorio = id_reserva_auditorio
+        item.id_equipamento = id_equipamento
+        item.quantidade = quantidade
+        item.observacoes = observacoes
+
+    db_action(
+        'Edição',
+        'Item editado com sucesso',
+        'Erro ao editar item',
+        obj=item,
+        old_obj=dados_anteriores,
+        action=update
+    )
+
+    g.redirect_action, g.bloco = register_return(
+        g.url, g.acao, g.extras,
+        items = get_notificacoes_equipamentos()
+    )
+
+@register_handler(dispatcher, 'excluir', 2)
+def delet_push():
+    id_item = none_if_empty(request.form.get('id_item'), int)
+
+    item = db.get_or_404(Reserva_Auditorio_Equipamentos, id_item)
+
+    db_action(
+        'Exclusão',
+        'Item excluido com sucesso',
+        'Erro ao excluir item',
+        obj=item
+    )
+
+    g.redirect_action, g.bloco = register_return(
+        g.url, g.acao, g.extras,
+        items = get_notificacoes_equipamentos()
     )
