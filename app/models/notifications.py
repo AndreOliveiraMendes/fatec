@@ -1,7 +1,8 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, Enum, ForeignKey, String, Text, func
+from sqlalchemy import (DateTime, Enum, ForeignKey, String, Text,
+                        UniqueConstraint, func)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.enums import StatusEmailEnum
@@ -26,6 +27,14 @@ class Reserva_Auditorio_Equipamentos(Base):
     quantidade: Mapped[int] = mapped_column(nullable=False, server_default="1")
     observacoes: Mapped[str | None] = mapped_column(Text, nullable=True)
 
+    __table_args__ = (
+        UniqueConstraint(
+            'id_reserva_auditorio',
+            'id_equipamento',
+            name='uq_reserva_auditorio_equipamento'
+        ),
+    )
+
     # relationships
     reserva_auditorio: Mapped["Reservas_Auditorios"] = relationship(
         "Reservas_Auditorios",
@@ -37,6 +46,10 @@ class Reserva_Auditorio_Equipamentos(Base):
         back_populates="itens_reserva_auditorio",
         passive_deletes=True
     )
+
+    @property
+    def selector_identification(self) -> str:
+        return f"Reserva {self.id_reserva_auditorio} ({self.reserva_auditorio.responsavel.nome_pessoa}) - Equipamento {self.id_equipamento} ({self.equipamento.nome_equipamento})"
 
     def __repr__(self) -> str:
         return (

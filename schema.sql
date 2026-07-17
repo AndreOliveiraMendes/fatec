@@ -354,7 +354,8 @@ CREATE TABLE
 		observacoes TEXT,
 		PRIMARY KEY (id_item),
 		CONSTRAINT reserva_auditorio_equipamentos_ibfk_1 FOREIGN KEY (id_reserva_auditorio) REFERENCES reservas_auditorios (id_reserva_auditorio),
-		CONSTRAINT reserva_auditorio_equipamentos_ibfk_2 FOREIGN KEY (id_equipamento) REFERENCES equipamentos (id_equipamento)
+		CONSTRAINT reserva_auditorio_equipamentos_ibfk_2 FOREIGN KEY (id_equipamento) REFERENCES equipamentos (id_equipamento),
+		CONSTRAINT uq_reserva_auditorio_equipamento UNIQUE (id_reserva_auditorio, id_equipamento)
 	) ENGINE = InnoDB COLLATE utf8mb4_general_ci DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE
