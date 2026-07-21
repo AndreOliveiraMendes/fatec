@@ -54,16 +54,73 @@
                                   rows="4"
                                   placeholder="Adicione detalhes (opcional)"></textarea>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-success" disabled>
-                        <span class="glyphicon glyphicon-ok"></span> Confirmar
-                    </button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">
-                        <span class="glyphicon glyphicon-remove"></span> Cancelar
-                    </button>
-                </div>
-            </form>
+                    <div class="form-group">
+                        <label>Equipamentos:</label>
+                        <div class="dropdown">
+                            <button class="btn btn-default dropdown-toggle form-control text-left"
+                                    type="button"
+                                    data-toggle="dropdown">
+                                <span id="texto-equipamentos">Selecionar equipamentos</span>
+                                <span class="caret pull-right caret-ajustado"></span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-equipamentos">
+                                {% set categorias = equipamentos | groupby('id_categoria') %}
+                                {% for categoria, itens in categorias %}
+                                    <li class="dropdown-header">
+                                        {{ itens[0].categoria.nome_categoria if itens[0].categoria.nome_categoria else 'Categoria ' ~ categoria }}
+                                    </li>
+                                    {% for t in itens %}
+                                        <li>
+                                            <div class="checkbox checkbox-sem-margem">
+                                                <label>
+                                                    <input type="checkbox"
+                                                           name="equipamentos"
+                                                           value="{{ t.id_equipamento }}"
+                                                           class="equipamento-checkbox">
+                                                    {{ t.nome_equipamento }}
+                                                </label>
+                                            </div>
+                                        </li>
+                                    {% endfor %}
+                                    <li role="separator" class="divider"></li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success" disabled>
+                            <span class="glyphicon glyphicon-ok"></span> Confirmar
+                        </button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">
+                            <span class="glyphicon glyphicon-remove"></span> Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const checkboxes = document.querySelectorAll(".equipamento-checkbox");
+    const texto = document.getElementById("texto-equipamentos");
+
+    function atualizarTexto() {
+        const selecionados = Array.from(checkboxes)
+            .filter(cb => cb.checked)
+            .map(cb => cb.parentElement.textContent.trim());
+
+        if (selecionados.length === 0) {
+            texto.textContent = "Selecionar equipamentos";
+        } else if (selecionados.length <= 2) {
+            texto.textContent = selecionados.join(", ");
+        } else {
+            texto.textContent = selecionados.length + " selecionados";
+        }
+    }
+
+    checkboxes.forEach(cb => {
+        cb.addEventListener("change", atualizarTexto);
+    });
+});
+</script>

@@ -226,7 +226,7 @@ def check_reserva_temporaria(inicio, fim, local, aula, id = None):
             params=None,
             orig=Exception("Já existe uma reserva para esse local e horario.")
         )
-    
+
 def check_ownership_or_admin(reserva: Reservas_Fixas | Reservas_Temporarias | Reservas_Auditorios | Reservas_Equipamentos):
     userid = session.get('userid')
     user = db.get_or_404(Usuarios, userid)
@@ -234,7 +234,7 @@ def check_ownership_or_admin(reserva: Reservas_Fixas | Reservas_Temporarias | Re
     if user.perm.has(Permission.ADMIN) or \
         (isinstance(reserva, Reservas_Auditorios) and user.perm.has(Permission.AUTORIZAR)):
         return
-    
+
     if not reserva.id_responsavel == user.pessoa.id_pessoa:
         abort(403, description="Acesso negado à reserva de outro usuário.")
 
@@ -254,7 +254,7 @@ def check_periodo_temporaria(reserva: Reservas_Temporarias):
 
     if perm and perm.permissao & Permission.ADMIN:
         return True
-    
+
     hoje = date.today()
     return reserva.fim_reserva >= hoje
 
@@ -264,7 +264,7 @@ def check_periodo_auditorio(reserva: Reservas_Auditorios):
 
     if perm and perm.permissao & Permission.ADMIN:
         return True
-    
+
     hoje = date.today()
     return reserva.dia_reserva >= hoje
 
@@ -276,7 +276,7 @@ def check_periodo_equipamento(reserva: Reservas_Equipamentos):
         return True
 
     hoje = date.today
-    return reserva.data_reserva >= hoje    
+    return reserva.data_reserva >= hoje
 
 def info_reserva_fixa(id_reserva):
     reserva = db.get_or_404(Reservas_Fixas, id_reserva)
@@ -396,7 +396,7 @@ def update_reserva_fixa(id_reserva):
     except ValueError as e:
         handle_db_error(e, "falha ao atualizar a reserva")
         return "erro", 500
-    
+
 def update_reserva_temporaria(id_reserva):
     userid = session.get('userid')
     reserva = db.get_or_404(Reservas_Temporarias, id_reserva)
@@ -411,7 +411,7 @@ def update_reserva_temporaria(id_reserva):
     finalidade_reserva = none_if_empty(data.get('finalidade'), int)
     observacoes = none_if_empty(data.get('observacoes'))
     descricao = none_if_empty(data.get('descricao'))
-    
+
     if local is None or aula is None or inicio is None or fim is None:
         return "erro", 400
 
@@ -448,7 +448,7 @@ def update_reserva_temporaria(id_reserva):
     except ValueError as e:
         handle_db_error(e, "falha ao atualizar a reserva")
         return "erro", 500
-    
+
 def delete_reserva_fixa(id_reserva):
     userid = session.get('userid')
     reserva = db.get_or_404(Reservas_Fixas, id_reserva)
@@ -495,7 +495,7 @@ def delete_reserva_temporaria(id_reserva):
     except DB_ERRORS as e:
         handle_db_error(e, "falha ao remover reserva")
         return "erro", 500
-    
+
 def get_reserva_fixa_indirect(dia, id_local, id_aula):
     select_reservas = select(Reservas_Fixas).where(
         Reservas_Fixas.id_reserva_local == id_local,
@@ -537,7 +537,7 @@ def get_reserva_fixa_indirect(dia, id_local, id_aula):
             "local": reserva.local.nome_local
         }
         return result
-    
+
 def get_reserva_temporaria_indirect(dia, id_local, id_aula):
     select_reservas = select(Reservas_Temporarias).where(
         Reservas_Temporarias.id_reserva_local == id_local,
@@ -572,7 +572,7 @@ def get_reserva_temporaria_indirect(dia, id_local, id_aula):
             "local": reserva.local.nome_local
         }
         return result
-    
+
 def check_conflict_reservas_fixas(dia, id_aula, id_responsavel):
     sel_reservas = select(Reservas_Fixas).where(
         Reservas_Fixas.semestre.has(
@@ -584,7 +584,7 @@ def check_conflict_reservas_fixas(dia, id_aula, id_responsavel):
             Reservas_Fixas.id_reserva_aula == id_aula,
             Reservas_Fixas.id_responsavel == id_responsavel
         )
-    
+
     reservas = db.session.execute(sel_reservas).scalars().all()
     if len(reservas) == 0:
         return {
@@ -599,7 +599,7 @@ def check_conflict_reservas_fixas(dia, id_aula, id_responsavel):
             "conflict": True,
             "labs": labs
         }
-    
+
 def get_reservas_equipamentos(dia = None):
     try:
         sel_reservas = select(Reservas_Equipamentos)
@@ -667,7 +667,7 @@ def get_quantidade_equipamentos_reservados_map(
         row.id_equipamento: (row.total or 0)
         for row in result
     }
-    
+
 def get_quantidade_equipamentos_reservados_single(
     data,
     id_equipamento: int,

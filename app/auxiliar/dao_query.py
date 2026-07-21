@@ -76,7 +76,7 @@ def filtro_intervalo(inicio_procura, fim_procura):
         )
     else:
         raise ValueError("Especifique ao menos um valor")
-    
+
 def sort_periodos(descending=False):
     null_case = case(
         (Aulas_Ativas.inicio_ativacao.is_(None), 0),

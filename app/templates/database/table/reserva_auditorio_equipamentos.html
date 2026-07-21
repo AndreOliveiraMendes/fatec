@@ -1,0 +1,257 @@
+{% extends "database/table/base_crude" %}
+{% macro result_table(message) %}
+    {% call(item) table_base(
+        items,
+        [
+        'Codigo',
+        'reserva auditorio',
+        'equipamento',
+        'quantidade',
+        'observacoes'
+        ],
+        id_field='id_item',
+        message=message,
+        vertical_actions=False,
+        pagination=pagination,
+        acao=acao,
+        bloco=bloco,
+        query_params=query_params
+        ) %}
+        <td>{{ item.id_item }}</td>
+        <td>
+            <span data-toggle="tooltip"
+                  data-placement="top"
+                  title="{{ item.reserva_auditorio.selector_identification }}">
+                {{ item.reserva_auditorio.local.nome_local }}
+                <br>
+                <small>{{ item.reserva_auditorio.dia_reserva }}</small>
+            </span>
+        </td>
+        <td>{{ item.equipamento.nome_equipamento }}</td>
+        <td>{{ item.quantidade }}</td>
+        <td>{{ item.observacao|format }}</td>
+    {% endcall %}
+{% endmacro %}
+{% block title %}
+    reserva auditorio equipamentos
+{% endblock title %}
+{% block abertura %}
+    <h3>
+        Gerenciamento da Tabela <strong>Reserva_Auditorio_Equipamentos</strong>
+    </h3>
+    <p class="text-muted text-center">
+        A tabela <code>reserva_auditorio_equipamentos</code> possui os seguintes campos:
+    </p>
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover">
+            <thead>
+                <tr class="information">
+                    <th>Campo</th>
+                    <th>Tipo</th>
+                    <th>Descrição</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for campo, tipo, descricao in [
+                    ('id_item', 'INT (auto_increment, PK)', 'Identificador único do item (equipamento) associado a uma reserva de auditório.'),
+                    ('id_reserva_auditorio', 'INT (FK)', 'Reserva de auditório à qual o equipamento está vinculado.'),
+                    ('id_equipamento', 'INT (FK)', 'Equipamento associado à reserva.'),
+                    ('quantidade', 'INT', 'Quantidade do equipamento reservado para a reserva de auditório.'),
+                    ('observacoes', 'TEXT', 'Observações adicionais sobre o equipamento reservado, se houver.'),
+                    ] %}
+                    <tr>
+                        <td>
+                            <code>{{ campo }}</code>
+                        </td>
+                        <td>{{ tipo }}</td>
+                        <td>{{ descricao }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock abertura %}
+{% block listar %}
+    <h3>Lista de items (auditorio x equipamentos)</h3>
+    {{ result_table("Nenhum equipamento associado a uma reserva de auditorio") }}
+{% endblock listar %}
+{% block procurar %}
+    {% if bloco == 0 %}
+        <h3>Procurando Relações de Auditorio x Equipamento (notificações)</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label for="id_item">Código do item:</label>
+                <input class="form-control"
+                       type="number"
+                       id="id_item"
+                       name="id_item"
+                       placeholder="codigo do item">
+            </div>
+            {{ gerar_select('id_reserva_auditorio', 'Reserva de Auditório', reservas_auditorios, 'id_reserva_auditorio', 'selector_identification', optional=True) }}
+            {{ gerar_select('id_equipamento', 'Equipamento', equipamentos, 'id_equipamento', 'nome_equipamento', optional=True) }}
+            <div class="form-group">
+                <label for="quantidade">Quantidade:</label>
+                <input type="number"
+                       class="form-control"
+                       id="quantidade"
+                       name="quantidade"
+                       placeholder="quantidade de items estimada">
+            </div>
+            <div class="form-group">
+                <label for="observacoes">Observações:</label>
+                <textarea class="form-control"
+                          id="observacoes"
+                          name="observacoes"
+                          rows="4"
+                          placeholder="Insira observações específicas para este equipamento (opcional)."></textarea>
+            </div>
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <h3>resultado da busca</h3>
+        {{ result_table("Nenhum resultado encontrado") }}
+    {% endif %}
+{% endblock procurar %}
+{% block inserir %}
+    <h3>Inserir Item de Reserva de Auditório</h3>
+    <form class="form-group"
+          role="form"
+          action="{{ url_for(url) }}"
+          method="post">
+        <input type="hidden" name="acao" value="{{ acao }}">
+        {{ gerar_select('id_reserva_auditorio', 'Reserva de Auditório', reservas_auditorios, 'id_reserva_auditorio', 'selector_identification', optional=False) }}
+        {{ gerar_select('id_equipamento', 'Equipamento', equipamentos, 'id_equipamento', 'nome_equipamento', optional=False) }}
+        <div class="form-group">
+            <label for="quantidade">Quantidade:</label>
+            <input type="number"
+                   class="form-control"
+                   id="quantidade"
+                   name="quantidade"
+                   min="1"
+                   value="1"
+                   required
+                   placeholder="quantidade de items estimada">
+        </div>
+        <div class="form-group">
+            <label for="observacoes">Observações:</label>
+            <textarea class="form-control"
+                      id="observacoes"
+                      name="observacoes"
+                      rows="4"
+                      placeholder="Insira observações específicas para este equipamento (opcional)."></textarea>
+        </div>
+        {{ action_buttons(acao, 1, False, 0) }}
+    </form>
+{% endblock inserir %}
+{% block editar %}
+    {% if bloco == 0 %}
+        <h3>Editar equipamentos</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            {{ gerar_select("id_item", "Selecione o item", items, "id_item", "selector_identification") }}
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <h3>Editar Item de Reserva de Auditório</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label for="id_item">Código do item:</label>
+                <input class="form-control"
+                       type="number"
+                       id="id_item"
+                       name="id_item"
+                       placeholder="codigo do item"
+                       value="{{ item.id_item }}"
+                       readonly>
+            </div>
+            {{ gerar_select('id_reserva_auditorio', 'Reserva de Auditório', reservas_auditorios, 'id_reserva_auditorio', 'selector_identification', optional=False, selected=item.id_reserva_auditorio) }}
+            {{ gerar_select('id_equipamento', 'Equipamento', equipamentos, 'id_equipamento', 'nome_equipamento', optional=False, selected=item.id_equipamento) }}
+            <div class="form-group">
+                <label for="quantidade">Quantidade:</label>
+                <input type="number"
+                       class="form-control"
+                       id="quantidade"
+                       name="quantidade"
+                       min="1"
+                       value="{{ item.quantidade }}"
+                       required
+                       placeholder="quantidade de items estimada">
+            </div>
+            <div class="form-group">
+                <label for="observacoes">Observações:</label>
+                <textarea class="form-control"
+                          id="observacoes"
+                          name="observacoes"
+                          rows="4"
+                          placeholder="Insira observações específicas para este equipamento (opcional).">{{ item.observacoes|format(1) }}</textarea>
+            </div>
+            {{ action_buttons(acao, 2, True, 0) }}
+        </form>
+    {% endif %}
+{% endblock editar %}
+{% block excluir %}
+    {% if bloco == 0 %}
+        <h3>Excluir equipamentos</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            {{ gerar_select("id_item", "Selecione o item", items, "id_item", "selector_identification") }}
+            {{ action_buttons(acao, 1, False, 0) }}
+        </form>
+    {% else %}
+        <h3>Excluir Item de Reserva de Auditório</h3>
+        <form class="form-group"
+              role="form"
+              action="{{ url_for(url) }}"
+              method="post">
+            <input type="hidden" name="acao" value="{{ acao }}">
+            <div class="form-group">
+                <label for="id_item">Código do item:</label>
+                <input class="form-control"
+                       type="number"
+                       id="id_item"
+                       name="id_item"
+                       placeholder="codigo do item"
+                       value="{{ item.id_item }}"
+                       readonly>
+            </div>
+            {{ gerar_select('id_reserva_auditorio', 'Reserva de Auditório', reservas_auditorios, 'id_reserva_auditorio', 'selector_identification', optional=False, selected=item.id_reserva_auditorio, extra='disabled') }}
+            {{ gerar_select('id_equipamento', 'Equipamento', equipamentos, 'id_equipamento', 'nome_equipamento', optional=False, selected=item.id_equipamento, extra='disabled') }}
+            <div class="form-group">
+                <label for="quantidade">Quantidade:</label>
+                <input type="number"
+                       class="form-control"
+                       id="quantidade"
+                       name="quantidade"
+                       min="1"
+                       value="{{ item.quantidade }}"
+                       required
+                       placeholder="quantidade de items estimada"
+                       disabled>
+            </div>
+            <div class="form-group">
+                <label for="observacoes">Observações:</label>
+                <textarea class="form-control"
+                          id="observacoes"
+                          name="observacoes"
+                          rows="4"
+                          placeholder="Insira observações específicas para este equipamento (opcional)."
+                          disabled>{{ item.observacoes|format(1) }}</textarea>
+            </div>
+            {{ action_buttons(acao, 2, True, 0, False) }}
+        </form>
+    {% endif %}
+{% endblock excluir %}

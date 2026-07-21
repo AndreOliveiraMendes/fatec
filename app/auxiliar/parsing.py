@@ -25,7 +25,7 @@ def parse_datetime_string(value: str | None, format: str | None = None) -> Optio
         value,
         format or "%Y-%m-%dT%H:%M"
     )
-    
+
 def parse_time_string_or_abort(value: str | None, error_code, error_message, format: str | None = None) -> time:
     return _parse_generic_or_abort(
         value,

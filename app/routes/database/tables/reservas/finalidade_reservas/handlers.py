@@ -139,7 +139,7 @@ def insert_push():
     ativo = none_if_empty(request.form.get("ativo"), bool)
     descricao = none_if_empty(request.form.get("descricao"))
     config, error = build_config_from_form(request)
-            
+
     if error:
         flash(error, "danger")
     else:

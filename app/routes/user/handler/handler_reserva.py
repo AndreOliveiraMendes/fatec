@@ -92,7 +92,7 @@ def editar_reserva_generico(model, id_reserva: int, redirect_url: str) -> Respon
             handle_db_error(e, "Erro ao editar reserva")
         except ValueError as e:
             handle_db_error(e, "Erro ao editar reserva")
-    elif model == Reservas_Equipamentos:      
+    elif model == Reservas_Equipamentos:
         if user.perm.has(Permission.ADMIN):
             responsavel = request.form.get('responsavel')
             status = request.form.get('status')

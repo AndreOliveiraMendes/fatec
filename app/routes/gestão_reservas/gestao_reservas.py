@@ -23,7 +23,7 @@ def gerenciar_situacoes(tipo_reserva):
     icons = [
         ["glyphicon-thumbs-down", "danger", "Não pegou a chave"],
         ["glyphicon-thumbs-up", "success", "Pegou a chave"],
-        ["glyphicon-ok", "info", "Reserva concluida"] 
+        ["glyphicon-ok", "info", "Reserva concluida"]
     ]
     hoje = datetime.today()
     extras: dict[str, Any] = {'hoje':hoje}

@@ -19,7 +19,7 @@ def gerenciar_reservas_equipamentos():
     disable_action(g.extras, disabled)
     if request.method == 'POST':
         get_controller(VALID_STATES, dispatcher, g.acao, g.bloco)
-    
+
     if g.redirect_action:
         return g.redirect_action
     return render_template("database/table/reservas_equipamentos.html",

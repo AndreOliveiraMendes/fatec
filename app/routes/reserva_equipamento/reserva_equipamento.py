@@ -26,7 +26,7 @@ def main_page():
     user = get_user(session.get('userid'))
 
     today_str = request.args.get('dia')
-    
+
     if today_str:
         today = date.fromisoformat(today_str)
     else:

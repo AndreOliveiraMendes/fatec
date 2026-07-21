@@ -76,7 +76,7 @@ def search_prefetch():
 def search_fetch():
     id_permissao_usuario = none_if_empty(request.form.get('id_usuario'), int)
     flag = get_flag(request)
-    modobusca = none_if_empty(request.form.get('modobusca')) 
+    modobusca = none_if_empty(request.form.get('modobusca'))
     filters = []
     query_params = get_query_params(request)
     if id_permissao_usuario is not None:

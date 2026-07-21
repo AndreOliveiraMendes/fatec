@@ -30,10 +30,10 @@ class appTestGeneral(unittest.TestCase):
     def test_app_inexistant_route(self):
         app = create_app('test_routes')
         client = app.test_client()
-        
+
         # Set the Accept header to trigger JSON response
         response = client.get('/nonexistent', headers={'Accept': 'application/json'})
-        
+
         self.assertEqual(response.status_code, 404)
 
     def test_database_connection(self):
@@ -52,7 +52,7 @@ class appTestGeneral(unittest.TestCase):
             self.assertIsInstance(result, list)
             if result:
                 self.assertIsInstance(result[0], Usuarios)
-                
+
     def test_database_read_permissions(self):
         app = create_app('test_db')
         with app.app_context():

@@ -67,14 +67,14 @@ def check_cancelamento_permissao(reserva: Reservas_Equipamentos):
     userid = session.get('userid')
     if not userid:
         return False
-    
+
     user = get_user(userid)
     if not user:
         return False
-    
+
     if user.perm.has(Permission.ADMIN):
         return True
-    
+
     return reserva.id_responsavel == userid
 
 def cancelar_reserva_equipamento_handler(reserva: Reservas_Equipamentos, motivo: str):
@@ -89,7 +89,7 @@ def cancelar_reserva_equipamento_handler(reserva: Reservas_Equipamentos, motivo:
             f"Tentativa de cancelar reserva concluída | reserva_id={reserva.id_reserva}"
         )
         return 400, 'Reserva já concluída, não pode ser cancelada'
-    
+
     try:
         userid = session.get('userid')
 
@@ -115,14 +115,14 @@ def cancelar_reserva_equipamento_handler(reserva: Reservas_Equipamentos, motivo:
     except (ValueError, TypeError) as e:
         handle_db_error(e, "Erro ao cancelar reserva de equipamento", show_flash_message=False)
         return 400, 'ID de usuário inválido'
-    
+
 def aprovar_reserva_equipamento_handler(reserva: Reservas_Equipamentos):
     if reserva.status_reserva != StatusReservaEquipamentoEnum.PENDENTE:
         current_app.logger.warning(
             f"Tentativa de aprovar reserva não pendente | reserva_id={reserva.id_reserva} status_reserva_atual={reserva.status_reserva}"
         )
         return 400, 'Apenas reservas pendentes podem ser aprovadas'
-    
+
     try:
         userid = session.get('userid')
 
@@ -137,7 +137,7 @@ def aprovar_reserva_equipamento_handler(reserva: Reservas_Equipamentos):
         )
 
         return 200, 'ok'
-    
+
     except DB_ERRORS as e:
         handle_db_error(e, "Erro ao aprovar reserva de equipamento", show_flash_message=False)
         return 500, 'Erro interno ao aprovar reserva de equipamento'
@@ -169,7 +169,7 @@ def registrar_devolucao_equipamento_handler(item: Reserva_Equipamento_Item, qtd_
     except DB_ERRORS as e:
         handle_db_error(e, "Erro ao registrar devolução de equipamento", show_flash_message=False)
         return 500, 'Erro interno ao registrar devolução de equipamento'
-    
+
 def finalizar_reserva_se_concluida(reserva: Reservas_Equipamentos):
     if not all(item.devolvido == item.quantidade for item in reserva.itens):
         return 200, 'ok'

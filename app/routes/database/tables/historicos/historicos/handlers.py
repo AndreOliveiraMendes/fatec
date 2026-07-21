@@ -36,7 +36,7 @@ def filtro_intervalo(inicio_procura, fim_procura):
         return fim_procura >= Historicos.data_hora
     else:
         raise ValueError("Especifique ao menos um valor")
-    
+
 def get_conteudo(conteudo):
     return or_(
         Historicos.message.ilike(f"%{conteudo}%"),

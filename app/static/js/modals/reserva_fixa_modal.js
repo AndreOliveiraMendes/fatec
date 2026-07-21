@@ -16,7 +16,7 @@ function openReservaModal(data, url_edit) {
     let select_responsavel_especial = $('#id_responsavel_especial');
     select_responsavel.empty();
     select_responsavel_especial.empty();
-    
+
     // select2 (responsável) [exemplo se tiver o nome]
     //let option = new Option(data.responsavel, data.id_responsavel, true, true);
     //select_responsavel.append(option).trigger('change');

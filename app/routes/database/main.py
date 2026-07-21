@@ -158,7 +158,7 @@ def database():
             except Exception:
                 stats["size"] = "?"
 
-            table_stats[table] = stats      
+            table_stats[table] = stats
 
     extras['db_info'] = {
         "name": db_name,

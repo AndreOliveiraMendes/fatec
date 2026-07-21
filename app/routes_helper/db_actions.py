@@ -28,7 +28,7 @@ def db_action(
             db.session.delete(obj)
 
         db.session.flush()
-        
+
         if post_action:
             post_action()
 

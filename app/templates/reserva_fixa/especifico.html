@@ -86,7 +86,7 @@
                        placeholder="insira a descrição da reserva">
             </div>
             {% if user and user.perm|has_flag(ADMIN) %}
-                {{ select2_ajax_input('responsavel', 'responsavel', 'Responsavel', optional=True) }}
+                {{ select2_ajax_input('responsavel', 'responsavel', 'Responsavel', optional=True, value=user.id_pessoa, text=user.pessoa.nome_pessoa) }}
                 {{ select2_ajax_input('responsavel_especial', 'responsavel_especial', 'Responsavel especial', optional=True) }}
             {% endif %}
             {{ action_buttons('inserir', show_voltar=False, label='') }}

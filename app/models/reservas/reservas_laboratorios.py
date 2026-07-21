@@ -86,11 +86,11 @@ class Reservas_Fixas(ReservaBase):
         aula = self.aula_ativa.selector_identification
         semestre = self.semestre.nome_semestre
         return f" {aula} em {local} no {semestre}"
-    
+
     @property
     def tipo_reserva_str(self):
         return TipoReservaSituacaoEnum.FIXA
-    
+
     def __repr__(self):
         return (
             f"<Reservas_Fixas(id_reserva_fixa={self.id_reserva_fixa}, id_responsavel={self.id_responsavel}, "
@@ -127,7 +127,7 @@ class Reservas_Temporarias(ReservaBase):
         inicio = parse_date(self.inicio_reserva)
         fim = parse_date(self.fim_reserva)
         return f" {aula} em {local} de {inicio} ate {fim}"
-    
+
     @property
     def tipo_reserva_str(self):
         return TipoReservaSituacaoEnum.TEMPORARIA

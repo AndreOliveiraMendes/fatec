@@ -61,7 +61,7 @@ def get_reserva(lab, aula, dia, mostrar_icone=False, tela_televisor=False, tela=
         Reservas_Temporarias.id_reserva_aula == aula,
         between(dia, Reservas_Temporarias.inicio_reserva, Reservas_Temporarias.fim_reserva)
     )
-    
+
     exibicao = get_unique_or_500(
         Exibicao_Reservas,
         Exibicao_Reservas.id_exibicao_local == lab,
@@ -80,5 +80,5 @@ def get_reserva(lab, aula, dia, mostrar_icone=False, tela_televisor=False, tela=
         tela_televisor=tela_televisor,
         tela=tela
     )
-    
+
     return partes

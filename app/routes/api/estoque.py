@@ -63,7 +63,7 @@ def movimentar_estoque():
             "sucesso": False,
             "erro": "Quantidade inválida"
         }), 400
-    
+
     if not check_equipamento(id_equipamento):
         return jsonify({
             "sucesso": False,
@@ -117,7 +117,7 @@ def movimentar_estoque():
             "sucesso": False,
             "erro": "Erro interno"
         }), 500
-    
+
 @bp.route('/resumo')
 @reserva_equipamento_required
 def get_resumo():

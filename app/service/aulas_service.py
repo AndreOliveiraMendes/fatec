@@ -60,23 +60,23 @@ def check_turno(inicio, fim, id = None):
             Turnos.horario_fim >= inicio
         )
     ]
-    
+
     if id is not None:
         base_filter.append(Turnos.id_turno != id)
-        
+
     sel = select(func.count()).select_from(Turnos).where(*base_filter)
     res = db.session.scalar(sel)
-    
+
     if res is None:
         abort(500, description="Erro ao verificar conflito de turno.")
-        
+
     if res > 0:
         raise IntervalConflictError(
             "Já existe um turno que conflita com o intervalo informado.",
             table="turnos",
             interval=(inicio, fim)
         )
-        
+
 def check_semestre(inicio, fim, id=None):
     base_filter = [
         and_(
@@ -90,7 +90,7 @@ def check_semestre(inicio, fim, id=None):
 
     sel = select(func.count()).select_from(Semestres).where(*base_filter)
     res = db.session.scalar(sel)
-    
+
     if res is None:
         abort(500, description="Erro ao verificar conflito de semestres.")
 

@@ -28,7 +28,7 @@ def get_reservas_auditorios(userid, args_extras, page):
                 filtro.append(condition(cast(raw)))
             except (TypeError, ValueError) as e:
                 current_app.logger.warning(f"Filtro inválido {key}={raw}")
-        
+
     sel_reservas = select(model).join(Aulas_Ativas).join(Aulas).where(*filtro).order_by(
         org_column,
         Aulas_Ativas.id_semana,

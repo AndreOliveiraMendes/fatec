@@ -8,7 +8,7 @@ bp = Blueprint('api_select', __name__, url_prefix='/api/')
 def select(entity):
 
     q = request.args.get("q")
-    
+
     result, code = get_results(entity, q)
 
     return jsonify(result), code

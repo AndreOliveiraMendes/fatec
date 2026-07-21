@@ -8,6 +8,7 @@ from app.extensions import Base
 if TYPE_CHECKING:
     from app.models.controle import EquipamentoDisponibilidade
     from app.models.historicos import MovimentacaoEquipamento
+    from app.models.notifications import Reserva_Auditorio_Equipamentos
     from app.models.reservas.reservas_equipamentos import \
         Reserva_Equipamento_Item
 
@@ -30,6 +31,10 @@ class Equipamentos(Base):
     itens_reserva: Mapped[list["Reserva_Equipamento_Item"]] = relationship(back_populates="equipamento", passive_deletes=True)
     movimentacoes: Mapped[list["MovimentacaoEquipamento"]] = relationship(back_populates="equipamento", passive_deletes=True)
     disponibilidades: Mapped[list["EquipamentoDisponibilidade"]] = relationship(back_populates="equipamento", passive_deletes=True)
+    itens_reserva_auditorio: Mapped[list["Reserva_Auditorio_Equipamentos"]] = relationship(
+        "Reserva_Auditorio_Equipamentos",
+        back_populates="equipamento"
+    )
 
     def __repr__(self) -> str:
         return (

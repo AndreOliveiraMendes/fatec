@@ -43,23 +43,29 @@ SECOES: dict[str, SecaoGrupo] = {
             Secao('Reserva de Auditório', 'database_reservas_auditorios.gerenciar_reservas_auditorios', 'warning', 'crud')
         ]
     },
-    'Operacional / Configuração':{
+    'Operacional / Configuração': {
         'icon': 'glyphicon glyphicon-cog',
         'secoes': [
             Secao('Situacoes das reservas', 'database_situacoes_das_reservas.gerenciar_situacoes_das_reservas', 'warning', 'crud'),
             Secao('Exibicao das reservas', 'database_exibicao_reservas.gerenciar_exibicao_reservas', 'warning', 'crud')
         ]
     },
+    'Notificações': {
+        'icon': 'glyphicon glyphicon-envelope',
+        'secoes': [
+            Secao('E-mails de Reserva de Auditório', 'database_reserva_auditorio_emails.gerenciar_reserva_auditorio_emails', 'primary', 'crud'),
+            Secao('Equipamentos da Reserva de Auditório', 'database_reserva_auditorio_equipamentos.gerenciar_reserva_auditorio_equipamentos', 'primary', 'crud')
+        ]
+    },
     'Logs / Histórico': {
         'icon': 'glyphicon glyphicon-list-alt',
         'secoes': [
             Secao('Histórico', 'database_historicos.gerenciar_historicos', 'danger', 're'),
-            
         ]
     },
     'Reservas Equipamento': {
         'icon': 'glyphicon glyphicon-briefcase',
-        'secoes':[
+        'secoes': [
             Secao('Reserva de Equipamento', 'database_reservas_equipamentos.gerenciar_reservas_equipamentos', 'info', 'r'),
             Secao('Item da reserva de equipamento', 'database_reservas_equipamentos_items.gerenciar_reservas_equipamentos_items', 'info', 'r'),
             Secao('Quantidade Equipamento', 'database_equipamentos_disponibilidade.gerenciar_equipamentos_disponibilidade', 'info', 'r'),

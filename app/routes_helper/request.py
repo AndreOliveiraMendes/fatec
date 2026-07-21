@@ -8,22 +8,22 @@ from config.mapeamentos import IGNORED_FORM_FIELDS
 
 
 def get_query_params(
-    request: Request, 
-    ignore_list: List[str] | None = None, 
+    request: Request,
+    ignore_list: List[str] | None = None,
     origin: Literal["form", "args"] = "form"
 ) -> dict:
     """
     Extract parameters from a request object, excluding specified fields.
 
-    Parameters are retrieved from the request attribute specified by `origin` 
-    ("form" or "args") and filtered to remove any keys in `ignore_list`. 
+    Parameters are retrieved from the request attribute specified by `origin`
+    ("form" or "args") and filtered to remove any keys in `ignore_list`.
     By default, ignored fields include "page", "acao", and "bloco".
 
     Args:
         request: The request object containing parameters.
-        ignore_list (List[str], optional): Keys to exclude from the result. 
+        ignore_list (List[str], optional): Keys to exclude from the result.
             Defaults to None, in which case the default ignored fields are used.
-        origin (Literal["form", "args"], optional): Attribute of `request` to use 
+        origin (Literal["form", "args"], optional): Attribute of `request` to use
             ("form" or "args"). Defaults to "form".
 
     Returns:
@@ -41,11 +41,11 @@ def get_query_params(
 
     if not hasattr(request, origin):
         abort(400, description=f"Invalid origin '{origin}', must be an attribute of request.")
-    
+
     source = getattr(request, origin)
 
     return {key: value for key, value in source.items() if key not in ignore_list}
-    
+
 def get_session_or_request(request, session, key, default=None):
     return session.pop(key, request.form.get(key, default))
 

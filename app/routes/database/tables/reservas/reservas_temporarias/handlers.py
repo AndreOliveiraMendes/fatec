@@ -34,7 +34,7 @@ def filtro_intervalo(inicio_procura, fim_procura):
         return Reservas_Temporarias.inicio_reserva <= fim_procura
     else:
         raise ValueError("Especifique ao menos um valor")
-    
+
 @register_handler(dispatcher, 'listar', 0)
 def list_handler():
     sel_reservas = select(Reservas_Temporarias)

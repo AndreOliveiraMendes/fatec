@@ -93,18 +93,18 @@ def check_login(id, password) -> LoginResult:
                     )
                 else:
                     old_perm = copy(perm)
-                    
+
                 db.session.add(perm)
 
                 registrar_log_generico_sistema("Login", pessoa, old_pessoa, skip_unchanged=True)
                 registrar_log_generico_sistema("Login", user, old_user, skip_unchanged=True)
                 registrar_log_generico_sistema("Login", perm, old_perm, skip_unchanged=True)
-                
+
                 db.session.commit()
 
                 userid = id_usuario
                 user = user
-            
+
             # Rollback transaction on any database or data error
             except (IntegrityError, SQLAlchemyError) as e:
                 db.session.rollback()

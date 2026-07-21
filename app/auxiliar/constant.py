@@ -27,7 +27,7 @@ class IntervalConflictError(Exception):
 
         if self.values:
             context.append(f"values={self.values!r}")
-            
+
         if self.interval:
             context.append(f"interval={self.interval!r}")
 
@@ -77,10 +77,10 @@ class Permission(IntFlag):
 
     def remove(self, perm):
         return self & ~perm
-    
+
     def list_permissions(self):
         return [perm for perm in Permission if self.has(perm)]
-    
+
     @property
     def safe_name(self) -> str:
         return self.name or ""
@@ -92,7 +92,7 @@ class Permission(IntFlag):
     @property
     def label(self):
         return PERM_LABELS.get(self, "")
-    
+
 PERM_DESCRIPTIONS = {
     Permission.RESERVA_FIXA: "Permissão de efetuar reservas fixas",
     Permission.RESERVA_TEMPORARIA: "Permissão de efetuar reservas temporárias",

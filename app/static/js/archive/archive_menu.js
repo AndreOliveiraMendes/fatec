@@ -195,7 +195,7 @@ $(function() {
         let btn = $(this);
 
         setLoading(btn, true);
-        
+
         $.post(URLS.list_files)
             .done(function(res) {
                 let anos = res.files.anos || [];

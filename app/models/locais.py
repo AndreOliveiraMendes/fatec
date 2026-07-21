@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import TEXT, Boolean, Enum, String, UniqueConstraint, true
+from sqlalchemy import TEXT, Boolean, Enum, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.enums import TipoLocalEnum
@@ -36,7 +36,7 @@ class Locais(Base):
     reservas_fixas: Mapped[list["Reservas_Fixas"]] = relationship(back_populates='local', passive_deletes=True)
     reservas_temporarias: Mapped[list["Reservas_Temporarias"]] = relationship(back_populates='local', passive_deletes=True)
     reservas_auditorios: Mapped[list["Reservas_Auditorios"]] = relationship(back_populates='local', passive_deletes=True)
-    situacoes_das_reservas: Mapped[list["Situacoes_Das_Reserva"]] = relationship(back_populates='local', passive_deletes=True) 
+    situacoes_das_reservas: Mapped[list["Situacoes_Das_Reserva"]] = relationship(back_populates='local', passive_deletes=True)
     exibicao_reservas: Mapped[list["Exibicao_Reservas"]] = relationship(back_populates='local', passive_deletes=True)
 
     def __repr__(self) -> str:
