@@ -130,5 +130,8 @@ def check_login(id, password) -> LoginResult:
     except requests.exceptions.ConnectionError as e:
         current_app.logger.error(f"erro ao conectar: {e}")
         flash("Falha ao conectar à API externa.", "danger")
+    except Exception as e:
+        current_app.logger.error(f"erro inesperado: {e}")
+        flash("Erro inesperado", "danger")
 
     return logged, userid, user
