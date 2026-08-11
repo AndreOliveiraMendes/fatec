@@ -320,6 +320,7 @@
         $(document).on('click', '.btn-equipamentos', function () {
             let infoUrl = $(this).data('info-url');
             let lista = $('#lista-relacoes-equipamentos');
+            let form = $('#formAtualizarRelacoes');
 
             lista.html(`
                 <p class="text-muted text-center">
@@ -329,9 +330,9 @@
             `);
 
             $.getJSON(infoUrl, function (data) {
+                // visualização
                 lista.empty();
 
-                console.log("alo");
                 if (data.equipamentos.length === 0) {
                     lista.html(`
                         <p class="text-muted">
@@ -360,6 +361,25 @@
                             </div>
                         </div>
                     `);
+                });
+
+                // edição
+                form[0].reset();
+
+                data.equipamentos.forEach(function (equipamento) {
+
+                    $(
+                        `input[name="quantidade_${equipamento.id_equipamento}"]`
+                    ).val(equipamento.quantidade);
+
+                    $(
+                        `textarea[name="observacao_${equipamento.id_equipamento}"]`
+                    ).val(equipamento.observacoes || '');
+
+                    $(
+                        `input[name="equipamentos"][value="${equipamento.id_equipamento}"]`
+                    ).prop('checked', true);
+
                 });
             });
         });

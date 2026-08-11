@@ -429,6 +429,10 @@ body {
     width: 100%;
 }
 
+.equipamento-item {
+    list-style-type: none;
+}
+
 .input-quantidade-aem {
     width: 70px;
     margin-left: auto;
