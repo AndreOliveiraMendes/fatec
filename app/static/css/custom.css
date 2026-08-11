@@ -423,6 +423,17 @@ body {
     display: inline-block;
 }
 
+.equipamento-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.input-quantidade-aem {
+    width: 70px;
+    margin: 0;
+}
+
 .badge_fernet_key {
     background-color: #5cb85c;
     font-size: 14px;
