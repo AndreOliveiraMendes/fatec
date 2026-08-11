@@ -1,10 +1,10 @@
 from copy import copy
 from datetime import datetime
 from typing import Any
-from sqlalchemy import delete, select
 
 from flask import (Blueprint, abort, flash, redirect, render_template, request,
                    session, url_for)
+from sqlalchemy import delete, select
 
 from app.auxiliar.constant import DB_ERRORS, Permission
 from app.auxiliar.general import get_value_or_abort
