@@ -426,12 +426,17 @@ body {
 .equipamento-label {
     display: flex;
     align-items: center;
-    gap: 10px;
+    width: 100%;
 }
 
 .input-quantidade-aem {
     width: 70px;
-    margin: 0;
+    margin-left: auto;
+}
+
+.observacao-equipamento {
+    margin-left: 25px;
+    margin-bottom: 8px;
 }
 
 .badge_fernet_key {

@@ -17,6 +17,7 @@ from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import reserva_auditorio_required
 from app.enums import StatusReservaAuditorioEnum
 from app.extensions import db
+from app.models.notifications import Reserva_Auditorio_Equipamentos
 from app.models.reservas.reservas_auditorios import Reservas_Auditorios
 from app.service.reservas_services import check_unique_aprovada
 from config.general import LOCAL_TIMEZONE
@@ -169,18 +170,43 @@ def adicionar():
     dia = parse_date_string_or_abort(request.form.get('dia'), 400, "dia é obrigatorio")
     hora = get_value_or_abort(request.form.get('hora'), 400, "id do horario é obrigatorio", int)
     observacao = request.form.get('observacao')
+
+    equipamentos = []
+    for eq in request.form.getlist("equipamentos"):
+        id_eq = int(eq)
+        qtd = int(request.form.get(f'quantidade_{id_eq}', 1))
+        observacao_equipamento = request.form.get(
+            f"observacao_{id_eq}",
+            ""
+        )
+        equipamentos.append((id_eq, qtd, observacao_equipamento))
+
     try:
-        nova_reserva = Reservas_Auditorios()
-        nova_reserva.id_reserva_local = auditorio
-        nova_reserva.id_reserva_aula = hora
-        nova_reserva.dia_reserva = dia
-        nova_reserva.id_responsavel = solicitante_id
+        nova_reserva = Reservas_Auditorios(
+            id_reserva_local = auditorio,
+            id_reserva_aula = hora,
+            dia_reserva = dia,
+            id_responsavel = solicitante_id
+        )
         if observacao:
             nova_reserva.observação_responsavel = observacao
 
         db.session.add(nova_reserva)
 
         db.session.flush()
+
+        for eq_code, eq_qtd, eq_obs in equipamentos: 
+            relacao = Reserva_Auditorio_Equipamentos(
+                id_reserva_auditorio = nova_reserva.id_reserva_auditorio,
+                id_equipamento = eq_code,
+                quantidade = eq_qtd,
+                observacoes = eq_obs
+            )
+
+            db.session.add(relacao)
+
+            registrar_log_generico_usuario(userid, 'Inserção', relacao, observacao='atraves da tela de reserva')
+
         registrar_log_generico_usuario(userid, 'Inserção', nova_reserva, observacao='atraves da tela de reserva')
 
         db.session.commit()

@@ -1,0 +1,35 @@
+<div id="modalRelacoesEquipamentos"
+     class="modal fade"
+     tabindex="-1"
+     role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form method="post"
+                  id="formNovaReserva"
+                  action="{#{ url_for('reservas_auditorios.adicionar') }#}">
+                <div class="modal-header bg-info">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                    <h4 class="modal-title">Relação de Equipamentos</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="lista-relacoes-equipamentos">
+                        <p class="text-muted text-center">
+                            <span class="glyphicon glyphicon-refresh"></span>
+                            Carregando...
+                        </p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success" disabled>
+                        <span class="glyphicon glyphicon-ok"></span> Confirmar
+                    </button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <span class="glyphicon glyphicon-remove"></span> Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
