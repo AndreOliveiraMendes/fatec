@@ -214,3 +214,12 @@ def adicionar():
     except DB_ERRORS as e:
         handle_db_error(e, "Erro ao adicionar reserva")
     return redirect(url_for('reservas_auditorios.main_page'))
+
+@bp.route('/atualizar_relacoes_equipamentos', methods=['POST'])
+@reserva_auditorio_required
+def atualizar_relacoes_equipamentos():
+    userid = session.get('userid')
+    user = get_user(userid)
+    if not user:
+        abort(403, description="Usuário não encontrado.")
+    

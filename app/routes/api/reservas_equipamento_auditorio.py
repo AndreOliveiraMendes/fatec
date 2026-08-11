@@ -21,4 +21,8 @@ def listar_relacoes_equipamento_auditorio(id_reserva_auditorio):
         }
         for relacao in relacoes
     ]
-    return jsonify({"equipamentos":relacoes_list})
+    return jsonify({
+        "equipamentos":relacoes_list,
+        "reserva_auditorio": id_reserva_auditorio   
+        }
+    )

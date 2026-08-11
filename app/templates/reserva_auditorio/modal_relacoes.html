@@ -46,6 +46,10 @@
                     <!-- EDIÇÃO -->
                     <div role="tabpanel" class="tab-pane" id="tab-edicao">
                         <form id="formAtualizarRelacoes" method="post" class="padding-top-15">
+                            <div class="form-group">
+                                <label for="id_reserva">ID da Reserva</label>
+                                <input type="number" name="id_reserva" class="form-control" readonly>
+                            </div>
                             {% set categorias = equipamentos | groupby('id_categoria') %}
                             {% for categoria, itens in categorias %}
                                 <div class="list-group">
