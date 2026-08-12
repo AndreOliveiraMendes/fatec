@@ -1,0 +1,16 @@
+{% extends "base-fixed" %}
+{% block title %}
+    Mail Test
+{% endblock title %}
+
+{% block content %}
+    <h1>Mail Test</h1>
+    <p>This page is used to test the mail sending functionality.</p>
+    <form method="post">
+        <div class="form-group">
+            <label for="email">Recipient Email:</label>
+            <input type="email" class="form-control" id="email" name="email" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Send Test Email</button>
+    </form>
+{% endblock content %}
