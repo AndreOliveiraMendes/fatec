@@ -4,7 +4,7 @@ from typing import Any
 
 from flask import (Blueprint, abort, flash, redirect, render_template, request,
                    session, url_for)
-from sqlalchemy import delete, select
+from sqlalchemy import select
 
 from app.auxiliar.constant import DB_ERRORS, Permission
 from app.auxiliar.general import get_value_or_abort
@@ -252,52 +252,81 @@ def atualizar_relacoes_equipamentos():
             Reserva_Auditorio_Equipamentos.id_reserva_auditorio == id_reserva
         )
 
-        reservas = db.session.execute(smrae_select).scalars().all()
+        relacoes_antigas = {
+            relacao.id_equipamento: relacao for relacao in db.session.execute(smrae_select).scalars().all()
+        }
 
-        old_reservas_equipamento_ids = [reserva.id_equipamento for reserva in reservas]
-
-        # remove todas as reservas
-        smrae = delete(Reserva_Auditorio_Equipamentos).where(
-            Reserva_Auditorio_Equipamentos.id_reserva_auditorio == id_reserva
-        )
-
-        result1 = db.session.execute(smrae)
-
-        deleted_count = result1.rowcount
-
-        deletados = 0
-        editados = 0
-        adicionados = 0
+        adicionados = []
+        deletados = []
+        editados = []
 
         for id_eq, quantidade, observacao in equipamentos:
-            relacao = Reserva_Auditorio_Equipamentos(
-                id_reserva_auditorio=id_reserva,
-                id_equipamento=id_eq,
-                quantidade=quantidade,
-                observacoes=observacao
-            )
+            if id_eq in relacoes_antigas:
+                editados.append(copy(relacoes_antigas[id_eq]))
 
-            db.session.add(relacao)
+                relacoes_antigas[id_eq].quantidade = quantidade
+                relacoes_antigas[id_eq].observacoes = observacao
 
-            acao = 'Inserção' if id_eq not in old_reservas_equipamento_ids else 'Edição'
-            if id_eq in old_reservas_equipamento_ids:
-                editados += 1
             else:
-                adicionados += 1
+                nova_relacao = Reserva_Auditorio_Equipamentos(
+                        id_reserva_auditorio=id_reserva,
+                        id_equipamento=id_eq,
+                        quantidade=quantidade,
+                        observacoes=observacao
+                    )
 
-            db.session.flush()
+                db.session.add(nova_relacao)
 
-            registrar_log_generico_usuario(
-                userid, acao, relacao, observacao='atraves da tela de reserva'
-            )
+                adicionados.append(nova_relacao)
 
-        deletados = deleted_count - editados
+        for id_eq, relacao in relacoes_antigas.items():
+            if id_eq not in [eq.id_equipamento  for eq in editados]:
+                deletados.append(copy(relacao))
+                db.session.delete(relacao)
+            else:
+                db.session.add(relacao)
 
-        db.session.commit()
+        db.session.flush()
 
         flash("Relações de equipamentos atualizadas com sucesso", "success")
-        flash(f"Adicionados: {adicionados}, Editados: {editados}, Deletados: {deletados}", "info")
-        
+        if adicionados:
+            flash(
+                f"Adicionados ({len(adicionados)}): " +
+                ", ".join(f"Equipamento #{relacao.id_equipamento}" for relacao in adicionados),
+                "info"
+            )
+        else:
+            flash("Adicionados: Nenhum", "info")
+
+        if editados:
+            flash(
+                f"Editados ({len(editados)}): " +
+                ", ".join(f"Equipamento #{relacao.id_equipamento}" for relacao in editados),
+                "info"
+            )
+        else:
+            flash("Editados: Nenhum", "info")
+
+        if deletados:
+            flash(
+                f"Deletados ({len(deletados)}): " +
+                ", ".join(f"Equipamento #{relacao.id_equipamento}" for relacao in deletados),
+                "info"
+            )
+        else:
+            flash("Deletados: Nenhum", "info")
+
+        for relacao in adicionados:
+            registrar_log_generico_usuario(userid, 'Inserção', relacao, observacao='atraves da tela de reserva')
+
+        for relacao in editados:
+            registrar_log_generico_usuario(userid, 'Atualização', relacoes_antigas[relacao.id_equipamento], observacao='atraves da tela de reserva', antes=relacao)
+
+        for relacao in deletados:
+            registrar_log_generico_usuario(userid, 'Exclusão', relacao, observacao='atraves da tela de reserva')
+
+        db.session.commit()
+                
     except DB_ERRORS as e:
         handle_db_error(e, "Erro ao atualizar relações de equipamentos")
 
