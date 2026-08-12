@@ -1,10 +1,11 @@
-from flask import Blueprint, flash, redirect, render_template, request, session, url_for
+from flask import (Blueprint, flash, redirect, render_template, request,
+                   session, url_for)
 
 from app.decorators.decorators import admin_required
 from app.extensions import db
 from app.models.usuarios import Usuarios
-from .handler import send_test_email_apppassword
 
+from .handler import send_test_email_apppassword, send_test_email_oauth
 
 bp = Blueprint('debug', __name__, url_prefix='/debug')
 
@@ -23,10 +24,20 @@ def mail_test_route():
 
     if request.method == 'POST':
         email = request.form['email']
+        method = request.form['method']
 
-        success, message = send_test_email_apppassword(email)
+        if method == 'apppassword':
+            success, message = send_test_email_apppassword(email)
+
+        elif method == 'oauth':
+            success, message = send_test_email_oauth(email)
+
+        else:
+            success = False
+            message = "Invalid authentication method."
+
         flash(message, 'success' if success else 'danger')
-        
+
         return redirect(url_for('debug.mail_test_route'))
 
     return render_template('debug/mail_test.html', user=user)

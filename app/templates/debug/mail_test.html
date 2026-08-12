@@ -10,6 +10,15 @@
             <label for="email">Recipient Email:</label>
             <input type="email" class="form-control" id="email" name="email" required>
         </div>
-        <button type="submit" class="btn btn-primary">Send Test Email</button>
+        <div class="form-group">
+            <label>Authentication Method:</label>
+            <div>
+                <button type="submit"
+                        name="method"
+                        value="apppassword"
+                        class="btn btn-primary">App Password</button>
+                <button type="submit" name="method" value="oauth" class="btn btn-default">OAuth</button>
+            </div>
+        </div>
     </form>
 {% endblock content %}
