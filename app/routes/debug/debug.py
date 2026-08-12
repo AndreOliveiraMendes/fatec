@@ -3,7 +3,7 @@ from flask import Blueprint, flash, redirect, render_template, request, session,
 from app.decorators.decorators import admin_required
 from app.extensions import db
 from app.models.usuarios import Usuarios
-from .handler import send_test_email
+from .handler import send_test_email_apppassword
 
 
 bp = Blueprint('debug', __name__, url_prefix='/debug')
@@ -24,7 +24,7 @@ def mail_test_route():
     if request.method == 'POST':
         email = request.form['email']
 
-        success, message = send_test_email(email)
+        success, message = send_test_email_apppassword(email)
         flash(message, 'success' if success else 'danger')
         
         return redirect(url_for('debug.mail_test_route'))
