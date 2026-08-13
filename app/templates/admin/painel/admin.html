@@ -217,7 +217,7 @@
                    aria-expanded="false"
                    aria-controls="collapseSSHPanel">
                     <span class="glyphicon glyphicon-lock"></span>
-                    SSH e Relacionados
+                    SSH, Emails e Comandos Remotos
                 </a>
             </h3>
         </div>
@@ -243,6 +243,8 @@
                             <a href="{{ url_for('admin_remote_commands.manage_commands') }}"
                                class="btn btn-warning">Configurar Comandos Remotos</a>
                         {% endif %}
+                        <a href="{{ url_for('admin_mail_config.manage_mail_config') }}"
+                           class="btn btn-warning">Configurar E-mail</a>
                     </div>
                 </div>
             </div>
