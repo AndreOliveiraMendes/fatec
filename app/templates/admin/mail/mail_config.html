@@ -163,11 +163,12 @@
                 radio.addEventListener('change', updateAuthFields);
             });
             function carregarConfiguracoes() {
-                fetch('{#{ url_for("api_mail.api_mail_list") }#}')
+                fetch('{{ url_for("api_mail.api_mail_list") }}')
                     .then(r => r.json())
                     .then(data => {
                         tableBody.innerHTML = '';
-                        if (data.length === 0) {
+                        const configs = data.configs || [];
+                        if (configs.length === 0) {
                             tableBody.innerHTML = `
                                 <tr>
                                     <td colspan="7" class="text-center text-muted">
@@ -177,7 +178,7 @@
                             `;
                             return;
                         }
-                        data.forEach(config => {
+                        configs.forEach(config => {
                             const authLabel =
                                 config.auth_type === 'oauth'
                                     ? 'OAuth 2.0'
@@ -235,7 +236,7 @@
                     form.querySelector(
                         'input[name="use_tls"]'
                     ).checked;
-                fetch('{#{ url_for("api_mail.api_mail_save") }#}', {
+                fetch('{{ url_for("api_mail.api_mail_save") }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -264,11 +265,11 @@
                     e.target.closest('.btn-test');
                 if (editBtn) {
                     const id = editBtn.dataset.id;
-                    fetch('{#{ url_for("api_mail.api_mail_list") }#}')
+                    fetch('{{ url_for("api_mail.api_mail_list") }}')
                         .then(r => r.json())
                         .then(data => {
                             const config =
-                                data.find(c => c.id == id);
+                                data.configs.find(c => c.id == id);
                             if (!config)
                                 return;
                             form.reset();
@@ -309,7 +310,7 @@
                         return;
                     }
                     fetch(
-                        `{#{ url_for("api_mail.api_mail_delete", config_id=0) }#}`
+                        `{{ url_for("api_mail.api_mail_delete", config_id=0) }}`
                             .replace('0', id),
                         {
                             method: 'POST'

@@ -4,7 +4,7 @@ from importlib.resources import as_file
 from pathlib import Path
 
 from config.mapeamentos import (COMMANDS_FILE, DEFAULT_CONFIG_CFG,
-                                DEFAULT_PAINEL_CFG, SSH_CRED_FILE)
+                                DEFAULT_PAINEL_CFG, MAIL_CONFIG_FILE, SSH_CRED_FILE)
 
 
 def validar_json(data, *args):
@@ -104,3 +104,18 @@ def save_commands(commands):
     COMMANDS_FILE.parent.mkdir(parents=True, exist_ok=True)
     with COMMANDS_FILE.open("w", encoding="utf-8") as f:
         json.dump(commands, f, ensure_ascii=False, indent=4)
+
+def load_mail_config():
+    if MAIL_CONFIG_FILE.exists():
+        with open(MAIL_CONFIG_FILE, "r", encoding="utf-8") as f:
+            try:
+                return json.load(f)
+            except json.JSONDecodeError:
+                print("erro")
+                return []
+    return []
+
+def save_mail_config(mail_config):
+    MAIL_CONFIG_FILE.parent.mkdir(parents=True, exist_ok=True)
+    with MAIL_CONFIG_FILE.open("w", encoding="utf-8") as f:
+        json.dump(mail_config, f, ensure_ascii=False, indent=4)
