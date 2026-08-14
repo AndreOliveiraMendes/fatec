@@ -112,8 +112,8 @@ def load_mail_config():
                 return json.load(f)
             except json.JSONDecodeError:
                 print("erro")
-                return []
-    return []
+                return {"configs": []}
+    return {"configs": []}
 
 def save_mail_config(mail_config):
     MAIL_CONFIG_FILE.parent.mkdir(parents=True, exist_ok=True)
