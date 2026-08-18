@@ -50,8 +50,6 @@ def send_test_email(
 
         message.set_content(body, charset="utf-8")
 
-        print(message)
-
         with smtplib.SMTP(smtp_server, smtp_port) as server:
             if use_tls:
                 server.starttls()
@@ -64,3 +62,18 @@ def send_test_email(
     except Exception as e:
         print(f"Error sending test email: {e}")
         return False
+
+def send_test_email_oauth2(
+    smtp_server,
+    smtp_port,
+    username,
+    mail_from,
+    mail_to,
+    use_tls=True,
+    subject="Test Email",
+    body=TEXT_MAIL
+):
+    # Placeholder for OAuth2 email sending logic
+    # Implement the actual OAuth2 authentication and email sending here
+    print("Sending test email using OAuth2 (not implemented).")
+    return False

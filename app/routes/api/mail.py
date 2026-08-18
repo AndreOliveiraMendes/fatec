@@ -1,9 +1,11 @@
 from flask import Blueprint, request
+
 from app.decorators.decorators import admin_required
 from app.security.cryptograph import decrypt_field, encrypt_field
 from config.json_related import load_mail_config, save_mail_config
 
-from .handler.handler_mail_config import get_config_by_id, same_config, send_test_email
+from .handler.handler_mail_config import (get_config_by_id, same_config,
+                                          send_test_email, send_test_email_oauth2)
 
 bp = Blueprint('api_mail', __name__, url_prefix='/api/mail')
 
@@ -114,29 +116,51 @@ def api_mail_desactive(config_id):
 def api_mail_test(config_id):
     configs = load_mail_config()
     config = get_config_by_id(configs, config_id)
+
     if not config:
         return {"error": "Configuração não encontrada."}, 404
 
     data = request.get_json()
     email = data.get("email")
+
     if not email:
         return {"error": "Email não fornecido."}, 400
 
-    if config.get("auth_type") == "app_password" and not config.get("credential"):
-        return {"error": "Credencial não fornecida para autenticação."}, 400
+    auth_type = config.get("auth_type")
 
-    if config.get("auth_type") == "app_password":
-        config["credential"] = decrypt_field(config["credential"])
+    if auth_type == "app_password":
+        if not config.get("credential"):
+            return {
+                "error": "Credencial não fornecida para autenticação."
+            }, 400
+
+        credential = decrypt_field(config["credential"])
 
         mail_sent = send_test_email(
             smtp_server=config.get("host"),
             smtp_port=config.get("port"),
             username=config.get("user"),
-            password=config.get("credential"),
+            password=credential,
             mail_from=config.get("mail_from"),
             mail_to=email,
             use_tls=config.get("use_tls", True),
             subject="Teste de Configuração de Email"
         )
+
+    elif auth_type == "oauth2":
+        mail_sent = send_test_email_oauth2(
+            smtp_server=config.get("host"),
+            smtp_port=config.get("port"),
+            username=config.get("user"),
+            mail_from=config.get("mail_from"),
+            mail_to=email,
+            use_tls=config.get("use_tls", True),
+            # credenciais OAuth aqui
+        )
+
+    else:
+        return {
+            "error": f"Tipo de autenticação não suportado: {auth_type}"
+        }, 400
 
     return {"success": mail_sent}
