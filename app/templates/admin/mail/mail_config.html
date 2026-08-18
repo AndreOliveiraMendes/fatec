@@ -168,6 +168,7 @@
                     .then(data => {
                         tableBody.innerHTML = '';
                         const configs = data.configs || [];
+                        const active = data.active || 0;
                         if (configs.length === 0) {
                             tableBody.innerHTML = `
                                 <tr>
@@ -209,6 +210,19 @@
                                     <button class="btn btn-xs btn-danger btn-del" data-id="${config.id}" title="Excluir">
                                         <span class="glyphicon glyphicon-trash"></span>
                                     </button>
+                                    ${active == config.id
+                                        ? `
+                                            <span class="label label-success">Ativa</span>
+                                            <button class="btn btn-xs btn-warning btn-desactive" data-id="${config.id}" title="Desativar">
+                                                <span class="glyphicon glyphicon-eye-close"></span>
+                                            </button>
+                                        `
+                                        : `
+                                            <button class="btn btn-xs btn-warning btn-active" data-id="${config.id}" title="Ativar">
+                                                <span class="glyphicon glyphicon-check"></span>
+                                            </button>
+                                        `
+                                    }
                                 </td>
                             `;
                             tableBody.appendChild(tr);
@@ -263,6 +277,10 @@
                     e.target.closest('.btn-del');
                 const testBtn =
                     e.target.closest('.btn-test');
+                const activeBtn =
+                    e.target.closest('.btn-active');
+                const desactiveBtn =
+                    e.target.closest('.btn-desactive');
                 if (editBtn) {
                     const id = editBtn.dataset.id;
                     fetch('{{ url_for("api_mail.api_mail_list") }}')
@@ -332,7 +350,7 @@
                         return;
                     testBtn.disabled = true;
                     fetch(
-                        `{#{ url_for("api_mail.api_mail_test", config_id=0) }#}`
+                        `{{ url_for("api_mail.api_mail_test", config_id=0) }}`
                             .replace('0', id),
                         {
                             method: 'POST',
@@ -366,6 +384,82 @@
                     })
                     .finally(() => {
                         testBtn.disabled = false;
+                    });
+                }
+                if (activeBtn){
+                    const id=activeBtn.dataset.id;
+                    activeBtn.disabled=true;
+                    fetch(
+                        `{{ url_for("api_mail.api_mail_active", config_id=0) }}`
+                            .replace('0', id),
+                        {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        }
+                    )
+                    .then(r => r.json())
+                    .then(resp => {
+                        if (resp.success) {
+                            alert(
+                                resp.message ||
+                                'Ativado com sucesso!'
+                            );
+                            carregarConfiguracoes();
+                        } else {
+                            alert(
+                                '❌ ' +
+                                (resp.error ||
+                                'Falha ao ativar.')
+                            );
+                        }
+                    })
+                    .catch(err => {
+                        alert(
+                            'Erro inesperado: ' + err
+                        );
+                    })
+                    .finally(() => {
+                        activeBtn.disabled = false;
+                    });
+                }
+                if (desactiveBtn){
+                    const id=desactiveBtn.dataset.id;
+                    desactiveBtn.disabled=true;
+                    fetch(
+                        `{{ url_for("api_mail.api_mail_desactive", config_id=0) }}`
+                            .replace('0', id),
+                        {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        }
+                    )
+                    .then(r => r.json())
+                    .then(resp => {
+                        if (resp.success) {
+                            alert(
+                                resp.message ||
+                                'Desativado com sucesso!'
+                            );
+                            carregarConfiguracoes();
+                        } else {
+                            alert(
+                                '❌ ' +
+                                (resp.error ||
+                                'Falha ao desativar.')
+                            );
+                        }
+                    })
+                    .catch(err => {
+                        alert(
+                            'Erro inesperado: ' + err
+                        );
+                    })
+                    .finally(() => {
+                        desactiveBtn.disabled = false;
                     });
                 }
             });
