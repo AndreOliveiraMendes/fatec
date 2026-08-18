@@ -138,3 +138,5 @@ def api_mail_test(config_id):
             use_tls=config.get("use_tls", True),
             subject="Teste de Configuração de Email"
         )
+
+    return {"success": mail_sent}
