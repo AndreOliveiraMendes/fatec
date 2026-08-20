@@ -110,8 +110,22 @@
                         <div id="fieldOAuth" class="hide">
                             <div class="alert alert-info">
                                 <span class="glyphicon glyphicon-info-sign"></span>
-                                A autenticação OAuth será realizada através
-                                do Google.
+                                A autenticação OAuth será realizada através do Google.
+                            </div>
+                            <div class="form-group">
+                                <label>Google Client ID</label>
+                                <input type="text"
+                                       name="oauth_client_id"
+                                       class="form-control"
+                                       placeholder="xxxx.apps.googleusercontent.com">
+                            </div>
+                            <div class="form-group">
+                                <label>Google Client Secret</label>
+                                <input type="password"
+                                       name="oauth_client_secret"
+                                       class="form-control"
+                                       autocomplete="new-password">
+                                <span class="help-block">O Client Secret será armazenado de forma criptografada.</span>
                             </div>
                             <button type="button" id="btnAuthorizeOAuth" class="btn btn-default">
                                 <span class="glyphicon glyphicon-log-in"></span>
@@ -189,8 +203,8 @@
                                     ? 'Gmail'
                                     : 'SMTP';
                             const status =
-                                config.authorized
-                                    ? '<span class="label label-success">Configurado</span>'
+                                config.oauth_status === 'configured'
+                                    ? `<span class="label label-success" title="${config.oauth_configured_at}">Configurado</span>`
                                     : '<span class="label label-warning">Não configurado</span>';
                             const tr = document.createElement('tr');
                             tr.innerHTML = `
@@ -468,15 +482,16 @@
             */
             document.getElementById('btnAuthorizeOAuth')
                 .addEventListener('click', () => {
-                    /*
-                    * Futuramente:
-                    *
-                    * window.location.href =
-                    *     '{#{ url_for("api_mail.api_mail_oauth_start") }#}';
-                    */
-                    alert(
-                        'Fluxo OAuth será iniciado aqui.'
-                    );
+                    const id = form.id.value;
+
+                    if (!id) {
+                        alert('Salve a configuração antes de autorizar com Google.');
+                        return;
+                    }
+
+                    window.location.href =
+                        `{{ url_for("api_mail.api_mail_oauth_start", config_id=0) }}`
+                            .replace('0', id);
                 });
             carregarConfiguracoes();
         })();

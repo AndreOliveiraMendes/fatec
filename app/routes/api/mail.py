@@ -1,11 +1,15 @@
-from flask import Blueprint, request
+from datetime import datetime, timezone
+
+from flask import Blueprint, current_app, redirect, request, url_for
 
 from app.decorators.decorators import admin_required
 from app.security.cryptograph import decrypt_field, encrypt_field
 from config.json_related import load_mail_config, save_mail_config
 
 from .handler.handler_mail_config import (get_config_by_id, same_config,
-                                          send_test_email, send_test_email_oauth2)
+                                          send_email,
+                                          send_email_oauth2)
+from authlib.integrations.flask_client import OAuth
 
 bp = Blueprint('api_mail', __name__, url_prefix='/api/mail')
 
@@ -46,6 +50,8 @@ def api_mail_save():
 
     if data.get('credential'):
         data['credential'] = encrypt_field(data['credential'])
+    if data.get('oauth_client_secret'):
+        data['oauth_client_secret'] = encrypt_field(data['oauth_client_secret'])
 
     if existing_config:
         # Update the existing configuration
@@ -111,6 +117,90 @@ def api_mail_desactive(config_id):
     save_mail_config(configs)
     return {"success": True}
 
+@bp.route("/oauth/start/<int:config_id>", methods=["GET"])
+@admin_required
+def api_mail_oauth_start(config_id):
+    configs = load_mail_config()
+    config = get_config_by_id(configs, config_id)
+
+    if not config:
+        return {"error": "Configuração não encontrada."}, 404
+
+    auth_type = config.get("auth_type")
+
+    if auth_type != "oauth":
+        return {"error": "Tipo de autenticação não suportado para OAuth."}, 400
+
+    if not config.get("oauth_client_id") or not config.get("oauth_client_secret"):
+        return {"error": "Credenciais OAuth não fornecidas."}, 400
+
+    client_secret = decrypt_field(config["oauth_client_secret"])
+    oauth = OAuth(current_app)
+    oauth.register(
+        name="google",
+        client_id=config["oauth_client_id"],
+        client_secret=client_secret,
+        server_metadata_url=(
+            "https://accounts.google.com/"
+            ".well-known/openid-configuration"
+        ),
+        client_kwargs={
+            "scope": "openid email profile https://mail.google.com/"
+        },
+    )
+
+    redirect_uri = url_for(
+        "api_mail.api_mail_oauth_callback",
+        config_id=config_id,
+        _external=True,
+    )
+
+    return oauth.google.authorize_redirect(redirect_uri)
+
+@bp.route("/oauth/callback/<int:config_id>", methods=["GET"])
+@admin_required
+def api_mail_oauth_callback(config_id):
+    configs = load_mail_config()
+    config = get_config_by_id(configs, config_id)
+
+    if not config:
+        return {"error": "Configuração não encontrada."}, 404
+
+    client_secret = decrypt_field(
+        config["oauth_client_secret"]
+    )
+
+    oauth = OAuth(current_app)
+
+    oauth.register(
+        name="google",
+        client_id=config["oauth_client_id"],
+        client_secret=client_secret,
+        server_metadata_url=(
+            "https://accounts.google.com/"
+            ".well-known/openid-configuration"
+        ),
+        client_kwargs={
+            "scope": "openid email profile https://mail.google.com/"
+        },
+    )
+
+    token = oauth.google.authorize_access_token()
+
+    refresh_token = token.get("refresh_token")
+
+    if refresh_token:
+        config["oauth_refresh_token"] = encrypt_field(refresh_token)
+
+    config["oauth_status"] = "configured"
+    config["oauth_configured_at"] = datetime.now(
+        timezone.utc
+    ).isoformat()
+
+    save_mail_config(configs)
+
+    return redirect(url_for('admin_mail_config.manage_mail_config'))
+
 @bp.route("/test/<int:config_id>", methods=["POST"])
 @admin_required
 def api_mail_test(config_id):
@@ -136,7 +226,7 @@ def api_mail_test(config_id):
 
         credential = decrypt_field(config["credential"])
 
-        mail_sent = send_test_email(
+        mail_sent = send_email(
             smtp_server=config.get("host"),
             smtp_port=config.get("port"),
             username=config.get("user"),
@@ -147,15 +237,20 @@ def api_mail_test(config_id):
             subject="Teste de Configuração de Email"
         )
 
-    elif auth_type == "oauth2":
-        mail_sent = send_test_email_oauth2(
+    elif auth_type == "oauth":
+        client_id = config.get("oauth_client_id")
+        client_secret = decrypt_field(config.get("oauth_client_secret"))
+        refresh_token = decrypt_field(config.get("oauth_refresh_token"))
+        mail_sent = send_email_oauth2(
             smtp_server=config.get("host"),
             smtp_port=config.get("port"),
             username=config.get("user"),
             mail_from=config.get("mail_from"),
             mail_to=email,
+            client_id=client_id,
+            client_secret=client_secret,
+            refresh_token=refresh_token,
             use_tls=config.get("use_tls", True),
-            # credenciais OAuth aqui
         )
 
     else:

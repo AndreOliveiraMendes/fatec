@@ -1,5 +1,7 @@
 import smtplib
 from email.message import EmailMessage
+from authlib.integrations.requests_client import OAuth2Session
+import base64
 
 TEXT_MAIL = """
 Olá, este é um email de teste enviado pelo sistema.
@@ -29,8 +31,38 @@ def get_config_by_id(configs, config_id):
         None
     )
 
+def get_google_access_token(client_id, client_secret, refresh_token):
+    client = OAuth2Session(
+        client_id=client_id,
+        client_secret=client_secret,
+        scope="https://mail.google.com/",
+    )
 
-def send_test_email(
+    token = client.refresh_token(
+        "https://oauth2.googleapis.com/token",
+        refresh_token=refresh_token,
+    )
+
+    return token["access_token"]
+
+def smtp_oauth2_auth(server, username, access_token):
+    auth_string = f"user={username}\x01auth=Bearer {access_token}\x01\x01"
+
+    encoded = base64.b64encode(
+        auth_string.encode("utf-8")
+    ).decode("ascii")
+
+    code, response = server.docmd(
+        "AUTH",
+        "XOAUTH2 " + encoded
+    )
+
+    if code != 235:
+        raise RuntimeError(
+            f"Falha na autenticação OAuth: {code} {response!r}"
+        )
+
+def send_email(
     smtp_server,
     smtp_port,
     username,
@@ -63,17 +95,47 @@ def send_test_email(
         print(f"Error sending test email: {e}")
         return False
 
-def send_test_email_oauth2(
+def send_email_oauth2(
     smtp_server,
     smtp_port,
     username,
     mail_from,
     mail_to,
+    client_id,
+    client_secret,
+    refresh_token,
     use_tls=True,
     subject="Test Email",
     body=TEXT_MAIL
 ):
-    # Placeholder for OAuth2 email sending logic
-    # Implement the actual OAuth2 authentication and email sending here
-    print("Sending test email using OAuth2 (not implemented).")
-    return False
+    try:
+        message = EmailMessage()
+
+        message["Subject"] = subject
+        message["From"] = mail_from
+        message["To"] = mail_to
+
+        message.set_content(body, charset="utf-8")
+        access_token = get_google_access_token(
+            client_id,
+            client_secret,
+            refresh_token,
+        )
+
+        with smtplib.SMTP(smtp_server, smtp_port) as server:
+            if use_tls:
+                server.starttls()
+
+            smtp_oauth2_auth(
+                server,
+                username,
+                access_token,
+            )
+
+            server.send_message(message)
+
+        return True
+
+    except Exception as e:
+        print(f"Error sending test email: {e}")
+        return False  
