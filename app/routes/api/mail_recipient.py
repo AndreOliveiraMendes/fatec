@@ -3,7 +3,6 @@ from flask import Blueprint
 from app.decorators.decorators import admin_required
 from config.json_related import load_mail_recipíents
 
-
 bp = Blueprint('api_mail_recipient', __name__, url_prefix='/api/mail/recipient')
 
 @bp.route("/list")

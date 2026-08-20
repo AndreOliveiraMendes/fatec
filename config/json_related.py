@@ -4,8 +4,8 @@ from importlib.resources import as_file
 from pathlib import Path
 
 from config.mapeamentos import (COMMANDS_FILE, DEFAULT_CONFIG_CFG,
-                                DEFAULT_PAINEL_CFG, MAIL_CONFIG_FILE, MAIL_RECIPIENT_FILE,
-                                SSH_CRED_FILE)
+                                DEFAULT_PAINEL_CFG, MAIL_CONFIG_FILE,
+                                MAIL_RECIPIENT_FILE, SSH_CRED_FILE)
 
 
 def validar_json(data, *args):

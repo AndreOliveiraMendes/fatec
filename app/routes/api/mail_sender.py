@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 
+from authlib.integrations.flask_client import OAuth
 from flask import Blueprint, current_app, redirect, request, url_for
 
 from app.decorators.decorators import admin_required
@@ -7,9 +8,7 @@ from app.security.cryptograph import decrypt_field, encrypt_field
 from config.json_related import load_mail_config, save_mail_config
 
 from .handler.handler_mail_config import (get_config_by_id, same_config,
-                                          send_email,
-                                          send_email_oauth2)
-from authlib.integrations.flask_client import OAuth
+                                          send_email)
 
 bp = Blueprint('api_mail_sender', __name__, url_prefix='/api/mail/sender')
 
@@ -252,13 +251,8 @@ def api_mail_test(config_id):
         credential = decrypt_field(config["credential"])
 
         mail_sent = send_email(
-            smtp_server=config.get("host"),
-            smtp_port=config.get("port"),
-            username=config.get("user"),
-            password=credential,
-            mail_from=config.get("mail_from"),
+            config=config,
             mail_to=email,
-            use_tls=config.get("use_tls", True),
             subject="Teste de Configuração de Email"
         )
 
@@ -266,16 +260,10 @@ def api_mail_test(config_id):
         client_id = config.get("oauth_client_id")
         client_secret = decrypt_field(config.get("oauth_client_secret"))
         refresh_token = decrypt_field(config.get("oauth_refresh_token"))
-        mail_sent = send_email_oauth2(
-            smtp_server=config.get("host"),
-            smtp_port=config.get("port"),
-            username=config.get("user"),
-            mail_from=config.get("mail_from"),
+        mail_sent = send_email(
+            config=config,
             mail_to=email,
-            client_id=client_id,
-            client_secret=client_secret,
-            refresh_token=refresh_token,
-            use_tls=config.get("use_tls", True),
+            subject="Teste de Configuração de Email"
         )
 
     else:

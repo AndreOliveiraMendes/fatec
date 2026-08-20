@@ -1,7 +1,10 @@
+import base64
 import smtplib
 from email.message import EmailMessage
+
 from authlib.integrations.requests_client import OAuth2Session
-import base64
+
+from app.security.cryptograph import decrypt_field
 
 TEXT_MAIL = """
 Olá, este é um email de teste enviado pelo sistema.
@@ -62,80 +65,68 @@ def smtp_oauth2_auth(server, username, access_token):
             f"Falha na autenticação OAuth: {code} {response!r}"
         )
 
-def send_email(
-    smtp_server,
-    smtp_port,
-    username,
-    password,
-    mail_from,
-    mail_to,
-    use_tls=True,
-    subject="Test Email",
-    body=TEXT_MAIL
-):
+def send_email(config, mail_to, subject="Test Email", body=TEXT_MAIL):
     try:
         message = EmailMessage()
 
         message["Subject"] = subject
-        message["From"] = mail_from
+        message["From"] = config["mail_from"]
         message["To"] = mail_to
 
         message.set_content(body, charset="utf-8")
 
-        with smtplib.SMTP(smtp_server, smtp_port) as server:
-            if use_tls:
+        with smtplib.SMTP(
+            config["host"],
+            config["port"]
+        ) as server:
+
+            if config.get("use_tls"):
                 server.starttls()
 
-            server.login(username, password)
-            server.send_message(message)
+            if config["auth_type"] == "app_password":
+                password = decrypt_field(
+                    config["credential"]
+                )
 
-        return True
+                server.login(
+                    config["user"],
+                    password
+                )
 
-    except Exception as e:
-        print(f"Error sending test email: {e}")
-        return False
+            elif config["auth_type"] == "oauth":
+                client_secret = decrypt_field(
+                    config["oauth_client_secret"]
+                )
 
-def send_email_oauth2(
-    smtp_server,
-    smtp_port,
-    username,
-    mail_from,
-    mail_to,
-    client_id,
-    client_secret,
-    refresh_token,
-    use_tls=True,
-    subject="Test Email",
-    body=TEXT_MAIL
-):
-    try:
-        message = EmailMessage()
+                refresh_token = decrypt_field(
+                    config["oauth_refresh_token"]
+                )
 
-        message["Subject"] = subject
-        message["From"] = mail_from
-        message["To"] = mail_to
+                access_token = get_google_access_token(
+                    config["oauth_client_id"],
+                    client_secret,
+                    refresh_token,
+                )
 
-        message.set_content(body, charset="utf-8")
-        access_token = get_google_access_token(
-            client_id,
-            client_secret,
-            refresh_token,
-        )
+                smtp_oauth2_auth(
+                    server,
+                    config["user"],
+                    access_token,
+                )
 
-        with smtplib.SMTP(smtp_server, smtp_port) as server:
-            if use_tls:
-                server.starttls()
+            else:
+                raise ValueError(
+                    f"Tipo de autenticação não suportado: "
+                    f"{config['auth_type']}"
+                )
 
-            smtp_oauth2_auth(
-                server,
-                username,
-                access_token,
+            server.send_message(
+                message,
+                from_addr=config["mail_from"]
             )
 
-            server.send_message(message)
-
         return True
 
     except Exception as e:
-        print(f"Error sending test email: {e}")
-        return False  
+        print(f"Error sending email: {e}")
+        return False
