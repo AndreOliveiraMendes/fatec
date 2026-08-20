@@ -157,6 +157,9 @@ MAIL_PATH = os.path.join(DATA_BASE, "mail")
 MAIL_CONFIG_PATH = os.path.join(MAIL_PATH, "config.json")
 MAIL_CONFIG_FILE = Path(MAIL_CONFIG_PATH)
 
+MAIL_RECIPIENT_PATH = os.path.join(MAIL_PATH, "destiny.json")
+MAIL_RECIPIENT_FILE = Path(MAIL_RECIPIENT_PATH)
+
 # --------------------------------------------------
 # Erros HTTP
 # --------------------------------------------------

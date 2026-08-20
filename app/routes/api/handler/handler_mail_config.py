@@ -12,16 +12,16 @@ Atenciosamente,
 Sistema de Gerenciamento de Reservas de Recursos.
 """
 
-
-def same_config(config, data):
-    # Compare the relevant fields to determine if they are the same configuration
+def same_config(config, data, check_id=True):
+    if check_id:
+        return config.get('id') == data.get('id')
     return (
         config.get('smtp_server') == data.get('smtp_server') and
         config.get('smtp_port') == data.get('smtp_port') and
         config.get('username') == data.get('username') and
         config.get('mail_from') == data.get('mail_from') and
         config.get('use_tls') == data.get('use_tls')
-    ) or config.get('id') == data.get('id')
+    )
 
 
 def get_config_by_id(configs, config_id):

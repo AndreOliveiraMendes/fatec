@@ -4,7 +4,7 @@ from importlib.resources import as_file
 from pathlib import Path
 
 from config.mapeamentos import (COMMANDS_FILE, DEFAULT_CONFIG_CFG,
-                                DEFAULT_PAINEL_CFG, MAIL_CONFIG_FILE,
+                                DEFAULT_PAINEL_CFG, MAIL_CONFIG_FILE, MAIL_RECIPIENT_FILE,
                                 SSH_CRED_FILE)
 
 
@@ -120,3 +120,18 @@ def save_mail_config(mail_config):
     MAIL_CONFIG_FILE.parent.mkdir(parents=True, exist_ok=True)
     with MAIL_CONFIG_FILE.open("w", encoding="utf-8") as f:
         json.dump(mail_config, f, ensure_ascii=False, indent=4)
+
+def load_mail_recipíents():
+    if MAIL_RECIPIENT_FILE.exists():
+        with open(MAIL_RECIPIENT_FILE, "r", encoding="utf-8") as f:
+            try:
+                return json.load(f)
+            except json.JSONDecodeError:
+                print("erro")
+                return {"recipients": []}
+    return {"recipients": []}
+
+def savel_mail_recipients(mail_recipients):
+    MAIL_RECIPIENT_FILE.parent.mkdir(parents=True, exist_ok=True)
+    with MAIL_RECIPIENT_FILE.open("w", encoding="utf-8") as f:
+        json.dump(mail_recipients, f, ensure_ascii=False, indent=4) 

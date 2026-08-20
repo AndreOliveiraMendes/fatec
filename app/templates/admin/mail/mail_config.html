@@ -177,7 +177,7 @@
                 radio.addEventListener('change', updateAuthFields);
             });
             function carregarConfiguracoes() {
-                fetch('{{ url_for("api_mail.api_mail_list") }}')
+                fetch('{{ url_for("api_mail_sender.api_mail_list") }}')
                     .then(r => r.json())
                     .then(data => {
                         tableBody.innerHTML = '';
@@ -264,7 +264,7 @@
                     form.querySelector(
                         'input[name="use_tls"]'
                     ).checked;
-                fetch('{{ url_for("api_mail.api_mail_save") }}', {
+                fetch('{{ url_for("api_mail_sender.api_mail_save") }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -297,7 +297,7 @@
                     e.target.closest('.btn-desactive');
                 if (editBtn) {
                     const id = editBtn.dataset.id;
-                    fetch('{{ url_for("api_mail.api_mail_list") }}')
+                    fetch('{{ url_for("api_mail_sender.api_mail_list") }}')
                         .then(r => r.json())
                         .then(data => {
                             const config =
@@ -342,7 +342,7 @@
                         return;
                     }
                     fetch(
-                        `{{ url_for("api_mail.api_mail_delete", config_id=0) }}`
+                        `{{ url_for("api_mail_sender.api_mail_delete", config_id=0) }}`
                             .replace('0', id),
                         {
                             method: 'POST'
@@ -364,7 +364,7 @@
                         return;
                     testBtn.disabled = true;
                     fetch(
-                        `{{ url_for("api_mail.api_mail_test", config_id=0) }}`
+                        `{{ url_for("api_mail_sender.api_mail_test", config_id=0) }}`
                             .replace('0', id),
                         {
                             method: 'POST',
@@ -404,7 +404,7 @@
                     const id=activeBtn.dataset.id;
                     activeBtn.disabled=true;
                     fetch(
-                        `{{ url_for("api_mail.api_mail_active", config_id=0) }}`
+                        `{{ url_for("api_mail_sender.api_mail_active", config_id=0) }}`
                             .replace('0', id),
                         {
                             method: 'POST',
@@ -442,7 +442,7 @@
                     const id=desactiveBtn.dataset.id;
                     desactiveBtn.disabled=true;
                     fetch(
-                        `{{ url_for("api_mail.api_mail_desactive", config_id=0) }}`
+                        `{{ url_for("api_mail_sender.api_mail_desactive", config_id=0) }}`
                             .replace('0', id),
                         {
                             method: 'POST',
@@ -490,7 +490,7 @@
                     }
 
                     window.location.href =
-                        `{{ url_for("api_mail.api_mail_oauth_start", config_id=0) }}`
+                        `{{ url_for("api_mail_sender.api_mail_oauth_start", config_id=0) }}`
                             .replace('0', id);
                 });
             carregarConfiguracoes();

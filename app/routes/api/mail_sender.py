@@ -11,7 +11,7 @@ from .handler.handler_mail_config import (get_config_by_id, same_config,
                                           send_email_oauth2)
 from authlib.integrations.flask_client import OAuth
 
-bp = Blueprint('api_mail', __name__, url_prefix='/api/mail')
+bp = Blueprint('api_mail_sender', __name__, url_prefix='/api/mail/sender')
 
 @bp.route("/list")
 @admin_required
@@ -46,7 +46,7 @@ def api_mail_save():
             return {"error": "Invalid ID format"}, 400
 
     # Check if the configuration already exists
-    existing_config = next((config for config in mail_configs if same_config(config, data)), None)
+    existing_config = next((config for config in mail_configs if same_config(config, data, data.get('id') is not None)), None)
 
     if data.get('credential'):
         data['credential'] = encrypt_field(data['credential'])
@@ -54,11 +54,36 @@ def api_mail_save():
         data['oauth_client_secret'] = encrypt_field(data['oauth_client_secret'])
 
     if existing_config:
-        # Update the existing configuration
-        if not data.get('credential'):
-            data['credential'] = existing_config['credential']
-        if not data.get('id'):
-            data['id'] = existing_config['id']
+
+        # Campos comuns
+        data["id"] = existing_config["id"]
+
+        # Não substituir credenciais por vazio
+        if not data.get("credential"):
+            data["credential"] = existing_config.get("credential")
+
+        if not data.get("oauth_client_id"):
+            data["oauth_client_id"] = existing_config.get("oauth_client_id")
+
+        if not data.get("oauth_client_secret"):
+            data["oauth_client_secret"] = existing_config.get(
+                "oauth_client_secret"
+            )
+
+        auth_type = data.get("auth_type")
+
+        if auth_type == "app_password":
+            # OAuth deixa de ser utilizado
+            data["oauth_client_id"] = None
+            data["oauth_client_secret"] = None
+            data["oauth_refresh_token"] = None
+            data["oauth_status"] = None
+            data["oauth_configured_at"] = None
+
+        elif auth_type == "oauth":
+            # App Password deixa de ser utilizado
+            data["credential"] = None
+
         existing_config.update(data)
     else:
         # generate a new ID for the new configuration
@@ -150,7 +175,7 @@ def api_mail_oauth_start(config_id):
     )
 
     redirect_uri = url_for(
-        "api_mail.api_mail_oauth_callback",
+        "api_mail_sender.api_mail_oauth_callback",
         config_id=config_id,
         _external=True,
     )
