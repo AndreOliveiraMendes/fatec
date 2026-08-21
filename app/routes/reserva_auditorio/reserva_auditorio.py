@@ -23,7 +23,8 @@ from app.models.reservas.reservas_auditorios import Reservas_Auditorios
 from app.service.reservas_services import check_unique_aprovada
 from config.general import LOCAL_TIMEZONE
 
-from .handler import check_own_reserva, check_role
+from .handler import (check_own_reserva, check_role,
+                      criar_email_reserva_pendente)
 
 bp = Blueprint('reservas_auditorios', __name__, url_prefix="/reserva_auditorio")
 
@@ -99,6 +100,9 @@ def atualizar_status(id_reserva):
 
             db.session.flush()
             registrar_log_generico_usuario(userid, 'Edição', reserva, old_reserva, 'atraves de painel', True)
+
+            if new_status == 'Aprovada':
+                criar_email_reserva_pendente(reserva.id_reserva_auditorio)
 
             db.session.commit()
             flash("Reserva Atualizada com sucesso", "success")
