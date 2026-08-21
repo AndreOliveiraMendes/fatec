@@ -26,6 +26,10 @@ def same_config(config, data, check_id=True):
         config.get('use_tls') == data.get('use_tls')
     )
 
+def same_recipient(recipient, data, check_id=True):
+    if check_id:
+        return recipient.get('id') == data.get('id')
+    return recipient.get('email') == data.get('email')
 
 def get_config_by_id(configs, config_id):
     mail_configs = configs.get("configs", [])

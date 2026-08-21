@@ -128,8 +128,8 @@ def load_mail_recipíents():
                 return json.load(f)
             except json.JSONDecodeError:
                 print("erro")
-                return {"recipients": []}
-    return {"recipients": []}
+                return []
+    return []
 
 def savel_mail_recipients(mail_recipients):
     MAIL_RECIPIENT_FILE.parent.mkdir(parents=True, exist_ok=True)
