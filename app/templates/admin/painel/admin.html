@@ -238,15 +238,27 @@
                             </a>
                         {% endif %}
                         <a href="{{ url_for('admin_remote_credential.manage_ssh') }}"
-                           class="btn btn-warning">Credenciais de SSH</a>
+                           class="btn btn-warning">
+                            <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+                            Credenciais de SSH
+                        </a>
                         {% if user and user.perm|has_flag(CONFIGURAR_COMANDOS) %}
                             <a href="{{ url_for('admin_remote_commands.manage_commands') }}"
-                               class="btn btn-warning">Configurar Comandos Remotos</a>
+                               class="btn btn-warning">
+                                <span class="glyphicon glyphicon-console" aria-hidden="true"></span>
+                                Configurar Comandos Remotos
+                            </a>
                         {% endif %}
                         <a href="{{ url_for('admin_mail_config.manage_mail_config') }}"
-                           class="btn btn-warning">Configurar E-mail</a>
+                           class="btn btn-warning">
+                            <span class="glyphicon glyphicon-envelope" aria-hidden="true"></span>
+                            Configurar E-mail
+                        </a>
                         <a href="{{ url_for('admin_mail_config.manage_mail_destinatario') }}"
-                           class="btn btn-warning">Configurar Destinatarios</a>
+                           class="btn btn-success">
+                            <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+                            Configurar Destinatários
+                        </a>
                     </div>
                 </div>
             </div>
