@@ -4,8 +4,9 @@ from flask import abort
 from sqlalchemy import select
 
 from app.auxiliar.constant import Permission
+from app.enums import StatusEmailEnum
 from app.extensions import db
-from app.models.notifications import Reserva_Auditorio_Equipamentos
+from app.models.notifications import Reserva_Auditorio_Email, Reserva_Auditorio_Equipamentos
 from app.models.reservas.reservas_auditorios import Reservas_Auditorios
 from app.models.usuarios import Usuarios
 from config.json_related import load_mail_recipíents
@@ -57,3 +58,31 @@ def criar_email_reserva_pendente(id_reserva):
         d for d in load_mail_recipíents()
         if d.get('ativo')
     ]
+
+    success = []
+    for d in destinatarios:
+        if not d.get('ativo'):
+            continue
+        sel_mail = select(Reserva_Auditorio_Email).where(
+            Reserva_Auditorio_Email.id_reserva_auditorio == id_reserva,
+            Reserva_Auditorio_Email.destinatario == d.get('email')
+        )
+
+        mail = db.session.execute(sel_mail).scalars().first()
+
+        if mail:
+            mail.assunto = subject
+            mail.corpo_email = body
+
+            db.session.add(mail)
+            success.append((mail, "update"))
+        else:
+            new_mail = Reserva_Auditorio_Email()
+            new_mail.destinatario = d.get("email")
+            new_mail.assunto = subject
+            new_mail.corpo_email = body
+            new_mail.status_envio = StatusEmailEnum.PENDENTE
+            new_mail.id_reserva_auditorio = id_reserva
+
+            db.session.add(new_mail)
+            success.append((new_mail, "create"))
