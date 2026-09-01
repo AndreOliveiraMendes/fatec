@@ -19,6 +19,28 @@
             <!-- reservas entram aqui -->
         </div>
     </div>
+    <div class="modal fade" id="modalEmail" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h4 class="modal-title" id="modalEmailTitulo">Email</h4>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        <strong>Para:</strong>
+                        <span id="modalEmailDestinatario"></span>
+                    </p>
+                    <hr>
+                    <div id="modalEmailConteudo" class="MEC"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-primary" id="btnReenviarEmail" onclick="reenviarEmail()">Reenviar...</button>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock content %}
 {% block extra_script %}
     <script>
@@ -28,6 +50,76 @@
 
         const url_listar_reservas_auditorios = `{{ url_for('api_reservas_adutiorios.list') }}`;
         const url_listar_emails = `{{ url_for('api_mail.list') }}`;
+        const url_content_email = `{{ url_for('api_mail.get_content', id_email=0) }}`;
+
+        async function reenviarEmail() {
+            const btn = document.getElementById("btnReenviarEmail");
+            const url = btn.dataset.url;
+
+            const response = await fetch(url, {
+                method: "POST"
+            });
+
+            if (!response.ok) {
+                alert("Erro ao reagendar email.");
+                return;
+            }
+
+            $("#modalEmail").modal("hide");
+
+            // opcional: recarregar a lista
+            carregarReservas();
+        }
+
+        async function verEmail(idEmail) {
+            const response = await fetch(
+                `${url_content_email.replace("0", idEmail)}`
+            );
+
+            if (!response.ok) {
+                alert("Erro ao carregar email.");
+                return;
+            }
+
+            const email = await response.json();
+
+            document.getElementById("modalEmailTitulo").textContent =
+                email.assunto;
+
+            document.getElementById("modalEmailDestinatario").textContent =
+                email.destinatario;
+
+            document.getElementById("modalEmailConteudo").textContent =
+                email.conteudo;
+
+            const btnReenviar = document.getElementById("btnReenviarEmail");
+
+            switch (email.status) {
+                case "Erro":
+                    btnReenviar.textContent = "Tentar novamente";
+                    btnReenviar.classList.remove("hide");
+                    break;
+
+                case "Cancelado":
+                    btnReenviar.textContent = "Reagendar";
+                    btnReenviar.classList.remove("hide");
+                    break;
+
+                case "Enviado":
+                    btnReenviar.textContent = "Reenviar";
+                    btnReenviar.classList.remove("hide");
+                    break;
+
+                default:
+                    btnReenviar.classList.add("hide");
+                    break;
+            }
+
+            // Guarda a URL que veio do backend
+            btnReenviar.dataset.url = email.url_envio;
+
+            $("#modalEmail").modal("show");
+        }
 
         async function listarEmails(idReserva) {
             const params = new URLSearchParams({
@@ -44,14 +136,28 @@
 
             container.innerHTML = "";
 
+            if(emails.length === 0) {
+                container.innerHTML = `
+                    <div class="well well-sm">
+                        Nenhum email enviado.
+                    </div>
+                `;
+                return;
+            }
+
             emails.forEach(email => {
                 container.innerHTML += `
                     <div class="well well-sm">
                         <strong>${email.assunto}</strong><br>
                         ${email.destinatario}<br>
+
                         <span class="text-muted">
                             ${email.status_envio}
                         </span>
+
+                        <button class="btn btn-default btn-xs pull-right" onclick="verEmail(${email.id_email})">
+                            Ver
+                        </button>
                     </div>
                 `;
             });
@@ -92,7 +198,7 @@
                                 Emails
                             </button>
 
-                            <div id="emails-${reserva.id}"></div>
+                            <div id="emails-${reserva.id}" style="margin-top: 10px;"></div>
                         </div>
                     </div>
                 `;

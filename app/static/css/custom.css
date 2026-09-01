@@ -688,3 +688,9 @@ table>tbody>tr>td.reservado-fixo {
 .caret-ajustado {
     margin-top: 8px;
 }
+
+.MEC {
+    max-height: 500px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+}
