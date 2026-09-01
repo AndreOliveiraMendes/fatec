@@ -1,0 +1,107 @@
+{% extends "base-fixed" %}
+{% block title %}
+    Gerenciamento de email
+{% endblock title %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <label for="inicio">Início</label>
+                <input type="date" id="inicio" class="form-control">
+            </div>
+            <div class="col-md-4">
+                <label for="fim">Fim</label>
+                <input type="date" id="fim" class="form-control">
+            </div>
+        </div>
+        <hr>
+        <div id="reservas">
+            <!-- reservas entram aqui -->
+        </div>
+    </div>
+{% endblock content %}
+{% block extra_script %}
+    <script>
+        const inicio = document.getElementById("inicio");
+        const fim = document.getElementById("fim");
+        const reservas = document.getElementById("reservas");
+
+        const url_listar_reservas_auditorios = `{{ url_for('api_reservas_adutiorios.list') }}`;
+        const url_listar_emails = `{{ url_for('api_mail.list') }}`;
+
+        async function listarEmails(idReserva) {
+            const params = new URLSearchParams({
+                id_reserva: idReserva
+            });
+
+            const response = await fetch(
+                `${url_listar_emails}?${params}`
+            );
+
+            const emails = await response.json();
+
+            const container = document.getElementById(`emails-${idReserva}`);
+
+            container.innerHTML = "";
+
+            emails.forEach(email => {
+                container.innerHTML += `
+                    <div class="well well-sm">
+                        <strong>${email.assunto}</strong><br>
+                        ${email.destinatario}<br>
+                        <span class="text-muted">
+                            ${email.status_envio}
+                        </span>
+                    </div>
+                `;
+            });
+        }
+
+        async function carregarReservas() {
+            //if (!inicio.value || !fim.value) {
+            //    reservas.innerHTML = "";
+            //    return;
+            //}
+
+            const params = new URLSearchParams({
+                inicio: inicio.value,
+                fim: fim.value
+            });
+
+            const response = await fetch(
+                `${url_listar_reservas_auditorios}?${params}`
+            );
+
+            const data = await response.json();
+
+            reservas.innerHTML = "";
+
+            data.forEach(reserva => {
+                reservas.innerHTML += `
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <strong>${reserva.data}</strong>
+                            —
+                            ${reserva.horario}
+                        </div>
+
+                        <div class="panel-body">
+                            Responsável: ${reserva.responsavel}
+
+                            <button class="btn btn-primary btn-sm pull-right" onclick="listarEmails(${reserva.id})">
+                                Emails
+                            </button>
+
+                            <div id="emails-${reserva.id}"></div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        inicio.addEventListener("change", carregarReservas);
+        fim.addEventListener("change", carregarReservas);
+
+        carregarReservas();
+    </script>
+{% endblock extra_script %}

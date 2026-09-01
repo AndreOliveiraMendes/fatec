@@ -15,3 +15,9 @@ def manage_mail_destinatario():
     userid = session.get('userid')
     user = get_user(userid)
     return render_template("admin/mail/destinatario.html", user=user)
+
+@bp.route("/listar")
+def manage_mail():
+    userid = session.get('userid')
+    user = get_user(userid)
+    return render_template("admin/mail/index.html", user=user)
