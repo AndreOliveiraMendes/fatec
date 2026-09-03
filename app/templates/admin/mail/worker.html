@@ -12,8 +12,10 @@
 {% endblock content %}
 {% block extra_script %}
     <script>
+        const url_status = `{{ url_for("api_worker.worker_status") }}`;
+        const url_toggle = `{{ url_for("api_worker.worker_toggle") }}`;
         async function atualizarStatus() {
-            const response = await fetch("/api/mail/worker/status");
+            const response = await fetch(url_status);
             const data = await response.json();
 
             const status = document.getElementById("status");
@@ -31,7 +33,7 @@
         }
 
         async function alternarWorker() {
-            await fetch("/api/mail/worker/toggle", {
+            await fetch(url_toggle, {
                 method: "POST"
             });
 

@@ -39,7 +39,7 @@ def worker_toggle():
         "ativo": config.valor == "true"
     })
 
-@bp.route("/worker/start", methods=["POST"])
+@bp.route("/start", methods=["POST"])
 def worker_start():
     config = db.session.get(
         Configuracoes,
@@ -59,4 +59,26 @@ def worker_start():
 
     return jsonify({
         "ativo": True
+    })
+
+@bp.route("/stop", methods=["POST"])
+def worker_stop():
+    config = db.session.get(
+        Configuracoes,
+        "worker_email_ativo"
+    )
+
+    if config is None:
+        config = Configuracoes(
+            chave="worker_email_ativo",
+            valor="false"
+        )
+        db.session.add(config)
+    else:
+        config.valor = "false"
+
+    db.session.commit()
+
+    return jsonify({
+        "ativo": False
     })
