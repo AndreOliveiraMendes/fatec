@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 
-from .handler.handler_select import get_results
+from .handler import get_results
 
 bp = Blueprint('api_select', __name__, url_prefix='/api/')
 

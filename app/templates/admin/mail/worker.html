@@ -14,6 +14,8 @@
     <script>
         const url_status = `{{ url_for("api_worker.worker_status") }}`;
         const url_toggle = `{{ url_for("api_worker.worker_toggle") }}`;
+        const url_start = `{{ url_for("api_worker.worker_start") }}`;
+        const url_stop = `{{ url_for("api_worker.worker_stop") }}`;
         async function atualizarStatus() {
             const response = await fetch(url_status);
             const data = await response.json();
@@ -25,17 +27,24 @@
                 status.textContent = "Rodando";
                 btn.textContent = "Parar worker";
                 btn.className = "btn btn-danger";
+                btn.onclick = () => alterarWorker(url_stop);
             } else {
                 status.textContent = "Pausado";
                 btn.textContent = "Iniciar worker";
                 btn.className = "btn btn-success";
+                btn.onclick = () => alterarWorker(url_start);
             }
         }
 
-        async function alternarWorker() {
-            await fetch(url_toggle, {
+        async function alterarWorker(acao) {
+            const response = await fetch(acao, {
                 method: "POST"
             });
+
+            if (!response.ok) {
+                alert("Não foi possível alterar o estado do worker.");
+                return;
+            }
 
             atualizarStatus();
         }

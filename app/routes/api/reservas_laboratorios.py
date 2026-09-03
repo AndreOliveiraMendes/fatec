@@ -6,7 +6,7 @@ from app.enums import TipoLocalEnum
 from app.extensions import db
 from app.models.locais import Locais
 
-from .handler.handler_reservas_laboratorios import get_handler
+from .handler import get_handler
 
 bp = Blueprint('api_reservas_laboratorio', __name__, url_prefix='/api/reservas')
 

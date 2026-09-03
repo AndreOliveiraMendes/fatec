@@ -1,8 +1,9 @@
 from flask import Blueprint, request
 
 from app.decorators.decorators import admin_required
-from app.routes.api.handler.handler_mail_config import same_recipient
 from config.json_related import load_mail_recipíents, savel_mail_recipients
+
+from .handler import same_recipient
 
 bp = Blueprint('api_mail_recipient', __name__, url_prefix='/api/mail/recipient')
 

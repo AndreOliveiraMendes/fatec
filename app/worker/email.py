@@ -20,18 +20,22 @@ app = create_app()
 
 def processar_emails():
     with app.app_context():
+        try:
+            if not worker_email_ativo():
+                logger.info("Worker pausado")
+                return
 
-        if not worker_email_ativo():
-            logger.info("Worker pausado")
-            return
+            sel_email = select(Reserva_Auditorio_Email).where(
+                Reserva_Auditorio_Email.status_envio ==
+                StatusEmailEnum.PENDENTE
+            )
 
-        sel_email = select(Reserva_Auditorio_Email).where(
-            Reserva_Auditorio_Email.status_envio == StatusEmailEnum.PENDENTE
-        )
+            emails = db.session.execute(sel_email).scalars().all()
 
-        emails = db.session.execute(sel_email).scalars().all()
+            logger.info("%d emails pendentes", len(emails))
 
-        logger.info("%d emails pendentes", len(emails))
+        finally:
+            db.session.remove()
 
 
 if __name__ == "__main__":

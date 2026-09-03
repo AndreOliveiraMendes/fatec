@@ -4,11 +4,13 @@ from app.decorators.decorators import admin_required
 from app.enums import StatusReservaEquipamentoEnum
 from app.extensions import db
 from app.models.reservas.reservas_equipamentos import Reservas_Equipamentos
-from app.routes.api.handler.handler_reservas_equipamentos import (
-    aprovar_reserva_equipamento_handler, build_detalhes_reserva,
-    cancelar_reserva_equipamento_handler, check_cancelamento_permissao,
-    finalizar_reserva_se_concluida, get_item_reserva,
-    registrar_devolucao_equipamento_handler)
+
+from .handler import (aprovar_reserva_equipamento_handler,
+                      build_detalhes_reserva,
+                      cancelar_reserva_equipamento_handler,
+                      check_cancelamento_permissao,
+                      finalizar_reserva_se_concluida, get_item_reserva,
+                      registrar_devolucao_equipamento_handler)
 
 bp = Blueprint('api_reservas_equipamentos', __name__, url_prefix='/api/reservas/equipamentos')
 
