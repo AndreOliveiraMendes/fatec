@@ -6,7 +6,8 @@ from sqlalchemy import select
 from app.auxiliar.constant import Permission
 from app.enums import StatusEmailEnum
 from app.extensions import db
-from app.models.notifications import Reserva_Auditorio_Email, Reserva_Auditorio_Equipamentos
+from app.models.notifications import (Reserva_Auditorio_Email,
+                                      Reserva_Auditorio_Equipamentos)
 from app.models.reservas.reservas_auditorios import Reservas_Auditorios
 from app.models.usuarios import Usuarios
 from config.json_related import load_mail_recipíents

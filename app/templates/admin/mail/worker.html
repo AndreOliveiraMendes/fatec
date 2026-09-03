@@ -1,0 +1,43 @@
+{% extends "base-fixed" %}
+{% block title %}
+    Worker de emails
+{% endblock title %}
+{% block content %}
+    <h3>Worker de emails</h3>
+    <p>
+        Status:
+        <strong id="status">...</strong>
+    </p>
+    <button id="btnWorker" class="btn btn-primary" onclick="alternarWorker()"></button>
+{% endblock content %}
+{% block extra_script %}
+    <script>
+        async function atualizarStatus() {
+            const response = await fetch("/api/mail/worker/status");
+            const data = await response.json();
+
+            const status = document.getElementById("status");
+            const btn = document.getElementById("btnWorker");
+
+            if (data.ativo) {
+                status.textContent = "Rodando";
+                btn.textContent = "Parar worker";
+                btn.className = "btn btn-danger";
+            } else {
+                status.textContent = "Pausado";
+                btn.textContent = "Iniciar worker";
+                btn.className = "btn btn-success";
+            }
+        }
+
+        async function alternarWorker() {
+            await fetch("/api/mail/worker/toggle", {
+                method: "POST"
+            });
+
+            atualizarStatus();
+        }
+
+        atualizarStatus();
+    </script>
+{% endblock extra_script %}

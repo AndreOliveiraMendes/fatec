@@ -8,7 +8,6 @@ from app.extensions import db
 from app.models.notifications import Reserva_Auditorio_Email
 from app.routes.reserva_fixa.handlers import _handle_db_error
 
-
 bp = Blueprint("api_mail", __name__, url_prefix='/api/mail/self')
 
 

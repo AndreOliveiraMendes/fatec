@@ -21,3 +21,9 @@ def manage_mail():
     userid = session.get('userid')
     user = get_user(userid)
     return render_template("admin/mail/index.html", user=user)
+
+@bp.route("/worker")
+def worker():
+    userid = session.get('userid')
+    user = get_user(userid)
+    return render_template("admin/mail/worker.html", user=user)

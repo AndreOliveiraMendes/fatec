@@ -7,8 +7,7 @@ from app.decorators.decorators import admin_required
 from app.security.cryptograph import decrypt_field, encrypt_field
 from config.json_related import load_mail_config, save_mail_config
 
-from .handler import (get_config_by_id, same_config,
-                                          send_email)
+from .handler import get_config_by_id, same_config, send_email
 
 bp = Blueprint('api_mail_sender', __name__, url_prefix='/api/mail/sender')
 

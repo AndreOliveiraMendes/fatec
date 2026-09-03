@@ -1,4 +1,5 @@
 from .aulas import *
+from .config import *
 from .controle import *
 from .equipamentos import *
 from .historicos import *

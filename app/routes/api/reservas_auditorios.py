@@ -5,7 +5,6 @@ from app.auxiliar.parsing import parse_date_string
 from app.extensions import db
 from app.models.reservas.reservas_auditorios import Reservas_Auditorios
 
-
 bp = Blueprint('api_reservas_adutiorios', __name__, url_prefix='/api/reservas/auditorios')
 
 @bp.route("/list")

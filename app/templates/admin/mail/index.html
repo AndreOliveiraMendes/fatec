@@ -52,6 +52,23 @@
         const url_listar_emails = `{{ url_for('api_mail.list') }}`;
         const url_content_email = `{{ url_for('api_mail.get_content', id_email=0) }}`;
 
+        function classePanelReserva(data) {
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+
+            const dataReserva = new Date(`${data}T00:00:00`);
+
+            if (dataReserva < hoje) {
+                return "panel-danger";
+            }
+
+            if (dataReserva.getTime() === hoje.getTime()) {
+                return "panel-success";
+            }
+
+            return "panel-primary";
+        }
+
         async function reenviarEmail() {
             const btn = document.getElementById("btnReenviarEmail");
             const url = btn.dataset.url;
@@ -183,8 +200,10 @@
             reservas.innerHTML = "";
 
             data.forEach(reserva => {
+                const classePanel = classePanelReserva(reserva.data);
+
                 reservas.innerHTML += `
-                    <div class="panel panel-default">
+                    <div class="panel ${classePanel}">
                         <div class="panel-heading">
                             <strong>${reserva.data}</strong>
                             —
@@ -194,7 +213,9 @@
                         <div class="panel-body">
                             Responsável: ${reserva.responsavel}
 
-                            <button class="btn btn-primary btn-sm pull-right" onclick="listarEmails(${reserva.id})">
+                            <button
+                                class="btn btn-primary btn-sm pull-right"
+                                onclick="listarEmails(${reserva.id})">
                                 Emails
                             </button>
 
