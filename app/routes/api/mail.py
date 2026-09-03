@@ -45,7 +45,15 @@ def get_content(id_email):
         "assunto": email.assunto,
         "conteudo": email.corpo_email,
         "status": email.status_envio.value,
-        "url_envio": url_for("api_mail.mark_to_be_send", id_email=email.id_email)
+        "ultima_tentativa": (
+            email.ultima_tentativa.isoformat()
+            if email.ultima_tentativa
+            else None
+        ),
+        "url_envio": url_for(
+            "api_mail.mark_to_be_send",
+            id_email=email.id_email
+        )
     })
 
 @bp.route("/<int:id_email>/mark-to-be-send", methods=["POST"])

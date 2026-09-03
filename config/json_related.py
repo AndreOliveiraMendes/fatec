@@ -121,6 +121,13 @@ def save_mail_config(mail_config):
     with MAIL_CONFIG_FILE.open("w", encoding="utf-8") as f:
         json.dump(mail_config, f, ensure_ascii=False, indent=4)
 
+def get_config_by_id(configs, config_id):
+    mail_configs = configs.get("configs", [])
+    return next(
+        (config for config in mail_configs if config.get("id") == config_id),
+        None
+    )
+
 def load_mail_recipíents():
     if MAIL_RECIPIENT_FILE.exists():
         with open(MAIL_RECIPIENT_FILE, "r", encoding="utf-8") as f:

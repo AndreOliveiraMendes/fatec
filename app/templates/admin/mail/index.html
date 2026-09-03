@@ -31,12 +31,25 @@
                         <strong>Para:</strong>
                         <span id="modalEmailDestinatario"></span>
                     </p>
+                    <div id="modalEmailAviso" class="alert alert-warning" hidden>
+                        <span class="glyphicon glyphicon-warning-sign"></span>
+                        <strong>Atenção:</strong>
+                        este email está marcado como <strong>Enviando</strong>,
+                        mas a última tentativa ocorreu há bastante tempo.
+                        Isso pode indicar que o worker foi interrompido durante o processamento.
+                        <strong>Antes de reenviar, certifique-se de que o envio não foi concluído</strong>,
+                        pois existe a possibilidade de o email original ter sido enviado e o reenvio
+                        resultar em uma mensagem duplicada.
+                    </div>
                     <hr>
                     <div id="modalEmailConteudo" class="MEC"></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
-                    <button type="button" class="btn btn-primary" id="btnReenviarEmail" onclick="reenviarEmail()">Reenviar...</button>
+                    <button type="button"
+                            class="btn btn-primary"
+                            id="btnReenviarEmail"
+                            onclick="reenviarEmail()">Reenviar...</button>
                 </div>
             </div>
         </div>
@@ -109,7 +122,10 @@
             document.getElementById("modalEmailConteudo").textContent =
                 email.conteudo;
 
+            const aviso = document.getElementById("modalEmailAviso");
             const btnReenviar = document.getElementById("btnReenviarEmail");
+
+            aviso.hidden = true;
 
             switch (email.status) {
                 case "Erro":
@@ -120,6 +136,23 @@
                 case "Cancelado":
                     btnReenviar.textContent = "Reagendar";
                     btnReenviar.classList.remove("hide");
+                    break;
+
+                case "Enviando":
+                    const ultimaTentativa = new Date(email.ultima_tentativa);
+                    const agora = new Date();
+
+                    const minutos =
+                        (agora - ultimaTentativa) / 1000 / 60;
+
+                    if (minutos >= 10) {
+                        btnReenviar.textContent = "Reenviar";
+                        btnReenviar.classList.remove("hide");
+                    } else {
+                        btnReenviar.classList.add("hide");
+                    }
+                    aviso.hidden = false;
+
                     break;
 
                 case "Enviado":
@@ -213,9 +246,7 @@
                         <div class="panel-body">
                             Responsável: ${reserva.responsavel}
 
-                            <button
-                                class="btn btn-primary btn-sm pull-right"
-                                onclick="listarEmails(${reserva.id})">
+                            <button class="btn btn-primary btn-sm pull-right" onclick="listarEmails(${reserva.id})">
                                 Emails
                             </button>
 

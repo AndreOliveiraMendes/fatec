@@ -31,13 +31,6 @@ def same_recipient(recipient, data, check_id=True):
         return recipient.get('id') == data.get('id')
     return recipient.get('email') == data.get('email')
 
-def get_config_by_id(configs, config_id):
-    mail_configs = configs.get("configs", [])
-    return next(
-        (config for config in mail_configs if config.get("id") == config_id),
-        None
-    )
-
 def get_google_access_token(client_id, client_secret, refresh_token):
     client = OAuth2Session(
         client_id=client_id,
