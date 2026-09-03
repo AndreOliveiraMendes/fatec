@@ -22,7 +22,7 @@ def definir_worker_email(ativo):
 
         db.session.commit()
 
-        return ativo
+        return 200, None, ativo
     except DB_ERRORS as e:
         _handle_db_error(e, "Erro ao definir status do worker de envio de e-mails")
-        return not ativo
+        return 500, e, None

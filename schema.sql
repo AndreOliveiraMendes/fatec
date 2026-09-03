@@ -19,6 +19,13 @@ CREATE TABLE
 	) ENGINE = InnoDB COLLATE utf8mb4_general_ci DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE
+	IF NOT EXISTS configuracoes (
+		chave VARCHAR(100) NOT NULL,
+		valor VARCHAR(255) NOT NULL,
+		PRIMARY KEY (chave)
+	) ENGINE = InnoDB COLLATE utf8mb4_general_ci DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE
 	IF NOT EXISTS dias_da_semana (
 		id_semana INTEGER NOT NULL,
 		nome_semana VARCHAR(15) NOT NULL,

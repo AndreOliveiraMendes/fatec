@@ -14,20 +14,36 @@ def worker_status():
 
 @bp.route("/start", methods=["POST"])
 def worker_start():
+    code, error, ativo = definir_worker_email(True)
+    if code != 200:
+        return jsonify({
+            "ativo": ativo,
+            "error": str(error)
+        }), code
     return jsonify({
-        "ativo": definir_worker_email(True)
+        "ativo": ativo
     })
 
 @bp.route("/stop", methods=["POST"])
 def worker_stop():
+    code, error, ativo = definir_worker_email(False)
+    if code != 200:
+        return jsonify({
+            "ativo": ativo,
+            "error": str(error)
+        }), code
     return jsonify({
-        "ativo": definir_worker_email(False)
+        "ativo": ativo
     })
 
 @bp.route("/toggle", methods=["POST"])
 def worker_toggle():
-    ativo = worker_email_ativo()
-
+    code, error, ativo = definir_worker_email(not worker_email_ativo())
+    if code != 200:
+        return jsonify({
+            "ativo": ativo,
+            "error": str(error)
+        }), code
     return jsonify({
-        "ativo": definir_worker_email(not ativo)
+        "ativo": ativo
     })

@@ -13,7 +13,6 @@
 {% block extra_script %}
     <script>
         const url_status = `{{ url_for("api_worker.worker_status") }}`;
-        const url_toggle = `{{ url_for("api_worker.worker_toggle") }}`;
         const url_start = `{{ url_for("api_worker.worker_start") }}`;
         const url_stop = `{{ url_for("api_worker.worker_stop") }}`;
         async function atualizarStatus() {
@@ -41,8 +40,10 @@
                 method: "POST"
             });
 
+            const data = await response.json();
+
             if (!response.ok) {
-                alert("Não foi possível alterar o estado do worker.");
+                alert(data.error || "Não foi possível alterar o estado do worker.");
                 return;
             }
 
