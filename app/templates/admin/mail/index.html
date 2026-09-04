@@ -43,6 +43,11 @@
                     </div>
                     <hr>
                     <div id="modalEmailConteudo" class="MEC"></div>
+                    <div id="modalEmailErro" class="alert alert-danger" hidden>
+                        <span class="glyphicon glyphicon-exclamation-sign"></span>
+                        <strong>Erro no envio:</strong>
+                        <div id="modalEmailErroTexto"></div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
@@ -80,6 +85,23 @@
             }
 
             return "panel-primary";
+        }
+
+        function formatarDataHora(data) {
+            if (!data) {
+                return "-";
+            }
+
+            const d = new Date(data);
+
+            const dia = String(d.getDate()).padStart(2, "0");
+            const mes = String(d.getMonth() + 1).padStart(2, "0");
+            const ano = d.getFullYear();
+
+            const hora = String(d.getHours()).padStart(2, "0");
+            const minuto = String(d.getMinutes()).padStart(2, "0");
+
+            return `${hora}:${minuto} ${dia}/${mes}/${ano}`;
         }
 
         async function reenviarEmail() {
@@ -124,13 +146,18 @@
 
             const aviso = document.getElementById("modalEmailAviso");
             const btnReenviar = document.getElementById("btnReenviarEmail");
+            const erro = document.getElementById("modalEmailErro");
+            const erroTexto = document.getElementById("modalEmailErroTexto");
 
             aviso.hidden = true;
+            erro.hidden = true;
 
             switch (email.status) {
                 case "Erro":
                     btnReenviar.textContent = "Tentar novamente";
                     btnReenviar.classList.remove("hide");
+                    erro.hidden = false;
+                    erroTexto.textContent = email.erro_envio || "Erro desconhecido.";
                     break;
 
                 case "Cancelado":
@@ -205,6 +232,10 @@
                             ${email.status_envio}
                         </span>
 
+                        <span class="text-muted">
+                            (tentativas: ${email.tentativas}, ultima tentativa: ${formatarDataHora(email.ultima_tentativa)}, enviado em: ${formatarDataHora(email.data_envio)})
+                        </span>
+
                         <button class="btn btn-default btn-xs pull-right" onclick="verEmail(${email.id_email})">
                             Ver
                         </button>
@@ -250,7 +281,7 @@
                                 Emails
                             </button>
 
-                            <div id="emails-${reserva.id}" style="margin-top: 10px;"></div>
+                            <div id="emails-${reserva.id}" style="margin-top: 15px;"></div>
                         </div>
                     </div>
                 `;

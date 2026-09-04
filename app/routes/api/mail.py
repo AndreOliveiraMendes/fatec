@@ -45,11 +45,13 @@ def get_content(id_email):
         "assunto": email.assunto,
         "conteudo": email.corpo_email,
         "status": email.status_envio.value,
+        "numero_tentativas": email.tentativas,
         "ultima_tentativa": (
             email.ultima_tentativa.isoformat()
             if email.ultima_tentativa
             else None
         ),
+        "erro_envio": email.erro_envio,
         "url_envio": url_for(
             "api_mail.mark_to_be_send",
             id_email=email.id_email
