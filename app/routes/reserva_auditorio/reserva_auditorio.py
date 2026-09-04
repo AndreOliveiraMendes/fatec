@@ -4,6 +4,7 @@ from typing import Any
 
 from flask import (Blueprint, abort, flash, redirect, render_template, request,
                    session, url_for)
+from sqlalchemy import select
 
 from app.auxiliar.constant import DB_ERRORS, Permission
 from app.auxiliar.general import get_value_or_abort
@@ -17,11 +18,13 @@ from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import reserva_auditorio_required
 from app.enums import StatusReservaAuditorioEnum
 from app.extensions import db
+from app.models.notifications import Reserva_Auditorio_Equipamentos
 from app.models.reservas.reservas_auditorios import Reservas_Auditorios
 from app.service.reservas_services import check_unique_aprovada
 from config.general import LOCAL_TIMEZONE
 
-from .handler import check_own_reserva, check_role
+from .handler import (check_own_reserva, check_role,
+                      criar_email_reserva_pendente)
 
 bp = Blueprint('reservas_auditorios', __name__, url_prefix="/reserva_auditorio")
 
@@ -98,6 +101,9 @@ def atualizar_status(id_reserva):
             db.session.flush()
             registrar_log_generico_usuario(userid, 'Edição', reserva, old_reserva, 'atraves de painel', True)
 
+            if new_status == 'Aprovada':
+                criar_email_reserva_pendente(reserva.id_reserva_auditorio)
+
             db.session.commit()
             flash("Reserva Atualizada com sucesso", "success")
         except DB_ERRORS as e:
@@ -169,22 +175,163 @@ def adicionar():
     dia = parse_date_string_or_abort(request.form.get('dia'), 400, "dia é obrigatorio")
     hora = get_value_or_abort(request.form.get('hora'), 400, "id do horario é obrigatorio", int)
     observacao = request.form.get('observacao')
+
+    equipamentos = []
+    for eq in request.form.getlist("equipamentos"):
+        id_eq = int(eq)
+        qtd = int(request.form.get(f'quantidade_{id_eq}', 1))
+        observacao_equipamento = request.form.get(
+            f"observacao_{id_eq}",
+            ""
+        )
+        equipamentos.append((id_eq, qtd, observacao_equipamento))
+
     try:
-        nova_reserva = Reservas_Auditorios()
-        nova_reserva.id_reserva_local = auditorio
-        nova_reserva.id_reserva_aula = hora
-        nova_reserva.dia_reserva = dia
-        nova_reserva.id_responsavel = solicitante_id
+        nova_reserva = Reservas_Auditorios(
+            id_reserva_local = auditorio,
+            id_reserva_aula = hora,
+            dia_reserva = dia,
+            id_responsavel = solicitante_id
+        )
         if observacao:
             nova_reserva.observação_responsavel = observacao
 
         db.session.add(nova_reserva)
 
         db.session.flush()
+
+        for eq_code, eq_qtd, eq_obs in equipamentos: 
+            relacao = Reserva_Auditorio_Equipamentos(
+                id_reserva_auditorio = nova_reserva.id_reserva_auditorio,
+                id_equipamento = eq_code,
+                quantidade = eq_qtd,
+                observacoes = eq_obs
+            )
+
+            db.session.add(relacao)
+
+            registrar_log_generico_usuario(userid, 'Inserção', relacao, observacao='atraves da tela de reserva')
+
         registrar_log_generico_usuario(userid, 'Inserção', nova_reserva, observacao='atraves da tela de reserva')
 
         db.session.commit()
         flash("reserva adicionada com sucesso", "success")
     except DB_ERRORS as e:
         handle_db_error(e, "Erro ao adicionar reserva")
+    return redirect(url_for('reservas_auditorios.main_page'))
+
+@bp.route('/atualizar_relacoes_equipamentos', methods=['POST'])
+@reserva_auditorio_required
+def atualizar_relacoes_equipamentos():
+    userid = session.get('userid')
+    user = get_user(userid)
+    if not user:
+        abort(403, description="Usuário não encontrado.")
+
+    id_reserva = get_value_or_abort(request.form.get('id_reserva'), 400, "id da reserva é obrigatório", int)
+    reserva = db.get_or_404(Reservas_Auditorios, id_reserva)
+    check_own_reserva(reserva, user)
+
+    equipamentos = []
+
+    for eq in request.form.getlist("equipamentos"):
+        id_eq = int(eq)
+
+        quantidade = int(
+            request.form.get(f"quantidade_{id_eq}", 1)
+        )
+
+        observacao = request.form.get(
+            f"observacao_{id_eq}",
+            ""
+        ).strip()
+
+        equipamentos.append(
+            (id_eq, quantidade, observacao or None)
+        )
+
+    try:
+        # ve quais reservas vão ser removidas
+        smrae_select = select(Reserva_Auditorio_Equipamentos).where(
+            Reserva_Auditorio_Equipamentos.id_reserva_auditorio == id_reserva
+        )
+
+        relacoes_antigas = {
+            relacao.id_equipamento: relacao for relacao in db.session.execute(smrae_select).scalars().all()
+        }
+
+        adicionados = []
+        deletados = []
+        editados = []
+
+        for id_eq, quantidade, observacao in equipamentos:
+            if id_eq in relacoes_antigas:
+                editados.append(copy(relacoes_antigas[id_eq]))
+
+                relacoes_antigas[id_eq].quantidade = quantidade
+                relacoes_antigas[id_eq].observacoes = observacao
+
+            else:
+                nova_relacao = Reserva_Auditorio_Equipamentos(
+                        id_reserva_auditorio=id_reserva,
+                        id_equipamento=id_eq,
+                        quantidade=quantidade,
+                        observacoes=observacao
+                    )
+
+                db.session.add(nova_relacao)
+
+                adicionados.append(nova_relacao)
+
+        for id_eq, relacao in relacoes_antigas.items():
+            if id_eq not in [eq.id_equipamento  for eq in editados]:
+                deletados.append(copy(relacao))
+                db.session.delete(relacao)
+            else:
+                db.session.add(relacao)
+
+        db.session.flush()
+
+        flash("Relações de equipamentos atualizadas com sucesso", "success")
+        if adicionados:
+            flash(
+                f"Adicionados ({len(adicionados)}): " +
+                ", ".join(f"Equipamento #{relacao.id_equipamento}" for relacao in adicionados),
+                "info"
+            )
+        else:
+            flash("Adicionados: Nenhum", "info")
+
+        if editados:
+            flash(
+                f"Editados ({len(editados)}): " +
+                ", ".join(f"Equipamento #{relacao.id_equipamento}" for relacao in editados),
+                "info"
+            )
+        else:
+            flash("Editados: Nenhum", "info")
+
+        if deletados:
+            flash(
+                f"Deletados ({len(deletados)}): " +
+                ", ".join(f"Equipamento #{relacao.id_equipamento}" for relacao in deletados),
+                "info"
+            )
+        else:
+            flash("Deletados: Nenhum", "info")
+
+        for relacao in adicionados:
+            registrar_log_generico_usuario(userid, 'Inserção', relacao, observacao='atraves da tela de reserva')
+
+        for relacao in editados:
+            registrar_log_generico_usuario(userid, 'Edição', relacoes_antigas[relacao.id_equipamento], observacao='atraves da tela de reserva', antes=relacao)
+
+        for relacao in deletados:
+            registrar_log_generico_usuario(userid, 'Exclusão', relacao, observacao='atraves da tela de reserva')
+
+        db.session.commit()
+                
+    except DB_ERRORS as e:
+        handle_db_error(e, "Erro ao atualizar relações de equipamentos")
+
     return redirect(url_for('reservas_auditorios.main_page'))

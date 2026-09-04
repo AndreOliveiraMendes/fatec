@@ -99,3 +99,21 @@ class Reserva_Auditorio_Email(Base):
             f"id_reserva_auditorio={self.id_reserva_auditorio}, "
             f"status_envio={self.status_envio})>"
         )
+
+    def to_dict(self):
+        return {
+            "id_email": self.id_email,
+            "id_reserva_auditorio": self.id_reserva_auditorio,
+            "destinatario": self.destinatario,
+            "assunto": self.assunto,
+            "corpo_email": self.corpo_email,
+            "status_envio": self.status_envio,
+            "data_envio": self.data_envio.isoformat() if self.data_envio else None,
+            "erro_envio": self.erro_envio,
+            "criado_em": self.criado_em.isoformat() if self.criado_em else None,
+            "tentativas": self.tentativas,
+            "ultima_tentativa": (
+                self.ultima_tentativa.isoformat()
+                if self.ultima_tentativa else None
+            )
+        }

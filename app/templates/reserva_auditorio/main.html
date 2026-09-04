@@ -194,6 +194,14 @@
                                                       title="Ver detalhes"></span>
                                             </a>
                                         {% endif %}
+                                        <a href="#modalRelacoesEquipamentos"
+                                           data-toggle="modal"
+                                           data-info-url="{{ url_for('api_relacoes_equipamento_auditorio.listar_relacoes_equipamento_auditorio', id_reserva_auditorio=reserva.id_reserva_auditorio) }}"
+                                           class="btn btn-icon btn-xs btn-equipamentos">
+                                            <span class="glyphicon glyphicon-list text-info"
+                                                  data-toggle="tooltip"
+                                                  title="relação de equipamentos"></span>
+                                        </a>
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -211,6 +219,7 @@
     {% include "reserva_auditorio/modal_detalhes.html" %}
     {% include "reserva_auditorio/modal_editar.html" %}
     {% include "reserva_auditorio/modal_nova_reserva.html" %}
+    {% include "reserva_auditorio/modal_relacoes.html" %}
 {% endblock content %}
 {% block extra_script %}
     <script>
@@ -308,6 +317,74 @@
                 $('#formEditar').attr('action', url);
             });
         });
+        $(document).on('click', '.btn-equipamentos', function () {
+            let infoUrl = $(this).data('info-url');
+            let lista = $('#lista-relacoes-equipamentos');
+            let form = $('#formAtualizarRelacoes');
+
+            lista.html(`
+                <p class="text-muted text-center">
+                    <span class="glyphicon glyphicon-refresh"></span>
+                    Carregando...
+                </p>
+            `);
+
+            $.getJSON(infoUrl, function (data) {
+                // visualização
+                lista.empty();
+
+                if (data.equipamentos.length === 0) {
+                    lista.html(`
+                        <p class="text-muted">
+                            Nenhum equipamento associado.
+                        </p>
+                    `);
+                    return;
+                }
+
+                data.equipamentos.forEach(function (equipamento) {
+                    lista.append(`
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <strong>${equipamento.nome_equipamento}</strong>
+                                <span class="pull-right">
+                                    Quantidade: ${equipamento.quantidade}
+                                </span>
+
+                                ${
+                                    equipamento.observacoes
+                                        ? `<p class="text-muted">
+                                            ${equipamento.observacoes}
+                                        </p>`
+                                        : ''
+                                }
+                            </div>
+                        </div>
+                    `);
+                });
+
+                // edição
+                form[0].reset();
+
+                data.equipamentos.forEach(function (equipamento) {
+
+                    $(
+                        `input[name="quantidade_${equipamento.id_equipamento}"]`
+                    ).val(equipamento.quantidade);
+
+                    $(
+                        `textarea[name="observacao_${equipamento.id_equipamento}"]`
+                    ).val(equipamento.observacoes || '');
+
+                    $(
+                        `input[name="equipamentos"][value="${equipamento.id_equipamento}"]`
+                    ).prop('checked', true);
+
+                });
+
+                form.find('input[name="id_reserva"]').val(data.reserva_auditorio);
+            });
+        });
     </script>
     <script>
         document.getElementById('dia').addEventListener('change', function () {
@@ -379,9 +456,7 @@
         });
     </script>
     {% if user and user.perm|has_flag(ADMIN+AUTORIZAR) %}
-        <script>
-            {{ select2_ajax_script('solicitante', 'pessoas') }}
-        </script>
+        <script>{{ select2_ajax_script('solicitante', 'pessoas') }}</script>
     {% endif %}
 {% endblock extra_script %}
 {% block extra_css %}

@@ -153,6 +153,12 @@ SSH_CRED_FILE = Path(SSH_CRED_PATH)
 COMMANDS_PATH = os.path.join(DATA_BASE, "comandos.json")
 COMMANDS_FILE = Path(COMMANDS_PATH)
 
+MAIL_PATH = os.path.join(DATA_BASE, "mail")
+MAIL_CONFIG_PATH = os.path.join(MAIL_PATH, "config.json")
+MAIL_CONFIG_FILE = Path(MAIL_CONFIG_PATH)
+
+MAIL_RECIPIENT_PATH = os.path.join(MAIL_PATH, "recipient.json")
+MAIL_RECIPIENT_FILE = Path(MAIL_RECIPIENT_PATH)
 
 # --------------------------------------------------
 # Erros HTTP

@@ -161,6 +161,14 @@ def edit_push():
     id_finalidade_reserva = none_if_empty(request.form.get('id_finalidade_reserva'), int)
     observacoes = none_if_empty(request.form.get('observacoes'))
     descricao = none_if_empty(request.form.get('descricao'))
+    
+    if id_finalidade_reserva is None:
+        flash("Finalidade da reserva é obrigatória", "danger")
+        g.redirect_action, g.bloco = register_return(
+            g.url, g.acao, g.extras,
+            reservas_fixas=get_reservas_fixas()
+        )
+        return
 
     reserva_fixa = db.get_or_404(Reservas_Fixas, id_reserva_fixa)
     dados_anteriores = copy(reserva_fixa)

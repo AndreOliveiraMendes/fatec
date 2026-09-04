@@ -60,23 +60,34 @@ def editar_reserva_generico(model, id_reserva: int, redirect_url: str) -> Respon
         except ValueError as e:
             handle_db_error(e, "Erro ao editar reserva")
     elif model == Reservas_Auditorios:
-        observacao_responsavel = none_if_empty(request.form.get('Observacao_responsavel'))
-        if user.perm.has_any(Permission.ADMIN | Permission.AUTORIZAR):
-            responsavel = none_if_empty(request.form.get('responsavel'), int)
-            autorizador = none_if_empty(request.form.get('autorizador'), int)
-            observacao_autorizador = none_if_empty(request.form.get('Observacao_autorizador'))
-            status = none_if_empty(request.form.get('status'))
-            has_extra = True
-        else:
-            has_extra = False
-
         try:
+            observacao_responsavel = none_if_empty(
+                request.form.get("Observacao_responsavel")
+            )
+
             reserva.observação_responsavel = observacao_responsavel
-            if has_extra:
+
+            if user.perm.has_any(Permission.ADMIN | Permission.AUTORIZAR):
+                responsavel = none_if_empty(
+                    request.form.get("responsavel"), int
+                )
+                autorizador = none_if_empty(
+                    request.form.get("autorizador"), int
+                )
+                observacao_autorizador = none_if_empty(
+                    request.form.get("Observacao_autorizador")
+                )
+                status = none_if_empty(
+                    request.form.get("status")
+                )
+
                 if status == "Aprovada":
                     check_unique_aprovada(reserva)
+
                 elif status == "Cancelada":
-                    return cancelar_reserva_generico(model, id_reserva, redirect_url)
+                    return cancelar_reserva_generico(
+                        model, id_reserva, redirect_url
+                    )
 
                 reserva.observação_autorizador = observacao_autorizador
                 reserva.id_responsavel = responsavel
@@ -84,7 +95,13 @@ def editar_reserva_generico(model, id_reserva: int, redirect_url: str) -> Respon
                 reserva.status_reserva = StatusReservaAuditorioEnum(status)
 
             db.session.flush()
-            registrar_log_generico_usuario(userid, 'Edição', reserva, old_data, observacao='atraves de listagem')
+            registrar_log_generico_usuario(
+                userid,
+                "Edição",
+                reserva,
+                old_data,
+                observacao="atraves de listagem"
+            )
 
             db.session.commit()
             flash("sucesso ao editar reserva", "success")

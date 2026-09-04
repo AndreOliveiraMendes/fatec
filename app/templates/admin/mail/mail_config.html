@@ -1,0 +1,499 @@
+{% extends "base-fixed" %}
+{% block title %}
+    Configurações de E-mail
+{% endblock title %}
+{% block content %}
+    <div class="panel panel-default">
+        <div class="panel-heading clearfix">
+            <h3 class="panel-title pull-left">
+                <span class="glyphicon glyphicon-envelope"></span>
+                Configurações de E-mail
+            </h3>
+            <div class="pull-right">
+                <button id="btnAddMail" class="btn btn-primary btn-sm">
+                    <span class="glyphicon glyphicon-plus"></span>
+                    Nova Configuração
+                </button>
+            </div>
+        </div>
+        <div class="panel-body">
+            <table class="table table-striped table-bordered" id="tableMail">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Provedor</th>
+                        <th>Método</th>
+                        <th>Usuário</th>
+                        <th>Remetente</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+    <!-- Modal de configuração -->
+    <div class="modal fade" id="modalMail" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="formMail">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">×</button>
+                        <h4 class="modal-title">Configuração de E-mail</h4>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="id">
+                        <div class="form-group">
+                            <label>Provedor</label>
+                            <select name="provider" class="form-control" required>
+                                <option value="gmail">Gmail / Google Workspace</option>
+                                <option value="custom">SMTP personalizado</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Método de autenticação</label>
+                            <br>
+                            <label class="radio-inline">
+                                <input type="radio" name="auth_type" value="app_password" checked>
+                                Senha de aplicativo
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name="auth_type" value="oauth">
+                                OAuth 2.0
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>Usuário / E-mail</label>
+                            <input type="email" name="user" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>E-mail do remetente</label>
+                            <input type="email" name="mail_from" class="form-control" required>
+                            <span class="help-block">Endereço que aparecerá como remetente.</span>
+                        </div>
+                        <!-- Configuração SMTP -->
+                        <div id="smtpFields">
+                            <div class="row">
+                                <div class="col-sm-8">
+                                    <div class="form-group">
+                                        <label>Servidor SMTP</label>
+                                        <input type="text" name="host" class="form-control" value="smtp.gmail.com">
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        <label>Porta</label>
+                                        <input type="number" name="port" class="form-control" value="587">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" name="use_tls" checked>
+                                    Usar TLS
+                                </label>
+                            </div>
+                        </div>
+                        <!-- App Password -->
+                        <div id="fieldAppPassword">
+                            <div class="form-group">
+                                <label>Senha de aplicativo</label>
+                                <input type="password" name="credential" class="form-control">
+                                <span id="appPasswordMsg"
+                                      class="help-block"
+                                      data-original-html="A senha será armazenada de forma criptografada.">
+                                    A senha será armazenada de forma criptografada.
+                                </span>
+                            </div>
+                        </div>
+                        <!-- OAuth -->
+                        <div id="fieldOAuth" class="hide">
+                            <div class="alert alert-info">
+                                <span class="glyphicon glyphicon-info-sign"></span>
+                                A autenticação OAuth será realizada através do Google.
+                            </div>
+                            <div class="form-group">
+                                <label>Google Client ID</label>
+                                <input type="text"
+                                       name="oauth_client_id"
+                                       class="form-control"
+                                       placeholder="xxxx.apps.googleusercontent.com">
+                            </div>
+                            <div class="form-group">
+                                <label>Google Client Secret</label>
+                                <input type="password"
+                                       name="oauth_client_secret"
+                                       class="form-control"
+                                       autocomplete="new-password">
+                                <span class="help-block">O Client Secret será armazenado de forma criptografada.</span>
+                            </div>
+                            <button type="button" id="btnAuthorizeOAuth" class="btn btn-default">
+                                <span class="glyphicon glyphicon-log-in"></span>
+                                Autorizar com Google
+                            </button>
+                            <p id="oauthStatus" class="help-block">Nenhuma conta autorizada.</p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+{% block extra_script %}
+    <script>
+        (function () {
+            const table = document.getElementById('tableMail');
+            const form = document.getElementById('formMail');
+            let tableBody = table.querySelector('tbody');
+            if (!tableBody) {
+                tableBody = document.createElement('tbody');
+                table.appendChild(tableBody);
+            }
+            const modal = $('#modalMail');
+            const fieldAppPassword =
+                document.getElementById('fieldAppPassword');
+            const fieldOAuth =
+                document.getElementById('fieldOAuth');
+            function updateAuthFields() {
+                const type =
+                    form.querySelector(
+                        'input[name="auth_type"]:checked'
+                    ).value;
+                if (type === 'app_password') {
+                    fieldAppPassword.classList.remove('hide');
+                    fieldOAuth.classList.add('hide');
+                } else {
+                    fieldAppPassword.classList.add('hide');
+                    fieldOAuth.classList.remove('hide');
+                }
+            }
+            form.querySelectorAll(
+                'input[name="auth_type"]'
+            ).forEach(radio => {
+                radio.addEventListener('change', updateAuthFields);
+            });
+            function carregarConfiguracoes() {
+                fetch('{{ url_for("api_mail_sender.api_mail_list") }}')
+                    .then(r => r.json())
+                    .then(data => {
+                        tableBody.innerHTML = '';
+                        const configs = data.configs || [];
+                        const active = data.active || 0;
+                        if (configs.length === 0) {
+                            tableBody.innerHTML = `
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted">
+                                        Nenhuma configuração cadastrada.
+                                    </td>
+                                </tr>
+                            `;
+                            return;
+                        }
+                        configs.forEach(config => {
+                            const authLabel =
+                                config.auth_type === 'oauth'
+                                    ? 'OAuth 2.0'
+                                    : 'Senha de aplicativo';
+                            const providerLabel =
+                                config.provider === 'gmail'
+                                    ? 'Gmail'
+                                    : 'SMTP';
+                            const status =
+                                config.oauth_status === 'configured'
+                                    ? `<span class="label label-success" title="${config.oauth_configured_at}">Configurado</span>`
+                                    : '<span class="label label-warning">Não configurado</span>';
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+                                <td>${config.id}</td>
+                                <td>${providerLabel}</td>
+                                <td>${authLabel}</td>
+                                <td>${config.user}</td>
+                                <td>${config.mail_from}</td>
+                                <td>${status}</td>
+                                <td>
+                                    <button class="btn btn-xs btn-success btn-test" data-id="${config.id}" title="Enviar e-mail de teste">
+                                        <span class="glyphicon glyphicon-envelope"></span>
+                                    </button>
+                                    <button class="btn btn-xs btn-info btn-edit" data-id="${config.id}" title="Editar">
+                                        <span class="glyphicon glyphicon-pencil"></span>
+                                    </button>
+                                    <button class="btn btn-xs btn-danger btn-del" data-id="${config.id}" title="Excluir">
+                                        <span class="glyphicon glyphicon-trash"></span>
+                                    </button>
+                                    ${active == config.id
+                                        ? `
+                                            <span class="label label-success">Ativa</span>
+                                            <button class="btn btn-xs btn-warning btn-desactive" data-id="${config.id}" title="Desativar">
+                                                <span class="glyphicon glyphicon-eye-close"></span>
+                                            </button>
+                                        `
+                                        : `
+                                            <button class="btn btn-xs btn-warning btn-active" data-id="${config.id}" title="Ativar">
+                                                <span class="glyphicon glyphicon-check"></span>
+                                            </button>
+                                        `
+                                    }
+                                </td>
+                            `;
+                            tableBody.appendChild(tr);
+                        });
+                    });
+            }
+            document.getElementById('btnAddMail')
+                .addEventListener('click', () => {
+                    form.reset();
+                    form.id.value = '';
+                    form.querySelector(
+                        'input[name="auth_type"][value="app_password"]'
+                    ).checked = true;
+                    updateAuthFields();
+                    modal.modal('show');
+                });
+            form.addEventListener('submit', e => {
+                e.preventDefault();
+                const data =
+                    Object.fromEntries(
+                        new FormData(form).entries()
+                    );
+                data.port = parseInt(data.port);
+                data.use_tls =
+                    form.querySelector(
+                        'input[name="use_tls"]'
+                    ).checked;
+                fetch('{{ url_for("api_mail_sender.api_mail_save") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(r => r.json())
+                .then(resp => {
+                    if (resp.success) {
+                        modal.modal('hide');
+                        carregarConfiguracoes();
+                    } else {
+                        alert(
+                            resp.error ||
+                            'Erro ao salvar configuração.'
+                        );
+                    }
+                });
+            });
+            tableBody.addEventListener('click', e => {
+                const editBtn =
+                    e.target.closest('.btn-edit');
+                const delBtn =
+                    e.target.closest('.btn-del');
+                const testBtn =
+                    e.target.closest('.btn-test');
+                const activeBtn =
+                    e.target.closest('.btn-active');
+                const desactiveBtn =
+                    e.target.closest('.btn-desactive');
+                if (editBtn) {
+                    const id = editBtn.dataset.id;
+                    fetch('{{ url_for("api_mail_sender.api_mail_list") }}')
+                        .then(r => r.json())
+                        .then(data => {
+                            const config =
+                                data.configs.find(c => c.id == id);
+                            if (!config)
+                                return;
+                            form.reset();
+                            form.id.value = config.id;
+                            form.provider.value =
+                                config.provider;
+                            form.user.value =
+                                config.user;
+                            form.mail_from.value =
+                                config.mail_from;
+                            form.host.value =
+                                config.host;
+                            form.port.value =
+                                config.port;
+                            const radio =
+                                form.querySelector(
+                                    `input[name="auth_type"][value="${config.auth_type}"]`
+                                );
+                            if (radio)
+                                radio.checked = true;
+                            form.use_tls.checked =
+                                config.use_tls;
+                            updateAuthFields();
+                            /*
+                            * Nunca preencher credential aqui.
+                            *
+                            * A API não deve devolver senha,
+                            * refresh token ou access token.
+                            */
+                            modal.modal('show');
+                        });
+                }
+                if (delBtn) {
+                    const id = delBtn.dataset.id;
+                    if (!confirm(
+                        'Tem certeza que deseja excluir esta configuração?'
+                    )) {
+                        return;
+                    }
+                    fetch(
+                        `{{ url_for("api_mail_sender.api_mail_delete", config_id=0) }}`
+                            .replace('0', id),
+                        {
+                            method: 'POST'
+                        }
+                    )
+                    .then(r => r.json())
+                    .then(resp => {
+                        if (resp.success)
+                            carregarConfiguracoes();
+                    });
+                }
+                if (testBtn) {
+                    const id = testBtn.dataset.id;
+                    const email =
+                        prompt(
+                            'Digite o e-mail que receberá o teste:'
+                        );
+                    if (!email)
+                        return;
+                    testBtn.disabled = true;
+                    fetch(
+                        `{{ url_for("api_mail_sender.api_mail_test", config_id=0) }}`
+                            .replace('0', id),
+                        {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                email: email
+                            })
+                        }
+                    )
+                    .then(r => r.json())
+                    .then(resp => {
+                        if (resp.success) {
+                            alert(
+                                resp.message ||
+                                'E-mail enviado com sucesso!'
+                            );
+                        } else {
+                            alert(
+                                '❌ ' +
+                                (resp.error ||
+                                'Falha ao enviar e-mail.')
+                            );
+                        }
+                    })
+                    .catch(err => {
+                        alert(
+                            'Erro inesperado: ' + err
+                        );
+                    })
+                    .finally(() => {
+                        testBtn.disabled = false;
+                    });
+                }
+                if (activeBtn){
+                    const id=activeBtn.dataset.id;
+                    activeBtn.disabled=true;
+                    fetch(
+                        `{{ url_for("api_mail_sender.api_mail_active", config_id=0) }}`
+                            .replace('0', id),
+                        {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        }
+                    )
+                    .then(r => r.json())
+                    .then(resp => {
+                        if (resp.success) {
+                            alert(
+                                resp.message ||
+                                'Ativado com sucesso!'
+                            );
+                            carregarConfiguracoes();
+                        } else {
+                            alert(
+                                '❌ ' +
+                                (resp.error ||
+                                'Falha ao ativar.')
+                            );
+                        }
+                    })
+                    .catch(err => {
+                        alert(
+                            'Erro inesperado: ' + err
+                        );
+                    })
+                    .finally(() => {
+                        activeBtn.disabled = false;
+                    });
+                }
+                if (desactiveBtn){
+                    const id=desactiveBtn.dataset.id;
+                    desactiveBtn.disabled=true;
+                    fetch(
+                        `{{ url_for("api_mail_sender.api_mail_desactive", config_id=0) }}`
+                            .replace('0', id),
+                        {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        }
+                    )
+                    .then(r => r.json())
+                    .then(resp => {
+                        if (resp.success) {
+                            alert(
+                                resp.message ||
+                                'Desativado com sucesso!'
+                            );
+                            carregarConfiguracoes();
+                        } else {
+                            alert(
+                                '❌ ' +
+                                (resp.error ||
+                                'Falha ao desativar.')
+                            );
+                        }
+                    })
+                    .catch(err => {
+                        alert(
+                            'Erro inesperado: ' + err
+                        );
+                    })
+                    .finally(() => {
+                        desactiveBtn.disabled = false;
+                    });
+                }
+            });
+            /*
+            * OAuth
+            */
+            document.getElementById('btnAuthorizeOAuth')
+                .addEventListener('click', () => {
+                    const id = form.id.value;
+
+                    if (!id) {
+                        alert('Salve a configuração antes de autorizar com Google.');
+                        return;
+                    }
+
+                    window.location.href =
+                        `{{ url_for("api_mail_sender.api_mail_oauth_start", config_id=0) }}`
+                            .replace('0', id);
+                });
+            carregarConfiguracoes();
+        })();
+    </script>
+{% endblock extra_script %}

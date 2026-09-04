@@ -2,10 +2,31 @@ import importlib.resources as resources
 import json
 from importlib.resources import as_file
 from pathlib import Path
+from typing import TypedDict
 
 from config.mapeamentos import (COMMANDS_FILE, DEFAULT_CONFIG_CFG,
-                                DEFAULT_PAINEL_CFG, SSH_CRED_FILE)
+                                DEFAULT_PAINEL_CFG, MAIL_CONFIG_FILE,
+                                MAIL_RECIPIENT_FILE, SSH_CRED_FILE)
 
+
+class MailConfigEntry(TypedDict):
+    id: int
+    oauth_client_id: str | None
+    oauth_client_secret: str | None
+    oauth_refresh_token: str | None
+    oauth_access_token: str | None
+    oauth_status: str | None
+    oauth_configured_at: str | None
+    smtp_server: str
+    smtp_port: int
+    username: str
+    credential: str
+    mail_from: str
+    use_tls: bool
+
+class MailConfig(TypedDict):
+    active: int | None
+    configs: list[MailConfigEntry]
 
 def validar_json(data, *args):
     for field in args:
@@ -104,3 +125,39 @@ def save_commands(commands):
     COMMANDS_FILE.parent.mkdir(parents=True, exist_ok=True)
     with COMMANDS_FILE.open("w", encoding="utf-8") as f:
         json.dump(commands, f, ensure_ascii=False, indent=4)
+
+def load_mail_config() -> MailConfig:
+    if MAIL_CONFIG_FILE.exists():
+        with open(MAIL_CONFIG_FILE, "r", encoding="utf-8") as f:
+            try:
+                return json.load(f)
+            except json.JSONDecodeError:
+                return {"active": None, "configs": []}
+    return {"active": None, "configs": []}
+
+def save_mail_config(mail_config):
+    MAIL_CONFIG_FILE.parent.mkdir(parents=True, exist_ok=True)
+    with MAIL_CONFIG_FILE.open("w", encoding="utf-8") as f:
+        json.dump(mail_config, f, ensure_ascii=False, indent=4)
+
+def get_config_by_id(configs, config_id):
+    mail_configs = configs.get("configs", [])
+    return next(
+        (config for config in mail_configs if config.get("id") == config_id),
+        None
+    )
+
+def load_mail_recipíents():
+    if MAIL_RECIPIENT_FILE.exists():
+        with open(MAIL_RECIPIENT_FILE, "r", encoding="utf-8") as f:
+            try:
+                return json.load(f)
+            except json.JSONDecodeError:
+                print("erro")
+                return []
+    return []
+
+def savel_mail_recipients(mail_recipients):
+    MAIL_RECIPIENT_FILE.parent.mkdir(parents=True, exist_ok=True)
+    with MAIL_RECIPIENT_FILE.open("w", encoding="utf-8") as f:
+        json.dump(mail_recipients, f, ensure_ascii=False, indent=4) 

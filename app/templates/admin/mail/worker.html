@@ -1,0 +1,55 @@
+{% extends "base-fixed" %}
+{% block title %}
+    Worker de emails
+{% endblock title %}
+{% block content %}
+    <h3>Worker de emails</h3>
+    <p>
+        Status:
+        <strong id="status">...</strong>
+    </p>
+    <button id="btnWorker" class="btn btn-primary" onclick="alternarWorker()"></button>
+{% endblock content %}
+{% block extra_script %}
+    <script>
+        const url_status = `{{ url_for("api_worker.worker_status") }}`;
+        const url_start = `{{ url_for("api_worker.worker_start") }}`;
+        const url_stop = `{{ url_for("api_worker.worker_stop") }}`;
+        async function atualizarStatus() {
+            const response = await fetch(url_status);
+            const data = await response.json();
+
+            const status = document.getElementById("status");
+            const btn = document.getElementById("btnWorker");
+
+            if (data.ativo) {
+                status.textContent = "Rodando";
+                btn.textContent = "Parar worker";
+                btn.className = "btn btn-danger";
+                btn.onclick = () => alterarWorker(url_stop);
+            } else {
+                status.textContent = "Pausado";
+                btn.textContent = "Iniciar worker";
+                btn.className = "btn btn-success";
+                btn.onclick = () => alterarWorker(url_start);
+            }
+        }
+
+        async function alterarWorker(acao) {
+            const response = await fetch(acao, {
+                method: "POST"
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                alert(data.error || "Não foi possível alterar o estado do worker.");
+                return;
+            }
+
+            atualizarStatus();
+        }
+
+        atualizarStatus();
+    </script>
+{% endblock extra_script %}

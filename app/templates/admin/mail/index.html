@@ -1,0 +1,296 @@
+{% extends "base-fixed" %}
+{% block title %}
+    Gerenciamento de email
+{% endblock title %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <label for="inicio">Início</label>
+                <input type="date" id="inicio" class="form-control">
+            </div>
+            <div class="col-md-4">
+                <label for="fim">Fim</label>
+                <input type="date" id="fim" class="form-control">
+            </div>
+        </div>
+        <hr>
+        <div id="reservas">
+            <!-- reservas entram aqui -->
+        </div>
+    </div>
+    <div class="modal fade" id="modalEmail" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h4 class="modal-title" id="modalEmailTitulo">Email</h4>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        <strong>Para:</strong>
+                        <span id="modalEmailDestinatario"></span>
+                    </p>
+                    <div id="modalEmailAviso" class="alert alert-warning" hidden>
+                        <span class="glyphicon glyphicon-warning-sign"></span>
+                        <strong>Atenção:</strong>
+                        este email está marcado como <strong>Enviando</strong>,
+                        mas a última tentativa ocorreu há bastante tempo.
+                        Isso pode indicar que o worker foi interrompido durante o processamento.
+                        <strong>Antes de reenviar, certifique-se de que o envio não foi concluído</strong>,
+                        pois existe a possibilidade de o email original ter sido enviado e o reenvio
+                        resultar em uma mensagem duplicada.
+                    </div>
+                    <hr>
+                    <div id="modalEmailConteudo" class="MEC"></div>
+                    <div id="modalEmailErro" class="alert alert-danger" hidden>
+                        <span class="glyphicon glyphicon-exclamation-sign"></span>
+                        <strong>Erro no envio:</strong>
+                        <div id="modalEmailErroTexto"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+                    <button type="button"
+                            class="btn btn-primary"
+                            id="btnReenviarEmail"
+                            onclick="reenviarEmail()">Reenviar...</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+{% block extra_script %}
+    <script>
+        const inicio = document.getElementById("inicio");
+        const fim = document.getElementById("fim");
+        const reservas = document.getElementById("reservas");
+
+        const url_listar_reservas_auditorios = `{{ url_for('api_reservas_adutiorios.list') }}`;
+        const url_listar_emails = `{{ url_for('api_mail.list') }}`;
+        const url_content_email = `{{ url_for('api_mail.get_content', id_email=0) }}`;
+
+        function classePanelReserva(data) {
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+
+            const dataReserva = new Date(`${data}T00:00:00`);
+
+            if (dataReserva < hoje) {
+                return "panel-danger";
+            }
+
+            if (dataReserva.getTime() === hoje.getTime()) {
+                return "panel-success";
+            }
+
+            return "panel-primary";
+        }
+
+        function formatarDataHora(data) {
+            if (!data) {
+                return "-";
+            }
+
+            const d = new Date(data);
+
+            const dia = String(d.getDate()).padStart(2, "0");
+            const mes = String(d.getMonth() + 1).padStart(2, "0");
+            const ano = d.getFullYear();
+
+            const hora = String(d.getHours()).padStart(2, "0");
+            const minuto = String(d.getMinutes()).padStart(2, "0");
+
+            return `${hora}:${minuto} ${dia}/${mes}/${ano}`;
+        }
+
+        async function reenviarEmail() {
+            const btn = document.getElementById("btnReenviarEmail");
+            const url = btn.dataset.url;
+
+            const response = await fetch(url, {
+                method: "POST"
+            });
+
+            if (!response.ok) {
+                alert("Erro ao reagendar email.");
+                return;
+            }
+
+            $("#modalEmail").modal("hide");
+
+            // opcional: recarregar a lista
+            carregarReservas();
+        }
+
+        async function verEmail(idEmail) {
+            const response = await fetch(
+                `${url_content_email.replace("0", idEmail)}`
+            );
+
+            if (!response.ok) {
+                alert("Erro ao carregar email.");
+                return;
+            }
+
+            const email = await response.json();
+
+            document.getElementById("modalEmailTitulo").textContent =
+                email.assunto;
+
+            document.getElementById("modalEmailDestinatario").textContent =
+                email.destinatario;
+
+            document.getElementById("modalEmailConteudo").textContent =
+                email.conteudo;
+
+            const aviso = document.getElementById("modalEmailAviso");
+            const btnReenviar = document.getElementById("btnReenviarEmail");
+            const erro = document.getElementById("modalEmailErro");
+            const erroTexto = document.getElementById("modalEmailErroTexto");
+
+            aviso.hidden = true;
+            erro.hidden = true;
+
+            switch (email.status) {
+                case "Erro":
+                    btnReenviar.textContent = "Tentar novamente";
+                    btnReenviar.classList.remove("hide");
+                    erro.hidden = false;
+                    erroTexto.textContent = email.erro_envio || "Erro desconhecido.";
+                    break;
+
+                case "Cancelado":
+                    btnReenviar.textContent = "Reagendar";
+                    btnReenviar.classList.remove("hide");
+                    break;
+
+                case "Enviando":
+                    const ultimaTentativa = new Date(email.ultima_tentativa);
+                    const agora = new Date();
+
+                    const minutos =
+                        (agora - ultimaTentativa) / 1000 / 60;
+
+                    if (minutos >= 10) {
+                        btnReenviar.textContent = "Reenviar";
+                        btnReenviar.classList.remove("hide");
+                    } else {
+                        btnReenviar.classList.add("hide");
+                    }
+                    aviso.hidden = false;
+
+                    break;
+
+                case "Enviado":
+                    btnReenviar.textContent = "Reenviar";
+                    btnReenviar.classList.remove("hide");
+                    break;
+
+                default:
+                    btnReenviar.classList.add("hide");
+                    break;
+            }
+
+            // Guarda a URL que veio do backend
+            btnReenviar.dataset.url = email.url_envio;
+
+            $("#modalEmail").modal("show");
+        }
+
+        async function listarEmails(idReserva) {
+            const params = new URLSearchParams({
+                id_reserva: idReserva
+            });
+
+            const response = await fetch(
+                `${url_listar_emails}?${params}`
+            );
+
+            const emails = await response.json();
+
+            const container = document.getElementById(`emails-${idReserva}`);
+
+            container.innerHTML = "";
+
+            if(emails.length === 0) {
+                container.innerHTML = `
+                    <div class="well well-sm">
+                        Nenhum email enviado.
+                    </div>
+                `;
+                return;
+            }
+
+            emails.forEach(email => {
+                container.innerHTML += `
+                    <div class="well well-sm">
+                        <strong>${email.assunto}</strong><br>
+                        ${email.destinatario}<br>
+
+                        <span class="text-muted">
+                            ${email.status_envio}
+                        </span>
+
+                        <span class="text-muted">
+                            (tentativas: ${email.tentativas}, ultima tentativa: ${formatarDataHora(email.ultima_tentativa)}, enviado em: ${formatarDataHora(email.data_envio)})
+                        </span>
+
+                        <button class="btn btn-default btn-xs pull-right" onclick="verEmail(${email.id_email})">
+                            Ver
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        async function carregarReservas() {
+            //if (!inicio.value || !fim.value) {
+            //    reservas.innerHTML = "";
+            //    return;
+            //}
+
+            const params = new URLSearchParams({
+                inicio: inicio.value,
+                fim: fim.value
+            });
+
+            const response = await fetch(
+                `${url_listar_reservas_auditorios}?${params}`
+            );
+
+            const data = await response.json();
+
+            reservas.innerHTML = "";
+
+            data.forEach(reserva => {
+                const classePanel = classePanelReserva(reserva.data);
+
+                reservas.innerHTML += `
+                    <div class="panel ${classePanel}">
+                        <div class="panel-heading">
+                            <strong>${reserva.data}</strong>
+                            —
+                            ${reserva.horario}
+                        </div>
+
+                        <div class="panel-body">
+                            Responsável: ${reserva.responsavel}
+
+                            <button class="btn btn-primary btn-sm pull-right" onclick="listarEmails(${reserva.id})">
+                                Emails
+                            </button>
+
+                            <div id="emails-${reserva.id}" style="margin-top: 15px;"></div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        inicio.addEventListener("change", carregarReservas);
+        fim.addEventListener("change", carregarReservas);
+
+        carregarReservas();
+    </script>
+{% endblock extra_script %}

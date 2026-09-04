@@ -7,11 +7,9 @@ from app.dao.internal.reservas import \
 from app.decorators.decorators import (admin_required,
                                        reserva_equipamento_required)
 from app.enums import StatusReservaEquipamentoEnum
-from app.routes.api.handler.handler_estoque import (TIPOS_MOVIMENTACAO,
-                                                    ajuste_quantidade,
-                                                    check_equipamento,
-                                                    manutencao_estoque,
-                                                    reposicao_estoque)
+
+from .handler import (TIPOS_MOVIMENTACAO, ajuste_quantidade, check_equipamento,
+                      manutencao_estoque, reposicao_estoque)
 
 bp = Blueprint('api_estoque', __name__, url_prefix='/api/estoque')
 

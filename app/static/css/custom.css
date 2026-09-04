@@ -423,6 +423,26 @@ body {
     display: inline-block;
 }
 
+.equipamento-label {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.equipamento-item {
+    list-style-type: none;
+}
+
+.input-quantidade-aem {
+    width: 70px;
+    margin-left: auto;
+}
+
+.observacao-equipamento {
+    margin-left: 25px;
+    margin-bottom: 8px;
+}
+
 .badge_fernet_key {
     background-color: #5cb85c;
     font-size: 14px;
@@ -667,4 +687,10 @@ table>tbody>tr>td.reservado-fixo {
 /* ajusta caret verticalmente */
 .caret-ajustado {
     margin-top: 8px;
+}
+
+.MEC {
+    max-height: 500px;
+    overflow-y: auto;
+    white-space: pre-wrap;
 }

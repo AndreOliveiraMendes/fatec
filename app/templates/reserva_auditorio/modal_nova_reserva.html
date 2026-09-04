@@ -72,13 +72,24 @@
                                     {% for t in itens %}
                                         <li>
                                             <div class="checkbox checkbox-sem-margem">
-                                                <label>
+                                                <label class="equipamento-label">
                                                     <input type="checkbox"
                                                            name="equipamentos"
                                                            value="{{ t.id_equipamento }}"
                                                            class="equipamento-checkbox">
-                                                    {{ t.nome_equipamento }}
+                                                    <span>{{ t.nome_equipamento }}</span>
+                                                    <input type="number"
+                                                           name="quantidade_{{ t.id_equipamento }}"
+                                                           min="1"
+                                                           value="1"
+                                                           class="form-control input-quantidade-aem">
                                                 </label>
+                                            </div>
+                                            <div class="observacao-equipamento">
+                                                <textarea name="observacao_{{ t.id_equipamento }}"
+                                                          class="form-control"
+                                                          rows="2"
+                                                          placeholder="Observação..."></textarea>
                                             </div>
                                         </li>
                                     {% endfor %}
@@ -101,26 +112,26 @@
     </div>
 </div>
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    const checkboxes = document.querySelectorAll(".equipamento-checkbox");
-    const texto = document.getElementById("texto-equipamentos");
+    document.addEventListener("DOMContentLoaded", function () {
+        const checkboxes = document.querySelectorAll(".equipamento-checkbox");
+        const texto = document.getElementById("texto-equipamentos");
 
-    function atualizarTexto() {
-        const selecionados = Array.from(checkboxes)
-            .filter(cb => cb.checked)
-            .map(cb => cb.parentElement.textContent.trim());
+        function atualizarTexto() {
+            const selecionados = Array.from(checkboxes)
+                .filter(cb => cb.checked)
+                .map(cb => cb.parentElement.textContent.trim());
 
-        if (selecionados.length === 0) {
-            texto.textContent = "Selecionar equipamentos";
-        } else if (selecionados.length <= 2) {
-            texto.textContent = selecionados.join(", ");
-        } else {
-            texto.textContent = selecionados.length + " selecionados";
+            if (selecionados.length === 0) {
+                texto.textContent = "Selecionar equipamentos";
+            } else if (selecionados.length <= 2) {
+                texto.textContent = selecionados.join(", ");
+            } else {
+                texto.textContent = selecionados.length + " selecionados";
+            }
         }
-    }
 
-    checkboxes.forEach(cb => {
-        cb.addEventListener("change", atualizarTexto);
+        checkboxes.forEach(cb => {
+            cb.addEventListener("change", atualizarTexto);
+        });
     });
-});
 </script>

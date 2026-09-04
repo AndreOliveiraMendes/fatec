@@ -6,3 +6,10 @@ $sizes: 0, 5, 8, 10, 15, 20, 25, 30;
   .margin-top-#{$size}   { margin-top:    $size * 1px; }
   .margin-bottom-#{$size}{ margin-bottom: $size * 1px; }
 }
+
+@each $size in $sizes {
+  .padding-left-#{$size}  { padding-left:   $size * 1px; }
+  .padding-right-#{$size} { padding-right:  $size * 1px; }
+  .padding-top-#{$size}   { padding-top:    $size * 1px; }
+  .padding-bottom-#{$size}{ padding-bottom: $size * 1px; }
+}
