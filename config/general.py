@@ -151,3 +151,9 @@ ACADEMICO_HOST = env("ACADEMICO_HOST")
 ACADEMICO_USER = env("ACADEMICO_USER")
 ACADEMICO_PASSWORD = env("ACADEMICO_PASSWORD")
 ACADEMICO_DATABASE = env("ACADEMICO_DATABASE")
+
+# --------------------------------------------------
+# Worker de email
+# --------------------------------------------------
+
+WORKER_EMAIL_INTERVAL = env("WORKER_EMAIL_INTERVAL", 30, int)

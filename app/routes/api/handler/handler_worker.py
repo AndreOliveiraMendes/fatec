@@ -26,3 +26,18 @@ def definir_worker_email(ativo):
     except DB_ERRORS as e:
         _handle_db_error(e, "Erro ao definir status do worker de envio de e-mails")
         return 500, e, None
+
+def check_worker_heartbeat():
+    try:
+        config = db.session.get(
+            Configuracoes,
+            "worker_email_heartbeat"
+        )
+
+        if config is None:
+            return None
+
+        return config.valor
+    except DB_ERRORS as e:
+        _handle_db_error(e, "Erro ao verificar heartbeat do worker de envio de e-mails")
+        return None

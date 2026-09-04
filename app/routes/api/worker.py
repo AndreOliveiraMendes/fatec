@@ -2,14 +2,15 @@ from flask import Blueprint, jsonify
 
 from app.service.worker import worker_email_ativo
 
-from .handler import definir_worker_email
+from .handler import check_worker_heartbeat, definir_worker_email
 
 bp = Blueprint("api_worker", __name__, url_prefix='/api/worker')
 
 @bp.route("/status")
 def worker_status():
     return jsonify({
-        "ativo": worker_email_ativo()
+        "ativo": worker_email_ativo(),
+        "heartbeat": check_worker_heartbeat()
     })
 
 @bp.route("/start", methods=["POST"])

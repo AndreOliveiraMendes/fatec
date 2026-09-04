@@ -7,9 +7,11 @@ from sqlalchemy import select
 from app import create_app
 from app.enums import StatusEmailEnum
 from app.extensions import db
+from app.models.config import Configuracoes
 from app.models.notifications import Reserva_Auditorio_Email
 from app.routes.api.handler.handler_mail_config import send_email
 from app.service.worker import worker_email_ativo
+from config.general import WORKER_EMAIL_INTERVAL
 from config.json_related import get_config_by_id, load_mail_config
 
 logging.basicConfig(
@@ -20,6 +22,30 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = create_app()
+
+def heartbeat_worker():
+    with app.app_context():
+        try:
+            config = db.session.get(
+                Configuracoes,
+                "worker_email_heartbeat"
+            )
+
+            if config is None:
+                config = Configuracoes(
+                    chave="worker_email_heartbeat",
+                    valor=datetime.now().isoformat()
+                )
+                db.session.add(config)
+            else:
+                config.valor = datetime.now().isoformat()
+
+            db.session.commit()
+
+        except Exception as e:
+            logger.exception("Erro ao atualizar heartbeat do worker de envio de e-mails")
+        finally:
+            db.session.remove()
 
 def processar_emails():
     with app.app_context():
@@ -109,7 +135,12 @@ def processar_emails():
 
 if __name__ == "__main__":
     logger.info("Worker de emails iniciado")
+    logger.info(
+        "Intervalo de processamento: %d segundos",
+        WORKER_EMAIL_INTERVAL
+    )
 
     while True:
+        heartbeat_worker()
         processar_emails()
-        sleep(30)
+        sleep(WORKER_EMAIL_INTERVAL)  # Intervalo de 5 segundos entre verificações

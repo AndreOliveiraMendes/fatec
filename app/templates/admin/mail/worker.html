@@ -5,6 +5,10 @@
 {% block content %}
     <h3>Worker de emails</h3>
     <p>
+        Último heartbeat:
+        <strong id="heartbeat">...</strong>
+    </p>
+    <p>
         Status:
         <strong id="status">...</strong>
     </p>
@@ -12,6 +16,42 @@
 {% endblock content %}
 {% block extra_script %}
     <script>
+        function tempoRelativo(data) {
+            if (!data) {
+                return "Sem heartbeat";
+            }
+
+            const dataHeartbeat = new Date(data);
+            const agora = new Date();
+
+            const segundos = Math.floor(
+                (agora - dataHeartbeat) / 1000
+            );
+
+            if (segundos < 60) {
+                return `há ${segundos} segundo${segundos === 1 ? "" : "s"}`;
+            }
+
+            const minutos = Math.floor(segundos / 60);
+
+            if (minutos < 60) {
+                return `há ${minutos} minuto${minutos === 1 ? "" : "s"}`;
+            }
+
+            const horas = Math.floor(minutos / 60);
+
+            return `há ${horas} hora${horas === 1 ? "" : "s"}`;
+        }
+
+        function formatarDataHora(data) {
+            if (!data) {
+                return "Sem heartbeat";
+            }
+
+            const dataHeartbeat = new Date(data);
+            return dataHeartbeat.toLocaleString();
+        }
+
         const url_status = `{{ url_for("api_worker.worker_status") }}`;
         const url_start = `{{ url_for("api_worker.worker_start") }}`;
         const url_stop = `{{ url_for("api_worker.worker_stop") }}`;
@@ -20,8 +60,13 @@
             const data = await response.json();
 
             const status = document.getElementById("status");
+            const heartbeat = document.getElementById("heartbeat");
             const btn = document.getElementById("btnWorker");
+            const dataHeartbeat = data.heartbeat;
 
+            heartbeat.textContent = dataHeartbeat
+                ? `${tempoRelativo(dataHeartbeat)} (${formatarDataHora(dataHeartbeat)})`
+                : "Sem heartbeat";
             if (data.ativo) {
                 status.textContent = "Rodando";
                 btn.textContent = "Parar worker";
@@ -51,5 +96,6 @@
         }
 
         atualizarStatus();
+        setInterval(atualizarStatus, 5000);
     </script>
 {% endblock extra_script %}
