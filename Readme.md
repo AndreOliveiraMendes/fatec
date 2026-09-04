@@ -93,7 +93,6 @@ ou no formato .txt
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.dev.example .env.dev
 cp .env.example .env
 python -m app
 ```
