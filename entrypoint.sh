@@ -1,5 +1,9 @@
 #!/bin/sh
 
+if [ "$#" -gt 0 ]; then
+    exec "$@"
+fi
+
 exec gunicorn \
   ${GUNICORN_OPTS} \
   -w ${GUNICORN_WORKERS:-4} \
