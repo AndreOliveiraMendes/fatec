@@ -1,7 +1,6 @@
 import base64
 import smtplib
 from email.message import EmailMessage
-from typing import TypedDict
 
 from authlib.integrations.requests_client import OAuth2Session
 
@@ -15,25 +14,6 @@ Caso você não tenha solicitado este email, por favor, ignore-o.
 Atenciosamente,
 Sistema de Gerenciamento de Reservas de Recursos.
 """
-
-class MailConfigEntry(TypedDict):
-    id: int
-    oauth_client_id: str | None
-    oauth_client_secret: str | None
-    oauth_refresh_token: str | None
-    oauth_access_token: str | None
-    oauth_status: str | None
-    oauth_configured_at: str | None
-    smtp_server: str
-    smtp_port: int
-    username: str
-    credential: str
-    mail_from: str
-    use_tls: bool
-
-class MailConfig(TypedDict):
-    active: int | None
-    configs: list[MailConfigEntry]
 
 def same_config(config, data, check_id=True):
     if check_id:

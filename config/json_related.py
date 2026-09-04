@@ -2,12 +2,31 @@ import importlib.resources as resources
 import json
 from importlib.resources import as_file
 from pathlib import Path
+from typing import TypedDict
 
-from app.routes.api.handler.handler_mail_config import MailConfig
 from config.mapeamentos import (COMMANDS_FILE, DEFAULT_CONFIG_CFG,
                                 DEFAULT_PAINEL_CFG, MAIL_CONFIG_FILE,
                                 MAIL_RECIPIENT_FILE, SSH_CRED_FILE)
 
+
+class MailConfigEntry(TypedDict):
+    id: int
+    oauth_client_id: str | None
+    oauth_client_secret: str | None
+    oauth_refresh_token: str | None
+    oauth_access_token: str | None
+    oauth_status: str | None
+    oauth_configured_at: str | None
+    smtp_server: str
+    smtp_port: int
+    username: str
+    credential: str
+    mail_from: str
+    use_tls: bool
+
+class MailConfig(TypedDict):
+    active: int | None
+    configs: list[MailConfigEntry]
 
 def validar_json(data, *args):
     for field in args:
