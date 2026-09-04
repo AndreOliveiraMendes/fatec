@@ -3,16 +3,34 @@
     Worker de emails
 {% endblock title %}
 {% block content %}
-    <h3>Worker de emails</h3>
-    <p>
-        Último heartbeat:
-        <strong id="heartbeat">...</strong>
-    </p>
-    <p>
-        Status:
-        <strong id="status">...</strong>
-    </p>
-    <button id="btnWorker" class="btn btn-primary" onclick="alternarWorker()"></button>
+    <div class="container">
+        <h3>Worker de emails</h3>
+        <div class="row">
+            <div class="col-md-6">
+                <div id="panelHeartbeat" class="panel panel-default">
+                    <div class="panel-heading">
+                        <span class="glyphicon glyphicon-heart"></span>
+                        Último heartbeat
+                    </div>
+                    <div class="panel-body">
+                        <strong id="heartbeat">...</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <span class="glyphicon glyphicon-cog"></span>
+                        Status
+                    </div>
+                    <div class="panel-body">
+                        <strong id="status">...</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button id="btnWorker" class="btn btn-primary" onclick="alternarWorker()"></button>
+    </div>
 {% endblock content %}
 {% block extra_script %}
     <script>
@@ -52,6 +70,37 @@
             return dataHeartbeat.toLocaleString();
         }
 
+        function atualizarCorHeartbeat(data) {
+            const panel = document.getElementById("panelHeartbeat");
+
+            panel.classList.remove(
+                "panel-default",
+                "panel-success",
+                "panel-warning",
+                "panel-danger"
+            );
+
+            if (!data) {
+                panel.classList.add("panel-danger");
+                return;
+            }
+
+            const dataHeartbeat = new Date(data);
+            const agora = new Date();
+
+            const segundos = Math.floor(
+                (agora - dataHeartbeat) / 1000
+            );
+
+            if (segundos < 60) {
+                panel.classList.add("panel-success");
+            } else if (segundos < 300) {
+                panel.classList.add("panel-warning");
+            } else {
+                panel.classList.add("panel-danger");
+            }
+        }
+
         const url_status = `{{ url_for("api_worker.worker_status") }}`;
         const url_start = `{{ url_for("api_worker.worker_start") }}`;
         const url_stop = `{{ url_for("api_worker.worker_stop") }}`;
@@ -67,6 +116,8 @@
             heartbeat.textContent = dataHeartbeat
                 ? `${tempoRelativo(dataHeartbeat)} (${formatarDataHora(dataHeartbeat)})`
                 : "Sem heartbeat";
+
+            atualizarCorHeartbeat(dataHeartbeat);
             if (data.ativo) {
                 status.textContent = "Rodando";
                 btn.textContent = "Parar worker";

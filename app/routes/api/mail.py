@@ -3,6 +3,7 @@ from sqlalchemy import Select
 
 from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.general import none_if_empty
+from app.decorators.decorators import admin_required
 from app.enums import StatusEmailEnum
 from app.extensions import db
 from app.models.notifications import Reserva_Auditorio_Email
@@ -59,6 +60,7 @@ def get_content(id_email):
     })
 
 @bp.route("/<int:id_email>/mark-to-be-send", methods=["POST"])
+@admin_required
 def mark_to_be_send(id_email):
     email = db.session.get(
         Reserva_Auditorio_Email,

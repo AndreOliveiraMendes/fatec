@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify
 
+from app.decorators.decorators import admin_required
 from app.service.worker import worker_email_ativo
 
 from .handler import check_worker_heartbeat, definir_worker_email
@@ -13,6 +14,7 @@ def worker_status():
         "heartbeat": check_worker_heartbeat()
     })
 
+@admin_required
 @bp.route("/start", methods=["POST"])
 def worker_start():
     code, error, ativo = definir_worker_email(True)
@@ -25,6 +27,7 @@ def worker_start():
         "ativo": ativo
     })
 
+@admin_required
 @bp.route("/stop", methods=["POST"])
 def worker_stop():
     code, error, ativo = definir_worker_email(False)
@@ -37,6 +40,7 @@ def worker_stop():
         "ativo": ativo
     })
 
+@admin_required
 @bp.route("/toggle", methods=["POST"])
 def worker_toggle():
     code, error, ativo = definir_worker_email(not worker_email_ativo())
