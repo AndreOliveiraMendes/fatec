@@ -13,7 +13,7 @@ def get_laboratorios(ignorar_inativo=False):
     sel_laboratorios = select(Locais)
     filtro = [Locais.tipo == TipoLocalEnum.LABORATORIO]
     if not ignorar_inativo:
-        filtro.append(Locais.disponivel)
+        filtro.append(Locais.disponivel.is_(True))
     sel_laboratorios = sel_laboratorios.where(*filtro)
     return db.session.execute(sel_laboratorios).scalars().all()
 

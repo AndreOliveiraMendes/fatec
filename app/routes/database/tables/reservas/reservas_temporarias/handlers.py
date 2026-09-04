@@ -187,6 +187,14 @@ def edit_push():
 
     reserva_temporaria = db.get_or_404(Reservas_Temporarias, id_reserva_temporaria)
     dados_anteriores = copy(reserva_temporaria)
+    
+    if id_finalidade_reserva is None:
+        flash("Finalidade da reserva é obrigatória", "danger")
+        g.redirect_action, g.bloco = register_return(
+            g.url, g.acao, g.extras,
+            reservas_temporarias=get_reservas_temporarias()
+        )
+        return
 
     def update():
         check_reserva_temporaria(

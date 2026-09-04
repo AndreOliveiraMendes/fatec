@@ -8,13 +8,22 @@ from app.extensions import db
 from app.models.usuarios import Pessoas, Usuarios, Usuarios_Especiais
 
 
+class LabelConfig(TypedDict):
+    field: InstrumentedAttribute[Any]
+    model: NotRequired[Type[Any]]
+    join: NotRequired[Any]
+
 class SelectModelConfig(TypedDict):
     model: Type[Any]
     id_field: InstrumentedAttribute[Any]
-    label_field: InstrumentedAttribute[Any]
-
-    q_filter: Tuple[Callable[[Any], ColumnElement[Any]], type]
-    filters: NotRequired[Dict[str, Tuple[Callable[[Any], ColumnElement[Any]], type]]]
+    label: LabelConfig
+    q_filter: Tuple[
+        Callable[[Any], ColumnElement[Any]],
+        type
+    ]
+    filters: NotRequired[
+        Dict[str, Tuple[Callable[[Any], ColumnElement[Any]], type]]
+    ]
 
 def multi_ilike(field, texto):
     palavras = [p for p in texto.split() if len(p) >= 1]

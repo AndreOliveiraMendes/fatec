@@ -104,7 +104,7 @@ def insert_push():
 
 @register_handler(dispatcher, 'editar', 0)
 @register_handler(dispatcher, 'excluir', 0)
-def item_fetch():
+def item_prefetch():
     g.extras['items'] = get_notificacoes_equipamentos()
 
 @register_handler(dispatcher, 'editar', 1)
@@ -122,14 +122,21 @@ def edit_push():
     id_item = none_if_empty(request.form.get('id_item'), int)
     id_reserva_auditorio = none_if_empty(request.form.get('id_reserva_auditorio'), int)
     id_equipamento = none_if_empty(request.form.get('id_equipamento'), int)
-    quantidade = none_if_empty(request.form.get('quantidade'))
+    quantidade = none_if_empty(request.form.get('quantidade'), int)
     observacoes = none_if_empty(request.form.get('observacoes'))
+    
+    if id_reserva_auditorio is None or id_equipamento is None or quantidade is None:
+        flash("Reserva de auditório e equipamento são obrigatórios", "danger")
+        g.redirect_action, g.bloco = register_return(
+            g.url, g.acao, g.extras
+        )
+        return
 
     item = db.get_or_404(Reserva_Auditorio_Equipamentos, id_item)
     dados_anteriores = copy(item)
 
     def update():
-        item.reserva_auditorio = id_reserva_auditorio
+        item.id_reserva_auditorio = id_reserva_auditorio
         item.id_equipamento = id_equipamento
         item.quantidade = quantidade
         item.observacoes = observacoes

@@ -126,7 +126,7 @@ def database():
         version = conn.exec_driver_sql("SELECT version()").scalar()
 
         for table in tables:
-            stats = {"rows": None, "size": None}
+            stats: dict[str, int | str | None] = {"rows": None, "size": None}
 
             # 🔹 Contagem de registros (funciona em qualquer banco)
             try:

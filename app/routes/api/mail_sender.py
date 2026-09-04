@@ -154,15 +154,18 @@ def api_mail_oauth_start(config_id):
 
     if auth_type != "oauth":
         return {"error": "Tipo de autenticação não suportado para OAuth."}, 400
+    
+    oauth_client_id = config.get("oauth_client_id")
+    oauth_client_secret = config.get("oauth_client_secret")
 
-    if not config.get("oauth_client_id") or not config.get("oauth_client_secret"):
+    if not oauth_client_id or not oauth_client_secret:
         return {"error": "Credenciais OAuth não fornecidas."}, 400
 
-    client_secret = decrypt_field(config["oauth_client_secret"])
+    client_secret = decrypt_field(oauth_client_secret)
     oauth = OAuth(current_app)
     oauth.register(
         name="google",
-        client_id=config["oauth_client_id"],
+        client_id=oauth_client_id,
         client_secret=client_secret,
         server_metadata_url=(
             "https://accounts.google.com/"
@@ -189,9 +192,14 @@ def api_mail_oauth_callback(config_id):
 
     if not config:
         return {"error": "Configuração não encontrada."}, 404
+    
+    oauth_client_secret = config.get("oauth_client_secret")
+    
+    if not oauth_client_secret:
+        return {"error": "Credenciais OAuth não fornecidas."}, 400
 
     client_secret = decrypt_field(
-        config["oauth_client_secret"]
+        oauth_client_secret
     )
 
     oauth = OAuth(current_app)
@@ -258,8 +266,15 @@ def api_mail_test(config_id):
 
     elif auth_type == "oauth":
         client_id = config.get("oauth_client_id")
-        client_secret = decrypt_field(config.get("oauth_client_secret"))
-        refresh_token = decrypt_field(config.get("oauth_refresh_token"))
+        oauth_client_secret = config.get("oauth_client_secret")
+        oauth_refresh_token = config.get("oauth_refresh_token")
+        if not client_id or not oauth_client_secret or not oauth_refresh_token:
+            return {
+                "error": "Credenciais OAuth não fornecidas para autenticação."
+            }, 400
+        
+        client_secret = decrypt_field(oauth_client_secret)
+        refresh_token = decrypt_field(oauth_refresh_token)
         mail_sent = send_email(
             config=config,
             mail_to=email,

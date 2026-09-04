@@ -3,6 +3,7 @@ import json
 from importlib.resources import as_file
 from pathlib import Path
 
+from app.routes.api.handler.handler_mail_config import MailConfig
 from config.mapeamentos import (COMMANDS_FILE, DEFAULT_CONFIG_CFG,
                                 DEFAULT_PAINEL_CFG, MAIL_CONFIG_FILE,
                                 MAIL_RECIPIENT_FILE, SSH_CRED_FILE)
@@ -106,15 +107,14 @@ def save_commands(commands):
     with COMMANDS_FILE.open("w", encoding="utf-8") as f:
         json.dump(commands, f, ensure_ascii=False, indent=4)
 
-def load_mail_config():
+def load_mail_config() -> MailConfig:
     if MAIL_CONFIG_FILE.exists():
         with open(MAIL_CONFIG_FILE, "r", encoding="utf-8") as f:
             try:
                 return json.load(f)
             except json.JSONDecodeError:
-                print("erro")
-                return {"configs": []}
-    return {"configs": []}
+                return {"active": None, "configs": []}
+    return {"active": None, "configs": []}
 
 def save_mail_config(mail_config):
     MAIL_CONFIG_FILE.parent.mkdir(parents=True, exist_ok=True)

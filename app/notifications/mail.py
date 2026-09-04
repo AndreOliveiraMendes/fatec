@@ -5,7 +5,7 @@ from email.message import EmailMessage
 
 class Mail:
     def __init__(self, auth):
-        self.host = os.getenv("SMTP_HOST")
+        self.host = os.getenv("SMTP_HOST", "localhost")
         self.port = int(os.getenv("SMTP_PORT", 587))
         self.use_tls = os.getenv(
             "SMTP_USE_TLS", "true"

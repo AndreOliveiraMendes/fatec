@@ -109,6 +109,13 @@ def edit_push():
     descricao = none_if_empty(request.form.get('descrição'))
     disponibilidade = none_if_empty(request.form.get('disponibilidade'), str_to_bool)
     tipo = none_if_empty(request.form.get('tipo'))
+    
+    if disponibilidade is None:
+        flash("Disponibilidade é obrigatória", "danger")
+        g.redirect_action, g.bloco = register_return(
+            g.url, g.acao, g.extras
+        )
+        return
 
     local = db.get_or_404(Locais, id_local)
     dados_anteriores = copy(local)

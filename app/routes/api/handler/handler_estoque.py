@@ -34,6 +34,8 @@ def ajuste_quantidade(id, quantidade, reservado, dia, observacao):
 
     user = get_user(userid)
     try:
+        if not user:
+            raise ValueError("Usuário não encontrado")
         quantidade_equipamento = get_unique_or_500(
             EquipamentoDisponibilidade,
             EquipamentoDisponibilidade.id_equipamento == id,
@@ -91,6 +93,8 @@ def reposicao_estoque(id: int, quantidade: int, dia, observacao):
     user = get_user(userid)
 
     try:
+        if not user:
+            raise ValueError("Usuário não encontrado")
         quantidade_equipamento = get_unique_or_500(
             EquipamentoDisponibilidade,
             EquipamentoDisponibilidade.id_equipamento == id,
@@ -148,6 +152,8 @@ def manutencao_estoque(id_equipamento, quantidade, reservado, dia, observacao):
     user = get_user(userid)
 
     try:
+        if not user:
+            raise ValueError("Usuário não encontrado")
         quantidade_equipamento = get_unique_or_500(
             EquipamentoDisponibilidade,
             EquipamentoDisponibilidade.id_equipamento == id_equipamento,

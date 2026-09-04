@@ -324,7 +324,7 @@ def atualizar_relacoes_equipamentos():
             registrar_log_generico_usuario(userid, 'Inserção', relacao, observacao='atraves da tela de reserva')
 
         for relacao in editados:
-            registrar_log_generico_usuario(userid, 'Atualização', relacoes_antigas[relacao.id_equipamento], observacao='atraves da tela de reserva', antes=relacao)
+            registrar_log_generico_usuario(userid, 'Edição', relacoes_antigas[relacao.id_equipamento], observacao='atraves da tela de reserva', antes=relacao)
 
         for relacao in deletados:
             registrar_log_generico_usuario(userid, 'Exclusão', relacao, observacao='atraves da tela de reserva')

@@ -58,11 +58,13 @@ def status_reserva(lab, aula, dia, tipo, tela_televisor=False, tela = None):
 def get_reserva_id(reserva: Reservas_Fixas|Reservas_Temporarias):
     return getattr(reserva, "id_reserva_fixa", None) or getattr(reserva, "id_reserva_temporaria", None)
 
-def get_periodo(reserva: Reservas_Fixas|Reservas_Temporarias):
-    if reserva.tipo_reserva_str == 'fixa':
+def get_periodo(
+    reserva: Reservas_Fixas | Reservas_Temporarias
+):
+    if isinstance(reserva, Reservas_Fixas):
         return reserva.semestre.nome_semestre
-    else:
-        return f"{reserva.inicio_reserva} até {reserva.fim_reserva}"
+
+    return f"{reserva.inicio_reserva} até {reserva.fim_reserva}"
 
 def build_template_fields(reserva: Reservas_Fixas|Reservas_Temporarias):
     return {
@@ -92,14 +94,24 @@ class SafeDict(dict):
             self._missing_keys.add(key)
         return ""
 
-def resolver_template(template, reserva: Reservas_Fixas|Reservas_Temporarias):
+def resolver_template(
+    template,
+    reserva: Reservas_Fixas | Reservas_Temporarias
+):
+    if isinstance(reserva, Reservas_Fixas):
+        reserva_id = reserva.id_reserva_fixa
+    else:
+        reserva_id = reserva.id_reserva_temporaria
 
     return template.format_map(
-        SafeDict(build_template_fields(reserva), context=f"reserva_id={reserva.id_reserva_fixa if reserva.tipo_reserva_str == 'fixa' else reserva.id_reserva_temporaria}")
+        SafeDict(
+            build_template_fields(reserva),
+            context=f"reserva_id={reserva_id}"
+        )
     )
 
 
-def montar_partes_reserva(choose: Reservas_Fixas|Reservas_Temporarias, *, mostrar_icone=False, lab=None, aula=None, dia=None, tela_televisor=False, tela=None):
+def montar_partes_reserva(choose: Reservas_Fixas|Reservas_Temporarias|None, *, mostrar_icone=False, lab=None, aula=None, dia=None, tela_televisor=False, tela=None):
     if not choose:
         return ["Livre"]
 

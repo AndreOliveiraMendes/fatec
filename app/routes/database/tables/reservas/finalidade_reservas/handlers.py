@@ -62,6 +62,8 @@ def build_config_from_form(request):
     # override por JSON bruto
     raw = request.form.get("config_raw")
     erro = ""
+    
+    valid = True
 
     if raw:
         try:
@@ -140,25 +142,31 @@ def insert_push():
     descricao = none_if_empty(request.form.get("descricao"))
     config, error = build_config_from_form(request)
 
-    if error:
+    if isinstance(error, str):
         flash(error, "danger")
-    else:
-        nova_finalidade = Finalidade_Reserva(
-            nome = nome,
-            ativo = ativo,
-            descricao = descricao,
-            config = config
+        g.redirect_action, g.bloco = register_return(
+            g.url, g.acao, g.extras,
+            finalidades=get_finalidade_reserva()
+        )
+    if not nome:
+        flash("Nome é obrigatório", "danger")
+        g.redirect_action, g.bloco = register_return(
+            g.url, g.acao, g.extras,
+            finalidades=get_finalidade_reserva()
         )
 
-        db_action(
-            "Inserção",
-            "Finalidade da reserva cadastrada com sucesso",
-            "Erro ao cadastrar finalidade",
-            obj=nova_finalidade
-        )
+    nova_finalidade = Finalidade_Reserva(
+        nome = nome,
+        ativo = ativo,
+        descricao = descricao,
+        config = config
+    )
 
-    g.redirect_action, g.bloco = register_return(
-        g.url, g.acao, g.extras
+    db_action(
+        "Inserção",
+        "Finalidade da reserva cadastrada com sucesso",
+        "Erro ao cadastrar finalidade",
+        obj=nova_finalidade
     )
 
 @register_handler(dispatcher, 'editar', 0)
@@ -181,11 +189,35 @@ def edit_push():
     ativo = none_if_empty(request.form.get("ativo"), bool)
     descricao = none_if_empty(request.form.get("descricao"))
     config, error = build_config_from_form(request)
-    if error:
+    if isinstance(error, str):
         flash(error, "danger")
     else:
         finalidade = db.get_or_404(Finalidade_Reserva, id_finalidade)
         dados_anteriores = copy(finalidade)
+        
+        if not nome:
+            flash("Nome é obrigatório", "danger")
+            g.redirect_action, g.bloco = register_return(
+                g.url, g.acao, g.extras,
+                finalidades=get_finalidade_reserva()
+            )
+            return
+        
+        if not isinstance(ativo, bool):
+            flash("Ativo deve ser booleano", "danger")
+            g.redirect_action, g.bloco = register_return(
+                g.url, g.acao, g.extras,
+                finalidades=get_finalidade_reserva()
+            )
+            return
+        
+        if not isinstance(config, dict):
+            flash("Config deve ser um objeto JSON", "danger")
+            g.redirect_action, g.bloco = register_return(
+                g.url, g.acao, g.extras,
+                finalidades=get_finalidade_reserva()
+            )
+            return
 
         def update():
             finalidade.nome = nome
