@@ -10,11 +10,11 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # 📦 Copia primeiro requirements para cache de camada
-COPY requirements.txt .
+COPY requeriments.txt .
 
 # ✅ Atualiza pip e instala dependências
 RUN python -m pip install --root-user-action=ignore --no-cache-dir --upgrade pip && \
-    pip install --root-user-action=ignore --no-cache-dir -r requirements.txt
+    pip install --root-user-action=ignore --no-cache-dir -r requeriments.txt
 
 # 🌐 Expõe a porta Flask
 EXPOSE 5000
