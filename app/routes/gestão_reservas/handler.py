@@ -7,6 +7,7 @@ from flask import flash, redirect, render_template, session, url_for
 
 from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.dao_logic import check_first
+from app.auxiliar.shared import resolver_reserva
 from app.dao.internal.controle import (get_exibicao_por_dia,
                                        get_situacoes_por_dia)
 from app.dao.internal.general import get_unique_or_500, handle_db_error
@@ -21,6 +22,7 @@ from app.models.controle import Exibicao_Reservas, Situacoes_Das_Reserva
 from app.models.locais import Locais
 from app.models.reservas.reservas_laboratorios import (Reservas_Fixas,
                                                        Reservas_Temporarias)
+from config.json_related import carregar_config_geral
 
 
 @dataclass
@@ -272,3 +274,65 @@ def atualizar_situacoes_temporaria(common):
     if error_messages:
         flash('<br>'.join(error_messages))
     return redirect(url_for('gestao_reserva.gerenciar_situacoes', tipo_reserva="temporaria", reserva_dia=dia))
+
+def obter_situacoes_reservas(
+    reserva_dia,
+    reserva_turno,
+    reserva_tipo_horario
+):
+    reservas_fixas, reservas_temporarias = get_reservas_por_dia(
+        reserva_dia,
+        reserva_turno,
+        reserva_tipo_horario
+    )
+
+    config = carregar_config_geral()
+    modo = config.get("modo_gerenciacao", "multiplo")
+    toleranca = int(config.get("toleranca", 20))
+
+    pre_processed_reservas = process_reservas(
+        reservas_fixas,
+        reservas_temporarias,
+        reserva_dia
+    )
+
+    reservas = []
+
+    for r in pre_processed_reservas:
+        fixa, temp, exibicao = r.fixa, r.temporaria, r.exibicao
+
+        choose, tipo = resolver_reserva(temp, fixa, exibicao)
+
+        if not choose:
+            continue
+
+        reserva = {
+            "horarios": [r.horario],
+            "tipo": [tipo],
+            "local": r.local,
+            "responsavel": get_responsavel_reserva(choose, True),
+            "id_responsavel": (
+                choose.id_responsavel,
+                choose.id_responsavel_especial
+            ),
+            "situacao": get_situacoes_por_dia(
+                r.horario,
+                r.local,
+                reserva_dia,
+                tipo
+            )
+        }
+
+        ultima = reservas[-1] if reservas else None
+
+        if (
+            modo == "multiplo"
+            and ultima is not None
+            and verificar_merge_reserva(ultima, reserva, toleranca)
+        ):
+            ultima["horarios"] += reserva["horarios"]
+            ultima["tipo"] += reserva["tipo"]
+        else:
+            reservas.append(reserva)
+
+    return reservas

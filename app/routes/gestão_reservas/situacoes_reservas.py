@@ -1,19 +1,17 @@
+import csv
 from copy import copy
 from datetime import datetime
+from io import StringIO
 from typing import Any
 
-from flask import (Blueprint, abort, flash, json, redirect, render_template,
-                   request, session, url_for)
+from flask import (Blueprint, Response, abort, flash, json, redirect,
+                   render_template, request, session, url_for)
 
 from app.auxiliar.constant import DB_ERRORS
 from app.auxiliar.parsing import parse_date_string
-from app.auxiliar.shared import resolver_reserva
 from app.dao.internal.aulas import get_turno_by_time, get_turnos
-from app.dao.internal.controle import get_situacoes_por_dia
 from app.dao.internal.general import get_unique_or_500, handle_db_error
 from app.dao.internal.historicos import registrar_log_generico_usuario
-from app.dao.internal.reservas import (get_reservas_por_dia,
-                                       get_responsavel_reserva)
 from app.dao.internal.usuarios import get_user
 from app.decorators.decorators import admin_required
 from app.enums import SituacaoChaveEnum, TipoAulaEnum, TipoReservaSituacaoEnum
@@ -22,7 +20,7 @@ from app.models.aulas import Turnos
 from app.models.controle import Situacoes_Das_Reserva
 from config.json_related import carregar_config_geral
 
-from .handler import process_reservas, verificar_merge_reserva
+from .handler import obter_situacoes_reservas
 
 bp = Blueprint('situacao_reservas', __name__, url_prefix="/situacoes_reservas")
 
@@ -65,33 +63,97 @@ def gerenciar_situacoes():
             reserva_tipo_horario = TipoAulaEnum(reserva_tipo_horario)
         except ValueError:
             abort(400, "erro ao processar o tipo de horario")
-    reservas_fixas, reservas_temporarias = get_reservas_por_dia(reserva_dia, reserva_turno, reserva_tipo_horario)
     extras['config'] = carregar_config_geral()
-    modo = extras.get("config", {}).get("modo_gerenciacao", "multiplo")
-    toleranca = int(extras.get("config", {}).get("toleranca", 20))
-    pre_processed_reservas = process_reservas(reservas_fixas, reservas_temporarias, reserva_dia)
-    reservas = []
-    for r in pre_processed_reservas:
-        fixa, temp, exibicao = r.fixa, r.temporaria, r.exibicao
-        choose, tipo = resolver_reserva(temp, fixa, exibicao)
-        if choose:
-            reserva = {}
-            reserva["horarios"] = [r.horario]
-            reserva['tipo'] = [tipo]
-            reserva["local"] = r.local
-            reserva["responsavel"] = get_responsavel_reserva(choose, True)
-            reserva['id_responsavel'] = (choose.id_responsavel, choose.id_responsavel_especial)
-            reserva['situacao'] = get_situacoes_por_dia(reserva['horarios'][0], reserva['local'], extras['reserva_dia'], tipo)
-            ultima = reservas[-1] if reservas else None
-            if modo == "multiplo" and ultima is not None and verificar_merge_reserva(ultima, reserva, toleranca):
-                ultima["horarios"] += reserva["horarios"]
-                ultima["tipo"] += reserva["tipo"]
-            else:
-                reservas.append(reserva)
+    reservas = obter_situacoes_reservas(
+        reserva_dia,
+        reserva_turno,
+        reserva_tipo_horario
+    )
     for r in reservas:
         r['cat'] = list(zip(r["horarios"], r["tipo"]))
     extras['reservas'] = reservas
     return render_template("gestão_reservas/reservas_laboratorios/situacoes_reservas.html", user=user, **extras)
+
+@bp.route('/exportar')
+def exportar_situacoes():
+    hoje = datetime.today()
+    reserva_dia = parse_date_string(
+        request.args.get('reserva_dia')
+    )
+
+    if not reserva_dia:
+        reserva_dia = datetime.today().date()
+
+    reserva_turno = request.args.get(
+        'reserva_turno',
+        type=int
+    )
+
+    reserva_tipo_horario = request.args.get(
+        'reserva_tipo_horario',
+        default=TipoAulaEnum.AULA.value
+    )
+    if not 'reserva_turno' in request.args:
+        reserva_turno = get_turno_by_time(hoje.time())
+        if not reserva_turno is None:
+            reserva_turno = reserva_turno.id_turno
+    if reserva_turno is not None:
+        reserva_turno = db.get_or_404(Turnos, reserva_turno)
+    try:
+        reserva_tipo_horario = TipoAulaEnum(
+            reserva_tipo_horario
+        )
+    except ValueError:
+        abort(400, "erro ao processar o tipo de horario")
+
+    reservas = obter_situacoes_reservas(
+        reserva_dia,
+        reserva_turno,
+        reserva_tipo_horario
+    )
+
+    output = StringIO()
+    writer = csv.writer(output, delimiter=';')
+
+    writer.writerow([
+        'Horário',
+        'Local',
+        'Reserva',
+        'Tipo',
+        'Status'
+    ])
+
+    for reserva in reservas:
+        horario = (
+            f"{reserva['horarios'][0].aula.horario_inicio:%H:%M}"
+            f" - "
+            f"{reserva['horarios'][-1].aula.horario_fim:%H:%M}"
+        )
+
+        tipos = ', '.join(set(reserva['tipo']))
+
+        status = (
+            reserva['situacao'].situacao_chave.value
+            if reserva['situacao']
+            else '???'
+        )
+
+        writer.writerow([
+            horario,
+            reserva['local'].nome_local,
+            reserva['responsavel'],
+            tipos,
+            status
+        ])
+
+    return Response(
+        '\ufeff' + output.getvalue(),
+        mimetype='text/csv; charset=utf-8',
+        headers={
+            'Content-Disposition':
+                f'attachment; filename=situacoes_{reserva_dia}.csv'
+        }
+    )
 
 @bp.route("/atualizar", methods=["POST"])
 @admin_required

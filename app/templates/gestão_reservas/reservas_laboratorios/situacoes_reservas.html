@@ -37,7 +37,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="reserva_turno">Destino:</label>
+                        <label for="reserva_tipo_horario">Destino:</label>
                         <select class="form-control"
                                 id="reserva_tipo_horario"
                                 name="reserva_tipo_horario"
@@ -52,6 +52,12 @@
                         </select>
                     </div>
                 </form>
+                <hr>
+                <a class="btn btn-success"
+                   href="{{ url_for('situacao_reservas.exportar_situacoes', reserva_dia=reserva_dia, reserva_turno=reserva_turno, reserva_tipo_horario=request.args.get('reserva_tipo_horario') ) }}">
+                    <span class="glyphicon glyphicon-download-alt"></span>
+                    Exportar
+                </a>
             </h3>
         </div>
         <div class="panel-body">
