@@ -142,18 +142,20 @@ def insert_push():
     descricao = none_if_empty(request.form.get("descricao"))
     config, error = build_config_from_form(request)
 
-    if isinstance(error, str):
+    if error and isinstance(error, str):
         flash(error, "danger")
         g.redirect_action, g.bloco = register_return(
             g.url, g.acao, g.extras,
             finalidades=get_finalidade_reserva()
         )
+        return
     if not nome:
         flash("Nome é obrigatório", "danger")
         g.redirect_action, g.bloco = register_return(
             g.url, g.acao, g.extras,
             finalidades=get_finalidade_reserva()
         )
+        return
 
     nova_finalidade = Finalidade_Reserva(
         nome = nome,
@@ -189,7 +191,7 @@ def edit_push():
     ativo = none_if_empty(request.form.get("ativo"), bool)
     descricao = none_if_empty(request.form.get("descricao"))
     config, error = build_config_from_form(request)
-    if isinstance(error, str):
+    if error and isinstance(error, str):
         flash(error, "danger")
     else:
         finalidade = db.get_or_404(Finalidade_Reserva, id_finalidade)
