@@ -146,12 +146,17 @@ def exportar_situacoes():
             status
         ])
 
+    nome = (
+        f'situacoes_{reserva_dia}_{reserva_turno.nome_turno}.csv'
+        if reserva_turno
+        else f'situacoes_{reserva_dia}.csv'
+    )
     return Response(
         '\ufeff' + output.getvalue(),
         mimetype='text/csv; charset=utf-8',
         headers={
             'Content-Disposition':
-                f'attachment; filename=situacoes_{reserva_dia}.csv'
+                f'attachment; filename={nome}'
         }
     )
 
